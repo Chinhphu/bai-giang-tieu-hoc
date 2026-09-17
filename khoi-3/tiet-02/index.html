@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 1: Thông tin và quyết định (Tiết 2)</title>
+    <link rel="stylesheet" href="../theme/style.css">
+</head>
+
+<body>
+
+    <!-- ================= KHU VỰC TRÌNH CHIẾU ================= -->
+    <div class="presentation-area" id="presentation-area">
+        <div class="slide-container active" id="slide-1">
+            <div class="tag" style="background-color: var(--secondary);">Chủ đề 1. Máy tính và em</div>
+            <h1>Bài 1. Thông tin và quyết định</h1>
+            <div style="text-align: center; margin: 4vh 0;">
+                <div style="font-size: 8vh; font-weight: 900; color: var(--secondary); text-shadow: 2px 2px 0 rgba(0,0,0,0.1);">XẾP HẠNG THÁCH ĐẤU</div>
+                <p style="font-size: 3vh;">Bộ 20 câu hỏi nâng cấp</p>
+            </div>
+            <div class="controls" style="justify-content: center;">
+                <button class="btn-nav" onclick="navSlide(1)">Bắt đầu chơi ➔</button>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide-2">
+            <h1>LUẬT CHƠI</h1>
+            <div style="background: #fff3cd; border-left: 8px solid var(--secondary); padding: 3vh; border-radius: 10px; margin-bottom: 3vh; font-size: 3vh;">
+                <p style="margin:0 0 1vh 0;"><strong>Tính điểm:</strong></p>
+                <ul style="margin:0; padding-left: 3vw;"><li>Đúng: +20 điểm cho dãy đó.</li><li>Sai: Dãy đó mất lượt; dãy khác cướp quyền được +10 điểm.</li></ul>
+            </div>
+            <div style="background: #f8d7da; border-left: 8px solid var(--accent-red); padding: 3vh; border-radius: 10px; font-size: 3vh;">
+                <p style="margin:0 0 1vh 0; color: var(--accent-red);"><strong>Kỷ luật thép:</strong></p>
+                <p style="margin:0;">Nhao nhao nhắc bài, làm việc riêng → Trừ thẳng 15 điểm.</p>
+            </div>
+            <div class="controls"><button class="btn-nav prev" onclick="navSlide(-1)">⬅ Quay lại</button><button class="btn-nav" onclick="navSlide(1)">Vào vòng 1 ➔</button></div>
+        </div>
+    </div>
+
+    <!-- ================= BẢNG ĐIỂM BÊN PHẢI ================= -->
+    <div class="scoreboard">
+        <div class="setup-panel">
+            <input type="number" id="teamCountInput" value="3" min="1" max="10" title="Số lượng đội">
+            <button class="btn-nav" style="padding: 10px; font-size: 1rem;" onclick="initGame()">Tạo</button>
+            <button class="btn-nav" style="padding: 10px; font-size: 1rem; background: #2b2d42;" onclick="toggleFullScreen()">⛶ Toàn màn hình</button>
+        </div>
+        <div class="teams-list" id="teams-list">
+            <!-- Danh sách đội render tại đây -->
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+        const questions = [
+            { round: 'Vòng 1: Cú lừa logic', text: 'Đang ngủ ngon, em nghe tiếng chuông báo thức reo. Nhưng em chợt nhớ ra hôm nay là Chủ Nhật, nên em quyết định tắt chuông và ngủ tiếp. Thông tin nào đã khiến em thay đổi thói quen bật dậy đi học?', answers: ['Tiếng chuông báo thức reo.', 'Em thấy rất buồn ngủ.', 'Thông tin "Hôm nay là Chủ Nhật".'], correct: 2, explain: 'Chuông là thông tin gọi dậy, nhưng thông tin "Chủ nhật" mới là dữ liệu quyết định để em chọn ngủ tiếp.' },
+            { round: 'Vòng 1: Cú lừa logic', text: 'Em đang chơi game trên điện thoại, bỗng màn hình hiện dòng chữ "Pin yếu 10%", em liền chạy đi lấy cục sạc. Trong tình huống này, ĐÂU LÀ THÔNG TIN?', answers: ['Em đang chơi game.', 'Màn hình báo "Pin yếu 10%".', 'Em chạy đi lấy cục sạc.'], correct: 1, explain: 'Điện thoại gửi thông tin cho con người để con người ra quyết định sạc pin.' },
+            { round: 'Vòng 1: Cú lừa logic', text: 'Minh định đi đường tắt qua ngõ nhỏ cho nhanh. Vừa tới đầu ngõ, Minh thấy tấm biển "Nhà có chó dữ, cẩn thận!", Minh lập tức quay xe đi đường vòng. Đâu là QUYẾT ĐỊNH của Minh?', answers: ['Đọc tấm biển "Nhà có chó dữ".', 'Đi đường tắt cho nhanh.', 'Quay xe đi đường vòng.'], correct: 2, explain: 'Quyết định là hành động cuối cùng được thực hiện sau khi xử lý thông tin về chó dữ.' },
+            { round: 'Vòng 1: Cú lừa logic', text: 'Mẹ hẹn đúng 7 giờ tối sẽ chở em đi siêu thị. Nhưng lúc 6 giờ 50 phút, trời bỗng đổ mưa rất to. Em quyết định nói với mẹ: "Thôi mình ở nhà đi mẹ". Điều gì đã tạo ra quyết định đó?', answers: ['Chỉ vì trời mưa to.', 'Chỉ vì lúc đó là 6 giờ 50 phút.', 'Sự kết hợp giữa việc "sắp đến giờ đi" và thông tin "trời mưa to".'], correct: 2, explain: 'Cần xâu chuỗi nhiều thông tin cùng lúc mới đưa ra được quyết định chính xác.' },
+            { round: 'Vòng 2: Phân tích đa phương tiện', text: 'Em đang xem phim hoạt hình Doraemon trên tivi thì cúp điện, màn hình tối thui nhưng điện thoại của mẹ vẫn đang phát bài hát nhạc phim. Lúc này em đang nhận được thông tin dạng gì?', answers: ['Dạng hình ảnh.', 'Dạng âm thanh.', 'Dạng chữ.'], correct: 1, explain: 'Không còn hình ảnh để nhìn, chỉ còn tai nghe được tiếng nhạc nên đây là thông tin dạng âm thanh.' },
+            { round: 'Vòng 2: Phân tích đa phương tiện', text: 'Cuốn truyện tranh Doraemon đen trắng mà em hay đọc bao gồm những dạng thông tin nào?', answers: ['Chỉ có hình ảnh.', 'Chỉ có chữ.', 'Cả dạng hình ảnh và dạng chữ.'], correct: 2, explain: 'Hình vẽ là hình ảnh, còn các khung thoại chứa lời thoại là dạng chữ.' },
+            { round: 'Vòng 2: Phân tích đa phương tiện', text: 'Khi đi ăn lẩu, em ngửi thấy mùi nước lẩu thơm lừng bay ra từ trong bếp. Đây có phải là một trong 3 dạng thông tin (chữ, hình ảnh, âm thanh) học trong môn Tin học không?', answers: ['Có, đó là hình ảnh.', 'Có, đó là âm thanh.', 'Không.'], correct: 2, explain: 'Mùi hương là thông tin nhận qua khứu giác, không thuộc 3 dạng thông tin thường gặp trong bài học.' },
+            { round: 'Vòng 2: Phân tích đa phương tiện', text: 'Đèn tín hiệu giao thông dành cho người đi bộ hiện lên hình "Một người màu xanh đang sải bước" (không có chữ, không có tiếng kêu). Đó là thông tin dạng gì và mang ý nghĩa gì?', answers: ['Dạng hình ảnh – Được phép qua đường.', 'Dạng chữ – Được phép qua đường.', 'Dạng hình ảnh – Phải đứng im.'], correct: 0, explain: 'Hình ảnh quy ước có thể thay thế hoàn toàn cho chữ viết để ra lệnh.' },
+            { round: 'Vòng 2: Phân tích đa phương tiện', text: 'Em vừa chơi một ván game chiến thuật, vừa thấy nhân vật tung chiêu trên màn hình, vừa nghe tiếng cháy nổ đùng đùng, vừa thấy dòng chữ "VICTORY" (Chiến thắng) hiện ra. Tình huống này có mấy dạng thông tin?', answers: ['1 dạng.', '2 dạng.', '3 dạng (Hình ảnh, Âm thanh, Chữ).'], correct: 2, explain: 'Game truyền tải cùng lúc cả hình ảnh, âm thanh và chữ.' },
+            { round: 'Vòng 3: Sự thay đổi biến số', text: 'Hôm qua, mẹ dặn Khoa: "Trời dạo này hay mưa, đi học nhớ mang áo mưa". Sáng nay Khoa mở cửa thấy trời nắng chói chang. Nếu thông tin thời tiết thay đổi, Khoa nên ra quyết định gì?', answers: ['Vẫn mặc áo mưa đi học cho chắc.', 'Không mang áo mưa nữa, thay vào đó đội mũ che nắng.', 'Nghỉ học ở nhà.'], correct: 1, explain: 'Thông tin thay đổi thì quyết định cũng phải thay đổi theo cho phù hợp thực tế.' },
+            { round: 'Vòng 3: Sự thay đổi biến số', text: 'Em dự định lấy tiền tiết kiệm mua 1 hộp bút giá 20 nghìn đồng. Khi ra nhà sách, em thấy bảng thông báo: "Giảm giá đặc biệt: Hộp bút chỉ còn 10 nghìn đồng". Em quyết định mua luôn 2 hộp. Thông tin nào làm em ĐỔI quyết định?', answers: ['Bảng thông báo giảm giá còn 10 nghìn đồng.', 'Việc em có tiền tiết kiệm.', 'Cô bán hàng ở nhà sách.'], correct: 0, explain: 'Dữ liệu về giá cả thay đổi dẫn đến quyết định chi tiêu thay đổi.' },
+            { round: 'Vòng 3: Sự thay đổi biến số', text: 'An thấy bạn bè rủ nhau ra sân đá bóng. An rất muốn đi, nhưng chợt nhớ ra lời cô dặn: "Chiều nay kiểm tra 15 phút Toán". Lời dặn của cô giáo là dạng thông tin gì và nó giúp An ra quyết định nào?', answers: ['Dạng âm thanh – Quyết định đi đá bóng.', 'Dạng âm thanh – Quyết định ở lại lớp ôn bài.', 'Dạng chữ – Quyết định đi về nhà.'], correct: 1, explain: 'Lời cô nói là âm thanh được lưu trong trí nhớ và giúp An quyết định ở lại ôn bài.' },
+            { round: 'Vòng 4: Boss trí tuệ nhân tạo', text: 'Em tìm trên mạng xem "Ngày mai có mưa không?". Một trang ghi trời nắng, trang khác ghi mưa bão lớn. Em sẽ làm gì để quyết định có mang ô hay không?', answers: ['Tin ngay vào trang web đầu tiên.', 'Tin vào trang có hình ảnh đẹp hơn.', 'Bật ứng dụng dự báo thời tiết uy tín trên tivi hoặc hỏi ba mẹ để xác nhận.'], correct: 2, explain: 'Không phải thông tin nào trên mạng cũng đúng; cần kiểm tra chéo bằng nguồn tin cậy.' },
+            { round: 'Vòng 4: Boss trí tuệ nhân tạo', text: 'Khi em lướt xem video, một bảng thông báo hiện lên: "Chúc mừng bạn đã trúng 1 chiếc điện thoại! Bấm vào đây để nhận". Việc bấm vào là quyết định ĐÚNG hay SAI?', answers: ['Đúng, vì sẽ được điện thoại.', 'Sai, vì đây thường là thông tin lừa đảo có thể làm máy tính nhiễm virus.', 'Đúng, bấm vào xem thử cho biết.'], correct: 1, explain: 'Không nên nhấp vào liên kết đáng ngờ dựa trên một thông tin quá hấp dẫn.' },
+            { round: 'Vòng 4: Boss trí tuệ nhân tạo', text: 'Robot hút bụi tự động quét tia laser và thấy phía trước là bậc cầu thang sâu, nó liền quay đầu. Nếu mắt cảm biến bị bám rác làm mù, chuyện gì sẽ xảy ra?', answers: ['Nó vẫn quay đầu lại bình thường.', 'Nó mất thông tin hình ảnh, không ra được quyết định quay đầu và sẽ rơi xuống cầu thang.', 'Nó biến thành máy hút bụi siêu nhân.'], correct: 1, explain: 'Máy móc và AI cũng cần thu nhận thông tin qua cảm biến để hành động chính xác.' },
+            { round: 'Vòng 4: Boss trí tuệ nhân tạo', text: 'Khi đang xem một bài học trên YouTube, em thấy video tự động có phần "Phụ đề" (chữ hiện lên theo lời nói). Phụ đề giúp ích gì cho quyết định của em?', answers: ['Giúp em tắt hình ảnh đi vẫn hiểu được.', 'Giúp em quyết định xem tiếp bài học dễ hiểu hơn nếu video bị mất tiếng.', 'Không giúp ích gì.'], correct: 1, explain: 'Máy tính chuyển đổi âm thanh thành chữ viết, giúp con người tiếp nhận thông tin đa dạng hơn.' },
+            { round: 'Vòng 4: Boss trí tuệ nhân tạo', text: 'Bạn lớp trưởng ghi tên các bạn ồn ào vào sổ. Cuốn sổ đó đang lưu trữ thông tin dạng gì?', answers: ['Dạng âm thanh.', 'Dạng hình ảnh.', 'Dạng chữ.'], correct: 2, explain: 'Ghi chép trên giấy hay gõ trên máy tính đều là cách lưu trữ thông tin dạng văn bản.' },
+            { round: 'Vòng 4: Boss trí tuệ nhân tạo', text: 'Khi em dùng điện thoại để nhắn tin bằng giọng nói (Voice chat) cho bạn, điện thoại đang thu nhận thông tin dạng gì của em?', answers: ['Dạng hình ảnh.', 'Dạng âm thanh.', 'Dạng chữ.'], correct: 1, explain: 'Micro của thiết bị ghi nhận âm thanh để truyền đi.' },
+            { round: 'Vòng 4: Boss trí tuệ nhân tạo', text: 'Em muốn tìm hình ảnh con báo đốm để làm bài tập, em gõ chữ "Báo đốm" vào Google Tìm kiếm. Máy tính sẽ trả lại thông tin kết quả dạng gì?', answers: ['Chỉ toàn là chữ.', 'Toàn là âm thanh tiếng gầm của báo đốm.', 'Các bức ảnh con báo đốm (dạng hình ảnh).'], correct: 2, explain: 'Máy tính nhận dữ liệu đầu vào là chữ và có thể xuất kết quả là hình ảnh theo yêu cầu.' },
+            { round: 'Vòng 4: Boss trí tuệ nhân tạo', text: 'Nếu não bộ của con người giống như máy tính, thì Mắt và Tai đóng vai trò gì?', answers: ['Là nơi đưa ra quyết định.', 'Là các công cụ thu nhận thông tin (hình ảnh, âm thanh) truyền vào não bộ.', 'Là nơi lưu trữ.'], correct: 1, explain: 'Mắt và tai thu nhận thông tin, não bộ suy nghĩ, sau đó cơ thể mới ra quyết định hành động.' }
+        ];
+
+        let currentSlideIndex = 1;
+        const totalSlides = questions.length + 4;
+
+        function appendMemorySlide(presentation, slideNumber, title, content) {
+            const slide = document.createElement('div');
+            slide.className = 'slide-container';
+            slide.id = `slide-${slideNumber}`;
+            slide.innerHTML = `
+                <div class="tag">Ghi nhớ</div>
+                <h1>${title}</h1>
+                <div class="ghi-nho-box">💡 <span>${content}</span></div>
+                <div class="controls">
+                    <button class="btn-nav prev" onclick="navSlide(-1)">⬅ Quay lại</button>
+                    <button class="btn-nav" onclick="navSlide(1)">Tiếp tục ➔</button>
+                </div>`;
+            presentation.appendChild(slide);
+        }
+
+        function renderQuestions() {
+            const presentation = document.getElementById('presentation-area');
+            let slideNumber = 3;
+            questions.forEach((question, questionIndex) => {
+                const slide = document.createElement('div');
+                slide.className = 'slide-container';
+                slide.id = `slide-${slideNumber}`;
+                slide.innerHTML = `
+                    <div class="tag">${question.round} · Câu ${questionIndex + 1}</div>
+                    <p style="font-size: 3.5vh; line-height: 1.5;">${question.text}</p>
+                    <div class="answers-grid">${question.answers.map((answer, answerIndex) => `<button class="btn-answer" onclick="checkAnswer(this, ${answerIndex === question.correct}, 'explain-c${questionIndex + 1}')">${String.fromCharCode(65 + answerIndex)}. ${answer}</button>`).join('')}</div>
+                    <div class="explanation-box" id="explain-c${questionIndex + 1}">💡 Giải thích: ${question.explain}</div>
+                    <div class="controls"><button class="btn-nav prev" onclick="navSlide(-1)">⬅ Quay lại</button><button class="btn-nav" onclick="navSlide(1)">${questionIndex === questions.length - 1 ? 'Hoàn thành 🏆' : 'Câu tiếp theo ➔'}</button></div>`;
+                presentation.appendChild(slide);
+                slideNumber += 1;
+
+                if (questionIndex === 3) {
+                    appendMemorySlide(presentation, slideNumber, 'GHI NHỚ', 'Cần phải có thông tin để ra quyết định.');
+                    slideNumber += 1;
+                }
+
+                if (questionIndex === 8) {
+                    appendMemorySlide(presentation, slideNumber, 'GHI NHỚ', 'Ba dạng thông tin thường gặp là dạng chữ, dạng hình ảnh và dạng âm thanh.');
+                    slideNumber += 1;
+                }
+            });
+        }
+
+        function navSlide(direction) {
+            document.getElementById(`slide-${currentSlideIndex}`).classList.remove('active');
+            
+            // Xóa trạng thái của các nút đáp án và ẩn tất cả khung giải thích khi chuyển slide
+            document.querySelectorAll('.btn-answer').forEach(btn => btn.classList.remove('correct', 'wrong'));
+            document.querySelectorAll('.explanation-box').forEach(box => box.classList.remove('show'));
+
+            currentSlideIndex += direction;
+            if (currentSlideIndex < 1) currentSlideIndex = 1;
+            if (currentSlideIndex > totalSlides) currentSlideIndex = totalSlides;
+            document.getElementById(`slide-${currentSlideIndex}`).classList.add('active');
+        }
+
+        // Đã cập nhật: Nhận thêm ID của khung giải thích
+        function checkAnswer(btn, isCorrect, explainId) {
+            let siblings = btn.parentElement.children;
+            for (let i = 0; i < siblings.length; i++) {
+                siblings[i].classList.remove('correct', 'wrong');
+            }
+            
+            if (isCorrect) { 
+                btn.classList.add('correct'); 
+                // Nếu trả lời đúng, hiện khung giải thích
+                if(explainId) {
+                    document.getElementById(explainId).classList.add('show');
+                }
+            } 
+            else { 
+                btn.classList.add('wrong'); 
+            }
+        }
+
+        // ================= HỆ THỐNG ĐIỂM SỐ =================
+        let teams = [];
+
+        function initGame() {
+            let num = parseInt(document.getElementById('teamCountInput').value);
+            if (isNaN(num) || num < 1) num = 3; 
+
+            let listContainer = document.getElementById('teams-list');
+            listContainer.innerHTML = '';
+            teams = [];
+
+            for (let i = 0; i < num; i++) {
+                teams.push(0); 
+
+                let teamDiv = document.createElement('div');
+                teamDiv.className = 'team-card';
+                teamDiv.innerHTML = `
+                    <div class="team-name" contenteditable="true" title="Bấm để sửa tên">Đội ${i + 1} ✎</div>
+                    <div class="team-score" id="score-${i}" contenteditable="true" onblur="manualEditScore(${i}, this)" title="Bấm để sửa điểm">0</div>
+                    <div class="score-controls">
+                        <button class="btn-score add" onclick="updateScore(${i}, 20)">+20</button>
+                        <button class="btn-score steal" onclick="updateScore(${i}, 10)">+10</button>
+                        <button class="btn-score sub" onclick="updateScore(${i}, -15)">-15</button>
+                    </div>
+                `;
+                listContainer.appendChild(teamDiv);
+            }
+        }
+
+        function updateScore(teamIndex, points) {
+            teams[teamIndex] += points;
+            let scoreEl = document.getElementById(`score-${teamIndex}`);
+            scoreEl.innerText = teams[teamIndex];
+            
+            scoreEl.style.transform = 'scale(1.5)';
+            setTimeout(() => { scoreEl.style.transform = 'scale(1)'; }, 200);
+        }
+
+        function manualEditScore(teamIndex, element) {
+            let newScore = parseInt(element.innerText);
+            if (!isNaN(newScore)) {
+                teams[teamIndex] = newScore;
+            } else {
+                element.innerText = teams[teamIndex];
+            }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Lỗi khi bật toàn màn hình: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        window.onload = () => { renderQuestions(); initGame(); };             
+    </script>
+</body>
+</html>
