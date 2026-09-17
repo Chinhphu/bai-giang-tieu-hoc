@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Bài 2: Xử lí thông tin</title>
+	<link rel="stylesheet" href="../theme/style.css">
+	<!-- CSS giao dien cua bai hoc duoc dat trong ../theme/style.css -->
+	<style media="not all">
+		:root {
+			--ink: #17233d;
+			--muted: #71809d;
+			--navy: #101b35;
+			--cyan: #29d3d8;
+			--yellow: #ffc857;
+			--coral: #ff6b6b;
+			--green: #38c98b;
+			--violet: #7667f5;
+			--paper: #f7f9ff;
+		}
+
+		* { box-sizing: border-box; }
+		body { background: #0b1328; color: var(--ink); font-family: 'Quicksand', sans-serif; }
+		button, input { font: inherit; }
+		button { cursor: pointer; }
+		.app-shell { display: flex; width: 100vw; height: 100vh; overflow: hidden; background: var(--paper); }
+		.stage { position: relative; flex: 1; min-width: 0; overflow: hidden; background: radial-gradient(circle at 10% 5%, #e1f8fa 0, transparent 28%), #f7f9ff; }
+		.slide { display: none; height: 100%; padding: clamp(22px, 4vh, 52px) clamp(24px, 4vw, 70px); flex-direction: column; animation: reveal .35s ease both; }
+		.slide.active { display: flex; }
+		@keyframes reveal { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+		.eyebrow { color: var(--violet); font-weight: 900; letter-spacing: .12em; text-transform: uppercase; font-size: clamp(12px, 1.8vh, 18px); }
+		h1 { margin: 10px 0 16px; color: var(--navy); font-size: clamp(34px, 6.4vh, 76px); line-height: .98; text-align: left; }
+		h2 { margin: 8px 0 14px; color: var(--navy); font-size: clamp(28px, 4.4vh, 54px); }
+		h3 { margin: 0 0 8px; font-size: clamp(19px, 2.8vh, 29px); }
+		p { line-height: 1.45; }
+		.lead { max-width: 760px; margin: 0; color: var(--muted); font-size: clamp(17px, 2.6vh, 28px); }
+		.slide-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 16px; }
+		.btn { border: 0; border-radius: 12px; padding: 12px 20px; color: white; background: var(--violet); font-weight: 900; box-shadow: 0 7px 0 #5044c9; transition: transform .15s, box-shadow .15s; }
+		.btn:hover { transform: translateY(-2px); box-shadow: 0 9px 0 #5044c9; }
+		.btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #5044c9; }
+		.btn.ghost { color: var(--navy); background: #e9eefb; box-shadow: 0 5px 0 #cbd4e9; }
+		.btn.yellow { color: #563a00; background: var(--yellow); box-shadow: 0 6px 0 #d89e28; }
+		.boot-screen { position: absolute; z-index: 10; inset: 0; display: grid; place-items: center; background: #050914; transition: opacity .7s, visibility .7s; }
+		.boot-screen.off { opacity: 0; visibility: hidden; pointer-events: none; }
+		.boot-copy { text-align: center; color: white; }
+		.boot-copy .terminal { margin-bottom: 25px; color: var(--cyan); font: 900 clamp(34px, 6vh, 72px)/1 monospace; letter-spacing: .04em; }
+		.boot-copy p { color: #8291b2; font-size: 18px; }
+		.power-btn { border: 3px solid var(--cyan); border-radius: 16px; padding: 20px 42px; color: var(--cyan); background: transparent; font-size: clamp(22px, 3.2vh, 36px); font-weight: 900; letter-spacing: .08em; animation: blink 1.15s infinite; }
+		@keyframes blink { 50% { box-shadow: 0 0 28px var(--cyan); color: white; background: #143b52; } }
+		.hero-grid { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 35px; height: 100%; }
+		.hero-visual { min-height: 300px; display: grid; place-items: center; border: 1px solid #dce4f6; border-radius: 24px; background: linear-gradient(135deg, #172244, #293d72); box-shadow: 0 18px 30px #17233d22; }
+		.hero-visual .brain { font-size: clamp(100px, 18vh, 210px); filter: drop-shadow(0 12px 0 #0b1328); }
+		.system-state { display: inline-flex; align-items: center; gap: 8px; margin-top: 24px; padding: 8px 13px; border-radius: 99px; color: #08765a; background: #d8f9eb; font-weight: 900; }
+		.system-state::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--green); }
+		.diagram { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 13px; margin: 36px 0 24px; }
+		.node { position: relative; min-height: 135px; display: grid; place-items: center; padding: 20px; border: 3px solid #dce4f6; border-radius: 20px; color: var(--navy); background: white; text-align: center; font-weight: 900; font-size: clamp(18px, 2.5vh, 28px); box-shadow: 0 10px 0 #e8edf8; }
+		.node .icon { display: block; font-size: 42px; margin-bottom: 8px; }
+		.node.active { border-color: var(--cyan); box-shadow: 0 10px 0 #9ee9e7; background: #ecffff; }
+		.arrow { color: var(--violet); font-size: 40px; font-weight: 900; }
+		.case-grid, .device-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 24px; min-height: 0; }
+		.case-card, .device { border: 1px solid #dce4f6; border-radius: 18px; padding: 20px; background: white; box-shadow: 0 9px 0 #e9edf7; }
+		.case-card p { margin: 7px 0 16px; font-size: 18px; }
+		.case-image { display: grid; place-items: center; height: 120px; margin-bottom: 14px; border-radius: 13px; background: #eef7ff; font-size: 72px; }
+		.chip-row { display: flex; flex-wrap: wrap; gap: 10px; }
+		.chip { border: 2px solid #dce4f6; border-radius: 99px; padding: 9px 14px; color: var(--navy); background: #fff; font-weight: 900; }
+		.chip.lit { border-color: var(--yellow); background: #fff3c9; box-shadow: 0 0 18px #ffc85799; }
+		.brain-action { position: relative; display: inline-block; margin-top: 10px; }
+		.brain-action::after { content: ''; position: absolute; z-index: 0; top: 50%; left: 100%; width: 150px; height: 7px; background: linear-gradient(90deg, var(--yellow), transparent); transform-origin: left; animation: flow 1s linear infinite; opacity: 0; }
+		.brain-action.lit::after { opacity: 1; }
+		@keyframes flow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+		.knowledge { margin-top: 22px; padding: 19px 23px; border-left: 7px solid var(--cyan); border-radius: 0 14px 14px 0; color: var(--navy); background: #e8fbfc; font-size: clamp(19px, 2.8vh, 29px); font-weight: 900; }
+		.device-grid { grid-template-columns: repeat(3, 1fr); }
+		.device { min-height: 220px; }
+		.device-head { display: flex; align-items: center; justify-content: space-between; }
+		.device-icon { font-size: 50px; }
+		.device-screen { display: grid; place-items: center; height: 77px; margin: 12px 0; border-radius: 10px; color: #91a5d0; background: #17233d; font-weight: 900; }
+		.device-screen.on { color: var(--cyan); box-shadow: inset 0 0 25px #29d3d855; }
+		.remote { display: flex; gap: 7px; align-items: center; }
+		.remote button, .heat-btn { width: 36px; height: 36px; border: 0; border-radius: 9px; color: white; background: var(--violet); font-weight: 900; }
+		.data-line { position: relative; height: 5px; margin: 14px 0; overflow: hidden; background: #dce4f6; }
+		.data-line::after { content: ''; position: absolute; width: 40%; height: 100%; left: -40%; background: var(--cyan); }
+		.data-line.run::after { animation: data 1s linear; }
+		@keyframes data { to { left: 100%; } }
+		.heat-level { color: var(--coral); font-size: 24px; font-weight: 900; }
+		.drop-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 25px; }
+		.drop-column { min-height: 230px; padding: 18px; border: 2px dashed #bac6e0; border-radius: 18px; background: #fff; }
+		.drop-column h3 { color: var(--violet); }
+		.drag-item { margin: 10px 0; padding: 15px; border: 2px solid #e0e6f4; border-radius: 12px; color: var(--navy); background: #f8faff; font-weight: 700; cursor: grab; }
+		.drag-item:active { cursor: grabbing; }
+		.drop-target { min-height: 70px; padding: 12px; border: 2px dashed var(--cyan); border-radius: 12px; color: var(--muted); text-align: center; }
+		.drop-target.correct { border-style: solid; color: #08765a; background: #dff9ee; }
+		.input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 28px; }
+		.input-grid label { color: var(--muted); font-weight: 900; }
+		.input-grid input { width: 100%; margin-top: 8px; padding: 15px; border: 2px solid #dce4f6; border-radius: 12px; outline: 0; }
+		.final-board { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 25px; }
+		.winner, .warning { padding: 25px; border-radius: 18px; background: white; box-shadow: 0 9px 0 #e9edf7; }
+		.winner { border-top: 8px solid var(--yellow); }
+		.warning { border-top: 8px solid var(--coral); }
+		.winner strong, .warning strong { display: block; margin-top: 9px; color: var(--navy); font-size: 31px; }
+		.scoreboard { width: 306px; padding: 22px 17px; border-left: 5px solid var(--cyan); background: var(--navy); color: white; box-shadow: none; }
+		.scoreboard h2 { margin: 0 0 4px; color: white; font-size: 27px; }
+		.scoreboard .sub { margin: 0 0 18px; color: #8997b8; font-size: 14px; }
+		.teams-list { gap: 12px; overflow-y: auto; padding-right: 3px; }
+		.team-card { padding: 13px; border: 1px solid #334361; border-radius: 14px; background: #192746; text-align: left; }
+		.team-card.penalty { animation: shake .4s; }
+		@keyframes shake { 25% { transform: translateX(-7px); } 75% { transform: translateX(7px); } }
+		.team-name { color: white; font-size: 17px; }
+		.team-score { margin: 5px 0; color: var(--yellow); font-size: 34px; }
+		.health-label { display: flex; justify-content: space-between; color: #9cabc9; font-size: 12px; }
+		.health-track { height: 10px; margin: 6px 0 10px; overflow: hidden; border-radius: 99px; background: #364768; cursor: pointer; }
+		.health-fill { width: 100%; height: 100%; background: linear-gradient(90deg, var(--green), #a4e65d); transition: width .45s, background .3s; }
+		.health-fill.low { background: var(--coral); }
+		.score-controls { gap: 6px; }
+		.btn-score { padding: 7px 4px; border-radius: 8px; border: 0; font-size: 13px; }
+		.btn-score.add { background: var(--green); } .btn-score.steal { background: var(--yellow); color: #533900; } .btn-score.sub { background: var(--coral); }
+		.score-tools { display: flex; gap: 7px; margin-top: auto; padding-top: 16px; }
+		.score-tools .btn { flex: 1; padding: 10px 5px; font-size: 12px; }
+		.confetti { position: fixed; z-index: 20; inset: 0; pointer-events: none; }
+		.confetti i { position: absolute; width: 10px; height: 18px; animation: fall 1.7s ease-out forwards; }
+		@keyframes fall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+		.flash { animation: flash-red .45s; }
+		@keyframes flash-red { 50% { box-shadow: inset 0 0 0 999px #ff6b6b33; } }
+		@media (max-width: 900px) { .scoreboard { width: 235px; } .hero-grid { grid-template-columns: 1fr; } .hero-visual { min-height: 170px; } .device-grid { grid-template-columns: 1fr; overflow-y: auto; } .slide { overflow-y: auto; } }
+		@media (max-width: 650px) { .app-shell { display: block; overflow-y: auto; } .stage { height: 78vh; } .scoreboard { width: 100%; height: 22vh; padding: 8px 12px; } .scoreboard h2, .scoreboard .sub, .score-tools { display: none; } .teams-list { flex-direction: row; } .team-card { min-width: 165px; } .diagram, .drop-layout, .input-grid, .final-board { grid-template-columns: 1fr; } .diagram .arrow { transform: rotate(90deg); text-align: center; } }
+	</style>
+</head>
+
+<body class="lesson-processing">
+	<main class="app-shell" id="app-shell">
+		<section class="stage" id="stage">
+			<div class="boot-screen" id="boot-screen">
+				<div class="boot-copy">
+					<div class="terminal">CLASS_OS // READY</div>
+					<p>Hệ thống lớp học đang chờ lệnh của giáo viên</p>
+					<button class="power-btn" onclick="bootSystem()">[ BẬT NGUỒN ]</button>
+				</div>
+			</div>
+
+			<article class="slide active" id="slide-1">
+				<div class="hero-grid">
+					<div>
+						<div class="eyebrow">Chủ đề 1 · Máy tính và em</div>
+						<h1>HỆ THỐNG<br>LỚP HỌC ĐÃ BẬT</h1>
+						<p class="lead">Thầy là <strong>Bàn phím</strong>. Các em là <strong>Màn hình</strong>. Thầy nhập lệnh gì, các em xuất kết quả đó!</p>
+						<div class="system-state">ONLINE · SẴN SÀNG NHẬN LỆNH</div>
+					</div>
+					<div class="hero-visual"><div class="brain">🧠</div></div>
+				</div>
+				<div class="slide-footer"><span class="eyebrow">Module 1 · Khởi động</span><button class="btn" onclick="goTo(2)">Vào hệ thống →</button></div>
+			</article>
+
+			<article class="slide" id="slide-2">
+				<div class="eyebrow">Module 1 · Kỷ luật thép</div><h2>Input của thầy, Output của lớp</h2>
+				<p class="lead">Giơ 1 ngón tay: cả lớp vỗ tay 1 cái. Giơ nắm đấm: cả lớp im lặng. Dãy nào bị “lag”, hãy click thẳng vào thanh máu của dãy đó.</p>
+				<div class="knowledge">Câu hỏi dẫn: Mắt nhìn thấy tay thầy, rồi tay vỗ. Bộ phận nào ở giữa đã tiếp nhận hình ảnh và ra lệnh? <strong>→ Bộ não.</strong></div>
+				<div class="slide-footer"><button class="btn ghost" onclick="goTo(1)">← Trước</button><button class="btn" onclick="goTo(3)">Chuyển cảnh →</button></div>
+			</article>
+
+			<article class="slide" id="slide-3">
+				<div class="eyebrow">Cầu nối kiến thức</div><h1 class="title-card">BÀI 2:<br><span style="color:var(--cyan)">XỬ LÍ THÔNG TIN</span></h1>
+				<p class="lead">Từ phản xạ của con người đến những thiết bị thông minh, mọi hệ thống đều cần thu nhận, xử lí rồi tạo ra kết quả.</p>
+				<div class="slide-footer"><button class="btn ghost" onclick="goTo(2)">← Trước</button><button class="btn" onclick="goTo(4)">Khám phá →</button></div>
+			</article>
+
+			<article class="slide" id="slide-4">
+				<div class="eyebrow">Module 2 · CPU sinh học</div><h2>Con người xử lí thông tin như thế nào?</h2>
+				<div class="diagram">
+					<div class="node" id="node-receive"><span class="icon">👀👂</span>Thu nhận<br>thông tin</div><div class="arrow">→</div>
+					<div class="node" id="node-process"><span class="icon">🧠</span>Xử lí<br>thông tin</div><div class="arrow">→</div>
+					<div class="node" id="node-act"><span class="icon">🙋</span>Quyết định /<br>Hành động</div>
+				</div>
+				<div class="knowledge">Hãy nhấn các khối theo đúng chuỗi: <strong>Thu nhận → Xử lí → Hành động</strong>.</div>
+				<div class="slide-footer"><button class="btn ghost" onclick="goTo(3)">← Trước</button><button class="btn" onclick="goTo(5)">Case 1: Hát theo video →</button></div>
+			</article>
+
+			<article class="slide" id="slide-5">
+				<div class="eyebrow">Case 1 · Hát theo video</div><h2>Tai và mắt làm nhiệm vụ gì?</h2>
+				<div class="case-grid">
+					<div class="case-card"><div class="case-image">📺🎤</div><h3>Thông tin đang đến</h3><p>Nghe nhạc từ tivi, nhìn hình ảnh và lời bài hát.</p><div class="chip-row"><button class="chip" onclick="lightInput(this, 'Tai tiếp nhận âm thanh')">👂 Tai</button><button class="chip" onclick="lightInput(this, 'Mắt tiếp nhận hình ảnh')">👀 Mắt</button></div></div>
+					<div class="case-card"><div class="case-image brain-action" id="sing-action">🧠 → 👄</div><h3>Bộ não ra lệnh</h3><p id="case-feedback">Nhấn Tai hoặc Mắt, sau đó nhấn vào bộ não để luồng sáng chạy đến miệng.</p><button class="chip" onclick="lightBrain()">🧠 Bộ não</button></div>
+				</div>
+				<div class="slide-footer"><button class="btn ghost" onclick="goTo(4)">← Trước</button><button class="btn" onclick="goTo(6)">Case 2: Thả diều →</button></div>
+			</article>
+
+			<article class="slide" id="slide-6">
+				<div class="eyebrow">Case 2 · Thả diều</div><h2>Dây diều bị chùng, diều không lên cao</h2>
+				<div class="case-grid"><div class="case-card"><div class="case-image">🪁🌬️</div><p>Thông tin nhận được: dây diều đang chùng, diều chưa bay lên.</p></div><div class="case-card"><h3>Não quyết định điều gì?</h3><p>Chọn hành động giúp diều bay lên:</p><div class="chip-row"><button class="chip" onclick="checkChoice(this, false)">Ngồi xuống chờ gió</button><button class="chip" onclick="checkChoice(this, true)">Chạy ngược chiều gió</button><button class="chip" onclick="checkChoice(this, false)">Thu diều lại</button></div><div class="knowledge" id="choice-feedback" style="display:none"></div></div></div>
+				<div class="slide-footer"><button class="btn ghost" onclick="goTo(5)">← Trước</button><button class="btn" onclick="goTo(7)">Chốt kiến thức →</button></div>
+			</article>
+
+			<article class="slide" id="slide-7">
+				<div class="eyebrow">Module 2 · Chốt kiến thức</div><h2>Bộ não là “CPU sinh học”</h2><div class="knowledge" style="margin-top:35px">Bộ não là nơi xử lí thông tin, điều khiển các suy nghĩ và hành động của con người.</div><div class="diagram"><div class="node">👁️ 👂<br>Thu nhận</div><div class="arrow">→</div><div class="node active">🧠<br>Xử lí</div><div class="arrow">→</div><div class="node">🏃 🎤<br>Hành động</div></div>
+				<div class="slide-footer"><button class="btn ghost" onclick="goTo(6)">← Trước</button><button class="btn" onclick="goTo(8)">Sang thế giới máy móc →</button></div>
+			</article>
+
+			<article class="slide" id="slide-8">
+				<div class="eyebrow">Module 3 · Smart devices</div><h2>Máy móc cũng biết tiếp nhận và quyết định</h2><p class="lead">Con người dùng não. Máy móc dùng <strong>bộ xử lí</strong>.</p>
+				<div class="device-grid">
+					<div class="device"><div class="device-head"><h3>📺 Tivi</h3><span>VTV</span></div><div class="device-screen" id="tv-screen">Chưa có kênh</div><div class="data-line" id="tv-data"></div><div class="remote"><span>Remote:</span><button onclick="playTV(3)">3</button><button onclick="playTV(1)">1</button></div></div>
+					<div class="device"><div class="device-head"><h3>🍳 Bếp từ</h3><span class="heat-level" id="heat-level">Mức 1</span></div><div class="device-screen">Nhiệt độ an toàn</div><div class="data-line" id="heat-data"></div><button class="heat-btn" onclick="increaseHeat()">+</button><p id="heat-feedback">Nhấn + để bếp nhận lệnh tăng nhiệt.</p></div>
+					<div class="device"><div class="device-head"><h3>🌀 Quạt điện</h3><span id="fan-state">DỪNG</span></div><div class="device-screen" id="fan-screen">🌬️</div><div class="data-line" id="fan-data"></div><button class="chip" onclick="toggleFan()">Remote: Bật / Dừng</button></div>
+				</div>
+				<div class="slide-footer"><button class="btn ghost" onclick="goTo(7)">← Trước</button><button class="btn" onclick="goTo(9)">Camera điện thoại →</button></div>
+			</article>
+
+			<article class="slide" id="slide-9">
+				<div class="eyebrow">Module 3 · Input / Output</div><h2>Chiếc điện thoại đang làm gì?</h2><div class="case-grid"><div class="case-card"><div class="case-image">📱🌾</div><h3>Camera điện thoại</h3><p>Thu nhận thông tin dạng gì?</p><button class="chip" onclick="showPhoneAnswer()">Bấm để xử lí</button></div><div class="case-card"><h3 id="phone-answer">Đang chờ câu trả lời...</h3><div class="knowledge">Input: <strong>Hình ảnh đồng lúa</strong><br>Output: <strong>Bức ảnh được lưu trong điện thoại</strong></div></div></div><div class="slide-footer"><button class="btn ghost" onclick="goTo(8)">← Trước</button><button class="btn" onclick="goTo(10)">Chốt kiến thức →</button></div>
+			</article>
+
+			<article class="slide" id="slide-10"><div class="eyebrow">Module 3 · Chốt kiến thức</div><h1>NHIỀU MÁY MÓC CŨNG<br><span style="color:var(--cyan)">TIẾP NHẬN THÔNG TIN</span></h1><p class="lead">...để xử lí và quyết định hành động, giống như con người.</p><div class="diagram"><div class="node">📡<br>Input</div><div class="arrow">→</div><div class="node active">⚙️<br>Bộ xử lí</div><div class="arrow">→</div><div class="node">💡<br>Output</div></div><div class="slide-footer"><button class="btn ghost" onclick="goTo(9)">← Trước</button><button class="btn" onclick="goTo(11)">Vào trùm cuối →</button></div></article>
+
+			<article class="slide" id="slide-11"><div class="eyebrow">Module 4 · Trùm cuối · X2 điểm</div><h2>Kéo thả: Bố kể chuyện</h2><p class="lead">Kéo mỗi thẻ ở cột B vào đúng lỗ ở cột A. Đúng cặp sẽ bắn pháo hoa và cộng 40 điểm.</p><div class="drop-layout"><div class="drop-column"><h3>A · Bộ xử lí</h3><div class="drop-target" data-answer="input" ondragover="allowDrop(event)" ondrop="dropCard(event)">Thông tin được thu nhận</div><div class="drop-target" data-answer="output" ondragover="allowDrop(event)" ondrop="dropCard(event)">Kết quả xử lí</div></div><div class="drop-column"><h3>B · Sự kiện</h3><div class="drag-item" draggable="true" data-type="output" ondragstart="dragCard(event)">Minh quyết định kể lại cho An và Khoa</div><div class="drag-item" draggable="true" data-type="input" ondragstart="dragCard(event)">Câu chuyện hay Minh nghe bố kể</div></div></div><div class="slide-footer"><button class="btn ghost" onclick="goTo(10)">← Trước</button><button class="btn" onclick="goTo(12)">Bài toán đời sống →</button></div></article>
+
+			<article class="slide" id="slide-12"><div class="eyebrow">Module 4 · Bài toán đời sống</div><h2>Ví dụ Input và Output của em</h2><p class="lead">Hãy nhập một ví dụ hằng ngày. Cả lớp sẽ cùng vote xem em đã nhận diện đúng chưa.</p><div class="input-grid"><label>Thông tin thu nhận (Input)<input id="input-example" placeholder="Ví dụ: nghe tiếng chuông..." /></label><label>Kết quả xử lí (Output)<input id="output-example" placeholder="Ví dụ: đứng dậy đi học..." /></label></div><button class="btn yellow" style="align-self:flex-start;margin-top:25px" onclick="voteExample()">✓ Gửi để cả lớp vote</button><div class="knowledge" id="vote-result" style="display:none">Lớp mình đồng ý: đây là một cặp Input → Output hợp lí!</div><div class="slide-footer"><button class="btn ghost" onclick="goTo(11)">← Trước</button><button class="btn" onclick="goTo(13)">Tổng kết →</button></div></article>
+
+			<article class="slide" id="slide-13"><div class="eyebrow">Tổng kết · Bảng vàng</div><h1>AI LÀ DÃY VÔ ĐỊCH?</h1><p class="lead">Bảng điểm đã được sắp xếp lại. Dãy cao điểm nhất chiến thắng; dãy bị trừ kỷ luật nhiều nhất cần rút kinh nghiệm.</p><div class="final-board"><div class="winner"><div class="eyebrow">🏆 Dãy vô địch</div><strong id="winner-name">Đang tính...</strong><p id="winner-score"></p></div><div class="warning"><div class="eyebrow" style="color:var(--coral)">⚠ Cảnh cáo kỷ luật</div><strong id="warning-name">Đang tính...</strong><p>Hãy tập trung để không bị “lag” trong tiết học sau.</p></div></div><div class="slide-footer"><button class="btn ghost" onclick="goTo(12)">← Trước</button><button class="btn" onclick="sortTeams(); goTo(1)">Chơi lại từ đầu ↻</button></div></article>
+		</section>
+
+		<aside class="scoreboard" aria-label="Bảng điểm ba dãy">
+			<h2>ĐIỂM LỚP HỌC</h2><p class="sub">Click thanh máu để trừ 15 điểm kỷ luật</p>
+			<div class="teams-list" id="teams-list"></div>
+			<div class="score-tools"><button class="btn ghost" onclick="toggleFullScreen()">⛶ Toàn màn hình</button><button class="btn" onclick="sortTeams()">↕ Xếp hạng</button></div>
+		</aside>
+	</main>
+	<div class="confetti" id="confetti"></div>
+
+	<script>
+		let currentSlide = 1;
+		const teamData = [
+			{ name: 'Dãy Mặt Trời', score: 0, health: 100, penalties: 0 },
+			{ name: 'Dãy Cầu Vồng', score: 0, health: 100, penalties: 0 },
+			{ name: 'Dãy Ngôi Sao', score: 0, health: 100, penalties: 0 }
+		];
+
+		function bootSystem() {
+			document.getElementById('boot-screen').classList.add('off');
+			playTone(220, .12); setTimeout(() => playTone(440, .16), 120); setTimeout(() => playTone(660, .2), 260);
+		}
+
+		function playTone(frequency, duration) {
+			const AudioContext = window.AudioContext || window.webkitAudioContext;
+			if (!AudioContext) return;
+			const audio = new AudioContext(); const oscillator = audio.createOscillator(); const gain = audio.createGain();
+			oscillator.frequency.value = frequency; oscillator.type = 'sine'; gain.gain.setValueAtTime(.05, audio.currentTime); gain.gain.exponentialRampToValueAtTime(.001, audio.currentTime + duration); oscillator.connect(gain); gain.connect(audio.destination); oscillator.start(); oscillator.stop(audio.currentTime + duration);
+		}
+
+		function renderTeams() {
+			const list = document.getElementById('teams-list');
+			list.innerHTML = teamData.map((team, index) => `<div class="team-card" id="team-${index}"><div class="team-name" contenteditable="true">${team.name}</div><div class="team-score" id="score-${index}">${team.score}</div><div class="health-label"><span>THANH MÁU</span><span id="health-text-${index}">${team.health}%</span></div><div class="health-track" onclick="penalize(${index})" title="Click để trừ 15 điểm"><div class="health-fill ${team.health <= 40 ? 'low' : ''}" id="health-${index}" style="width:${team.health}%"></div></div><div class="score-controls"><button class="btn-score add" onclick="updateScore(${index}, 20)">+20</button><button class="btn-score steal" onclick="updateScore(${index}, 10)">+10</button><button class="btn-score sub" onclick="updateScore(${index}, -15)">-15</button></div></div>`).join('');
+		}
+
+		function updateScore(index, points) { teamData[index].score += points; renderTeams(); document.getElementById(`team-${index}`).scrollIntoView({ block: 'nearest' }); }
+		function penalize(index) { teamData[index].score -= 15; teamData[index].health = Math.max(0, teamData[index].health - 15); teamData[index].penalties += 1; renderTeams(); document.getElementById(`team-${index}`).classList.add('penalty'); document.getElementById('stage').classList.add('flash'); setTimeout(() => document.getElementById('stage').classList.remove('flash'), 450); }
+		function sortTeams() { teamData.sort((a, b) => b.score - a.score); renderTeams(); if (document.getElementById('winner-name')) { document.getElementById('winner-name').textContent = teamData[0].name; document.getElementById('winner-score').textContent = `${teamData[0].score} điểm · Máu còn ${teamData[0].health}%`; const penalized = [...teamData].sort((a, b) => b.penalties - a.penalties)[0]; document.getElementById('warning-name').textContent = penalized.penalties ? `${penalized.name} (${penalized.penalties} lần)` : 'Chưa có dãy nào'; } }
+		function goTo(number) { document.getElementById(`slide-${currentSlide}`).classList.remove('active'); currentSlide = Math.max(1, Math.min(13, number)); document.getElementById(`slide-${currentSlide}`).classList.add('active'); if (currentSlide === 13) sortTeams(); }
+		function toggleFullScreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+		function lightInput(button, message) { document.querySelectorAll('#slide-5 .chip').forEach(item => item.classList.remove('lit')); button.classList.add('lit'); document.getElementById('case-feedback').textContent = message + '. Bây giờ nhấn vào bộ não để xử lí.'; document.getElementById('node-receive').classList.add('active'); }
+		function lightBrain() { document.getElementById('node-process').classList.add('active'); document.getElementById('node-act').classList.add('active'); document.getElementById('sing-action').classList.add('lit'); document.getElementById('case-feedback').textContent = 'Não xử lí giai điệu và ra lệnh cho miệng hát theo!'; }
+		function checkChoice(button, correct) { const feedback = document.getElementById('choice-feedback'); feedback.style.display = 'block'; feedback.textContent = correct ? '✓ Chính xác! Não quyết định chạy ngược chiều gió để tạo lực nâng diều.' : 'Hãy đọc lại thông tin: dây diều bị chùng vì chưa có đủ lực của gió.'; feedback.style.borderColor = correct ? 'var(--green)' : 'var(--coral)'; if (correct) updateScore(0, 20); }
+		function playTV(channel) { const screen = document.getElementById('tv-screen'); screen.textContent = '... đang xử lí'; document.getElementById('tv-data').classList.remove('run'); void document.getElementById('tv-data').offsetWidth; document.getElementById('tv-data').classList.add('run'); setTimeout(() => { screen.textContent = `VTV${channel} · ĐANG PHÁT`; screen.classList.add('on'); }, 900); }
+		function increaseHeat() { const level = document.getElementById('heat-level'); const current = Math.min(5, parseInt(level.textContent.replace(/\D/g, '')) + 1); level.textContent = `Mức ${current}`; document.getElementById('heat-data').classList.add('run'); document.getElementById('heat-feedback').textContent = 'Nhận lệnh tăng nhiệt → Bếp quyết định đun nóng hơn.'; updateScore(1, 20); }
+		function toggleFan() { const on = document.getElementById('fan-state').textContent === 'DỪNG'; document.getElementById('fan-state').textContent = on ? 'ĐANG QUAY' : 'DỪNG'; document.getElementById('fan-screen').textContent = on ? '🌀💨' : '🌬️'; document.getElementById('fan-data').classList.toggle('run', on); }
+		function showPhoneAnswer() { document.getElementById('phone-answer').textContent = 'Đã xử lí: nhận dạng hình ảnh → xuất ra bức ảnh'; document.getElementById('phone-answer').style.color = 'var(--green)'; }
+		let draggedType = '';
+		function dragCard(event) { draggedType = event.target.dataset.type; event.dataTransfer.setData('text/plain', draggedType); event.dataTransfer.effectAllowed = 'move'; }
+		function allowDrop(event) { event.preventDefault(); event.currentTarget.style.background = '#e8fbfc'; }
+		function dropCard(event) { event.preventDefault(); const target = event.currentTarget; target.style.background = ''; const type = event.dataTransfer.getData('text/plain') || draggedType; if (target.dataset.answer === type) { target.classList.add('correct'); target.textContent = type === 'input' ? '✓ Câu chuyện hay Minh nghe bố kể' : '✓ Minh quyết định kể lại cho An và Khoa'; document.querySelector(`[data-type="${type}"]`).remove(); fireConfetti(); updateScore(2, 40); } else { target.textContent = 'Chưa đúng, thử lại nhé!'; setTimeout(() => { target.textContent = target.dataset.answer === 'input' ? 'Thông tin được thu nhận' : 'Kết quả xử lí'; }, 900); } }
+		function fireConfetti() { const container = document.getElementById('confetti'); container.innerHTML = ''; for (let i = 0; i < 55; i += 1) { const piece = document.createElement('i'); piece.style.left = `${Math.random() * 100}%`; piece.style.top = `${Math.random() * 20}%`; piece.style.background = ['#29d3d8', '#ffc857', '#ff6b6b', '#7667f5'][i % 4]; piece.style.transform = `rotate(${Math.random() * 90}deg)`; piece.style.animationDelay = `${Math.random() * .4}s`; container.appendChild(piece); } setTimeout(() => container.innerHTML = '', 2200); }
+		function voteExample() { const input = document.getElementById('input-example').value.trim(); const output = document.getElementById('output-example').value.trim(); if (input && output) { document.getElementById('vote-result').style.display = 'block'; updateScore(0, 20); } }
+		renderTeams();
+	</script>
+</body>
+</html>
