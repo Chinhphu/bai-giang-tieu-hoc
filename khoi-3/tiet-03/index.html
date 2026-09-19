@@ -2,273 +2,582 @@
 <html lang="vi">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Bài 2: Xử lí thông tin</title>
-	<link rel="stylesheet" href="../theme/style.css">
-	<!-- CSS giao dien cua bai hoc duoc dat trong ../theme/style.css -->
-	<style media="not all">
-		:root {
-			--ink: #17233d;
-			--muted: #71809d;
-			--navy: #101b35;
-			--cyan: #29d3d8;
-			--yellow: #ffc857;
-			--coral: #ff6b6b;
-			--green: #38c98b;
-			--violet: #7667f5;
-			--paper: #f7f9ff;
-		}
-
-		* { box-sizing: border-box; }
-		body { background: #0b1328; color: var(--ink); font-family: 'Quicksand', sans-serif; }
-		button, input { font: inherit; }
-		button { cursor: pointer; }
-		.app-shell { display: flex; width: 100vw; height: 100vh; overflow: hidden; background: var(--paper); }
-		.stage { position: relative; flex: 1; min-width: 0; overflow: hidden; background: radial-gradient(circle at 10% 5%, #e1f8fa 0, transparent 28%), #f7f9ff; }
-		.slide { display: none; height: 100%; padding: clamp(22px, 4vh, 52px) clamp(24px, 4vw, 70px); flex-direction: column; animation: reveal .35s ease both; }
-		.slide.active { display: flex; }
-		@keyframes reveal { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-		.eyebrow { color: var(--violet); font-weight: 900; letter-spacing: .12em; text-transform: uppercase; font-size: clamp(12px, 1.8vh, 18px); }
-		h1 { margin: 10px 0 16px; color: var(--navy); font-size: clamp(34px, 6.4vh, 76px); line-height: .98; text-align: left; }
-		h2 { margin: 8px 0 14px; color: var(--navy); font-size: clamp(28px, 4.4vh, 54px); }
-		h3 { margin: 0 0 8px; font-size: clamp(19px, 2.8vh, 29px); }
-		p { line-height: 1.45; }
-		.lead { max-width: 760px; margin: 0; color: var(--muted); font-size: clamp(17px, 2.6vh, 28px); }
-		.slide-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 16px; }
-		.btn { border: 0; border-radius: 12px; padding: 12px 20px; color: white; background: var(--violet); font-weight: 900; box-shadow: 0 7px 0 #5044c9; transition: transform .15s, box-shadow .15s; }
-		.btn:hover { transform: translateY(-2px); box-shadow: 0 9px 0 #5044c9; }
-		.btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #5044c9; }
-		.btn.ghost { color: var(--navy); background: #e9eefb; box-shadow: 0 5px 0 #cbd4e9; }
-		.btn.yellow { color: #563a00; background: var(--yellow); box-shadow: 0 6px 0 #d89e28; }
-		.boot-screen { position: absolute; z-index: 10; inset: 0; display: grid; place-items: center; background: #050914; transition: opacity .7s, visibility .7s; }
-		.boot-screen.off { opacity: 0; visibility: hidden; pointer-events: none; }
-		.boot-copy { text-align: center; color: white; }
-		.boot-copy .terminal { margin-bottom: 25px; color: var(--cyan); font: 900 clamp(34px, 6vh, 72px)/1 monospace; letter-spacing: .04em; }
-		.boot-copy p { color: #8291b2; font-size: 18px; }
-		.power-btn { border: 3px solid var(--cyan); border-radius: 16px; padding: 20px 42px; color: var(--cyan); background: transparent; font-size: clamp(22px, 3.2vh, 36px); font-weight: 900; letter-spacing: .08em; animation: blink 1.15s infinite; }
-		@keyframes blink { 50% { box-shadow: 0 0 28px var(--cyan); color: white; background: #143b52; } }
-		.hero-grid { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 35px; height: 100%; }
-		.hero-visual { min-height: 300px; display: grid; place-items: center; border: 1px solid #dce4f6; border-radius: 24px; background: linear-gradient(135deg, #172244, #293d72); box-shadow: 0 18px 30px #17233d22; }
-		.hero-visual .brain { font-size: clamp(100px, 18vh, 210px); filter: drop-shadow(0 12px 0 #0b1328); }
-		.system-state { display: inline-flex; align-items: center; gap: 8px; margin-top: 24px; padding: 8px 13px; border-radius: 99px; color: #08765a; background: #d8f9eb; font-weight: 900; }
-		.system-state::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--green); }
-		.diagram { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 13px; margin: 36px 0 24px; }
-		.node { position: relative; min-height: 135px; display: grid; place-items: center; padding: 20px; border: 3px solid #dce4f6; border-radius: 20px; color: var(--navy); background: white; text-align: center; font-weight: 900; font-size: clamp(18px, 2.5vh, 28px); box-shadow: 0 10px 0 #e8edf8; }
-		.node .icon { display: block; font-size: 42px; margin-bottom: 8px; }
-		.node.active { border-color: var(--cyan); box-shadow: 0 10px 0 #9ee9e7; background: #ecffff; }
-		.arrow { color: var(--violet); font-size: 40px; font-weight: 900; }
-		.case-grid, .device-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 24px; min-height: 0; }
-		.case-card, .device { border: 1px solid #dce4f6; border-radius: 18px; padding: 20px; background: white; box-shadow: 0 9px 0 #e9edf7; }
-		.case-card p { margin: 7px 0 16px; font-size: 18px; }
-		.case-image { display: grid; place-items: center; height: 120px; margin-bottom: 14px; border-radius: 13px; background: #eef7ff; font-size: 72px; }
-		.chip-row { display: flex; flex-wrap: wrap; gap: 10px; }
-		.chip { border: 2px solid #dce4f6; border-radius: 99px; padding: 9px 14px; color: var(--navy); background: #fff; font-weight: 900; }
-		.chip.lit { border-color: var(--yellow); background: #fff3c9; box-shadow: 0 0 18px #ffc85799; }
-		.brain-action { position: relative; display: inline-block; margin-top: 10px; }
-		.brain-action::after { content: ''; position: absolute; z-index: 0; top: 50%; left: 100%; width: 150px; height: 7px; background: linear-gradient(90deg, var(--yellow), transparent); transform-origin: left; animation: flow 1s linear infinite; opacity: 0; }
-		.brain-action.lit::after { opacity: 1; }
-		@keyframes flow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-		.knowledge { margin-top: 22px; padding: 19px 23px; border-left: 7px solid var(--cyan); border-radius: 0 14px 14px 0; color: var(--navy); background: #e8fbfc; font-size: clamp(19px, 2.8vh, 29px); font-weight: 900; }
-		.device-grid { grid-template-columns: repeat(3, 1fr); }
-		.device { min-height: 220px; }
-		.device-head { display: flex; align-items: center; justify-content: space-between; }
-		.device-icon { font-size: 50px; }
-		.device-screen { display: grid; place-items: center; height: 77px; margin: 12px 0; border-radius: 10px; color: #91a5d0; background: #17233d; font-weight: 900; }
-		.device-screen.on { color: var(--cyan); box-shadow: inset 0 0 25px #29d3d855; }
-		.remote { display: flex; gap: 7px; align-items: center; }
-		.remote button, .heat-btn { width: 36px; height: 36px; border: 0; border-radius: 9px; color: white; background: var(--violet); font-weight: 900; }
-		.data-line { position: relative; height: 5px; margin: 14px 0; overflow: hidden; background: #dce4f6; }
-		.data-line::after { content: ''; position: absolute; width: 40%; height: 100%; left: -40%; background: var(--cyan); }
-		.data-line.run::after { animation: data 1s linear; }
-		@keyframes data { to { left: 100%; } }
-		.heat-level { color: var(--coral); font-size: 24px; font-weight: 900; }
-		.drop-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 25px; }
-		.drop-column { min-height: 230px; padding: 18px; border: 2px dashed #bac6e0; border-radius: 18px; background: #fff; }
-		.drop-column h3 { color: var(--violet); }
-		.drag-item { margin: 10px 0; padding: 15px; border: 2px solid #e0e6f4; border-radius: 12px; color: var(--navy); background: #f8faff; font-weight: 700; cursor: grab; }
-		.drag-item:active { cursor: grabbing; }
-		.drop-target { min-height: 70px; padding: 12px; border: 2px dashed var(--cyan); border-radius: 12px; color: var(--muted); text-align: center; }
-		.drop-target.correct { border-style: solid; color: #08765a; background: #dff9ee; }
-		.input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 28px; }
-		.input-grid label { color: var(--muted); font-weight: 900; }
-		.input-grid input { width: 100%; margin-top: 8px; padding: 15px; border: 2px solid #dce4f6; border-radius: 12px; outline: 0; }
-		.final-board { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 25px; }
-		.winner, .warning { padding: 25px; border-radius: 18px; background: white; box-shadow: 0 9px 0 #e9edf7; }
-		.winner { border-top: 8px solid var(--yellow); }
-		.warning { border-top: 8px solid var(--coral); }
-		.winner strong, .warning strong { display: block; margin-top: 9px; color: var(--navy); font-size: 31px; }
-		.scoreboard { width: 306px; padding: 22px 17px; border-left: 5px solid var(--cyan); background: var(--navy); color: white; box-shadow: none; }
-		.scoreboard h2 { margin: 0 0 4px; color: white; font-size: 27px; }
-		.scoreboard .sub { margin: 0 0 18px; color: #8997b8; font-size: 14px; }
-		.teams-list { gap: 12px; overflow-y: auto; padding-right: 3px; }
-		.team-card { padding: 13px; border: 1px solid #334361; border-radius: 14px; background: #192746; text-align: left; }
-		.team-card.penalty { animation: shake .4s; }
-		@keyframes shake { 25% { transform: translateX(-7px); } 75% { transform: translateX(7px); } }
-		.team-name { color: white; font-size: 17px; }
-		.team-score { margin: 5px 0; color: var(--yellow); font-size: 34px; }
-		.health-label { display: flex; justify-content: space-between; color: #9cabc9; font-size: 12px; }
-		.health-track { height: 10px; margin: 6px 0 10px; overflow: hidden; border-radius: 99px; background: #364768; cursor: pointer; }
-		.health-fill { width: 100%; height: 100%; background: linear-gradient(90deg, var(--green), #a4e65d); transition: width .45s, background .3s; }
-		.health-fill.low { background: var(--coral); }
-		.score-controls { gap: 6px; }
-		.btn-score { padding: 7px 4px; border-radius: 8px; border: 0; font-size: 13px; }
-		.btn-score.add { background: var(--green); } .btn-score.steal { background: var(--yellow); color: #533900; } .btn-score.sub { background: var(--coral); }
-		.score-tools { display: flex; gap: 7px; margin-top: auto; padding-top: 16px; }
-		.score-tools .btn { flex: 1; padding: 10px 5px; font-size: 12px; }
-		.confetti { position: fixed; z-index: 20; inset: 0; pointer-events: none; }
-		.confetti i { position: absolute; width: 10px; height: 18px; animation: fall 1.7s ease-out forwards; }
-		@keyframes fall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
-		.flash { animation: flash-red .45s; }
-		@keyframes flash-red { 50% { box-shadow: inset 0 0 0 999px #ff6b6b33; } }
-		@media (max-width: 900px) { .scoreboard { width: 235px; } .hero-grid { grid-template-columns: 1fr; } .hero-visual { min-height: 170px; } .device-grid { grid-template-columns: 1fr; overflow-y: auto; } .slide { overflow-y: auto; } }
-		@media (max-width: 650px) { .app-shell { display: block; overflow-y: auto; } .stage { height: 78vh; } .scoreboard { width: 100%; height: 22vh; padding: 8px 12px; } .scoreboard h2, .scoreboard .sub, .score-tools { display: none; } .teams-list { flex-direction: row; } .team-card { min-width: 165px; } .diagram, .drop-layout, .input-grid, .final-board { grid-template-columns: 1fr; } .diagram .arrow { transform: rotate(90deg); text-align: center; } }
-	</style>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Tin học 3 - Bài 2 Tiết 1: Quá trình xử lí thông tin</title>
+	<link rel="stylesheet" href="../theme/style.css" />
 </head>
 
-<body class="lesson-processing">
-	<main class="app-shell" id="app-shell">
-		<section class="stage" id="stage">
-			<div class="boot-screen" id="boot-screen">
-				<div class="boot-copy">
-					<div class="terminal">CLASS_OS // READY</div>
-					<p>Hệ thống lớp học đang chờ lệnh của giáo viên</p>
-					<button class="power-btn" onclick="bootSystem()">[ BẬT NGUỒN ]</button>
-				</div>
+<body class="lesson-quiz">
+	<div class="presentation-area">
+		<!-- Màn hình chào -->
+		<section class="slide-container active" data-slide="welcome">
+			<div class="welcome-screen">
+				<div class="tag">Tin học 3</div>
+				<h1>Quá trình xử lí thông tin</h1>
+				<p class="welcome-sub">Bài giảng tương tác tích cực: Hệ thống thẻ bài và thử thách.</p>
+				<button type="button" class="btn-nav" id="startLessonBtn">Bắt đầu tiết học</button>
 			</div>
-
-			<article class="slide active" id="slide-1">
-				<div class="hero-grid">
-					<div>
-						<div class="eyebrow">Chủ đề 1 · Máy tính và em</div>
-						<h1>HỆ THỐNG<br>LỚP HỌC ĐÃ BẬT</h1>
-						<p class="lead">Thầy là <strong>Bàn phím</strong>. Các em là <strong>Màn hình</strong>. Thầy nhập lệnh gì, các em xuất kết quả đó!</p>
-						<div class="system-state">ONLINE · SẴN SÀNG NHẬN LỆNH</div>
-					</div>
-					<div class="hero-visual"><div class="brain">🧠</div></div>
-				</div>
-				<div class="slide-footer"><span class="eyebrow">Module 1 · Khởi động</span><button class="btn" onclick="goTo(2)">Vào hệ thống →</button></div>
-			</article>
-
-			<article class="slide" id="slide-2">
-				<div class="eyebrow">Module 1 · Kỷ luật thép</div><h2>Input của thầy, Output của lớp</h2>
-				<p class="lead">Giơ 1 ngón tay: cả lớp vỗ tay 1 cái. Giơ nắm đấm: cả lớp im lặng. Dãy nào bị “lag”, hãy click thẳng vào thanh máu của dãy đó.</p>
-				<div class="knowledge">Câu hỏi dẫn: Mắt nhìn thấy tay thầy, rồi tay vỗ. Bộ phận nào ở giữa đã tiếp nhận hình ảnh và ra lệnh? <strong>→ Bộ não.</strong></div>
-				<div class="slide-footer"><button class="btn ghost" onclick="goTo(1)">← Trước</button><button class="btn" onclick="goTo(3)">Chuyển cảnh →</button></div>
-			</article>
-
-			<article class="slide" id="slide-3">
-				<div class="eyebrow">Cầu nối kiến thức</div><h1 class="title-card">BÀI 2:<br><span style="color:var(--cyan)">XỬ LÍ THÔNG TIN</span></h1>
-				<p class="lead">Từ phản xạ của con người đến những thiết bị thông minh, mọi hệ thống đều cần thu nhận, xử lí rồi tạo ra kết quả.</p>
-				<div class="slide-footer"><button class="btn ghost" onclick="goTo(2)">← Trước</button><button class="btn" onclick="goTo(4)">Khám phá →</button></div>
-			</article>
-
-			<article class="slide" id="slide-4">
-				<div class="eyebrow">Module 2 · CPU sinh học</div><h2>Con người xử lí thông tin như thế nào?</h2>
-				<div class="diagram">
-					<div class="node" id="node-receive"><span class="icon">👀👂</span>Thu nhận<br>thông tin</div><div class="arrow">→</div>
-					<div class="node" id="node-process"><span class="icon">🧠</span>Xử lí<br>thông tin</div><div class="arrow">→</div>
-					<div class="node" id="node-act"><span class="icon">🙋</span>Quyết định /<br>Hành động</div>
-				</div>
-				<div class="knowledge">Hãy nhấn các khối theo đúng chuỗi: <strong>Thu nhận → Xử lí → Hành động</strong>.</div>
-				<div class="slide-footer"><button class="btn ghost" onclick="goTo(3)">← Trước</button><button class="btn" onclick="goTo(5)">Case 1: Hát theo video →</button></div>
-			</article>
-
-			<article class="slide" id="slide-5">
-				<div class="eyebrow">Case 1 · Hát theo video</div><h2>Tai và mắt làm nhiệm vụ gì?</h2>
-				<div class="case-grid">
-					<div class="case-card"><div class="case-image">📺🎤</div><h3>Thông tin đang đến</h3><p>Nghe nhạc từ tivi, nhìn hình ảnh và lời bài hát.</p><div class="chip-row"><button class="chip" onclick="lightInput(this, 'Tai tiếp nhận âm thanh')">👂 Tai</button><button class="chip" onclick="lightInput(this, 'Mắt tiếp nhận hình ảnh')">👀 Mắt</button></div></div>
-					<div class="case-card"><div class="case-image brain-action" id="sing-action">🧠 → 👄</div><h3>Bộ não ra lệnh</h3><p id="case-feedback">Nhấn Tai hoặc Mắt, sau đó nhấn vào bộ não để luồng sáng chạy đến miệng.</p><button class="chip" onclick="lightBrain()">🧠 Bộ não</button></div>
-				</div>
-				<div class="slide-footer"><button class="btn ghost" onclick="goTo(4)">← Trước</button><button class="btn" onclick="goTo(6)">Case 2: Thả diều →</button></div>
-			</article>
-
-			<article class="slide" id="slide-6">
-				<div class="eyebrow">Case 2 · Thả diều</div><h2>Dây diều bị chùng, diều không lên cao</h2>
-				<div class="case-grid"><div class="case-card"><div class="case-image">🪁🌬️</div><p>Thông tin nhận được: dây diều đang chùng, diều chưa bay lên.</p></div><div class="case-card"><h3>Não quyết định điều gì?</h3><p>Chọn hành động giúp diều bay lên:</p><div class="chip-row"><button class="chip" onclick="checkChoice(this, false)">Ngồi xuống chờ gió</button><button class="chip" onclick="checkChoice(this, true)">Chạy ngược chiều gió</button><button class="chip" onclick="checkChoice(this, false)">Thu diều lại</button></div><div class="knowledge" id="choice-feedback" style="display:none"></div></div></div>
-				<div class="slide-footer"><button class="btn ghost" onclick="goTo(5)">← Trước</button><button class="btn" onclick="goTo(7)">Chốt kiến thức →</button></div>
-			</article>
-
-			<article class="slide" id="slide-7">
-				<div class="eyebrow">Module 2 · Chốt kiến thức</div><h2>Bộ não là “CPU sinh học”</h2><div class="knowledge" style="margin-top:35px">Bộ não là nơi xử lí thông tin, điều khiển các suy nghĩ và hành động của con người.</div><div class="diagram"><div class="node">👁️ 👂<br>Thu nhận</div><div class="arrow">→</div><div class="node active">🧠<br>Xử lí</div><div class="arrow">→</div><div class="node">🏃 🎤<br>Hành động</div></div>
-				<div class="slide-footer"><button class="btn ghost" onclick="goTo(6)">← Trước</button><button class="btn" onclick="goTo(8)">Sang thế giới máy móc →</button></div>
-			</article>
-
-			<article class="slide" id="slide-8">
-				<div class="eyebrow">Module 3 · Smart devices</div><h2>Máy móc cũng biết tiếp nhận và quyết định</h2><p class="lead">Con người dùng não. Máy móc dùng <strong>bộ xử lí</strong>.</p>
-				<div class="device-grid">
-					<div class="device"><div class="device-head"><h3>📺 Tivi</h3><span>VTV</span></div><div class="device-screen" id="tv-screen">Chưa có kênh</div><div class="data-line" id="tv-data"></div><div class="remote"><span>Remote:</span><button onclick="playTV(3)">3</button><button onclick="playTV(1)">1</button></div></div>
-					<div class="device"><div class="device-head"><h3>🍳 Bếp từ</h3><span class="heat-level" id="heat-level">Mức 1</span></div><div class="device-screen">Nhiệt độ an toàn</div><div class="data-line" id="heat-data"></div><button class="heat-btn" onclick="increaseHeat()">+</button><p id="heat-feedback">Nhấn + để bếp nhận lệnh tăng nhiệt.</p></div>
-					<div class="device"><div class="device-head"><h3>🌀 Quạt điện</h3><span id="fan-state">DỪNG</span></div><div class="device-screen" id="fan-screen">🌬️</div><div class="data-line" id="fan-data"></div><button class="chip" onclick="toggleFan()">Remote: Bật / Dừng</button></div>
-				</div>
-				<div class="slide-footer"><button class="btn ghost" onclick="goTo(7)">← Trước</button><button class="btn" onclick="goTo(9)">Camera điện thoại →</button></div>
-			</article>
-
-			<article class="slide" id="slide-9">
-				<div class="eyebrow">Module 3 · Input / Output</div><h2>Chiếc điện thoại đang làm gì?</h2><div class="case-grid"><div class="case-card"><div class="case-image">📱🌾</div><h3>Camera điện thoại</h3><p>Thu nhận thông tin dạng gì?</p><button class="chip" onclick="showPhoneAnswer()">Bấm để xử lí</button></div><div class="case-card"><h3 id="phone-answer">Đang chờ câu trả lời...</h3><div class="knowledge">Input: <strong>Hình ảnh đồng lúa</strong><br>Output: <strong>Bức ảnh được lưu trong điện thoại</strong></div></div></div><div class="slide-footer"><button class="btn ghost" onclick="goTo(8)">← Trước</button><button class="btn" onclick="goTo(10)">Chốt kiến thức →</button></div>
-			</article>
-
-			<article class="slide" id="slide-10"><div class="eyebrow">Module 3 · Chốt kiến thức</div><h1>NHIỀU MÁY MÓC CŨNG<br><span style="color:var(--cyan)">TIẾP NHẬN THÔNG TIN</span></h1><p class="lead">...để xử lí và quyết định hành động, giống như con người.</p><div class="diagram"><div class="node">📡<br>Input</div><div class="arrow">→</div><div class="node active">⚙️<br>Bộ xử lí</div><div class="arrow">→</div><div class="node">💡<br>Output</div></div><div class="slide-footer"><button class="btn ghost" onclick="goTo(9)">← Trước</button><button class="btn" onclick="goTo(11)">Vào trùm cuối →</button></div></article>
-
-			<article class="slide" id="slide-11"><div class="eyebrow">Module 4 · Trùm cuối · X2 điểm</div><h2>Kéo thả: Bố kể chuyện</h2><p class="lead">Kéo mỗi thẻ ở cột B vào đúng lỗ ở cột A. Đúng cặp sẽ bắn pháo hoa và cộng 40 điểm.</p><div class="drop-layout"><div class="drop-column"><h3>A · Bộ xử lí</h3><div class="drop-target" data-answer="input" ondragover="allowDrop(event)" ondrop="dropCard(event)">Thông tin được thu nhận</div><div class="drop-target" data-answer="output" ondragover="allowDrop(event)" ondrop="dropCard(event)">Kết quả xử lí</div></div><div class="drop-column"><h3>B · Sự kiện</h3><div class="drag-item" draggable="true" data-type="output" ondragstart="dragCard(event)">Minh quyết định kể lại cho An và Khoa</div><div class="drag-item" draggable="true" data-type="input" ondragstart="dragCard(event)">Câu chuyện hay Minh nghe bố kể</div></div></div><div class="slide-footer"><button class="btn ghost" onclick="goTo(10)">← Trước</button><button class="btn" onclick="goTo(12)">Bài toán đời sống →</button></div></article>
-
-			<article class="slide" id="slide-12"><div class="eyebrow">Module 4 · Bài toán đời sống</div><h2>Ví dụ Input và Output của em</h2><p class="lead">Hãy nhập một ví dụ hằng ngày. Cả lớp sẽ cùng vote xem em đã nhận diện đúng chưa.</p><div class="input-grid"><label>Thông tin thu nhận (Input)<input id="input-example" placeholder="Ví dụ: nghe tiếng chuông..." /></label><label>Kết quả xử lí (Output)<input id="output-example" placeholder="Ví dụ: đứng dậy đi học..." /></label></div><button class="btn yellow" style="align-self:flex-start;margin-top:25px" onclick="voteExample()">✓ Gửi để cả lớp vote</button><div class="knowledge" id="vote-result" style="display:none">Lớp mình đồng ý: đây là một cặp Input → Output hợp lí!</div><div class="slide-footer"><button class="btn ghost" onclick="goTo(11)">← Trước</button><button class="btn" onclick="goTo(13)">Tổng kết →</button></div></article>
-
-			<article class="slide" id="slide-13"><div class="eyebrow">Tổng kết · Bảng vàng</div><h1>AI LÀ DÃY VÔ ĐỊCH?</h1><p class="lead">Bảng điểm đã được sắp xếp lại. Dãy cao điểm nhất chiến thắng; dãy bị trừ kỷ luật nhiều nhất cần rút kinh nghiệm.</p><div class="final-board"><div class="winner"><div class="eyebrow">🏆 Dãy vô địch</div><strong id="winner-name">Đang tính...</strong><p id="winner-score"></p></div><div class="warning"><div class="eyebrow" style="color:var(--coral)">⚠ Cảnh cáo kỷ luật</div><strong id="warning-name">Đang tính...</strong><p>Hãy tập trung để không bị “lag” trong tiết học sau.</p></div></div><div class="slide-footer"><button class="btn ghost" onclick="goTo(12)">← Trước</button><button class="btn" onclick="sortTeams(); goTo(1)">Chơi lại từ đầu ↻</button></div></article>
 		</section>
 
-		<aside class="scoreboard" aria-label="Bảng điểm ba dãy">
-			<h2>ĐIỂM LỚP HỌC</h2><p class="sub">Click thanh máu để trừ 15 điểm kỷ luật</p>
-			<div class="teams-list" id="teams-list"></div>
-			<div class="score-tools"><button class="btn ghost" onclick="toggleFullScreen()">⛶ Toàn màn hình</button><button class="btn" onclick="sortTeams()">↕ Xếp hạng</button></div>
-		</aside>
-	</main>
-	<div class="confetti" id="confetti"></div>
+		<!-- Khởi động -->
+		<section class="slide-container" data-slide="opening">
+			<div class="slide-header">
+				<div class="tag">Khởi động</div>
+				<div class="top-badge">Bài 2 - Tiết 1</div>
+			</div>
+			<div class="quiz-hero">
+				<h2 class="quiz-hero-title">Khởi động</h2>
+				<div class="quiz-hero-subtitle">Kiểm tra nhanh bài cũ (Lớp trưởng điều phối)</div>
+			</div>
+			<div class="quiz-panel">
+				<p><strong>Câu 1.</strong> PT NLS: Việc lưu tài liệu trong thư mục giúp ích gì cho cô giáo?</p>
+			</div>
+			<div class="quiz-panel warn">
+				<p><strong>Câu 2.</strong> Theo em, thông tin nào đáng tin cậy hơn?</p>
+			</div>
+			<div class="controls">
+				<button type="button" class="btn-nav prev prev-btn">Quay lại</button>
+				<button type="button" class="btn-nav next-btn">Khám phá bài mới</button>
+			</div>
+		</section>
+
+		<!-- Khám phá -->
+		<section class="slide-container" data-slide="title">
+			<div class="slide-header">
+				<div class="tag">Khám phá</div>
+				<div class="top-badge">Quá trình xử lí</div>
+			</div>
+			<div class="hero-grid">
+				<div>
+					<h1 class="lesson-title">Quá trình xử lí thông tin</h1>
+					<p class="lead">Khi con người nhận được thông tin, bộ não sẽ xử lí, tạo ra quyết định và điều khiển
+						hành động của bản thân.</p>
+					<div class="system-state">Hệ thống xử lí thông tin của cơ thể</div>
+				</div>
+				<div class="hero-visual">
+					<div class="brain-icon">🧠</div>
+				</div>
+			</div>
+			<div class="controls">
+				<button type="button" class="btn-nav prev prev-btn">Quay lại</button>
+				<button type="button" class="btn-nav next-btn">Tìm hiểu thêm</button>
+			</div>
+		</section>
+
+		<!-- Sơ đồ -->
+		<section class="slide-container" data-slide="knowledge">
+			<div class="slide-header">
+				<div class="tag">Kiến thức mới</div>
+				<div class="top-badge">Hình 4 SGK</div>
+			</div>
+			<h2 class="lesson-title" style="font-size: 40px; margin-bottom: 20px;">Quá trình xử lí thông tin của con
+				người</h2>
+			<div class="diagram">
+				<div class="node"><span class="icon">👀</span>Thông tin thu nhận</div>
+				<div class="arrow">→</div>
+				<div class="node active"><span class="icon">🧠</span>Bộ não xử lí</div>
+				<div class="arrow">→</div>
+				<div class="node"><span class="icon">🏃</span>Hành động / Quyết định</div>
+			</div>
+			<div class="quiz-panel">
+				<p><strong>Ví dụ:</strong> Khi hát, mắt nhìn lời bài, tai nghe tiếng nhạc, bộ não kết hợp thông tin và
+					tạo nên cảm xúc, rồi điều khiển việc hát.</p>
+			</div>
+			<div class="variables-box">
+				<strong>Thu nhận:</strong> Lời và nhạc bài hát.<br>
+				<strong>Xử lí:</strong> Kết nối, suy nghĩ, tạo quyết định.<br>
+				<strong>Kết quả:</strong> Hát theo giai điệu và lời bài.
+			</div>
+			<div class="controls">
+				<button type="button" class="btn-nav prev prev-btn">Quay lại</button>
+				<button type="button" class="btn-nav next-btn">Ghi nhớ</button>
+			</div>
+		</section>
+
+		<!-- Ghi nhớ -->
+		<section class="slide-container" data-slide="remember">
+			<div class="slide-header">
+				<div class="tag">Trọng tâm</div>
+				<div class="top-badge">Ghi nhớ</div>
+			</div>
+			<div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+				<div class="ghi-nho-box">
+					<strong>Bộ não</strong> là nơi xử lí thông tin, tạo ra quyết định, điều khiển các suy nghĩ và hành
+					động của con người.
+				</div>
+				<div class="quiz-panel warn" style="margin-top: 30px; text-align: center;">
+					<p>Yêu cầu cả lớp đọc đồng thanh thật to để nhận quyền mở Gacha!</p>
+				</div>
+			</div>
+			<div class="controls">
+				<button type="button" class="btn-nav prev prev-btn">Quay lại</button>
+				<button type="button" class="btn-nav next-btn">Vào Luyện tập</button>
+			</div>
+		</section>
+
+		<!-- Thử thách 1 -->
+		<section class="slide-container" data-slide="quiz1">
+			<div class="slide-header">
+				<div class="tag">Thử thách 1</div>
+				<div class="top-badge">Trắc nghiệm</div>
+			</div>
+			<div class="quiz-panel">
+				<p><strong>Câu hỏi:</strong> Bộ phận nào của con người làm nhiệm vụ xử lý thông tin?</p>
+			</div>
+			<div class="answers-grid">
+				<button class="btn-answer" data-correct="false">A. Chân tay</button>
+				<button class="btn-answer" data-correct="false">B. Đôi tai</button>
+				<button class="btn-answer" data-correct="true">C. Bộ não</button>
+				<button class="btn-answer" data-correct="false">D. Đôi mắt</button>
+			</div>
+			<div class="explanation-box" id="explain1">
+				Chính xác! Bộ não là trung tâm xử lí thông tin của cơ thể.
+			</div>
+			<div class="controls">
+				<button type="button" class="btn-nav prev prev-btn">Quay lại</button>
+				<button type="button" class="btn-nav next-btn">Thử thách 2</button>
+			</div>
+		</section>
+
+		<!-- Thử thách 2 -->
+		<section class="slide-container" data-slide="drag">
+			<div class="slide-header">
+				<div class="tag">Thử thách 2</div>
+				<div class="top-badge">Nối dây cáp</div>
+			</div>
+			<div class="quiz-panel">
+				<p>Quan sát một người thả diều đang cố làm diều bay cao. Hãy nối Cột A với Cột B cho đúng.</p>
+			</div>
+			<div class="drag-area">
+				<div class="drop-column">
+					<h3>Cột A (Thông tin)</h3>
+					<div class="drop-slot info-slot">1. Thông tin được thu nhận và xử lí</div>
+					<div class="drop-slot info-slot">2. Kết quả của việc xử lí thông tin</div>
+				</div>
+				<div class="drop-column">
+					<h3>Cột B (Hành động)</h3>
+					<div class="drop-slot" data-pair="b">Kéo đáp án vào đây</div>
+					<div class="drop-slot" data-pair="a">Kéo đáp án vào đây</div>
+				</div>
+			</div>
+			<div class="drag-items">
+				<div class="drag-item" draggable="true" data-value="b. Diều không lên cao và dây bị chùng">b. Diều không
+					lên cao và dây bị chùng</div>
+				<div class="drag-item" draggable="true" data-value="a. Chạy ngược chiều gió để dây căng ra">a. Chạy
+					ngược chiều gió để dây căng ra</div>
+			</div>
+			<div class="drag-feedback" id="dragFeedback" aria-live="polite"></div>
+			<div class="controls">
+				<button type="button" class="btn-nav prev prev-btn">Quay lại</button>
+				<button type="button" class="btn-nav next-btn">Thử thách 3</button>
+			</div>
+		</section>
+
+		<!-- Thử thách 3 (Tự động tạo số câu hỏi theo số dãy) -->
+		<section class="slide-container" data-slide="tf">
+			<div class="slide-header">
+				<div class="tag">Thử thách 3</div>
+				<div class="top-badge">Đúng hay Sai?</div>
+			</div>
+			<div class="quiz-panel">
+				<p>Lớp trưởng đọc to câu hỏi cho từng dãy. Dãy tương ứng giơ tay hô ĐÚNG hoặc SAI.</p>
+			</div>
+
+			<!-- Nút để giáo viên bấm chia câu hỏi sau khi đã chốt số dãy ở bảng điểm -->
+			<div style="text-align: center; margin: 10px 0;">
+				<button type="button" class="btn-nav warning" id="generateTfBtn"
+					style="padding: 10px 20px; font-size: 18px;">🔄 Chia câu hỏi cho các dãy</button>
+			</div>
+
+			<!-- Vùng chứa các câu hỏi sẽ được tạo tự động bằng JS -->
+			<div class="truefalse-grid" id="tfGrid">
+				<!-- Nội dung sẽ được render tại đây -->
+			</div>
+
+			<div class="controls">
+				<button type="button" class="btn-nav prev prev-btn">Quay lại</button>
+				<button type="button" class="btn-nav next-btn">Thử thách 4</button>
+			</div>
+		</section>
+
+		<!-- Thử thách 4 -->
+		<section class="slide-container" data-slide="fill">
+			<div class="slide-header">
+				<div class="tag">Thử thách 4</div>
+				<div class="top-badge">Điền từ</div>
+			</div>
+			<div class="quiz-panel">
+				<p>Khi đi xe đạp đến ngã tư, thấy đèn đỏ, em phanh xe lại.</p>
+			</div>
+			<div class="fill-blocks">
+				<div class="fill-question">
+					1. Thông tin thu nhận là gì? <span class="blank-slot">Kéo thả vào đây</span>
+				</div>
+				<div class="fill-question">
+					2. Bộ phận nào xử lí thông tin? <span class="blank-slot">Kéo thả vào đây</span>
+				</div>
+				<div class="fill-question">
+					3. Kết quả hành động là gì? <span class="blank-slot">Kéo thả vào đây</span>
+				</div>
+			</div>
+			<div class="drag-items" style="margin-top:10px;">
+				<div class="drag-item" draggable="true" data-value="Đèn đỏ">Đèn đỏ</div>
+				<div class="drag-item" draggable="true" data-value="Bộ não">Bộ não</div>
+				<div class="drag-item" draggable="true" data-value="Phanh xe">Phanh xe</div>
+			</div>
+			<div class="controls">
+				<button type="button" class="btn-nav prev prev-btn">Quay lại</button>
+				<button type="button" class="btn-nav next-btn">Vận dụng Thẻ bài</button>
+			</div>
+		</section>
+
+		<!-- Vận dụng Thẻ bài -->
+		<section class="slide-container" data-slide="cards">
+			<div class="slide-header">
+				<div class="tag">Vận dụng</div>
+				<div class="top-badge">Lật thẻ bài</div>
+			</div>
+			<div class="quiz-panel" style="padding: 12px 22px;">
+				<p>Chọn một thẻ để mở câu hỏi, sau đó bấm <strong>Hiện đáp án</strong> để chốt điểm.</p>
+			</div>
+			<div class="case-grid">
+				<div class="case-card"
+					data-question="Khi Minh chụp ảnh cánh đồng lúa, điện thoại đã thu nhận thông tin gì và tạo ra kết quả gì?"
+					data-answer="Thu nhận: Hình ảnh. | Kết quả: 1 bức ảnh.">
+					<span class="case-number">01</span><span class="case-emoji">📸</span>
+				</div>
+
+				<div class="case-card"
+					data-question="Khi bạn bấm nút trên điều khiển từ xa, quạt máy đã thu nhận tín hiệu gì và thực hiện hành động gì?"
+					data-answer="Thu nhận: Yêu cầu từ remote. | Hành động: Quạt quay theo yêu cầu.">
+					<span class="case-number">02</span><span class="case-emoji">🌀</span>
+				</div>
+
+				<div class="case-card"
+					data-question="Hoa thấy trời đổ mưa nên vội mở ô. Trong tình huống này, Hoa đã thu nhận thông tin gì và thực hiện hành động gì?"
+					data-answer="Thu nhận: Thấy trời mưa. | Hành động: Mở ô/dù.">
+					<span class="case-number">03</span><span class="case-emoji">🌧️</span>
+				</div>
+
+				<div class="case-card"
+					data-question="Cửa kính siêu thị tự mở ra khi có người bước tới. Cảm biến của cửa đã thu nhận thông tin gì và đưa ra kết quả gì?"
+					data-answer="Thu nhận: Có người đến gần. | Kết quả: Cửa tự động mở.">
+					<span class="case-number">04</span><span class="case-emoji">🚪</span>
+				</div>
+
+				<div class="case-card"
+					data-question="Nghe tiếng trống 'Tùng! Tùng!', các em học sinh liền xếp hàng. Thông tin các em thu nhận là gì và hành động tiếp theo là gì?"
+					data-answer="Thu nhận: Âm thanh (tiếng trống). | Hành động: Xếp hàng.">
+					<span class="case-number">05</span><span class="case-emoji">🥁</span>
+				</div>
+
+				<div class="case-card"
+					data-question="Khi gõ phím chữ &quot;A&quot; trên bàn phím, máy tính đã thu nhận tín hiệu gì và hiển thị kết quả gì?"
+					data-answer="Thu nhận: Tín hiệu phím chữ A. | Kết quả: Chữ A hiện lên màn hình.">
+					<span class="case-number">06</span><span class="case-emoji">⌨️</span>
+				</div>
+
+				<!-- CÁC THẺ BỔ SUNG MỚI -->
+				<div class="case-card"
+					data-question="Khi trời tối, đèn đường tự động bật sáng. Đèn đường đã thu nhận thông tin gì và đưa ra hành động gì?"
+					data-answer="Thu nhận: Trời tối (thiếu sáng). | Hành động: Bật sáng đèn.">
+					<span class="case-number">07</span><span class="case-emoji">💡</span>
+				</div>
+
+				<div class="case-card"
+					data-question="Khi nước sôi sùng sục, ấm siêu tốc tự nhảy công tắc ngắt điện. Ấm nước đã tiếp nhận thông tin gì và kết quả xử lí là gì?"
+					data-answer="Thu nhận: Nhiệt độ nước (đã sôi). | Hành động: Ngắt điện.">
+					<span class="case-number">08</span><span class="case-emoji">♨️</span>
+				</div>
+
+				<div class="case-card"
+					data-question="Khi em đưa tay vào dưới vòi nước ở siêu thị, nước tự động chảy ra. Vòi nước đã nhận được thông tin gì và hành động thế nào?"
+					data-answer="Thu nhận: Có bàn tay đưa vào. | Hành động: Mở van nước chảy ra.">
+					<span class="case-number">09</span><span class="case-emoji">🚰</span>
+				</div>
+
+				<div class="case-card"
+					data-question="Nghe tiếng còi hú xe cứu thương, chú Nam lái xe tấp vào lề nhường đường. Thông tin thu nhận là gì và kết quả là gì?"
+					data-answer="Thu nhận: Âm thanh (tiếng còi hú). | Hành động: Lái xe tấp vào lề.">
+					<span class="case-number">10</span><span class="case-emoji">🚑</span>
+				</div>
+			</div>
+			<div class="case-modal" id="caseModal" aria-hidden="true">
+				<div class="case-modal-card" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
+					<button type="button" class="case-modal-close" id="closeCaseModalBtn" aria-label="Đóng">×</button>
+					<div class="case-modal-label">Thẻ vận dụng</div>
+					<h2 id="caseModalTitle">Câu hỏi</h2>
+					<p class="case-question" id="caseQuestion"></p>
+					<div class="case-answer" id="caseAnswer" aria-live="polite"></div>
+					<div class="case-modal-actions">
+						<button type="button" class="btn-nav" id="showCaseAnswerBtn">Hiện đáp án</button>
+					</div>
+				</div>
+			</div>
+			<div class="controls">
+				<button type="button" class="btn-nav prev prev-btn">Quay lại</button>
+				<button type="button" class="btn-nav next-btn">Tổng kết</button>
+			</div>
+		</section>
+
+		<!-- Tổng kết -->
+		<section class="slide-container" data-slide="summary">
+			<div class="slide-header">
+				<div class="tag">Tổng kết</div>
+				<div class="top-badge">Hoàn thành</div>
+			</div>
+			<div
+				style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+				<h1 style="font-size: 60px; color: var(--lesson-violet); margin-bottom: 20px;">TẠM BIỆT VÀ HẸN GẶP LẠI
+				</h1>
+				<div class="quiz-panel warn"
+					style="font-size: 24px; border-radius: 15px; border-left: none; width: 100%;">
+					<p><strong>Dặn dò:</strong> Xem lại bài và chuẩn bị Tiết 2 nhé!</p>
+				</div>
+			</div>
+			<div class="controls">
+				<button type="button" class="btn-nav prev prev-btn">Quay lại</button>
+				<button type="button" class="btn-nav" id="finalizeLessonBtn">Phát thưởng Gacha Cuối</button>
+			</div>
+		</section>
+	</div>
+
+	<!-- Scoreboard Bên Phải -->
+	<aside class="scoreboard">
+		<h3 style="margin-top: 0; text-align: center; color: var(--lesson-navy);">Đấu Trường Điểm Số</h3>
+		<div class="setup-panel">
+			<input id="teamCountInput" type="number" min="1" max="10" value="3" title="Số lượng dãy" />
+			<button type="button" class="btn-nav" id="generateTeamsBtn">Tạo</button>
+		</div>
+		<div class="teams-list" id="teamsList"></div>
+		<div class="score-tools">
+			<button type="button" class="btn-nav warning" id="gachaBtn" style="font-size: 20px; padding: 15px;">MỞ GACHA
+				🎁</button>
+		</div>
+	</aside>
+
+	<!-- Gacha Modal -->
+	<div class="gacha-modal" id="gachaModal">
+		<div class="gacha-card">
+			<h2>Thẻ Quà Tặng</h2>
+			<p class="gacha-status" id="gachaStatus">Đang xáo trộn phần thưởng...</p>
+			<div class="gift-box" id="gachaReward">🎁 +20 Điểm</div>
+			<button type="button" class="btn-nav" id="closeGachaBtn">Xác nhận</button>
+		</div>
+	</div>
 
 	<script>
-		let currentSlide = 1;
-		const teamData = [
-			{ name: 'Dãy Mặt Trời', score: 0, health: 100, penalties: 0 },
-			{ name: 'Dãy Cầu Vồng', score: 0, health: 100, penalties: 0 },
-			{ name: 'Dãy Ngôi Sao', score: 0, health: 100, penalties: 0 }
+		const slides = Array.from(document.querySelectorAll('.slide-container'));
+		const prevButtons = document.querySelectorAll('.prev-btn');
+		const nextButtons = document.querySelectorAll('.next-btn');
+		let currentSlide = 0;
+
+		function showSlide(index) {
+			currentSlide = Math.max(0, Math.min(index, slides.length - 1));
+			slides.forEach((slide, i) => {
+				slide.classList.toggle('active', i === currentSlide);
+			});
+		}
+
+		prevButtons.forEach(btn => btn.addEventListener('click', () => showSlide(currentSlide - 1)));
+		nextButtons.forEach(btn => btn.addEventListener('click', () => showSlide(currentSlide + 1)));
+		document.getElementById('startLessonBtn').addEventListener('click', () => showSlide(1));
+
+		// Quiz 1
+		document.querySelectorAll('.btn-answer').forEach(btn => {
+			btn.addEventListener('click', () => {
+				const correct = btn.dataset.correct === 'true';
+				btn.classList.add(correct ? 'correct' : 'wrong');
+				if (correct) document.getElementById('explain1').style.display = 'block';
+			});
+		});
+
+		// ===== XỬ LÝ THỬ THÁCH 3: TẠO CÂU HỎI ĐÚNG/SAI THEO SỐ ĐỘI =====
+		const tfQuestionsData = [
+			{ q: "Đôi mắt là nơi tạo ra quyết định và điều khiển hành động.", ans: false },
+			{ q: "Khi em nghe tiếng chuông báo thức, thông tin thu nhận là âm thanh.", ans: true },
+			{ q: "Bộ não chỉ xử lí thông tin mà không điều khiển hành động.", ans: false },
+			{ q: "Khi nhìn đèn đỏ ở ngã tư, thông tin thu nhận là hình ảnh.", ans: true },
+			{ q: "Hành động của cơ thể không liên quan đến việc xử lí thông tin của bộ não.", ans: false },
+			{ q: "Tai làm nhiệm vụ thu nhận thông tin dạng âm thanh.", ans: true }
 		];
 
-		function bootSystem() {
-			document.getElementById('boot-screen').classList.add('off');
-			playTone(220, .12); setTimeout(() => playTone(440, .16), 120); setTimeout(() => playTone(660, .2), 260);
+		function renderTFQuestions() {
+			const grid = document.getElementById('tfGrid');
+			grid.innerHTML = '';
+
+			// Lấy số lượng dãy hiện tại từ ô input bảng điểm bên phải, giới hạn tối đa 6 câu
+			let teamCount = Number(document.getElementById('teamCountInput').value) || 3;
+			teamCount = Math.min(teamCount, 6);
+
+			for (let i = 0; i < teamCount; i++) {
+				const item = tfQuestionsData[i];
+				const card = document.createElement('div');
+				card.className = 'tf-card';
+				card.innerHTML = `
+          <div style="font-weight: 900; color: var(--lesson-coral); margin-bottom: 8px; text-transform: uppercase;">🔥 Dành cho Dãy ${i + 1}</div>
+          <h3>${i + 1}. ${item.q}</h3>
+          <div class="tf-answers">
+            <button class="mini-btn true tf-btn" data-correct="${item.ans === true}">ĐÚNG</button>
+            <button class="mini-btn false tf-btn" data-correct="${item.ans === false}">SAI</button>
+          </div>
+					<div class="tf-feedback" aria-live="polite"></div>
+        `;
+				grid.appendChild(card);
+			}
+
+			// Gắn sự kiện click cho các nút ĐÚNG/SAI vừa được tạo
+			grid.querySelectorAll('.tf-btn').forEach(btn => {
+				btn.addEventListener('click', function () {
+					const correct = this.dataset.correct === 'true';
+					const card = this.closest('.tf-card');
+					const feedback = card.querySelector('.tf-feedback');
+					this.classList.add(correct ? 'selected-correct' : 'selected-wrong');
+					this.textContent += correct ? ' ✓' : ' ✕';
+					feedback.textContent = correct
+						? 'Chính xác! Em đã xác định đúng vai trò của thông tin.'
+						: 'Chưa đúng. Hãy nhớ: bộ não xử lí thông tin rồi mới điều khiển hành động.';
+					feedback.classList.add(correct ? 'correct' : 'wrong');
+					// Khóa cả 2 nút trong cùng 1 câu sau khi đã trả lời
+					const siblings = this.parentElement.querySelectorAll('.tf-btn');
+					siblings.forEach(s => {
+						s.disabled = true;
+						s.style.opacity = '0.7';
+						s.style.cursor = 'not-allowed';
+					});
+					this.style.opacity = '1';
+				});
+			});
 		}
 
-		function playTone(frequency, duration) {
-			const AudioContext = window.AudioContext || window.webkitAudioContext;
-			if (!AudioContext) return;
-			const audio = new AudioContext(); const oscillator = audio.createOscillator(); const gain = audio.createGain();
-			oscillator.frequency.value = frequency; oscillator.type = 'sine'; gain.gain.setValueAtTime(.05, audio.currentTime); gain.gain.exponentialRampToValueAtTime(.001, audio.currentTime + duration); oscillator.connect(gain); gain.connect(audio.destination); oscillator.start(); oscillator.stop(audio.currentTime + duration);
+		// Bấm nút để tạo câu hỏi tương ứng số đội
+		document.getElementById('generateTfBtn').addEventListener('click', renderTFQuestions);
+
+		// Tự động tạo lần đầu với 3 dãy mặc định
+		renderTFQuestions();
+
+		// Thẻ bài
+		const caseModal = document.getElementById('caseModal');
+		const caseQuestion = document.getElementById('caseQuestion');
+		const caseAnswer = document.getElementById('caseAnswer');
+		const showCaseAnswerBtn = document.getElementById('showCaseAnswerBtn');
+
+		document.querySelectorAll('.case-card').forEach(card => {
+			card.addEventListener('click', () => {
+				caseQuestion.textContent = card.dataset.question;
+				caseAnswer.textContent = "Đáp án: " + card.dataset.answer;
+				caseAnswer.classList.remove('visible');
+				showCaseAnswerBtn.hidden = false;
+				caseModal.classList.add('open');
+				caseModal.setAttribute('aria-hidden', 'false');
+			});
+		});
+
+		function closeCaseModal() {
+			caseModal.classList.remove('open');
+			caseModal.setAttribute('aria-hidden', 'true');
 		}
 
-		function renderTeams() {
-			const list = document.getElementById('teams-list');
-			list.innerHTML = teamData.map((team, index) => `<div class="team-card" id="team-${index}"><div class="team-name" contenteditable="true">${team.name}</div><div class="team-score" id="score-${index}">${team.score}</div><div class="health-label"><span>THANH MÁU</span><span id="health-text-${index}">${team.health}%</span></div><div class="health-track" onclick="penalize(${index})" title="Click để trừ 15 điểm"><div class="health-fill ${team.health <= 40 ? 'low' : ''}" id="health-${index}" style="width:${team.health}%"></div></div><div class="score-controls"><button class="btn-score add" onclick="updateScore(${index}, 20)">+20</button><button class="btn-score steal" onclick="updateScore(${index}, 10)">+10</button><button class="btn-score sub" onclick="updateScore(${index}, -15)">-15</button></div></div>`).join('');
-		}
+		showCaseAnswerBtn.addEventListener('click', () => {
+			caseAnswer.classList.add('visible');
+			showCaseAnswerBtn.hidden = true;
+		});
+		document.getElementById('closeCaseModalBtn').addEventListener('click', closeCaseModal);
+		caseModal.addEventListener('click', event => {
+			if (event.target === caseModal) closeCaseModal();
+		});
 
-		function updateScore(index, points) { teamData[index].score += points; renderTeams(); document.getElementById(`team-${index}`).scrollIntoView({ block: 'nearest' }); }
-		function penalize(index) { teamData[index].score -= 15; teamData[index].health = Math.max(0, teamData[index].health - 15); teamData[index].penalties += 1; renderTeams(); document.getElementById(`team-${index}`).classList.add('penalty'); document.getElementById('stage').classList.add('flash'); setTimeout(() => document.getElementById('stage').classList.remove('flash'), 450); }
-		function sortTeams() { teamData.sort((a, b) => b.score - a.score); renderTeams(); if (document.getElementById('winner-name')) { document.getElementById('winner-name').textContent = teamData[0].name; document.getElementById('winner-score').textContent = `${teamData[0].score} điểm · Máu còn ${teamData[0].health}%`; const penalized = [...teamData].sort((a, b) => b.penalties - a.penalties)[0]; document.getElementById('warning-name').textContent = penalized.penalties ? `${penalized.name} (${penalized.penalties} lần)` : 'Chưa có dãy nào'; } }
-		function goTo(number) { document.getElementById(`slide-${currentSlide}`).classList.remove('active'); currentSlide = Math.max(1, Math.min(13, number)); document.getElementById(`slide-${currentSlide}`).classList.add('active'); if (currentSlide === 13) sortTeams(); }
-		function toggleFullScreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
-		function lightInput(button, message) { document.querySelectorAll('#slide-5 .chip').forEach(item => item.classList.remove('lit')); button.classList.add('lit'); document.getElementById('case-feedback').textContent = message + '. Bây giờ nhấn vào bộ não để xử lí.'; document.getElementById('node-receive').classList.add('active'); }
-		function lightBrain() { document.getElementById('node-process').classList.add('active'); document.getElementById('node-act').classList.add('active'); document.getElementById('sing-action').classList.add('lit'); document.getElementById('case-feedback').textContent = 'Não xử lí giai điệu và ra lệnh cho miệng hát theo!'; }
-		function checkChoice(button, correct) { const feedback = document.getElementById('choice-feedback'); feedback.style.display = 'block'; feedback.textContent = correct ? '✓ Chính xác! Não quyết định chạy ngược chiều gió để tạo lực nâng diều.' : 'Hãy đọc lại thông tin: dây diều bị chùng vì chưa có đủ lực của gió.'; feedback.style.borderColor = correct ? 'var(--green)' : 'var(--coral)'; if (correct) updateScore(0, 20); }
-		function playTV(channel) { const screen = document.getElementById('tv-screen'); screen.textContent = '... đang xử lí'; document.getElementById('tv-data').classList.remove('run'); void document.getElementById('tv-data').offsetWidth; document.getElementById('tv-data').classList.add('run'); setTimeout(() => { screen.textContent = `VTV${channel} · ĐANG PHÁT`; screen.classList.add('on'); }, 900); }
-		function increaseHeat() { const level = document.getElementById('heat-level'); const current = Math.min(5, parseInt(level.textContent.replace(/\D/g, '')) + 1); level.textContent = `Mức ${current}`; document.getElementById('heat-data').classList.add('run'); document.getElementById('heat-feedback').textContent = 'Nhận lệnh tăng nhiệt → Bếp quyết định đun nóng hơn.'; updateScore(1, 20); }
-		function toggleFan() { const on = document.getElementById('fan-state').textContent === 'DỪNG'; document.getElementById('fan-state').textContent = on ? 'ĐANG QUAY' : 'DỪNG'; document.getElementById('fan-screen').textContent = on ? '🌀💨' : '🌬️'; document.getElementById('fan-data').classList.toggle('run', on); }
-		function showPhoneAnswer() { document.getElementById('phone-answer').textContent = 'Đã xử lí: nhận dạng hình ảnh → xuất ra bức ảnh'; document.getElementById('phone-answer').style.color = 'var(--green)'; }
-		let draggedType = '';
-		function dragCard(event) { draggedType = event.target.dataset.type; event.dataTransfer.setData('text/plain', draggedType); event.dataTransfer.effectAllowed = 'move'; }
-		function allowDrop(event) { event.preventDefault(); event.currentTarget.style.background = '#e8fbfc'; }
-		function dropCard(event) { event.preventDefault(); const target = event.currentTarget; target.style.background = ''; const type = event.dataTransfer.getData('text/plain') || draggedType; if (target.dataset.answer === type) { target.classList.add('correct'); target.textContent = type === 'input' ? '✓ Câu chuyện hay Minh nghe bố kể' : '✓ Minh quyết định kể lại cho An và Khoa'; document.querySelector(`[data-type="${type}"]`).remove(); fireConfetti(); updateScore(2, 40); } else { target.textContent = 'Chưa đúng, thử lại nhé!'; setTimeout(() => { target.textContent = target.dataset.answer === 'input' ? 'Thông tin được thu nhận' : 'Kết quả xử lí'; }, 900); } }
-		function fireConfetti() { const container = document.getElementById('confetti'); container.innerHTML = ''; for (let i = 0; i < 55; i += 1) { const piece = document.createElement('i'); piece.style.left = `${Math.random() * 100}%`; piece.style.top = `${Math.random() * 20}%`; piece.style.background = ['#29d3d8', '#ffc857', '#ff6b6b', '#7667f5'][i % 4]; piece.style.transform = `rotate(${Math.random() * 90}deg)`; piece.style.animationDelay = `${Math.random() * .4}s`; container.appendChild(piece); } setTimeout(() => container.innerHTML = '', 2200); }
-		function voteExample() { const input = document.getElementById('input-example').value.trim(); const output = document.getElementById('output-example').value.trim(); if (input && output) { document.getElementById('vote-result').style.display = 'block'; updateScore(0, 20); } }
-		renderTeams();
+		// Drag Drop
+		const dragItems = document.querySelectorAll('.drag-item');
+		const dropSlots = document.querySelectorAll('.drop-slot:not(.info-slot), .blank-slot');
+
+		dragItems.forEach(item => {
+			item.addEventListener('dragstart', e => {
+				e.dataTransfer.setData('text/plain', item.dataset.value);
+			});
+		});
+
+		dropSlots.forEach(slot => {
+			slot.addEventListener('dragover', e => e.preventDefault());
+			slot.addEventListener('drop', e => {
+				e.preventDefault();
+				const data = e.dataTransfer.getData('text/plain');
+				if (data) {
+					const expected = slot.dataset.pair;
+					const answerKey = data.slice(0, 1).toLowerCase();
+					const feedback = document.getElementById('dragFeedback');
+					if (expected && answerKey !== expected) {
+						slot.classList.add('drop-wrong');
+						feedback.textContent = 'Chưa đúng ô. Hãy đọc chữ cái a hoặc b trên đáp án.';
+						feedback.className = 'drag-feedback wrong';
+						return;
+					}
+					slot.textContent = data;
+					slot.classList.remove('drop-wrong');
+					slot.classList.add('filled');
+					if (expected) {
+						feedback.textContent = 'Chính xác! Đáp án đã được nối đúng.';
+						feedback.className = 'drag-feedback correct';
+					}
+				}
+			});
+		});
+
+		// Scoreboard
+		function createTeams(count) {
+			const list = document.getElementById('teamsList');
+			list.innerHTML = '';
+			for (let i = 0; i < count; i++) {
+				const card = document.createElement('div');
+				card.className = 'team-card';
+				card.innerHTML = `
+          <div class="team-name" contenteditable="true">Dãy ${i + 1}</div>
+          <div class="team-score" contenteditable="true">0</div>
+          <div class="score-controls">
+            <button class="btn-score add">+10</button>
+            <button class="btn-score sub">-5</button>
+            <button class="btn-score steal">x2</button>
+          </div>
+        `;
+				const scoreEl = card.querySelector('.team-score');
+				card.querySelector('.add').onclick = () => scoreEl.textContent = Number(scoreEl.textContent) + 10;
+				card.querySelector('.sub').onclick = () => scoreEl.textContent = Number(scoreEl.textContent) - 5;
+				card.querySelector('.steal').onclick = () => scoreEl.textContent = Number(scoreEl.textContent) * 2;
+				list.appendChild(card);
+			}
+		}
+		document.getElementById('generateTeamsBtn').onclick = () => createTeams(document.getElementById('teamCountInput').value);
+		createTeams(3);
+
+		// Gacha
+		const gachaPool = ['🎁 +10 Điểm', '🎁 +20 Điểm', '🎁 +30 Điểm', '⭐ Nhận quyền x2 điểm', '💣 Bị trừ 5 điểm (Đen thôi)', '💎 Cả lớp vỗ tay'];
+		const gachaModal = document.getElementById('gachaModal');
+		const gachaCard = gachaModal.querySelector('.gacha-card');
+		const gachaStatus = document.getElementById('gachaStatus');
+		let gachaTimer;
+		function openGacha() {
+			clearTimeout(gachaTimer);
+			const reward = document.getElementById('gachaReward');
+			reward.textContent = '🎁 ???';
+			gachaStatus.textContent = 'Đang xáo trộn phần thưởng...';
+			gachaCard.classList.remove('revealed');
+			gachaCard.classList.add('drawing');
+			gachaModal.classList.add('open');
+			gachaTimer = setTimeout(() => {
+				reward.textContent = gachaPool[Math.floor(Math.random() * gachaPool.length)];
+				gachaStatus.textContent = 'Phần thưởng của lớp là...';
+				gachaCard.classList.remove('drawing');
+				gachaCard.classList.add('revealed');
+			}, 2600);
+		}
+		document.getElementById('gachaBtn').onclick = openGacha;
+		document.getElementById('finalizeLessonBtn').onclick = openGacha;
+		document.getElementById('closeGachaBtn').onclick = () => {
+			clearTimeout(gachaTimer);
+			gachaModal.classList.remove('open');
+		};
 	</script>
 </body>
+
 </html>
