@@ -72,7 +72,7 @@
             <div class="brand"><span class="brand-mark">⌨️</span><h1>Gõ bàn phím đúng cách</h1></div>
             <!-- BỘ ĐẾM THỜI GIAN TRÊN THANH TOPBAR -->
             <div class="timer-container">
-                <span id="countdownTimer">05:00</span>
+                <span id="countdownTimer">07:00</span>
                 <button class="timer-btn play" id="startTimerBtn" title="Bắt đầu">▶</button>
                 <button class="timer-btn pause" id="pauseTimerBtn" title="Tạm dừng">⏸</button>
                 <button class="timer-btn reset" id="resetTimerBtn" title="Làm lại">🔄</button>
@@ -102,12 +102,12 @@
                         <div class="hands">
                             <div class="hand-card">
                                 <!-- CHỖ BẠN CHÈN HÌNH A -->
-                                <img src="link_hinh_A.jpg" alt="Hình A" style="width: 100%; height: 130px; object-fit: contain; margin-bottom: 15px; border-radius: 8px;">
+                                <img src="../../assets/images/minh-hoa/hinh-3a-dat-tay-tren-ban-phim.png" alt="Hình A" style="width: 100%; height: 130px; object-fit: contain; margin-bottom: 15px; border-radius: 8px;">
                                 <strong>Hình A: Hai tay đặt nhẹ nhàng</strong>
                             </div>
                             <div class="hand-card wrong">
                                 <!-- CHỖ BẠN CHÈN HÌNH B -->
-                                <img src="link_hinh_B.jpg" alt="Hình B" style="width: 100%; height: 130px; object-fit: contain; margin-bottom: 15px; border-radius: 8px;">
+                                <img src="../../assets/images/minh-hoa/hinh-3b-dat-tay-sai-vi-tri.png" alt="Hình B" style="width: 100%; height: 130px; object-fit: contain; margin-bottom: 15px; border-radius: 8px;">
                                 <strong>Hình B: Đặt tay sai vị trí</strong>
                             </div>
                         </div>
@@ -166,6 +166,11 @@
                         <h2 style="margin: 0; font-size: 1.8rem; color: var(--purple);">🎮 Ngón nào phím nấy</h2>
                         <p style="color: #59657b; margin: 10px 0;">Quan sát <b>phím phát sáng</b>, giành quyền trả lời phím đó do <b>ngón nào</b> phụ trách!</p>
                         
+                        <!-- Nút Gợi ý (Mới ehem) -->
+                        <div style="margin-bottom: 10px;">
+                            <button class="btn small" style="background: #e2e8f0; color: var(--ink); border: 2px solid #cbd5e1;" id="showHintBtn">🔍 Xem sơ đồ gợi ý</button>
+                        </div>
+
                         <div class="visual-keyboard" id="visualKeyboard">
                             <div class="key-row">
                                 <div class="key-btn" data-key="1">1</div><div class="key-btn" data-key="2">2</div><div class="key-btn" data-key="3">3</div><div class="key-btn" data-key="4">4</div><div class="key-btn" data-key="5">5</div><div class="key-btn" data-key="6">6</div><div class="key-btn" data-key="7">7</div><div class="key-btn" data-key="8">8</div><div class="key-btn" data-key="9">9</div><div class="key-btn" data-key="0">0</div>
@@ -236,6 +241,16 @@
             <button data-go="6">Trắc nghiệm</button>
         </nav>
 
+        <!-- Popup Gợi ý Sơ đồ ngón tay -->
+        <div class="modal" id="hintModal">
+            <div class="modal-content" style="width: 700px; max-width: 90vw;">
+                <button class="modal-close" id="closeHintBtn">×</button>
+                <h2 style="margin-top:0; color: var(--purple);">💡 Sơ đồ phân công ngón tay</h2>
+                <img src="../../assets/images/minh-hoa/so-do-ban-phim.png" alt="Sơ đồ phân công ngón tay" style="width: 100%; height: auto; border-radius: 8px; margin: 15px 0;">
+                <p style="font-size: 0.95rem; color: #53617b; margin-bottom: 0;">(Mỗi ngón tay sẽ phụ trách gõ các phím có cùng màu với ngón đó)</p>
+            </div>
+        </div>
+
         <!-- Popup Đáp án Trò chơi Bàn phím -->
         <div class="modal" id="answerModal">
             <div class="modal-content answer-popup">
@@ -269,8 +284,8 @@
         const days = ["Chủ nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
         document.getElementById('currentDateDisplay').innerHTML = `${days[today.getDay()]}, ngày ${today.getDate().toString().padStart(2, '0')} tháng ${(today.getMonth() + 1).toString().padStart(2, '0')} năm ${today.getFullYear()}`;
 
-        // === 2. LOGIC ĐỒNG HỒ ĐẾM NGƯỢC TOPBAR ===
-        let timeLeft = 300; 
+        // === 2. LOGIC ĐỒNG HỒ ĐẾM NGƯỢC TOPBAR (Thay đổi thành 7 phút) ===
+        let timeLeft = 420; // 7 phút x 60 giây
         let timerInterval = null;
         const timerDisplay = document.getElementById('countdownTimer');
 
@@ -301,7 +316,7 @@
         document.getElementById('resetTimerBtn').onclick = () => {
             clearInterval(timerInterval);
             timerInterval = null;
-            timeLeft = 300;
+            timeLeft = 420; // Đặt lại 7 phút
             updateTimerDisplay();
         };
 
@@ -368,7 +383,7 @@
             card.onclick = () => card.classList.toggle('flipped');
         });
 
-        // === 5. GAME BÀN PHÍM (POP-UP ĐÁP ÁN) ===
+        // === 5. GAME BÀN PHÍM (POP-UP ĐÁP ÁN & GỢI Ý) ===
         const fingerData = [
             { key: '1', finger: 'Ngón út', hand: 'Tay trái' }, { key: 'Q', finger: 'Ngón út', hand: 'Tay trái' }, { key: 'A', finger: 'Ngón út', hand: 'Tay trái' }, { key: 'Z', finger: 'Ngón út', hand: 'Tay trái' },
             { key: '2', finger: 'Ngón áp út', hand: 'Tay trái' }, { key: 'W', finger: 'Ngón áp út', hand: 'Tay trái' }, { key: 'S', finger: 'Ngón áp út', hand: 'Tay trái' }, { key: 'X', finger: 'Ngón áp út', hand: 'Tay trái' },
@@ -381,6 +396,11 @@
             { key: 'Space', finger: 'Ngón cái', hand: 'Cả hai tay' }
         ];
 
+        // Mở/Đóng Gợi Ý
+        document.getElementById('showHintBtn').onclick = () => document.getElementById('hintModal').classList.add('show');
+        document.getElementById('closeHintBtn').onclick = () => document.getElementById('hintModal').classList.remove('show');
+
+        // Game Play
         const showAnsBtn = document.getElementById('showKeyAnswerBtn');
         const answerModal = document.getElementById('answerModal');
         let currentTarget = null;
@@ -405,7 +425,6 @@
             }
         };
         
-        // Tắt modal đáp án
         document.getElementById('closeAnswerBtn').onclick = () => answerModal.classList.remove('show');
         document.getElementById('closeAnswerBtn2').onclick = () => answerModal.classList.remove('show');
 
