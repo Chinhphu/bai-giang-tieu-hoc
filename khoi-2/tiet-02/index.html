@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hàng Phím Cơ Sở - Thi Đấu Lớp 2</title>
+    <!-- GỌI FILE CSS RIÊNG VÀO ĐÂY -->
+    <link rel="stylesheet" href="../theme/style.css">
+</head>
+
+<body>
+
+    <!-- THANH ĐIỂM CÓ NÚT TRỪ -->
+    <div id="scoreboard">
+        <div class="score-group">
+            <div class="score-btn score-left" onclick="addScore('left', 1)">DÃY TRÁI: <span id="scoreL">0</span></div>
+            <button class="minus-btn" onclick="addScore('left', -1)">-1</button>
+        </div>
+        <div class="score-group">
+            <button class="minus-btn" onclick="addScore('right', -1)">-1</button>
+            <div class="score-btn score-right" onclick="addScore('right', 1)">DÃY PHẢI: <span id="scoreR">0</span></div>
+        </div>
+    </div>
+
+    <button id="prev" class="nav-btn" onclick="changeSlide(-1)"></button>
+    <button id="next" class="nav-btn" onclick="changeSlide(1)"></button>
+
+    <!-- Slide 0: Ghi bài + Đếm ngược -->
+    <div class="slide active">
+        <div class="date-header">Thứ ba, ngày 22 tháng 9 năm 2026</div>
+        <h2>Môn: Tin học</h2>
+        <h1>Bài 2: Hàng phím cơ sở</h1>
+        
+        <!-- Khung chứa chia cột -->
+        <div class="slide-content-wrapper">
+            <!-- Cột trái: Nội dung chép bài (Chiếm 5 phần) -->
+            <div class="instruction notebook-content">
+                <!-- <span style="color: #D50000;">📝 Các em lấy tập ra ghi bài nhé:</span><br><br> -->
+                1. Hàng phím cơ sở nằm ở giữa bàn phím.<br>
+                2. Hai phím có gờ nổi (vết sẹo) là <b>F</b> và <b>J</b>.<br>
+                3. Đặt ngón trỏ trái lên phím <b>F</b>, ngón trỏ phải lên phím <b>J</b>.
+            </div>
+
+            <!-- Cột phải: Bộ đếm ngược (Chiếm khoảng 1.5 - 2 phần) -->
+            <div class="timer-widget">
+                <div id="time-display">10:00</div>
+                <div class="timer-controls">
+                    <button class="btn-start" onclick="startTimer()">Bắt đầu</button>
+                    <button class="btn-pause" onclick="pauseTimer()">Tạm dừng</button>
+                    <button class="btn-reset" onclick="resetTimer()">Làm lại</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 1-5: Giảng dạy Lý thuyết -->
+    <div class="slide">
+        <h1>TRUY TÌM BẢO BỐI<br>HÀNG PHÍM CƠ SỞ</h1>
+        <h2>Ai học ngoan, có quà ngay!</h2>
+        <div class="keyboard-row pulse">
+            <div class="key special bump">F</div>
+            <div class="key special bump">J</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <h1>ĐÂY LÀ HÀNG CƠ SỞ</h1>
+        <div class="instruction">Lớp mình cùng đọc to tên 10 bạn phím nhé!</div>
+        <div class="keyboard-row">
+            <div class="key">A</div>
+            <div class="key">S</div>
+            <div class="key">D</div>
+            <div class="key bump">F</div>
+            <div class="key">G</div>
+            <div style="width: 20px;"></div>
+            <div class="key">H</div>
+            <div class="key bump">J</div>
+            <div class="key">K</div>
+            <div class="key">L</div>
+            <div class="key">;</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <h1>2 ANH EM SINH ĐÔI</h1>
+        <div class="instruction">Có vết sẹo nhỏ (gờ nổi) để sờ thấy trong bóng tối!</div>
+        <div class="keyboard-row">
+            <div class="key left bump special">F</div>
+            <div style="width: 50px;"></div>
+            <div class="key right bump special">J</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <h1>BÀN TAY TRÁI</h1>
+        <div class="keyboard-row">
+            <div class="key left">A</div>
+            <div class="key left">S</div>
+            <div class="key left">D</div>
+            <div class="key left bump">F</div>
+        </div>
+        <div class="finger-box">
+            <div class="finger">Út<span>A</span></div>
+            <div class="finger">Áp Út<span>S</span></div>
+            <div class="finger">Giữa<span>D</span></div>
+            <div class="finger">Trỏ<span>F</span></div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <h1>BÀN TAY PHẢI</h1>
+        <div class="keyboard-row">
+            <div class="key right bump">J</div>
+            <div class="key right">K</div>
+            <div class="key right">L</div>
+            <div class="key right">;</div>
+        </div>
+        <div class="finger-box">
+            <div class="finger">Trỏ<span>J</span></div>
+            <div class="finger">Giữa<span>K</span></div>
+            <div class="finger">Áp Út<span>L</span></div>
+            <div class="finger">Út<span>;</span></div>
+        </div>
+    </div>
+
+    <!-- CHUỖI GAME 1: AI ĐI TRỐN -->
+    <div class="slide">
+        <h1>BẮT ĐẦU THI ĐẤU!</h1>
+        <h2>DÃY TRÁI vs DÃY PHẢI</h2>
+        <div class="instruction">Đến lượt dãy nào, dãy đó giơ tay. Ồn ào hoặc nhắc bài sẽ bị trừ điểm nhé!</div>
+    </div>
+
+    <div class="slide">
+        <div class="turn-badge">LƯỢT CỦA: DÃY TRÁI</div>
+        <h1 style="margin-top: 50px;">Ô bí ẩn là chữ gì?</h1>
+        <div class="keyboard-row">
+            <div class="key left">A</div>
+            <div class="key left">S</div>
+            <div class="key hidden" onclick="this.className='key left pulse'; this.innerText='D'">?</div>
+            <div class="key left bump">F</div>
+            <div class="key left">G</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="turn-badge">LƯỢT CỦA: DÃY PHẢI</div>
+        <h1 style="margin-top: 50px;">Bên phải thì sao?</h1>
+        <div class="keyboard-row">
+            <div class="key right">H</div>
+            <div class="key right bump">J</div>
+            <div class="key right">K</div>
+            <div class="key hidden" onclick="this.className='key right pulse'; this.innerText='L'">?</div>
+            <div class="key right">;</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="turn-badge">LƯỢT CỦA: DÃY TRÁI</div>
+        <h1 style="margin-top: 50px;">Ai nhớ chữ đầu tiên?</h1>
+        <div class="keyboard-row">
+            <div class="key hidden" onclick="this.className='key left pulse'; this.innerText='A'">?</div>
+            <div class="key left">S</div>
+            <div class="key left">D</div>
+            <div class="key left bump">F</div>
+            <div class="key left">G</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="turn-badge">LƯỢT CỦA: DÃY PHẢI</div>
+        <h1 style="margin-top: 50px;">Bạn cuối cùng là ai?</h1>
+        <div class="keyboard-row">
+            <div class="key right">H</div>
+            <div class="key right bump">J</div>
+            <div class="key right">K</div>
+            <div class="key right">L</div>
+            <div class="key hidden" onclick="this.className='key right pulse'; this.innerText=';'">?</div>
+        </div>
+    </div>
+
+    <!-- CHUỖI GAME 2: TRÁI HAY PHẢI -->
+    <div class="slide">
+        <h1>VÒNG 2: TAY NÀO ĐÂY?</h1>
+        <div class="instruction">Thầy hiện chữ nào, các bạn hô to "TAY TRÁI" hoặc "TAY PHẢI" nhé!</div>
+    </div>
+
+    <div class="slide">
+        <div class="turn-badge">LƯỢT CỦA: DÃY TRÁI</div>
+        <h1 style="margin-top: 50px;">Tay nào gõ chữ S?</h1>
+        <div class="keyboard-row pulse">
+            <div class="key special">S</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="turn-badge">LƯỢT CỦA: DÃY PHẢI</div>
+        <h1 style="margin-top: 50px;">Tay nào gõ chữ L?</h1>
+        <div class="keyboard-row pulse">
+            <div class="key special">L</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="turn-badge">LƯỢT CỦA: DÃY TRÁI</div>
+        <h1 style="margin-top: 50px;">Tay nào gõ chữ G?</h1>
+        <div class="keyboard-row pulse">
+            <div class="key special">G</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="turn-badge">LƯỢT CỦA: DÃY PHẢI</div>
+        <h1 style="margin-top: 50px;">Tay nào gõ chữ K?</h1>
+        <div class="keyboard-row pulse">
+            <div class="key special">K</div>
+        </div>
+    </div>
+
+    <!-- CHUỖI GAME 3: NGÓN TAY XUẤT CHIÊU -->
+    <div class="slide">
+        <h1>VÒNG 3: NHỚ NGÓN TAY</h1>
+        <div class="instruction">Nhớ lại xem ngón này sẽ gõ chữ gì nhé!</div>
+    </div>
+
+    <!-- Câu 5: Dãy Trái -->
+    <div class="slide">
+        <div class="turn-badge">LƯỢT CỦA: DÃY TRÁI</div>
+        <h1 style="margin-top: 50px;">Ngón ÚT tay trái gõ phím gì?</h1>
+        <div class="finger-box">
+            <div class="finger pulse reveal-box" style="width: 250px; padding: 20px;"
+                onclick="this.innerHTML='ÚT TRÁI<br><span style=\'font-size: 6rem; color: #E65100; font-weight: 900; margin-top: 10px;\'>A</span>'; this.classList.remove('pulse');">
+                ÚT TRÁI<br><span style="font-size: 2rem; color: #78909C; font-weight: normal; margin-top: 20px;">(Click
+                    mở đáp án)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Câu 6: Dãy Phải -->
+    <div class="slide">
+        <div class="turn-badge">LƯỢT CỦA: DÃY PHẢI</div>
+        <h1 style="margin-top: 50px;">Ngón TRỎ tay phải gõ phím gì?</h1>
+        <div class="finger-box">
+            <div class="finger pulse reveal-box" style="width: 250px; padding: 20px;"
+                onclick="this.innerHTML='TRỎ PHẢI<br><span style=\'font-size: 6rem; color: #E65100; font-weight: 900; margin-top: 10px;\'>J</span>'; this.classList.remove('pulse');">
+                TRỎ PHẢI<br><span style="font-size: 2rem; color: #78909C; font-weight: normal; margin-top: 20px;">(Click
+                    mở đáp án)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Câu 7: Dãy Trái -->
+    <div class="slide">
+        <div class="turn-badge">LƯỢT CỦA: DÃY TRÁI</div>
+        <h1 style="margin-top: 50px;">Ngón GIỮA tay trái gõ phím gì?</h1>
+        <div class="finger-box">
+            <div class="finger pulse reveal-box" style="width: 250px; padding: 20px;"
+                onclick="this.innerHTML='GIỮA TRÁI<br><span style=\'font-size: 6rem; color: #E65100; font-weight: 900; margin-top: 10px;\'>D</span>'; this.classList.remove('pulse');">
+                GIỮA TRÁI<br><span
+                    style="font-size: 2rem; color: #78909C; font-weight: normal; margin-top: 20px;">(Click mở đáp
+                    án)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Câu 8: Dãy Phải -->
+    <div class="slide">
+        <div class="turn-badge">LƯỢT CỦA: DÃY PHẢI</div>
+        <h1 style="margin-top: 50px;">Ngón ÁP ÚT tay phải gõ phím gì?</h1>
+        <div class="finger-box">
+            <div class="finger pulse reveal-box" style="width: 250px; padding: 20px;"
+                onclick="this.innerHTML='ÁP ÚT PHẢI<br><span style=\'font-size: 6rem; color: #E65100; font-weight: 900; margin-top: 10px;\'>L</span>'; this.classList.remove('pulse');">
+                ÁP ÚT PHẢI<br><span
+                    style="font-size: 2rem; color: #78909C; font-weight: normal; margin-top: 20px;">(Click mở đáp
+                    án)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide Tổng kết -->
+    <div class="slide">
+        <h1>KẾT THÚC THI ĐẤU</h1>
+        <h2>Lớp mình quá xuất sắc!</h2>
+        <!-- <div class="instruction">Đội chiến thắng sẽ nhận Sticker! Cả lớp trật tự để thầy xách bàn phím xuống cho sờ phím F và J nhé!</div> -->
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        let scoreLeft = 0;
+        let scoreRight = 0;
+        const slides = document.querySelectorAll('.slide');
+        const scoreboard = document.getElementById('scoreboard');
+
+        function addScore(team, amount) {
+            if (team === 'left') {
+                scoreLeft += amount;
+                if (scoreLeft < 0) scoreLeft = 0;
+                document.getElementById('scoreL').innerText = scoreLeft;
+            } else {
+                scoreRight += amount;
+                if (scoreRight < 0) scoreRight = 0;
+                document.getElementById('scoreR').innerText = scoreRight;
+            }
+        }
+
+        function changeSlide(direction) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = 0;
+            if (currentSlide >= slides.length) currentSlide = slides.length - 1;
+            slides[currentSlide].classList.add('active');
+
+            // Hiện Bảng điểm từ slide "Bắt đầu thi đấu!" (index 5) đến hết game
+            if (currentSlide >= 5 && currentSlide < slides.length - 1) {
+                scoreboard.style.display = 'flex';
+            } else {
+                scoreboard.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'ArrowRight') changeSlide(1);
+            else if (event.key === 'ArrowLeft') changeSlide(-1);
+        });
+        // --- LOGIC BỘ ĐẾM NGƯỢC ---
+        let timerInterval;
+        let timeRemaining = 600; // 10 phút = 600 giây
+
+        function updateTimerDisplay() {
+            let minutes = Math.floor(timeRemaining / 60);
+            let seconds = timeRemaining % 60;
+            document.getElementById('time-display').innerText =
+                (minutes < 10 ? '0' : '') + minutes + ':' +
+                (seconds < 10 ? '0' : '') + seconds;
+        }
+
+        function startTimer() {
+            if (!timerInterval) {
+                timerInterval = setInterval(() => {
+                    if (timeRemaining > 0) {
+                        timeRemaining--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                        document.getElementById('time-display').innerText = "HẾT GIỜ!";
+                    }
+                }, 1000);
+            }
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timeRemaining = 600;
+            updateTimerDisplay();
+        }
+    </script>
+</body>
+
+</html>

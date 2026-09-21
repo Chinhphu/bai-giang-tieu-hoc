@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tuần 3 - Game Luyện Tập Hàng Phím</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* CSS bổ sung riêng cho các mini-game tuần 3 */
+        .game-area {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 60vh; width: 100%; position: relative;
+        }
+        
+        /* Game 1: Flashcard phản xạ */
+        .flashcard {
+            width: 250px; height: 250px; background: #FFF9C4; border-radius: 40px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 10rem; font-weight: 900; color: #E65100;
+            box-shadow: 0 15px 0 #FBC02D, 0 20px 20px rgba(0,0,0,0.2);
+            border: 8px solid #fff; cursor: pointer; transition: all 0.2s;
+        }
+        .flashcard:active { transform: translateY(15px); box-shadow: 0 0px 0 #FBC02D; }
+        
+        /* Game 2: Gõ từ */
+        .word-box {
+            display: flex; gap: 20px; font-size: 6rem; font-weight: 900;
+            background: white; padding: 20px 50px; border-radius: 30px;
+            box-shadow: 0 10px 0 #B0BEC5; border: 5px solid #0288D1;
+            color: #0277BD; margin-bottom: 30px;
+        }
+        .typing-btn {
+            padding: 15px 40px; font-size: 2.5rem; font-weight: bold; color: white;
+            background: #FF4081; border: none; border-radius: 20px;
+            box-shadow: 0 8px 0 #C51162; cursor: pointer; margin-top: 20px;
+        }
+        .typing-btn:active { transform: translateY(8px); box-shadow: 0 0 0 #C51162; }
+    </style>
+</head>
+<body>
+
+    <div id="scoreboard" style="display: flex;">
+        <div class="score-group">
+            <div class="score-btn score-left" onclick="addScore('left', 1)">ĐỘI TRÁI: <span id="scoreL">0</span></div>
+            <button class="minus-btn" onclick="addScore('left', -1)">-1</button>
+        </div>
+        <div class="score-group">
+            <button class="minus-btn" onclick="addScore('right', -1)">-1</button>
+            <div class="score-btn score-right" onclick="addScore('right', 1)">ĐỘI PHẢI: <span id="scoreR">0</span></div>
+        </div>
+    </div>
+
+    <button id="prev" class="nav-btn" onclick="changeSlide(-1)"></button>
+    <button id="next" class="nav-btn" onclick="changeSlide(1)"></button>
+
+    <!-- Slide 1: Khởi động -->
+    <div class="slide active">
+        <h1>VÒNG QUAY PHẢN XẠ</h1>
+        <h2>Tuần 3: Không dùng máy, dùng tay!</h2>
+        <div class="instruction">Luật chơi: Tránh việc giơ từng ngón tay. Thấy chữ bên Trái -> Giơ CẢ BÀN TAY trái. Thấy chữ bên Phải -> Giơ CẢ BÀN TAY phải!</div>
+    </div>
+
+    <!-- Slide 2: Game Phản Xạ Nhanh -->
+    <div class="slide">
+        <h1>TRÁI HAY PHẢI?</h1>
+        <div class="instruction">Giáo viên bấm vào ô vuông để đổi phím liên tục. Đội nào giơ tay sai sẽ bị trừ điểm!</div>
+        <div class="game-area">
+            <div class="flashcard pulse" onclick="randomKey(this)">?</div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Game Gõ Từ (Thay vì gõ phím lẻ) -->
+    <div class="slide">
+        <h1>HIỆP SĨ GÕ TỪ</h1>
+        <div class="instruction">Cả lớp đọc to chữ và giả vờ gõ phím trên không trung theo đúng tay nhé!</div>
+        <div class="game-area">
+            <div class="word-box" id="wordDisplay">G A L A</div>
+            <button class="typing-btn" onclick="nextWord()">Đổi từ khác</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        let scoreLeft = 0;
+        let scoreRight = 0;
+        const slides = document.querySelectorAll('.slide');
+
+        // Tập hợp phím cơ sở
+        const keys = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';'];
+        
+        // Các từ đơn giản ghép từ hàng cơ sở
+        const words = ['L A', 'D A', 'G A', 'H A', 'F A', 'S A', 'K A', 'H A L A'];
+        let currentWordIdx = 0;
+
+        function addScore(team, amount) {
+            if(team === 'left') {
+                scoreLeft = Math.max(0, scoreLeft + amount);
+                document.getElementById('scoreL').innerText = scoreLeft;
+            } else {
+                scoreRight = Math.max(0, scoreRight + amount);
+                document.getElementById('scoreR').innerText = scoreRight;
+            }
+        }
+
+        function changeSlide(direction) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = Math.max(0, Math.min(slides.length - 1, currentSlide + direction));
+            slides[currentSlide].classList.add('active');
+        }
+        
+        // Random phím cho Flashcard
+        function randomKey(el) {
+            el.classList.remove('pulse');
+            // Tạo hiệu ứng lật nhấp nháy nhanh
+            el.style.transform = 'scale(0.8)';
+            setTimeout(() => {
+                const random = keys[Math.floor(Math.random() * keys.length)];
+                el.innerText = random;
+                
+                // Gợi ý ngầm cho giáo viên biết phím thuộc tay nào bằng màu chữ
+                const leftKeys = ['A', 'S', 'D', 'F', 'G'];
+                el.style.color = leftKeys.includes(random) ? '#D50000' : '#33691E';
+                
+                el.style.transform = 'scale(1)';
+            }, 150);
+        }
+
+        // Đổi từ cho phần gõ phím
+        function nextWord() {
+            currentWordIdx = (currentWordIdx + 1) % words.length;
+            document.getElementById('wordDisplay').innerText = words[currentWordIdx];
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight') changeSlide(1);
+            else if (event.key === 'ArrowLeft') changeSlide(-1);
+        });
+    </script>
+</body>
+</html>
