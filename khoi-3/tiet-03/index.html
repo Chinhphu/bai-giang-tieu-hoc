@@ -22,41 +22,31 @@
 			</div>
 		</section>
 
-		<!-- Slide Ghi Bài -->
-		<section class="slide-container" data-slide="copy-text">
-			<div class="slide-header">
-				<div class="tag">Khởi động</div>
-				<div class="top-badge">Ghi bài</div>
-			</div>
-			<div style="text-align: center; margin-bottom: 2vh;">
-				<h3 id="currentDateDisplay" style="margin: 0; font-size: 4vh; color: var(--lesson-muted);">Đang tải
-					ngày...</h3>
-				<h2 style="margin: 1vh 0; font-size: 5vh; color: var(--primary);">Môn: Tin học</h2>
-				<h1 style="margin: 1vh 0 3vh 0; font-size: 6.5vh; color: var(--lesson-navy);">Bài 2: Quá trình xử lí
-					thông tin</h1>
+		<!-- Slide Ghi Bài (Tối ưu full màn hình, chữ siêu to) -->
+		<section class="slide-container copy-slide" data-slide="copy-text">
+			<div class="copy-header">
+				<h3 id="currentDateDisplay">Đang tải ngày...</h3>
+				<h2>Môn: Tin học - Bài 2: Quá trình xử lí thông tin</h2>
 			</div>
 
-			<div class="quiz-panel" style="background-color: #fff3c9; border-color: var(--lesson-yellow);">
-				<p><strong>Nội dung ghi vở:</strong></p>
-				<ul style="line-height: 1.8; margin-top: 1vh;">
-					<li>1. Con người thu nhận thông tin qua <strong>các giác quan</strong>.</li>
-					<li>2. <strong>Bộ não</strong> xử lí thông tin và đưa ra quyết định.</li>
+			<div class="copy-content">
+				<ul>
+					<li>1. Thu nhận thông tin qua <strong>các giác quan</strong>.</li>
+					<li>2. <strong>Bộ não</strong> xử lí và ra quyết định.</li>
 					<li>3. Quá trình: <strong>Thu nhận ➔ Xử lí ➔ Hành động</strong>.</li>
 				</ul>
 			</div>
 
 			<div class="timer-display" id="copyTimer">07:00</div>
 
-			<div class="controls" style="justify-content: center; gap: 15px; flex-wrap: wrap;">
+			<div class="controls copy-controls">
 				<button type="button" class="btn-nav" id="startTimerBtn"
-					style="background-color: var(--accent-green);">Bắt đầu chạy</button>
+					style="background-color: var(--accent-green);">Bắt đầu</button>
 				<button type="button" class="btn-nav" id="pauseTimerBtn"
 					style="background-color: var(--lesson-coral);">Tạm dừng</button>
 				<button type="button" class="btn-nav" id="resetTimerBtn"
 					style="background-color: var(--lesson-muted);">Làm mới</button>
-				<div style="width: 100%; text-align: center; margin-top: 2vh;">
-					<button type="button" class="btn-nav next-btn" style="padding: 1.5vh 5vw;">Vào bài mới ➔</button>
-				</div>
+				<button type="button" class="btn-nav next-btn">Bài mới ➔</button>
 			</div>
 		</section>
 
@@ -525,6 +515,14 @@
 			slides.forEach((slide, i) => {
 				slide.classList.toggle('active', i === currentSlide);
 			});
+
+			// Tự động kiểm tra: Nếu là slide Ghi bài thì chuyển sang chế độ Fullscreen (ẩn bảng điểm)
+			const activeSlide = slides[currentSlide];
+			if (activeSlide.classList.contains('copy-slide')) {
+				document.body.classList.add('fullscreen-mode');
+			} else {
+				document.body.classList.remove('fullscreen-mode');
+			}
 		}
 
 		prevButtons.forEach(btn => btn.addEventListener('click', () => showSlide(currentSlide - 1)));
@@ -609,7 +607,7 @@
 			timeRemaining = 420;
 			updateTimerText();
 			startTimerBtn.style.opacity = '1';
-			startTimerBtn.textContent = 'Bắt đầu chạy';
+			startTimerBtn.textContent = 'Bắt đầu';
 		});
 
 		document.getElementById('closeTimeUpBtn').addEventListener('click', () => {
@@ -700,11 +698,10 @@
 				e.preventDefault();
 				const data = e.dataTransfer.getData('text/plain');
 				if (data) {
-					const expected = slot.dataset.answer; // Lấy đáp án chuẩn từ ô drop
-					const slide = slot.closest('.slide-container'); // Tìm màn hiện tại
+					const expected = slot.dataset.answer;
+					const slide = slot.closest('.slide-container');
 					const feedback = slide.querySelector('.drag-feedback');
 
-					// Kiểm tra đúng sai
 					if (expected && data !== expected) {
 						slot.classList.add('drop-wrong');
 						if (feedback) {
@@ -714,7 +711,6 @@
 						return;
 					}
 
-					// Lấy nội dung text của ô drag để nhét vào ô drop
 					const draggedItem = slide.querySelector(`.drag-item[data-value="${data}"]`);
 					if (draggedItem) {
 						slot.textContent = draggedItem.textContent;
@@ -786,7 +782,6 @@
 			box.addEventListener('click', function () {
 				if (this.dataset.opened === 'true') return;
 
-				// Khóa tất cả các hộp khác sau khi đã chọn 1
 				giftBoxes.forEach(b => b.dataset.opened = 'true');
 
 				const reward = getRandomReward();

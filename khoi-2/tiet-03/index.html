@@ -4,124 +4,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thi Đấu Hàng Phím Cơ Sở</title>
-    <!-- LIÊN KẾT CSS GỐC CỦA BẠN -->
+    <title>Thực Hành Hàng Phím Cơ Sở</title>
+    <!-- LIÊN KẾT CSS GỐC -->
     <link rel="stylesheet" href="../theme/style.css">
 
-    <!-- CSS BỔ SUNG CHO GAME -->
     <style>
-        /* QUẢN LÝ BẢNG ĐIỂM */
-        #scoreboard {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            padding: 10px 0;
-            background: rgba(255, 255, 255, 0.5);
-            z-index: 1000;
-            gap: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .score-group {
-            transform: scale(0.85);
-            margin: 0;
-        }
-
-        .score-btn {
-            opacity: 0.6;
-            transition: all 0.3s;
-        }
-
-        .score-btn.active-team {
-            opacity: 1;
-            transform: scale(1.1);
-            box-shadow: 0 10px 0 rgba(0, 0, 0, 0.3) !important;
-            border: 6px solid #FFEB3B;
-        }
-
-        /* KHUNG ĐẾM XUÔI (Thu nhỏ, đưa vào góc dưới bên phải) */
-        .timer-widget {
-            position: absolute !important;
-            bottom: 20px !important;
-            right: 20px !important;
-            flex: none !important;
-            height: auto !important;
-            background: #fff;
-            border: 3px dashed #FF9800;
-            padding: 10px 15px !important;
-            border-radius: 15px;
-            box-shadow: 0 5px 0 #E65100;
-            display: flex;
-            flex-direction: column !important; /* Nút nằm dưới đồng hồ cho gọn */
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin: 0 !important;
-            z-index: 100;
-        }
-
-        #time-display {
-            font-size: 2.5rem !important; /* Chữ nhỏ lại */
-            margin: 0 !important;
-            color: #D50000;
-            font-weight: 900;
-            text-shadow: 1px 1px 0px #FFCDD2;
-            line-height: 1 !important;
-        }
-        
-        .timer-controls button {
-            padding: 5px 10px;
-            font-size: 1rem;
-        }
-
-        /* Bảng thống kê (Thu nhỏ, đưa vào góc dưới bên trái) */
-        .stats-bar {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #333;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px 20px;
-            border-radius: 15px;
-            border: 3px dashed #4CAF50;
-            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.1);
-            z-index: 100;
-            line-height: 1.6;
-        }
-
-        /* Phím bấm khổng lồ */
+        /* Phím bấm khổng lồ - Đưa ra giữa trung tâm */
         .target-box {
-            font-size: 10rem !important;
-            width: 200px !important;
-            height: 200px !important;
-            border-width: 10px !important;
-            margin: 5px auto !important;
-            border-radius: 40px !important;
+            font-size: 12rem !important;
+            width: 250px !important;
+            height: 250px !important;
+            border-width: 12px !important;
+            margin: 20px auto !important;
+            border-radius: 50px !important;
             transition: all 0.3s ease;
         }
 
         /* Dòng nhắc bài riêng lẻ dưới từng phím */
         .hint-text {
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: 900;
             background: white;
-            padding: 15px 40px;
-            border-radius: 20px;
-            margin-top: 15px;
+            padding: 20px 50px;
+            border-radius: 25px;
+            margin-top: 30px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            border: 4px dashed #333;
+            border: 5px dashed #333;
             text-align: center;
             animation: popIn 0.3s ease-out;
         }
 
-        /* Bố cục Game chính */
+        /* Bố cục Game chính siêu thoáng */
         .game-layout {
             display: flex;
             flex-direction: column;
@@ -131,48 +44,16 @@
             height: 100%;
             flex: 1;
             transition: background 0.5s ease;
-            padding-top: 70px;
             box-sizing: border-box;
-            position: relative; /* Để neo 2 cái khung vào góc */
+            position: relative;
         }
 
         /* TONE MÀU NỀN THEO BÊN TAY */
         .theme-left {
             background: linear-gradient(135deg, #ffcdd2 0%, #fff 100%);
         }
-
         .theme-right {
             background: linear-gradient(135deg, #BBDEFB 0%, #fff 100%);
-        }
-
-        /* Sửa lỗi tràn chữ ở Slide Hướng dẫn dán màu */
-        .key-instruction {
-            width: 200px !important;
-            height: 140px !important;
-            font-size: 2.2rem !important;
-            line-height: 1.4;
-            text-align: center;
-        }
-
-        /* Thông báo Đổi Người */
-        .swap-alert {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #FFEB3B;
-            color: #E65100;
-            font-size: 5rem;
-            font-weight: 900;
-            padding: 30px 60px;
-            border-radius: 40px;
-            border: 8px solid #FF9800;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            display: none;
-            text-align: center;
-            line-height: 1.2;
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         /* Hiệu ứng Rung khi gõ sai */
@@ -193,103 +74,47 @@
 </head>
 
 <body>
-
-    <!-- BẢNG ĐIỂM -->
-    <div id="scoreboard">
-        <div class="score-group">
-            <div id="btn-team-1" class="score-btn score-left active-team" onclick="setActiveTeam(1)">DÃY 1: <span id="score-1">0</span></div>
-            <button class="minus-btn" onclick="addScore(1, -1)">-1</button>
-        </div>
-        <div class="score-group">
-            <div id="btn-team-2" class="score-btn score-left" onclick="setActiveTeam(2)">DÃY 2: <span id="score-2">0</span></div>
-            <button class="minus-btn" onclick="addScore(2, -1)">-1</button>
-        </div>
-        <div class="score-group">
-            <div id="btn-team-3" class="score-btn score-right" style="background: #1976D2; border-color: white; box-shadow: 0 8px 0 #0D47A1; text-shadow: 2px 2px 0 #0D47A1;" onclick="setActiveTeam(3)">DÃY 3: <span id="score-3">0</span></div>
-            <button class="minus-btn" onclick="addScore(3, -1)">-1</button>
-        </div>
-        <div class="score-group">
-            <div id="btn-team-4" class="score-btn score-right" style="background: #1976D2; border-color: white; box-shadow: 0 8px 0 #0D47A1; text-shadow: 2px 2px 0 #0D47A1;" onclick="setActiveTeam(4)">DÃY 4: <span id="score-4">0</span></div>
-            <button class="minus-btn" onclick="addScore(4, -1)">-1</button>
-        </div>
-    </div>
-
     <!-- Nút điều hướng Slide -->
     <button id="prev" class="nav-btn" onclick="changeSlide(-1)"></button>
     <button id="next" class="nav-btn" onclick="changeSlide(1)"></button>
 
-    <!-- SLIDE 0: HƯỚNG DẪN VẼ MÀU -->
-    <div class="slide active" style="padding-top: 80px;">
-        <h1>BƯỚC 1: VẼ MẬT MÃ BÀN TAY</h1>
-        <div class="keyboard-row">
-            <div class="key left bump special key-instruction"
-                style="background: #FFCDD2; color: #D50000; border-color: #D50000;">TAY TRÁI<br>Vẽ chữ O</div>
-            <div style="width: 50px;"></div>
-            <div class="key right bump special key-instruction"
-                style="background: #BBDEFB; color: #1565C0; border-color: #1565C0;">TAY PHẢI<br>Vẽ chữ X</div>
-        </div>
-        <div class="instruction">
-            Cả lớp ngửa <b>LÒNG BÀN TAY</b> lên nhé!<br>
-            Dùng bút Đỏ vẽ chữ <b>O</b> tay trái, bút Xanh dương vẽ chữ <b>X</b> tay phải.<br>
-            <i>(Vẽ xong chuyền bút thật nhanh cho bạn phía sau!)</i>
+    <!-- SLIDE 0: LUẬT CHƠI MỚI (Trật tự tuyệt đối) -->
+    <div class="slide active">
+        <h1>LUẬT THỰC HÀNH</h1>
+        <div class="instruction notebook-content" style="font-size: 2.5rem; text-align: center; padding: 40px; border-color: #FF9800; background: #FFF3E0;">
+            1. Cả lớp ngồi <b>TRẬT TỰ</b> tại chỗ.<br><br>
+            2. Thầy hiện chữ, các bạn giơ ngón tay nhắc bài trong <b>IM LẶNG</b>.<br><br>
+            3. Thầy đọc tên ai, người đó lên gõ 1 phím rồi về chỗ.<br><br>
+            🤫 <i>(Lớp ồn là thầy tắt máy nghỉ chơi luôn nhé!)</i>
         </div>
     </div>
 
-    <!-- SLIDE 1: LUẬT CHƠI -->
-    <div class="slide" style="padding-top: 80px;">
-        <h1>LUẬT THI ĐẤU</h1>
-        <div class="instruction notebook-content" style="font-size: 2.2rem;">
-            1. <b>Nửa dãy thi đấu:</b> Đứng xếp hàng dọc theo vách tường (từ bục giảng ra cửa).<br>
-            2. <b>Nửa dãy ở dưới:</b> Nhìn chữ trên Tivi, giơ ngón tay để nhắc bài cho bạn trên bục.<br>
-            3. Mỗi bạn lên gõ đúng <b>3 phím</b> rồi vòng về chỗ cho bạn tiếp theo lên.<br>
-            🚫 Gõ sai phải gõ lại. Nếu ồn ào sẽ bị phạt đứng im 5 giây!
-        </div>
-    </div>
-
-    <!-- SLIDE 2: MÀN HÌNH CHƠI CHÍNH THỨC -->
+    <!-- SLIDE 1: MÀN HÌNH CHƠI SIÊU TỐI GIẢN -->
     <div class="slide" style="padding: 0;">
         <div id="game-bg" class="game-layout theme-left">
-
-            <!-- THÔNG BÁO ĐỔI NGƯỜI -->
-            <div id="swap-alert" class="swap-alert">
-                GIỎI QUÁ!<br><span style="font-size: 3rem;">MỜI BẠN TIẾP THEO</span>
+            
+            <!-- BỘ ĐẾM SỐ LƯỢNG (Chỉ để thầy biết đã gọi bao nhiêu em) -->
+            <div style="position: absolute; top: 20px; left: 20px; font-size: 1.5rem; font-weight: bold; color: #666; background: rgba(255,255,255,0.7); padding: 5px 15px; border-radius: 10px;">
+                Đã gõ thành công: <span id="counter" style="color: #D50000; font-size: 2rem;">0</span> phím
             </div>
 
-            <!-- CHỮ CÁI ĐỂ GÕ (Trung tâm) -->
+            <!-- CHỮ CÁI ĐỂ GÕ -->
             <div id="target-key" class="key target-box left bump">A</div>
 
-            <!-- NHẮC BÀI ĐỘNG (Trung tâm) -->
+            <!-- NHẮC BÀI ĐỘNG -->
             <div id="target-hint" class="hint-text">
                 <!-- Javascript điền chữ -->
             </div>
 
-            <!-- BỘ ĐẾM XUÔI (Đưa ra góc dưới bên phải) -->
-            <div class="timer-widget">
-                <div id="time-display">0 giây</div>
-                <div class="timer-controls">
-                    <button class="btn-reset" onclick="resetTimer()">Reset Giờ</button>
-                    <button class="btn-pause" onclick="pauseTimer()">Dừng</button>
-                </div>
-            </div>
-
-            <!-- THANH THỐNG KÊ (Đưa ra góc dưới bên trái) -->
-            <div class="stats-bar">
-                Tổng số bạn đã gõ: <span id="student-counter" style="color: #2E7D32; font-size: 2rem;">0</span><br>
-                Đang gõ phím số: <span id="key-counter" style="color: #D50000; font-size: 2rem;">0</span>/3
-            </div>
-
         </div>
     </div>
 
-    <!-- SLIDE 3: KẾT THÚC & DỌN DẸP -->
-    <div class="slide" style="padding-top: 80px;">
-        <h1 style="font-size: 6rem;">KẾT THÚC THI ĐẤU! 🎉</h1>
-        <h2>Cùng xem dãy nào vô địch hôm nay nhé!</h2>
-        <div class="instruction notebook-content" style="border-color: #1976D2; text-align: center; font-size: 2.5rem; background: #E3F2FD;">
-            <b>NHIỆM VỤ CUỐI CÙNG LÀM "ĐIỆP VIÊN":</b><br><br>
-            🧼 Hết tiết, các em nhớ ra bồn rửa tay của trường.<br>
-            💦 Dùng xà phòng xoa nhẹ là chữ O và X sẽ biến mất hoàn toàn!<br>
-            <i>(Bạn nào rửa sạch đẹp nhất sẽ được cô/thầy khen ngợi)</i>
+    <!-- SLIDE 2: KẾT THÚC -->
+    <div class="slide">
+        <h1 style="font-size: 6rem;">KẾT THÚC! 🎉</h1>
+        <div class="instruction notebook-content" style="border-color: #4CAF50; text-align: center; font-size: 2.5rem; background: #E8F5E9;">
+            Lớp mình hôm nay ngồi học rất ngoan và trật tự!<br>
+            Thầy khen cả lớp nhé! 👏
         </div>
     </div>
 
@@ -297,72 +122,13 @@
     <script>
         let currentSlide = 0;
         const slides = document.querySelectorAll('.slide');
-        const scoreboard = document.getElementById('scoreboard');
 
-        /* --- QUẢN LÝ ĐIỂM VÀ ĐỘI --- */
-        let activeTeam = 1;
-        let scores = { 1: 0, 2: 0, 3: 0, 4: 0 };
-
-        function setActiveTeam(teamNum) {
-            activeTeam = teamNum;
-            for (let i = 1; i <= 4; i++) {
-                document.getElementById('btn-team-' + i).classList.remove('active-team');
-            }
-            document.getElementById('btn-team-' + teamNum).classList.add('active-team');
-        }
-
-        function addScore(teamNum, amount) {
-            scores[teamNum] += amount;
-            if (scores[teamNum] < 0) scores[teamNum] = 0;
-            document.getElementById('score-' + teamNum).innerText = scores[teamNum];
-        }
-
-        /* --- QUẢN LÝ SLIDE --- */
         function changeSlide(direction) {
             slides[currentSlide].classList.remove('active');
             currentSlide += direction;
             if (currentSlide < 0) currentSlide = 0;
             if (currentSlide >= slides.length) currentSlide = slides.length - 1;
             slides[currentSlide].classList.add('active');
-
-            if (currentSlide === 1 || currentSlide === 2) {
-                scoreboard.style.display = 'flex';
-            } else {
-                scoreboard.style.display = 'none';
-            }
-        }
-
-        /* --- ĐỒNG HỒ ĐẾM XUÔI --- */
-        let timerInterval;
-        let timeElapsed = 0; // Bắt đầu từ 0 giây
-
-        function updateTimerDisplay() {
-            document.getElementById('time-display').innerText = timeElapsed + ' giây';
-        }
-
-        function startTimer() {
-            if (!timerInterval) {
-                timerInterval = setInterval(() => {
-                    timeElapsed++;
-                    updateTimerDisplay();
-                }, 1000);
-            }
-        }
-
-        function pauseTimer() {
-            clearInterval(timerInterval);
-            timerInterval = null;
-        }
-
-        function resetTimer() {
-            pauseTimer();
-            timeElapsed = 0;
-            updateTimerDisplay();
-
-            studentsPlayed = 0;
-            keysTypedInTurn = 0;
-            document.getElementById('student-counter').innerText = 0;
-            document.getElementById('key-counter').innerText = 0;
         }
 
         /* --- LOGIC CỦA GAME --- */
@@ -381,11 +147,11 @@
 
         const keyList = Object.keys(gameKeys);
         let currentTarget = 'a';
-        let keysTypedInTurn = 0;
-        let studentsPlayed = 0; 
+        let totalKeysTyped = 0; 
 
         function generateNextKey() {
             let nextTarget = currentTarget;
+            // Đảm bảo không bốc trúng phím cũ
             while (nextTarget === currentTarget) {
                 nextTarget = keyList[Math.floor(Math.random() * keyList.length)];
             }
@@ -396,75 +162,62 @@
             const gameBgEl = document.getElementById('game-bg');
             const hintEl = document.getElementById('target-hint');
 
+            // Hiển thị chữ
             targetEl.innerText = data.char;
 
+            // Xử lý CSS của phím
             targetEl.className = 'key target-box ' + data.side;
             if (data.bump) targetEl.classList.add('bump');
 
+            // Đổi màu nền & Nhắc bài theo Đỏ/Xanh
             if (data.side === 'left') {
                 gameBgEl.className = 'game-layout theme-left';
-                hintEl.innerHTML = `🔴 TAY TRÁI (Chữ <b>O</b>) - <b>${data.finger}</b>`;
+                hintEl.innerHTML = `🔴 TAY TRÁI - <b>${data.finger}</b>`;
                 hintEl.style.color = '#D50000';
                 hintEl.style.borderColor = '#D50000';
+                
                 targetEl.style.background = '#FF8A80';
                 targetEl.style.boxShadow = '0 10px 0 #D50000, 0 15px 15px rgba(0,0,0,0.2)';
                 targetEl.style.borderColor = '#FFCDD2';
             } else {
                 gameBgEl.className = 'game-layout theme-right';
-                hintEl.innerHTML = `🔵 TAY PHẢI (Chữ <b>X</b>) - <b>${data.finger}</b>`;
+                hintEl.innerHTML = `🔵 TAY PHẢI - <b>${data.finger}</b>`;
                 hintEl.style.color = '#1565C0';
                 hintEl.style.borderColor = '#1565C0';
+                
                 targetEl.style.background = '#42A5F5';
                 targetEl.style.boxShadow = '0 10px 0 #1565C0, 0 15px 15px rgba(0,0,0,0.2)';
                 targetEl.style.borderColor = '#BBDEFB';
             }
         }
 
+        // Bắt sự kiện bàn phím
         document.addEventListener('keydown', function (event) {
+            // Dùng mũi tên trái/phải để chuyển slide
             if (event.key === 'ArrowRight') { changeSlide(1); return; }
             if (event.key === 'ArrowLeft') { changeSlide(-1); return; }
 
-            if (currentSlide === 2) {
-                if (document.getElementById('swap-alert').style.display === 'block') return;
-
+            // Chỉ nhận phím gõ khi ở Slide Game (Slide số 1)
+            if (currentSlide === 1) {
                 const pressedKey = event.key.toLowerCase();
                 const targetEl = document.getElementById('target-key');
 
                 if (gameKeys.hasOwnProperty(pressedKey)) {
                     if (pressedKey === currentTarget) {
-                        
-                        if (keysTypedInTurn === 0) {
-                            startTimer(); // Chạy bộ đếm xuôi
-                        }
+                        // --- GÕ ĐÚNG ---
+                        totalKeysTyped++;
+                        document.getElementById('counter').innerText = totalKeysTyped;
 
-                        keysTypedInTurn++;
-                        document.getElementById('key-counter').innerText = keysTypedInTurn;
-
-                        addScore(activeTeam, 1);
-
+                        // Hiệu ứng phím to lên
                         targetEl.classList.add('pulse');
-                        setTimeout(() => targetEl.classList.remove('pulse'), 200);
-
-                        if (keysTypedInTurn >= 3) {
-                            pauseTimer();
-
-                            studentsPlayed++;
-                            document.getElementById('student-counter').innerText = studentsPlayed;
-
-                            const alertBox = document.getElementById('swap-alert');
-                            alertBox.style.display = 'block';
-
-                            setTimeout(() => {
-                                alertBox.style.display = 'none';
-                                keysTypedInTurn = 0;
-                                document.getElementById('key-counter').innerText = 0;
-                                generateNextKey();
-                            }, 1500); 
-                        } else {
+                        setTimeout(() => {
+                            targetEl.classList.remove('pulse');
+                            // Đổi phím mới ngay lập tức cho em tiếp theo
                             generateNextKey();
-                        }
+                        }, 300);
 
                     } else {
+                        // --- GÕ SAI ---
                         targetEl.classList.remove('shake-error');
                         void targetEl.offsetWidth;
                         targetEl.classList.add('shake-error');
@@ -473,9 +226,9 @@
             }
         });
 
+        // Khởi tạo phím đầu tiên
         generateNextKey();
 
     </script>
 </body>
-
 </html>
