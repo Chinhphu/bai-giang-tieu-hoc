@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đại Hội Shark Tank IT - Khối 5</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800;900&display=swap');
+
+        :root {
+            --ink: #17243c;
+            --bg: #eaf5f2;
+            --mint: #16b89a;
+            --blue: #3178f6;
+            --yellow: #ffc857;
+            --coral: #ff6c65;
+            --white: #ffffff;
+            --line: #dce5ef;
+            --shadow: 0 8px 0 rgba(23, 36, 60, 0.15);
+        }
+
+        * { box-sizing: border-box; font-family: 'Be Vietnam Pro', sans-serif; user-select: none; }
+
+        html, body {
+            margin: 0; padding: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--ink);
+            overflow-x: hidden; 
+            overflow-y: auto;
+        }
+
+        body { display: flex; flex-direction: column; }
+        button { cursor: pointer; border: 0; transition: 0.1s ease; font-family: inherit; }
+        button:active { transform: translateY(4px); box-shadow: none !important; }
+        input, select { font: inherit; }
+
+        /* ================= SETUP SCREEN ================= */
+        #setup-screen {
+            position: fixed; inset: 0;
+            background: var(--ink);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000;
+        }
+
+        .setup-box {
+            background: var(--white); padding: 40px 60px;
+            border-radius: 24px; text-align: center;
+            max-width: 600px; width: 90%;
+            box-shadow: 0 15px 0 rgba(0,0,0,0.3);
+            max-height: 90vh; overflow-y: auto;
+        }
+
+        .setup-box h2 { color: var(--blue); font-size: 38px; font-weight: 900; margin: 0 0 20px; text-transform: uppercase; }
+        
+        .setup-config {
+            background: #f4f7fb; padding: 20px; border-radius: 16px; margin-bottom: 20px;
+            border: 3px solid var(--line); font-size: 24px; font-weight: 800;
+        }
+
+        .setup-config select {
+            font-size: 24px; font-weight: 900; color: var(--blue);
+            padding: 10px; border-radius: 12px; border: 3px solid var(--line); outline: none;
+            margin-left: 15px; cursor: pointer;
+        }
+
+        .setup-row { display: flex; align-items: center; justify-content: center; gap: 20px; margin: 15px 0; }
+        .setup-row span { font-size: 24px; font-weight: 800; width: 100px; }
+        .setup-box input[type="text"] {
+            font-size: 24px; font-weight: 900; text-align: center; color: var(--coral);
+            width: 250px; padding: 12px; border: 4px solid var(--line); border-radius: 12px; outline: none;
+        }
+        .setup-box input[type="text"]:focus { border-color: var(--mint); }
+
+        .btn-setup {
+            background: var(--mint); color: var(--white);
+            font-size: 30px; font-weight: 900; padding: 15px 40px;
+            border-radius: 15px; box-shadow: 0 8px 0 #087d69; width: 100%; margin-top: 20px;
+        }
+
+        /* ================= GAME SCREEN ================= */
+        #game-screen { display: none; flex-direction: column; flex: 1; padding-top: 85px; }
+
+        /* THANH TOPBAR CỐ ĐỊNH 100% */
+        .topbar {
+            position: fixed; top: 0; left: 0; width: 100%; background: var(--ink);
+            padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); z-index: 1000;
+        }
+        .police-badge { color: var(--yellow); font-size: 28px; font-weight: 900; display: flex; align-items: center; gap: 10px; }
+        
+        .scoreboard { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; justify-content: center; flex: 1; padding: 0 20px; }
+        .team-score {
+            background: rgba(255, 255, 255, 0.1); border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px; padding: 8px 15px; display: flex; align-items: center; gap: 12px; color: var(--white);
+            transition: 0.3s;
+        }
+        .team-info { display: flex; flex-direction: column; align-items: center; }
+        .team-name { font-weight: 800; font-size: 16px; color: var(--mint); margin-bottom: 2px; }
+        .score-number { font-size: 26px; font-weight: 900; color: var(--yellow); line-height: 1; transition: 0.3s; }
+        .score-controls { display: flex; gap: 5px; }
+        .score-btn { width: 30px; height: 30px; border-radius: 8px; font-size: 20px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+        .score-btn.minus { background: var(--coral); color: white; box-shadow: 0 4px 0 #cc4640; }
+        .score-btn.plus { background: var(--yellow); color: var(--ink); box-shadow: 0 4px 0 #dca631; }
+
+        .btn-system-penalty {
+            background: var(--coral); color: white;
+            font-size: 20px; font-weight: 900; padding: 0 15px; height: 50px;
+            border-radius: 12px; display: flex; align-items: center; gap: 8px; border: 3px solid #8b0000;
+            box-shadow: 0 5px 0 #8b0000;
+        }
+        
+        #penalty-modal {
+            position: absolute; top: 80px; right: 30px; background: white; border: 5px solid var(--coral);
+            border-radius: 16px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: none; flex-direction: column; gap: 10px; z-index: 999; width: 250px;
+        }
+        .penalty-title { font-weight: 900; color: var(--ink); font-size: 18px; text-align: center; margin-bottom: 5px;}
+        .btn-penalize {
+            background: #fff0f0; border: 2px solid var(--coral); color: var(--coral);
+            font-weight: 800; font-size: 18px; padding: 10px; border-radius: 10px; text-align: left;
+        }
+        .btn-penalize:hover { background: var(--coral); color: white; }
+
+        /* SÂN KHẤU & SLIDE */
+        .stage { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px 100px; }
+        .slide {
+            background: var(--white); border: 8px solid var(--ink); border-radius: 30px;
+            width: 100%; max-width: 1300px; padding: 40px 50px; box-shadow: var(--shadow);
+            display: none; flex-direction: column; align-items: center; text-align: center;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .slide.active { display: flex; }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.95) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+
+        /* TYPOGRAPHY */
+        .topic-name { background: var(--blue); color: var(--white); padding: 12px 35px; border-radius: 50px; font-weight: 900; font-size: 26px; margin-bottom: 25px; border: 4px solid var(--ink); text-transform: uppercase; }
+        .topic-name.invest { background: var(--yellow); color: var(--ink); }
+        h1 { font-size: 55px; color: var(--blue); margin: 0 0 20px 0; font-weight: 900; text-transform: uppercase; }
+        h2 { font-size: 38px; color: var(--ink); margin: 0 0 20px 0; font-weight: 900; }
+        
+        .notebook { width: 100%; max-width: 1100px; background: #fffefc; border: 5px solid var(--ink); border-radius: 24px; padding: 35px 45px; text-align: left; box-shadow: 10px 10px 0 var(--line); margin-bottom: 20px; }
+        .notebook p, .notebook li { font-size: 30px; line-height: 1.6; margin: 0 0 15px; font-weight: 700; color: var(--ink); }
+        .notebook strong { color: var(--coral); font-weight: 900; }
+        .notebook .highlight { background: var(--yellow); padding: 5px 15px; border-radius: 12px; border: 3px solid var(--ink); font-weight: 900; }
+
+        .situation-box {
+            background: var(--ink); color: var(--white); font-size: 28px; font-weight: 800;
+            padding: 25px 35px; border-radius: 20px; border: 4px solid var(--yellow);
+            width: 100%; margin-bottom: 20px; line-height: 1.4; text-align: left;
+        }
+        
+        .hint-box {
+            background: #e8f4fd; color: #1d4ed8; font-size: 22px; font-weight: 800;
+            padding: 15px 25px; border-radius: 16px; border: 3px dashed var(--blue);
+            width: 100%; margin-bottom: 25px; text-align: left; display: flex; align-items: center; gap: 15px;
+        }
+
+        .img-placeholder {
+            width: 100%; height: 250px; background: #e9eef5; 
+            border: 3px dashed var(--blue); border-radius: 16px; 
+            display: flex; align-items: center; justify-content: center; 
+            color: var(--blue); font-size: 22px; font-weight: bold; margin-bottom: 20px;
+        }
+
+        /* ================= BẢNG ĐẦU TƯ LIÊN KẾT ================= */
+        .trading-board {
+            width: 100%; border-collapse: separate; border-spacing: 12px; margin-bottom: 30px;
+            table-layout: fixed;
+        }
+        .trading-board th { vertical-align: top; padding: 0; height: 100%; }
+        .trading-board th.th-side { width: 120px; color: var(--ink); font-size: 22px; font-weight: 900; vertical-align: bottom; padding-bottom: 15px;}
+        
+        .trading-board td {
+            background: #f4f7fb; border: 4px solid var(--line); border-radius: 16px;
+            padding: 15px; text-align: center; vertical-align: middle;
+        }
+        
+        .invest-card {
+            background: #f4f7fb; border: 5px solid var(--ink); border-radius: 20px;
+            padding: 25px 15px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            box-shadow: 0 8px 0 var(--line); transition: 0.3s; height: 100%;
+        }
+        .card-letter {
+            width: 55px; height: 55px; background: var(--ink); color: var(--yellow);
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            font-size: 30px; font-weight: 900; margin-bottom: 12px; border: 3px solid var(--white);
+            flex-shrink: 0;
+        }
+        .card-content { font-size: 22px; font-weight: 800; line-height: 1.3; color: var(--ink); text-align: center; margin-bottom: 15px; }
+        .card-content span { font-size: 17px; font-weight: 600; color: #555; display: block; margin-top: 8px; }
+        
+        .card-result {
+            margin-top: auto; background: var(--ink); color: #fff; /* Tự đẩy xuống đáy thẻ */
+            padding: 10px 15px; border-radius: 16px; font-size: 20px; font-weight: 900; line-height: 1.4;
+            border: 3px solid var(--white); opacity: 0; transform: scale(0.5); 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: center;
+            display: flex; flex-direction: column; gap: 5px; width: 100%;
+        }
+        .card-result small { font-size: 15px; font-weight: 600; color: #ffd166; }
+
+        /* TRẠNG THÁI CÔNG BỐ KẾT QUẢ x0.5, x1, x2 */
+        .trading-board.revealed .invest-card.x2 { background: var(--mint); border-color: #087d69; }
+        .trading-board.revealed .invest-card.x2 .card-content { color: white; }
+        .trading-board.revealed .invest-card.x2 .card-content span { color: #eaf5f2; }
+        .trading-board.revealed .invest-card.x2 .card-result { background: var(--yellow); color: var(--ink); opacity: 1; transform: scale(1); }
+        .trading-board.revealed .invest-card.x2 .card-result small { color: var(--ink); }
+
+        .trading-board.revealed .invest-card.x1 { background: var(--yellow); border-color: #dca631; }
+        .trading-board.revealed .invest-card.x1 .card-content { color: var(--ink); }
+        .trading-board.revealed .invest-card.x1 .card-result { background: var(--ink); color: white; opacity: 1; transform: scale(1); }
+        
+        .trading-board.revealed .invest-card.x05 { background: var(--coral); border-color: #cc4640; }
+        .trading-board.revealed .invest-card.x05 .card-content { color: white; }
+        .trading-board.revealed .invest-card.x05 .card-content span { color: #ffe4e6; }
+        .trading-board.revealed .invest-card.x05 .card-result { background: var(--ink); color: white; opacity: 1; transform: scale(1); }
+
+        /* Style Các Ô Nhập Liệu */
+        .team-name-cell { font-size: 22px; font-weight: 900; color: var(--blue); background: var(--white) !important; border-color: var(--blue) !important; }
+        .col-rem { font-size: 24px; font-weight: 900; color: var(--coral); background: var(--white) !important; }
+        
+        .trading-board input {
+            width: 100%; max-width: 120px; text-align: center; font-size: 26px; font-weight: 900;
+            padding: 8px; border: 3px solid var(--line); border-radius: 12px; outline: none; color: var(--ink);
+        }
+        .trading-board input:focus { border-color: var(--mint); }
+        .trading-board input:disabled { background: #e2e8f0; color: #64748b; border-color: #cbd5e1; }
+
+        .action-buttons { display: flex; justify-content: center; width: 100%; margin-bottom: 20px; }
+        .btn-confirm-bet {
+            font-size: 26px; font-weight: 900; padding: 18px 50px;
+            border-radius: 16px; border: 4px solid var(--ink); color: var(--white);
+            background: var(--mint); box-shadow: 0 6px 0 #087d69; transition: 0.2s;
+        }
+        .btn-reveal {
+            font-size: 26px; font-weight: 900; padding: 18px 50px;
+            border-radius: 16px; border: 4px solid var(--ink); color: var(--white);
+            background: var(--coral); box-shadow: 0 6px 0 #cc4640; transition: 0.2s;
+        }
+        .btn-done {
+            font-size: 26px; font-weight: 900; padding: 18px 50px;
+            border-radius: 16px; border: 4px solid var(--line); color: var(--ink);
+            background: #f1f5f9; box-shadow: 0 6px 0 #cbd5e1; pointer-events: none;
+        }
+
+        /* BẢNG XẾP HẠNG */
+        .rank-row {
+            display: flex; align-items: center; background: #f4f7fb;
+            padding: 15px 30px; border-radius: 20px; border: 4px solid var(--ink);
+            margin-bottom: 15px; width: 100%; gap: 20px;
+        }
+        .rank-medal { font-size: 50px; }
+        .rank-name { flex: 1; font-size: 35px; font-weight: 900; color: var(--blue); text-align: left; }
+        .rank-score { font-size: 40px; font-weight: 900; color: var(--coral); }
+
+        /* ĐIỀU HƯỚNG SLIDE */
+        .slide-nav { position: fixed; right: 30px; bottom: 30px; display: flex; gap: 15px; z-index: 500; }
+        .nav-btn { background: var(--ink); color: var(--white); font-size: 24px; font-weight: 900; padding: 15px 30px; border-radius: 15px; box-shadow: 0 8px 0 #0a1122; border: 3px solid rgba(255,255,255,0.2); }
+        .nav-btn:hover { background: var(--blue); }
+
+        /* ALERT HỆ THỐNG */
+        .system-alert {
+            position: fixed; top: 120px; left: 50%; transform: translateX(-50%) translateY(-50px);
+            background: var(--coral); color: white; font-size: 30px; font-weight: 900; padding: 20px 40px;
+            border-radius: 20px; border: 5px solid var(--ink); box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            z-index: 9999; opacity: 0; pointer-events: none; display: flex; align-items: center; gap: 15px;
+            transition: all 0.3s;
+        }
+        .system-alert.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .flash-red { animation: flashScreen 0.5s; }
+        @keyframes flashScreen { 0%, 100% { background: var(--bg); } 50% { background: rgba(255, 108, 101, 0.3); } }
+    </style>
+</head>
+<body>
+
+    <!-- THÔNG BÁO HỆ THỐNG -->
+    <div id="system-alert" class="system-alert">
+        <i id="alert-icon" class="fa-solid fa-triangle-exclamation"></i> <span id="alert-text">HỆ THỐNG ĐÃ TRỪ 100 ĐIỂM TIẾNG ỒN!</span>
+    </div>
+
+    <!-- MÀN HÌNH SETUP -->
+    <div id="setup-screen">
+        <div class="setup-box">
+            <h2>ĐĂNG KÝ QUỸ ĐẦU TƯ</h2>
+            <div class="setup-config">
+                Số lượng đội: 
+                <select id="team-count" onchange="renderTeamInputs()">
+                    <option value="2">2 Đội</option>
+                    <option value="3" selected>3 Đội</option>
+                    <option value="4">4 Đội</option>
+                    <option value="5">5 Đội</option>
+                </select>
+            </div>
+            <div id="team-inputs-container"></div>
+            <button class="btn-setup" onclick="startGame()">VÀO SHARK TANK IT <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen">
+        <!-- TOPBAR CỐ ĐỊNH 100% -->
+        <div class="topbar">
+            <div class="police-badge"><i class="fa-solid fa-robot"></i> AI Giám Sát</div>
+            <div class="scoreboard" id="scoreboard"></div>
+            <div style="position: relative;">
+                <button class="btn-system-penalty" onclick="togglePenaltyMenu()">
+                    <i class="fa-solid fa-gavel"></i> CẢNH CÁO ỒN
+                </button>
+                <div id="penalty-modal">
+                    <div class="penalty-title">Trừ 100đ quỹ nào?</div>
+                    <div id="penalty-list" style="display: flex; flex-direction: column; gap: 5px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SÂN KHẤU -->
+        <div class="stage" id="main-stage">
+            
+            <!-- SLIDE 1: GIỚI THIỆU -->
+            <div class="slide active" id="slide-0">
+                <div class="topic-name">CHỦ ĐỀ 2 - BÀI 2</div>
+                <h1 style="font-size: 65px; color: var(--coral);">TÌM KIẾM THÔNG TIN<br>TRÊN WEBSITE (T2)</h1>
+                
+                <div class="notebook" style="text-align: center; border-color: var(--coral); background: #fff0f0;">
+                    <h2 style="color: var(--coral); margin-bottom: 15px;"><i class="fa-solid fa-robot"></i> LUẬT ĐẦU TƯ CƠ BẢN</h2>
+                    <p style="font-size: 28px; margin: 0;">Mỗi vòng, các Quỹ Đầu Tư phân bổ vốn vào 3 Giải pháp A, B, C.<br> Giải pháp <strong>ĐÚNG NHẤT sẽ được NHÂN ĐÔI (x2) vốn cược</strong>.<br> Giải pháp <strong>SAI HOẶC RƯỜM RÀ sẽ bị LỖ (x0.5) hoặc MẤT TRẮNG (x0)</strong>.</p>
+                </div>
+            </div>
+
+            <!-- SLIDE 2: NHÁP 1 -->
+            <div class="slide" id="slide-1">
+                <div class="topic-name invest">📈 VÒNG NHÁP 1: LÀM QUEN LUẬT</div>
+                <div class="situation-box">
+                    💡 <strong>Tình huống:</strong> Em muốn tìm lại bài "Ngày hội Trạng Nguyên" trên web thieunien.vn nhưng không nhớ nó nằm ở đâu.
+                </div>
+                <div class="hint-box">
+                    <i class="fa-solid fa-lightbulb" style="font-size: 28px; color: var(--blue);"></i>
+                    <span><strong>Gợi ý:</strong> Nên dùng công cụ gì để tìm kiếm tự động, thay vì phải lướt tay mất cả buổi?</span>
+                </div>
+
+                <!-- BẢNG ĐẦU TƯ LIÊN KẾT -->
+                <table class="trading-board" id="grid-nhap1" data-mult-a="0.5" data-mult-b="1" data-mult-c="2">
+                    <thead>
+                        <tr>
+                            <th class="th-side">TÊN QUỸ</th>
+                            <th>
+                                <div class="invest-card x05">
+                                    <div class="card-letter">A</div>
+                                    <div class="card-content">Nút Trang chủ<br><span>(Lướt tìm thủ công)</span></div>
+                                    <div class="card-result">x 0.5 (Lỗ nửa vốn)<br><small>Bấm vào Trang chủ cũng được nhưng tin cũ đã bị trôi rất xa!</small></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="invest-card x1">
+                                    <div class="card-letter">B</div>
+                                    <div class="card-content">Thanh Chủ đề<br><span>(Tìm trong mục Học đường)</span></div>
+                                    <div class="card-result">x 1 (Huề vốn)<br><small>Đúng thư mục nhưng vẫn tốn sức lướt tìm.</small></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="invest-card x2">
+                                    <div class="card-letter">C</div>
+                                    <div class="card-content">Ô Tìm kiếm<br><span>(Gõ từ khóa vào kính lúp)</span></div>
+                                    <div class="card-result">x 2 (Tối ưu)<br><small>Chính xác! Ra kết quả ngay lập tức.</small></div>
+                                </div>
+                            </th>
+                            <th class="th-side">CÒN LẠI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-1"></tbody>
+                </table>
+                
+                <div class="action-buttons">
+                    <button class="btn-confirm-bet" id="btn-action-1" onclick="handleAction(1, 'grid-nhap1')">1. CHỐT VỐN ĐẦU TƯ</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 3: NHÁP 2 -->
+            <div class="slide" id="slide-2">
+                <div class="topic-name invest">📈 VÒNG NHÁP 2: THAO TÁC CƠ BẢN</div>
+                <div class="situation-box">
+                    💡 <strong>Tình huống:</strong> Thầy yêu cầu em tìm bài thơ "Lượm" của Tố Hữu trên mạng và chép lại 4 câu thơ đầu vào máy tính. Cách nào là nhanh nhất?
+                </div>
+                <div class="hint-box">
+                    <i class="fa-solid fa-lightbulb" style="font-size: 28px; color: var(--blue);"></i>
+                    <span><strong>Gợi ý:</strong> Chúng ta có thể dùng phím tắt để chép văn bản cực nhanh thay vì gõ lại từng chữ đấy!</span>
+                </div>
+
+                <table class="trading-board" id="grid-nhap2" data-mult-a="0.5" data-mult-b="2" data-mult-c="1">
+                    <thead>
+                        <tr>
+                            <th class="th-side">TÊN QUỸ</th>
+                            <th>
+                                <div class="invest-card x05">
+                                    <div class="card-letter">A</div>
+                                    <div class="card-content">Gõ lại thủ công<br><span>(Vừa nhìn web vừa tự gõ lại sang Word)</span></div>
+                                    <div class="card-result">x 0.5 (Lỗ vốn)<br><small>Quá chậm và dễ gõ sai lỗi chính tả.</small></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="invest-card x2">
+                                    <div class="card-letter">B</div>
+                                    <div class="card-content">Sao chép & Dán (Copy/Paste)<br><span>(Bôi đen đoạn thơ -> Copy -> Paste)</span></div>
+                                    <div class="card-result">x 2 (Tối ưu)<br><small>Cách làm chuẩn xác và nhanh nhất!</small></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="invest-card x1">
+                                    <div class="card-letter">C</div>
+                                    <div class="card-content">Dùng phím tắt chuột<br><span>(Bôi đen rồi kéo thả chữ sang Word)</span></div>
+                                    <div class="card-result">x 1 (Huề vốn)<br><small>Kéo thả cũng được nhưng dễ lỡ tay làm mất chữ.</small></div>
+                                </div>
+                            </th>
+                            <th class="th-side">CÒN LẠI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-2"></tbody>
+                </table>
+
+                <div class="action-buttons">
+                    <button class="btn-confirm-bet" id="btn-action-2" onclick="handleAction(2, 'grid-nhap2')">1. CHỐT VỐN ĐẦU TƯ</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 4: LÝ THUYẾT 1 -->
+            <div class="slide" id="slide-3">
+                <div class="topic-name">1. SAO CHÉP LƯU TRỮ TRÊN MẠNG</div>
+                
+                <div class="notebook" style="margin-bottom: 20px;">
+                    <h2 style="color: var(--blue);">LƯU HÌNH ẢNH VỀ MÁY</h2>
+                    <p><i class="fa-solid fa-check" style="color: var(--mint);"></i> <strong>Nháy phải chuột</strong> vào bức ảnh -> Chọn <span class="highlight">Save image as...</span></p>
+                    <!-- <div class="img-placeholder">
+                        <span><i class="fa-regular fa-image"></i> [CHÈN HÌNH MINH HOẠ BẤM CHUỘT PHẢI VÀO ẢNH]</span>
+                    </div> -->
+                </div>
+
+                <div class="notebook">
+                    <h2 style="color: var(--coral);">SAO CHÉP VĂN BẢN</h2>
+                    <p><i class="fa-solid fa-copy"></i> Copy: Bôi đen chữ -> Nhấn <strong>Ctrl + C</strong>.</p>
+                    <p><i class="fa-solid fa-paste"></i> Paste (Dán): Mở tệp Word/PowerPoint -> Nhấn <strong>Ctrl + V</strong>.</p>
+                </div>
+            </div>
+
+            <!-- SLIDE 5: LÝ THUYẾT 2 -->
+            <div class="slide" id="slide-4">
+                <div class="topic-name">2. SỬ DỤNG USB ĐỂ CHIA SẺ</div>
+                
+                <div class="notebook" style="margin-bottom: 20px;">
+                    <h2 style="color: var(--blue);">CÁCH CẮM USB</h2>
+                    <p><i class="fa-solid fa-check" style="color: var(--mint);"></i> Cắm đúng chiều, nhẹ tay. Máy tính nhận diện USB như một "ổ đĩa" (Ổ C, Ổ D).</p>
+                    <!-- <div class="img-placeholder" style="height: 150px;">
+                        <span><i class="fa-brands fa-usb"></i> [CHÈN HÌNH MINH HOẠ CỔNG USB]</span>
+                    </div> -->
+                </div>
+
+                <div class="notebook" style="border-color: var(--coral);">
+                    <h2 style="color: var(--coral);">NGẮT KẾT NỐI AN TOÀN (RẤT QUAN TRỌNG)</h2>
+                    <p><i class="fa-solid fa-1"></i> Bấm mũi tên góc phải dưới -> Chọn biểu tượng USB.</p>
+                    <p><i class="fa-solid fa-2"></i> Nháy chọn chữ <span class="highlight">Eject</span>.</p>
+                    <p><i class="fa-solid fa-3"></i> <strong>Chờ thông báo an toàn</strong> rồi mới được rút ra.</p>
+                </div>
+            </div>
+
+            <!-- SLIDE 6: THƯƠNG VỤ 1 -->
+            <div class="slide" id="slide-5">
+                <div class="topic-name invest">🚀 THƯƠNG VỤ 1: SĂN LÙNG HÌNH ẢNH</div>
+                <div class="situation-box">
+                    💡 <strong>Tình huống:</strong> Em cần lưu tấm hình chú cún rất dễ thương trên trang web về máy. Giải pháp nào nhanh và chuẩn nhất?
+                </div>
+                <div class="hint-box">
+                    <i class="fa-solid fa-lightbulb" style="font-size: 28px; color: var(--blue);"></i>
+                    <span><strong>Gợi ý lừa tình:</strong> Đừng nhầm lẫn giữa copy văn bản và copy file ảnh ra màn hình nền nhé!</span>
+                </div>
+
+                <table class="trading-board" id="grid-vu1" data-mult-a="1" data-mult-b="2" data-mult-c="0.5">
+                    <thead>
+                        <tr>
+                            <th class="th-side">TÊN QUỸ</th>
+                            <th>
+                                <div class="invest-card x1">
+                                    <div class="card-letter">A</div>
+                                    <div class="card-content">Chụp Màn Hình<br><span>(Chụp màn hình rồi qua Paint cắt lại)</span></div>
+                                    <div class="card-result">x 1 (Huề vốn)<br><small>Cách này lấy được ảnh nhưng quá cồng kềnh, hình bị mờ.</small></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="invest-card x2">
+                                    <div class="card-letter">B</div>
+                                    <div class="card-content">Lưu Trực Tiếp<br><span>(Nháy chuột phải -> Save image as...)</span></div>
+                                    <div class="card-result">x 2 (Tối ưu)<br><small>Tuyệt vời! Lưu rất nhanh và hình chuẩn độ phân giải.</small></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="invest-card x05">
+                                    <div class="card-letter">C</div>
+                                    <div class="card-content">Copy ảnh dán ra Desktop<br><span>(Chuột phải Copy image -> Ra Desktop Paste thẳng)</span></div>
+                                    <div class="card-result">x 0.5 (Lỗ vốn)<br><small>Hệ thống không cho phép dán trực tiếp ảnh từ Web ra màn hình thành file.</small></div>
+                                </div>
+                            </th>
+                            <th class="th-side">CÒN LẠI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-3"></tbody>
+                </table>
+
+                <div class="action-buttons">
+                    <button class="btn-confirm-bet" id="btn-action-3" onclick="handleAction(3, 'grid-vu1')">1. CHỐT VỐN ĐẦU TƯ</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 7: THƯƠNG VỤ 2 -->
+            <div class="slide" id="slide-6">
+                <div class="topic-name invest">🚀 THƯƠNG VỤ 2: GIẢI CỨU USB</div>
+                <div class="situation-box">
+                    💡 <strong>Tình huống:</strong> Vừa chép xong bài tập vào USB, muốn rút USB ra thật nhanh để đi ra chơi. Em xử lý sao?
+                </div>
+                <div class="hint-box">
+                    <i class="fa-solid fa-lightbulb" style="font-size: 28px; color: var(--blue);"></i>
+                    <span><strong>Gợi ý cảnh giác:</strong> Làm sao để vừa rút nhanh vừa không làm bay màu dữ liệu trong USB?</span>
+                </div>
+
+                <table class="trading-board" id="grid-vu2" data-mult-a="0.5" data-mult-b="1" data-mult-c="2">
+                    <thead>
+                        <tr>
+                            <th class="th-side">TÊN QUỸ</th>
+                            <th>
+                                <div class="invest-card x05">
+                                    <div class="card-letter">A</div>
+                                    <div class="card-content">Rút Tốc Độ Vật Lý<br><span>(Cầm thân USB rút thẳng bằng tay luôn)</span></div>
+                                    <div class="card-result">x 0.5 (Thiệt hại lớn)<br><small>Rất dễ cháy bo mạch USB, mất sạch dữ liệu bài tập!</small></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="invest-card x1">
+                                    <div class="card-letter">B</div>
+                                    <div class="card-content">Tắt Nguồn Máy Tính<br><span>(Bấm Shut down máy tính rồi mới rút)</span></div>
+                                    <div class="card-result">x 1 (Huề vốn)<br><small>An toàn 100% nhưng làm mất thời gian khởi động lại máy của lớp.</small></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="invest-card x2">
+                                    <div class="card-letter">C</div>
+                                    <div class="card-content">Ngắt Kết Nối Phần Mềm<br><span>(Bấm vào mũi tên góc phải -> Eject USB)</span></div>
+                                    <div class="card-result">x 2 (Tối ưu)<br><small>Đúng chuẩn quy trình bảo vệ thiết bị lưu trữ.</small></div>
+                                </div>
+                            </th>
+                            <th class="th-side">CÒN LẠI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-4"></tbody>
+                </table>
+
+                <div class="action-buttons">
+                    <button class="btn-confirm-bet" id="btn-action-4" onclick="handleAction(4, 'grid-vu2')">1. CHỐT VỐN ĐẦU TƯ</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 8: THƯƠNG VỤ 3 -->
+            <div class="slide" id="slide-7">
+                <div class="topic-name invest">🚀 THƯƠNG VỤ 3: CẠM BẪY KIM CƯƠNG</div>
+                <div class="situation-box">
+                    💡 <strong>Tình huống:</strong> Đang lướt web, Nam thấy quảng cáo: "Bấm vào nhận ngay 1000 kim cương Free Fire!". Nam nên làm gì?
+                </div>
+                <div class="hint-box">
+                    <i class="fa-solid fa-lightbulb" style="font-size: 28px; color: var(--blue);"></i>
+                    <span><strong>Gợi ý:</strong> Đứng trước những miếng mồi ngon miễn phí trên mạng, ta nên ứng xử thế nào để an toàn cho mình và mọi người?</span>
+                </div>
+
+                <table class="trading-board" id="grid-vu3" data-mult-a="0.5" data-mult-b="1" data-mult-c="2">
+                    <thead>
+                        <tr>
+                            <th class="th-side">TÊN QUỸ</th>
+                            <th>
+                                <div class="invest-card x05">
+                                    <div class="card-letter">A</div>
+                                    <div class="card-content">Bấm thử vào nhận quà<br><span>(Hên xui may rủi, biết đâu trúng thật)</span></div>
+                                    <div class="card-result">x 0.5 (Rủi ro cao)<br><small>Đó là trang web lừa đảo, máy sẽ dính virus đánh cắp tài khoản.</small></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="invest-card x1">
+                                    <div class="card-letter">B</div>
+                                    <div class="card-content">Làm lơ, tắt trang web<br><span>(Mình không bấm là được, mặc kệ)</span></div>
+                                    <div class="card-result">x 1 (Tạm ổn)<br><small>Em giữ an toàn được cho mình, nhưng trang lừa đảo vẫn còn đó.</small></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="invest-card x2">
+                                    <div class="card-letter">C</div>
+                                    <div class="card-content">Tắt web và Cảnh báo<br><span>(Báo cho người lớn và nhắc các bạn bè không bấm)</span></div>
+                                    <div class="card-result">x 2 (Tối ưu)<br><small>Tuyệt vời! Hành vi bảo mật thông minh, bảo vệ được cả tập thể.</small></div>
+                                </div>
+                            </th>
+                            <th class="th-side">CÒN LẠI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-5"></tbody>
+                </table>
+
+                <div class="action-buttons">
+                    <button class="btn-confirm-bet" id="btn-action-5" onclick="handleAction(5, 'grid-vu3')">1. CHỐT VỐN ĐẦU TƯ</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 9: BẢNG XẾP HẠNG -->
+            <div class="slide" id="slide-8">
+                <h1 style="font-size: 70px;">TỔNG KẾT TÀI SẢN</h1>
+                <h2 style="color: var(--ink); margin-bottom: 30px;">Vinh danh các Quỹ Đầu Tư Đại Tài!</h2>
+                
+                <div id="ranking-board" style="width: 100%; max-width: 900px; margin-bottom: 30px;"></div>
+
+                <div class="notebook" style="border-color: var(--mint);">
+                    <h2 style="color: var(--mint); margin-bottom: 15px;"><i class="fa-solid fa-house"></i> NHIỆM VỤ VỀ NHÀ</h2>
+                    <p>Sử dụng công cụ tìm kiếm trên website, hãy tìm kiếm thông tin về <strong>thời tiết ở địa phương em ngày mai</strong> và sao chép vào tệp Word nhé!</p>
+                </div>
+            </div>
+
+        </div> <!-- End Stage -->
+
+        <!-- ĐIỀU HƯỚNG SLIDE -->
+        <div class="slide-nav">
+            <button class="nav-btn" onclick="changeSlide(-1)"><i class="fa-solid fa-chevron-left"></i> TRƯỚC</button>
+            <button class="nav-btn" onclick="changeSlide(1)">TIẾP <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <script>
+        let teams = [];
+        let currentSlide = 0;
+        const totalSlides = 9;
+        let stageState = {}; // Theo dõi trạng thái từng slide (betting, locked, revealed)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function renderTeamInputs() {
+            const count = parseInt(document.getElementById('team-count').value);
+            let html = '';
+            const labels = ['A', 'B', 'C', 'D', 'E'];
+            for(let i=0; i<count; i++){
+                html += `<div class="setup-row">
+                    <span>Quỹ ${labels[i]}:</span>
+                    <input type="text" id="team-name-${i}" value="Quỹ ${labels[i]}">
+                </div>`;
+            }
+            document.getElementById('team-inputs-container').innerHTML = html;
+        }
+        renderTeamInputs();
+
+        function startGame() {
+            const count = parseInt(document.getElementById('team-count').value);
+            teams = [];
+            for(let i=0; i<count; i++){
+                teams.push({
+                    id: i,
+                    name: document.getElementById(`team-name-${i}`).value || `Quỹ ${i+1}`,
+                    score: 1000,
+                    bets: null
+                });
+            }
+            renderScoreboard();
+            renderPenaltyMenu();
+            renderAllBetTables();
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+        }
+
+        /* ======== SCOREBOARD & PENALTY ======== */
+        function renderScoreboard() {
+            const board = document.getElementById('scoreboard');
+            board.innerHTML = '';
+            teams.forEach(team => {
+                board.innerHTML += `
+                    <div class="team-score">
+                        <div class="team-info">
+                            <div class="team-name">${team.name}</div>
+                            <div class="score-number" id="score-${team.id}">${team.score}</div>
+                        </div>
+                        <div class="score-controls">
+                            <button class="score-btn minus" onclick="updateScore(${team.id}, -100)">-</button>
+                            <button class="score-btn plus" onclick="updateScore(${team.id}, 100)">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+            updateBetTablesDisplay();
+        }
+
+        function updateScore(teamId, amount) {
+            teams[teamId].score += amount;
+            renderScoreboard();
+        }
+
+        function togglePenaltyMenu() {
+            const menu = document.getElementById('penalty-modal');
+            menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function renderPenaltyMenu() {
+            const list = document.getElementById('penalty-list');
+            list.innerHTML = '';
+            teams.forEach(team => {
+                list.innerHTML += `<button class="btn-penalize" onclick="applySystemPenalty(${team.id})">${team.name}</button>`;
+            });
+        }
+
+        function applySystemPenalty(teamId) {
+            updateScore(teamId, -100);
+            togglePenaltyMenu();
+            
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.5);
+            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+
+            document.getElementById('main-stage').classList.add('flash-red');
+            showSystemAlert(`HỆ THỐNG ĐÃ TRỪ 100 ĐIỂM (${teams[teamId].name}) VÌ ỒN!`, 'var(--coral)', 'fa-triangle-exclamation');
+            
+            setTimeout(() => { document.getElementById('main-stage').classList.remove('flash-red'); }, 1500);
+        }
+
+        function showSystemAlert(msg, bgColor = 'var(--coral)', icon = 'fa-bell') {
+            const alertBox = document.getElementById('system-alert');
+            const iconEl = document.getElementById('alert-icon');
+            const textEl = document.getElementById('alert-text');
+            iconEl.className = `fa-solid ${icon}`;
+            textEl.innerHTML = msg;
+            alertBox.style.background = bgColor;
+            alertBox.classList.add('show');
+            setTimeout(() => { alertBox.classList.remove('show'); }, 3500);
+        }
+
+        /* ======== RENDER BẢNG RÓT VỐN ======== */
+        function renderAllBetTables() {
+            for(let i=1; i<=5; i++) {
+                const tbody = document.getElementById(`tbody-${i}`);
+                if(!tbody) continue;
+                tbody.innerHTML = '';
+                teams.forEach(t => {
+                    tbody.innerHTML += `
+                        <tr class="team-bet-row" id="row-${i}-${t.id}">
+                            <td class="team-name-cell">${t.name}</td>
+                            <td><input type="number" min="0" value="0" id="bet-${i}-${t.id}-a" onkeyup="validateBet(${i}, ${t.id})" onchange="validateBet(${i}, ${t.id})"></td>
+                            <td><input type="number" min="0" value="0" id="bet-${i}-${t.id}-b" onkeyup="validateBet(${i}, ${t.id})" onchange="validateBet(${i}, ${t.id})"></td>
+                            <td><input type="number" min="0" value="0" id="bet-${i}-${t.id}-c" onkeyup="validateBet(${i}, ${t.id})" onchange="validateBet(${i}, ${t.id})"></td>
+                            <td id="rem-${i}-${t.id}" class="col-rem">${t.score}</td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        function updateBetTablesDisplay() {
+            for(let i=1; i<=5; i++) {
+                if(stageState[i]) continue; // Bỏ qua nếu đã chốt/lật
+                teams.forEach(t => {
+                    let remEl = document.getElementById(`rem-${i}-${t.id}`);
+                    if(remEl) validateBet(i, t.id); // Tự động tính toán lại dựa trên t.score mới
+                });
+            }
+        }
+
+        function validateBet(tableIdx, teamId) {
+            let t = teams.find(x => x.id === teamId);
+            let aEl = document.getElementById(`bet-${tableIdx}-${teamId}-a`);
+            let bEl = document.getElementById(`bet-${tableIdx}-${teamId}-b`);
+            let cEl = document.getElementById(`bet-${tableIdx}-${teamId}-c`);
+            
+            let a = parseInt(aEl.value) || 0;
+            let b = parseInt(bEl.value) || 0;
+            let c = parseInt(cEl.value) || 0;
+            
+            if (a < 0) { a = 0; aEl.value = 0; }
+            if (b < 0) { b = 0; bEl.value = 0; }
+            if (c < 0) { c = 0; cEl.value = 0; }
+            
+            let totalBet = a + b + c;
+            let avail = t.score;
+            if (totalBet > avail) {
+                // Hết tiền, set tất cả về 0
+                aEl.value = 0; bEl.value = 0; cEl.value = 0;
+                document.getElementById(`rem-${tableIdx}-${teamId}`).innerText = avail;
+                showSystemAlert(`❌ Quỹ ${t.name} không đủ vốn! (Chỉ còn ${avail}đ)`, 'var(--coral)', 'fa-triangle-exclamation');
+            } else {
+                document.getElementById(`rem-${tableIdx}-${teamId}`).innerText = avail - totalBet;
+            }
+        }
+
+        /* ======== LOGIC BUTTON 2 TRONG 1 ======== */
+        function handleAction(tableIdx, gridId) {
+            if (!stageState[tableIdx]) stageState[tableIdx] = 'betting';
+
+            if (stageState[tableIdx] === 'betting') {
+                // 1. CHỐT VỐN
+                teams.forEach(t => {
+                    let a = parseInt(document.getElementById(`bet-${tableIdx}-${t.id}-a`).value) || 0;
+                    let b = parseInt(document.getElementById(`bet-${tableIdx}-${t.id}-b`).value) || 0;
+                    let c = parseInt(document.getElementById(`bet-${tableIdx}-${t.id}-c`).value) || 0;
+                    t.bets = { A: a, B: b, C: c };
+                    t.score -= (a + b + c); // Trừ tiền cược
+                    
+                    // Disable ô nhập
+                    document.getElementById(`bet-${tableIdx}-${t.id}-a`).disabled = true;
+                    document.getElementById(`bet-${tableIdx}-${t.id}-b`).disabled = true;
+                    document.getElementById(`bet-${tableIdx}-${t.id}-c`).disabled = true;
+                });
+                renderScoreboard();
+                showSystemAlert("ĐÃ CHỐT VỐN! SẴN SÀNG LẬT KẾT QUẢ.", "var(--mint)", "fa-check");
+                
+                // Đổi nút thành LẬT MỞ
+                let btn = document.getElementById(`btn-action-${tableIdx}`);
+                btn.innerText = "2. LẬT MỞ KẾT QUẢ";
+                btn.className = "btn-reveal"; 
+                stageState[tableIdx] = 'locked';
+            } 
+            else if (stageState[tableIdx] === 'locked') {
+                // 2. LẬT MỞ
+                const grid = document.getElementById(gridId);
+                grid.classList.add('revealed');
+                
+                let multA = parseFloat(grid.dataset.multA) || 0;
+                let multB = parseFloat(grid.dataset.multB) || 0;
+                let multC = parseFloat(grid.dataset.multC) || 0;
+                
+                teams.forEach(t => {
+                    if(t.bets) {
+                        let win = (t.bets.A * multA) + (t.bets.B * multB) + (t.bets.C * multC);
+                        t.score += Math.round(win);
+                        t.bets = null;
+                    }
+                });
+                renderScoreboard();
+                
+                // Đổi nút thành ĐÃ XONG
+                let btn = document.getElementById(`btn-action-${tableIdx}`);
+                btn.innerText = "ĐÃ HẠCH TOÁN LỢI NHUẬN";
+                btn.className = "btn-done";
+                btn.disabled = true;
+                stageState[tableIdx] = 'revealed';
+            }
+        }
+
+        /* ======== NAVIGATION & RANKING ======== */
+        function changeSlide(direction) {
+            document.getElementById(`slide-${currentSlide}`).classList.remove('active');
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = 0;
+            if (currentSlide >= totalSlides) currentSlide = totalSlides - 1;
+            document.getElementById(`slide-${currentSlide}`).classList.add('active');
+            
+            window.scrollTo(0, 0);
+            if(currentSlide === totalSlides - 1) renderRanking();
+        }
+
+        function renderRanking() {
+            let sorted = [...teams].sort((a, b) => b.score - a.score);
+            let html = '';
+            const medals = ['🥇', '🥈', '🥉', '🏅', '🏅'];
+            sorted.forEach((t, index) => {
+                html += `<div class="rank-row">
+                    <span class="rank-medal">${medals[index]}</span>
+                    <span class="rank-name">${t.name}</span>
+                    <span class="rank-score">${t.score} ĐIỂM</span>
+                </div>`;
+            });
+            document.getElementById('ranking-board').innerHTML = html;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName.toLowerCase() === 'input') return;
+            if (document.getElementById('game-screen').style.display === 'flex') {
+                if (e.key === 'ArrowRight' || e.key === 'PageDown') changeSlide(1);
+                else if (e.key === 'ArrowLeft' || e.key === 'PageUp') changeSlide(-1);
+            }
+        });
+    </script>
+</body>
+</html>
