@@ -1,0 +1,473 @@
+<!DOCTYPE html><html lang="vi"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đại Chiến Gõ Tiếp Sức</title>
+    <style>
+        /* ================= BỘ CSS GỐC ================= */
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
+
+        :root {
+            --ink: #17233c;
+            --paper: #fffdf7;
+            --yellow: #ffd84d;
+            --orange: #ff914d;
+            --coral: #ff5c6c;
+            --teal: #19b7a5;
+            --purple: #7357d9;
+            --green: #63bf58;
+            --shadow: 0 8px 0 rgba(23, 35, 60, .12), 0 15px 28px rgba(23, 35, 60, .11);
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { margin: 0; color: var(--ink); background: #eef8f4; font-family: 'Be Vietnam Pro', sans-serif; font-size: 18px; overflow-x: hidden; transition: background 0.2s; }
+        
+        button, input, select { font: inherit; }
+        button { cursor: pointer; border: 0; color: var(--ink); }
+        button:focus-visible, input:focus-visible, select:focus-visible { outline: 4px solid #1c9dff; outline-offset: 3px; }
+        
+        .app-shell { min-height: 100vh; padding-bottom: 50px; }
+        
+        .topbar { background: var(--ink); color: #fff; padding: 18px clamp(16px, 5vw, 72px); display: flex; align-items: center; justify-content: space-between; gap: 18px; position: sticky; top: 0; z-index: 20; box-shadow: 0 4px 0 rgba(0, 0, 0, .12); }
+        .brand { display: flex; align-items: center; gap: 14px; }
+        .brand-mark { font-size: 2.2rem; background: var(--yellow); padding: 7px 12px; border-radius: 15px; transform: rotate(-4deg); color: var(--ink); font-weight: 900;}
+        .brand h1 { font-size: clamp(1rem, 2.2vw, 1.45rem); margin: 0; }
+        .brand p { margin: 4px 0 0; color: #bcd4ec; font-size: .86rem; }
+        
+        .screen { display: none; animation: arrive .45s ease both; max-width: 1320px; margin: 40px auto; padding: 0 20px;}
+        .screen.active { display: block; }
+        
+        @keyframes arrive { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .panel { background: var(--paper); border: 3px solid var(--ink); border-radius: 24px; box-shadow: var(--shadow); padding: clamp(18px, 3vw, 40px); }
+        .btn { background: var(--purple); color: #fff; font-weight: 900; padding: 15px 30px; border-radius: 15px; box-shadow: 0 6px 0 #4b399e; transition: transform .15s, box-shadow .15s; font-size: 1.2rem; text-transform: uppercase;}
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #4b399e; }
+        .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #4b399e; }
+        .btn.orange { background: var(--orange); box-shadow: 0 6px 0 #c96029; }
+        .btn.teal { background: var(--teal); box-shadow: 0 6px 0 #087c70; }
+        .btn.yellow { background: var(--yellow); color: var(--ink); box-shadow: 0 6px 0 #c5a718; }
+        .btn.coral { background: var(--coral); color: #fff; box-shadow: 0 6px 0 #c53443; }
+        .center { text-align: center; }
+
+        /* ================= GAME SPECIFIC CSS ================= */
+        .setup-grid { display: grid; gap: 20px; max-width: 800px; margin: 0 auto 30px; text-align: left;}
+        .setup-group { background: #edf3fb; padding: 20px; border-radius: 16px; border: 2px solid #c8d6e8;}
+        .setup-group label { display: block; font-weight: 900; font-size: 1.2rem; margin-bottom: 10px; color: var(--purple);}
+        .setup-group select { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--ink); font-weight: 700; font-size: 1.1rem; }
+
+        /* Bảng điểm Tích lũy Trực tiếp */
+        .live-scoreboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 30px;}
+        .team-score-card { background: #fff; border: 3px solid #c8d6e8; border-radius: 16px; padding: 15px 25px; text-align: center; flex: 1; min-width: 150px; max-width: 250px; transition: all 0.3s;}
+        .team-score-card.active { border-color: var(--teal); background: #dff8f2; transform: scale(1.08); box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-width: 4px;}
+        .team-name-disp { font-size: 1.1rem; font-weight: 900; color: var(--purple); margin-bottom: 5px;}
+        .team-time-disp { font-size: 2.5rem; font-weight: 900; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1;}
+        .penalty-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 30px; border-bottom: 2px dashed #d4d9e2; padding-bottom: 20px;}
+
+        /* Header Game */
+        .game-header { text-align: center; margin-bottom: 30px; }
+        .team-badge { font-size: 1.8rem; font-weight: 900; background: var(--purple); color: white; padding: 10px 30px; border-radius: 99px; box-shadow: 4px 4px 0 var(--ink); border: 2px solid var(--ink); display: inline-block;}
+
+        /* Bảng chữ cái Trung tâm */
+        .typing-board { display: flex; flex-direction: column; gap: 20px; align-items: center; margin: 40px 0; min-height: 120px;}
+        .sentence-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 6px; padding: 30px; border-radius: 16px; background: #fff; border: 4px dashed var(--teal); width: 100%; max-width: 1100px; box-shadow: 0 10px 20px rgba(0,0,0,0.05);}
+
+        .letter { 
+            display: inline-flex; justify-content: center; align-items: center;
+            width: clamp(35px, 5vw, 60px); height: clamp(50px, 7vw, 85px); 
+            background: #fff; border: 3px solid var(--ink); border-radius: 10px; 
+            font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 900; color: #53617b;
+            box-shadow: 0 5px 0 rgba(23,35,60,0.1); text-transform: uppercase;
+            transition: all 0.15s ease;
+        }
+        
+        .letter.space-char { background: #edf3fb; border: 3px dashed #a5b9d6; box-shadow: none; color: transparent; width: clamp(30px, 4vw, 50px);}
+        .letter.typed { background: var(--green); color: white; border-color: var(--green); box-shadow: 0 5px 0 #4a9e40; transform: translateY(4px); }
+        .letter.active-letter { background: var(--yellow); color: var(--ink); border-color: var(--ink); box-shadow: 0 5px 0 var(--ink), 0 0 0 6px rgba(255, 216, 77, 0.4); animation: pulse 1s infinite alternate; }
+
+        .shake-error { animation: errorShake 0.4s cubic-bezier(.36, .07, .19, .97) both; }
+        .bg-error { background: #ffe6e0 !important; }
+
+        @keyframes pulse { to { transform: scale(1.1); } }
+        @keyframes errorShake {
+            10%, 90% { transform: translate3d(-10px, 0, 0) rotate(-2deg); }
+            20%, 80% { transform: translate3d(20px, 0, 0) rotate(2deg); }
+            30%, 50%, 70% { transform: translate3d(-25px, 0, 0) rotate(-4deg); }
+            40%, 60% { transform: translate3d(25px, 0, 0) rotate(4deg); }
+        }
+
+        /* Leaderboard */
+        .leaderboard-list { display: grid; gap: 15px; margin: 30px 0; text-align: left;}
+        .rank-item { display: flex; align-items: center; justify-content: space-between; padding: 20px 30px; background: #fff; border: 3px solid var(--ink); border-radius: 16px; font-size: 1.8rem; font-weight: 900; box-shadow: 4px 4px 0 var(--ink);}
+        .rank-1 { background: #fff8d6; border-color: var(--yellow); box-shadow: 6px 6px 0 var(--yellow);}
+        .rank-1 .rank-pos { color: var(--orange); font-size: 2.5rem;}
+        
+    </style>
+</head>
+<body id="game-body">
+    <div class="app-shell">
+        <div class="topbar">
+            <div class="brand">
+                <div class="brand-mark">⌨️</div>
+                <div>
+                    <h1>ĐẠI CHIẾN GÕ TIẾP SỨC (CÔNG BẰNG TUYỆT ĐỐI)</h1>
+                    <p>Sân chơi gõ bàn phím tốc độ dành cho lớp 4</p>
+                </div>
+            </div>
+            <button class="btn small" onclick="location.reload()" style="padding: 10px 20px; font-size: 1rem;">Cài đặt lại</button>
+        </div>
+
+        <!-- SCREEN 0: SETUP -->
+        <div id="screen-setup" class="screen active">
+            <div class="panel center">
+                <h2 style="font-size: 3rem; margin-bottom: 10px; color: var(--purple);">CÀI ĐẶT GIẢI ĐẤU</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 40px;">Mỗi vòng, các đội sẽ thay phiên nhau gõ CÙNG 1 CÂU để đảm bảo công bằng 100%.</p>
+                
+                <div class="setup-grid">
+                    <div class="setup-group">
+                        <label>Số lượng đội thi (Dãy):</label>
+                        <select id="team-count">
+                            <option value="2" selected>2 Đội (Chia 2 dãy)</option>
+                            <option value="3">3 Đội</option>
+                            <option value="4">4 Đội</option>
+                        </select>
+                    </div>
+                    <div class="setup-group">
+                        <label>Số lượng Vòng thi (Mỗi học sinh gõ 1 vòng):</label>
+                        <select id="round-count">
+                            <option value="15">15 Vòng (Dành cho lớp ~30 học sinh)</option>
+                            <option value="20">20 Vòng (Dành cho lớp ~40 học sinh)</option>
+                            <option value="25" selected>25 Vòng (Dành cho lớp ~50 học sinh)</option>
+                            <option value="30">30 Vòng (Dành cho lớp ~60 học sinh)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn teal" style="font-size: 1.5rem;" onclick="startGame()">BẮT ĐẦU THI ĐẤU!</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 1: GAMEPLAY -->
+        <div id="screen-game" class="screen">
+            <div class="panel">
+                
+                <!-- Khu vực điều khiển phạt ồn của GV -->
+                <div id="penalty-controls" class="penalty-controls">
+                    <!-- Nút phạt sinh tự động -->
+                </div>
+
+                <!-- Bảng điểm Tích lũy -->
+                <div id="live-scoreboard" class="live-scoreboard">
+                    <!-- Điểm sinh tự động -->
+                </div>
+
+                <div class="game-header">
+                    <div id="current-team-badge" class="team-badge">VÒNG 1 - LƯỢT ĐỘI 1</div>
+                </div>
+
+                <!-- Khu vực hiển thị CÂU HIỆN TẠI -->
+                <div id="typing-board" class="typing-board">
+                    <!-- HTML Chữ sẽ được render vào đây bằng JS -->
+                </div>
+                
+                <div class="center" style="margin-top: 20px;">
+                    <p style="color: #53617b; font-weight: 700; font-size: 1.1rem;"><em>*Đồng hồ tự động tạm dừng khi xong câu. Bạn tiếp theo có thể thong thả lên vị trí chuẩn bị trước khi gõ phím đầu tiên.</em></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: LEADERBOARD -->
+        <div id="screen-result" class="screen">
+            <div class="panel center">
+                <h2 style="font-size: 4rem; color: var(--orange); margin-bottom: 10px;">BẢNG VÀNG TỔNG KẾT</h2>
+                <p style="font-size: 1.5rem; color: #53617b;">Thời gian càng thấp, tốc độ càng cao!</p>
+                
+                <div id="leaderboard-list" class="leaderboard-list">
+                    <!-- JS sẽ điền kết quả vào đây -->
+                </div>
+                
+                <button class="btn yellow" style="margin-top: 30px;" onclick="location.reload()">Chơi Lại Từ Đầu</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- THƯ VIỆN CÂU GÕ (Có số, có phím cơ sở) ---
+        const phrasesPool = [
+            "I LOVE MY SCHOOL", "WE ARE IN CLASS 4", "THIS IS A KEYBOARD", "HAPPY NEW YEAR", "CALL 1 1 3 FOR POLICE",
+            "CALL 1 1 4 FOR FIRE", "CALL 1 1 5 FOR AMBU", "CAT HAS 4 LEGS", "BIRD HAS 2 LEGS", "SPIDER HAS 8 LEGS",
+            "WE HAVE 10 FINGERS", "APPLE IS RED", "BANANA IS YELLOW", "THE SKY IS BLUE", "GRASS IS GREEN",
+            "A S D F G", "H J K L", "1 2 3 4 5", "6 7 8 9 0", "Q W E R T Y", 
+            "A B C D E", "F G H I J", "K L M N O", "P Q R S T", "U V W X Y Z",
+            "HELLO WORLD", "GOOD MORNING", "GOOD NIGHT", "THANK YOU", "YOU ARE WELCOME",
+            "I LIKE TO PLAY", "SHE CAN RUN", "HE CAN JUMP", "THEY ARE HAPPY", "WE ARE FRIENDS",
+            "MY NAME IS", "WHAT IS YOUR NAME", "HOW OLD ARE YOU", "I AM 9 YEARS OLD", "I AM 10 YEARS OLD",
+            "ONE TWO THREE", "FOUR FIVE SIX", "SEVEN EIGHT NINE", "TEN ELEVEN", "TWELVE THIRTEEN",
+            "SUN IS HOT", "ICE IS COLD", "FIRE IS RED", "WATER IS BLUE", "TREE IS GREEN",
+            "DO YOUR BEST", "NEVER GIVE UP", "KEEP IT UP", "GOOD JOB", "WELL DONE",
+            "TYPING IS FUN", "I CAN TYPE FAST", "USE YOUR FINGERS", "LOOK AT SCREEN", "DONT LOOK AT KEYS"
+        ];
+
+        // --- BIẾN TOÀN CỤC ---
+        let totalTeams = 2;
+        let totalRounds = 25;
+        let sentencesArray = [];
+        let teams = []; 
+
+        // Trạng thái vòng lặp
+        let currentRoundIndex = 0; // Vòng mấy? (Mỗi vòng dùng 1 câu)
+        let currentTeamIndex = 0;  // Đội mấy đang gõ trong vòng này?
+        let currentCharIndex = 0;
+        let currentTargetChar = "";
+        
+        // Trạng thái thời gian
+        let mainTimerInterval;
+        let startTime = 0;
+        let isPlaying = false; 
+
+        // --- HÀM KHỞI TẠO GAME ---
+        function startGame() {
+            totalTeams = parseInt(document.getElementById('team-count').value);
+            totalRounds = parseInt(document.getElementById('round-count').value);
+            
+            // Xáo trộn thư viện và lấy ra đúng số lượng câu bằng số Vòng thi
+            sentencesArray = [];
+            const shuffledPool = [...phrasesPool].sort(() => 0.5 - Math.random());
+            for(let i=0; i<totalRounds; i++) {
+                sentencesArray.push(shuffledPool[i % shuffledPool.length]);
+            }
+            
+            // Khởi tạo các đội
+            teams = [];
+            for(let i=1; i<=totalTeams; i++) {
+                teams.push({ id: i, time: 0, penalties: 0 });
+            }
+
+            currentRoundIndex = 0;
+            currentTeamIndex = 0;
+            currentCharIndex = 0;
+            isPlaying = false;
+            
+            showScreen('screen-game');
+            renderLiveScoreboard();
+            renderBoard();
+            updateTargetChar();
+        }
+
+        // --- RENDER BẢNG ĐIỂM TÍCH LŨY ---
+        function renderLiveScoreboard() {
+            const board = document.getElementById('live-scoreboard');
+            const penDiv = document.getElementById('penalty-controls');
+            board.innerHTML = "";
+            penDiv.innerHTML = "";
+            
+            const activeTeamId = currentTeamIndex + 1;
+
+            teams.forEach(t => {
+                const isAct = (t.id === activeTeamId);
+                board.innerHTML += `
+                    <div class="team-score-card ${isAct ? 'active' : ''}">
+                        <div class="team-name-disp">ĐỘI ${t.id}</div>
+                        <div class="team-time-disp" id="disp-time-${t.id}">${(t.time/1000).toFixed(2)}</div>
+                        ${t.penalties > 0 ? `<div style="color:var(--coral); font-size:0.95rem; font-weight:bold; margin-top:5px;">(+${t.penalties} lỗi)</div>` : ''}
+                    </div>
+                `;
+                penDiv.innerHTML += `
+                    <button class="btn coral small" onclick="addNoisePenalty(${t.id})" style="font-size: 1rem;">🚨 Phạt Ồn Đội ${t.id} (+5s)</button>
+                `;
+            });
+        }
+
+        // --- RENDER BẢNG CHỮ CÁI ---
+        function renderBoard() {
+            const board = document.getElementById('typing-board');
+            board.innerHTML = "";
+            
+            const activeTeamId = currentTeamIndex + 1;
+            const sentence = sentencesArray[currentRoundIndex];
+            
+            document.getElementById('current-team-badge').innerText = `VÒNG ${currentRoundIndex + 1} - LƯỢT ĐỘI ${activeTeamId}`;
+            
+            const sentenceDiv = document.createElement('div');
+            sentenceDiv.className = 'sentence-group';
+            
+            for (let i = 0; i < sentence.length; i++) {
+                const charSpan = document.createElement('span');
+                const char = sentence[i];
+                if (char === ' ') {
+                    charSpan.innerHTML = '&nbsp;';
+                    charSpan.className = `letter space-char`;
+                } else {
+                    charSpan.innerText = char;
+                    charSpan.className = `letter`;
+                }
+                if (i === 0) charSpan.classList.add('active-letter');
+                charSpan.id = `char-${i}`; 
+                sentenceDiv.appendChild(charSpan);
+            }
+            board.appendChild(sentenceDiv);
+            
+            // Text chỉ dẫn phía dưới
+            let nextText = "";
+            if (currentTeamIndex + 1 < totalTeams) {
+                nextText = `Lượt tiếp theo: 👉 ĐỘI ${currentTeamIndex + 2} (Gõ lại đúng câu này)`;
+            } else if (currentRoundIndex + 1 < totalRounds) {
+                nextText = `Chuẩn bị qua vòng mới: 👉 ĐỘI 1`;
+            } else {
+                nextText = `ĐÂY LÀ VÒNG CUỐI CÙNG! CỐ LÊN!`;
+            }
+            board.innerHTML += `<div style="margin-top: 30px; font-size: 1.3rem; color: #53617b;">${nextText}</div>`;
+        }
+
+        function updateTargetChar() {
+            if (currentRoundIndex >= sentencesArray.length) return; 
+            currentTargetChar = sentencesArray[currentRoundIndex][currentCharIndex].toUpperCase();
+        }
+
+        // --- XỬ LÝ BÀN PHÍM ---
+        document.addEventListener('keydown', function(e) {
+            const activeScreen = document.querySelector('.screen.active').id;
+            if (activeScreen !== 'screen-game') return;
+
+            if (e.ctrlKey || e.altKey || e.metaKey || e.key.length !== 1) return; 
+            if (e.key === " ") e.preventDefault(); 
+
+            const pressedChar = e.key.toUpperCase();
+            if (pressedChar === currentTargetChar) {
+                processCorrectKey();
+            } else {
+                if (isPlaying) {
+                    processWrongKey();
+                }
+            }
+        });
+
+        // --- GÕ ĐÚNG ---
+        function processCorrectKey() {
+            const activeTeamId = currentTeamIndex + 1;
+            const team = teams[activeTeamId - 1];
+
+            if (!isPlaying) {
+                isPlaying = true;
+                startTime = Date.now();
+                startMainTimer();
+            }
+            
+            const currentSpan = document.getElementById(`char-${currentCharIndex}`);
+            currentSpan.classList.remove('active-letter');
+            currentSpan.classList.add('typed');
+
+            currentCharIndex++;
+
+            if (currentCharIndex >= sentencesArray[currentRoundIndex].length) {
+                // ĐỘI HIỆN TẠI ĐÃ GÕ XONG 1 CÂU
+                isPlaying = false;
+                clearInterval(mainTimerInterval);
+                team.time += (Date.now() - startTime);
+                
+                // Chuyển quyền cho đội tiếp theo
+                currentTeamIndex++; 
+
+                // Nếu tất cả các đội đã gõ xong câu của vòng này -> Sang vòng mới
+                if (currentTeamIndex >= totalTeams) {
+                    currentTeamIndex = 0; 
+                    currentRoundIndex++; 
+                }
+
+                // Nếu đã thi xong tất cả các vòng
+                if (currentRoundIndex >= totalRounds) {
+                    finishGame();
+                } else {
+                    currentCharIndex = 0;
+                    renderLiveScoreboard();
+                    renderBoard();
+                    updateTargetChar();
+                }
+            } else {
+                const nextSpan = document.getElementById(`char-${currentCharIndex}`);
+                nextSpan.classList.add('active-letter');
+                updateTargetChar();
+            }
+        }
+
+        function triggerErrorShake() {
+            const body = document.getElementById('game-body');
+            body.classList.remove('shake-error', 'bg-error');
+            void body.offsetWidth; 
+            body.classList.add('shake-error', 'bg-error');
+            setTimeout(() => { body.classList.remove('shake-error', 'bg-error'); }, 400);
+        }
+
+        // --- GÕ SAI ---
+        function processWrongKey() {
+            const activeTeamId = currentTeamIndex + 1;
+            const team = teams[activeTeamId - 1];
+            
+            team.penalties += 1;
+            team.time += 1000; // Phạt 1 giây
+            
+            if (isPlaying) {
+                startTime -= 1000; 
+            }
+            triggerErrorShake();
+        }
+
+        // --- NÚT PHẠT ỒN ---
+        function addNoisePenalty(teamId) {
+            const team = teams[teamId - 1];
+            team.penalties += 5; // Phạt tương đương 5 lỗi
+            team.time += 5000;   // Cộng 5 giây
+            
+            // Nếu phạt đúng cái đội đang gõ trên bảng thì trừ đồng hồ trực tiếp
+            if (isPlaying && teamId === (currentTeamIndex + 1)) {
+                startTime -= 5000;
+            }
+            triggerErrorShake();
+            renderLiveScoreboard(); 
+        }
+
+        // --- ĐỒNG HỒ ---
+        function startMainTimer() {
+            clearInterval(mainTimerInterval);
+            const activeTeamId = currentTeamIndex + 1;
+            const team = teams[activeTeamId - 1];
+            
+            mainTimerInterval = setInterval(() => {
+                const currentElapsed = Date.now() - startTime;
+                const totalTeamTime = team.time + currentElapsed;
+                document.getElementById(`disp-time-${team.id}`).innerText = (totalTeamTime / 1000).toFixed(2);
+            }, 10);
+        }
+
+        // --- KẾT THÚC GAME ---
+        function finishGame() {
+            teams.sort((a, b) => a.time - b.time);
+            showScreen('screen-result');
+            const listDiv = document.getElementById('leaderboard-list');
+            listDiv.innerHTML = "";
+            
+            teams.forEach((res, idx) => {
+                const item = document.createElement('div');
+                item.className = `rank-item ${idx === 0 ? 'rank-1' : ''}`;
+                
+                let html = `
+                    <div style="display: flex; align-items: center; gap: 20px;">
+                        <span class="rank-pos">#${idx + 1}</span>
+                        <span>ĐỘI ${res.id}</span>
+                    </div>
+                    <div>
+                        <span style="color: var(--teal); font-size: 2.5rem;">${(res.time / 1000).toFixed(2)}s</span>
+                        ${res.penalties > 0 ? `<div style="font-size: 1rem; color: var(--coral); font-weight: normal; text-align: right;">(Đã cộng ${res.penalties}s phạt)</div>` : ''}
+                    </div>
+                `;
+                item.innerHTML = html;
+                listDiv.appendChild(item);
+            });
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+    </script>
+</body>
+</html>
