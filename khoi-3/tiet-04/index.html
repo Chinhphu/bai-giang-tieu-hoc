@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tin học 3 - Bài 2: Máy xử lí thông tin (Tiết 2)</title>
+    <link rel="stylesheet" href="../theme/style.css" />
+    <style>
+        /* Bổ sung một chút CSS cho phần Gacha mới để chữ vừa vặn hơn */
+        .gacha-item-text {
+            font-size: 2.5vh;
+            font-weight: bold;
+            color: var(--lesson-navy);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 5px;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .caro-status {
+            align-self: center;
+            margin: 0 0 12px;
+            padding: 8px 18px;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            background: #fff;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .caro-settings {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .caro-settings select {
+            padding: 6px 10px;
+            border: 2px solid #dfe9ff;
+            border-radius: 8px;
+            color: var(--lesson-navy);
+            background: #fff;
+            font: inherit;
+        }
+
+        .caro-board {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            grid-template-rows: repeat(7, minmax(0, 1fr));
+            gap: clamp(2px, .5vw, 6px);
+            width: min(100%, 530px);
+            aspect-ratio: 1;
+            box-sizing: border-box;
+            margin: 0 auto;
+            padding: clamp(4px, .8vw, 10px);
+            border-radius: 12px;
+            background: #34495e;
+            box-shadow: 0 8px 15px rgb(0 0 0 / 20%);
+        }
+
+        .caro-cell {
+            display: grid;
+            place-items: center;
+            min-width: 0;
+            min-height: 0;
+            overflow: hidden;
+            padding: 0;
+            border: 0;
+            border-radius: 6px;
+            color: var(--lesson-navy);
+            background: #fff;
+            font: 900 clamp(18px, 4vh, 40px) 'Quicksand', sans-serif;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .caro-cell:hover:enabled {
+            background: #e8fbfc;
+        }
+
+        .caro-cell:disabled {
+            cursor: not-allowed;
+        }
+
+        .caro-cell.team-0 {
+            color: #e63946;
+        }
+
+        .caro-cell.team-1 {
+            color: #2878c8;
+        }
+
+        .caro-cell.team-2 {
+            color: #9b59b6;
+        }
+
+        .caro-controls {
+            justify-content: center !important;
+            gap: 12px;
+        }
+
+        .team-card.active {
+            outline: 3px solid currentColor;
+            outline-offset: 2px;
+        }
+
+        .caro-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgb(16 27 53 / 65%);
+        }
+
+        .caro-modal.open {
+            display: flex;
+        }
+
+        .caro-dialog {
+            width: min(100%, 700px);
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: clamp(20px, 4vh, 36px);
+            border-radius: 16px;
+            background: #fff;
+            text-align: center;
+            box-shadow: 0 12px 36px rgb(0 0 0 / 22%);
+        }
+
+        .caro-dialog h2 {
+            margin: 0 0 12px;
+            color: var(--lesson-navy);
+        }
+
+        .caro-question {
+            margin: 16px 0;
+            color: var(--lesson-navy);
+            font-size: clamp(20px, 3vh, 30px);
+            font-weight: 700;
+        }
+
+        .caro-answers {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .caro-answer {
+            min-height: 58px;
+            padding: 10px 14px;
+            border: 2px solid #dfe9ff;
+            border-radius: 10px;
+            color: var(--lesson-navy);
+            background: #f8fbff;
+            font: 700 17px 'Quicksand', sans-serif;
+            cursor: pointer;
+        }
+
+        .caro-answer:hover:enabled {
+            border-color: var(--primary);
+            background: #eef4ff;
+        }
+
+        @media (max-width: 700px) {
+            .caro-board {
+                width: min(100%, 430px);
+            }
+
+            .caro-answer {
+                min-height: 50px;
+                padding: 8px;
+                font-size: 15px;
+            }
+
+            .caro-controls {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body class="lesson-quiz">
+    <div class="presentation-area">
+        <!-- Màn hình chào -->
+        <section class="slide-container active" data-slide="welcome">
+            <div class="welcome-screen">
+                <div class="tag">Tin học 3 - Tiết 2</div>
+                <h1 style="font-size: 8vh;">Bài 2: Quá trình xử lí thông tin</h1>
+                <h2 style="font-size: 5vh; color: var(--primary); margin-top: 2vh;">MÁY XỬ LÍ THÔNG TIN</h2>
+                <p style="font-size: 3.5vh; color: var(--lesson-muted); margin-bottom: 5vh; margin-top: 2vh;">Hoạt động
+                    Khởi động: Cùng bé đến trường</p>
+                <button type="button" class="btn-nav" id="startLessonBtn" style="font-size: 4vh; padding: 2vh 4vw;">Bắt
+                    đầu Tiết học</button>
+            </div>
+        </section>
+
+        <!-- Khởi động: ôn bài cũ bằng cờ ca rô 3 ô -->
+        <section class="slide-container caro-slide" data-slide="review-game" data-game="review">
+            <div class="slide-header">
+                <div class="tag">Khởi động · Ôn bài cũ</div>
+                <div class="top-badge">3 ô liên tiếp để thắng</div>
+            </div>
+            <h2 class="lesson-title" style="font-size: 4.5vh; text-align: center;">Cờ ca rô tri thức</h2>
+            <div class="caro-settings">
+                <label for="reviewTeamCount">Số đội chơi</label>
+                <select class="caro-team-count" id="reviewTeamCount" aria-label="Số đội chơi">
+                    <option value="2">2 đội</option>
+                    <option value="3" selected>3 đội</option>
+                </select>
+            </div>
+            <div class="caro-status" id="reviewStatus" aria-live="polite"></div>
+            <div class="caro-board" id="reviewBoard" aria-label="Bàn cờ ca rô ôn bài"></div>
+            <div class="controls caro-controls">
+                <button type="button" class="btn-nav prev prev-btn">Quay lại</button>
+                <button type="button" class="btn-nav caro-reset">Chơi lại</button>
+                <button type="button" class="btn-nav next-btn">Vào bài mới ➔</button>
+            </div>
+        </section>
+
+        <!-- Slide Ghi Bài -->
+        <section class="slide-container copy-slide" data-slide="copy-text">
+            <div class="copy-header">
+                <h3 id="currentDateDisplay">Đang tải ngày...</h3>
+                <h2>Môn: Tin học</h2>
+                <h2>Bài 2: Máy xử lí thông tin</h2>
+            </div>
+
+            <div class="copy-content">
+                <ul>
+                    <li>1. Các thiết bị như: <strong>Máy giặt, tivi, tủ lạnh, điện thoại...</strong> là máy xử lí thông
+                        tin.</li>
+                    <li>2. Thiết bị được điều khiển bằng <strong>nút bấm, cảm ứng hoặc remote</strong>.</li>
+                    <li>3. Quá trình: <strong>Thiết bị tiếp nhận thông tin ➔ Xử lí ➔ Quyết định hành động</strong>.</li>
+                </ul>
+            </div>
+
+            <div class="timer-display" id="copyTimer">07:00</div>
+
+            <div class="controls copy-controls">
+                <button type="button" class="btn-nav" id="startTimerBtn"
+                    style="background-color: var(--accent-green);">Bắt đầu</button>
+                <button type="button" class="btn-nav" id="pauseTimerBtn"
+                    style="background-color: var(--lesson-coral);">Tạm dừng</button>
+                <button type="button" class="btn-nav" id="resetTimerBtn"
+                    style="background-color: var(--lesson-muted);">Làm mới</button>
+                <button type="button" class="btn-nav next-btn">Khám phá ➔</button>
+            </div>
+        </section>
+
+        <!-- Khám phá / Kiến thức -->
+        <section class="slide-container" data-slide="knowledge">
+            <div class="slide-header">
+                <div class="tag">Kiến thức mới</div>
+                <div class="top-badge">Máy xử lí thông tin</div>
+            </div>
+            <h2 class="lesson-title" style="font-size: 4.5vh; margin-bottom: 20px; text-align: center;">Thiết bị tiếp
+                nhận & xử lí thông tin</h2>
+
+            <div style="display: flex; gap: 30px; margin-bottom: 30px; justify-content: center;">
+                <div class="ghi-nho-box" style="flex: 1; max-width: 45%;">
+                    <div style="font-size: 5vh; text-align: center; margin-bottom: 10px;">📺 📱 ❄️</div>
+                    <p>Có nhiều thiết bị điện điều khiển được như ti vi, máy giặt, điều hoà nhiệt độ,...</p>
+                </div>
+                <div class="ghi-nho-box" style="flex: 1; max-width: 45%;">
+                    <div style="font-size: 5vh; text-align: center; margin-bottom: 10px;">⚙️ ⚡ 🎯</div>
+                    <p>Từ thông tin nhận được (qua remote, nút bấm), thiết bị sẽ <strong>xử lí</strong> và thực hiện yêu
+                        cầu.</p>
+                </div>
+            </div>
+
+            <div class="diagram">
+                <div class="node"><span class="icon">📡</span>Tiếp nhận lệnh</div>
+                <div class="arrow">→</div>
+                <div class="node active"><span class="icon">⚙️</span>Thiết bị xử lí</div>
+                <div class="arrow">→</div>
+                <div class="node"><span class="icon">✅</span>Thực hiện hành động</div>
+            </div>
+            <div class="controls">
+                <button type="button" class="btn-nav prev prev-btn">Quay lại</button>
+                <button type="button" class="btn-nav next-btn">Củng cố bằng cờ ca rô ➔</button>
+            </div>
+        </section>
+
+        <!-- Sau bài học: củng cố bằng cờ ca rô 5 ô -->
+        <section class="slide-container caro-slide" data-slide="final-game" data-game="final">
+            <div class="slide-header">
+                <div class="tag">Củng cố sau bài học</div>
+                <div class="top-badge">5 ô liên tiếp để thắng</div>
+            </div>
+            <h2 class="lesson-title" style="font-size: 4.5vh; text-align: center;">Cờ ca rô thử thách</h2>
+            <div class="caro-settings">
+                <label for="finalTeamCount">Số đội chơi</label>
+                <select class="caro-team-count" id="finalTeamCount" aria-label="Số đội chơi">
+                    <option value="2">2 đội</option>
+                    <option value="3" selected>3 đội</option>
+                </select>
+            </div>
+            <div class="caro-status" id="finalStatus" aria-live="polite"></div>
+            <div class="caro-board" id="finalBoard" aria-label="Bàn cờ ca rô củng cố"></div>
+            <div class="controls caro-controls">
+                <button type="button" class="btn-nav prev prev-btn">Quay lại</button>
+                <button type="button" class="btn-nav caro-reset">Chơi lại</button>
+                <button type="button" class="btn-nav next-btn">Tổng kết ➔</button>
+            </div>
+        </section>
+
+        <!-- Tổng kết -->
+        <section class="slide-container" data-slide="summary">
+            <div class="slide-header">
+                <div class="tag">Tổng kết</div>
+                <div class="top-badge">Hoàn thành</div>
+            </div>
+            <div
+                style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                <h1 style="font-size: 8vh; color: var(--lesson-violet); margin-bottom: 20px;">TẠM BIỆT VÀ HẸN GẶP LẠI
+                </h1>
+                <div class="quiz-panel"
+                    style="background-color: #e5f4ff; border-color: var(--primary); text-align: center;">
+                    <p style="font-size: 3.5vh;"><strong>Dặn dò:</strong> Các em nhớ xem lại các ví dụ về thiết bị xử lí
+                        thông tin trong nhà mình nhé!</p>
+                </div>
+            </div>
+            <div class="controls">
+                <button type="button" class="btn-nav prev prev-btn">Quay lại</button>
+                <!-- Nút mở Gacha Tìm người phát biểu -->
+                <button type="button" class="btn-nav warning" id="finalizeLessonBtn"
+                    style="font-size: 4vh; background-color: var(--secondary); color: #fff;">Quay thẻ gọi tên
+                    🎯</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Scoreboard Bên Phải -->
+    <aside class="scoreboard">
+        <h3 style="margin-top: 0; text-align: center; color: var(--lesson-navy); font-size: 3.5vh;">Đấu Trường Điểm Số
+        </h3>
+        <div class="setup-panel">
+            <input id="teamCountInput" type="number" min="2" max="3" value="3" title="Số lượng dãy" />
+            <button type="button" class="btn-nav" id="generateTeamsBtn"
+                style="padding: 1vh 2vw; font-size: 2vh;">Tạo</button>
+        </div>
+        <div class="teams-list" id="teamsList"></div>
+
+        <!-- Chức năng Gacha đã được đổi công năng -->
+        <div class="score-tools" style="margin-top: auto; padding-top: 2vh;">
+            <button type="button" class="btn-nav warning" id="gachaBtn"
+                style="width: 100%; font-size: 3.2vh; padding: 2vh; background-color: #8b5cf6;">MỜI PHÁT BIỂU
+                🎤</button>
+        </div>
+    </aside>
+
+    <!-- Modal Hộp Quà - Đã sửa thành Random Đặc Điểm -->
+    <div class="gacha-modal" id="gachaModal">
+        <div class="gacha-card">
+            <button type="button" id="closeGachaBtn"
+                style="position: absolute; top: 2vh; right: 2vh; font-size: 4vh; background: none; border: none; cursor: pointer; color: var(--text-light);">✖</button>
+            <h2>Ai sẽ là người trả lời?</h2>
+            <p class="gacha-status">Bấm vào một thẻ lật để xem yêu cầu nhé!</p>
+
+            <div class="gift-box-grid" id="giftBoxGrid">
+                <div class="gift-box-item" data-opened="false" data-icon="❓">❓</div>
+                <div class="gift-box-item" data-opened="false" data-icon="❓">❓</div>
+                <div class="gift-box-item" data-opened="false" data-icon="❓">❓</div>
+                <div class="gift-box-item" data-opened="false" data-icon="❓">❓</div>
+            </div>
+
+            <h3 id="gachaResult"
+                style="color: var(--accent-red); font-size: 4.5vh; min-height: 8vh; height: auto; margin-top: 3vh;">
+            </h3>
+        </div>
+    </div>
+
+    <!-- Modal Hết Giờ Ghi bài -->
+    <div class="time-up-modal" id="timeUpModal">
+        <div class="time-up-content">
+            <h1>⏰ HẾT GIỜ CHÉP BÀI!</h1>
+            <p>Các em nhanh tay gác bút lại nhé!</p>
+            <button type="button" class="btn-nav" id="closeTimeUpBtn" style="font-size: 4vh;">Đã rõ</button>
+        </div>
+    </div>
+
+    <div class="caro-modal" id="caroModal" aria-hidden="true">
+        <div class="caro-dialog" role="dialog" aria-modal="true" aria-labelledby="caroModalTitle">
+            <h2 id="caroModalTitle">Câu hỏi giành ô</h2>
+            <p class="caro-question" id="caroQuestion"></p>
+            <div class="caro-answers" id="caroAnswers"></div>
+            <p class="caro-feedback" id="caroFeedback" aria-live="polite"></p>
+            <button type="button" class="btn-nav" id="caroContinueBtn" hidden>Tiếp tục</button>
+        </div>
+    </div>
+
+    <script>
+        // ================= CẬP NHẬT NGÀY THÁNG TỰ ĐỘNG =================
+        const dateDisplay = document.getElementById('currentDateDisplay');
+        const daysOfWeek = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
+        const today = new Date();
+        const dayName = daysOfWeek[today.getDay()];
+        const date = today.getDate();
+        const month = today.getMonth() + 1;
+        const year = today.getFullYear();
+        dateDisplay.textContent = `${dayName}, ngày ${date} tháng ${month} năm ${year}`;
+
+        // ================= ĐIỀU HƯỚNG SLIDE =================
+        const slides = Array.from(document.querySelectorAll('.slide-container'));
+        const prevButtons = document.querySelectorAll('.prev-btn');
+        const nextButtons = document.querySelectorAll('.next-btn');
+        let currentSlide = 0;
+
+        function showSlide(index) {
+            currentSlide = Math.max(0, Math.min(index, slides.length - 1));
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === currentSlide);
+            });
+
+            // Toàn màn hình ở slide ghi bài
+            const activeSlide = slides[currentSlide];
+            if (activeSlide.classList.contains('copy-slide')) {
+                document.body.classList.add('fullscreen-mode');
+            } else {
+                document.body.classList.remove('fullscreen-mode');
+            }
+        }
+
+        prevButtons.forEach(btn => btn.addEventListener('click', () => showSlide(currentSlide - 1)));
+        nextButtons.forEach(btn => btn.addEventListener('click', () => showSlide(currentSlide + 1)));
+        document.getElementById('startLessonBtn').addEventListener('click', () => showSlide(1));
+
+        // ================= BẢNG ĐIỂM BÊN PHẢI =================
+        function createTeams(count) {
+            const list = document.getElementById('teamsList');
+            list.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const card = document.createElement('div');
+                card.className = 'team-card';
+                card.innerHTML = `
+                  <div class="team-name" contenteditable="true">Dãy ${i + 1}</div>
+                  <div class="team-score" contenteditable="true">0</div>
+                  <div class="score-controls">
+                    <button class="btn-score add">+10</button>
+                    <button class="btn-score sub">-5</button>
+                    <button class="btn-score steal">x2</button>
+                  </div>
+                `;
+                const scoreEl = card.querySelector('.team-score');
+                card.querySelector('.add').onclick = () => scoreEl.textContent = Number(scoreEl.textContent) + 10;
+                card.querySelector('.sub').onclick = () => scoreEl.textContent = Number(scoreEl.textContent) - 5;
+                card.querySelector('.steal').onclick = () => scoreEl.textContent = Number(scoreEl.textContent) * 2;
+                list.appendChild(card);
+            }
+        }
+        document.getElementById('generateTeamsBtn').onclick = () => {
+            const countInput = document.getElementById('teamCountInput');
+            const count = Math.max(2, Math.min(3, Number(countInput.value) || 2));
+            countInput.value = count;
+            document.querySelectorAll('.caro-team-count').forEach(select => select.value = count);
+            createTeams(count);
+            caroGames.forEach(game => game.reset());
+        };
+        createTeams(3);
+
+        // ================= CỜ CA RÔ TRẮC NGHIỆM =================
+        const teamSymbols = ['X', 'O', '★'];
+        const teamColors = ['#e63946', '#2878c8', '#9b59b6'];
+        const questionBanks = {
+            review: [
+                { text: 'Bộ phận nào của con người làm nhiệm vụ xử lí thông tin?', answers: ['Tim', 'Phổi', 'Tay', 'Não'], correct: 3 },
+                { text: 'Con người nhận thông tin chủ yếu qua đâu?', answers: ['Chỉ qua mắt', 'Chỉ qua tai', 'Các giác quan', 'Chỉ qua tay'], correct: 2 },
+                { text: 'Thông tin giúp con người làm gì?', answers: ['Ra quyết định', 'Cao hơn', 'Chạy nhanh hơn', 'Ăn ngon hơn'], correct: 0 },
+                { text: 'Thiết bị nào có thể nhận lệnh điều khiển?', answers: ['Bàn học', 'Quạt điện thông minh', 'Cốc nước', 'Quyển vở'], correct: 1 },
+                { text: 'Thiết bị nào có thể nhận và xử lí thông tin?', answers: ['Thước kẻ', 'Bút chì', 'Máy tính', 'Quyển vở'], correct: 2 },
+                { text: 'Khi nghe chuông báo thức, em nhận thông tin bằng giác quan nào?', answers: ['Thị giác', 'Thính giác', 'Khứu giác', 'Vị giác'], correct: 1 },
+                { text: 'Khi nhìn thấy đèn đỏ, em nên làm gì?', answers: ['Dừng lại', 'Đi nhanh hơn', 'Nhắm mắt', 'Rẽ bất kì'], correct: 0 },
+                { text: 'Trong quá trình xử lí thông tin, bộ não giúp con người làm gì?', answers: ['Tiếp nhận ánh sáng', 'Nghe âm thanh', 'Đưa ra quyết định', 'Tạo ra mùi'], correct: 2 }
+            ],
+            final: [
+                { text: 'Khi nhấn nút tăng tốc độ trên remote, quạt nhận thông tin gì?', answers: ['Lệnh tăng tốc độ', 'Lệnh tắt ti vi', 'Nhiệt độ phòng', 'Âm thanh từ loa'], correct: 0 },
+                { text: 'Sau khi xử lí lệnh tăng tốc độ, quạt sẽ làm gì?', answers: ['Tắt nguồn', 'Quay nhanh hơn', 'Phát hình ảnh', 'Mở cửa'], correct: 1 },
+                { text: 'Khi bấm nút (+) trên bếp từ, bếp nhận thông tin gì?', answers: ['Yêu cầu tăng nhiệt độ', 'Yêu cầu giảm âm lượng', 'Yêu cầu mở cửa', 'Yêu cầu in tài liệu'], correct: 0 },
+                { text: 'Sau khi xử lí lệnh nút (+), bếp từ thường làm gì?', answers: ['Tăng nhiệt độ', 'Phát nhạc', 'Hiện giờ trên ti vi', 'Tắt đèn phòng'], correct: 0 },
+                { text: 'Quá trình xử lí thông tin thường bắt đầu bằng bước nào?', answers: ['Thực hiện hành động', 'Tiếp nhận thông tin', 'Xóa thông tin', 'Tắt thiết bị'], correct: 1 },
+                { text: 'Thứ tự nào mô tả đúng quá trình xử lí thông tin?', answers: ['Xử lí → tiếp nhận → hành động', 'Hành động → xử lí → tiếp nhận', 'Tiếp nhận → xử lí → hành động', 'Tiếp nhận → hành động → xử lí'], correct: 2 },
+                { text: 'Màn hình ti vi thường cho biết kết quả xử lí bằng cách nào?', answers: ['Hiển thị hình ảnh', 'Tạo mùi thơm', 'Làm mát căn phòng', 'In ra giấy'], correct: 0 },
+                { text: 'Chữ viết trong sách giáo khoa thuộc dạng thông tin nào?', answers: ['Âm thanh', 'Hình ảnh', 'Văn bản', 'Mùi'], correct: 2 },
+                { text: 'Tiếng chuông báo thức thuộc dạng thông tin nào?', answers: ['Văn bản', 'Âm thanh', 'Hình ảnh', 'Màu sắc'], correct: 1 },
+                { text: 'Cô giáo có thể lưu trữ thông tin điểm số ở đâu?', answers: ['Sổ điểm hoặc máy tính', 'Loa', 'Chuột máy tính', 'Bóng đèn'], correct: 0 },
+                { text: 'Cô giáo muốn xem lại điểm đã lưu trong máy tính thì cần làm gì?', answers: ['Mở tệp điểm', 'Tắt màn hình', 'Rút dây bàn phím', 'Nhấn nút âm lượng'], correct: 0 },
+                { text: 'AI có thể nhận dạng hình ảnh chính xác hơn khi nào?', answers: ['Khi được học thêm dữ liệu', 'Khi tắt máy', 'Khi xóa dữ liệu', 'Khi không nhận thông tin'], correct: 0 },
+                { text: 'Nghe chuông báo thức rồi thức dậy là ví dụ về điều gì?', answers: ['Tiếp nhận thông tin và hành động', 'Chỉ lưu trữ thông tin', 'Chỉ phát âm thanh', 'Không xử lí thông tin'], correct: 0 },
+                { text: 'Khi ngửi thấy mùi khét, giác quan nào tiếp nhận thông tin?', answers: ['Thị giác', 'Khứu giác', 'Thính giác', 'Vị giác'], correct: 1 },
+                { text: 'Một chiếc máy giặt thông minh nhận lệnh thường qua đâu?', answers: ['Nút bấm hoặc bảng điều khiển', 'Quyển sách', 'Bút chì', 'Thước kẻ'], correct: 0 },
+                { text: 'Sau khi thiết bị xử lí thông tin, điều gì có thể xảy ra?', answers: ['Thiết bị thực hiện hành động', 'Thông tin tự biến mất', 'Thiết bị không thể hoạt động', 'Không có kết quả nào'], correct: 0 },
+                { text: 'Theo bài học, các thiết bị tiếp nhận thông tin để làm gì?', answers: ['Để quyết định hành động', 'Để tự động tắt máy', 'Để lưu trữ vĩnh viễn', 'Để phát ra âm thanh'], correct: 0 },
+                { text: 'Để quạt máy có thể quay nhanh hơn, nó cần tiếp nhận tín hiệu lệnh từ đâu?', answers: ['Từ cánh quạt', 'Từ điều khiển từ xa (remote)', 'Từ phích cắm điện', 'Từ lồng quạt'], correct: 1 },
+                { text: 'Sau khi xử lí tín hiệu lệnh tăng tốc độ từ người dùng, chiếc quạt tạo ra kết quả gì?', answers: ['Đứng im không quay', 'Phát ra bài hát', 'Quay nhanh hơn để tạo gió mạnh hơn', 'Quay chậm lại'], correct: 2 },
+                { text: 'Ngoài ti vi và máy giặt, thiết bị điện nào dưới đây cũng được nhắc đến là thiết bị có thể điều khiển được?', answers: ['Cái bàn', 'Điều hoà nhiệt độ', 'Quyển vở', 'Cốc nước thủy tinh'], correct: 1 },
+                { text: 'Ti vi, máy giặt, tủ lạnh, lò nướng và điện thoại được gọi chung là gì trong bài học?', answers: ['Đồ dùng học tập', 'Máy phát sáng', 'Máy phát âm thanh', 'Máy xử lí thông tin'], correct: 3 },
+                { text: 'Việc con người chạm cảm ứng hoặc bấm nút trên máy giặt chính là đang làm gì?', answers: ['Cung cấp thông tin cho máy giặt', 'Lấy thông tin từ máy giặt', 'Ngắt điện máy giặt', 'Xóa toàn bộ dữ liệu của máy'], correct: 0 },
+                { text: 'Theo ví dụ trong bài, bếp từ đưa ra quyết định tăng nhiệt độ sau khi nhận được thông tin gì từ người dùng?', answers: ['Yêu cầu hẹn giờ', 'Nhấn nút tắt nguồn', 'Nhấn vào nút dấu cộng (+)', 'Nhấn vào nút dấu trừ (-)'], correct: 2 }
+            ]
+        };
+
+        const caroModal = document.getElementById('caroModal');
+        const caroModalTitle = document.getElementById('caroModalTitle');
+        const caroQuestion = document.getElementById('caroQuestion');
+        const caroAnswers = document.getElementById('caroAnswers');
+        const caroFeedback = document.getElementById('caroFeedback');
+        const caroContinueBtn = document.getElementById('caroContinueBtn');
+        const caroGames = [];
+
+        function getTeams() {
+            return Array.from(document.querySelectorAll('#teamsList .team-card'));
+        }
+
+        function shuffle(items) {
+            const shuffled = [...items];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function createCaroGame(boardId, statusId, bank, winStreak) {
+            const board = document.getElementById(boardId);
+            const status = document.getElementById(statusId);
+            const game = {
+                board,
+                status,
+                bank,
+                winStreak,
+                cells: [],
+                state: [],
+                currentTeam: 0,
+                selectedCell: null,
+                remainingQuestions: [],
+                roundScores: [0, 0, 0],
+                active: true
+            };
+
+            function drawStatus(message) {
+                const teams = getTeams();
+                teams.forEach((team, index) => {
+                    team.classList.toggle('active', game.active && index === game.currentTeam);
+                    team.style.borderColor = game.active && index === game.currentTeam ? teamColors[index] : '';
+                });
+                if (message) {
+                    status.textContent = message;
+                    return;
+                }
+                const currentName = teams[game.currentTeam]?.querySelector('.team-name').textContent.trim();
+                status.textContent = game.active
+                    ? `Đến lượt ${currentName} (${teamSymbols[game.currentTeam]}) · Cần ${winStreak} ô liên tiếp để thắng`
+                    : status.textContent;
+            }
+
+            function reset(clearRoundPoints = false) {
+                if (clearRoundPoints) {
+                    getTeams().forEach((team, index) => {
+                        const score = team.querySelector('.team-score');
+                        score.textContent = (Number(score.textContent) || 0) - game.roundScores[index];
+                    });
+                }
+                game.roundScores = [0, 0, 0];
+                game.state = Array(49).fill(null);
+                game.currentTeam = 0;
+                game.selectedCell = null;
+                game.remainingQuestions = shuffle(bank);
+                game.active = true;
+                game.cells = [];
+                board.replaceChildren();
+                for (let index = 0; index < 49; index++) {
+                    const cell = document.createElement('button');
+                    cell.type = 'button';
+                    cell.className = 'caro-cell';
+                    cell.setAttribute('aria-label', `Ô ${index + 1}, còn trống`);
+                    cell.addEventListener('click', () => askQuestion(index));
+                    game.cells.push(cell);
+                    board.appendChild(cell);
+                }
+                drawStatus();
+            }
+
+            function takeQuestion() {
+                if (!game.remainingQuestions.length) game.remainingQuestions = shuffle(bank);
+                return game.remainingQuestions.pop();
+            }
+
+            function askQuestion(cellIndex) {
+                if (!game.active || game.state[cellIndex] !== null) return;
+                const teams = getTeams();
+                if (!teams.length) return;
+                game.selectedCell = cellIndex;
+                const question = takeQuestion();
+                caroModalTitle.textContent = `Câu hỏi giành ô · ${teams[game.currentTeam].querySelector('.team-name').textContent.trim()}`;
+                caroQuestion.textContent = question.text;
+                caroAnswers.replaceChildren();
+                caroFeedback.textContent = '';
+                caroContinueBtn.hidden = true;
+                question.answers.forEach((answer, answerIndex) => {
+                    const option = document.createElement('button');
+                    option.type = 'button';
+                    option.className = 'caro-answer';
+                    option.textContent = `${String.fromCharCode(65 + answerIndex)}. ${answer}`;
+                    option.addEventListener('click', () => answerQuestion(question, answerIndex));
+                    caroAnswers.appendChild(option);
+                });
+                caroModal.classList.add('open');
+                caroModal.setAttribute('aria-hidden', 'false');
+            }
+
+            function answerQuestion(question, answerIndex) {
+                if (!game.active || game.selectedCell === null) return;
+                const options = Array.from(caroAnswers.querySelectorAll('.caro-answer'));
+                options.forEach((option, index) => {
+                    option.disabled = true;
+                    if (index === question.correct) option.style.borderColor = '#2a9d8f';
+                    if (index === answerIndex && answerIndex !== question.correct) option.style.borderColor = '#e63946';
+                });
+
+                const teams = getTeams();
+                if (answerIndex === question.correct) {
+                    const cellIndex = game.selectedCell;
+                    game.state[cellIndex] = game.currentTeam;
+                    game.cells[cellIndex].textContent = teamSymbols[game.currentTeam];
+                    game.cells[cellIndex].classList.add(`team-${game.currentTeam}`);
+                    game.cells[cellIndex].disabled = true;
+                    game.cells[cellIndex].setAttribute('aria-label', `Ô ${cellIndex + 1}, ${teams[game.currentTeam].querySelector('.team-name').textContent.trim()}`);
+                    const score = teams[game.currentTeam].querySelector('.team-score');
+                    score.textContent = (Number(score.textContent) || 0) + 10;
+                    game.roundScores[game.currentTeam] += 10;
+
+                    if (hasWon(cellIndex, game.currentTeam)) {
+                        game.active = false;
+                        game.cells.forEach(cell => cell.disabled = true);
+                        caroFeedback.textContent = `Chính xác! ${teams[game.currentTeam].querySelector('.team-name').textContent.trim()} thắng ván này.`;
+                        drawStatus(`🏆 ${teams[game.currentTeam].querySelector('.team-name').textContent.trim()} thắng với ${winStreak} ô liên tiếp!`);
+                    } else if (!game.state.includes(null)) {
+                        game.active = false;
+                        game.cells.forEach(cell => cell.disabled = true);
+                        caroFeedback.textContent = 'Bàn cờ đã kín, ván chơi hòa.';
+                        drawStatus('Bàn cờ đã kín, ván chơi hòa.');
+                    } else {
+                        caroFeedback.textContent = 'Chính xác! Đội chiếm được ô và được cộng 10 điểm.';
+                        game.currentTeam = (game.currentTeam + 1) % teams.length;
+                        drawStatus();
+                    }
+                } else {
+                    caroFeedback.textContent = `Chưa chính xác. Đáp án đúng: ${question.answers[question.correct]}. Đội mất lượt.`;
+                    game.currentTeam = (game.currentTeam + 1) % teams.length;
+                    drawStatus();
+                }
+                game.selectedCell = null;
+                caroContinueBtn.textContent = game.active ? 'Tiếp tục' : 'Đóng';
+                caroContinueBtn.hidden = false;
+            }
+
+            function hasWon(lastIndex, teamIndex) {
+                const row = Math.floor(lastIndex / 7);
+                const col = lastIndex % 7;
+                const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+                return directions.some(([rowStep, colStep]) => {
+                    let count = 1;
+                    for (const direction of [-1, 1]) {
+                        let nextRow = row + rowStep * direction;
+                        let nextCol = col + colStep * direction;
+                        while (nextRow >= 0 && nextRow < 7 && nextCol >= 0 && nextCol < 7
+                            && game.state[nextRow * 7 + nextCol] === teamIndex) {
+                            count++;
+                            nextRow += rowStep * direction;
+                            nextCol += colStep * direction;
+                        }
+                    }
+                    return count >= winStreak;
+                });
+            }
+
+            game.reset = reset;
+            reset();
+            return game;
+        }
+
+        caroGames.push(createCaroGame('reviewBoard', 'reviewStatus', questionBanks.review, 3));
+        caroGames.push(createCaroGame('finalBoard', 'finalStatus', questionBanks.final, 5));
+
+        document.querySelectorAll('.caro-team-count').forEach(select => {
+            select.addEventListener('change', () => {
+                document.getElementById('teamCountInput').value = select.value;
+                document.querySelectorAll('.caro-team-count').forEach(teamSelect => teamSelect.value = select.value);
+                createTeams(Number(select.value));
+                caroGames.forEach(game => game.reset());
+            });
+        });
+        document.getElementById('teamCountInput').addEventListener('change', event => {
+            const count = Math.max(2, Math.min(3, Number(event.target.value) || 2));
+            event.target.value = count;
+            document.querySelectorAll('.caro-team-count').forEach(select => select.value = count);
+            createTeams(count);
+            caroGames.forEach(game => game.reset());
+        });
+        document.querySelectorAll('.caro-reset').forEach(button => {
+            button.addEventListener('click', () => {
+                caroGames.find(game => game.board === button.closest('.caro-slide').querySelector('.caro-board'))?.reset(true);
+            });
+        });
+        caroContinueBtn.addEventListener('click', () => {
+            caroModal.classList.remove('open');
+            caroModal.setAttribute('aria-hidden', 'true');
+        });
+
+        // ================= TÍNH NĂNG ĐỒNG HỒ =================
+        let timeRemaining = 420;
+        let timerInterval;
+        let isTimerRunning = false;
+
+        const timerDisplay = document.getElementById('copyTimer');
+        const timeUpModal = document.getElementById('timeUpModal');
+        const startTimerBtn = document.getElementById('startTimerBtn');
+        const pauseTimerBtn = document.getElementById('pauseTimerBtn');
+        const resetTimerBtn = document.getElementById('resetTimerBtn');
+
+        function updateTimerText() {
+            let m = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+            let s = (timeRemaining % 60).toString().padStart(2, '0');
+            timerDisplay.textContent = `${m}:${s}`;
+        }
+
+        startTimerBtn.addEventListener('click', function () {
+            if (isTimerRunning) return;
+            isTimerRunning = true;
+            this.textContent = 'Đang đếm ngược...';
+            this.style.opacity = '0.7';
+
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerText();
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    isTimerRunning = false;
+                    this.textContent = 'Bắt đầu chạy';
+                    this.style.opacity = '1';
+                    timeUpModal.classList.add('show');
+                }
+            }, 1000);
+        });
+
+        pauseTimerBtn.addEventListener('click', function () {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            startTimerBtn.style.opacity = '1';
+            if (timeRemaining > 0 && timeRemaining < 420) {
+                startTimerBtn.textContent = 'Tiếp tục';
+            }
+        });
+
+        resetTimerBtn.addEventListener('click', function () {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            timeRemaining = 420;
+            updateTimerText();
+            startTimerBtn.style.opacity = '1';
+            startTimerBtn.textContent = 'Bắt đầu';
+        });
+
+        document.getElementById('closeTimeUpBtn').addEventListener('click', () => {
+            timeUpModal.classList.remove('show');
+        });
+
+        // ================= TRẮC NGHIỆM TƯƠNG TÁC =================
+        document.querySelectorAll('.btn-answer').forEach(btn => {
+            btn.addEventListener('click', function () {
+                // Xóa trạng thái của các nút anh em
+                const siblings = this.parentElement.querySelectorAll('.btn-answer');
+                siblings.forEach(s => {
+                    s.classList.remove('correct', 'wrong');
+                });
+
+                const correct = this.dataset.correct === 'true';
+                this.classList.add(correct ? 'correct' : 'wrong');
+
+                // Hiện lời giải thích
+                const slide = this.closest('.slide-container');
+                const explainBox = slide.querySelector('.explanation-box');
+                if (explainBox && correct) {
+                    explainBox.style.display = 'block';
+                    explainBox.style.animation = 'slideIn 0.3s ease-out';
+                }
+            });
+        });
+
+        // ================= KÉO THẢ GHÉP NỐI =================
+        // ================= TÍNH NĂNG GACHA: TÌM NGƯỜI TRẢ LỜI NGẪU NHIÊN =================
+        const gachaModal = document.getElementById('gachaModal');
+        const gachaResult = document.getElementById('gachaResult');
+        const giftBoxes = document.querySelectorAll('.gift-box-item');
+
+        // Danh sách các đặc điểm ngẫu nhiên
+        const findPersonConditions = [
+            "Bạn ngồi bàn ĐẦU TIÊN của dãy 🥇",
+            "Bạn ngồi bàn CUỐI CÙNG của dãy 🎯",
+            "Bạn nào trong dãy giơ tay NHANH NHẤT 🙋",
+            "Tổ trưởng / Trưởng dãy của dãy này 👑",
+            "Dãy tự hội ý và cử 1 đại diện NAM trả lời 👦",
+            "Dãy tự hội ý và cử 1 đại diện NỮ trả lời 👧",
+            "Bạn có nụ cười TƯƠI NHẤT dãy 😄",
+            "Bạn ngồi NGOÀI CÙNG (sát lối đi) của dãy 🚶",
+            "Bạn ngồi TRONG CÙNG (sát tường/cửa sổ) của dãy 🪟",
+            "Bạn ngồi bàn THỨ HAI của dãy 🌸",
+            "Bạn nào trong dãy đang ngồi NGAY NGẮN, khoanh tay đẹp nhất 🪑",
+            "Hai bạn bàn đầu của dãy OẲN TÙ TÌ, người thắng trả lời ✌️✊"
+        ];
+
+        function getRandomPerson() {
+            const rand = Math.floor(Math.random() * findPersonConditions.length);
+            return findPersonConditions[rand];
+        }
+
+        function openGachaModal() {
+            gachaModal.classList.add('open');
+            gachaResult.textContent = '';
+            giftBoxes.forEach(box => {
+                box.dataset.opened = 'false';
+                box.textContent = box.dataset.icon;
+                box.classList.remove('opened');
+            });
+        }
+
+        giftBoxes.forEach(box => {
+            box.addEventListener('click', function () {
+                if (this.dataset.opened === 'true') return;
+
+                // Mở tất cả các thẻ để tránh bấm liên tục
+                giftBoxes.forEach(b => b.dataset.opened = 'true');
+
+                const condition = getRandomPerson();
+                this.classList.add('opened');
+                // Cập nhật giao diện bên trong thẻ
+                this.innerHTML = `<span class="gacha-item-text">Mời</span>`;
+
+                // Cập nhật kết quả bự bên dưới
+                gachaResult.textContent = `🎤 Mời: ${condition}`;
+            });
+        });
+
+        // Gắn sự kiện mở Gacha
+        document.getElementById('gachaBtn').onclick = openGachaModal;
+        document.getElementById('finalizeLessonBtn').onclick = openGachaModal;
+        document.getElementById('closeGachaBtn').onclick = () => gachaModal.classList.remove('open');
+    </script>
+</body>
+
+</html>
