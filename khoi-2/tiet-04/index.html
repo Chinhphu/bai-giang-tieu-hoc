@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 3: Hàng Phím Trên - Tin Học 2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --text-main: #2d3748;
+            --primary: #4299e1;
+
+            /* Màu sắc đậm và rõ hơn cho TV */
+            --left-hand: #48bb78;
+            --left-hand-shadow: #276749;
+            --left-hand-bg: #e6fffa;
+
+            --right-hand: #f56565;
+            --right-hand-shadow: #9b2c2c;
+            --right-hand-bg: #fff5f5;
+
+            --key-bg: #ffffff;
+            --key-shadow: #a0aec0;
+            --key-border: #cbd5e0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .slide {
+            width: 100vw;
+            min-height: 100vh;
+            padding: 80px 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 2px dashed #cbd5e0;
+        }
+        
+        .slide:last-child {
+             border-bottom: none;
+        }
+
+        /* Phóng to font chữ */
+        h1 {
+            font-size: 3.5rem;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 900;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            color: #4a5568;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .content {
+            font-size: 2.2rem;
+            line-height: 1.6;
+            text-align: center;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        /* Keyboard Styles */
+        .keyboard-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap; /* Cho phép rớt dòng nếu màn hình hẹp */
+        }
+
+        /* Thụt lề cho hàng phím cơ sở (hàng A) để giống bàn phím thật */
+        .row-2 {
+            margin-left: 50px;
+        }
+        
+        @media (max-width: 1024px) {
+             .row-2 { margin-left: 0; } /* Bỏ thụt lề trên màn hình nhỏ để tránh lỗi giao diện */
+        }
+
+        .key-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .key {
+            width: 100px;
+            height: 100px;
+            background-color: var(--key-bg);
+            border: 3px solid var(--key-border);
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            font-weight: 700;
+            color: #4a5568;
+            box-shadow: 0 10px 0 var(--key-shadow);
+            transition: all 0.15s;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .key:active {
+            transform: translateY(10px);
+            box-shadow: 0 0 0 var(--key-shadow);
+        }
+
+        /* Trạng thái tô màu Trái/Phải */
+        .key.left {
+            background-color: var(--left-hand-bg);
+            border-color: var(--left-hand);
+            color: var(--left-hand-shadow);
+            box-shadow: 0 10px 0 var(--left-hand-shadow);
+        }
+
+        .key.left:active {
+            box-shadow: 0 0 0 var(--left-hand-shadow);
+        }
+
+        .key.right {
+            background-color: var(--right-hand-bg);
+            border-color: var(--right-hand);
+            color: var(--right-hand-shadow);
+            box-shadow: 0 10px 0 var(--right-hand-shadow);
+        }
+
+        .key.right:active {
+            box-shadow: 0 0 0 var(--right-hand-shadow);
+        }
+
+        .key.empty {
+            color: transparent;
+            border-style: dashed;
+            background-color: #f7fafc;
+        }
+
+        .finger-label {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #718096;
+            white-space: nowrap;
+        }
+
+        .finger-label.left-text {
+            color: var(--left-hand-shadow);
+        }
+
+        .finger-label.right-text {
+            color: var(--right-hand-shadow);
+        }
+
+        .step-box {
+            background: #edf2f7;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 20px auto;
+            text-align: left;
+            font-size: 2rem;
+            border-left: 10px solid var(--primary);
+            max-width: 1000px;
+        }
+
+        .illustration {
+            width: 350px;
+            margin: 0 auto 30px auto;
+            display: block;
+            border-radius: 30px;
+        }
+
+        .hint-text {
+            font-size: 1.5rem;
+            color: #a0aec0;
+            margin-top: 30px;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Slide 1: Title -->
+    <div class="slide">
+        <h1>CHỦ ĐỀ 1: TRỞ LẠI VỚI MÁY TÍNH</h1>
+        <h2>BÀI 3: HÀNG PHÍM TRÊN</h2>
+    </div>
+
+    <!-- Slide 2: Khởi động -->
+    <div class="slide">
+        <h1>Hoạt động: Khởi Động 🚀</h1>
+        <div class="content">
+            <p>Nhắc lại cách đặt tay lên <b>Hàng Phím Cơ Sở</b></p>
+            <div class="keyboard-area">
+                <div class="keyboard-row row-2">
+                    <!-- Tay trái -->
+                    <div class="key-group">
+                        <div class="key left">A</div>
+                        <div class="finger-label left-text">Út</div>
+                    </div>
+                    <div class="key-group">
+                        <div class="key left">S</div>
+                        <div class="finger-label left-text">Áp út</div>
+                    </div>
+                    <div class="key-group">
+                        <div class="key left">D</div>
+                        <div class="finger-label left-text">Giữa</div>
+                    </div>
+                    <div class="key-group">
+                        <div class="key left">F</div>
+                        <div class="finger-label left-text">Trỏ</div>
+                    </div>
+
+                    <div class="key" style="visibility: hidden;">G</div>
+                    <div class="key" style="visibility: hidden;">H</div>
+
+                    <!-- Tay phải -->
+                    <div class="key-group">
+                        <div class="key right">J</div>
+                        <div class="finger-label right-text">Trỏ</div>
+                    </div>
+                    <div class="key-group">
+                        <div class="key right">K</div>
+                        <div class="finger-label right-text">Giữa</div>
+                    </div>
+                    <div class="key-group">
+                        <div class="key right">L</div>
+                        <div class="finger-label right-text">Áp út</div>
+                    </div>
+                    <div class="key-group">
+                        <div class="key right">;</div>
+                        <div class="finger-label right-text">Út</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Kiến thức mới 1 (Phân công ngón tay hàng trên) -->
+    <div class="slide">
+        <h1>Khám Phá: Hàng Phím Trên ⌨️</h1>
+        <div class="content">
+            <p>Hàng phím trên nằm ngay phía trên hàng phím cơ sở.</p>
+            <div class="keyboard-area">
+                <!-- Hàng QWERTY -->
+                <div class="keyboard-row row-1">
+                    <div class="key-group">
+                        <div class="key left">Q</div>
+                        <div class="finger-label left-text">Út</div>
+                    </div>
+                    <div class="key-group">
+                        <div class="key left">W</div>
+                        <div class="finger-label left-text">Áp út</div>
+                    </div>
+                    <div class="key-group">
+                        <div class="key left">E</div>
+                        <div class="finger-label left-text">Giữa</div>
+                    </div>
+                    <div class="key-group">
+                        <div class="key left">R</div>
+                        <div class="finger-label left-text">Trỏ</div>
+                    </div>
+                    <div class="key-group">
+                        <div class="key left">T</div>
+                        <div class="finger-label left-text">Trỏ</div>
+                    </div>
+                    <div class="key-group">
+                        <div class="key right">Y</div>
+                        <div class="finger-label right-text">Trỏ</div>
+                    </div>
+                    <div class="key-group">
+                        <div class="key right">U</div>
+                        <div class="finger-label right-text">Trỏ</div>
+                    </div>
+                    <div class="key-group">
+                        <div class="key right">I</div>
+                        <div class="finger-label right-text">Giữa</div>
+                    </div>
+                    <div class="key-group">
+                        <div class="key right">O</div>
+                        <div class="finger-label right-text">Áp út</div>
+                    </div>
+                    <div class="key-group">
+                        <div class="key right">P</div>
+                        <div class="finger-label right-text">Út</div>
+                    </div>
+                </div>
+                <!-- Hàng ASDF (Làm mờ để tham chiếu) -->
+                <div class="keyboard-row row-2" style="opacity: 0.5; margin-top: 20px;">
+                    <div class="key">A</div>
+                    <div class="key">S</div>
+                    <div class="key">D</div>
+                    <div class="key">F</div>
+                    <div class="key">G</div>
+                    <div class="key">H</div>
+                    <div class="key">J</div>
+                    <div class="key">K</div>
+                    <div class="key">L</div>
+                    <div class="key">;</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Kiến thức mới 2 -->
+    <div class="slide">
+        <h1>3 Bước Gõ Hàng Phím Trên 🖐️</h1>
+        <div class="content" style="width: 85%; margin: 0 auto;">
+            <div class="step-box"><b>Bước 1:</b> Các ngón tay đặt ở <b>hàng phím cơ sở</b>.</div>
+            <div class="step-box"><b>Bước 2:</b> Khi gõ, các ngón tay <b>vươn lên</b> để gõ phím ở hàng phím trên.</div>
+            <div class="step-box"><b>Bước 3:</b> Gõ xong, lập tức <b>rút ngón tay về</b> lại hàng phím cơ sở.</div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Luyện tập 1 (Điền khuyết) -->
+    <div class="slide">
+        <h1>Luyện Tập 1: Điền Phím Còn Thiếu ✍️</h1>
+        <div class="content">
+            <div class="keyboard-area">
+                <div class="keyboard-row row-1">
+                    <div class="key empty" onclick="this.innerHTML='Q'; this.classList.remove('empty')">?</div>
+                    <div class="key">W</div>
+                    <div class="key empty" onclick="this.innerHTML='E'; this.classList.remove('empty')">?</div>
+                    <div class="key empty" onclick="this.innerHTML='R'; this.classList.remove('empty')">?</div>
+                    <div class="key empty" onclick="this.innerHTML='T'; this.classList.remove('empty')">?</div>
+                    <div class="key">Y</div>
+                    <div class="key empty" onclick="this.innerHTML='U'; this.classList.remove('empty')">?</div>
+                    <div class="key empty" onclick="this.innerHTML='I'; this.classList.remove('empty')">?</div>
+                    <div class="key empty" onclick="this.innerHTML='O'; this.classList.remove('empty')">?</div>
+                    <div class="key">P</div>
+                </div>
+                <div class="keyboard-row row-2" style="margin-top: 15px;">
+                    <div class="key empty" onclick="this.innerHTML='A'; this.classList.remove('empty')">?</div>
+                    <div class="key empty" onclick="this.innerHTML='S'; this.classList.remove('empty')">?</div>
+                    <div class="key empty" onclick="this.innerHTML='D'; this.classList.remove('empty')">?</div>
+                    <div class="key empty" onclick="this.innerHTML='F'; this.classList.remove('empty')">?</div>
+                    <div class="key empty" onclick="this.innerHTML='G'; this.classList.remove('empty')">?</div>
+                    <div class="key">H</div>
+                    <div class="key empty" onclick="this.innerHTML='J'; this.classList.remove('empty')">?</div>
+                    <div class="key empty" onclick="this.innerHTML='K'; this.classList.remove('empty')">?</div>
+                    <div class="key empty" onclick="this.innerHTML='L'; this.classList.remove('empty')">?</div>
+                    <div class="key">;</div>
+                </div>
+            </div>
+            <p class="hint-text">(Thầy/Cô bấm vào ô có dấu ? để hiện đáp án)</p>
+        </div>
+    </div>
+
+    <!-- Slide 6: Luyện tập 2 (Tô màu) -->
+    <div class="slide">
+        <h1>Luyện Tập 2: Tô Màu Phím 🎨</h1>
+        <div class="content">
+            <p><span style="color: var(--left-hand-shadow); font-weight: bold;">Màu Xanh:</span> Tay Trái
+                &nbsp;|&nbsp; <span style="color: var(--right-hand-shadow); font-weight: bold;">Màu Đỏ:</span> Tay
+                Phải</p>
+            <div class="keyboard-area">
+                <!-- Phím chưa tô màu. Khi click sẽ tự động gán class màu đúng (left hoặc right) -->
+                <div class="keyboard-row row-1">
+                    <div class="key" onclick="this.className='key left'">Q</div>
+                    <div class="key" onclick="this.className='key left'">W</div>
+                    <div class="key" onclick="this.className='key left'">E</div>
+                    <div class="key" onclick="this.className='key left'">R</div>
+                    <div class="key" onclick="this.className='key left'">T</div>
+                    <div class="key" onclick="this.className='key right'">Y</div>
+                    <div class="key" onclick="this.className='key right'">U</div>
+                    <div class="key" onclick="this.className='key right'">I</div>
+                    <div class="key" onclick="this.className='key right'">O</div>
+                    <div class="key" onclick="this.className='key right'">P</div>
+                </div>
+            </div>
+            <p class="hint-text">(Thầy/Cô mời học sinh trả lời rồi bấm vào từng phím để tô màu)</p>
+        </div>
+    </div>
+
+</body>
+</html>
