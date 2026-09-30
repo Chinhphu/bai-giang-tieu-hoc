@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="vi"><head>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đại Chiến Gõ Tiếp Sức</title>
@@ -55,13 +57,78 @@
         .setup-group label { display: block; font-weight: 900; font-size: 1.2rem; margin-bottom: 10px; color: var(--purple);}
         .setup-group select { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--ink); font-weight: 700; font-size: 1.1rem; }
 
-        /* Bảng điểm Tích lũy Trực tiếp */
-        .live-scoreboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 30px;}
-        .team-score-card { background: #fff; border: 3px solid #c8d6e8; border-radius: 16px; padding: 15px 25px; text-align: center; flex: 1; min-width: 150px; max-width: 250px; transition: all 0.3s;}
-        .team-score-card.active { border-color: var(--teal); background: #dff8f2; transform: scale(1.08); box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-width: 4px;}
-        .team-name-disp { font-size: 1.1rem; font-weight: 900; color: var(--purple); margin-bottom: 5px;}
+        /* NHÓM PHẠT MỚI DÀNH CHO GV */
+        .penalty-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 30px; border-bottom: 2px dashed #d4d9e2; padding-bottom: 20px;}
+        .penalty-group { background: #fff; border: 2px solid #c8d6e8; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 150px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03);}
+        .penalty-group-title { font-weight: 900; color: var(--purple); font-size: 1.05rem; margin-bottom: 4px; text-transform: uppercase;}
+        .penalty-group .btn { padding: 10px 15px; font-size: 0.95rem; }
+
+        /* BẢNG ĐIỂM CẢI TIẾN & HIỆU ỨNG TÔ MÀU ĐỘI ĐANG GÕ */
+        .live-scoreboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-bottom: 30px;}
+        .team-score-card { background: #fff; border: 3px solid #c8d6e8; border-radius: 16px; padding: 20px 25px; text-align: center; flex: 1; min-width: 160px; max-width: 250px; transition: all 0.3s; position: relative;}
+        
+        .team-score-card.active { 
+            border-color: var(--orange); 
+            background: var(--yellow); 
+            transform: scale(1.15); 
+            box-shadow: 0 10px 25px rgba(255, 145, 77, 0.4); 
+            border-width: 5px;
+            animation: activePulse 1.2s infinite alternate;
+            z-index: 10;
+        }
+        .team-score-card.active .team-name-disp { color: var(--ink); font-size: 1.3rem; }
+        .team-score-card.active::before {
+            content: '🔥 ĐANG GÕ';
+            display: block;
+            background: var(--coral);
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 900;
+            padding: 4px 14px;
+            border-radius: 20px;
+            margin: -32px auto 10px; /* Kéo huy hiệu trồi lên khỏi viền thẻ */
+            box-shadow: 0 4px 0 #c53443;
+            width: max-content;
+        }
+        @keyframes activePulse {
+            from { box-shadow: 0 0 0 0 rgba(255, 145, 77, 0.5); }
+            to { box-shadow: 0 0 0 12px rgba(255, 145, 77, 0); }
+        }
+
+        .team-name-disp { font-size: 1.1rem; font-weight: 900; color: var(--purple); margin-bottom: 5px; transition: all 0.2s;}
         .team-time-disp { font-size: 2.5rem; font-weight: 900; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1;}
-        .penalty-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 30px; border-bottom: 2px dashed #d4d9e2; padding-bottom: 20px;}
+
+        /* HIỆU ỨNG KHI ĐỘI BỊ PHẠT */
+        .team-score-card.penalized {
+            animation: severeShake 0.6s cubic-bezier(.36, .07, .19, .97) both !important;
+            background: #ffe6e0 !important;
+            border-color: var(--coral) !important;
+        }
+        @keyframes severeShake {
+            0%, 100% { transform: scale(1) translate3d(0, 0, 0); }
+            10%, 90% { transform: scale(1.1) translate3d(-5px, 0, 0) rotate(-3deg); }
+            20%, 80% { transform: scale(1.1) translate3d(10px, 0, 0) rotate(3deg); }
+            30%, 50%, 70% { transform: scale(1.1) translate3d(-15px, 0, 0) rotate(-5deg); background: var(--coral); }
+            40%, 60% { transform: scale(1.1) translate3d(15px, 0, 0) rotate(5deg); background: var(--coral); }
+        }
+        
+        .floating-penalty {
+            position: fixed;
+            color: var(--coral);
+            font-weight: 900;
+            text-align: center;
+            text-shadow: 3px 3px 0 #fff, -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 5px 5px 15px rgba(0,0,0,0.3);
+            pointer-events: none;
+            z-index: 9999;
+            animation: floatUpFade 2s forwards;
+            line-height: 1.1;
+        }
+        @keyframes floatUpFade {
+            0% { opacity: 0; transform: translate(-50%, 0) scale(0.3); }
+            20% { opacity: 1; transform: translate(-50%, -20px) scale(1.1); }
+            80% { opacity: 1; transform: translate(-50%, -60px) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -80px) scale(0.8); }
+        }
 
         /* Header Game */
         .game-header { text-align: center; margin-bottom: 30px; }
@@ -214,8 +281,8 @@
         let teams = []; 
 
         // Trạng thái vòng lặp
-        let currentRoundIndex = 0; // Vòng mấy? (Mỗi vòng dùng 1 câu)
-        let currentTeamIndex = 0;  // Đội mấy đang gõ trong vòng này?
+        let currentRoundIndex = 0; 
+        let currentTeamIndex = 0;  
         let currentCharIndex = 0;
         let currentTargetChar = "";
         
@@ -229,14 +296,12 @@
             totalTeams = parseInt(document.getElementById('team-count').value);
             totalRounds = parseInt(document.getElementById('round-count').value);
             
-            // Xáo trộn thư viện và lấy ra đúng số lượng câu bằng số Vòng thi
             sentencesArray = [];
             const shuffledPool = [...phrasesPool].sort(() => 0.5 - Math.random());
             for(let i=0; i<totalRounds; i++) {
                 sentencesArray.push(shuffledPool[i % shuffledPool.length]);
             }
             
-            // Khởi tạo các đội
             teams = [];
             for(let i=1; i<=totalTeams; i++) {
                 teams.push({ id: i, time: 0, penalties: 0 });
@@ -253,7 +318,7 @@
             updateTargetChar();
         }
 
-        // --- RENDER BẢNG ĐIỂM TÍCH LŨY ---
+        // --- RENDER BẢNG ĐIỂM VÀ NÚT PHẠT ---
         function renderLiveScoreboard() {
             const board = document.getElementById('live-scoreboard');
             const penDiv = document.getElementById('penalty-controls');
@@ -264,17 +329,40 @@
 
             teams.forEach(t => {
                 const isAct = (t.id === activeTeamId);
+                
+                // Khung Điểm
                 board.innerHTML += `
-                    <div class="team-score-card ${isAct ? 'active' : ''}">
+                    <div id="team-card-${t.id}" class="team-score-card ${isAct ? 'active' : ''}">
                         <div class="team-name-disp">ĐỘI ${t.id}</div>
                         <div class="team-time-disp" id="disp-time-${t.id}">${(t.time/1000).toFixed(2)}</div>
-                        ${t.penalties > 0 ? `<div style="color:var(--coral); font-size:0.95rem; font-weight:bold; margin-top:5px;">(+${t.penalties} lỗi)</div>` : ''}
+                        <div id="disp-pen-${t.id}" style="color:var(--coral); font-size:0.95rem; font-weight:bold; margin-top:5px; ${t.penalties > 0 ? '' : 'display:none;'}">(+${t.penalties}s phạt)</div>
                     </div>
                 `;
+                
+                // Nút phạt của Giáo viên
                 penDiv.innerHTML += `
-                    <button class="btn coral small" onclick="addNoisePenalty(${t.id})" style="font-size: 1rem;">🚨 Phạt Ồn Đội ${t.id} (+5s)</button>
+                    <div class="penalty-group">
+                        <div class="penalty-group-title">Phạt ĐỘI ${t.id}</div>
+                        <button class="btn coral small" onclick="applyPenalty(${t.id}, 5, 'ỒN ÀO')" style="width: 100%;">🚨 Ồn ào (+5s)</button>
+                        <button class="btn orange small" onclick="applyPenalty(${t.id}, 30, 'CHÊ BẠN')" style="width: 100%;">👎 Chê bạn (+30s)</button>
+                    </div>
                 `;
             });
+        }
+
+        // --- CẬP NHẬT RIÊNG ĐIỂM SỐ ĐỂ KHÔNG MẤT HIỆU ỨNG CSS ---
+        function updateTeamScoreDisplay(teamId) {
+            const team = teams[teamId - 1];
+            // Cập nhật số giây
+            if (!isPlaying || teamId !== (currentTeamIndex + 1)) {
+                document.getElementById(`disp-time-${teamId}`).innerText = (team.time / 1000).toFixed(2);
+            }
+            // Cập nhật dòng text phạt
+            const penDiv = document.getElementById(`disp-pen-${teamId}`);
+            if (penDiv && team.penalties > 0) {
+                penDiv.style.display = 'block';
+                penDiv.innerText = `(+${team.penalties}s phạt)`;
+            }
         }
 
         // --- RENDER BẢNG CHỮ CÁI ---
@@ -306,7 +394,6 @@
             }
             board.appendChild(sentenceDiv);
             
-            // Text chỉ dẫn phía dưới
             let nextText = "";
             if (currentTeamIndex + 1 < totalTeams) {
                 nextText = `Lượt tiếp theo: 👉 ĐỘI ${currentTeamIndex + 2} (Gõ lại đúng câu này)`;
@@ -359,26 +446,22 @@
             currentCharIndex++;
 
             if (currentCharIndex >= sentencesArray[currentRoundIndex].length) {
-                // ĐỘI HIỆN TẠI ĐÃ GÕ XONG 1 CÂU
                 isPlaying = false;
                 clearInterval(mainTimerInterval);
                 team.time += (Date.now() - startTime);
                 
-                // Chuyển quyền cho đội tiếp theo
                 currentTeamIndex++; 
 
-                // Nếu tất cả các đội đã gõ xong câu của vòng này -> Sang vòng mới
                 if (currentTeamIndex >= totalTeams) {
                     currentTeamIndex = 0; 
                     currentRoundIndex++; 
                 }
 
-                // Nếu đã thi xong tất cả các vòng
                 if (currentRoundIndex >= totalRounds) {
                     finishGame();
                 } else {
                     currentCharIndex = 0;
-                    renderLiveScoreboard();
+                    renderLiveScoreboard(); // Gọi lại toàn bộ để di chuyển hộp Highlight sang đội tiếp theo
                     renderBoard();
                     updateTargetChar();
                 }
@@ -389,6 +472,7 @@
             }
         }
 
+        // --- RUNG MÀN HÌNH CHUNG (Lỗi đánh máy) ---
         function triggerErrorShake() {
             const body = document.getElementById('game-body');
             body.classList.remove('shake-error', 'bg-error');
@@ -397,7 +481,7 @@
             setTimeout(() => { body.classList.remove('shake-error', 'bg-error'); }, 400);
         }
 
-        // --- GÕ SAI ---
+        // --- GÕ SAI (Lỗi tự nhiên) ---
         function processWrongKey() {
             const activeTeamId = currentTeamIndex + 1;
             const team = teams[activeTeamId - 1];
@@ -409,20 +493,48 @@
                 startTime -= 1000; 
             }
             triggerErrorShake();
+            updateTeamScoreDisplay(activeTeamId);
         }
 
-        // --- NÚT PHẠT ỒN ---
-        function addNoisePenalty(teamId) {
+        // --- HÀM PHẠT HÀNH VI (ỒN ÀO / CHÊ BẠN) ---
+        function applyPenalty(teamId, seconds, label) {
             const team = teams[teamId - 1];
-            team.penalties += 5; // Phạt tương đương 5 lỗi
-            team.time += 5000;   // Cộng 5 giây
+            team.penalties += seconds;
+            team.time += (seconds * 1000);
             
-            // Nếu phạt đúng cái đội đang gõ trên bảng thì trừ đồng hồ trực tiếp
+            // Nếu phạt đội đang đánh, trừ thẳng vô mốc bắt đầu
             if (isPlaying && teamId === (currentTeamIndex + 1)) {
-                startTime -= 5000;
+                startTime -= (seconds * 1000);
             }
+            
             triggerErrorShake();
-            renderLiveScoreboard(); 
+            showPenaltyEffect(teamId, seconds, label);
+            updateTeamScoreDisplay(teamId);
+        }
+
+        // --- HIỆU ỨNG RIÊNG DÀNH CHO ĐỘI BỊ PHẠT ---
+        function showPenaltyEffect(teamId, amount, textLabel) {
+            const card = document.getElementById(`team-card-${teamId}`);
+            if (card) {
+                // Làm cho riêng thẻ đội đó giật mạnh và đỏ chót
+                card.classList.remove('penalized');
+                void card.offsetWidth;
+                card.classList.add('penalized');
+                setTimeout(() => card.classList.remove('penalized'), 600);
+
+                // Tạo con số +giây bay lên màn hình tại vị trí đội đó
+                const rect = card.getBoundingClientRect();
+                const floatEl = document.createElement('div');
+                floatEl.className = 'floating-penalty';
+                floatEl.innerHTML = `<span style="font-size:4.5rem; line-height:1;">+${amount}s</span><br><span style="font-size:1.8rem;">${textLabel}</span>`;
+                
+                floatEl.style.left = `${rect.left + rect.width / 2}px`;
+                floatEl.style.top = `${rect.top}px`;
+                floatEl.style.transform = 'translate(-50%, -50%)';
+                document.body.appendChild(floatEl);
+
+                setTimeout(() => floatEl.remove(), 2000);
+            }
         }
 
         // --- ĐỒNG HỒ ---
@@ -456,7 +568,7 @@
                     </div>
                     <div>
                         <span style="color: var(--teal); font-size: 2.5rem;">${(res.time / 1000).toFixed(2)}s</span>
-                        ${res.penalties > 0 ? `<div style="font-size: 1rem; color: var(--coral); font-weight: normal; text-align: right;">(Đã cộng ${res.penalties}s phạt)</div>` : ''}
+                        ${res.penalties > 0 ? `<div style="font-size: 1rem; color: var(--coral); font-weight: normal; text-align: right;">(Bao gồm ${res.penalties}s phạt)</div>` : ''}
                     </div>
                 `;
                 item.innerHTML = html;
