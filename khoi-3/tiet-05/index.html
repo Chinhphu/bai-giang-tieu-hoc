@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tin học 3 - Bài 3: Máy tính và em</title>
+    <!-- Link file CSS gốc của sếp -->
+    <link rel="stylesheet" href="../theme/style.css" />
+    <style>
+        /* ================= GAME CSS BỔ SUNG TỪ BASE CỦA SẾP ================= */
+        .gacha-item-text {
+            font-size: 2.5vh;
+            font-weight: bold;
+            color: var(--lesson-navy);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 5px;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .scoreboard {
+            position: relative;
+            z-index: 350; 
+        }
+
+        /* Tái sử dụng Custom Alert của sếp */
+        .custom-alert {
+            position: fixed;
+            top: 3vh;
+            left: 50%;
+            transform: translateX(-50%) translateY(-150%);
+            background: #ff4757;
+            color: white;
+            padding: 1.5vh 2.5vw;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(255, 71, 87, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 2.5vh;
+            font-weight: 700;
+            z-index: 9999;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            pointer-events: none;
+        }
+
+        .custom-alert.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Nút phạt của sếp */
+        .btn-score.penalty {
+            background-color: #ff4757;
+            color: white;
+            width: 100%;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 2vh;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(255, 71, 87, 0.3);
+            margin-top: 5px;
+        }
+
+        .btn-score.penalty:hover {
+            background-color: #ff253a;
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 6px 12px rgba(255, 71, 87, 0.4);
+        }
+
+        .btn-score.penalty:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        /* ================= CSS RIÊNG CHO ĐƯỜNG ĐUA CHẠY BO ================= */
+        .racetrack-container {
+            background: linear-gradient(160deg, #172244, #2a3d72 50%, #1d2d59);
+            border-radius: var(--border-radius);
+            padding: 2vh 2vw;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            margin-bottom: 2vh;
+        }
+        
+        .lane {
+            display: flex;
+            align-items: center;
+            border-bottom: 2px dashed #4d5d82;
+            height: 14vh;
+            position: relative;
+        }
+
+        .lane-name {
+            color: #fff;
+            font-size: 3vh;
+            font-weight: 900;
+            width: 10vw;
+            z-index: 10;
+        }
+
+        .finish-line {
+            position: absolute;
+            right: 8%;
+            top: 0;
+            bottom: 0;
+            width: 15px;
+            background: repeating-linear-gradient(45deg, #fff, #fff 10px, #000 10px, #000 20px);
+            z-index: 1;
+        }
+        
+        .airdrop-zone {
+            position: absolute;
+            left: 50%;
+            top: 0; bottom: 0; width: 40px;
+            background: rgba(255, 183, 3, 0.2);
+            border-left: 2px dashed var(--secondary);
+            border-right: 2px dashed var(--secondary);
+            z-index: 1;
+        }
+
+        .avatar-car {
+            font-size: 6vh;
+            position: absolute;
+            left: 10vw; 
+            transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            z-index: 5;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
+        }
+
+        /* VŨ KHÍ TỐI THƯỢNG: BO ĐỎ */
+        @keyframes redZoneAlert {
+            0% { transform: translate(1px, 1px) rotate(0deg); box-shadow: 0 0 0px red; }
+            20% { transform: translate(-3px, 0px) rotate(2deg); box-shadow: 0 0 20px red; }
+            40% { transform: translate(1px, -1px) rotate(-2deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); box-shadow: 0 0 40px red; }
+            80% { transform: translate(-1px, -1px) rotate(2deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); box-shadow: 0 0 0px red; }
+        }
+
+        .under-red-zone {
+            animation: redZoneAlert 0.4s infinite !important;
+            border: 3px solid var(--accent-red) !important;
+            background-color: #ffe5e5 !important;
+        }
+        
+        .master-controls {
+            background: var(--lesson-navy);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .btn-switch {
+            background: var(--lesson-cyan);
+            color: var(--lesson-navy);
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 900;
+            font-size: 2.4vh;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 0 #1fa6a9;
+        }
+        .btn-switch:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
+    </style>
+</head>
+
+<body class="lesson-quiz">
+    <!-- Custom Alert của sếp -->
+    <div id="customAlert" class="custom-alert">
+        <span style="font-size: 3vh;">⚠️</span>
+        <span id="customAlertMessage"></span>
+    </div>
+
+    <!-- Màn hình Hết Giờ Chép bài (Modal của sếp) -->
+    <div class="time-up-modal" id="timeUpModal">
+        <div class="time-up-content">
+            <h1>⏰ HẾT GIỜ CHÉP BÀI!</h1>
+            <p>Các em nhanh tay gác bút lại nhé!</p>
+            <button type="button" class="btn-nav" id="closeTimeUpBtn" style="font-size: 4vh;">Đã rõ</button>
+        </div>
+    </div>
+
+    <div class="presentation-area">
+        
+        <!-- MÀN HÌNH CHÀO -->
+        <section class="slide-container active" data-slide="welcome">
+            <div class="welcome-screen">
+                <div class="tag">Tin học 3 - Bài 3</div>
+                <h1 style="font-size: 8vh;">Bài 3: Máy Tính Và Em</h1>
+                <h2 style="font-size: 5vh; color: var(--primary); margin-top: 2vh;">CÁC BỘ PHẬN CỦA MÁY TÍNH</h2>
+                <button type="button" class="btn-nav" onclick="showSlide(1)" style="font-size: 4vh; padding: 2vh 4vw; margin-top: 5vh;">Bắt đầu Tiết học</button>
+            </div>
+        </section>
+
+        <!-- SLIDE GHI BÀI (Giữ form của sếp, thay content Tin 3) -->
+        <section class="slide-container copy-slide" data-slide="copy-text">
+            <div class="copy-header">
+                <h3 id="currentDateDisplay">Đang tải ngày...</h3>
+                <h2>Môn: Tin học</h2>
+                <h2>Bài 3: Máy Tính Và Em</h2>
+            </div>
+            <div class="copy-content">
+                <ul>
+                    <li>1. Máy tính để bàn gồm: <strong>Thân máy, Màn hình, Bàn phím, Chuột</strong>.</li>
+                    <li>2. <strong>Thân máy</strong>: Chứa bộ xử lí (bộ não máy tính).</li>
+                    <li>3. Máy tính xách tay, máy tính bảng cũng có các bộ phận cơ bản như máy tính để bàn.</li>
+                </ul>
+            </div>
+            <div class="timer-display" id="copyTimer">07:00</div>
+            <div class="controls copy-controls">
+                <button type="button" class="btn-nav" id="startTimerBtn" style="background-color: var(--accent-green);">Bắt đầu</button>
+                <button type="button" class="btn-nav" id="pauseTimerBtn" style="background-color: var(--lesson-coral);">Tạm dừng</button>
+                <button type="button" class="btn-nav" id="resetTimerBtn" style="background-color: var(--lesson-muted);">Làm mới</button>
+                <button type="button" class="btn-nav next-btn" onclick="showSlide(2)">Chạy Bo Sinh Tồn ➔</button>
+            </div>
+        </section>
+
+        <!-- GAME: CÂU HỎI 1 -->
+        <section class="slide-container" id="slide-q1">
+            <div class="slide-header">
+                <span class="top-badge">Vòng Bo 1 / 4</span>
+                <div class="timer-display" style="font-size: 6vh; margin: 0;">10s</div>
+            </div>
+            <h1 class="lesson-title" style="font-size: 5.5vh;">Bộ phận nào quan trọng nhất, được ví như "bộ não" của máy tính?</h1>
+            <div class="answers-grid">
+                <button class="btn-answer" onclick="revealAnswer(this, false)">A. Màn hình</button>
+                <button class="btn-answer" onclick="revealAnswer(this, false)">B. Bàn phím</button>
+                <button class="btn-answer correct-ans" onclick="revealAnswer(this, true)">C. Thân máy</button>
+                <button class="btn-answer" onclick="revealAnswer(this, false)">D. Chuột</button>
+            </div>
+            <div class="explanation-box">Thân máy có bộ xử lý, nó điều khiển mọi hoạt động của máy tính giống như bộ não.</div>
+        </section>
+
+        <!-- GAME: CÂU HỎI 2 -->
+        <section class="slide-container" id="slide-q2">
+            <div class="slide-header">
+                <span class="top-badge">Vòng Bo 2 / 4</span>
+                <div class="timer-display" style="font-size: 6vh; margin: 0;">10s</div>
+            </div>
+            <h1 class="lesson-title" style="font-size: 5.5vh;">Để gõ chữ và gửi tín hiệu vào máy tính, em dùng bộ phận nào?</h1>
+            <div class="answers-grid">
+                <button class="btn-answer correct-ans" onclick="revealAnswer(this, true)">A. Bàn phím</button>
+                <button class="btn-answer" onclick="revealAnswer(this, false)">B. Màn hình</button>
+                <button class="btn-answer" onclick="revealAnswer(this, false)">C. Máy in</button>
+                <button class="btn-answer" onclick="revealAnswer(this, false)">D. Loa</button>
+            </div>
+            <div class="explanation-box">Bàn phím gồm nhiều phím. Khi gõ các phím, em gửi tín hiệu vào máy tính.</div>
+        </section>
+
+        <!-- GAME: CÂU HỎI 3 -->
+        <section class="slide-container" id="slide-q3">
+            <div class="slide-header">
+                <span class="top-badge">Vòng Bo 3 / 4</span>
+                <div class="timer-display" style="font-size: 6vh; margin: 0;">10s</div>
+            </div>
+            <div class="quiz-panel warn">
+                <p><strong>Tình huống:</strong> Bạn Nam dùng bút mực viết thẳng lên màn hình máy tính để đánh dấu.</p>
+            </div>
+            <h1 class="lesson-title" style="font-size: 4.5vh; margin-top: 1vh;">Em thấy hành động của Nam thế nào?</h1>
+            <div class="answers-grid">
+                <button class="btn-answer" onclick="revealAnswer(this, false)">A. Rất sáng tạo, dễ học bài</button>
+                <button class="btn-answer correct-ans" onclick="revealAnswer(this, true)">B. Sai, vì sẽ làm bẩn và hỏng màn hình</button>
+                <button class="btn-answer" onclick="revealAnswer(this, false)">C. Bình thường, bôi đi là được</button>
+            </div>
+            <div class="explanation-box">Cần có ý thức bảo vệ thiết bị. Màn hình rất dễ hỏng nếu dùng bút nhọn viết lên.</div>
+        </section>
+
+        <!-- GAME: CÂU HỎI 4 -->
+        <section class="slide-container" id="slide-q4">
+            <div class="slide-header">
+                <span class="top-badge">Vòng Bo 4 / 4</span>
+                <div class="timer-display" style="font-size: 6vh; margin: 0;">10s</div>
+            </div>
+            <h1 class="lesson-title" style="font-size: 5vh;">Trên điện thoại thông minh, bộ phận nào đảm nhận luôn nhiệm vụ của Chuột và Bàn phím?</h1>
+            <div class="answers-grid">
+                <button class="btn-answer" onclick="revealAnswer(this, false)">A. Loa (phát âm thanh)</button>
+                <button class="btn-answer" onclick="revealAnswer(this, false)">B. Thân máy</button>
+                <button class="btn-answer correct-ans" onclick="revealAnswer(this, true)">C. Màn hình cảm ứng</button>
+            </div>
+            <div class="explanation-box">Màn hình cảm ứng của điện thoại thông minh còn được sử dụng để đưa thông tin vào.</div>
+        </section>
+
+        <!-- MÀN HÌNH ĐƯỜNG ĐUA CHẠY BO -->
+        <section class="slide-container" id="slide-race">
+            <div class="slide-header">
+                <span class="top-badge">BẢN ĐỒ CHẠY BO</span>
+                <button class="btn-nav warning" onclick="openGachaModal()">🎁 Kích hoạt Thùng Thính (Gacha)</button>
+            </div>
+            <div class="racetrack-container">
+                <div class="airdrop-zone"></div>
+                <div class="finish-line"></div>
+                <div class="lane" id="lane-1">
+                    <div class="lane-name">Tổ 1</div>
+                    <div class="avatar-car" id="car-1">🚙</div>
+                </div>
+                <div class="lane" id="lane-2">
+                    <div class="lane-name">Tổ 2</div>
+                    <div class="avatar-car" id="car-2">🚜</div>
+                </div>
+                <div class="lane" id="lane-3">
+                    <div class="lane-name">Tổ 3</div>
+                    <div class="avatar-car" id="car-3">🚓</div>
+                </div>
+                <div class="lane" id="lane-4">
+                    <div class="lane-name">Tổ 4</div>
+                    <div class="avatar-car" id="car-4">🚒</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Tổng kết -->
+        <section class="slide-container" data-slide="summary">
+            <div class="slide-header">
+                <div class="tag">Tổng kết</div>
+                <div class="top-badge">Hoàn thành</div>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                <h1 style="font-size: 8vh; color: var(--lesson-violet); margin-bottom: 20px;">TẠM BIỆT VÀ HẸN GẶP LẠI</h1>
+                <div class="quiz-panel" style="background-color: #e5f4ff; border-color: var(--primary); text-align: center;">
+                    <p style="font-size: 3.5vh;"><strong>Dặn dò:</strong> Về nhà xem lại các bộ phận của máy tính nhé!</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- BẢNG ĐIỀU KHIỂN CỦA GIÁO VIÊN BÊN PHẢI -->
+    <aside class="scoreboard">
+        <h3 style="margin-top: 0; text-align: center; color: var(--lesson-navy); font-size: 3vh;">ĐIỀU KHIỂN CHẠY BO</h3>
+        
+        <div class="master-controls">
+            <button class="btn-switch" onclick="toggleRaceView()" id="btnToggleView">🏁 XEM ĐƯỜNG ĐUA</button>
+            <div style="display: flex; gap: 5px;">
+                <button class="btn-nav prev" onclick="changeQuestion(-1)" style="flex:1; padding: 10px;">&laquo; Câu trước</button>
+                <button class="btn-nav" onclick="changeQuestion(1)" style="flex:1; padding: 10px;">Câu sau &raquo;</button>
+            </div>
+        </div>
+
+        <div class="teams-list" id="teamsList">
+            <!-- Render danh sách tổ qua JS để đúng chuẩn thẻ của sếp -->
+        </div>
+
+        <div class="score-tools" style="margin-top: auto; padding-top: 2vh;">
+            <button class="btn-nav next-btn" onclick="showSlide(slides.length - 1)" style="width: 100%; font-size: 2.2vh; padding: 1.5vh;">Kết thúc tiết học ➔</button>
+        </div>
+    </aside>
+
+    <!-- Modal Hộp Quà - Gacha -->
+    <div class="gacha-modal" id="gachaModal">
+        <div class="gacha-card">
+            <button type="button" id="closeGachaBtn" style="position: absolute; top: 2vh; right: 2vh; font-size: 4vh; background: none; border: none; cursor: pointer; color: var(--text-light);">✖</button>
+            <h2>🎁 AIRDROP HẠ CÁNH!</h2>
+            <p class="gacha-status" style="font-size: 3vh;">Bốc 1 thẻ bài Gacha để lật kèo</p>
+
+            <div class="gift-box-grid" id="giftBoxGrid">
+                <div class="gift-box-item" onclick="openGift(this, 'NOS:\nTiến 2 bước 🚀')" data-opened="false" data-icon="📦">📦</div>
+                <div class="gift-box-item" onclick="openGift(this, 'Nam châm:\nTop 1 lùi 1 bước 🧲')" data-opened="false" data-icon="📦">📦</div>
+                <div class="gift-box-item" onclick="openGift(this, 'Khiên:\nChặn 1 Bo Đỏ 🛡️')" data-opened="false" data-icon="📦">📦</div>
+            </div>
+            <h3 id="gachaResult" style="color: var(--accent-red); font-size: 3.5vh; min-height: 8vh; height: auto; margin-top: 3vh;"></h3>
+        </div>
+    </div>
+
+    <script>
+        // ================= CẬP NHẬT NGÀY THÁNG TỰ ĐỘNG =================
+        const dateDisplay = document.getElementById('currentDateDisplay');
+        const daysOfWeek = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
+        const today = new Date();
+        dateDisplay.textContent = `${daysOfWeek[today.getDay()]}, ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}`;
+
+        // ================= ĐIỀU HƯỚNG SLIDE CHÍNH =================
+        const slides = Array.from(document.querySelectorAll('section.slide-container'));
+        let currentSlide = 0;
+
+        function showSlide(index) {
+            currentSlide = Math.max(0, Math.min(index, slides.length - 1));
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === currentSlide);
+            });
+            // Fullscreen cho slide chép bài
+            if (slides[currentSlide].classList.contains('copy-slide')) {
+                document.body.classList.add('fullscreen-mode');
+            } else {
+                document.body.classList.remove('fullscreen-mode');
+            }
+        }
+
+        // ================= TÍNH NĂNG ĐỒNG HỒ CHÉP BÀI =================
+        let timeRemaining = 420; // 7 phút
+        let timerInterval;
+        let isTimerRunning = false;
+        const timerDisplay = document.getElementById('copyTimer');
+        
+        function updateTimerText() {
+            let m = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+            let s = (timeRemaining % 60).toString().padStart(2, '0');
+            timerDisplay.textContent = `${m}:${s}`;
+        }
+
+        document.getElementById('startTimerBtn').addEventListener('click', function () {
+            if (isTimerRunning) return;
+            isTimerRunning = true;
+            this.style.opacity = '0.7';
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerText();
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    isTimerRunning = false;
+                    document.getElementById('timeUpModal').classList.add('show');
+                }
+            }, 1000);
+        });
+
+        document.getElementById('pauseTimerBtn').addEventListener('click', () => { clearInterval(timerInterval); isTimerRunning = false; document.getElementById('startTimerBtn').style.opacity = '1'; });
+        document.getElementById('resetTimerBtn').addEventListener('click', () => { clearInterval(timerInterval); isTimerRunning = false; timeRemaining = 420; updateTimerText(); document.getElementById('startTimerBtn').style.opacity = '1'; });
+        document.getElementById('closeTimeUpBtn').addEventListener('click', () => document.getElementById('timeUpModal').classList.remove('show'));
+
+        // ================= GAME: LUÂN PHIÊN CÂU HỎI & ĐƯỜNG ĐUA =================
+        const questionSlides = ['slide-q1', 'slide-q2', 'slide-q3', 'slide-q4'];
+        let qIndex = 0;
+        let isShowingRace = false;
+
+        function changeQuestion(direction) {
+            if(isShowingRace) toggleRaceView(); // Tắt đua xe nếu đang bật
+            qIndex += direction;
+            if (qIndex < 0) qIndex = 0;
+            if (qIndex >= questionSlides.length) qIndex = questionSlides.length - 1;
+            
+            // Tìm index của câu hỏi trong mảng slides tổng để showSlide
+            const targetId = questionSlides[qIndex];
+            const targetIndex = slides.findIndex(el => el.id === targetId);
+            showSlide(targetIndex);
+        }
+
+        function toggleRaceView() {
+            const btn = document.getElementById('btnToggleView');
+            if (!isShowingRace) {
+                // Sang đường đua
+                slides.forEach(slide => slide.classList.remove('active'));
+                document.getElementById('slide-race').classList.add('active');
+                btn.innerHTML = "📝 TRỞ LẠI CÂU HỎI";
+                btn.style.background = "var(--lesson-yellow)";
+                isShowingRace = true;
+            } else {
+                // Trở về câu hỏi
+                const targetIndex = slides.findIndex(el => el.id === questionSlides[qIndex]);
+                showSlide(targetIndex);
+                btn.innerHTML = "🏁 XEM ĐƯỜNG ĐUA";
+                btn.style.background = "var(--lesson-cyan)";
+                isShowingRace = false;
+            }
+        }
+
+        // Xử lý nút chọn đáp án
+        function revealAnswer(btn, isCorrect) {
+            const container = btn.closest('.slide-container');
+            if(isCorrect) {
+                btn.classList.add('correct');
+            } else {
+                btn.classList.add('wrong');
+                container.querySelector('.correct-ans').classList.add('correct');
+            }
+            container.querySelector('.explanation-box').classList.add('show');
+        }
+
+        // ================= BẢNG ĐIỂM & QUẢN LÝ TỔ =================
+        const maxSteps = 10;
+        const totalTeams = 4;
+        let scores = { 1:0, 2:0, 3:0, 4:0 };
+
+        function createTeamsPanel() {
+            const list = document.getElementById('teamsList');
+            for (let i = 1; i <= totalTeams; i++) {
+                list.innerHTML += `
+                <div class="team-card" id="team-${i}">
+                    <div class="team-name" contenteditable="true" style="font-size: 2.2vh; color: var(--lesson-navy); font-weight: bold;">TỔ ${i}</div>
+                    <div class="team-score" id="score-${i}" style="font-size: 3vh;">0</div>
+                    <div class="score-controls" style="display: flex; justify-content: center;">
+                        <button class="btn-score sub" onclick="updateScore(${i}, -1)">-</button>
+                        <button class="btn-score add" onclick="updateScore(${i}, 1)">+</button>
+                    </div>
+                    <!-- Nút Bo Đỏ sử dụng css phạt của sếp -->
+                    <button class="btn-score penalty" onclick="triggerRedZone(${i}, this)">🔴 Phạt ồn (Bo Đỏ)</button>
+                </div>`;
+            }
+        }
+        createTeamsPanel();
+
+        function updateScore(teamId, value) {
+            scores[teamId] += value;
+            if (scores[teamId] < 0) scores[teamId] = 0;
+            
+            document.getElementById(`score-${teamId}`).innerText = scores[teamId];
+            
+            let car = document.getElementById(`car-${teamId}`);
+            let progress = (scores[teamId] / maxSteps) * 70; // 70vw quãng đường
+            car.style.left = `calc(10vw + ${progress}vw)`;
+
+            if (scores[teamId] >= maxSteps) {
+                setTimeout(() => showCustomAlert(`🎉 CHÚC MỪNG TỔ ${teamId} ĐÃ ĂN GÀ!`), 500);
+            }
+        }
+
+        // ================= HỆ THỐNG BO ĐỎ =================
+        function triggerRedZone(teamId, btnElement) {
+            const teamName = document.querySelector(`#team-${teamId} .team-name`).innerText;
+            let teamCard = document.getElementById(`team-${teamId}`);
+            let car = document.getElementById(`car-${teamId}`);
+            
+            // Toggle Rung lắc
+            teamCard.classList.toggle("under-red-zone");
+            car.classList.toggle("under-red-zone");
+
+            // Kêu gọi Custom Alert của sếp
+            if(teamCard.classList.contains("under-red-zone")){
+                btnElement.innerHTML = "Hủy Bo Đỏ";
+                updateScore(teamId, -1); // Lùi 1 bước
+                showCustomAlert(`${teamName} mất trật tự! Ăn một quả Bo Đỏ và lùi 1 ô.`);
+            } else {
+                btnElement.innerHTML = "🔴 Phạt ồn (Bo Đỏ)";
+            }
+        }
+
+        function showCustomAlert(message) {
+            const alertBox = document.getElementById('customAlert');
+            document.getElementById('customAlertMessage').textContent = message;
+            alertBox.classList.add('show');
+            setTimeout(() => alertBox.classList.remove('show'), 3500);
+        }
+
+        // ================= GACHA THÙNG THÍNH =================
+        const gachaModal = document.getElementById('gachaModal');
+        const gachaResult = document.getElementById('gachaResult');
+        
+        function openGachaModal() {
+            gachaModal.classList.add('open');
+            gachaResult.textContent = '';
+            document.querySelectorAll('.gift-box-item').forEach(box => {
+                box.dataset.opened = 'false';
+                box.textContent = box.dataset.icon;
+                box.classList.remove('opened');
+            });
+        }
+        
+        function openGift(element, rewardText) {
+            if (element.dataset.opened === 'true') return;
+            document.querySelectorAll('.gift-box-item').forEach(b => b.dataset.opened = 'true'); // Khóa các hộp khác
+            element.classList.add('opened');
+            element.innerHTML = `<span class="gacha-item-text">${rewardText}</span>`;
+            gachaResult.textContent = `Vận mệnh: ${rewardText}`;
+        }
+        
+        document.getElementById('closeGachaBtn').onclick = () => gachaModal.classList.remove('open');
+    </script>
+</body>
+</html>

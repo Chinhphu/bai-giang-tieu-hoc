@@ -42,7 +42,7 @@
         /* Bố cục: Main trái, Score phải */
         .lesson-layout { display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: 30px; max-width: 1600px; margin: 0 auto; align-items: start;}
         
-        /* Cột Scoreboard - Đã fix bo góc hoàn hảo */
+        /* Cột Scoreboard */
         .scoreboard { background: var(--paper); border: 4px solid var(--ink); border-radius: 20px; box-shadow: var(--shadow); position: sticky; top: 25px; overflow: hidden; }
         .score-head { background: var(--coral); color: #fff; text-align: center; font-weight: 900; padding: 20px; font-size: 1.5rem;}
         .team { padding: 20px; border-bottom: 2px dashed #d4d9e2; text-align: center; transition: 0.3s;}
@@ -52,7 +52,7 @@
         .team-name.t-1 { color: var(--purple); }
         .team-name.t-2 { color: var(--green); }
 
-        /* VỞ GHI BÀI SIÊU RÚT GỌN & TO RÕ */
+        /* VỞ GHI BÀI */
         .notebook { background: #fff; border: 3px solid #ccc; border-radius: 16px; padding: 25px 35px; margin: 20px auto; box-shadow: 6px 6px 0 rgba(0,0,0,0.06); background-image: repeating-linear-gradient(transparent, transparent 49px, #a3d2f0 49px, #a3d2f0 50px); background-size: 100% 50px; line-height: 50px; font-size: 1.9rem; max-width: 100%; text-align: left;}
         .notebook .date { text-align: center; font-style: italic; font-size: 1.3rem; color: #53617b; font-weight: 600; line-height: 1.2; margin-bottom: 5px;}
         .notebook .subject { text-align: center; font-weight: 900; color: var(--coral); font-size: 2rem; line-height: 1.2;}
@@ -81,8 +81,17 @@
         .caro-cell.team-0 { color: var(--coral); }
         .caro-cell.team-1 { color: var(--purple); }
         .caro-cell.team-2 { color: var(--green); }
-        .caro-cell.cell-penalty { animation: penaltyBlast 0.6s ease-out forwards; pointer-events: none; }
-        @keyframes penaltyBlast { 0% { transform: scale(1); } 40% { transform: scale(1.3) rotate(10deg); background: var(--coral); color: white; } 100% { transform: scale(0); opacity: 0; } }
+        
+        /* HIỆU ỨNG XÓA Ô NÂNG CẤP (Phóng to, lắc, sáng đỏ rồi thu nhỏ) */
+        .caro-cell.cell-penalty { animation: penaltyBlast 1s ease-out forwards; pointer-events: none; z-index: 10; position: relative; }
+        @keyframes penaltyBlast { 
+            0% { transform: scale(1); box-shadow: 0 0 0 transparent; } 
+            20% { transform: scale(1.3) rotate(-10deg); background: var(--coral); color: white; box-shadow: 0 0 20px var(--coral); } 
+            40% { transform: scale(1.3) rotate(10deg); background: var(--coral); color: white; } 
+            60% { transform: scale(1.3) rotate(-10deg); background: var(--coral); color: white; } 
+            80% { transform: scale(1.3) rotate(0deg); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; } 
+        }
 
         /* HIỆU ỨNG CHIẾN THẮNG 5 Ô LIÊN TIẾP */
         .winning-cell {
@@ -115,7 +124,7 @@
 <body>
     <!-- Cảnh báo Phạt -->
     <div id="customAlert" class="custom-alert">
-        <span style="font-size: 2.5rem;">⚠️️</span>
+        <span style="font-size: 2.5rem;">⚠</span>
         <span id="customAlertMessage"></span>
     </div>
 
@@ -222,9 +231,9 @@
                             </div>
                         </div>
                         
-                        <!-- Hướng dẫn khi trả lời sai -->
-                        <div id="wrongTurnGuide" style="display: none; color: var(--coral); font-weight: 800; font-size: 1.2rem; margin-top: 15px; animation: arrive 0.3s;">
-                            👉 Bấm vào một ô trống bất kỳ trên bàn cờ để chuyển sang lượt của đội tiếp theo.
+                        <!-- Hướng dẫn khi trả lời xong (Đúng/Sai đều đợi click tiếp theo) -->
+                        <div id="turnGuide" style="display: none; color: var(--coral); font-weight: 800; font-size: 1.2rem; margin-top: 15px; animation: arrive 0.3s;">
+                            👉 Bấm vào một ô trống bất kỳ trên bàn cờ để tiếp tục.
                         </div>
 
                         <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
@@ -266,7 +275,7 @@
             window.scrollTo(0, 0);
         }
 
-        // --- 3. NGÂN HÀNG CÂU HỎI (Mỗi level đúng 15 câu cân bằng) ---
+        // --- 3. NGÂN HÀNG CÂU HỎI ---
         const banks = {
             1: [
                 { q: 'Đâu KHÔNG PHẢI là thông tin trên trang web?', a: ['Mùi hương thơm', 'Đoạn văn bản', 'Đoạn video clip', 'Hình ảnh minh họa'] },
@@ -381,7 +390,7 @@
             gameActive = true;
             isWaitingForNextTurn = false;
             document.getElementById('questionArea').style.display = 'none';
-            document.getElementById('wrongTurnGuide').style.display = 'none';
+            document.getElementById('turnGuide').style.display = 'none';
             
             const board = document.getElementById('caroBoard');
             board.innerHTML = "";
@@ -429,16 +438,23 @@
         }
 
         function handleCellClick(idx) {
+            // Đã trả lời xong và đang đợi click ô mới để chuyển câu hỏi
             if(isWaitingForNextTurn) {
+                // Đóng câu hỏi cũ
                 document.getElementById('questionArea').style.display = 'none';
-                document.getElementById('wrongTurnGuide').style.display = 'none';
+                document.getElementById('turnGuide').style.display = 'none';
                 isWaitingForNextTurn = false;
+                
+                // Nếu bấm vào ô đã có người đánh, chỉ ẩn bảng cũ và không mở bảng mới
                 if(boardState[idx] !== null) return;
-            } else if (document.getElementById('questionArea').style.display === 'block') {
+            } 
+            // Nếu đang trong lúc trả lời (bảng chưa ẩn) thì không cho bấm lung tung ô khác
+            else if (document.getElementById('questionArea').style.display === 'block') {
                 return;
             }
 
             if(!gameActive || boardState[idx] !== null) return;
+            
             selectedCellId = idx;
             openQuestionPanel();
         }
@@ -492,17 +508,20 @@
                 btnEl.style.borderColor = 'var(--green)';
                 btnEl.style.background = '#eafaf1';
                 feedback.style.color = 'var(--green)';
-                feedback.innerText = "🎉 CHÍNH XÁC! Hệ thống đang cập nhật ô cờ...";
+                feedback.innerText = "🎉 CHÍNH XÁC! Ô cờ đã thuộc về đội bạn.";
                 
                 qArea.style.background = '#eafaf1';
                 qArea.style.borderColor = 'var(--green)';
 
-                // Dừng 2 giây để thấm đáp án rồi mới cuộn lên đánh ô
-                setTimeout(() => {
-                    qArea.style.display = 'none';
-                    claimCell(activeTeam);
-                    document.getElementById('caroBoard').scrollIntoView({behavior: "smooth", block: "center"});
-                }, 2000);
+                // Chiếm ô ngay lập tức
+                claimCell(activeTeam);
+                
+                // Nếu game còn tiếp tục, hiển thị hướng dẫn đợi click mới
+                if (gameActive) {
+                    isWaitingForNextTurn = true;
+                    document.getElementById('turnGuide').style.display = 'block';
+                }
+                document.getElementById('caroBoard').scrollIntoView({behavior: "smooth", block: "center"});
             } else {
                 btnEl.style.borderColor = 'var(--coral)';
                 btnEl.style.background = '#ffe6e0';
@@ -512,11 +531,14 @@
                 qArea.style.background = '#ffe6e0';
                 qArea.style.borderColor = 'var(--coral)';
 
+                // Chuyển lượt sang đội khác
                 activeTeam = (activeTeam + 1) % numTeams;
                 updateStatus();
                 
+                // Đợi click vào ô khác để ẩn panel
                 isWaitingForNextTurn = true;
-                document.getElementById('wrongTurnGuide').style.display = 'block';
+                document.getElementById('turnGuide').style.display = 'block';
+                document.getElementById('caroBoard').scrollIntoView({behavior: "smooth", block: "center"});
             }
         }
 
@@ -568,24 +590,37 @@
 
         function punishTeam(teamIdx) {
             if(!gameActive) return;
+
+            // 1. Cuộn màn hình tới bàn cờ để HS thấy rõ hình phạt
+            document.getElementById('caroBoard').scrollIntoView({behavior: "smooth", block: "center"});
+
             let ownedCells = [];
             boardState.forEach((val, idx) => { if(val === teamIdx) ownedCells.push(idx); });
             let tName = document.querySelector(`#team-card-${teamIdx} .team-name`).innerText;
 
             if(ownedCells.length > 0) {
-                let randomCell = ownedCells[Math.floor(Math.random() * ownedCells.length)];
-                let cellEl = document.getElementById(`c-${randomCell}`);
-                
-                cellEl.classList.add('cell-penalty');
+                // 2. Chờ 600ms (thời gian cuộn chuột) rồi mới chạy hiệu ứng xóa
                 setTimeout(() => {
-                    boardState[randomCell] = null;
-                    cellEl.innerText = "";
-                    cellEl.className = 'caro-cell';
-                    cellEl.disabled = false;
+                    let randomCell = ownedCells[Math.floor(Math.random() * ownedCells.length)];
+                    let cellEl = document.getElementById(`c-${randomCell}`);
+                    
+                    cellEl.classList.add('cell-penalty');
+                    
+                    // 3. Sau 1 giây (đủ thời gian của animation CSS penaltyBlast), reset lại trạng thái ô trống
+                    setTimeout(() => {
+                        boardState[randomCell] = null;
+                        cellEl.innerText = "";
+                        cellEl.className = 'caro-cell'; // Xóa mọi class cũ
+                        cellEl.disabled = false;
+                    }, 1000); 
+
+                    showAlert(`🚨 ${tName} mất trật tự! Đã bị xóa 1 ô.`);
                 }, 600);
-                showAlert(`🚨 ${tName} mất trật tự! Đã bị xóa 1 ô.`);
             } else {
-                showAlert(`🚨 ${tName} ồn ào! Nhưng chưa có ô nào để xóa.`);
+                // Vẫn cuộn lên và hiển thị thông báo
+                setTimeout(() => {
+                    showAlert(`🚨 ${tName} ồn ào! Nhưng chưa có ô nào để xóa.`);
+                }, 600);
             }
         }
 
