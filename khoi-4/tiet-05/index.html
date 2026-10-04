@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 3: Thông tin trên trang Web - Caro Trí Tuệ</title>
+    <style>
+        /* ================= BỘ CSS GỐC ================= */
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
+
+        :root {
+            --ink: #17233c; --paper: #fffdf7; --yellow: #ffd84d; --orange: #ff914d;
+            --coral: #ff5c6c; --teal: #19b7a5; --purple: #7357d9; --green: #63bf58;
+            --shadow: 0 8px 0 rgba(23, 35, 60, .12), 0 15px 28px rgba(23, 35, 60, .11);
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { margin: 0; color: var(--ink); background: #eef8f4; font-family: 'Be Vietnam Pro', sans-serif; font-size: 22px; overflow-x: hidden; }
+        
+        button, input, select { font: inherit; }
+        button { cursor: pointer; border: 0; color: var(--ink); }
+        button:focus-visible { outline: 4px solid #1c9dff; outline-offset: 3px; }
+        
+        .app-shell { min-height: 100vh; padding: 25px; }
+        
+        .screen { display: none; animation: arrive .45s ease both; width: 100%;}
+        .screen.active { display: block; }
+        @keyframes arrive { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .panel { background: var(--paper); border: 4px solid var(--ink); border-radius: 24px; box-shadow: var(--shadow); padding: clamp(20px, 3vw, 50px); }
+        
+        .btn { background: var(--purple); color: #fff; font-weight: 900; padding: 18px 32px; border-radius: 16px; box-shadow: 0 6px 0 #4b399e; transition: transform .15s; font-size: 1.4rem; }
+        .btn:hover:enabled { transform: translateY(-2px); }
+        .btn:active:enabled { transform: translateY(4px); box-shadow: 0 0 0 #4b399e; }
+        .btn.orange { background: var(--orange); box-shadow: 0 6px 0 #c96029; }
+        .btn.teal { background: var(--teal); box-shadow: 0 6px 0 #087c70; }
+        .btn.yellow { background: var(--yellow); color: var(--ink); box-shadow: 0 6px 0 #c5a718; }
+        .btn.gray { background: #95a5a6; box-shadow: 0 6px 0 #7f8c8d; }
+        .center { text-align: center; }
+
+        /* Bố cục: Main trái, Score phải */
+        .lesson-layout { display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: 30px; max-width: 1600px; margin: 0 auto; align-items: start;}
+        
+        /* Cột Scoreboard */
+        .scoreboard { background: var(--paper); border: 4px solid var(--ink); border-radius: 20px; box-shadow: var(--shadow); position: sticky; top: 25px; overflow: hidden; }
+        .score-head { background: var(--coral); color: #fff; text-align: center; font-weight: 900; padding: 20px; font-size: 1.5rem;}
+        .team { padding: 20px; border-bottom: 2px dashed #d4d9e2; text-align: center; transition: 0.3s;}
+        .team.active { background: #eef4ff; border-left: 8px solid var(--purple); }
+        .team-name { font-weight: 900; font-size: 1.5rem; margin-bottom: 12px; }
+        .team-name.t-0 { color: var(--coral); }
+        .team-name.t-1 { color: var(--purple); }
+        .team-name.t-2 { color: var(--green); }
+
+        /* VỞ GHI BÀI */
+        .notebook { background: #fff; border: 3px solid #ccc; border-radius: 16px; padding: 30px 40px; margin: 30px auto; box-shadow: 8px 8px 0 rgba(0,0,0,0.08); background-image: repeating-linear-gradient(transparent, transparent 49px, #a3d2f0 49px, #a3d2f0 50px); background-size: 100% 50px; line-height: 50px; font-size: 2rem; max-width: 100%; text-align: left;}
+        .notebook .date { text-align: center; font-style: italic; font-size: 1.4rem; color: #53617b; font-weight: 600; line-height: 1.2; margin-bottom: 5px;}
+        .notebook .subject { text-align: center; font-weight: 900; color: var(--coral); font-size: 2.2rem; line-height: 1.2;}
+        .notebook .title { text-align: center; font-weight: 900; color: var(--ink); font-size: 2.5rem; line-height: 1.2; margin-bottom: 20px;}
+        .notebook .content { font-weight: 700; color: #111;}
+
+        /* ================= CỜ CARO & HỆ TỌA ĐỘ ================= */
+        .caro-board { 
+            display: grid; 
+            grid-template-columns: 35px repeat(7, 1fr); 
+            gap: 8px; background: var(--ink); padding: 15px; border-radius: 20px; 
+            width: max-content; margin: 20px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+        }
+        .grid-label { display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; color: #fff; }
+        
+        .caro-cell { width: clamp(45px, 6vw, 80px); height: clamp(45px, 6vw, 80px); background: #fff; border-radius: 12px; border: none; font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 900; cursor: pointer; transition: 0.2s; padding: 0; position: relative;}
+        
+        .caro-cell:hover:enabled { 
+            transform: scale(1.12); 
+            background: var(--yellow); 
+            box-shadow: 0 0 15px var(--yellow);
+            z-index: 5;
+        }
+        
+        .caro-cell:disabled { cursor: not-allowed; }
+        .caro-cell.team-0 { color: var(--coral); }
+        .caro-cell.team-1 { color: var(--purple); }
+        .caro-cell.team-2 { color: var(--green); }
+        .caro-cell.cell-penalty { animation: penaltyBlast 0.6s ease-out forwards; pointer-events: none; }
+        @keyframes penaltyBlast { 0% { transform: scale(1); } 40% { transform: scale(1.3) rotate(10deg); background: var(--coral); color: white; } 100% { transform: scale(0); opacity: 0; } }
+
+        /* HIỆU ỨNG CHIẾN THẮNG 5 Ô LIÊN TIẾP */
+        .winning-cell {
+            animation: winPulse 0.8s infinite alternate !important;
+            background: var(--yellow) !important;
+            color: var(--ink) !important;
+            border: 5px solid var(--orange) !important;
+            z-index: 10;
+        }
+        @keyframes winPulse {
+            from { transform: scale(1); box-shadow: 0 0 10px var(--yellow); }
+            to { transform: scale(1.2); box-shadow: 0 0 30px var(--orange); }
+        }
+        
+        .caro-status { font-size: 1.6rem; font-weight: 900; padding: 15px 30px; border: 4px solid var(--ink); border-radius: 16px; display: inline-block; background: #fff; margin-bottom: 20px;}
+
+        /* Bảng Câu hỏi */
+        .question-area { background: #eef4ff; border: 4px dashed var(--purple); border-radius: 20px; padding: 30px; margin-top: 40px; display: none; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.3s;}
+        .modal-title { font-weight: 900; color: var(--purple); margin-top: 0; font-size: 1.8rem;}
+        .question-text { font-size: 1.8rem; font-weight: 900; margin: 25px 0; color: var(--ink); line-height: 1.4;}
+        .answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;}
+        .ans-btn { background: #fff; border: 4px solid #c8d6e8; padding: 20px; border-radius: 16px; font-weight: 800; font-size: 1.4rem; text-align: left; transition: 0.2s;}
+        .ans-btn:hover:enabled { background: #fffdf7; border-color: var(--purple); transform: translateY(-3px); box-shadow: 0 6px 0 var(--purple);}
+
+        /* Custom Alert Phạt */
+        .custom-alert { position: fixed; top: 20px; left: 50%; transform: translate(-50%, -150%); padding: 20px 40px; border-radius: 20px; font-weight: 900; font-size: 1.6rem; color: white; display: flex; align-items: center; gap: 20px; z-index: 9999; transition: 0.4s; box-shadow: var(--shadow); background: var(--orange); border: 4px solid #c96029;}
+        .custom-alert.show { transform: translate(-50%, 0); }
+    </style>
+</head>
+<body>
+    <!-- Cảnh báo Phạt -->
+    <div id="customAlert" class="custom-alert">
+        <span style="font-size: 2.5rem;">⚠️</span>
+        <span id="customAlertMessage"></span>
+    </div>
+
+    <div class="app-shell">
+        <div class="lesson-layout">
+            <!-- CỘT TRÌNH CHIẾU -->
+            <div style="min-width: 0;">
+                
+                <!-- 0. GHI TỰA BÀI -->
+                <div id="screen-0" class="screen active">
+                    <div class="panel center">
+                        <div class="notebook">
+                            <div class="date" id="date-display">Ngày... tháng... năm...</div>
+                            <div class="subject">Môn: Tin học</div>
+                            <div class="title">Bài 3: Thông tin trên trang web</div>
+                        </div>
+                        <button class="btn orange" onclick="showScreen('1')">Học tiếp Hoạt động 1 ➔</button>
+                    </div>
+                </div>
+
+                <!-- 1. DẠY HĐ 1 -->
+                <div id="screen-1" class="screen">
+                    <div class="panel center">
+                        <h2 style="color: var(--coral); font-size: 2.5rem; margin-top:0;">1. CÁC DẠNG THÔNG TIN</h2>
+                        <div style="font-size: 4rem; margin: 20px 0;">📝 🖼️ 🎵 🎬</div>
+                        
+                        <div class="notebook">
+                            <div class="content">
+                                <strong>1. Thông tin trên trang web:</strong><br>
+                                - Thường có: Văn bản, hình ảnh, âm thanh, video.
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
+                            <button class="btn gray" onclick="showScreen('0')">⬅ Trở lại</button>
+                            <button class="btn teal" onclick="openGameScreen(1)">Luyện tập Cờ Caro ➔</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. DẠY HĐ 2 -->
+                <div id="screen-2" class="screen">
+                    <div class="panel center">
+                        <h2 style="color: var(--coral); font-size: 2.5rem; margin-top:0;">SIÊU LIÊN KẾT & SIÊU VĂN BẢN</h2>
+                        <div style="font-size: 4rem; margin: 10px 0;">👆 🌐</div>
+                        
+                        <div class="notebook">
+                            <div class="content">
+                                - Trang web là <strong>siêu văn bản</strong>.<br>
+                                - Siêu liên kết thường có hình bàn tay 👆.
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
+                            <button class="btn gray" onclick="openGameScreen(1)">⬅ Lại Bàn Cờ</button>
+                            <button class="btn teal" onclick="openGameScreen(2)">Tiếp tục Đánh Cờ ➔</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. DẠY HĐ 3 -->
+                <div id="screen-3" class="screen">
+                    <div class="panel center">
+                        <h2 style="color: var(--coral); font-size: 2.5rem; margin-top:0;">2. TÁC HẠI KHI XEM WEB XẤU</h2>
+                        <div style="font-size: 4rem; margin: 10px 0;">🤯 🕵️‍♂️ ⏳</div>
+                        
+                        <div class="notebook">
+                            <div class="content">
+                                <strong>2. Tác hại khi xem web không phù hợp:</strong><br>
+                                - Suy nghĩ lệch lạc, tiêu cực.<br>
+                                - Bị lừa đảo, dụ dỗ, bắt nạt.<br>
+                                - Lãng phí thời gian.
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
+                            <button class="btn gray" onclick="openGameScreen(2)">⬅ Lại Bàn Cờ</button>
+                            <button class="btn purple" onclick="openGameScreen(3)">Đánh Chung Kết Caro ➔</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MÀN HÌNH GAME CARO -->
+                <div id="screen-game" class="screen">
+                    <div class="panel center">
+                        <h2 style="font-size: 3rem; margin-top: 0; color: var(--orange);">🎮 CỜ CARO TRÍ TUỆ 🎮</h2>
+                        <div id="gameStatus" class="caro-status">Đang chuẩn bị bàn cờ...</div>
+                        
+                        <!-- BÀN CỜ -->
+                        <div id="caroBoard" class="caro-board"></div>
+
+                        <!-- KHU VỰC CÂU HỎI -->
+                        <div id="questionArea" class="question-area">
+                            <h3 id="modalTeamTurn" class="modal-title">Lượt của đội</h3>
+                            <p id="modalQuestion" class="question-text"></p>
+                            <div id="modalAnswers" class="answers-grid"></div>
+                            <div id="modalFeedback" style="font-weight: 900; font-size: 1.5rem; margin-bottom: 15px; min-height: 30px;"></div>
+                            
+                            <div style="display: flex; justify-content: center;">
+                                <!-- Nút Hủy (Chỉ hiện khi chưa trả lời) -->
+                                <button id="modalCancelBtn" class="btn gray" style="padding: 10px 20px; font-size: 1.2rem;" onclick="cancelQuestion()">❌ Đóng (Đổi ý)</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Lời nhắc dành cho cô giáo (Khi trả lời sai) -->
+                        <div id="wrongTurnGuide" style="display: none; color: var(--coral); font-weight: 800; font-size: 1.2rem; margin-top: 20px; animation: arrive 0.5s;">
+                            *Bấm vào một ô bất kỳ trên bàn cờ để chuyển sang lượt của đội tiếp theo.
+                        </div>
+
+                        <div style="display: flex; gap: 20px; justify-content: center; margin-top: 40px;">
+                            <button class="btn gray" id="backToTeachBtn">⬅ Về bài giảng</button>
+                            <button class="btn orange" id="gameNextBtn" onclick="showScreen('2')">Học tiếp phần mới ➔</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CỘT SCOREBOARD -->
+            <aside class="scoreboard">
+                <div class="score-head">BẢNG ĐIỂM & ĐIỀU KHIỂN</div>
+                <div style="padding: 15px; border-bottom: 2px solid #e4e8ef; text-align: center;">
+                    <label style="font-weight: 900; display: block; margin-bottom: 10px; font-size: 1.2rem; color: var(--purple);">Số đội tham gia:</label>
+                    <select id="teamCountSel" onchange="setupTeams()" style="width: 100%; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 1.2rem;">
+                        <option value="2">2 Đội</option>
+                        <option value="3" selected>3 Đội</option>
+                    </select>
+                </div>
+                <div id="teamsListWrapper"></div>
+                <div style="padding: 15px; text-align: center;">
+                    <button class="btn yellow" style="width: 100%; font-size: 1.1rem; padding: 12px;" onclick="initCaroGame()">🔄 Tạo bàn cờ mới</button>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. SET NGÀY THÁNG ---
+        const d = new Date();
+        const days = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
+        document.getElementById('date-display').innerText = `${days[d.getDay()]}, ngày ${d.getDate()} tháng ${d.getMonth() + 1} năm ${d.getFullYear()}`;
+
+        // --- 2. CHUYỂN SLIDE ---
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(`screen-${screenId}`).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // --- 3. NGÂN HÀNG CÂU HỎI (Đúng 15 câu mỗi Level. Đáp án đúng luôn ở vị trí đầu tiên trong mảng dữ liệu, nhưng sẽ được trộn khi hiển thị) ---
+        const banks = {
+            1: [
+                { q: 'Đâu KHÔNG PHẢI là thông tin trên trang web?', a: ['Mùi hương thơm', 'Đoạn văn bản', 'Đoạn video clip', 'Hình ảnh minh họa'] },
+                { q: 'Chữ viết em đọc trên trang web thuộc dạng thông tin gì?', a: ['Văn bản', 'Hình ảnh', 'Âm thanh', 'Video'] },
+                { q: 'Bài hát em nghe trên web là dạng thông tin gì?', a: ['Âm thanh', 'Video', 'Văn bản', 'Hình tĩnh'] },
+                { q: 'Thông tin trên trang web thường có sự kết hợp của mấy loại?', a: ['Nhiều loại (Văn bản, hình, âm, video)', 'Chỉ 1 loại', 'Chỉ 2 loại', 'Không có loại nào'] },
+                { q: 'Khi xem phim hoạt hình trên web, em tiếp nhận thông tin gì?', a: ['Hình ảnh và Âm thanh', 'Chỉ văn bản', 'Mùi vị của thức ăn', 'Nhiệt độ thời tiết'] },
+                { q: 'Bức ảnh chụp con mèo trên trang web là dạng thông tin gì?', a: ['Hình ảnh', 'Văn bản', 'Âm thanh', 'Siêu liên kết'] },
+                { q: 'Các con số hiển thị trên trang web gọi là dạng thông tin gì?', a: ['Văn bản', 'Video', 'Âm thanh', 'Hình ảnh'] },
+                { q: 'Tiếng cô giáo giảng bài được thu lại đưa lên web gọi là dạng gì?', a: ['Âm thanh', 'Văn bản', 'Hình ảnh', 'Video'] },
+                { q: 'Đoạn clip quay cảnh trường học trên web là thông tin dạng gì?', a: ['Video', 'Âm thanh', 'Hình ảnh', 'Văn bản'] },
+                { q: 'Biểu đồ thời tiết có màu sắc trên web thuộc dạng thông tin nào?', a: ['Hình ảnh', 'Âm thanh', 'Video', 'Mùi hương'] },
+                { q: 'Lời kể của nhân vật trong truyện điện tử phát ra từ loa là?', a: ['Âm thanh', 'Hình ảnh', 'Văn bản', 'Video'] },
+                { q: 'Sự kết hợp giữa văn bản và hình ảnh giúp trang web như thế nào?', a: ['Sinh động và dễ hiểu hơn', 'Xấu đi', 'Khó đọc hơn', 'Nhàm chán hơn'] },
+                { q: 'Khi em gõ từ khóa tìm kiếm, từ khóa đó là thông tin dạng gì?', a: ['Văn bản', 'Video', 'Hình ảnh', 'Âm thanh'] },
+                { q: 'Đoạn phim tài liệu về thế giới động vật trên web thuộc dạng gì?', a: ['Video', 'Văn bản', 'Siêu liên kết', 'Hình tĩnh'] },
+                { q: 'Thông tin trên web phong phú hơn trong SGK giấy vì sao?', a: ['Vì có chứa âm thanh và video', 'Vì có nhiều chữ hơn', 'Vì nó nhẹ hơn', 'Vì nó nhiều màu hơn'] }
+            ],
+            2: [
+                { q: 'Dấu hiệu dễ thấy nhất của "siêu liên kết" là gì?', a: ['Chuột biến thành hình bàn tay 👆', 'Chữ chạy vòng vòng', 'Màn hình tối thui', 'Loa kêu bíp'] },
+                { q: 'Tại sao gọi trang web là "Siêu văn bản"?', a: ['Vì chứa đủ văn bản, hình ảnh, siêu liên kết...', 'Vì nó chứa rất nhiều chữ', 'Vì nó sáng lấp lánh', 'Vì chữ rất to'] },
+                { q: 'Nháy chuột vào "siêu liên kết", điều gì xảy ra?', a: ['Mở ra một bài viết hoặc trang web khác', 'Xóa hết dữ liệu', 'Tắt máy tính', 'Tự động khởi động lại'] },
+                { q: 'Trang web có được coi là một "siêu văn bản" không?', a: ['Có', 'Không', 'Chỉ là văn bản thường', 'Tùy trang web'] },
+                { q: 'Siêu liên kết có thể được ẩn dưới đâu?', a: ['Một dòng chữ hoặc một hình ảnh', 'Chỉ dưới một dòng chữ', 'Chỉ dưới một hình ảnh', 'Chỉ ẩn dưới video'] },
+                { q: 'Điều gì giúp kết nối trang web này với trang web khác?', a: ['Siêu liên kết', 'Màn hình máy tính', 'Bàn phím', 'Dây điện'] },
+                { q: 'Một siêu văn bản KHÔNG THỂ dẫn em đến đâu?', a: ['Một quyển sách giấy ngoài đời', 'Một trang web khác', 'Một bài hát trên mạng', 'Một hình ảnh khác'] },
+                { q: 'Nhờ có siêu liên kết, việc xem thông tin trên web trở nên?', a: ['Nhanh chóng và tiện lợi', 'Khó khăn hơn', 'Lâu lắc hơn', 'Dễ bị lỗi máy tính'] },
+                { q: 'Khi bấm vào ảnh món đồ chơi và nó hiện ra trang mua hàng, ảnh đó có gì?', a: ['Siêu liên kết', 'Vi-rút', 'Mật khẩu', 'Lỗi kĩ thuật'] },
+                { q: 'Cụm từ nào hay có màu xanh dương và gạch chân trên trang web?', a: ['Siêu liên kết', 'Lỗi đánh máy', 'Video đang chạy', 'File âm thanh'] },
+                { q: 'Đặc điểm nổi bật nhất của siêu văn bản so với văn bản trên giấy là gì?', a: ['Có chứa siêu liên kết và đa phương tiện', 'Có nhiều chữ hơn', 'Dễ bị rách hơn', 'Nặng hơn'] },
+                { q: 'Muốn trở về trang chủ, em thường nhấp chuột vào đâu trên trang web?', a: ['Biểu tượng ngôi nhà hoặc logo', 'Nút tắt màn hình', 'Dây chuột', 'Nút cách bàn phím'] },
+                { q: 'Siêu văn bản là một phát minh giúp con người điều gì?', a: ['Tra cứu và liên kết thông tin dễ dàng', 'Nấu ăn ngon hơn', 'Chạy nhanh hơn', 'Khỏe mạnh hơn'] },
+                { q: 'Nếu không có siêu liên kết, các trang web sẽ ra sao?', a: ['Rời rạc, không liên thông được với nhau', 'Sẽ đẹp hơn', 'Sẽ chạy nhanh hơn', 'Không thể có hình ảnh'] },
+                { q: 'Trang web của trường em có phải là siêu văn bản không?', a: ['Có', 'Không', 'Chỉ có Google mới là siêu văn bản', 'Tùy lúc'] }
+            ],
+            3: [
+                { q: 'Vào web lạ và bị nhắn tin dọa nạt, em đang gặp tác hại gì?', a: ['Bị lừa đảo, bắt nạt', 'Lãng phí thời gian', 'Bị hỏng màn hình', 'Suy nghĩ lệch lạc'] },
+                { q: 'Nếu web hiện "Nhập sđt để nhận iPhone miễn phí", em nên làm gì?', a: ['Bỏ qua, tắt trang và báo người lớn', 'Nhập ngay', 'Nhập số của bạn bè', 'Nhắn tin mắng lại'] },
+                { q: 'VẬN DỤNG: Tại sao cần người lớn đồng hành khi dùng Internet?', a: ['Để bảo vệ em khỏi web xấu, kẻ gian', 'Để người lớn gõ phím hộ', 'Để nạp tiền chơi game', 'Để xem phim chung'] },
+                { q: 'VẬN DỤNG: Đang xem web bỗng có hình ảnh kinh dị nhảy ra, em sẽ?', a: ['Tắt ngay và nhờ ba mẹ', 'Ngồi xem tiếp', 'Gọi bạn ra xem', 'Tắt máy nghỉ chơi luôn'] },
+                { q: 'Em đang làm bài tập thì thấy một web chơi game hay, em nên?', a: ['Làm xong bài tập rồi mới xin phép bố mẹ chơi', 'Chơi liền 3 tiếng', 'Bỏ bài tập', 'Chơi lén'] },
+                { q: 'Một người lạ trên web hỏi tên trường và địa chỉ nhà em, em nên?', a: ['Không trả lời và báo ngay cho bố mẹ', 'Trả lời thật thà', 'Cho địa chỉ giả', 'Hỏi lại tên họ'] },
+                { q: 'Cố tình xem các nội dung xấu sẽ khiến em mất thời gian cho việc gì?', a: ['Học tập và các hoạt động bổ ích ngoài trời', 'Ngủ', 'Chơi game', 'Xem Tivi'] },
+                { q: 'Đâu là biểu hiện của việc "suy nghĩ lệch lạc" do xem web xấu?', a: ['Bắt chước hành động bạo lực, nguy hiểm', 'Thích giúp đỡ bạn bè', 'Chăm học hơn', 'Vui vẻ hơn'] },
+                { q: 'Khi nhận được một đường link lạ từ người không quen, em nên?', a: ['Tuyệt đối không nhấp chuột vào', 'Nhấp vào xem có gì vui', 'Gửi cho bạn bè xem cùng', 'Nhờ bạn nhấp thử'] },
+                { q: 'Dành quá nhiều thời gian xem trang web giải trí vô bổ sẽ gây ra?', a: ['Lãng phí thời gian, mỏi mắt', 'Khỏe mạnh hơn', 'Học giỏi hơn', 'Tăng trí nhớ'] },
+                { q: 'Làm sao để sử dụng Internet một cách an toàn và bổ ích?', a: ['Chỉ vào các trang web phù hợp lứa tuổi', 'Trang nào cũng vào xem thử', 'Chơi game mọi lúc', 'Nói chuyện với người lạ'] },
+                { q: 'Nếu vô tình truy cập vào một trang web có hình ảnh không lịch sự, em cần?', a: ['Nhấn dấu X để đóng trang đó ngay lập tức', 'Nhìn kĩ xem đó là gì', 'Lưu ảnh về máy', 'Khoe với bạn'] },
+                { q: 'Kẻ xấu trên mạng có thể làm gì nếu em để lộ thông tin cá nhân?', a: ['Lừa lấy tiền, đánh cắp tài khoản', 'Tặng quà cho em', 'Dạy em học giỏi', 'Mua đồ chơi cho em'] },
+                { q: 'Lợi ích lớn nhất khi truy cập đúng các trang web học tập là gì?', a: ['Có thêm nhiều kiến thức bổ ích', 'Bị lãng phí thời gian', 'Bị cận thị', 'Mất tiền'] },
+                { q: 'Ai là người em nên báo cáo ngay khi gặp rắc rối trên Internet?', a: ['Bố mẹ hoặc thầy cô giáo', 'Bạn bè cùng lớp', 'Người lạ trên mạng', 'Em nhỏ ở nhà'] }
+            ]
+        };
+
+        let masterQuestionBank = [];
+        let loadedLevels = [];
+
+        function openGameScreen(level) {
+            // Nạp thêm câu hỏi của Level mới vào kho tổng (để không bị trùng)
+            if(!loadedLevels.includes(level)) {
+                masterQuestionBank.push(...banks[level]);
+                loadedLevels.push(level);
+            }
+            // Trộn kho câu hỏi
+            masterQuestionBank.sort(() => Math.random() - 0.5);
+            
+            let nextBtn = document.getElementById('gameNextBtn');
+            let backBtn = document.getElementById('backToTeachBtn');
+            if(level === 1) {
+                backBtn.onclick = () => showScreen('1');
+                nextBtn.innerText = "Học tiếp HĐ 2 ➔";
+                nextBtn.onclick = () => showScreen('2');
+            } else if (level === 2) {
+                backBtn.onclick = () => showScreen('2');
+                nextBtn.innerText = "Học tiếp HĐ 3 ➔";
+                nextBtn.onclick = () => showScreen('3');
+            } else {
+                backBtn.onclick = () => showScreen('3');
+                nextBtn.innerText = "Hoàn thành bài học ➔";
+                nextBtn.onclick = () => showScreen('0');
+            }
+            showScreen('game');
+        }
+
+        // --- 4. LÕI GAME CARO ---
+        const teamSymbols = ['X', 'O', '✔'];
+        let numTeams = 3;
+        let activeTeam = 0;
+        let boardState = Array(49).fill(null);
+        let gameActive = true;
+        
+        let selectedCellId = null;
+        let currentQData = null;
+        let isWaitingForNextTurn = false; // Cờ chờ chuyển lượt
+
+        function setupTeams() {
+            numTeams = parseInt(document.getElementById('teamCountSel').value);
+            const wrapper = document.getElementById('teamsListWrapper');
+            wrapper.innerHTML = "";
+            for(let i=0; i<numTeams; i++) {
+                wrapper.innerHTML += `
+                    <div class="team" id="team-card-${i}">
+                        <div class="team-name t-${i}" contenteditable="true">ĐỘI ${i+1}</div>
+                        <button class="btn coral" style="padding: 10px; font-size: 1.1rem; width: 100%;" onclick="punishTeam(${i})">Phạt xóa 1 Ô (Ồn ào)</button>
+                    </div>
+                `;
+            }
+            initCaroGame();
+        }
+
+        function initCaroGame() {
+            boardState = Array(49).fill(null);
+            activeTeam = 0;
+            gameActive = true;
+            isWaitingForNextTurn = false;
+            document.getElementById('questionArea').style.display = 'none';
+            document.getElementById('wrongTurnGuide').style.display = 'none';
+            
+            const board = document.getElementById('caroBoard');
+            board.innerHTML = "";
+            
+            const cols = ['A','B','C','D','E','F','G'];
+            let emptyCorner = document.createElement('div');
+            board.appendChild(emptyCorner);
+            
+            for(let c of cols) {
+                let lbl = document.createElement('div');
+                lbl.className = 'grid-label';
+                lbl.innerText = c;
+                board.appendChild(lbl);
+            }
+
+            for(let r=0; r<7; r++) {
+                let lbl = document.createElement('div');
+                lbl.className = 'grid-label';
+                lbl.innerText = r + 1;
+                board.appendChild(lbl);
+                
+                for(let c=0; c<7; c++) {
+                    let idx = r * 7 + c;
+                    let cell = document.createElement('button');
+                    cell.className = 'caro-cell';
+                    cell.id = `c-${idx}`;
+                    cell.title = `Ô ${cols[c]}${r+1}`; 
+                    cell.onclick = () => handleCellClick(idx);
+                    board.appendChild(cell);
+                }
+            }
+            updateStatus();
+        }
+
+        function updateStatus() {
+            document.querySelectorAll('.team').forEach((el, idx) => {
+                if(idx === activeTeam && gameActive) el.classList.add('active');
+                else el.classList.remove('active');
+            });
+            let status = document.getElementById('gameStatus');
+            if(gameActive) {
+                let tName = document.querySelector(`#team-card-${activeTeam} .team-name`).innerText;
+                status.innerText = `Lượt của: ${tName} (${teamSymbols[activeTeam]}) - Cần 5 ô liên tiếp`;
+            }
+        }
+
+        function handleCellClick(idx) {
+            // NẾU ĐANG CHỜ CHUYỂN LƯỢT (Sau khi trả lời sai)
+            if(isWaitingForNextTurn) {
+                // Tắt bảng câu hỏi cũ, gỡ cờ chờ
+                document.getElementById('questionArea').style.display = 'none';
+                document.getElementById('wrongTurnGuide').style.display = 'none';
+                isWaitingForNextTurn = false;
+                
+                // MỘT SỰ TINH TẾ: Nếu họ click vào ô ĐÃ CÓ CHỦ, thì chỉ đơn thuần là tắt bảng câu hỏi
+                // Còn nếu click vào ô TRỐNG, thì tiếp tục mở câu hỏi cho đội mới ở ô đó luôn!
+                if(boardState[idx] !== null) return;
+            } 
+            // NẾU BẢNG CÂU HỎI ĐANG MỞ (Chưa trả lời) -> Cấm click lung tung
+            else if (document.getElementById('questionArea').style.display === 'block') {
+                return;
+            }
+
+            if(!gameActive || boardState[idx] !== null) return;
+            selectedCellId = idx;
+            openQuestionPanel();
+        }
+
+        function openQuestionPanel() {
+            let tName = document.querySelector(`#team-card-${activeTeam} .team-name`).innerText;
+            const cols = ['A','B','C','D','E','F','G'];
+            let rName = Math.floor(selectedCellId / 7) + 1;
+            let cName = cols[selectedCellId % 7];
+            
+            document.getElementById('modalTeamTurn').innerText = `Lượt trả lời của: ${tName} (Chọn ô ${cName}${rName})`;
+            
+            currentQData = masterQuestionBank.pop();
+            if(!currentQData) { // Nếu lỡ giải hết toàn bộ 45 câu (rất hiếm), nạp lại toàn bộ
+                loadedLevels.forEach(lvl => masterQuestionBank.push(...banks[lvl]));
+                masterQuestionBank.sort(() => Math.random() - 0.5);
+                currentQData = masterQuestionBank.pop();
+            }
+
+            document.getElementById('modalQuestion').innerText = currentQData.q;
+            
+            // Xử lý xáo trộn đáp án (Đáp án đúng gốc luôn ở vị trí 0 trong Data)
+            let originalAnswers = currentQData.a.map((txt, index) => ({ text: txt, isCorrect: index === 0 }));
+            originalAnswers.sort(() => Math.random() - 0.5); // Trộn lên
+
+            let ansGrid = document.getElementById('modalAnswers');
+            ansGrid.innerHTML = "";
+            originalAnswers.forEach((ansObj, i) => {
+                ansGrid.innerHTML += `<button class="ans-btn" onclick="checkAnswer(${ansObj.isCorrect}, this)">${String.fromCharCode(65+i)}. ${ansObj.text}</button>`;
+            });
+
+            let feedback = document.getElementById('modalFeedback');
+            feedback.innerText = "";
+            feedback.style.background = "transparent";
+            document.getElementById('modalCancelBtn').style.display = 'inline-block'; // Hiện nút Hủy
+            
+            let qArea = document.getElementById('questionArea');
+            qArea.style.display = 'block';
+            qArea.style.background = '#eef4ff';
+            qArea.style.borderColor = 'var(--purple)';
+            qArea.scrollIntoView({behavior: "smooth", block: "center"});
+        }
+
+        function checkAnswer(isCorrect, btnEl) {
+            document.querySelectorAll('.ans-btn').forEach(btn => btn.disabled = true);
+            let feedback = document.getElementById('modalFeedback');
+            let qArea = document.getElementById('questionArea');
+            
+            document.getElementById('modalCancelBtn').style.display = 'none';
+
+            if(isCorrect) {
+                btnEl.style.borderColor = 'var(--green)';
+                btnEl.style.background = '#eafaf1';
+                feedback.style.color = 'var(--green)';
+                feedback.innerText = "🎉 CHÍNH XÁC! Hệ thống đang cập nhật ô cờ...";
+                
+                // Đổi màu bảng câu hỏi cho rực rỡ
+                qArea.style.background = '#eafaf1';
+                qArea.style.borderColor = 'var(--green)';
+
+                // Dừng 2 giây để học sinh xem đáp án
+                setTimeout(() => {
+                    qArea.style.display = 'none';
+                    claimCell(activeTeam);
+                    document.getElementById('caroBoard').scrollIntoView({behavior: "smooth", block: "center"});
+                }, 2000);
+            } else {
+                btnEl.style.borderColor = 'var(--coral)';
+                btnEl.style.background = '#ffe6e0';
+                feedback.style.color = 'var(--coral)';
+                feedback.innerText = "❌ SAI RỒI! Đội bạn đã bị mất lượt.";
+                
+                qArea.style.background = '#ffe6e0';
+                qArea.style.borderColor = 'var(--coral)';
+
+                // Chuyển lượt ngầm bên dưới, đổi Highlight sang đội tiếp theo
+                activeTeam = (activeTeam + 1) % numTeams;
+                updateStatus();
+                
+                // Bật cờ chờ
+                isWaitingForNextTurn = true;
+                document.getElementById('wrongTurnGuide').style.display = 'block';
+            }
+        }
+
+        // Cô giáo đổi ý không muốn hỏi câu này, HS không mất lượt
+        function cancelQuestion() {
+            document.getElementById('questionArea').style.display = 'none';
+            document.getElementById('caroBoard').scrollIntoView({behavior: "smooth", block: "center"});
+            // Cất câu hỏi lại vào đầu kho
+            if (currentQData) masterQuestionBank.unshift(currentQData);
+        }
+
+        function claimCell(teamIdx) {
+            boardState[selectedCellId] = teamIdx;
+            let cell = document.getElementById(`c-${selectedCellId}`);
+            cell.innerText = teamSymbols[teamIdx];
+            cell.classList.add(`team-${teamIdx}`);
+            cell.disabled = true;
+
+            let winningCells = getWinningCells(selectedCellId, teamIdx);
+            if(winningCells) {
+                gameActive = false;
+                let tName = document.querySelector(`#team-card-${teamIdx} .team-name`).innerText;
+                document.getElementById('gameStatus').innerText = `🏆 CHÚC MỪNG ${tName} CHIẾN THẮNG!`;
+                
+                // Hiệu ứng chớp tắt cho 5 ô chiến thắng
+                winningCells.forEach(i => {
+                    document.getElementById(`c-${i}`).classList.add('winning-cell');
+                });
+                document.querySelectorAll('.caro-cell').forEach(c => c.disabled = true);
+            } else {
+                activeTeam = (activeTeam + 1) % numTeams;
+                updateStatus();
+            }
+        }
+
+        function getWinningCells(lastIdx, teamIdx) {
+            let r = Math.floor(lastIdx / 7), c = lastIdx % 7;
+            const dirs = [[0,1], [1,0], [1,1], [1,-1]];
+            for(let d of dirs) {
+                let winLine = [lastIdx];
+                for(let step of [-1, 1]) {
+                    let nr = r + d[0]*step, nc = c + d[1]*step;
+                    while(nr >= 0 && nr < 7 && nc >= 0 && nc < 7 && boardState[nr*7 + nc] === teamIdx) {
+                        winLine.push(nr*7 + nc);
+                        nr += d[0]*step; nc += d[1]*step;
+                    }
+                }
+                if(winLine.length >= 5) return winLine;
+            }
+            return null;
+        }
+
+        function punishTeam(teamIdx) {
+            if(!gameActive) return;
+            let ownedCells = [];
+            boardState.forEach((val, idx) => { if(val === teamIdx) ownedCells.push(idx); });
+            let tName = document.querySelector(`#team-card-${teamIdx} .team-name`).innerText;
+
+            if(ownedCells.length > 0) {
+                let randomCell = ownedCells[Math.floor(Math.random() * ownedCells.length)];
+                let cellEl = document.getElementById(`c-${randomCell}`);
+                
+                cellEl.classList.add('cell-penalty');
+                setTimeout(() => {
+                    boardState[randomCell] = null;
+                    cellEl.innerText = "";
+                    cellEl.className = 'caro-cell';
+                    cellEl.disabled = false;
+                }, 600);
+                showAlert(`🚨 ${tName} mất trật tự! Đã bị xóa 1 ô.`);
+            } else {
+                showAlert(`🚨 ${tName} ồn ào! Nhưng chưa có ô nào để xóa.`);
+            }
+        }
+
+        function showAlert(msg) {
+            let alertBox = document.getElementById('customAlert');
+            alertBox.className = 'custom-alert show';
+            document.getElementById('customAlertMessage').innerText = msg;
+            setTimeout(() => { alertBox.classList.remove('show'); }, 3500);
+        }
+
+        window.onload = () => { setupTeams(); };
+    </script>
+</body>
+</html>
