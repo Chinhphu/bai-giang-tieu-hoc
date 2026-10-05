@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game: Ếch Xanh Bắt Phím</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Nunito', sans-serif;
+            background-color: #e0f7fa;
+            text-align: center;
+            padding: 30px;
+            margin: 0;
+            overflow: hidden; /* Tránh cuộn trang khi bấm phím */
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 700px;
+            margin: 0 auto;
+            border: 5px solid #4dd0e1;
+            position: relative;
+        }
+        h1 { color: #00838f; font-size: 36px; margin-top: 0;}
+        .controls { margin-bottom: 20px; }
+        select, button {
+            font-size: 20px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        select { border: 2px solid #00acc1; }
+        button {
+            background-color: #ff9800; color: white; border: none;
+            box-shadow: 0 5px 0 #f57c00; font-weight: bold;
+        }
+        button:active { transform: translateY(5px); box-shadow: none; }
+        
+        #game-board {
+            display: none; /* Ẩn lúc mới vào, chọn lớp xong mới hiện */
+            background-color: #fff9c4;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 3px dashed #fbc02d;
+        }
+        #student-name {
+            font-size: 45px; color: #d84315; font-weight: bold; margin: 10px 0;
+        }
+        #instruction { font-size: 24px; color: #555; }
+        #key-target {
+            font-size: 100px; color: #2e7d32; font-weight: bold;
+            margin: 20px 0; text-shadow: 3px 3px 0px #c8e6c9;
+            transition: transform 0.1s;
+        }
+        
+        /* Hiệu ứng khi gõ đúng */
+        .success-anim {
+            animation: pop 0.5s ease;
+            color: #ffeb3b !important;
+            text-shadow: 0 0 20px #ff9800, 0 0 40px #ff9800 !important;
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5) rotate(10deg); }
+            100% { transform: scale(1); }
+        }
+
+        #status-bar {
+            display: flex; justify-content: space-between;
+            font-size: 20px; font-weight: bold; color: #607d8b;
+            margin-top: 20px; border-top: 2px solid #eee; padding-top: 10px;
+        }
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9); display: flex;
+            align-items: center; justify-content: center;
+            font-size: 30px; font-weight: bold; color: #e91e63;
+            border-radius: 15px; z-index: 10; display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🐸 Ếch Xanh Bắt Phím Chữ 🐸</h1>
+        
+        <div class="controls">
+            <select id="class-select">
+                <option value="">-- Chọn Lớp --</option>
+                <option value="2_2">Lớp 2/2</option>
+                <option value="2_4">Lớp 2/4</option>
+                <option value="2_5">Lớp 2/5</option>
+            </select>
+            <button onclick="startGame()">Bắt Đầu Chơi!</button>
+        </div>
+
+        <div id="game-board">
+            <div id="overlay-msg" class="overlay">Tuyệt vời! +10 điểm</div>
+            <div id="student-name">...</div>
+            <div id="instruction">Hãy vươn ngón tay bấm phím:</div>
+            <div id="key-target">?</div>
+            
+            <div id="status-bar">
+                <span id="score">Điểm lớp: 0</span>
+                <span id="counter">Còn lại: 0 bạn</span>
+            </div>
+            
+            <button onclick="nextTurn()" id="next-btn" style="background-color: #4CAF50; display:none;">Gọi Bạn Tiếp Theo</button>
+        </div>
+    </div>
+
+    <!-- Nạp âm thanh (Bạn có thể tải các file mp3 ngắn trên mạng để cùng thư mục) -->
+    <!-- <audio id="sound-success" src="correct.mp3"></audio> -->
+    <!-- <audio id="sound-wrong" src="wrong.mp3"></audio> -->
+
+    <script>
+        const topRowKeys = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'];
+        let classLists = {};
+        let currentClassList = [];
+        let remainingStudents = [];
+        let currentTargetKey = "";
+        let score = 0;
+        let isWaitingForKey = false; // Biến khóa: Chỉ cho gõ khi đang có lượt
+
+        // Lấy dữ liệu từ file JSON bên ngoài
+        // CHÚ Ý: Vì trình duyệt có chính sách bảo mật CORS, nếu bạn chạy trực tiếp file HTML (file://), lệnh fetch này có thể lỗi. Bạn cần dùng Live Server của VS Code để chạy.
+        fetch('../../assets/data/students_2_2026_2027.json')
+            .then(response => response.json())
+            .then(data => {
+                classLists = data;
+                console.log("Đã tải dữ liệu học sinh thành công!");
+            })
+            .catch(error => {
+                console.error("Lỗi khi tải file JSON:", error);
+                alert("Không tìm thấy file students.json. Hãy chắc chắn bạn đang chạy qua Local Server (như Live Server của VSCode).");
+            });
+
+        function startGame() {
+            const selectedClass = document.getElementById("class-select").value;
+            if (!selectedClass) {
+                alert("Cô ơi, chọn lớp đã nhé!");
+                return;
+            }
+            if (Object.keys(classLists).length === 0) {
+                alert("Chưa tải được danh sách học sinh!");
+                return;
+            }
+
+            // Thiết lập game
+            currentClassList = classLists[selectedClass];
+            remainingStudents = [...currentClassList];
+            score = 0;
+            
+            document.getElementById("game-board").style.display = "block";
+            document.getElementById("score").innerText = `Điểm lớp: ${score}`;
+            document.getElementById("next-btn").style.display = "inline-block";
+            
+            nextTurn(); // Gọi ngay học sinh đầu tiên
+        }
+
+        function nextTurn() {
+            if (remainingStudents.length === 0) {
+                alert(`Hoan hô! Cả lớp đều đã hoàn thành xuất sắc! Tổng điểm: ${score}`);
+                remainingStudents = [...currentClassList]; // Nạp lại danh sách
+            }
+
+            // Bốc thăm học sinh
+            const randomIndex = Math.floor(Math.random() * remainingStudents.length);
+            const student = remainingStudents.splice(randomIndex, 1)[0]; 
+
+            // Bốc thăm phím hàng trên
+            currentTargetKey = topRowKeys[Math.floor(Math.random() * topRowKeys.length)];
+
+            // Cập nhật giao diện
+            document.getElementById("student-name").innerText = student;
+            const targetEl = document.getElementById("key-target");
+            targetEl.innerText = currentTargetKey;
+            targetEl.classList.remove("success-anim"); // Reset hiệu ứng
+            targetEl.style.color = "#2e7d32"; // Đổi màu lại bình thường
+
+            document.getElementById("counter").innerText = `Còn: ${remainingStudents.length} bạn`;
+            
+            // Mở khóa để chờ nhận phím
+            isWaitingForKey = true; 
+        }
+
+        // LẮNG NGHE BÀN PHÍM
+        window.addEventListener("keydown", function(event) {
+            // Nếu chưa bắt đầu lượt mới thì không làm gì cả
+            if (!isWaitingForKey) return;
+
+            const keyPressed = event.key.toUpperCase(); // Chuyển chữ thường thành hoa để dễ so sánh
+
+            // Chỉ xử lý nếu học sinh ấn các phím chữ cái ở hàng trên
+            if (topRowKeys.includes(keyPressed)) {
+                
+                if (keyPressed === currentTargetKey) {
+                    // ẤN ĐÚNG!
+                    isWaitingForKey = false; // Khóa lại, không cho bấm tiếp để tránh lỗi
+                    
+                    // Phát âm thanh nếu có
+                    // document.getElementById('sound-success').play(); 
+
+                    // Hiệu ứng nhảy chữ
+                    const targetEl = document.getElementById("key-target");
+                    targetEl.classList.add("success-anim");
+                    
+                    // Hiện thông báo popup
+                    const overlay = document.getElementById("overlay-msg");
+                    overlay.style.display = "flex";
+
+                    // Cộng điểm
+                    score += 10;
+                    document.getElementById("score").innerText = `Điểm lớp: ${score}`;
+
+                    // Tắt popup sau 1.5 giây và tự động chuyển lượt
+                    setTimeout(() => {
+                        overlay.style.display = "none";
+                        nextTurn(); // TỰ ĐỘNG CHUYỂN BẠN TIẾP THEO
+                    }, 1500);
+
+                } else {
+                    // ẤN SAI!
+                    // document.getElementById('sound-wrong').play();
+                    
+                    // Lắc lư chữ cái để báo lỗi
+                    const targetEl = document.getElementById("key-target");
+                    targetEl.style.color = "#d32f2f"; // Đổi sang màu đỏ
+                    
+                    // Có thể thêm hiệu ứng CSS rung nhẹ (shake) ở đây
+                    setTimeout(() => {
+                        targetEl.style.color = "#2e7d32"; // Trả lại màu xanh
+                    }, 300);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
