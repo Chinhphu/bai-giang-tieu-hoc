@@ -1,578 +1,777 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tin học 3 - Bài 3: Máy tính và em</title>
-    <!-- Link file CSS gốc của sếp -->
-    <link rel="stylesheet" href="../theme/style.css" />
+    <title>Tin học 3 - Bài 3: Máy Tính Và Em</title>
     <style>
-        /* ================= GAME CSS BỔ SUNG TỪ BASE CỦA SẾP ================= */
-        .gacha-item-text {
-            font-size: 2.5vh;
-            font-weight: bold;
-            color: var(--lesson-navy);
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            padding: 5px;
-            animation: popIn 0.3s ease-out;
+        /* ================= MÀU SẮC & GIAO DIỆN KHỐI 3 ================= */
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&display=swap');
+
+        :root {
+            --bg-color: #f4f6f9; --slide-bg: #ffffff; --primary: #4361ee; --secondary: #ffb703;
+            --text-main: #2b2d42; --text-light: #8d99ae; --accent-green: #2a9d8f; --accent-red: #e63946;
+            --border-radius: 20px; --lesson-ink: #17233d; --lesson-muted: #71809d; --lesson-navy: #101b35;
+            --lesson-cyan: #29d3d8; --lesson-yellow: #ffc857; --lesson-coral: #ff6b6b; --lesson-green: #38c98b;
+            --lesson-violet: #7667f5; --lesson-paper: #f7f9ff;
         }
 
-        @keyframes popIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        body { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; font-family: 'Quicksand', sans-serif; background-color: var(--bg-color); color: var(--text-main); font-size: 3vh; }
 
-        .scoreboard {
-            position: relative;
-            z-index: 350; 
-        }
+        /* KHÔNG GIAN TRÌNH CHIẾU FULL MÀN HÌNH */
+        .presentation-area { flex: 1; width: 100%; height: 100vh; display: flex; justify-content: center; align-items: center; padding: 2vh 2vw; box-sizing: border-box; background: radial-gradient(circle at 10% 5%, #e1f8fa 0, transparent 28%), var(--lesson-paper); position: relative;}
+        .slide-container { width: 100%; max-width: 1500px; height: 96vh; background: transparent; border-radius: var(--border-radius); padding: 2vh 4vw; display: none; flex-direction: column; justify-content: flex-start; box-sizing: border-box; overflow-x: hidden; overflow-y: auto; animation: slideIn 0.35s ease-out; position: relative;}
+        .slide-container.active { display: flex; }
+        @keyframes slideIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        /* Tái sử dụng Custom Alert của sếp */
-        .custom-alert {
-            position: fixed;
-            top: 3vh;
-            left: 50%;
-            transform: translateX(-50%) translateY(-150%);
-            background: #ff4757;
-            color: white;
-            padding: 1.5vh 2.5vw;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(255, 71, 87, 0.4);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 2.5vh;
-            font-weight: 700;
-            z-index: 9999;
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            pointer-events: none;
-        }
+        .slide-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2vh; }
+        .top-badge { padding: 1vh 2vw; border: 2px solid #dfe9ff; border-radius: 999px; color: var(--lesson-navy); background: #eef4ff; font-size: 2.2vh; font-weight: 900; text-transform: uppercase; }
+        .tag { background-color: var(--primary); color: #fff; padding: 1vh 2vw; border-radius: 30px; font-size: 3vh; font-weight: 700;}
 
-        .custom-alert.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
+        h1 { color: var(--primary); text-align: center; font-size: 7vh; margin: 0 0 2vh 0; font-weight: 900; }
+        
+        .answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2vh; margin-top: 2vh; }
+        .btn-answer { background-color: #fff; color: var(--text-main); border: 3px solid #e0e4e8; padding: 2.5vh; font-size: 3.5vh; font-family: 'Quicksand', sans-serif; font-weight: 700; border-radius: 15px; text-align: left; cursor: pointer; transition: all 0.2s; }
+        .btn-answer:hover { border-color: var(--primary); background-color: #f8f9fc; transform: translateY(-3px);}
+        .btn-answer.correct { background-color: var(--accent-green); color: #fff; border-color: var(--accent-green); }
+        .btn-answer.wrong { background-color: var(--accent-red); color: #fff; border-color: var(--accent-red); }
 
-        /* Nút phạt của sếp */
-        .btn-score.penalty {
-            background-color: #ff4757;
-            color: white;
-            width: 100%;
-            border: none;
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 2vh;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 6px rgba(255, 71, 87, 0.3);
-            margin-top: 5px;
-        }
+        .controls { margin-top: auto; display: flex; justify-content: space-between; padding-top: 3vh; padding-bottom: 2vh;}
+        .btn-nav { background-color: var(--primary); color: #fff; border: none; padding: 1.8vh 3.5vw; font-size: 3vh; font-family: 'Quicksand', sans-serif; font-weight: 800; border-radius: 30px; cursor: pointer; transition: transform 0.2s; box-shadow: 0 6px 0 rgba(0,0,0,0.15);}
+        .btn-nav:hover { transform: translateY(-2px); box-shadow: 0 8px 0 rgba(0,0,0,0.15);}
+        .btn-nav:active { transform: translateY(4px); box-shadow: none;}
+        .btn-nav.prev { background-color: var(--text-light); }
+        .btn-nav.warning { color: #563a00; background: var(--lesson-yellow); box-shadow: 0 6px 0 #d89e28; }
+        .btn-nav.warning:hover { box-shadow: 0 8px 0 #d89e28; }
 
-        .btn-score.penalty:hover {
-            background-color: #ff253a;
-            transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 6px 12px rgba(255, 71, 87, 0.4);
-        }
+        .welcome-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; border-radius: 20px; background: linear-gradient(135deg, #29d3d81f, #7667f514); text-align: center; border: 4px dashed var(--primary);}
+        
+        /* ================= GRID HÌNH ẢNH GIẢNG BÀI ================= */
+        .teach-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2vw; width: 100%; margin-top: 2vh; align-items: stretch;}
+        .teach-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3vw; width: 100%; margin-top: 2vh; align-items: stretch;}
+        .item-card { background: #fff; border: 4px dashed var(--lesson-cyan); border-radius: 20px; padding: 2vh; text-align: center; display: flex; flex-direction: column; align-items: center; box-shadow: 0 10px 20px rgba(0,0,0,0.05);}
+        .item-img-placeholder { width: 100%; aspect-ratio: 1/1; background: #f4f6f9; border-radius: 12px; border: 3px dashed var(--lesson-muted); display: flex; align-items: center; justify-content: center; color: var(--lesson-muted); font-weight: bold; font-size: 2.2vh; margin-bottom: 2vh; overflow: hidden; position: relative;}
+        .item-img-placeholder img { width: 100%; height: 100%; object-fit: contain; position: absolute;}
+        .item-card h3 { font-size: 3.5vh; color: var(--primary); margin: 0 0 1vh 0;}
+        .item-card p { font-size: 2.5vh; color: var(--lesson-navy); margin: 0; font-weight: 700; line-height: 1.4;}
+        
+        /* ================= CHÉP BÀI SIÊU TO KHỔNG LỒ ================= */
+        .copy-slide { padding: 8vh 5vw 4vh 5vw !important; justify-content: flex-start !important; align-items: center !important; height: 100vh !important; overflow-y: auto !important; }
+        .copy-inner { width: 100%; margin: auto; display: flex; flex-direction: column; gap: 3vh;}
+        .copy-header { text-align: center; display: flex; flex-direction: column; gap: 1vh;}
+        .copy-header h3 { margin: 0; font-size: 6vh !important; color: var(--lesson-muted); font-weight: bold; }
+        .copy-header h2 { margin: 0 !important; font-size: 7.5vh !important; color: var(--primary); font-weight: 900; }
+        .copy-content-huge { display: flex; flex-direction: column; justify-content: center; background-color: #fff3c9; border-left: 15px solid var(--lesson-yellow); border-radius: 25px; padding: 4vh 6vw; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08); }
+        .copy-content-huge ul { margin: 0; padding-left: 5vw; list-style-type: none; width: 100%;}
+        .copy-content-huge li { font-size: 7.5vh !important; line-height: 1.6; margin-bottom: 2vh; color: var(--lesson-navy); font-weight: 800; text-align: left; position: relative;}
+        .copy-content-huge li::before { content: "•"; color: var(--accent-red); font-weight: bold; position: absolute; left: -4.5vw; font-size: 8vh;}
+        
+        .timer-display { font-size: 14vh; font-weight: 900; color: var(--accent-red); text-align: center; margin: 1vh 0; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); font-variant-numeric: tabular-nums;}
+        .copy-controls { justify-content: center !important; gap: 25px; display: flex; }
 
-        .btn-score.penalty:active {
-            transform: translateY(1px) scale(0.98);
-        }
-
-        /* ================= CSS RIÊNG CHO ĐƯỜNG ĐUA CHẠY BO ================= */
-        .racetrack-container {
-            background: linear-gradient(160deg, #172244, #2a3d72 50%, #1d2d59);
-            border-radius: var(--border-radius);
-            padding: 2vh 2vw;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            position: relative;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-            margin-bottom: 2vh;
+        /* ================= GAME BẢO VỆ CỨ ĐIỂM CẢI TIẾN ================= */
+        .game-settings-bar { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 1vh; padding: 10px 20px;}
+        .game-settings-bar select { padding: 5px 15px; font-size: 2.5vh; border-radius: 10px; font-family: inherit; font-weight: bold; border: 2px solid var(--primary); outline: none;}
+        
+        /* Container Tự Động Co Giãn */
+        .battlefield-container { 
+            border: 6px solid var(--lesson-navy); border-radius: 24px; 
+            display: flex; flex-direction: column; 
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.15); 
+            margin: 1vh auto; width: 100%; overflow: hidden;
+            flex-shrink: 0; /* Đảm bảo không bao giờ bị ép nhỏ */
         }
         
-        .lane {
-            display: flex;
-            align-items: center;
-            border-bottom: 2px dashed #4d5d82;
-            height: 14vh;
-            position: relative;
+        /* Bầu Trời (Upper) */
+        .upper-battlefield {
+            display: flex; justify-content: space-evenly; align-items: flex-end; 
+            background: linear-gradient(to bottom, #d4f0fd 0%, #87CEEB 100%);
+            padding-top: 10vh; /* Khoảng thở để bảng tên vươn lên */
+            padding-bottom: 2px;
+            min-height: 42vh; transition: min-height 0.3s; flex-shrink: 0;
         }
 
-        .lane-name {
-            color: #fff;
-            font-size: 3vh;
-            font-weight: 900;
-            width: 10vw;
-            z-index: 10;
+        /* Lòng Đất (Lower) */
+        .lower-battlefield {
+            display: flex; justify-content: space-evenly; align-items: flex-start; 
+            background: linear-gradient(to bottom, #6d4c41 0%, #3e2723 100%);
+            padding-top: 2px; padding-bottom: 10vh; 
+            min-height: 12vh; transition: min-height 0.3s; flex-shrink: 0;
         }
 
-        .finish-line {
-            position: absolute;
-            right: 8%;
-            top: 0;
-            bottom: 0;
-            width: 15px;
-            background: repeating-linear-gradient(45deg, #fff, #fff 10px, #000 10px, #000 20px);
-            z-index: 1;
+        /* Mặt đất nguyên khối */
+        .global-ground {
+            width: 100%; height: 18px; background: #4e342e;
+            border-top: 5px solid #7cb342; border-bottom: 3px solid #3e2723;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 10; flex-shrink: 0;
         }
         
-        .airdrop-zone {
-            position: absolute;
-            left: 50%;
-            top: 0; bottom: 0; width: 40px;
-            background: rgba(255, 183, 3, 0.2);
-            border-left: 2px dashed var(--secondary);
-            border-right: 2px dashed var(--secondary);
-            z-index: 1;
-        }
+        /* Kết cấu Lane tháp */
+        .lane-upper { width: 150px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; position: relative;}
+        .lane-lower { width: 150px; display: flex; flex-direction: column; align-items: center; position: relative;}
 
-        .avatar-car {
-            font-size: 6vh;
-            position: absolute;
-            left: 10vw; 
-            transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); 
-            z-index: 5;
-            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
-        }
-
-        /* VŨ KHÍ TỐI THƯỢNG: BO ĐỎ */
-        @keyframes redZoneAlert {
-            0% { transform: translate(1px, 1px) rotate(0deg); box-shadow: 0 0 0px red; }
-            20% { transform: translate(-3px, 0px) rotate(2deg); box-shadow: 0 0 20px red; }
-            40% { transform: translate(1px, -1px) rotate(-2deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); box-shadow: 0 0 40px red; }
-            80% { transform: translate(-1px, -1px) rotate(2deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); box-shadow: 0 0 0px red; }
-        }
-
-        .under-red-zone {
-            animation: redZoneAlert 0.4s infinite !important;
-            border: 3px solid var(--accent-red) !important;
-            background-color: #ffe5e5 !important;
-        }
+        /* Bảng tên và điểm neo đỉnh tháp */
+        .lane-header { text-align: center; margin-bottom: 8px; z-index: 20; transition: transform 0.3s; width: 100%;}
+        .t-name { font-weight: 900; font-size: 3vh; color: var(--lesson-navy); text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff; margin-bottom: 2px; background: rgba(255,255,255,0.7); padding: 5px 15px; border-radius: 10px; border: 2px solid var(--lesson-muted); outline: none;}
+        .t-score { font-size: 5.5vh; font-weight: 900; color: var(--accent-red); text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff;}
         
-        .master-controls {
-            background: var(--lesson-navy);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
+        /* Màu chữ 5 tổ */
+        .t-name.t-0 { color: var(--accent-red); } .t-name.t-1 { color: var(--primary); } .t-name.t-2 { color: var(--accent-green); } .t-name.t-3 { color: var(--secondary); } .t-name.t-4 { color: var(--lesson-violet); }
         
-        .btn-switch {
-            background: var(--lesson-cyan);
-            color: var(--lesson-navy);
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: 900;
-            font-size: 2.4vh;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 0 #1fa6a9;
-        }
-        .btn-switch:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
+        /* Hiệu ứng tới lượt */
+        .active-lane .lane-header { transform: scale(1.25); }
+        .active-lane .t-name { border-color: var(--secondary); background: var(--secondary); color: #fff; text-shadow: none; box-shadow: 0 5px 15px rgba(255,183,3,0.5);}
+
+        /* Cột chứa khối tháp */
+        .tower-above-ground { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+        .tower-below-ground { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+
+        .floor { width: 90%; height: 4.5vh; border-radius: 8px; border: 3px solid rgba(0,0,0,0.4); box-shadow: inset 0 5px 10px rgba(255,255,255,0.3); position: relative; animation: buildUp 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); flex-shrink: 0;}
+        .bg-0 { background-color: var(--accent-red); }
+        .bg-1 { background-color: var(--primary); }
+        .bg-2 { background-color: var(--accent-green); }
+        .bg-3 { background-color: var(--secondary); }
+        .bg-4 { background-color: var(--lesson-violet); }
+
+        /* Tầng Âm chui đất */
+        .floor.negative { background-color: #7f8c8d !important; border: 3px dashed #2c3e50; box-shadow: inset 0 5px 15px rgba(0,0,0,0.6); animation: digDown 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
+
+        @keyframes buildUp { 0% { transform: translateY(-30px) scale(0.5); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+        @keyframes digDown { 0% { transform: translateY(20px) scale(0.5); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+        @keyframes explode { 0% { transform: scale(1); filter: brightness(1); } 40% { transform: scale(1.3) rotate(5deg); background-color: #ff4757; opacity: 1; box-shadow: 0 0 40px #ff4757; z-index: 99;} 100% { transform: scale(0) rotate(-20deg) translateY(50px); opacity: 0; } }
+        .floor.destroyed { animation: explode 0.5s forwards !important; pointer-events: none; }
+        
+        .quiz-panel { padding: 25px 30px; border-left: 8px solid var(--lesson-cyan); border-radius: 0 16px 16px 0; font-size: 3.8vh; background: #e8fbfc; line-height: 1.6; font-weight: 700; display: flex; flex-direction: column; justify-content: center;}
+        
+        .action-choice-panel { display: none; flex-direction: column; gap: 15px; padding: 25px; background: #fff; border: 4px dashed var(--accent-green); border-radius: 20px; }
+        .action-choice-panel.active { display: flex; animation: slideIn 0.3s ease-out; }
+        .target-choice-panel { display: none; gap: 15px; margin-top: 10px; justify-content: center; flex-wrap: wrap;}
+        .target-choice-panel.active { display: flex; }
+
+        .custom-alert { position: fixed; top: 20px; left: 50%; transform: translate(-50%, -150%); padding: 20px 40px; border-radius: 20px; font-weight: 900; font-size: 3.5vh; color: white; display: flex; align-items: center; gap: 20px; z-index: 9999; transition: 0.4s; box-shadow: 0 10px 30px rgba(0,0,0,0.3); background: var(--secondary); border: 5px solid #d89e28;}
+        .custom-alert.show { transform: translate(-50%, 0); }
+
+        /* ================= MODAL QUẢN LÝ / CHỈNH ĐIỂM ================= */
+        .admin-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; place-items: center; z-index: 1000;}
+        .admin-modal.open { display: flex; justify-content: center; align-items: center;}
+        .admin-card { background: #fff; padding: 4vh; border-radius: 20px; border: 5px solid var(--primary); width: 80%; max-width: 650px; animation: slideIn 0.3s;}
+        .admin-team-row { display: flex; justify-content: space-between; align-items: center; padding: 1.5vh 0; border-bottom: 2px dashed #ccc;}
+        .admin-team-row input { width: 100px; font-size: 3.5vh; text-align: center; font-weight: bold; padding: 5px; border-radius: 8px; border: 3px solid var(--primary); outline: none;}
+        .btn-punish-small { background: var(--accent-red); color: #fff; border: none; padding: 1.2vh 2vw; font-size: 2.2vh; font-weight: 800; border-radius: 8px; cursor: pointer; transition: 0.2s;}
+        .btn-punish-small:hover { background: #c92a36; transform: scale(1.05);}
     </style>
 </head>
 
 <body class="lesson-quiz">
-    <!-- Custom Alert của sếp -->
     <div id="customAlert" class="custom-alert">
-        <span style="font-size: 3vh;">⚠️</span>
+        <span style="font-size: 5vh;">⚠</span>
         <span id="customAlertMessage"></span>
-    </div>
-
-    <!-- Màn hình Hết Giờ Chép bài (Modal của sếp) -->
-    <div class="time-up-modal" id="timeUpModal">
-        <div class="time-up-content">
-            <h1>⏰ HẾT GIỜ CHÉP BÀI!</h1>
-            <p>Các em nhanh tay gác bút lại nhé!</p>
-            <button type="button" class="btn-nav" id="closeTimeUpBtn" style="font-size: 4vh;">Đã rõ</button>
-        </div>
     </div>
 
     <div class="presentation-area">
         
-        <!-- MÀN HÌNH CHÀO -->
-        <section class="slide-container active" data-slide="welcome">
+        <!-- ================= 0. MÀN HÌNH CHÀO ================= -->
+        <section class="slide-container active" id="slide-welcome">
             <div class="welcome-screen">
-                <div class="tag">Tin học 3 - Bài 3</div>
-                <h1 style="font-size: 8vh;">Bài 3: Máy Tính Và Em</h1>
-                <h2 style="font-size: 5vh; color: var(--primary); margin-top: 2vh;">CÁC BỘ PHẬN CỦA MÁY TÍNH</h2>
-                <button type="button" class="btn-nav" onclick="showSlide(1)" style="font-size: 4vh; padding: 2vh 4vw; margin-top: 5vh;">Bắt đầu Tiết học</button>
+                <div class="tag">Tin học 3</div>
+                <h1>Bài 3: Máy Tính Và Em</h1>
+                <p style="font-size: 4.5vh; color: var(--lesson-muted); margin-bottom: 5vh; font-weight:bold;">Tích hợp trò chơi: Bảo Vệ Cứ Điểm</p>
+                <button type="button" class="btn-nav warning" onclick="showSlide('copy-0')" style="font-size: 4.5vh; padding: 2.5vh 5vw;">Bắt đầu tiết học</button>
             </div>
         </section>
 
-        <!-- SLIDE GHI BÀI (Giữ form của sếp, thay content Tin 3) -->
-        <section class="slide-container copy-slide" data-slide="copy-text">
-            <div class="copy-header">
-                <h3 id="currentDateDisplay">Đang tải ngày...</h3>
-                <h2>Môn: Tin học</h2>
-                <h2>Bài 3: Máy Tính Và Em</h2>
+        <!-- ================= 1. CHÉP BÀI LẦN 1 ================= -->
+        <section class="slide-container copy-slide" id="slide-copy-0">
+            <div class="copy-inner">
+                <div class="copy-header" style="margin-bottom: 5vh;">
+                    <h3 class="date-display">Đang tải ngày...</h3>
+                    <h2>Môn: Tin học</h2>
+                    <h2>Bài 3: Máy Tính Và Em</h2>
+                </div>
+                <div class="timer-display timer-global">03:00</div>
+                <div class="controls copy-controls">
+                    <button type="button" class="btn-nav prev" onclick="showSlide('welcome')">⬅ Quay lại</button>
+                    <button type="button" class="btn-nav" onclick="startGlobalTimer()" style="background-color: var(--accent-green);">Bắt đầu giờ</button>
+                    <button type="button" class="btn-nav warning" onclick="showSlide('teach-1')">Học phần 1 ➔</button>
+                </div>
             </div>
-            <div class="copy-content">
-                <ul>
-                    <li>1. Máy tính để bàn gồm: <strong>Thân máy, Màn hình, Bàn phím, Chuột</strong>.</li>
-                    <li>2. <strong>Thân máy</strong>: Chứa bộ xử lí (bộ não máy tính).</li>
-                    <li>3. Máy tính xách tay, máy tính bảng cũng có các bộ phận cơ bản như máy tính để bàn.</li>
+        </section>
+
+        <!-- ================= 2. GIẢNG BÀI: MỤC 1 (4 ẢNH NGANG) ================= -->
+        <section class="slide-container" id="slide-teach-1">
+            <div class="slide-header">
+                <div class="tag">Khám phá</div>
+                <div class="top-badge">Giảng bài</div>
+            </div>
+            <h1 style="font-size: 5.5vh; text-align: left; margin-bottom: 1vh;">1. Các bộ phận của máy tính để bàn</h1>
+            
+            <div class="teach-grid-4">
+                <div class="item-card">
+                    <div class="item-img-placeholder">
+                        <img src="../../assets/images/minh-hoa/case.png" alt="">
+                        <span>Chèn ảnh<br>Thân máy</span>
+                    </div>
+                    <h3>Thân máy</h3>
+                    <p>Chứa "bộ não" điều khiển máy.</p>
+                </div>
+                <div class="item-card">
+                    <div class="item-img-placeholder">
+                        <img src="../../assets/images/minh-hoa/monitor.png" alt="">
+                        <span>Chèn ảnh<br>Màn hình</span>
+                    </div>
+                    <h3>Màn hình</h3>
+                    <p>Hiện chữ, hình ảnh để em xem.</p>
+                </div>
+                <div class="item-card">
+                    <div class="item-img-placeholder">
+                        <img src="../../assets/images/minh-hoa/keyboard.png" alt="">
+                        <span>Chèn ảnh<br>Bàn phím</span>
+                    </div>
+                    <h3>Bàn phím</h3>
+                    <p>Có nhiều phím để gõ chữ, số.</p>
+                </div>
+                <div class="item-card">
+                    <div class="item-img-placeholder">
+                        <img src="../../assets/images/minh-hoa/mouse.png" alt="">
+                        <span>Chèn ảnh<br>Chuột</span>
+                    </div>
+                    <h3>Chuột</h3>
+                    <p>Giúp em chọn mọi thứ nhanh chóng.</p>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button type="button" class="btn-nav prev" onclick="showSlide('copy-0')">⬅ Quay lại</button>
+                <button type="button" class="btn-nav warning" onclick="showSlide('copy-1')">Cho lớp chép bài ➔</button>
+            </div>
+        </section>
+
+        <!-- ================= 3. CHÉP BÀI LẦN 2 (MỤC 1) ================= -->
+        <section class="slide-container copy-slide" id="slide-copy-1">
+            <div class="copy-inner">
+                <div class="copy-content-huge">
+                    <div style="font-size: 7.5vh; font-weight: 900; color: var(--accent-red); margin-bottom: 2vh;">1. Bốn bộ phận cơ bản:</div>
+                    <ul>
+                        <li>Thân máy</li>
+                        <li>Màn hình</li>
+                        <li>Bàn phím</li>
+                        <li>Chuột</li>
+                    </ul>
+                </div>
+                <div class="timer-display timer-global">03:00</div>
+                <div class="controls copy-controls">
+                    <button type="button" class="btn-nav prev" onclick="showSlide('teach-1')">⬅ Quay lại</button>
+                    <button type="button" class="btn-nav" onclick="startGlobalTimer()" style="background-color: var(--accent-green);">Tiếp tục giờ</button>
+                    <button type="button" class="btn-nav warning" onclick="showSlide('rules')">Luật Chơi ➔</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 4. LUẬT CHƠI ================= -->
+        <section class="slide-container" id="slide-rules">
+            <div class="slide-header">
+                <div class="tag">Trò chơi</div>
+                <div class="top-badge">Hướng dẫn</div>
+            </div>
+            <h1 style="font-size: 7vh; color: var(--accent-red); margin-top:0;">🏰 BẢO VỆ CỨ ĐIỂM 🏰</h1>
+            <div class="quiz-panel" style="font-size: 4vh; margin: auto; max-width: 80%;">
+                <p><strong>🎯 Nhiệm vụ:</strong> Xây tháp tổ mình, bắn sập tháp đối thủ.</p>
+                <ul style="padding-left: 4vw; margin: 2vh 0;">
+                    <li>Tổ cử bạn lên bốc và trả lời câu hỏi.</li>
+                    <li>Trả lời <strong>ĐÚNG</strong>: Được <strong>Xây 1 tầng</strong>, HOẶC <strong>Bắn sập 1 tầng</strong> của bạn.</li>
+                    <li>Trả lời <strong>SAI</strong>: Bị mất lượt.</li>
+                    <li style="color: var(--accent-red);">⚠️ <strong>Ồn ào sẽ bị phạt trừ tháp (ÂM TẦNG XUỐNG ĐẤT LUÔN NHA!)</strong></li>
                 </ul>
             </div>
-            <div class="timer-display" id="copyTimer">07:00</div>
-            <div class="controls copy-controls">
-                <button type="button" class="btn-nav" id="startTimerBtn" style="background-color: var(--accent-green);">Bắt đầu</button>
-                <button type="button" class="btn-nav" id="pauseTimerBtn" style="background-color: var(--lesson-coral);">Tạm dừng</button>
-                <button type="button" class="btn-nav" id="resetTimerBtn" style="background-color: var(--lesson-muted);">Làm mới</button>
-                <button type="button" class="btn-nav next-btn" onclick="showSlide(2)">Chạy Bo Sinh Tồn ➔</button>
+            <div class="controls">
+                <button type="button" class="btn-nav prev" onclick="showSlide('copy-1')">⬅ Quay lại</button>
+                <button type="button" class="btn-nav warning" onclick="openGameScreen(1)">Vào Trận 1 ➔</button>
             </div>
         </section>
 
-        <!-- GAME: CÂU HỎI 1 -->
-        <section class="slide-container" id="slide-q1">
+        <!-- ================= 5. GIẢNG BÀI: MỤC 2 (3 ẢNH NGANG) ================= -->
+        <section class="slide-container" id="slide-teach-2">
             <div class="slide-header">
-                <span class="top-badge">Vòng Bo 1 / 4</span>
-                <div class="timer-display" style="font-size: 6vh; margin: 0;">10s</div>
+                <div class="tag">Khám phá</div>
+                <div class="top-badge">Giảng bài</div>
             </div>
-            <h1 class="lesson-title" style="font-size: 5.5vh;">Bộ phận nào quan trọng nhất, được ví như "bộ não" của máy tính?</h1>
-            <div class="answers-grid">
-                <button class="btn-answer" onclick="revealAnswer(this, false)">A. Màn hình</button>
-                <button class="btn-answer" onclick="revealAnswer(this, false)">B. Bàn phím</button>
-                <button class="btn-answer correct-ans" onclick="revealAnswer(this, true)">C. Thân máy</button>
-                <button class="btn-answer" onclick="revealAnswer(this, false)">D. Chuột</button>
-            </div>
-            <div class="explanation-box">Thân máy có bộ xử lý, nó điều khiển mọi hoạt động của máy tính giống như bộ não.</div>
-        </section>
-
-        <!-- GAME: CÂU HỎI 2 -->
-        <section class="slide-container" id="slide-q2">
-            <div class="slide-header">
-                <span class="top-badge">Vòng Bo 2 / 4</span>
-                <div class="timer-display" style="font-size: 6vh; margin: 0;">10s</div>
-            </div>
-            <h1 class="lesson-title" style="font-size: 5.5vh;">Để gõ chữ và gửi tín hiệu vào máy tính, em dùng bộ phận nào?</h1>
-            <div class="answers-grid">
-                <button class="btn-answer correct-ans" onclick="revealAnswer(this, true)">A. Bàn phím</button>
-                <button class="btn-answer" onclick="revealAnswer(this, false)">B. Màn hình</button>
-                <button class="btn-answer" onclick="revealAnswer(this, false)">C. Máy in</button>
-                <button class="btn-answer" onclick="revealAnswer(this, false)">D. Loa</button>
-            </div>
-            <div class="explanation-box">Bàn phím gồm nhiều phím. Khi gõ các phím, em gửi tín hiệu vào máy tính.</div>
-        </section>
-
-        <!-- GAME: CÂU HỎI 3 -->
-        <section class="slide-container" id="slide-q3">
-            <div class="slide-header">
-                <span class="top-badge">Vòng Bo 3 / 4</span>
-                <div class="timer-display" style="font-size: 6vh; margin: 0;">10s</div>
-            </div>
-            <div class="quiz-panel warn">
-                <p><strong>Tình huống:</strong> Bạn Nam dùng bút mực viết thẳng lên màn hình máy tính để đánh dấu.</p>
-            </div>
-            <h1 class="lesson-title" style="font-size: 4.5vh; margin-top: 1vh;">Em thấy hành động của Nam thế nào?</h1>
-            <div class="answers-grid">
-                <button class="btn-answer" onclick="revealAnswer(this, false)">A. Rất sáng tạo, dễ học bài</button>
-                <button class="btn-answer correct-ans" onclick="revealAnswer(this, true)">B. Sai, vì sẽ làm bẩn và hỏng màn hình</button>
-                <button class="btn-answer" onclick="revealAnswer(this, false)">C. Bình thường, bôi đi là được</button>
-            </div>
-            <div class="explanation-box">Cần có ý thức bảo vệ thiết bị. Màn hình rất dễ hỏng nếu dùng bút nhọn viết lên.</div>
-        </section>
-
-        <!-- GAME: CÂU HỎI 4 -->
-        <section class="slide-container" id="slide-q4">
-            <div class="slide-header">
-                <span class="top-badge">Vòng Bo 4 / 4</span>
-                <div class="timer-display" style="font-size: 6vh; margin: 0;">10s</div>
-            </div>
-            <h1 class="lesson-title" style="font-size: 5vh;">Trên điện thoại thông minh, bộ phận nào đảm nhận luôn nhiệm vụ của Chuột và Bàn phím?</h1>
-            <div class="answers-grid">
-                <button class="btn-answer" onclick="revealAnswer(this, false)">A. Loa (phát âm thanh)</button>
-                <button class="btn-answer" onclick="revealAnswer(this, false)">B. Thân máy</button>
-                <button class="btn-answer correct-ans" onclick="revealAnswer(this, true)">C. Màn hình cảm ứng</button>
-            </div>
-            <div class="explanation-box">Màn hình cảm ứng của điện thoại thông minh còn được sử dụng để đưa thông tin vào.</div>
-        </section>
-
-        <!-- MÀN HÌNH ĐƯỜNG ĐUA CHẠY BO -->
-        <section class="slide-container" id="slide-race">
-            <div class="slide-header">
-                <span class="top-badge">BẢN ĐỒ CHẠY BO</span>
-                <button class="btn-nav warning" onclick="openGachaModal()">🎁 Kích hoạt Thùng Thính (Gacha)</button>
-            </div>
-            <div class="racetrack-container">
-                <div class="airdrop-zone"></div>
-                <div class="finish-line"></div>
-                <div class="lane" id="lane-1">
-                    <div class="lane-name">Tổ 1</div>
-                    <div class="avatar-car" id="car-1">🚙</div>
+            <h1 style="font-size: 5.5vh; text-align: left; margin-bottom: 1vh;">2. Máy tính thông dụng khác</h1>
+            
+            <div class="teach-grid-3">
+                <div class="item-card">
+                    <div class="item-img-placeholder">
+                        <img src="../../assets/images/minh-hoa/laptop.png" alt="">
+                        <span>Chèn ảnh<br>Laptop</span>
+                    </div>
+                    <h3>Máy tính xách tay</h3>
+                    <p>Nhỏ gọn, gập lại được. Bàn phím và chuột gắn dính trên thân máy.</p>
                 </div>
-                <div class="lane" id="lane-2">
-                    <div class="lane-name">Tổ 2</div>
-                    <div class="avatar-car" id="car-2">🚜</div>
+                <div class="item-card">
+                    <div class="item-img-placeholder">
+                        <img src="../../assets/images/minh-hoa/tablet.png" alt="">
+                        <span>Chèn ảnh<br>Tablet</span>
+                    </div>
+                    <h3>Máy tính bảng</h3>
+                    <p>Màn hình to hơn điện thoại. Chạm trực tiếp tay vào màn hình.</p>
                 </div>
-                <div class="lane" id="lane-3">
-                    <div class="lane-name">Tổ 3</div>
-                    <div class="avatar-car" id="car-3">🚓</div>
+                <div class="item-card">
+                    <div class="item-img-placeholder">
+                        <img src="../../assets/images/minh-hoa/phone.png" alt="">
+                        <span>Chèn ảnh<br>Phone</span>
+                    </div>
+                    <h3>Điện thoại thông minh</h3>
+                    <p>Nhỏ gọn nhét túi. Dùng màn hình cảm ứng để điều khiển.</p>
                 </div>
-                <div class="lane" id="lane-4">
-                    <div class="lane-name">Tổ 4</div>
-                    <div class="avatar-car" id="car-4">🚒</div>
+            </div>
+
+            <div class="controls">
+                <button type="button" class="btn-nav prev" onclick="openGameScreen(1)">⬅ Quay lại Game 1</button>
+                <button type="button" class="btn-nav warning" onclick="showSlide('copy-2')">Cho lớp chép bài ➔</button>
+            </div>
+        </section>
+
+        <!-- ================= 6. CHÉP BÀI LẦN 3 ================= -->
+        <section class="slide-container copy-slide" id="slide-copy-2">
+            <div class="copy-inner">
+                <div class="copy-content-huge">
+                    <div style="font-size: 7.5vh; font-weight: 900; color: var(--primary); margin-bottom: 2vh;">2. Máy tính khác:</div>
+                    <ul>
+                        <li>Máy xách tay</li>
+                        <li>Máy tính bảng</li>
+                        <li>Điện thoại thông minh</li>
+                    </ul>
+                </div>
+                <div class="timer-display timer-global">03:00</div>
+                <div class="controls copy-controls">
+                    <button type="button" class="btn-nav prev" onclick="showSlide('teach-2')">⬅ Quay lại</button>
+                    <button type="button" class="btn-nav" onclick="startGlobalTimer()" style="background-color: var(--accent-green);">Tiếp tục giờ</button>
+                    <button type="button" class="btn-nav warning" onclick="openGameScreen(2)">Vào Trận 2 ➔</button>
                 </div>
             </div>
         </section>
-        
-        <!-- Tổng kết -->
-        <section class="slide-container" data-slide="summary">
+
+        <!-- ================= MÀN HÌNH GAME TOWER DEFENSE ================= -->
+        <section class="slide-container" id="slide-game">
+            
+            <!-- Nút Quản lý nổi bật góc trên cùng bên phải -->
+            <button class="btn-nav warning" onclick="openAdminModal()" style="position: absolute; top: 3vh; right: 3vw; z-index: 100; font-size: 2.5vh; padding: 1.5vh 2vw; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">⚙️ Sửa Điểm / Phạt</button>
+
+            <h1 id="gameScreenTitle" style="font-size: 6vh; margin-top: 0; margin-bottom: 1vh; color: var(--secondary);">🏰 TRẬN ĐỊA CỨ ĐIỂM 🏰</h1>
+            
+            <div class="game-settings-bar">
+                <span style="font-weight: 900; color: var(--primary); font-size: 2.5vh;">Số tổ tham gia:</span>
+                <select id="teamCountSel" onchange="setupGame()">
+                    <option value="2">2 Tổ</option>
+                    <option value="3">3 Tổ</option>
+                    <option value="4" selected>4 Tổ</option>
+                    <option value="5">5 Tổ</option>
+                </select>
+                <button class="btn-nav" style="padding: 6px 15px; font-size: 2.2vh; border-radius: 10px;" onclick="setupGame()">🔄 Xóa Làm Lại</button>
+            </div>
+
+            <!-- BẢN ĐỒ CHIẾN TRƯỜNG TỰ CO GIÃN -->
+            <div id="battlefield" class="battlefield-container">
+                <!-- Javascript sẽ render Bầu trời, Mặt đất nguyên khối, và Lòng đất vào đây -->
+            </div>
+
+            <!-- KHU VỰC CÂU HỎI -->
+            <div style="text-align: center; margin-top: 2vh; min-height: 8vh;">
+                <button class="btn-nav" id="btnDrawQuestion" style="font-size: 3.5vh; padding: 2vh 4vw; background-color: var(--accent-red);" onclick="drawQuestion()">BỐC CÂU HỎI NHẬN LƯỢT</button>
+            </div>
+
+            <div id="questionArea" class="quiz-panel" style="display: none; margin-top: 1vh; padding: 25px;">
+                <h3 id="modalTeamTurn" style="color: var(--primary); margin-top: 0; font-size: 4.5vh;">Lượt của đội</h3>
+                <p id="modalQuestion" style="font-size: 4.5vh; color: var(--lesson-navy); font-weight: 800; line-height: 1.4; margin-bottom: 1.5vh;"></p>
+                <div id="modalAnswers" class="answers-grid" style="grid-template-columns: 1fr 1fr;"></div>
+                
+                <div id="modalFeedback" style="font-weight: 900; font-size: 4vh; margin-top: 15px; min-height: 35px; text-align: center;"></div>
+                
+                <div class="action-choice-panel" id="actionChoicePanel">
+                    <h3 style="margin: 0; color: var(--accent-green); text-align: center; font-size: 4vh;">🎉 CHÍNH XÁC! Hãy chọn quyền lợi:</h3>
+                    <div style="display: flex; gap: 20px; justify-content: center;">
+                        <button class="btn-nav" style="background: var(--accent-green); font-size: 3vh;" onclick="executeAction('build')">🧱 XÂY THÊM CHO MÌNH</button>
+                        <button class="btn-nav" style="background: var(--accent-red); font-size: 3vh;" onclick="showTargetSelection()">💣 BẮN SẬP ĐỐI THỦ</button>
+                    </div>
+                    <div class="target-choice-panel" id="targetChoicePanel"></div>
+                </div>
+            </div>
+            
+            <div id="turnGuide" style="display: none; text-align: center; margin-top: 2vh;">
+                <button class="btn-nav prev" onclick="advanceTurn()" style="font-size: 3.5vh;">Tiếc quá! Chuyển sang tổ kế tiếp ➔</button>
+            </div>
+
+            <div class="controls" style="padding-top: 1vh;">
+                <button class="btn-nav prev" id="backToTeachBtn">⬅ Quay lại bài học</button>
+                <button class="btn-nav warning" id="gameNextBtn">Chép bài tiếp theo ➔</button>
+            </div>
+        </section>
+
+        <!-- ================= 7. TỔNG KẾT ================= -->
+        <section class="slide-container" id="slide-summary">
             <div class="slide-header">
                 <div class="tag">Tổng kết</div>
                 <div class="top-badge">Hoàn thành</div>
             </div>
             <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-                <h1 style="font-size: 8vh; color: var(--lesson-violet); margin-bottom: 20px;">TẠM BIỆT VÀ HẸN GẶP LẠI</h1>
-                <div class="quiz-panel" style="background-color: #e5f4ff; border-color: var(--primary); text-align: center;">
-                    <p style="font-size: 3.5vh;"><strong>Dặn dò:</strong> Về nhà xem lại các bộ phận của máy tính nhé!</p>
+                <h1 style="font-size: 9vh; color: var(--primary); margin-bottom: 20px;">🎉 HOÀN THÀNH BÀI HỌC 🎉</h1>
+                <div class="quiz-panel" style="background: #e9f5f4; border-color: var(--accent-green); text-align: center; width: 80%;">
+                    <p style="font-size: 5vh; font-weight: 900; color: var(--accent-green);">Dặn dò:</p>
+                    <p>Về nhà các em nhớ xem lại tên 4 bộ phận của máy tính. Tuần sau thầy sẽ kiểm tra!</p>
                 </div>
+            </div>
+            <div class="controls">
+                <button type="button" class="btn-nav prev" onclick="openGameScreen(2)">⬅ Quay lại Game 2</button>
             </div>
         </section>
 
     </div>
 
-    <!-- BẢNG ĐIỀU KHIỂN CỦA GIÁO VIÊN BÊN PHẢI -->
-    <aside class="scoreboard">
-        <h3 style="margin-top: 0; text-align: center; color: var(--lesson-navy); font-size: 3vh;">ĐIỀU KHIỂN CHẠY BO</h3>
-        
-        <div class="master-controls">
-            <button class="btn-switch" onclick="toggleRaceView()" id="btnToggleView">🏁 XEM ĐƯỜNG ĐUA</button>
-            <div style="display: flex; gap: 5px;">
-                <button class="btn-nav prev" onclick="changeQuestion(-1)" style="flex:1; padding: 10px;">&laquo; Câu trước</button>
-                <button class="btn-nav" onclick="changeQuestion(1)" style="flex:1; padding: 10px;">Câu sau &raquo;</button>
+    <!-- ================= MODAL QUẢN LÝ ĐIỂM (CÓ TÍNH NĂNG GÕ SỐ) ================= -->
+    <div id="adminModal" class="admin-modal">
+        <div class="admin-card">
+            <h2 style="color: var(--primary); font-size: 4.5vh; text-align: center; margin-top:0;">⚙️ Quản Lý Điểm & Phạt</h2>
+            <div id="adminTeamsList" style="margin-bottom: 3vh;"></div>
+            <div style="text-align: center; font-size: 2.2vh; color: var(--lesson-muted); margin-bottom: 2vh;">(Thầy có thể gõ trực tiếp vào ô số để sửa điểm nhanh chóng)</div>
+            <div style="text-align: center;">
+                <button class="btn-nav" onclick="closeAdminModal()">Xong, Đóng Bảng</button>
             </div>
-        </div>
-
-        <div class="teams-list" id="teamsList">
-            <!-- Render danh sách tổ qua JS để đúng chuẩn thẻ của sếp -->
-        </div>
-
-        <div class="score-tools" style="margin-top: auto; padding-top: 2vh;">
-            <button class="btn-nav next-btn" onclick="showSlide(slides.length - 1)" style="width: 100%; font-size: 2.2vh; padding: 1.5vh;">Kết thúc tiết học ➔</button>
-        </div>
-    </aside>
-
-    <!-- Modal Hộp Quà - Gacha -->
-    <div class="gacha-modal" id="gachaModal">
-        <div class="gacha-card">
-            <button type="button" id="closeGachaBtn" style="position: absolute; top: 2vh; right: 2vh; font-size: 4vh; background: none; border: none; cursor: pointer; color: var(--text-light);">✖</button>
-            <h2>🎁 AIRDROP HẠ CÁNH!</h2>
-            <p class="gacha-status" style="font-size: 3vh;">Bốc 1 thẻ bài Gacha để lật kèo</p>
-
-            <div class="gift-box-grid" id="giftBoxGrid">
-                <div class="gift-box-item" onclick="openGift(this, 'NOS:\nTiến 2 bước 🚀')" data-opened="false" data-icon="📦">📦</div>
-                <div class="gift-box-item" onclick="openGift(this, 'Nam châm:\nTop 1 lùi 1 bước 🧲')" data-opened="false" data-icon="📦">📦</div>
-                <div class="gift-box-item" onclick="openGift(this, 'Khiên:\nChặn 1 Bo Đỏ 🛡️')" data-opened="false" data-icon="📦">📦</div>
-            </div>
-            <h3 id="gachaResult" style="color: var(--accent-red); font-size: 3.5vh; min-height: 8vh; height: auto; margin-top: 3vh;"></h3>
         </div>
     </div>
 
     <script>
-        // ================= CẬP NHẬT NGÀY THÁNG TỰ ĐỘNG =================
-        const dateDisplay = document.getElementById('currentDateDisplay');
-        const daysOfWeek = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
-        const today = new Date();
-        dateDisplay.textContent = `${daysOfWeek[today.getDay()]}, ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}`;
+        // --- 1. SET NGÀY THÁNG ---
+        const d = new Date();
+        const days = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
+        const dateStr = `${days[d.getDay()]}, ngày ${d.getDate()} tháng ${d.getMonth() + 1} năm ${d.getFullYear()}`;
+        document.querySelectorAll('.date-display').forEach(el => el.innerText = dateStr);
 
-        // ================= ĐIỀU HƯỚNG SLIDE CHÍNH =================
-        const slides = Array.from(document.querySelectorAll('section.slide-container'));
-        let currentSlide = 0;
-
-        function showSlide(index) {
-            currentSlide = Math.max(0, Math.min(index, slides.length - 1));
-            slides.forEach((slide, i) => {
-                slide.classList.toggle('active', i === currentSlide);
-            });
-            // Fullscreen cho slide chép bài
-            if (slides[currentSlide].classList.contains('copy-slide')) {
-                document.body.classList.add('fullscreen-mode');
-            } else {
-                document.body.classList.remove('fullscreen-mode');
+        // --- 2. ĐIỀU HƯỚNG SLIDE ---
+        function showSlide(slideId) {
+            document.querySelectorAll('.slide-container').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById(`slide-${slideId}`);
+            if (target) {
+                target.classList.add('active');
             }
         }
 
-        // ================= TÍNH NĂNG ĐỒNG HỒ CHÉP BÀI =================
-        let timeRemaining = 420; // 7 phút
+        // --- 3. ĐỒNG HỒ 3 PHÚT ---
+        let timeRemaining = 180;
         let timerInterval;
         let isTimerRunning = false;
-        const timerDisplay = document.getElementById('copyTimer');
         
-        function updateTimerText() {
+        function updateTimerDisplays() {
             let m = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
             let s = (timeRemaining % 60).toString().padStart(2, '0');
-            timerDisplay.textContent = `${m}:${s}`;
+            document.querySelectorAll('.timer-global').forEach(el => el.innerText = `${m}:${s}`);
         }
-
-        document.getElementById('startTimerBtn').addEventListener('click', function () {
-            if (isTimerRunning) return;
+        function startGlobalTimer() {
+            if(isTimerRunning) return;
             isTimerRunning = true;
-            this.style.opacity = '0.7';
             timerInterval = setInterval(() => {
                 timeRemaining--;
-                updateTimerText();
-                if (timeRemaining <= 0) {
+                updateTimerDisplays();
+                if(timeRemaining <= 0) {
                     clearInterval(timerInterval);
                     isTimerRunning = false;
-                    document.getElementById('timeUpModal').classList.add('show');
+                    alert("⏰ ĐÃ HẾT GIỜ CHÉP BÀI!");
                 }
             }, 1000);
-        });
+        }
+        function pauseGlobalTimer() { clearInterval(timerInterval); isTimerRunning = false; }
+        function resetGlobalTimer() { clearInterval(timerInterval); isTimerRunning = false; timeRemaining = 180; updateTimerDisplays(); }
+        updateTimerDisplays();
 
-        document.getElementById('pauseTimerBtn').addEventListener('click', () => { clearInterval(timerInterval); isTimerRunning = false; document.getElementById('startTimerBtn').style.opacity = '1'; });
-        document.getElementById('resetTimerBtn').addEventListener('click', () => { clearInterval(timerInterval); isTimerRunning = false; timeRemaining = 420; updateTimerText(); document.getElementById('startTimerBtn').style.opacity = '1'; });
-        document.getElementById('closeTimeUpBtn').addEventListener('click', () => document.getElementById('timeUpModal').classList.remove('show'));
+        // --- 4. NGÂN HÀNG CÂU HỎI BÀI 3 ---
+        const banks = {
+            1: [
+                { q: 'Máy tính để bàn gồm mấy bộ phận cơ bản?', a: ['4 bộ phận', '2 bộ phận', '3 bộ phận', '5 bộ phận'] },
+                { q: 'Thân máy tính để bàn chứa bộ phận quan trọng nào?', a: ['Bộ xử lí (bộ não)', 'Con chuột', 'Loa phát nhạc', 'Bàn phím'] },
+                { q: 'Màn hình máy tính dùng để làm gì?', a: ['Hiện ra kết quả chữ và hình', 'Gõ chữ cái', 'Dùng để nhấp đúp', 'Chứa bộ não'] },
+                { q: 'Bàn phím máy tính dùng để làm gì?', a: ['Gõ chữ và số vào máy', 'In giấy ra ngoài', 'Phát ra âm thanh', 'Chiếu hình ảnh'] },
+                { q: 'Chuột máy tính có tác dụng gì?', a: ['Điều khiển máy tính dễ dàng', 'Lưu trữ hình ảnh', 'Gõ văn bản nhanh', 'Phát video'] },
+                { q: 'Bộ não của máy tính nằm ở bộ phận nào?', a: ['Thân máy', 'Bàn phím', 'Màn hình', 'Chuột'] }
+            ],
+            2: [
+                { q: 'Máy tính xách tay khác máy tính để bàn ở điểm nào?', a: ['Phím và chuột gắn trên thân máy', 'Không có thân máy', 'Màn hình to bằng tivi', 'Không cần dùng điện'] },
+                { q: 'Trên điện thoại thông minh, em chạm vào đâu để điều khiển?', a: ['Màn hình cảm ứng', 'Thân máy', 'Cục pin', 'Cái loa'] },
+                { q: 'Thiết bị nào sau đây KHÔNG CÓ bộ xử lí (bộ não)?', a: ['Quyển vở học sinh', 'Máy tính xách tay', 'Điện thoại thông minh', 'Ti vi thông minh'] },
+                { q: 'Máy tính bảng trông giống thiết bị nào nhất?', a: ['Điện thoại to', 'Ti vi siêu lớn', 'Cái thớt', 'Đồng hồ'] },
+                { q: 'Bạn Nam lấy bút bi vẽ lên màn hình điện thoại cảm ứng, em sẽ làm gì?', a: ['Khuyên bạn dừng lại ngay', 'Khen bạn vẽ đẹp quá', 'Lấy giẻ lau phụ bạn', 'Cùng vẽ với bạn'] },
+                { q: 'Máy tính xách tay có thể gập lại gọn gàng. Đúng hay Sai?', a: ['Đúng', 'Sai', 'Chưa chắc', 'Tùy loại'] }
+            ]
+        };
 
-        // ================= GAME: LUÂN PHIÊN CÂU HỎI & ĐƯỜNG ĐUA =================
-        const questionSlides = ['slide-q1', 'slide-q2', 'slide-q3', 'slide-q4'];
-        let qIndex = 0;
-        let isShowingRace = false;
+        let masterQuestionBank = [];
+        let loadedLevels = [];
 
-        function changeQuestion(direction) {
-            if(isShowingRace) toggleRaceView(); // Tắt đua xe nếu đang bật
-            qIndex += direction;
-            if (qIndex < 0) qIndex = 0;
-            if (qIndex >= questionSlides.length) qIndex = questionSlides.length - 1;
+        function openGameScreen(level) {
+            document.getElementById('gameScreenTitle').innerText = level === 1 ? "🏰 TRẬN ĐỊA 1: KHỞI ĐỘNG 🏰" : "🏰 TRẬN ĐỊA 2: CỦNG CỐ 🏰";
+
+            if(!loadedLevels.includes(level)) {
+                masterQuestionBank.push(...banks[level]);
+                loadedLevels.push(level);
+            }
+            masterQuestionBank.sort(() => Math.random() - 0.5);
             
-            // Tìm index của câu hỏi trong mảng slides tổng để showSlide
-            const targetId = questionSlides[qIndex];
-            const targetIndex = slides.findIndex(el => el.id === targetId);
-            showSlide(targetIndex);
-        }
-
-        function toggleRaceView() {
-            const btn = document.getElementById('btnToggleView');
-            if (!isShowingRace) {
-                // Sang đường đua
-                slides.forEach(slide => slide.classList.remove('active'));
-                document.getElementById('slide-race').classList.add('active');
-                btn.innerHTML = "📝 TRỞ LẠI CÂU HỎI";
-                btn.style.background = "var(--lesson-yellow)";
-                isShowingRace = true;
+            let nextBtn = document.getElementById('gameNextBtn');
+            let backBtn = document.getElementById('backToTeachBtn');
+            if(level === 1) {
+                backBtn.onclick = () => showSlide('rules');
+                nextBtn.innerText = "Học phần 2 ➔";
+                nextBtn.onclick = () => showSlide('teach-2');
             } else {
-                // Trở về câu hỏi
-                const targetIndex = slides.findIndex(el => el.id === questionSlides[qIndex]);
-                showSlide(targetIndex);
-                btn.innerHTML = "🏁 XEM ĐƯỜNG ĐUA";
-                btn.style.background = "var(--lesson-cyan)";
-                isShowingRace = false;
+                backBtn.onclick = () => showSlide('copy-2');
+                nextBtn.innerText = "Tổng Kết Bài ➔";
+                nextBtn.onclick = () => showSlide('summary');
             }
+            
+            document.getElementById('questionArea').style.display = 'none';
+            document.getElementById('turnGuide').style.display = 'none';
+            document.getElementById('btnDrawQuestion').style.display = 'inline-block';
+            
+            showSlide('game');
+            updateStatusUI();
         }
 
-        // Xử lý nút chọn đáp án
-        function revealAnswer(btn, isCorrect) {
-            const container = btn.closest('.slide-container');
-            if(isCorrect) {
-                btn.classList.add('correct');
-            } else {
-                btn.classList.add('wrong');
-                container.querySelector('.correct-ans').classList.add('correct');
-            }
-            container.querySelector('.explanation-box').classList.add('show');
-        }
+        // --- 5. GAME TOWER DEFENSE VỚI LAYOUT 3 LỚP (BẦU TRỜI - ĐẤT - LÒNG ĐẤT) ---
+        let numTeams = 4;
+        let activeTeamTurn = 0;
+        let towers = [];
 
-        // ================= BẢNG ĐIỂM & QUẢN LÝ TỔ =================
-        const maxSteps = 10;
-        const totalTeams = 4;
-        let scores = { 1:0, 2:0, 3:0, 4:0 };
-
-        function createTeamsPanel() {
-            const list = document.getElementById('teamsList');
-            for (let i = 1; i <= totalTeams; i++) {
-                list.innerHTML += `
-                <div class="team-card" id="team-${i}">
-                    <div class="team-name" contenteditable="true" style="font-size: 2.2vh; color: var(--lesson-navy); font-weight: bold;">TỔ ${i}</div>
-                    <div class="team-score" id="score-${i}" style="font-size: 3vh;">0</div>
-                    <div class="score-controls" style="display: flex; justify-content: center;">
-                        <button class="btn-score sub" onclick="updateScore(${i}, -1)">-</button>
-                        <button class="btn-score add" onclick="updateScore(${i}, 1)">+</button>
+        function setupGame() {
+            numTeams = parseInt(document.getElementById('teamCountSel').value);
+            activeTeamTurn = 0;
+            const bf = document.getElementById('battlefield');
+            
+            // Render cấu trúc lớp rạch ròi
+            let upperHTML = '';
+            let lowerHTML = '';
+            
+            for(let i=0; i<numTeams; i++) {
+                upperHTML += `
+                    <div class="lane-upper" id="lane-upper-${i}">
+                        <div class="lane-header">
+                            <div class="t-name t-${i}" contenteditable="true">TỔ ${i+1}</div>
+                            <div class="t-score" id="sb-count-${i}">3</div>
+                        </div>
+                        <div class="tower-above-ground" id="bf-above-${i}"></div>
                     </div>
-                    <!-- Nút Bo Đỏ sử dụng css phạt của sếp -->
-                    <button class="btn-score penalty" onclick="triggerRedZone(${i}, this)">🔴 Phạt ồn (Bo Đỏ)</button>
-                </div>`;
+                `;
+                lowerHTML += `
+                    <div class="lane-lower" id="lane-lower-${i}">
+                        <div class="tower-below-ground" id="bf-below-${i}"></div>
+                    </div>
+                `;
             }
+
+            bf.innerHTML = `
+                <div class="upper-battlefield">${upperHTML}</div>
+                <div class="global-ground"></div>
+                <div class="lower-battlefield">${lowerHTML}</div>
+            `;
+            
+            towers = Array(numTeams).fill(3);
+            rebuildAllTowers();
         }
-        createTeamsPanel();
 
-        function updateScore(teamId, value) {
-            scores[teamId] += value;
-            if (scores[teamId] < 0) scores[teamId] = 0;
-            
-            document.getElementById(`score-${teamId}`).innerText = scores[teamId];
-            
-            let car = document.getElementById(`car-${teamId}`);
-            let progress = (scores[teamId] / maxSteps) * 70; // 70vw quãng đường
-            car.style.left = `calc(10vw + ${progress}vw)`;
-
-            if (scores[teamId] >= maxSteps) {
-                setTimeout(() => showCustomAlert(`🎉 CHÚC MỪNG TỔ ${teamId} ĐÃ ĂN GÀ!`), 500);
+        function rebuildAllTowers() {
+            for(let i=0; i<numTeams; i++) {
+                setTowerScore(i, towers[i]);
             }
+            updateStatusUI();
         }
 
-        // ================= HỆ THỐNG BO ĐỎ =================
-        function triggerRedZone(teamId, btnElement) {
-            const teamName = document.querySelector(`#team-${teamId} .team-name`).innerText;
-            let teamCard = document.getElementById(`team-${teamId}`);
-            let car = document.getElementById(`car-${teamId}`);
-            
-            // Toggle Rung lắc
-            teamCard.classList.toggle("under-red-zone");
-            car.classList.toggle("under-red-zone");
-
-            // Kêu gọi Custom Alert của sếp
-            if(teamCard.classList.contains("under-red-zone")){
-                btnElement.innerHTML = "Hủy Bo Đỏ";
-                updateScore(teamId, -1); // Lùi 1 bước
-                showCustomAlert(`${teamName} mất trật tự! Ăn một quả Bo Đỏ và lùi 1 ô.`);
-            } else {
-                btnElement.innerHTML = "🔴 Phạt ồn (Bo Đỏ)";
-            }
-        }
-
-        function showCustomAlert(message) {
-            const alertBox = document.getElementById('customAlert');
-            document.getElementById('customAlertMessage').textContent = message;
-            alertBox.classList.add('show');
-            setTimeout(() => alertBox.classList.remove('show'), 3500);
-        }
-
-        // ================= GACHA THÙNG THÍNH =================
-        const gachaModal = document.getElementById('gachaModal');
-        const gachaResult = document.getElementById('gachaResult');
-        
-        function openGachaModal() {
-            gachaModal.classList.add('open');
-            gachaResult.textContent = '';
-            document.querySelectorAll('.gift-box-item').forEach(box => {
-                box.dataset.opened = 'false';
-                box.textContent = box.dataset.icon;
-                box.classList.remove('opened');
+        function updateStatusUI() {
+            document.querySelectorAll('.lane-upper').forEach((el, idx) => {
+                if(idx === activeTeamTurn) el.classList.add('active-lane');
+                else el.classList.remove('active-lane');
             });
+            document.getElementById('btnDrawQuestion').style.display = 'inline-block';
+        }
+
+        function drawQuestion() {
+            let qArea = document.getElementById('questionArea');
+            document.getElementById('btnDrawQuestion').style.display = 'none';
+            
+            let tName = document.querySelector(`#lane-upper-${activeTeamTurn} .t-name`).innerText;
+            document.getElementById('modalTeamTurn').innerText = `Mời ${tName} trả lời:`;
+            
+            if(masterQuestionBank.length === 0) {
+                loadedLevels.forEach(lvl => masterQuestionBank.push(...banks[lvl]));
+                masterQuestionBank.sort(() => Math.random() - 0.5);
+            }
+            let currentQ = masterQuestionBank.pop();
+            document.getElementById('modalQuestion').innerText = currentQ.q;
+            
+            let originalAnswers = currentQ.a.map((txt, index) => ({ text: txt, isCorrect: index === 0 }));
+            originalAnswers.sort(() => Math.random() - 0.5);
+
+            let ansGrid = document.getElementById('modalAnswers');
+            ansGrid.innerHTML = "";
+            originalAnswers.forEach((ansObj, i) => {
+                ansGrid.innerHTML += `<button class="btn-answer" onclick="checkAnswer(${ansObj.isCorrect}, this)">${String.fromCharCode(65+i)}. ${ansObj.text}</button>`;
+            });
+
+            document.getElementById('modalFeedback').innerText = "";
+            document.getElementById('actionChoicePanel').classList.remove('active');
+            document.getElementById('targetChoicePanel').classList.remove('active');
+            document.getElementById('turnGuide').style.display = 'none';
+            qArea.style.display = 'block';
+            qArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function checkAnswer(isCorrect, btnEl) {
+            let qArea = document.getElementById('questionArea');
+            qArea.querySelectorAll('.btn-answer').forEach(btn => btn.disabled = true);
+            let feedback = document.getElementById('modalFeedback');
+            
+            if(isCorrect) {
+                btnEl.classList.add('correct');
+                feedback.style.color = 'var(--accent-green)'; feedback.innerText = "🎉 GIỎI QUÁ! Chọn phần thưởng đi nào.";
+                document.getElementById('actionChoicePanel').classList.add('active');
+            } else {
+                btnEl.classList.add('wrong');
+                feedback.style.color = 'var(--accent-red)'; feedback.innerText = "❌ SAI RỒI! Bị mất lượt nha.";
+                document.getElementById('turnGuide').style.display = 'block';
+            }
+        }
+
+        // Logic thay đổi bằng cách GÕ SỐ TRỰC TIẾP TỪ MODAL
+        function setTowerScore(idx, newScore) {
+            newScore = parseInt(newScore) || 0;
+            towers[idx] = newScore;
+            let above = document.getElementById(`bf-above-${idx}`);
+            let below = document.getElementById(`bf-below-${idx}`);
+            above.innerHTML = ''; below.innerHTML = '';
+            
+            if (newScore > 0) {
+                for(let f=0; f < newScore; f++){
+                    let floor = document.createElement('div'); floor.className = `floor bg-${idx}`;
+                    above.prepend(floor); // Thêm vào đỉnh để tháp đội lên đúng nghĩa
+                }
+            } else if (newScore < 0) {
+                for(let f=0; f < Math.abs(newScore); f++){
+                    let floor = document.createElement('div'); floor.className = 'floor negative';
+                    below.appendChild(floor); 
+                }
+            }
+            document.getElementById(`sb-count-${idx}`).innerText = newScore;
+        }
+
+        // Logic cộng trừ bằng ANIMATION (Xây/Bắn/Phạt)
+        function modifyTower(idx, delta, isPunish = false) {
+            let above = document.getElementById(`bf-above-${idx}`);
+            let below = document.getElementById(`bf-below-${idx}`);
+            let oldScore = towers[idx];
+            towers[idx] += delta;
+            let newScore = towers[idx];
+
+            if (delta > 0) { 
+                if (oldScore < 0) {
+                    if (below.lastElementChild) {
+                        let f = below.lastElementChild;
+                        f.style.transform = "scale(0)"; f.style.opacity = "0"; f.style.transition = "0.3s";
+                        setTimeout(() => f.remove(), 300);
+                    }
+                } else {
+                    let f = document.createElement('div'); f.className = `floor bg-${idx}`;
+                    above.prepend(f); // Thêm vào đỉnh
+                }
+            } else if (delta < 0) { 
+                if (oldScore > 0) {
+                    if (above.firstElementChild) { // Phá vỡ từ đỉnh (vì dùng prepend nên first child là đỉnh)
+                        let f = above.firstElementChild;
+                        f.classList.add('destroyed');
+                        setTimeout(() => f.remove(), 600);
+                    }
+                } else {
+                    let f = document.createElement('div'); f.className = 'floor negative';
+                    below.appendChild(f);
+                }
+            }
+            
+            document.getElementById(`sb-count-${idx}`).innerText = newScore;
+            
+            if(isPunish) {
+                let tName = document.querySelector(`#lane-upper-${idx} .t-name`).innerText;
+                if (newScore < 0) showAlert(`🚨 ${tName} ồn ào! Bị phạt lún xuống lòng đất âm ${newScore} rồi!`);
+                else showAlert(`🚨 ${tName} ồn ào! Bị giáo viên phạt -1 tháp.`);
+                updateAdminPanel();
+            }
+        }
+
+        function executeAction(type) {
+            if(type === 'build') {
+                modifyTower(activeTeamTurn, 1);
+                let tName = document.querySelector(`#lane-upper-${activeTeamTurn} .t-name`).innerText;
+                showAlert(`🧱 ${tName} vừa gia cố thêm 1 tầng tháp!`);
+                advanceTurn();
+            }
+        }
+
+        function showTargetSelection() {
+            let targetPanel = document.getElementById('targetChoicePanel');
+            targetPanel.innerHTML = '';
+            targetPanel.classList.add('active');
+            
+            for(let i=0; i<numTeams; i++) {
+                if(i !== activeTeamTurn) { 
+                    let tName = document.querySelector(`#lane-upper-${i} .t-name`).innerText;
+                    targetPanel.innerHTML += `<button class="btn-nav prev" style="font-size: 2.2vh; font-weight:800; border: 2px solid #ccc; color: var(--lesson-navy);" onclick="shootTarget(${i})">Bắn ${tName}</button>`;
+                }
+            }
+        }
+
+        function shootTarget(targetIdx) {
+            modifyTower(targetIdx, -1);
+            let tNameA = document.querySelector(`#lane-upper-${activeTeamTurn} .t-name`).innerText;
+            let tNameB = document.querySelector(`#lane-upper-${targetIdx} .t-name`).innerText;
+            showAlert(`💥 BÙM! ${tNameA} vừa nã pháo vào tháp của ${tNameB}!`);
+            advanceTurn();
+        }
+
+        function advanceTurn() {
+            document.getElementById('questionArea').style.display = 'none';
+            document.getElementById('turnGuide').style.display = 'none';
+            activeTeamTurn = (activeTeamTurn + 1) % numTeams;
+            updateStatusUI();
+            document.getElementById('battlefield').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function showAlert(msg) {
+            let alertBox = document.getElementById('customAlert');
+            alertBox.className = 'custom-alert show';
+            document.getElementById('customAlertMessage').innerText = msg;
+            setTimeout(() => { alertBox.classList.remove('show'); }, 3500);
+        }
+
+        // --- 6. XỬ LÝ BẢNG QUẢN LÝ ĐIỂM ĐA NĂNG ---
+        function openAdminModal() {
+            updateAdminPanel();
+            document.getElementById('adminModal').classList.add('open');
         }
         
-        function openGift(element, rewardText) {
-            if (element.dataset.opened === 'true') return;
-            document.querySelectorAll('.gift-box-item').forEach(b => b.dataset.opened = 'true'); // Khóa các hộp khác
-            element.classList.add('opened');
-            element.innerHTML = `<span class="gacha-item-text">${rewardText}</span>`;
-            gachaResult.textContent = `Vận mệnh: ${rewardText}`;
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.remove('open');
+            rebuildAllTowers(); // Cập nhật lại UI sau khi gõ số
         }
-        
-        document.getElementById('closeGachaBtn').onclick = () => gachaModal.classList.remove('open');
+
+        function updateAdminPanel() {
+            let list = document.getElementById('adminTeamsList');
+            list.innerHTML = '';
+            for(let i=0; i<numTeams; i++) {
+                let tName = document.querySelector(`#lane-upper-${i} .t-name`).innerText;
+                list.innerHTML += `
+                    <div class="admin-team-row">
+                        <span style="font-size: 3.5vh; font-weight: 900; color: var(--lesson-navy); width: 120px;">${tName}</span>
+                        <input type="number" value="${towers[i]}" onchange="setTowerScore(${i}, this.value)">
+                        <button class="btn-punish-small" onclick="modifyTower(${i}, -1, true)">Phạt -1</button>
+                    </div>
+                `;
+            }
+        }
+
+        window.onload = () => { setupGame(); };
     </script>
 </body>
 </html>
