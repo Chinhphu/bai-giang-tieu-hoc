@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game: Ếch Xanh Bắt Phím</title>
+    <title>Game: Ếch Xanh Bắt Phím - Bài 3</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -12,9 +12,35 @@
         body {
             font-family: 'Baloo 2', cursive, sans-serif;
             background-color: #e0f7fa;
-            margin: 0; padding: 20px; overflow: hidden; 
+            margin: 0; padding: 0; overflow: hidden; 
             box-sizing: border-box; height: 100vh; 
             display: flex; flex-direction: column;
+        }
+
+        /* --- SLIDE MỞ ĐẦU CHÉP BÀI --- */
+        .intro-slide {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #e0f7fa; z-index: 2000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .intro-content {
+            text-align: center; background: white; padding: 60px 80px; 
+            border-radius: 25px; border: 6px solid #4dd0e1; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        .intro-date { font-size: 26px; color: #555; font-style: italic; margin-bottom: 25px; font-weight: 600;}
+        .intro-subject { font-size: 38px; color: #00838f; font-weight: 700; margin-bottom: 10px; }
+        .intro-title { font-size: 52px; color: #d84315; font-weight: 800; text-transform: uppercase; margin-bottom: 40px; text-shadow: 2px 2px 0px #ffe0b2; }
+        .btn-enter {
+            font-size: 26px; padding: 15px 50px; background: #ff9800; color: white; 
+            border: none; border-radius: 50px; cursor: pointer; 
+            font-family: 'Baloo 2', cursive; font-weight: 800; box-shadow: 0 6px 0 #f57c00; transition: 0.2s;
+        }
+        .btn-enter:active { transform: translateY(6px); box-shadow: none; }
+
+        /* --- GIAO DIỆN GAME CHÍNH --- */
+        #app-container {
+            display: flex; flex-direction: column; height: 100%; padding: 20px; box-sizing: border-box;
         }
 
         .header-bar {
@@ -24,31 +50,15 @@
         }
 
         h1 { color: #00838f; font-size: 28px; margin: 0; text-transform: uppercase; }
-
         .controls { display: flex; align-items: center; gap: 10px; }
-
+        
         select, button {
             font-size: 18px; padding: 8px 16px; border-radius: 8px;
             cursor: pointer; font-family: 'Baloo 2', cursive; font-weight: 700; border: none;
         }
         select { border: 2px solid #00acc1; color: #006064; outline: none; }
-        
-        .btn-start { background-color: #ff9800; color: white; box-shadow: 0 4px 0 #f57c00; }
+        .btn-start { background-color: #4caf50; color: white; box-shadow: 0 4px 0 #388e3c; }
         .btn-start:active { transform: translateY(4px); box-shadow: none; }
-
-        /* Nút Gọi Bé Ngoan */
-        .btn-favor {
-            background-color: #4caf50; color: white;
-            box-shadow: 0 4px 0 #388e3c; margin-left: 10px;
-        }
-        .btn-favor:active { transform: translateY(4px); box-shadow: none; }
-
-        /* Nút Phạt Ồn Áo */
-        .btn-penalty {
-            background-color: #f44336; color: white;
-            box-shadow: 0 4px 0 #c62828; margin-left: 10px;
-        }
-        .btn-penalty:active { transform: translateY(4px); box-shadow: none; }
 
         .stats-board { display: flex; gap: 15px; }
         .stat-badge {
@@ -90,129 +100,165 @@
         }
 
         .sidebar {
-            flex: 1; background: white; border-radius: 15px; padding: 15px;
+            flex: 1.2; background: white; border-radius: 15px; padding: 15px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1); border: 4px solid #9ccc65; display: none; flex-direction: column;
         }
-
         .sidebar h2 { text-align: center; color: #558b2f; margin-top: 0; margin-bottom: 15px; font-size: 26px; }
 
         .student-list-container { overflow-y: auto; flex: 1; padding-right: 10px; }
         .student-list-container::-webkit-scrollbar { width: 8px; }
         .student-list-container::-webkit-scrollbar-thumb { background: #c5e1a5; border-radius: 4px; }
 
+        /* --- TÙY CHỈNH DANH SÁCH & NÚT HÀNH ĐỘNG --- */
         .list-item {
-            padding: 12px 15px; margin-bottom: 8px; border-radius: 10px; background-color: #f5f5f5; 
+            padding: 10px 15px; margin-bottom: 8px; border-radius: 10px; background-color: #f5f5f5; 
             font-size: 20px; color: #424242; transition: all 0.3s ease; font-weight: 600;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
+        .student-name-display { display: flex; align-items: center; gap: 8px; }
+        .pushed-label { font-size: 14px; color: #e65100; font-weight: 700; display: none; }
+
+        .item-actions { display: flex; gap: 5px; }
+        .action-btn { 
+            background: white; border: 2px solid #ddd; border-radius: 6px; padding: 4px 8px; 
+            font-size: 16px; cursor: pointer; transition: 0.2s; 
+        }
+        .action-btn:hover { background: #eee; transform: scale(1.1); }
+        
+        .btn-call { border-color: #4caf50; }
+        .btn-push { border-color: #ff9800; }
+        .btn-ban { border-color: #e53935; }
+
+        /* Các trạng thái của list-item */
         .list-item.played { background-color: #eeeeee; color: #bdbdbd; text-decoration: line-through; }
-        .list-item.current { background-color: #ffeb3b; color: #d84315; font-weight: 800; border-left: 6px solid #ff9800; transform: scale(1.02); }
+        .list-item.played .item-actions { display: none; } 
+
+        .list-item.current { background-color: #ffeb3b; color: #d84315; font-weight: 800; border-left: 6px solid #f57c00; transform: scale(1.02); }
+        .list-item.current .item-actions { display: none; } 
+
+        .list-item.banned { background-color: #ffcdd2; color: #b71c1c; text-decoration: line-through; }
+        .list-item.banned .item-actions { display: none; }
+
+        .list-item.pushed { background-color: #fff3e0; border-left: 6px solid #ff9800; }
+        .list-item.pushed .pushed-label { display: inline-block; } /* Hiển thị chữ Cuối hàng */
 
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; 
             align-items: center; justify-content: center; border-radius: 10px; z-index: 10; display: none; flex-direction: column;
         }
-        
         .overlay-success { background: rgba(255,255,255,0.9); font-size: 60px; font-weight: 800; color: #e91e63; text-transform: uppercase; }
-        
-        /* Modal Chọn Bé Ngoan */
-        .modal-bg {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.7); z-index: 999; display: none;
-            align-items: center; justify-content: center;
-        }
-        .modal-box {
-            background: white; padding: 30px; border-radius: 20px;
-            text-align: center; border: 5px solid #4caf50; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            width: 400px; max-width: 90%;
-        }
-        .modal-box h3 { color: #2e7d32; margin-top: 0; font-size: 28px; }
-        .modal-box select { width: 100%; margin: 20px 0; font-size: 22px; padding: 10px; }
-        .modal-box .btn-row { display: flex; gap: 15px; justify-content: center; }
 
     </style>
 </head>
 <body>
 
-    <div class="header-bar">
-        <h1>🐸 Ếch Bắt Chữ</h1>
-        
-        <div class="controls">
-            <select id="class-select">
-                <option value="">-- Chọn Lớp --</option>
-                <option value="2_2">Lớp 2/2</option>
-                <option value="2_4">Lớp 2/4</option>
-                <option value="2_5">Lớp 2/5</option>
-            </select>
-            <button class="btn-start" onclick="startGame()">Bắt Đầu Chơi!</button>
-            
-            <!-- NÚT GỌI BÉ NGOAN -->
-            <button class="btn-favor" id="btn-favor" onclick="openFavorModal()" style="display: none;">🌟 GỌI BÉ NGOAN</button>
-            
-            <button class="btn-penalty" id="btn-penalty" onclick="triggerPenalty()" style="display: none;">🚨 PHẠT ỒN</button>
-        </div>
-
-        <div class="stats-board" style="display: none;" id="stats-board">
-            <span class="stat-badge">🏆 Điểm: <span id="score">0</span></span>
-            <span class="stat-badge">👦👧 Còn: <span id="counter">0</span> bạn</span>
+    <!-- SLIDE MỞ ĐẦU -->
+    <div id="intro-slide" class="intro-slide">
+        <div class="intro-content">
+            <div id="intro-date" class="intro-date"></div>
+            <div class="intro-subject">Môn: Tin học</div>
+            <div class="intro-title">BÀI 3: HÀNG PHÍM TRÊN</div>
+            <button class="btn-enter" onclick="enterGame()">Bắt đầu bài học 🐸</button>
         </div>
     </div>
 
-    <div class="main-container">
-        <div id="game-area" class="game-area">
-            <div id="overlay-msg" class="overlay overlay-success">Xuất sắc! ✨</div>
-            <div id="student-name">...</div>
-            <div id="instruction">Vươn tay gõ phím:</div>
-            <div id="key-container" class="key-container"></div>
+    <!-- GIAO DIỆN GAME CHÍNH -->
+    <div id="app-container" style="display: none;">
+        <div class="header-bar">
+            <h1>🐸 Ếch Bắt Chữ - Hàng Phím Trên</h1>
+            
+            <div class="controls">
+                <select id="class-select">
+                    <option value="">-- Chọn Lớp --</option>
+                    <option value="2_2">Lớp 2/2</option>
+                    <option value="2_4">Lớp 2/4</option>
+                    <option value="2_5">Lớp 2/5</option>
+                </select>
+                <button class="btn-start" onclick="startGame()">Bắt Đầu Chơi!</button>
+            </div>
+
+            <div class="stats-board" style="display: none;" id="stats-board">
+                <span class="stat-badge">🏆 Điểm: <span id="score">0</span></span>
+                <span class="stat-badge">👦👧 Còn: <span id="counter">0</span> bạn</span>
+            </div>
         </div>
 
-        <div id="sidebar" class="sidebar">
-            <h2>Lượt Chơi</h2>
-            <div class="student-list-container" id="student-list"></div>
-        </div>
-    </div>
+        <div class="main-container">
+            <div id="game-area" class="game-area">
+                <div id="overlay-msg" class="overlay overlay-success">Xuất sắc! ✨</div>
+                <div id="student-name">...</div>
+                <div id="instruction">Vươn tay gõ phím:</div>
+                <div id="key-container" class="key-container"></div>
+            </div>
 
-    <!-- HỘP THOẠI CHỌN BÉ NGOAN -->
-    <div class="modal-bg" id="favor-modal">
-        <div class="modal-box">
-            <h3>🌟 Chọn Bé Ngoan</h3>
-            <p>Ai đang ngồi im lặng, thẳng lưng?</p>
-            <select id="favor-select"></select>
-            <div class="btn-row">
-                <button style="background: #4caf50; color: white;" onclick="triggerFavorTurn()">Gọi Ngay!</button>
-                <button style="background: #9e9e9e; color: white;" onclick="closeFavorModal()">Hủy</button>
+            <div id="sidebar" class="sidebar">
+                <h2>Lượt Chơi</h2>
+                <div class="student-list-container" id="student-list"></div>
             </div>
         </div>
     </div>
 
     <script>
+        // --- XỬ LÝ NGÀY THÁNG LÚC MỞ LÊN ---
+        window.onload = function() {
+            const today = new Date();
+            const days = ["Chủ nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+            const dateStr = `${days[today.getDay()]}, ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}`;
+            document.getElementById("intro-date").innerText = dateStr;
+        };
+
+        function enterGame() {
+            document.getElementById("intro-slide").style.display = "none";
+            document.getElementById("app-container").style.display = "flex";
+        }
+
+        // --- BIẾN GAME VÀ PHÍM ---
         const topRowKeys = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'];
+        const homeRowKeys = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'];
+        const allKeys = [...topRowKeys, ...homeRowKeys]; // Gộp cả 2 hàng phím
+
         let classLists = {};
         let currentClassList = [];
-        let remainingStudents = [];
+        let remainingStudents = []; // Hàng đợi ngầm (được trộn ngẫu nhiên)
+        let bannedStudents = []; 
+        let pushedStudents = []; 
+        
         let targetKeys = []; 
         let currentKeyIndex = 0; 
         let score = 0;
         let isWaitingForKey = false;
         let currentStudentName = "";
 
+        // Tải danh sách
         fetch('../../assets/data/students_2_2026_2027.json')
             .then(response => response.json())
             .then(data => { classLists = data; })
             .catch(error => { console.error("Lỗi tải JSON:", error); });
+
+        // Trộn mảng ngẫu nhiên (Fisher-Yates)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
 
         function startGame() {
             const selectedClass = document.getElementById("class-select").value;
             if (!selectedClass) { alert("Cô/Thầy ơi, chọn lớp đã nhé!"); return; }
             if (Object.keys(classLists).length === 0) { alert("Chưa tải được danh sách lớp!"); return; }
 
-            currentClassList = classLists[selectedClass];
-            remainingStudents = [...currentClassList];
+            currentClassList = [...classLists[selectedClass]];
+            // Trộn ngẫu nhiên danh sách để tạo hàng đợi ngầm
+            remainingStudents = shuffleArray([...currentClassList]); 
+            bannedStudents = [];
+            pushedStudents = [];
             score = 0;
+            currentStudentName = "";
             
             document.getElementById("stats-board").style.display = "flex";
-            document.getElementById("btn-penalty").style.display = "inline-block"; 
-            document.getElementById("btn-favor").style.display = "inline-block"; // Hiện nút đặc quyền
             document.getElementById("game-area").style.display = "flex";
             document.getElementById("sidebar").style.display = "flex";
             document.getElementById("score").innerText = score;
@@ -221,6 +267,7 @@
             nextTurn();
         }
 
+        // --- RENDER DANH SÁCH (Hiển thị nguyên gốc, không trộn) ---
         function renderStudentList() {
             const listContainer = document.getElementById("student-list");
             listContainer.innerHTML = "";
@@ -228,44 +275,86 @@
                 const div = document.createElement("div");
                 div.className = "list-item";
                 div.id = "list-" + student.replace(/\s+/g, '-');
-                div.innerText = student;
+
+                // Vùng chứa tên và nhãn cảnh báo
+                const nameDiv = document.createElement("div");
+                nameDiv.className = "student-name-display";
+                
+                const nameSpan = document.createElement("span");
+                nameSpan.innerText = student;
+                
+                const pushedLabel = document.createElement("span");
+                pushedLabel.className = "pushed-label";
+                pushedLabel.innerText = "(👇 Cuối hàng)";
+
+                nameDiv.appendChild(nameSpan);
+                nameDiv.appendChild(pushedLabel);
+                div.appendChild(nameDiv);
+
+                // Khu vực 3 nút hành động
+                const actionsDiv = document.createElement("div");
+                actionsDiv.className = "item-actions";
+
+                const btnCall = document.createElement("button");
+                btnCall.className = "action-btn btn-call";
+                btnCall.title = "Gọi ưu tiên";
+                btnCall.innerText = "⭐";
+                btnCall.onclick = (e) => { e.stopPropagation(); favorStudent(student); };
+
+                const btnPush = document.createElement("button");
+                btnPush.className = "action-btn btn-push";
+                btnPush.title = "Phạt nhẹ: Đẩy xuống cuối";
+                btnPush.innerText = "⬇️";
+                btnPush.onclick = (e) => { e.stopPropagation(); pushDownStudent(student); };
+
+                const btnBan = document.createElement("button");
+                btnBan.className = "action-btn btn-ban";
+                btnBan.title = "Phạt nặng: Cấm lượt";
+                btnBan.innerText = "🚫";
+                btnBan.onclick = (e) => { e.stopPropagation(); banStudent(student); };
+
+                actionsDiv.appendChild(btnCall);
+                actionsDiv.appendChild(btnPush);
+                actionsDiv.appendChild(btnBan);
+                div.appendChild(actionsDiv);
+
                 listContainer.appendChild(div);
             });
+            updateSidebarUI();
         }
 
-        // HÀM BỐC THĂM CHUNG CỐT LÕI
-        function startSpecificTurn(studentIndex = -1) {
-            if (remainingStudents.length === 0) {
-                alert(`Hoan hô! Cả lớp đã hoàn thành. Tổng điểm lớp đạt: ${score}`);
-                remainingStudents = [...currentClassList];
-                renderStudentList(); 
-            }
+        // --- CẬP NHẬT TRẠNG THÁI HIỂN THỊ CÁC BẠN ---
+        function updateSidebarUI() {
+            currentClassList.forEach(student => {
+                const el = document.getElementById("list-" + student.replace(/\s+/g, '-'));
+                if (!el) return;
+                
+                el.className = "list-item"; // Reset class
 
-            // Đánh dấu bạn cũ đã chơi (Nếu gọi bình thường)
-            if (currentStudentName && studentIndex === -1) {
-                const oldEl = document.getElementById("list-" + currentStudentName.replace(/\s+/g, '-'));
-                if(oldEl) { oldEl.classList.remove("current"); oldEl.classList.add("played"); }
-            }
+                if (bannedStudents.includes(student)) {
+                    el.classList.add("banned");
+                } else if (student === currentStudentName) {
+                    el.classList.add("current");
+                } else if (!remainingStudents.includes(student)) {
+                    el.classList.add("played");
+                } else if (pushedStudents.includes(student)) {
+                    el.classList.add("pushed"); // Hiển thị màu cảnh báo cuối hàng
+                }
+            });
+            document.getElementById("counter").innerText = remainingStudents.length;
+        }
 
-            // Nếu không truyền index (bốc ngẫu nhiên), chọn ngẫu nhiên
-            let targetIndex = studentIndex;
-            if (targetIndex === -1) {
-                targetIndex = Math.floor(Math.random() * remainingStudents.length);
-            }
-
-            // Cập nhật tên em được gọi
-            currentStudentName = remainingStudents.splice(targetIndex, 1)[0]; 
-
+        function setupGameUI() {
+            updateSidebarUI();
+            
             const currentEl = document.getElementById("list-" + currentStudentName.replace(/\s+/g, '-'));
-            if(currentEl) {
-                currentEl.classList.add("current");
-                currentEl.scrollIntoView({ behavior: "smooth", block: "center" });
-            }
+            if(currentEl) currentEl.scrollIntoView({ behavior: "smooth", block: "center" });
 
-            const numKeys = Math.floor(Math.random() * 3) + 1; 
+            // Random từ 3 đến 4 phím
+            const numKeys = Math.floor(Math.random() * 2) + 3; 
             targetKeys = [];
             for (let i = 0; i < numKeys; i++) {
-                targetKeys.push(topRowKeys[Math.floor(Math.random() * topRowKeys.length)]);
+                targetKeys.push(allKeys[Math.floor(Math.random() * allKeys.length)]);
             }
             currentKeyIndex = 0; 
 
@@ -283,74 +372,91 @@
                 keyContainer.appendChild(keyDiv);
             });
 
-            document.getElementById("counter").innerText = remainingStudents.length;
             isWaitingForKey = true; 
         }
 
         function nextTurn() {
-            startSpecificTurn(-1);
-        }
+            if (remainingStudents.length === 0) {
+                alert(`Hoan hô! Lớp đã hoàn thành (Trừ các bạn bị cấm chơi). Tổng điểm: ${score}`);
+                return;
+            }
 
-        // --- CÁC HÀM CHO CHỨC NĂNG BÉ NGOAN ---
-        function openFavorModal() {
-            if (remainingStudents.length === 0) return;
-            const select = document.getElementById("favor-select");
-            select.innerHTML = ""; // Xóa danh sách cũ
+            // Lấy bạn đầu tiên trong hàng đợi ngầm (đã được trộn lúc start hoặc đẩy xuống cuối)
+            currentStudentName = remainingStudents.shift(); 
             
-            // Đổ tên các bạn CHƯA ĐƯỢC GỌI vào danh sách chọn
-            remainingStudents.forEach((student, index) => {
-                const opt = document.createElement("option");
-                opt.value = index;
-                opt.innerText = student;
-                select.appendChild(opt);
-            });
-            document.getElementById("favor-modal").style.display = "flex";
+            // Xoá nhãn đẩy xuống cuối nếu bạn đó đã đến lượt lại
+            if (pushedStudents.includes(currentStudentName)) {
+                pushedStudents = pushedStudents.filter(name => name !== currentStudentName);
+            }
+
+            setupGameUI();
         }
 
-        function closeFavorModal() {
-            document.getElementById("favor-modal").style.display = "none";
-        }
+        // --- NÚT ⭐: HÀNH ĐỘNG GỌI ƯU TIÊN ---
+        function favorStudent(studentName) {
+            if (studentName === currentStudentName) return;
 
-        function triggerFavorTurn() {
-            const select = document.getElementById("favor-select");
-            const selectedIndex = parseInt(select.value);
-            
-            if (isNaN(selectedIndex)) return;
-
-            // Nếu đang có bạn trên bảng chơi lở dở, đẩy bạn đó về lại danh sách chưa chơi
+            // Đẩy bạn đang chơi trên bục về LẠI ĐẦU HÀNG (để lát sau gọi tiếp)
             if (isWaitingForKey && currentStudentName) {
-                remainingStudents.push(currentStudentName);
-                const oldEl = document.getElementById("list-" + currentStudentName.replace(/\s+/g, '-'));
-                if(oldEl) { oldEl.classList.remove("current"); }
+                remainingStudents.unshift(currentStudentName); 
             }
             
-            closeFavorModal();
-            isWaitingForKey = false; // Khóa bàn phím tạm
+            // Rút bạn ngoan ra khỏi vị trí hiện tại trong hàng đợi
+            const idx = remainingStudents.indexOf(studentName);
+            if (idx > -1) remainingStudents.splice(idx, 1);
 
-            // Gọi bạn ngoan đó lên
-            startSpecificTurn(selectedIndex);
+            // Bắt đầu ngay lượt của bé ngoan
+            currentStudentName = studentName;
+            setupGameUI();
         }
 
-        // --- HÀM CHO CHỨC NĂNG PHẠT ỒN ---
-        function triggerPenalty() {
-            if (!isWaitingForKey || !currentStudentName) return; 
+        // --- NÚT ⬇️: HÀNH ĐỘNG PHẠT NHẸ (ĐẨY XUỐNG CUỐI) ---
+        function pushDownStudent(studentName) {
+            if (!pushedStudents.includes(studentName)) {
+                pushedStudents.push(studentName);
+            }
 
-            isWaitingForKey = false; 
-            
-            // Báo màn hình đỏ mờ mờ thôi để dọa
-            document.body.style.backgroundColor = "#ffcdd2";
-            setTimeout(() => { document.body.style.backgroundColor = "#e0f7fa"; }, 500);
+            // Rút bạn đó ra khỏi hàng đợi ngầm và quăng xuống chót
+            const idx = remainingStudents.indexOf(studentName);
+            if (idx > -1) {
+                remainingStudents.splice(idx, 1);
+                remainingStudents.push(studentName); 
+            }
 
-            // Đẩy bạn hiện tại về lại cuối mảng (bị tước lượt)
-            remainingStudents.push(currentStudentName);
-            
-            const currentEl = document.getElementById("list-" + currentStudentName.replace(/\s+/g, '-'));
-            if(currentEl) { currentEl.classList.remove("current"); }
+            // Nếu đang phạt chính người đang đứng trên bảng
+            if (currentStudentName === studentName) {
+                isWaitingForKey = false;
+                remainingStudents.push(studentName); // Vứt xuống cuối
+                
+                document.body.style.backgroundColor = "#fff9c4"; // Nháy vàng cảnh báo
+                setTimeout(() => { document.body.style.backgroundColor = "#e0f7fa"; }, 500);
+                
+                alert(`Cảnh cáo! Bạn ${studentName} bị đẩy xuống chờ chơi sau cùng!`);
+                currentStudentName = "";
+                nextTurn(); 
+            } else {
+                updateSidebarUI(); // Cập nhật lại UI nếu phạt người đang ngồi dưới
+            }
+        }
 
-            alert(`Vì lớp ồn, bạn ${currentStudentName} bị mất lượt! Khoanh tay im lặng thầy gọi tiếp!`);
+        // --- NÚT 🚫: HÀNH ĐỘNG CẤM LƯỢT ---
+        function banStudent(studentName) {
+            bannedStudents.push(studentName);
             
-            // Lập tức nhảy sang bốc thăm ngẫu nhiên bạn khác
-            nextTurn(); 
+            const idx = remainingStudents.indexOf(studentName);
+            if (idx > -1) remainingStudents.splice(idx, 1);
+
+            if (currentStudentName === studentName) {
+                isWaitingForKey = false;
+                document.body.style.backgroundColor = "#ffcdd2"; 
+                setTimeout(() => { document.body.style.backgroundColor = "#e0f7fa"; }, 500);
+                
+                alert(`Lớp ồn ào! Bạn ${studentName} đã bị tước lượt chơi!`);
+                currentStudentName = "";
+                nextTurn();
+            } else {
+                updateSidebarUI(); 
+            }
         }
 
         // LẮNG NGHE BÀN PHÍM
@@ -358,7 +464,7 @@
             if (!isWaitingForKey) return;
 
             const keyPressed = event.key.toUpperCase();
-            if (!topRowKeys.includes(keyPressed)) return; 
+            if (!allKeys.includes(keyPressed)) return; 
 
             const currentBoxEl = document.getElementById(`key-${currentKeyIndex}`);
             const expectedKey = targetKeys[currentKeyIndex];
