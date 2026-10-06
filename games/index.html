@@ -1,1 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trưng Vương Game Hub</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="./shared/style.css"> <!-- Kéo CSS chung -->
+    <style>
+        body { padding: 40px 20px; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 50px; }
+        .panel-title { font-size: 1.5rem; font-weight: 900; color: var(--orange); margin-top: 0; border-bottom: 3px dashed #e4e8ef; padding-bottom: 15px;}
+        .step-list { margin: 0; padding-left: 20px; font-weight: 600; color: var(--ink); }
+        .step-list li { margin-bottom: 12px; }
+        .upload-area { border: 4px dashed var(--purple); background: #eef4ff; border-radius: 16px; padding: 40px 20px; text-align: center; margin-top: 20px; transition: 0.3s;}
+        .upload-area.dragover { background: #dce7fa; border-color: var(--coral); }
+        .upload-icon { font-size: 3.5rem; margin-bottom: 15px; display: block;}
+        .data-status { margin-top: 20px; font-weight: 800; font-size: 1.2rem; color: var(--green); display: none; background: #eafaf1; padding: 15px; border-radius: 12px; border: 2px solid var(--green); text-align: center;}
+        
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .game-card { background: #fff; border: 4px solid var(--ink); border-radius: 24px; box-shadow: var(--shadow); padding: 30px; text-align: center; transition: 0.3s; text-decoration: none; color: var(--ink); display: flex; flex-direction: column;}
+        .game-card:hover { transform: translateY(-10px); box-shadow: 0 18px 0 rgba(23, 35, 60, .12), 0 25px 35px rgba(23, 35, 60, .11); border-color: var(--purple);}
+        .game-icon { font-size: 5rem; margin-bottom: 20px; }
+        .game-title { font-size: 1.8rem; font-weight: 900; margin: 0 0 10px 0; }
+        .game-desc { font-weight: 600; color: #53617b; margin-bottom: 25px; flex-grow: 1;}
+    </style>
+</head>
+<body>
 
+<div class="app-shell" style="padding: 0;">
+    <div class="center" style="margin-bottom: 50px;">
+        <h1 style="font-size: 3rem; color: var(--purple); margin: 0; font-weight: 900;">TRƯNG VƯƠNG GAME HUB 🎮</h1>
+        <p style="font-size: 1.3rem; color: #53617b; font-weight: 600;">Cổng trò chơi tương tác dùng chung cho các môn học</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="panel">
+            <h2 class="panel-title">📚 Hướng dẫn sử dụng</h2>
+            <ol class="step-list">
+                <li>Bấm nút <strong>Tải File Mẫu</strong> bên dưới để lấy file Excel mẫu.</li>
+                <li>Mở file Excel, điền câu hỏi vào <strong>NOI_DUNG</strong> và đáp án vào <strong>DAP_AN</strong>. (Cột SAI_1, SAI_2... dành cho câu trắc nghiệm nhiễu của Game Cờ Caro).</li>
+                <li>Quay lại trang này, bấm <strong>Tải Lên File Của Bạn</strong> để nạp dữ liệu.</li>
+                <li>Chọn 1 trong các game bên dưới và đưa lên máy chiếu cho học sinh chơi!</li>
+            </ol>
+            <div style="margin-top: 25px; text-align: center;">
+                <button class="btn teal" onclick="exportSampleExcel()">📥 Tải File Excel Mẫu</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2 class="panel-title">⚙️ Nạp dữ liệu vào Game</h2>
+            <div class="upload-area" id="dropZone">
+                <span class="upload-icon">📂</span>
+                <div style="font-size: 1.3rem; font-weight: 800; margin-bottom: 15px;">Kéo thả file Excel vào đây hoặc</div>
+                <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" style="display: none;" onchange="handleFileUpload(event)">
+                <button class="btn yellow" onclick="document.getElementById('fileInput').click()">Tải Lên File Của Bạn</button>
+            </div>
+
+            <div id="dataStatus" class="data-status">Đã nạp thành công: <span id="qCount" style="font-size: 1.5rem;">0</span> câu hỏi! 🎉</div>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 2px dashed #c8d6e8;">
+                <label style="font-weight: 900; font-size: 1.2rem; color: var(--purple); display: block; margin-bottom: 10px;">👥 Cài đặt chung: Số đội thi đấu</label>
+                <select id="hubTeamCount" onchange="localStorage.setItem('tv_team_count', this.value)" style="width: 100%; padding: 12px; border-radius: 12px; border: 2px solid var(--ink); font-weight: 700; font-size: 1.1rem;">
+                    <option value="2">2 Đội (Chia 2 dãy)</option>
+                    <option value="3" selected>3 Đội</option>
+                    <option value="4">4 Đội</option>
+                    <option value="5">5 Đội</option>
+                    <option value="6">6 Đội</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <h2 style="font-size: 2.2rem; text-align: center; margin-bottom: 30px; font-weight: 900;">🔥 CHỌN GAME ĐỂ CHƠI 🔥</h2>
+    
+    <div class="games-grid">
+        <a href="./lat-the-gacha/index.html" class="game-card">
+            <div class="game-icon">🎴</div>
+            <h3 class="game-title">Lật Thẻ Gacha</h3>
+            <p class="game-desc">Trả lời câu hỏi sau thẻ bài và nhận quyền bốc hộp quà Gacha nhân phẩm.</p>
+            <div class="btn coral" style="width: 100%;">Chơi ngay</div>
+        </a>
+        <a href="./go-phim-tiep-suc/index.html" class="game-card">
+            <div class="game-icon">⌨️</div>
+            <h3 class="game-title">Gõ Phím Tiếp Sức</h3>
+            <p class="game-desc">Trò chơi tốc độ! Nhập các từ vựng Tiếng Anh hoặc chuỗi ký tự nhanh nhất.</p>
+            <div class="btn teal" style="width: 100%;">Chơi ngay</div>
+        </a>
+        <a href="./caro-3x3/index.html" class="game-card">
+            <div class="game-icon">⭕</div>
+            <h3 class="game-title">Cờ Caro Trí Tuệ</h3>
+            <p class="game-desc">Trả lời đúng trắc nghiệm để chiếm lấy ô cờ. Cần 5 ô liên tiếp để chiến thắng.</p>
+            <div class="btn yellow" style="width: 100%;">Chơi ngay</div>
+        </a>
+    </div>
+</div>
+
+<script>
+    function exportSampleExcel() {
+        const sampleData = [
+            { "NOI_DUNG": "Thủ đô của Việt Nam là gì?", "DAP_AN": "Hà Nội", "SAI_1": "TP.HCM", "SAI_2": "Đà Nẵng", "SAI_3": "Huế" },
+            { "NOI_DUNG": "Cá thở bằng gì?", "DAP_AN": "Mang", "SAI_1": "Phổi" }, 
+            { "NOI_DUNG": "Con mèo tiếng Anh là gì?", "DAP_AN": "Cat", "SAI_1": "Dog", "SAI_2": "Bird", "SAI_3": "Pig", "SAI_4": "Fish" }, 
+            { "NOI_DUNG": "WATERMELON", "DAP_AN": "(Dành cho game gõ phím thì bỏ trống các cột Sai)" }
+        ];
+
+        const ws = XLSX.utils.json_to_sheet(sampleData);
+        ws['!cols'] = [ {wch: 35}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 20} ];
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "CauHoi");
+        XLSX.writeFile(wb, "Mau_Cau_Hoi_Trung_Vuong.xlsx");
+    }
+
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        processExcel(file);
+    }
+
+    function processExcel(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                const validData = json.filter(row => row["NOI_DUNG"] !== undefined && row["NOI_DUNG"].toString().trim() !== "");
+
+                if(validData.length === 0) {
+                    alert("⚠️ Lỗi: Không tìm thấy dữ liệu. Hãy đảm bảo cột đầu tiên tên là NOI_DUNG.");
+                    return;
+                }
+
+                localStorage.setItem('tv_data', JSON.stringify(validData));
+                showDataStatus(validData.length);
+            } catch (error) {
+                alert("⚠️ Có lỗi xảy ra khi đọc file. Vui lòng kiểm tra lại định dạng Excel.");
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function showDataStatus(count) {
+        document.getElementById('qCount').innerText = count;
+        document.getElementById('dataStatus').style.display = 'block';
+    }
+
+    window.onload = function() {
+        document.getElementById('hubTeamCount').value = localStorage.getItem('tv_team_count') || "3";
+        const existingData = localStorage.getItem('tv_data');
+        if(existingData) {
+            try {
+                const parsed = JSON.parse(existingData);
+                if(parsed.length > 0) showDataStatus(parsed.length);
+            } catch(e) {}
+        }
+    };
+
+    const dropZone = document.getElementById('dropZone');
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('dragover'); });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault(); dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) processExcel(e.dataTransfer.files[0]);
+    });
+</script>
+</body>
+</html>

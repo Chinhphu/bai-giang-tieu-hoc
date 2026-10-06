@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lật Thẻ Gacha - Game Hub</title>
+    <link rel="stylesheet" href="../shared/style.css">
+    <style>
+        .game-layout { display: grid; grid-template-columns: 1fr 380px; gap: 30px; align-items: start; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 3px dashed #d4d9e2; }
+        .header h1 { margin: 0; font-size: 2.5rem; color: var(--purple); font-weight: 900; text-transform: uppercase; }
+        
+        .case-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+        .case-card { background: #fff; border: 4px solid var(--ink); border-radius: 16px; padding: 25px 15px; text-align: center; cursor: pointer; transition: 0.2s; box-shadow: 0 6px 0 var(--ink); position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 180px; }
+        .case-card:hover { transform: translateY(-5px); box-shadow: 0 12px 0 var(--ink); background: #f8faff; border-color: var(--teal); }
+        .case-card.opened { background: #eef4ff; border-color: #c8d6e8; box-shadow: 0 2px 0 #c8d6e8; transform: translateY(4px); opacity: 0.7; }
+        .case-number { font-size: 2.5rem; font-weight: 900; color: var(--ink); margin-bottom: 10px; }
+        .case-emoji { font-size: 3rem; }
+
+        .case-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(23, 35, 60, 0.85); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
+        .case-modal.open { opacity: 1; pointer-events: auto; }
+        .case-modal-card { background: #fff; border: 4px solid var(--ink); border-radius: 24px; padding: 40px; max-width: 800px; width: 90%; transform: translateY(20px); transition: 0.3s; text-align: center; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
+        .case-modal.open .case-modal-card { transform: translateY(0); }
+        .case-modal-label { background: var(--orange); color: #fff; padding: 8px 20px; border-radius: 99px; font-weight: 900; font-size: 1.2rem; display: inline-block; margin-bottom: 20px; }
+        .case-question { font-size: 2.2rem; font-weight: 900; color: var(--ink); margin-bottom: 30px; line-height: 1.4; }
+        .case-answer { background: #eafaf1; border: 4px dashed var(--green); border-radius: 16px; padding: 25px; font-size: 2rem; font-weight: 800; color: var(--green); display: none; margin-bottom: 30px; }
+        .case-answer.visible { display: block; animation: arrive 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    </style>
+</head>
+<body>
+
+<div class="app-shell" style="padding-top:0;">
+    <div class="game-layout">
+        <!-- CỘT MAIN -->
+        <div class="panel">
+            <div class="header">
+                <h1>🎴 LẬT THẺ TÌM ĐÁP ÁN</h1>
+                <a href="../index.html" class="btn gray">⬅ Về Trang Hub</a>
+            </div>
+
+            <div id="noDataAlert" style="display: none; background: #ffe6e0; border: 4px dashed var(--coral); padding: 30px; text-align: center; border-radius: 16px; margin-bottom: 20px;">
+                <h2 style="color: var(--coral); font-size: 2rem; margin-top: 0;">⚠️ Chưa có dữ liệu!</h2>
+                <p style="font-size: 1.2rem; font-weight: 600;">Bạn chưa nạp file Excel từ Trang chủ. Đang dùng dữ liệu mẫu.</p>
+            </div>
+
+            <div class="case-grid" id="cardsGrid"></div>
+        </div>
+
+        <!-- CỘT SCOREBOARD CHUẨN TỪ SHARED -->
+        <aside class="scoreboard">
+            <div class="score-head">ĐẤU TRƯỜNG ĐIỂM SỐ</div>
+            <div class="setup-panel">
+                <label style="font-weight: 900; color: var(--purple);">Số Đội:</label>
+                <input id="teamCountInput" type="number" min="1" max="10" value="3" />
+                <button class="btn teal" id="generateTeamsBtn" style="padding: 6px 12px; font-size: 1rem;">Tạo mới</button>
+            </div>
+            <div id="teamsList" style="flex-grow: 1; overflow-y: auto;"></div>
+            <div class="score-tools">
+                <button class="btn yellow" id="gachaBtn" style="width: 100%; font-size: 1.6rem; padding: 15px;">🎁 MỞ GACHA 🎁</button>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<!-- MODAL CÂU HỎI -->
+<div class="case-modal" id="caseModal">
+    <div class="case-modal-card">
+        <button id="closeCaseModalBtn" style="position: absolute; top: 15px; right: 20px; font-size: 2.5rem; background: none; font-weight: 900; color: #95a5a6; border: none; cursor: pointer;">×</button>
+        <div class="case-modal-label" id="caseModalTitle">Thẻ số 01</div>
+        <p class="case-question" id="caseQuestion">Nội dung câu hỏi</p>
+        <div class="case-answer" id="caseAnswer">Đáp án</div>
+        <div style="margin-top: 20px;">
+            <button class="btn teal" id="showCaseAnswerBtn" style="font-size: 1.5rem; padding: 15px 40px;">Hiển thị Đáp án</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL GACHA (TỪ SHARED CSS) -->
+<div class="gacha-modal" id="gachaModal">
+    <div class="gacha-card">
+        <button id="closeGachaBtn" style="position: absolute; top: 30px; right: 40px; font-size: 3rem; background: none; color: #fff; font-weight: 900; border: none; cursor: pointer;">✖</button>
+        <h2>HỘP QUÀ NHÂN PHẨM</h2>
+        <p class="gacha-status">Đội trả lời đúng cử đại diện bốc quà nhé!</p>
+        <div class="gift-box-grid" id="giftBoxGrid">
+            <div class="gift-box-item" data-opened="false" data-icon="🎁">🎁</div>
+            <div class="gift-box-item" data-opened="false" data-icon="📦">📦</div>
+            <div class="gift-box-item" data-opened="false" data-icon="🧧">🧧</div>
+            <div class="gift-box-item" data-opened="false" data-icon="🎒">🎒</div>
+        </div>
+        <div id="gachaResult"></div>
+    </div>
+</div>
+
+<script src="../shared/common.js"></script>
+<script>
+    let gameData = [];
+    const emojis = ["🦊", "🐼", "🐯", "🦁", "🐮", "🐷", "🐸", "🐙", "🐳", "🦉", "🦄", "🦖"];
+
+    function createTeams(count) {
+        const list = document.getElementById('teamsList');
+        list.innerHTML = '';
+        for (let i = 0; i < count; i++) {
+            list.innerHTML += `
+                <div class="team-card">
+                    <div class="team-info">
+                        <div class="team-name" contenteditable="true">Dãy ${i + 1}</div>
+                        <div class="score-controls">
+                            <button class="btn-score add" onclick="let s=this.closest('.team-card').querySelector('.team-score'); s.textContent=Number(s.textContent)+10">+10</button>
+                            <button class="btn-score sub" onclick="let s=this.closest('.team-card').querySelector('.team-score'); s.textContent=Number(s.textContent)-5">-5</button>
+                            <button class="btn-score gray" style="background:#f1f3f6" onclick="let s=this.closest('.team-card').querySelector('.team-score'); s.textContent=Number(s.textContent)*2">x2</button>
+                        </div>
+                    </div>
+                    <div class="team-score" contenteditable="true">0</div>
+                </div>
+            `;
+        }
+    }
+
+    window.onload = () => {
+        syncSettingsFromHub();
+        const parsed = getHubData();
+        if (parsed && parsed.length > 0) {
+            gameData = parsed;
+        } else {
+            document.getElementById('noDataAlert').style.display = 'block';
+            gameData = [
+                { "NOI_DUNG": "Ví dụ: 12 + 15 = ?", "DAP_AN": "27" },
+                { "NOI_DUNG": "Ví dụ: Thủ đô của Việt Nam?", "DAP_AN": "Hà Nội" }
+            ];
+        }
+
+        const grid = document.getElementById('cardsGrid');
+        gameData.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'case-card';
+            const numStr = (index + 1).toString().padStart(2, '0');
+            card.innerHTML = `<div class="case-number">${numStr}</div><div class="case-emoji">${emojis[index % emojis.length]}</div>`;
+            card.onclick = function () {
+                this.classList.add('opened');
+                document.getElementById('caseModalTitle').textContent = `Thẻ số ${numStr}`;
+                document.getElementById('caseQuestion').textContent = item["NOI_DUNG"];
+                document.getElementById('caseAnswer').textContent = item["DAP_AN"] || "Không có đáp án";
+                document.getElementById('caseAnswer').classList.remove('visible');
+                document.getElementById('showCaseAnswerBtn').style.display = 'inline-block';
+                document.getElementById('caseModal').classList.add('open');
+            };
+            grid.appendChild(card);
+        });
+
+        createTeams(document.getElementById('teamCountInput').value);
+    };
+
+    document.getElementById('generateTeamsBtn').onclick = () => createTeams(document.getElementById('teamCountInput').value);
+    document.getElementById('closeCaseModalBtn').onclick = () => document.getElementById('caseModal').classList.remove('open');
+    document.getElementById('showCaseAnswerBtn').onclick = () => {
+        document.getElementById('caseAnswer').classList.add('visible');
+        document.getElementById('showCaseAnswerBtn').style.display = 'none';
+    };
+
+    /* GACHA LOGIC */
+    const gachaModal = document.getElementById('gachaModal');
+    const giftBoxes = document.querySelectorAll('.gift-box-item');
+    document.getElementById('gachaBtn').onclick = () => {
+        gachaModal.classList.add('open');
+        document.getElementById('gachaResult').textContent = '';
+        giftBoxes.forEach(box => { box.dataset.opened = 'false'; box.textContent = box.dataset.icon; box.className = 'gift-box-item'; box.style.background = ''; });
+    };
+    document.getElementById('closeGachaBtn').onclick = () => gachaModal.classList.remove('open');
+    giftBoxes.forEach(box => {
+        box.onclick = function () {
+            if (this.dataset.opened === 'true') return;
+            giftBoxes.forEach(b => b.dataset.opened = 'true');
+            const rand = Math.random();
+            const reward = rand < 0.15 ? '🌟 Tăng Gấp Đôi ĐIỂM!' : rand < 0.35 ? '🎁 +30 ĐIỂM' : rand < 0.65 ? '🎁 +20 ĐIỂM' : '🎁 +10 ĐIỂM';
+            this.classList.add('opened');
+            this.innerHTML = `<span style="font-size: 3rem; animation: arrive 0.3s;">${reward.includes('🌟') ? '🌟' : '🎉'}</span>`;
+            document.getElementById('gachaResult').textContent = reward;
+        };
+    });
+</script>
+</body>
+</html>

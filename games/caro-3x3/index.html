@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cờ Caro Trí Tuệ - Game Hub</title>
+    <link rel="stylesheet" href="../shared/style.css">
+    <style>
+        .setup-grid { display: grid; gap: 20px; max-width: 600px; margin: 0 auto 30px; text-align: left; }
+        .setup-group { background: #edf3fb; padding: 20px; border-radius: 16px; border: 2px solid #c8d6e8; }
+        .setup-group label { display: block; font-weight: 900; font-size: 1.2rem; margin-bottom: 10px; color: var(--purple); }
+        .setup-group select { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--ink); font-weight: 700; font-size: 1.1rem; }
+
+        .game-layout { display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: 30px; align-items: start; }
+        
+        .caro-board { display: grid; grid-template-columns: 35px repeat(7, 1fr); gap: 6px; background: var(--ink); padding: 12px; border-radius: 16px; width: max-content; margin: 20px auto; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); }
+        .grid-label { display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900; color: #fff; }
+        .caro-cell { width: clamp(40px, 5vw, 65px); height: clamp(40px, 5vw, 65px); background: #fff; border-radius: 10px; font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 900; transition: 0.2s; }
+        .caro-cell:hover:enabled { transform: scale(1.12); background: var(--yellow); box-shadow: 0 0 15px var(--yellow); z-index: 5; }
+        .caro-cell:disabled { cursor: not-allowed; }
+        
+        .caro-cell.cell-penalty { animation: penaltyBlast 1s ease-out forwards; pointer-events: none; z-index: 10; position: relative; }
+        @keyframes penaltyBlast { 0% { transform: scale(1); } 20% { transform: scale(1.3) rotate(-10deg); background: var(--coral); color: white; } 40% { transform: scale(1.3) rotate(10deg); background: var(--coral); color: white; } 80% { transform: scale(1.3) rotate(0deg); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
+        
+        .winning-cell { animation: winPulse 0.8s infinite alternate !important; background: var(--yellow) !important; color: var(--ink) !important; border: 4px solid var(--orange) !important; z-index: 10; }
+        @keyframes winPulse { from { transform: scale(1); box-shadow: 0 0 10px var(--yellow); } to { transform: scale(1.2); box-shadow: 0 0 30px var(--orange); } }
+
+        .caro-status { font-size: 1.4rem; font-weight: 900; padding: 12px 25px; border: 4px solid var(--ink); border-radius: 12px; display: inline-block; background: #fff; margin-bottom: 10px; }
+
+        .question-area { background: #eef4ff; border: 4px dashed var(--purple); border-radius: 20px; padding: 30px; margin-top: 30px; display: none; text-align: center; transition: 0.3s; }
+        .modal-title { font-weight: 900; color: var(--purple); margin-top: 0; font-size: 1.5rem; }
+        .question-text { font-size: 1.6rem; font-weight: 900; margin: 15px 0 25px; color: var(--ink); }
+        .answers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .ans-btn { background: #fff; border: 4px solid #c8d6e8; padding: 15px; border-radius: 12px; font-weight: 800; font-size: 1.2rem; text-align: left; transition: 0.2s; color: var(--ink); text-transform: none;}
+        .ans-btn:hover:enabled { background: #fffdf7; border-color: var(--purple); transform: translateY(-3px); box-shadow: 0 6px 0 var(--purple); }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <div class="brand">
+            <div class="brand-mark">⭕</div>
+            <h1>CỜ CARO TRÍ TUỆ</h1>
+        </div>
+        <a href="../index.html" class="btn gray" style="padding: 8px 15px; font-size: 1rem; box-shadow: none;">⬅ Trang chủ Hub</a>
+    </div>
+
+    <!-- Alert Chống Treo -->
+    <div id="customAlert" class="custom-alert"><span style="font-size: 2rem;">⚠</span> <span id="customAlertMessage"></span></div>
+
+    <div class="app-shell" style="padding-top: 0;">
+        <div id="screen-setup" class="screen active">
+            <div class="panel center">
+                <h2 style="font-size: 2.5rem; margin-bottom: 20px; color: var(--purple);">CÀI ĐẶT BÀN CỜ</h2>
+                <div id="data-success-alert" style="display: none; background: #eafaf1; border: 2px solid var(--green); padding: 15px; border-radius: 12px; margin-bottom: 20px; font-weight: 800; color: var(--green);">
+                    ✅ Đã nạp <span id="data-success-count">0</span> câu hỏi thông minh!
+                </div>
+                
+                <div class="setup-grid">
+                    <div class="setup-group">
+                        <label>Số đội tham gia:</label>
+                        <select id="setup-team-count">
+                            <option value="2">2 Đội</option>
+                            <option value="3" selected>3 Đội</option>
+                            <option value="4">4 Đội</option>
+                            <option value="5">5 Đội</option>
+                            <option value="6">6 Đội</option>
+                        </select>
+                    </div>
+                    <div class="setup-group">
+                        <label>Điều kiện Chiến thắng:</label>
+                        <select id="setup-win-condition">
+                            <option value="3">3 Ô liên tiếp</option>
+                            <option value="4">4 Ô liên tiếp</option>
+                            <option value="5" selected>5 Ô liên tiếp</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn teal" style="font-size: 1.5rem; padding: 15px 40px;" onclick="startGame()">BẮT ĐẦU CHƠI</button>
+            </div>
+        </div>
+
+        <div id="screen-game" class="screen">
+            <div class="game-layout">
+                <div class="panel center" style="min-width: 0;">
+                    <div id="gameStatus" class="caro-status"></div>
+                    <div id="caroBoard" class="caro-board"></div>
+
+                    <div id="questionArea" class="question-area">
+                        <h3 id="modalTeamTurn" class="modal-title">Lượt của đội</h3>
+                        <p id="modalQuestion" class="question-text"></p>
+                        <div id="modalAnswers" class="answers-grid"></div>
+                        <div id="modalFeedback" style="font-weight: 900; font-size: 1.3rem; margin-bottom: 10px; min-height: 25px;"></div>
+                        <button id="modalCancelBtn" class="btn gray" onclick="cancelQuestion()">❌ Đổi ô khác</button>
+                    </div>
+                    
+                    <div id="turnGuide" style="display: none; color: var(--coral); font-weight: 800; font-size: 1.1rem; margin-top: 15px;">👉 Bấm vào ô trống để tiếp tục.</div>
+                </div>
+
+                <aside class="scoreboard">
+                    <div class="score-head">DANH SÁCH ĐỘI</div>
+                    <div id="teamsListWrapper"></div>
+                    <div style="padding: 15px; text-align: center; border-top: 2px solid #e4e8ef;">
+                        <button class="btn orange" style="width: 100%; box-shadow: none;" onclick="location.reload()">🔄 Làm lại</button>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+
+    <script src="../shared/common.js"></script>
+    <script>
+        let masterQuestionBank = [];
+        window.onload = () => {
+            syncSettingsFromHub();
+            const parsedData = getHubData();
+            if (parsedData && parsedData.length > 0) {
+                masterQuestionBank = parsedData.filter(row => row["NOI_DUNG"] && row["DAP_AN"]).map(row => {
+                    let wrongAns = [];
+                    for(let i=1; i<=10; i++) {
+                        if(row[`SAI_${i}`] && row[`SAI_${i}`].toString().trim() !== "") wrongAns.push(row[`SAI_${i}`].toString().trim());
+                    }
+                    return { q: row["NOI_DUNG"], correctAnswer: row["DAP_AN"].toString().trim(), wrongAnswers: wrongAns };
+                });
+                document.getElementById('data-success-alert').style.display = 'block';
+                document.getElementById('data-success-count').innerText = masterQuestionBank.length;
+            } else {
+                masterQuestionBank = [ { q: "Thủ đô của Việt Nam là?", correctAnswer: "Hà Nội", wrongAnswers: ["TP.HCM", "Đà Nẵng"] } ];
+            }
+        };
+
+        function generateOptions(qData) {
+            let options = [{ text: qData.correctAnswer, isCorrect: true }];
+            if (qData.wrongAnswers && qData.wrongAnswers.length > 0) {
+                qData.wrongAnswers.forEach(ans => options.push({ text: ans, isCorrect: false }));
+            } else { options.push({ text: "Đáp án sai", isCorrect: false }); }
+            return options.sort(() => Math.random() - 0.5);
+        }
+
+        const teamSymbols = ['X', 'O', '✔', '🔺', '⬛', '⭐'];
+        let numTeams, winCondition, activeTeam = 0, boardState = Array(49).fill(null), gameActive = true, selectedCellId = null, currentQData = null, isWaitingForNextTurn = false, activeBank = [];
+
+        function startGame() {
+            numTeams = parseInt(document.getElementById('setup-team-count').value);
+            winCondition = parseInt(document.getElementById('setup-win-condition').value);
+            activeBank = [...masterQuestionBank].sort(() => Math.random() - 0.5);
+            setupTeamsUI(); initCaroBoard();
+            document.getElementById('screen-setup').classList.remove('active');
+            document.getElementById('screen-game').classList.add('active');
+        }
+
+        function setupTeamsUI() {
+            const wrapper = document.getElementById('teamsListWrapper');
+            wrapper.innerHTML = "";
+            for (let i = 0; i < numTeams; i++) {
+                wrapper.innerHTML += `<div class="team-card"><div class="team-info"><div class="team-name t-${i}">ĐỘI ${i + 1} (${teamSymbols[i]})</div></div><button class="btn coral" style="padding: 6px 12px; font-size: 0.9rem; text-transform:none; border-radius:6px; box-shadow:0 3px 0 #c53443;" onclick="punishTeam(${i})">Phạt xóa 1 Ô</button></div>`;
+            }
+        }
+
+        function initCaroBoard() {
+            const board = document.getElementById('caroBoard'); board.innerHTML = "";
+            board.appendChild(document.createElement('div'));
+            ['A', 'B', 'C', 'D', 'E', 'F', 'G'].forEach(c => { let lbl = document.createElement('div'); lbl.className = 'grid-label'; lbl.innerText = c; board.appendChild(lbl); });
+            for (let r = 0; r < 7; r++) {
+                let lbl = document.createElement('div'); lbl.className = 'grid-label'; lbl.innerText = r + 1; board.appendChild(lbl);
+                for (let c = 0; c < 7; c++) {
+                    let idx = r * 7 + c, cell = document.createElement('button');
+                    cell.className = 'caro-cell'; cell.id = `c-${idx}`; cell.onclick = () => handleCellClick(idx);
+                    board.appendChild(cell);
+                }
+            }
+            updateStatus();
+        }
+
+        function updateStatus() {
+            document.querySelectorAll('.team-card').forEach((el, idx) => {
+                if (idx === activeTeam && gameActive) el.classList.add('active'); else el.classList.remove('active');
+            });
+            if (gameActive) document.getElementById('gameStatus').innerText = `Lượt của ĐỘI ${activeTeam+1} - Cần ${winCondition} ô liên tiếp`;
+        }
+
+        function handleCellClick(idx) {
+            if (isWaitingForNextTurn) {
+                document.getElementById('questionArea').style.display = 'none'; document.getElementById('turnGuide').style.display = 'none';
+                isWaitingForNextTurn = false; if (boardState[idx] !== null) return;
+            } else if (document.getElementById('questionArea').style.display === 'block') return;
+            if (!gameActive || boardState[idx] !== null) return;
+            selectedCellId = idx; openQuestionPanel();
+        }
+
+        let alertTimer = null;
+        function showAlert(msg) {
+            let alertBox = document.getElementById('customAlert'); alertBox.className = 'custom-alert show';
+            document.getElementById('customAlertMessage').innerText = msg;
+            if (alertTimer) clearTimeout(alertTimer);
+            alertTimer = setTimeout(() => alertBox.classList.remove('show'), 3500);
+        }
+
+        function openQuestionPanel() {
+            let cName = ['A','B','C','D','E','F','G'][selectedCellId % 7], rName = Math.floor(selectedCellId / 7) + 1;
+            document.getElementById('modalTeamTurn').innerText = `Lượt ĐỘI ${activeTeam+1} (Chọn ô ${cName}${rName})`;
+            
+            currentQData = activeBank.pop();
+            if (!currentQData) {
+                showAlert("🔄 Hết câu hỏi! Tự động xào lại.");
+                activeBank = [...masterQuestionBank].sort(() => Math.random() - 0.5);
+                currentQData = activeBank.pop();
+            }
+
+            document.getElementById('modalQuestion').innerText = currentQData.q;
+            let options = generateOptions(currentQData), ansGrid = document.getElementById('modalAnswers');
+            ansGrid.innerHTML = "";
+            options.forEach((o, i) => ansGrid.innerHTML += `<button class="ans-btn" onclick="checkAnswer(${o.isCorrect}, this)">${String.fromCharCode(65 + i)}. ${o.text}</button>`);
+            
+            document.getElementById('modalFeedback').innerText = ""; document.getElementById('modalCancelBtn').style.display = 'inline-block';
+            let qArea = document.getElementById('questionArea'); qArea.style.display = 'block'; qArea.style.background = '#eef4ff'; qArea.style.borderColor = 'var(--purple)';
+            qArea.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+
+        function checkAnswer(isCorrect, btnEl) {
+            document.querySelectorAll('.ans-btn').forEach(btn => btn.disabled = true);
+            let qArea = document.getElementById('questionArea'), feedback = document.getElementById('modalFeedback');
+            document.getElementById('modalCancelBtn').style.display = 'none';
+
+            if (isCorrect) {
+                btnEl.style.borderColor = 'var(--green)'; btnEl.style.background = '#eafaf1';
+                feedback.style.color = 'var(--green)'; feedback.innerText = "🎉 CHÍNH XÁC!";
+                qArea.style.background = '#eafaf1'; qArea.style.borderColor = 'var(--green)';
+                claimCell(activeTeam);
+            } else {
+                btnEl.style.borderColor = 'var(--coral)'; btnEl.style.background = '#ffe6e0';
+                feedback.style.color = 'var(--coral)'; feedback.innerText = "❌ SAI RỒI! Mất lượt.";
+                qArea.style.background = '#ffe6e0'; qArea.style.borderColor = 'var(--coral)';
+                activeTeam = (activeTeam + 1) % numTeams; updateStatus();
+            }
+            isWaitingForNextTurn = true; document.getElementById('turnGuide').style.display = 'block';
+            document.getElementById('caroBoard').scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+
+        function cancelQuestion() {
+            document.getElementById('questionArea').style.display = 'none';
+            document.getElementById('caroBoard').scrollIntoView({ behavior: "smooth", block: "center" });
+            if (currentQData) activeBank.unshift(currentQData);
+        }
+
+        function claimCell(teamIdx) {
+            boardState[selectedCellId] = teamIdx;
+            let cell = document.getElementById(`c-${selectedCellId}`);
+            cell.innerText = teamSymbols[teamIdx]; cell.classList.add(`t-${teamIdx}`); cell.disabled = true;
+
+            let winningCells = getWinningCells(selectedCellId, teamIdx);
+            if (winningCells) {
+                gameActive = false; document.getElementById('gameStatus').innerText = `🏆 ĐỘI ${teamIdx+1} THẮNG!`;
+                winningCells.forEach(i => document.getElementById(`c-${i}`).classList.add('winning-cell'));
+                document.querySelectorAll('.caro-cell').forEach(c => c.disabled = true);
+            } else { activeTeam = (activeTeam + 1) % numTeams; updateStatus(); }
+        }
+
+        function getWinningCells(lastIdx, teamIdx) {
+            let r = Math.floor(lastIdx / 7), c = lastIdx % 7;
+            for (let d of [[0, 1], [1, 0], [1, 1], [1, -1]]) {
+                let winLine = [lastIdx];
+                for (let step of [-1, 1]) {
+                    let nr = r + d[0] * step, nc = c + d[1] * step;
+                    while (nr >= 0 && nr < 7 && nc >= 0 && nc < 7 && boardState[nr * 7 + nc] === teamIdx) {
+                        winLine.push(nr * 7 + nc); nr += d[0] * step; nc += d[1] * step;
+                    }
+                }
+                if (winLine.length >= winCondition) return winLine.slice(0, winCondition);
+            }
+            return null;
+        }
+
+        function punishTeam(teamIdx) {
+            if (!gameActive) return;
+            document.getElementById('caroBoard').scrollIntoView({ behavior: "smooth", block: "center" });
+            let ownedCells = []; boardState.forEach((val, idx) => { if (val === teamIdx) ownedCells.push(idx); });
+
+            if (ownedCells.length > 0) {
+                setTimeout(() => {
+                    let randomCell = ownedCells[Math.floor(Math.random() * ownedCells.length)], cellEl = document.getElementById(`c-${randomCell}`);
+                    cellEl.classList.add('cell-penalty');
+                    setTimeout(() => { boardState[randomCell] = null; cellEl.innerText = ""; cellEl.className = 'caro-cell'; cellEl.disabled = false; }, 1000);
+                    showAlert(`🚨 ĐỘI ${teamIdx+1} bị trừ 1 ô cờ!`);
+                }, 600);
+            } else setTimeout(() => showAlert(`🚨 ĐỘI ${teamIdx+1} bị cảnh cáo!`), 600);
+        }
+    </script>
+</body>
+</html>
