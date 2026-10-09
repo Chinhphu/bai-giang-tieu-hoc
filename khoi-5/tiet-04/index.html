@@ -6,27 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đại Hội Shark Tank IT - Khối 5</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../theme/style.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800;900&display=swap');
-
-        :root {
-            --ink: #17243c;
-            --bg: #eaf5f2;
-            --mint: #16b89a;
-            --blue: #3178f6;
-            --yellow: #ffc857;
-            --coral: #ff6c65;
-            --white: #ffffff;
-            --line: #dce5ef;
-            --shadow: 0 8px 0 rgba(23, 36, 60, 0.15);
-        }
-
-        * {
-            box-sizing: border-box;
-            font-family: 'Be Vietnam Pro', sans-serif;
-            user-select: none;
-        }
-
         html,
         body {
             margin: 0;
@@ -41,23 +22,6 @@
         body {
             display: flex;
             flex-direction: column;
-        }
-
-        button {
-            cursor: pointer;
-            border: 0;
-            transition: 0.1s ease;
-            font-family: inherit;
-        }
-
-        button:active {
-            transform: translateY(4px);
-            box-shadow: none !important;
-        }
-
-        input,
-        select {
-            font: inherit;
         }
 
         /* ================= SETUP SCREEN ================= */
@@ -858,7 +822,7 @@
     </style>
 </head>
 
-<body>
+<body class="shark-tank-v4">
 
     <!-- THÔNG BÁO HỆ THỐNG -->
     <div id="system-alert" class="system-alert">
@@ -1556,6 +1520,31 @@
             }
             document.getElementById('team-inputs-container').innerHTML = html;
         }
+
+        function togglePenaltyMenu() {
+            const menu = document.getElementById('penalty-modal');
+            menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function renderPenaltyMenu() {
+            const list = document.getElementById('penalty-list');
+            list.innerHTML = '';
+            teams.forEach(team => {
+                list.innerHTML += `<button class="btn-penalize" onclick="applySystemPenalty(${team.id})">${team.name}</button>`;
+            });
+        }
+
+        function showSystemAlert(msg, bgColor = 'var(--coral)', icon = 'fa-bell') {
+            const alertBox = document.getElementById('system-alert');
+            const iconEl = document.getElementById('alert-icon');
+            const textEl = document.getElementById('alert-text');
+            iconEl.className = `fa-solid ${icon}`;
+            textEl.innerHTML = msg;
+            alertBox.style.background = bgColor;
+            alertBox.classList.add('show');
+            setTimeout(() => { alertBox.classList.remove('show'); }, 3500);
+        }
+
         renderTeamInputs();
 
         function startGame() {
@@ -1617,19 +1606,6 @@
             }
         }
 
-        function togglePenaltyMenu() {
-            const menu = document.getElementById('penalty-modal');
-            menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        function renderPenaltyMenu() {
-            const list = document.getElementById('penalty-list');
-            list.innerHTML = '';
-            teams.forEach(team => {
-                list.innerHTML += `<button class="btn-penalize" onclick="applySystemPenalty(${team.id})">${team.name}</button>`;
-            });
-        }
-
         function applySystemPenalty(teamId) {
             updateScore(teamId, -100);
             togglePenaltyMenu();
@@ -1649,17 +1625,6 @@
             showSystemAlert(`HỆ THỐNG ĐÃ TRỪ 100 ĐIỂM (${teams[teamId].name}) VÌ ỒN!`, 'var(--coral)', 'fa-triangle-exclamation');
 
             setTimeout(() => { document.getElementById('main-stage').classList.remove('flash-red'); }, 1500);
-        }
-
-        function showSystemAlert(msg, bgColor = 'var(--coral)', icon = 'fa-bell') {
-            const alertBox = document.getElementById('system-alert');
-            const iconEl = document.getElementById('alert-icon');
-            const textEl = document.getElementById('alert-text');
-            iconEl.className = `fa-solid ${icon}`;
-            textEl.innerHTML = msg;
-            alertBox.style.background = bgColor;
-            alertBox.classList.add('show');
-            setTimeout(() => { alertBox.classList.remove('show'); }, 3500);
         }
 
         /* ======== RENDER BẢNG RÓT VỐN ======== */
