@@ -129,19 +129,32 @@
         .btn-call { border-color: #4caf50; }
         .btn-push { border-color: #ff9800; }
         .btn-ban { border-color: #e53935; }
+        .btn-unban { border-color: #8bc34a; display: none; } /* Mặc định ẩn nút tha lỗi */
 
-        /* Các trạng thái của list-item */
+        /* CÁC TRẠNG THÁI CỦA LIST-ITEM */
         .list-item.played { background-color: #eeeeee; color: #bdbdbd; text-decoration: line-through; }
-        .list-item.played .item-actions { display: none; } 
-
         .list-item.current { background-color: #ffeb3b; color: #d84315; font-weight: 800; border-left: 6px solid #f57c00; transform: scale(1.02); }
-        .list-item.current .item-actions { display: none; } 
-
         .list-item.banned { background-color: #ffcdd2; color: #b71c1c; text-decoration: line-through; }
-        .list-item.banned .item-actions { display: none; }
-
         .list-item.pushed { background-color: #fff3e0; border-left: 6px solid #ff9800; }
-        .list-item.pushed .pushed-label { display: inline-block; } /* Hiển thị chữ Cuối hàng */
+        .list-item.pushed .pushed-label { display: inline-block; }
+
+        /* HIỂN THỊ NÚT BẤM DỰA TRÊN TRẠNG THÁI (UX Logic) */
+        
+        /* 1. Đang chơi: Ẩn gọi ưu tiên, giữ phạt nhẹ và cấm */
+        .list-item.current .btn-call { display: none; }
+        
+        /* 2. Đã chơi: Ẩn gọi ưu tiên và phạt nhẹ, GIỮ CẤM để phạt nguội */
+        .list-item.played .btn-call { display: none; }
+        .list-item.played .btn-push { display: none; }
+        
+        /* 3. Bị đẩy xuống cuối: Ẩn nút phạt nhẹ (vì đã đẩy rồi) */
+        .list-item.pushed .btn-push { display: none; }
+        
+        /* 4. Bị cấm chơi: Ẩn tất cả nút phạt, CHỈ HIỆN nút Tha Lỗi */
+        .list-item.banned .btn-call { display: none; }
+        .list-item.banned .btn-push { display: none; }
+        .list-item.banned .btn-ban { display: none; }
+        .list-item.banned .btn-unban { display: inline-block; }
 
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; 
@@ -216,13 +229,14 @@
         // --- BIẾN GAME VÀ PHÍM ---
         const topRowKeys = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'];
         const homeRowKeys = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'];
-        const allKeys = [...topRowKeys, ...homeRowKeys]; // Gộp cả 2 hàng phím
+        const allKeys = [...topRowKeys, ...homeRowKeys];
 
         let classLists = {};
         let currentClassList = [];
-        let remainingStudents = []; // Hàng đợi ngầm (được trộn ngẫu nhiên)
-        let bannedStudents = []; 
-        let pushedStudents = []; 
+        let remainingStudents = []; // Hàng đợi chờ tới lượt
+        let playedStudents = [];    // Mảng lưu vết ai đã chơi xong
+        let bannedStudents = [];    // Mảng lưu vết ai bị cấm
+        let pushedStudents = [];    
         
         let targetKeys = []; 
         let currentKeyIndex = 0; 
@@ -251,8 +265,8 @@
             if (Object.keys(classLists).length === 0) { alert("Chưa tải được danh sách lớp!"); return; }
 
             currentClassList = [...classLists[selectedClass]];
-            // Trộn ngẫu nhiên danh sách để tạo hàng đợi ngầm
             remainingStudents = shuffleArray([...currentClassList]); 
+            playedStudents = [];
             bannedStudents = [];
             pushedStudents = [];
             score = 0;
@@ -267,7 +281,7 @@
             nextTurn();
         }
 
-        // --- RENDER DANH SÁCH (Hiển thị nguyên gốc, không trộn) ---
+        // --- RENDER DANH SÁCH BÊN PHẢI ---
         function renderStudentList() {
             const listContainer = document.getElementById("student-list");
             listContainer.innerHTML = "";
@@ -276,7 +290,6 @@
                 div.className = "list-item";
                 div.id = "list-" + student.replace(/\s+/g, '-');
 
-                // Vùng chứa tên và nhãn cảnh báo
                 const nameDiv = document.createElement("div");
                 nameDiv.className = "student-name-display";
                 
@@ -291,7 +304,7 @@
                 nameDiv.appendChild(pushedLabel);
                 div.appendChild(nameDiv);
 
-                // Khu vực 3 nút hành động
+                // Khu vực các nút hành động
                 const actionsDiv = document.createElement("div");
                 actionsDiv.className = "item-actions";
 
@@ -313,9 +326,16 @@
                 btnBan.innerText = "🚫";
                 btnBan.onclick = (e) => { e.stopPropagation(); banStudent(student); };
 
+                const btnUnban = document.createElement("button");
+                btnUnban.className = "action-btn btn-unban";
+                btnUnban.title = "Gỡ phạt (Tha lỗi)";
+                btnUnban.innerText = "💚";
+                btnUnban.onclick = (e) => { e.stopPropagation(); unbanStudent(student); };
+
                 actionsDiv.appendChild(btnCall);
                 actionsDiv.appendChild(btnPush);
                 actionsDiv.appendChild(btnBan);
+                actionsDiv.appendChild(btnUnban);
                 div.appendChild(actionsDiv);
 
                 listContainer.appendChild(div);
@@ -323,25 +343,27 @@
             updateSidebarUI();
         }
 
-        // --- CẬP NHẬT TRẠNG THÁI HIỂN THỊ CÁC BẠN ---
+        // --- CẬP NHẬT TRẠNG THÁI HIỂN THỊ DỰA VÀO CÁC MẢNG ---
         function updateSidebarUI() {
             currentClassList.forEach(student => {
                 const el = document.getElementById("list-" + student.replace(/\s+/g, '-'));
                 if (!el) return;
                 
-                el.className = "list-item"; // Reset class
-
+                // Mức độ ưu tiên hiển thị class: Bị cấm -> Đang chơi -> Đã chơi xong -> Bị đẩy -> Bình thường
                 if (bannedStudents.includes(student)) {
-                    el.classList.add("banned");
+                    el.className = "list-item banned";
                 } else if (student === currentStudentName) {
-                    el.classList.add("current");
-                } else if (!remainingStudents.includes(student)) {
-                    el.classList.add("played");
+                    el.className = "list-item current";
+                } else if (playedStudents.includes(student)) {
+                    el.className = "list-item played";
                 } else if (pushedStudents.includes(student)) {
-                    el.classList.add("pushed"); // Hiển thị màu cảnh báo cuối hàng
+                    el.className = "list-item pushed";
+                } else {
+                    el.className = "list-item";
                 }
             });
-            document.getElementById("counter").innerText = remainingStudents.length;
+            // Tính số bạn còn lại bao gồm cả bạn đang đứng trên bục
+            document.getElementById("counter").innerText = remainingStudents.length + (currentStudentName ? 1 : 0);
         }
 
         function setupGameUI() {
@@ -350,8 +372,8 @@
             const currentEl = document.getElementById("list-" + currentStudentName.replace(/\s+/g, '-'));
             if(currentEl) currentEl.scrollIntoView({ behavior: "smooth", block: "center" });
 
-            // Random từ 3 đến 4 phím
-            const numKeys = Math.floor(Math.random() * 2) + 3; 
+            // Rút gọn thời gian: Chỉ random 2 hoặc 3 phím
+            const numKeys = Math.floor(Math.random() * 2) + 2; 
             targetKeys = [];
             for (let i = 0; i < numKeys; i++) {
                 targetKeys.push(allKeys[Math.floor(Math.random() * allKeys.length)]);
@@ -381,10 +403,8 @@
                 return;
             }
 
-            // Lấy bạn đầu tiên trong hàng đợi ngầm (đã được trộn lúc start hoặc đẩy xuống cuối)
             currentStudentName = remainingStudents.shift(); 
             
-            // Xoá nhãn đẩy xuống cuối nếu bạn đó đã đến lượt lại
             if (pushedStudents.includes(currentStudentName)) {
                 pushedStudents = pushedStudents.filter(name => name !== currentStudentName);
             }
@@ -396,16 +416,13 @@
         function favorStudent(studentName) {
             if (studentName === currentStudentName) return;
 
-            // Đẩy bạn đang chơi trên bục về LẠI ĐẦU HÀNG (để lát sau gọi tiếp)
             if (isWaitingForKey && currentStudentName) {
                 remainingStudents.unshift(currentStudentName); 
             }
             
-            // Rút bạn ngoan ra khỏi vị trí hiện tại trong hàng đợi
             const idx = remainingStudents.indexOf(studentName);
             if (idx > -1) remainingStudents.splice(idx, 1);
 
-            // Bắt đầu ngay lượt của bé ngoan
             currentStudentName = studentName;
             setupGameUI();
         }
@@ -416,32 +433,32 @@
                 pushedStudents.push(studentName);
             }
 
-            // Rút bạn đó ra khỏi hàng đợi ngầm và quăng xuống chót
             const idx = remainingStudents.indexOf(studentName);
             if (idx > -1) {
                 remainingStudents.splice(idx, 1);
                 remainingStudents.push(studentName); 
             }
 
-            // Nếu đang phạt chính người đang đứng trên bảng
             if (currentStudentName === studentName) {
                 isWaitingForKey = false;
-                remainingStudents.push(studentName); // Vứt xuống cuối
+                remainingStudents.push(studentName);
                 
-                document.body.style.backgroundColor = "#fff9c4"; // Nháy vàng cảnh báo
+                document.body.style.backgroundColor = "#fff9c4"; 
                 setTimeout(() => { document.body.style.backgroundColor = "#e0f7fa"; }, 500);
                 
                 alert(`Cảnh cáo! Bạn ${studentName} bị đẩy xuống chờ chơi sau cùng!`);
                 currentStudentName = "";
                 nextTurn(); 
             } else {
-                updateSidebarUI(); // Cập nhật lại UI nếu phạt người đang ngồi dưới
+                updateSidebarUI(); 
             }
         }
 
         // --- NÚT 🚫: HÀNH ĐỘNG CẤM LƯỢT ---
         function banStudent(studentName) {
-            bannedStudents.push(studentName);
+            if (!bannedStudents.includes(studentName)) {
+                bannedStudents.push(studentName);
+            }
             
             const idx = remainingStudents.indexOf(studentName);
             if (idx > -1) remainingStudents.splice(idx, 1);
@@ -457,6 +474,21 @@
             } else {
                 updateSidebarUI(); 
             }
+        }
+
+        // --- NÚT 💚: HÀNH ĐỘNG GỠ PHẠT ---
+        function unbanStudent(studentName) {
+            // Xóa tên khỏi mảng cấm
+            bannedStudents = bannedStudents.filter(name => name !== studentName);
+
+            // Nếu học sinh chưa từng chơi xong vòng của mình, thì trả về cuối hàng đợi
+            if (!playedStudents.includes(studentName)) {
+                if (!remainingStudents.includes(studentName)) {
+                    remainingStudents.push(studentName);
+                }
+            }
+            
+            updateSidebarUI();
         }
 
         // LẮNG NGHE BÀN PHÍM
@@ -483,6 +515,11 @@
 
                     setTimeout(() => {
                         overlay.style.display = "none";
+                        // Lưu dấu học sinh này đã hoàn thành lượt xuất sắc
+                        if (currentStudentName) {
+                            playedStudents.push(currentStudentName);
+                        }
+                        currentStudentName = "";
                         nextTurn(); 
                     }, 1500);
 
