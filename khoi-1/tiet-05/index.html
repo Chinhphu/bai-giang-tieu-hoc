@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game: Trạm Gacha Nháy Đúp - Bài 5</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #e65100;
+            --bg-light: #e0f7fa;
+            --text-dark: #333;
+        }
+
+        body {
+            font-family: 'Baloo 2', cursive, sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            margin: 0; padding: 0; overflow: hidden; 
+            box-sizing: border-box; height: 100vh; 
+            display: flex; flex-direction: column;
+            color: var(--text-dark);
+        }
+
+        /* --- SLIDE MỞ ĐẦU --- */
+        .intro-slide {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .intro-content {
+            text-align: center; background: rgba(255, 255, 255, 0.95); padding: 5vw 8vw; 
+            border-radius: 30px; border: 8px solid #ffd700; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transform: scale(1); animation: float 3s ease-in-out infinite;
+            max-width: 90%; max-height: 90vh; overflow-y: auto;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .intro-date { font-size: clamp(18px, 2vw, 24px); color: #555; font-style: italic; margin-bottom: 10px; font-weight: 600;}
+        .intro-subject { font-size: clamp(20px, 2.5vw, 32px); color: #1976d2; font-weight: 700; margin-bottom: 5px; }
+        .intro-title { 
+            font-size: clamp(30px, 5vw, 58px); 
+            color: #d32f2f; font-weight: 800; text-transform: uppercase; 
+            margin-bottom: 30px; text-shadow: 2px 2px 0px #ffb6c1; 
+            line-height: 1.2;
+        }
+        .btn-enter {
+            font-size: clamp(20px, 3vw, 30px); padding: 15px 50px; background: linear-gradient(to bottom, #ffea00, #ff9100); color: #d84315; 
+            border: 4px solid #fff; border-radius: 50px; cursor: pointer; 
+            font-family: 'Baloo 2', cursive; font-weight: 800; box-shadow: 0 6px 0 #e65100; transition: 0.1s;
+        }
+        .btn-enter:active { transform: translateY(6px); box-shadow: 0 0 0 #e65100; }
+
+        /* --- GIAO DIỆN GAME CHÍNH --- */
+        #app-container {
+            display: flex; flex-direction: column; height: 100%; padding: 20px; box-sizing: border-box;
+        }
+
+        .header-bar {
+            background: rgba(255, 255, 255, 0.85); border-radius: 20px; padding: 15px 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 2px solid #fff;
+            margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 10px;
+        }
+
+        h1 { color: #d32f2f; font-size: clamp(22px, 3vw, 30px); margin: 0; text-transform: uppercase; text-shadow: 2px 2px 0px #fff; }
+        .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        
+        select, button {
+            font-size: clamp(14px, 2vw, 18px); padding: 10px 15px; border-radius: 12px;
+            cursor: pointer; font-family: 'Baloo 2', cursive; font-weight: 700; border: none;
+        }
+        select { background: #fff; color: #1976d2; outline: none; border: 3px solid #64b5f6; }
+        .btn-start { background: linear-gradient(45deg, #00c6ff, #0072ff); color: white; box-shadow: 0 4px 0 #0277bd; }
+        .btn-start:active { transform: translateY(4px); box-shadow: none; }
+
+        .stats-board { display: flex; gap: 10px; flex-wrap: wrap; }
+        .stat-badge {
+            background: #fff; border: 2px solid #1976d2; padding: 6px 15px; 
+            border-radius: 25px; font-size: clamp(16px, 2vw, 22px); color: #1976d2; font-weight: 700;
+            box-shadow: 0 3px 0 #1976d2;
+        }
+
+        .main-container { display: flex; gap: 20px; flex: 1; min-height: 0; }
+
+        /* CỘT TRÁI - KHU VỰC CHƠI */
+        .game-area {
+            flex: 2; background: #ffffff;
+            border-radius: 20px; padding: 20px; border: 5px solid #4fc3f7;
+            box-shadow: 0 10px 30px rgba(0,191,255,0.15);
+            position: relative; display: none; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            min-width: 0; 
+        }
+
+        #student-name { 
+            font-size: clamp(40px, 6vw, 75px); color: #2196f3; font-weight: 800; 
+            margin-bottom: 10px; text-shadow: 3px 3px 0 #e3f2fd; 
+            word-break: break-word; line-height: 1.2; 
+        }
+        
+        #instruction { 
+            font-size: clamp(18px, 2.5vw, 26px); color: #e65100; margin-bottom: 20px; 
+            font-weight: 600; background: #fff3e0; padding: 8px 20px; 
+            border-radius: 20px; border: 2px dashed #ffb74d; 
+            max-width: 90%; line-height: 1.3;
+        }
+        
+        /* HỘP GACHA (RƯƠNG) */
+        .gacha-box {
+            font-size: clamp(100px, 15vh, 150px); user-select: none;
+            cursor: pointer; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.15));
+            transition: transform 0.1s ease; position: relative;
+        }
+        
+        .gacha-idle { animation: pulse 2s infinite alternate; }
+        @keyframes pulse {
+            0% { transform: scale(1); filter: drop-shadow(0 5px 5px rgba(255, 193, 7, 0.4)); }
+            100% { transform: scale(1.05); filter: drop-shadow(0 15px 15px rgba(255, 193, 7, 0.6)); }
+        }
+
+        .gacha-error { animation: heavyShake 0.4s; }
+        @keyframes heavyShake {
+            0% { transform: translateX(0) scale(1.1); }
+            20% { transform: translateX(-20px) rotate(-10deg) scale(1.1); }
+            40% { transform: translateX(20px) rotate(10deg) scale(1.1); }
+            60% { transform: translateX(-15px) rotate(-5deg) scale(1.1); }
+            80% { transform: translateX(15px) rotate(5deg) scale(1.1); }
+            100% { transform: translateX(0) scale(1); }
+        }
+
+        #error-msg {
+            position: absolute; top: 70%; color: #d32f2f; font-size: clamp(20px, 3vw, 35px); font-weight: 800; 
+            text-shadow: 2px 2px 0 #fff; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+            background: rgba(255, 255, 255, 0.9); padding: 5px 15px; border-radius: 15px; border: 2px solid #d32f2f;
+        }
+
+        /* KẾT QUẢ GACHA */
+        .reward-container {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            animation: zoomIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 95%;
+        }
+        @keyframes zoomIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .reward-icon { font-size: clamp(80px, 12vh, 130px); margin-bottom: 5px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2)); }
+        .reward-type { font-size: 20px; padding: 5px 20px; border-radius: 10px; font-weight: 800; margin-bottom: 10px;}
+        .type-r { background: #9e9e9e; color: white; }
+        .type-sr { background: #9c27b0; color: white; box-shadow: 0 0 10px #e040fb; }
+        .type-ssr { background: linear-gradient(45deg, #ffea00, #ff5252); color: white; box-shadow: 0 0 15px #ffea00; animation: ssrGlow 1s infinite alternate; }
+        @keyframes ssrGlow { from { filter: hue-rotate(0deg); transform: scale(1); } to { filter: hue-rotate(30deg); transform: scale(1.1); } }
+        
+        .reward-name { 
+            font-size: clamp(28px, 4vw, 45px); color: #c62828; 
+            font-weight: 800; text-shadow: 2px 2px 0 #fff; 
+            text-align: center; line-height: 1.2; word-break: break-word;
+        }
+
+        /* CỘT PHẢI - DANH SÁCH LỚP */
+        .sidebar {
+            flex: 1.2; background: rgba(255,255,255,0.95); border-radius: 20px; padding: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05); border: 4px solid #b2ebf2; display: none; flex-direction: column;
+            min-width: 250px; 
+        }
+        .sidebar h2 { text-align: center; color: #1976d2; margin-top: 0; margin-bottom: 10px; font-size: 22px; }
+
+        .student-list-container { overflow-y: auto; flex: 1; padding-right: 5px; }
+        .student-list-container::-webkit-scrollbar { width: 8px; }
+        .student-list-container::-webkit-scrollbar-thumb { background: #4fc3f7; border-radius: 10px; }
+
+        /* ITEM DANH SÁCH */
+        .list-item {
+            padding: 10px 12px; margin-bottom: 8px; border-radius: 12px; background-color: #f5f5f5; 
+            font-size: clamp(16px, 1.5vw, 20px); color: #2c3e50; transition: all 0.3s ease; font-weight: 700;
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .student-name-display { 
+            display: flex; align-items: center; gap: 8px; 
+            flex: 1; min-width: 0; 
+        }
+        .student-name-display span:first-child {
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+        }
+        
+        .pushed-label { font-size: 12px; color: #e65100; font-weight: 800; display: none; background: #ffe0b2; padding: 2px 6px; border-radius: 8px; flex-shrink: 0;}
+
+        /* Nút hành động */
+        .item-actions { display: flex; gap: 5px; flex-shrink: 0; }
+        .action-btn { 
+            background: white; border: 2px solid #ccc; border-radius: 8px; width: 32px; height: 32px; 
+            font-size: 14px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;
+            padding: 0; 
+        }
+        .action-btn:hover { transform: scale(1.15); }
+        
+        .btn-call { border-color: #4caf50; color: #4caf50; }
+        .btn-push { border-color: #ff9800; color: #ff9800; }
+        .btn-ban { border-color: #e53935; color: #e53935; }
+        .btn-unban { border-color: #8bc34a; background: #e8f5e9; display: none; }
+
+        /* TRẠNG THÁI LIST-ITEM */
+        .list-item.played { background-color: #eeeeee; color: #9e9e9e; text-decoration: line-through; border-color: #e0e0e0; }
+        .list-item.current { background-color: #fffde7; color: #d84315; font-size: clamp(18px, 1.8vw, 22px); border-left: 6px solid #ffd700; box-shadow: 0 4px 8px rgba(0,0,0,0.05); transform: translateX(-3px); border-color: #ffd700;}
+        .list-item.banned { background-color: #ffebee; color: #c62828; text-decoration: line-through; border-left: 6px solid #c62828; border-color: #ffcdd2;}
+        .list-item.pushed { background-color: #fff3e0; border-left: 6px solid #ff9800; border-color: #ffe0b2;}
+        .list-item.pushed .pushed-label { display: inline-block; }
+
+        .list-item.current .btn-call { display: none; }
+        .list-item.played .btn-call { display: none; }
+        .list-item.played .btn-push { display: none; }
+        .list-item.pushed .btn-push { display: none; }
+        .list-item.banned .btn-call, .list-item.banned .btn-push, .list-item.banned .btn-ban { display: none; }
+        .list-item.banned .btn-unban { display: flex; }
+
+        /* --- POPUP CẤM LƯỢT --- */
+        .ban-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: #d32f2f; 
+            color: white;
+            padding: 30px 50px;
+            border-radius: 25px;
+            border: 6px solid #ffcdd2;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            min-width: 300px;
+        }
+        .ban-notification.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        .ban-icon { font-size: 80px; margin-bottom: 10px; animation: banShake 0.5s infinite; }
+        .ban-message-title { font-size: 24px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;}
+        .ban-message-name { font-size: clamp(35px, 5vw, 55px); font-weight: 800; text-align: center; color: #ffeb3b; text-shadow: 2px 2px 0 #000; word-break: break-word;}
+        
+        @keyframes banShake {
+            0%, 100% { transform: translateX(0) scale(1); }
+            25% { transform: translateX(-5px) rotate(-10deg) scale(1.1); }
+            75% { transform: translateX(5px) rotate(10deg) scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- THÔNG BÁO CẤM LƯỢT (NẰM ẨN) -->
+    <div id="ban-notification" class="ban-notification">
+        <div class="ban-icon">🚫</div>
+        <div class="ban-message-title">ĐÃ PHẠM QUY & CẤM LƯỢT</div>
+        <div id="ban-message-name" class="ban-message-name">Tên Học Sinh</div>
+    </div>
+
+    <!-- SLIDE MỞ ĐẦU -->
+    <div id="intro-slide" class="intro-slide">
+        <div class="intro-content">
+            <div id="intro-date" class="intro-date"></div>
+            <div class="intro-subject">Tin học Lớp 1 - Trưng Vương EdTech</div>
+            <div class="intro-title">BÀI 5:<br>THAO TÁC NHÁY ĐÚP CHUỘT</div>
+            <button class="btn-enter" onclick="enterGame()">Tham Gia Vòng Quay 🎁</button>
+        </div>
+    </div>
+
+    <!-- GIAO DIỆN GAME -->
+    <div id="app-container" style="display: none;">
+        <div class="header-bar">
+            <h1>🎁 Trạm Gacha Nháy Đúp</h1>
+            <div class="controls">
+                <select id="class-select">
+                    <option value="">-- Chọn Lớp Khối 1 --</option>
+                    <option value="1_1">Lớp 1/1</option>
+                    <option value="1_2">Lớp 1/2</option>
+                    <option value="1_3">Lớp 1/3</option>
+                    <option value="1_4">Lớp 1/4</option>
+                    <option value="1_5">Lớp 1/5</option>
+                    <option value="1_6">Lớp 1/6</option>
+                </select>
+                <button class="btn-start" onclick="startGame()">Khởi Động Trạm!</button>
+            </div>
+            <div class="stats-board" style="display: none;" id="stats-board">
+                <span class="stat-badge">🏆 Điểm Lớp: <span id="score">0</span></span>
+                <span class="stat-badge">🎯 Còn: <span id="counter">0</span> bạn</span>
+            </div>
+        </div>
+
+        <div class="main-container">
+            <div id="game-area" class="game-area">
+                <div id="student-name">...</div>
+                <div id="instruction">Đưa chuột vào hộp quà và NHÁY ĐÚP thật nhanh!</div>
+                
+                <!-- HỘP GACHA -->
+                <div id="gacha-box" class="gacha-box gacha-idle">🎁</div>
+                <div id="error-msg">Quá chậm! Phải nháy 2 lần liên tiếp!</div>
+
+                <!-- KẾT QUẢ GACHA -->
+                <div id="reward-container" class="reward-container">
+                    <div id="reward-icon" class="reward-icon"></div>
+                    <div id="reward-type" class="reward-type"></div>
+                    <div id="reward-name" class="reward-name"></div>
+                </div>
+            </div>
+
+            <div id="sidebar" class="sidebar">
+                <h2>Băng Chuyền Lượt Chơi</h2>
+                <div class="student-list-container" id="student-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const today = new Date();
+            const days = ["Chủ nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+            document.getElementById("intro-date").innerText = `${days[today.getDay()]}, ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}`;
+        };
+
+        function enterGame() {
+            document.getElementById("intro-slide").style.display = "none";
+            document.getElementById("app-container").style.display = "flex";
+        }
+
+        // TẠO ÂM THANH "BUZZER" (Tiếng Bíp Bíp cảnh báo sai)
+        function playBanSound() {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return; // Bỏ qua nếu trình duyệt quá cũ
+            
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+
+            // Sóng âm dạng răng cưa tạo cảm giác hơi "chói" (báo lỗi)
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(300, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.4);
+
+            gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+
+            osc.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            
+            osc.start();
+            osc.stop(ctx.currentTime + 0.4);
+        }
+
+        // BIẾN QUẢN LÝ GAME
+        let classLists = {};
+        let currentClassList = [];
+        let remainingStudents = []; 
+        let playedStudents = [];    
+        let bannedStudents = [];    
+        let pushedStudents = [];    
+        
+        let score = 0;
+        let currentStudentName = "";
+        let isWaitingForClick = false;
+
+        // BIẾN QUẢN LÝ NHÁY ĐÚP
+        let clickCount = 0;
+        let clickTimer = null;
+        const DOUBLE_CLICK_THRESHOLD = 350;
+
+        const gachaBox = document.getElementById("gacha-box");
+        const errorMsg = document.getElementById("error-msg");
+        const banNotification = document.getElementById("ban-notification");
+
+        fetch('../../assets/data/students_1_2026_2027.json')
+            .then(response => response.json())
+            .then(data => { classLists = data; })
+            .catch(error => { console.error("Lỗi tải JSON:", error); });
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startGame() {
+            const selectedClass = document.getElementById("class-select").value;
+            if (!selectedClass) { alert("Thầy ơi, chọn lớp đã nhé!"); return; }
+            if (Object.keys(classLists).length === 0) { alert("Chưa tải được danh sách lớp!"); return; }
+
+            currentClassList = [...classLists[selectedClass]];
+            remainingStudents = shuffleArray([...currentClassList]); 
+            playedStudents = [];
+            bannedStudents = [];
+            pushedStudents = [];
+            score = 0;
+            currentStudentName = "";
+            
+            document.getElementById("stats-board").style.display = "flex";
+            document.getElementById("game-area").style.display = "flex";
+            document.getElementById("sidebar").style.display = "flex";
+            document.getElementById("score").innerText = score;
+            
+            renderStudentList();
+            nextTurn();
+        }
+
+        function renderStudentList() {
+            const listContainer = document.getElementById("student-list");
+            listContainer.innerHTML = "";
+            currentClassList.forEach(student => {
+                const div = document.createElement("div");
+                div.className = "list-item";
+                div.id = "list-" + student.replace(/\s+/g, '-');
+
+                const nameDiv = document.createElement("div");
+                nameDiv.className = "student-name-display";
+                
+                const nameSpan = document.createElement("span");
+                nameSpan.innerText = student;
+                nameSpan.title = student; 
+                
+                const pushedLabel = document.createElement("span");
+                pushedLabel.className = "pushed-label";
+                pushedLabel.innerText = "(👇)";
+
+                nameDiv.appendChild(nameSpan);
+                nameDiv.appendChild(pushedLabel);
+                div.appendChild(nameDiv);
+
+                const actionsDiv = document.createElement("div");
+                actionsDiv.className = "item-actions";
+
+                const btnCall = document.createElement("button");
+                btnCall.className = "action-btn btn-call"; btnCall.title = "Gọi ưu tiên"; btnCall.innerText = "⭐";
+                btnCall.onclick = (e) => { e.stopPropagation(); favorStudent(student); };
+
+                const btnPush = document.createElement("button");
+                btnPush.className = "action-btn btn-push"; btnPush.title = "Đẩy xuống cuối"; btnPush.innerText = "⬇️";
+                btnPush.onclick = (e) => { e.stopPropagation(); pushDownStudent(student); };
+
+                const btnBan = document.createElement("button");
+                btnBan.className = "action-btn btn-ban"; btnBan.title = "Cấm lượt"; btnBan.innerText = "🚫";
+                btnBan.onclick = (e) => { e.stopPropagation(); banStudent(student); };
+
+                const btnUnban = document.createElement("button");
+                btnUnban.className = "action-btn btn-unban"; btnUnban.title = "Tha lỗi"; btnUnban.innerText = "💚";
+                btnUnban.onclick = (e) => { e.stopPropagation(); unbanStudent(student); };
+
+                actionsDiv.append(btnCall, btnPush, btnBan, btnUnban);
+                div.appendChild(actionsDiv);
+                listContainer.appendChild(div);
+            });
+            updateSidebarUI();
+        }
+
+        function updateSidebarUI() {
+            currentClassList.forEach(student => {
+                const el = document.getElementById("list-" + student.replace(/\s+/g, '-'));
+                if (!el) return;
+                
+                if (bannedStudents.includes(student)) { el.className = "list-item banned"; } 
+                else if (student === currentStudentName) { el.className = "list-item current"; } 
+                else if (playedStudents.includes(student)) { el.className = "list-item played"; } 
+                else if (pushedStudents.includes(student)) { el.className = "list-item pushed"; } 
+                else { el.className = "list-item"; }
+            });
+            document.getElementById("counter").innerText = remainingStudents.length + (currentStudentName ? 1 : 0);
+        }
+
+        function nextTurn() {
+            if (remainingStudents.length === 0) {
+                alert(`Hoan hô! Lớp đã hoàn thành (Trừ các bạn bị phạt). Tổng điểm Gacha: ${score}`);
+                return;
+            }
+            currentStudentName = remainingStudents.shift(); 
+            if (pushedStudents.includes(currentStudentName)) {
+                pushedStudents = pushedStudents.filter(name => name !== currentStudentName);
+            }
+            setupGameUI();
+        }
+
+        function setupGameUI() {
+            updateSidebarUI();
+            const currentEl = document.getElementById("list-" + currentStudentName.replace(/\s+/g, '-'));
+            if(currentEl) currentEl.scrollIntoView({ behavior: "smooth", block: "center" });
+
+            document.getElementById("student-name").innerText = currentStudentName;
+            
+            gachaBox.style.display = "block";
+            document.getElementById("reward-container").style.display = "none";
+            gachaBox.className = "gacha-box gacha-idle";
+            
+            clickCount = 0;
+            isWaitingForClick = true; 
+        }
+
+        gachaBox.addEventListener("mousedown", function(e) {
+            if (!isWaitingForClick) return;
+            e.preventDefault();
+
+            clickCount++;
+            
+            if (clickCount === 1) {
+                clickTimer = setTimeout(() => {
+                    triggerClickFail();
+                }, DOUBLE_CLICK_THRESHOLD);
+            } 
+            else if (clickCount === 2) {
+                clearTimeout(clickTimer);
+                triggerClickSuccess();
+            }
+        });
+
+        function triggerClickFail() {
+            clickCount = 0;
+            gachaBox.classList.remove("gacha-idle");
+            gachaBox.classList.remove("gacha-error");
+            void gachaBox.offsetWidth; 
+            gachaBox.classList.add("gacha-error");
+            
+            errorMsg.style.opacity = 1;
+            setTimeout(() => { errorMsg.style.opacity = 0; gachaBox.classList.add("gacha-idle"); }, 1000);
+        }
+
+        function triggerClickSuccess() {
+            isWaitingForClick = false;
+            clickCount = 0;
+            openGacha();
+        }
+
+        function openGacha() {
+            gachaBox.style.display = "none";
+            const rewardCont = document.getElementById("reward-container");
+            const typeEl = document.getElementById("reward-type");
+            const iconEl = document.getElementById("reward-icon");
+            const nameEl = document.getElementById("reward-name");
+
+            const roll = Math.random() * 100;
+            let reward = {};
+
+            if (roll < 15) {
+                reward = { name: "Thần khí: Google Chrome", icon: "🌐", type: "SSR", cls: "type-ssr", pts: 100 };
+            } else if (roll < 40) {
+                reward = { name: "Bảo bối: Paint", icon: "🎨", type: "SR", cls: "type-sr", pts: 50 };
+            } else {
+                const animals = ["🐰 Thỏ ngọc", "🐶 Cún con", "🐱 Mèo méo", "🐼 Gấu trúc"];
+                reward = { name: animals[Math.floor(Math.random()*animals.length)], icon: "🎁", type: "R", cls: "type-r", pts: 10 };
+            }
+
+            typeEl.className = `reward-type ${reward.cls}`;
+            typeEl.innerText = reward.type;
+            iconEl.innerText = reward.icon;
+            nameEl.innerText = reward.name + ` (+${reward.pts} điểm)`;
+
+            rewardCont.style.display = "flex";
+            
+            score += reward.pts;
+            document.getElementById("score").innerText = score;
+
+            setTimeout(() => {
+                if(currentStudentName) playedStudents.push(currentStudentName);
+                currentStudentName = "";
+                nextTurn(); 
+            }, 3500);
+        }
+
+        function favorStudent(studentName) {
+            if (studentName === currentStudentName) return;
+            if (isWaitingForClick && currentStudentName) { remainingStudents.unshift(currentStudentName); }
+            const idx = remainingStudents.indexOf(studentName);
+            if (idx > -1) remainingStudents.splice(idx, 1);
+            currentStudentName = studentName;
+            setupGameUI();
+        }
+
+        function pushDownStudent(studentName) {
+            if (!pushedStudents.includes(studentName)) pushedStudents.push(studentName);
+            const idx = remainingStudents.indexOf(studentName);
+            if (idx > -1) { remainingStudents.splice(idx, 1); remainingStudents.push(studentName); }
+            if (currentStudentName === studentName) {
+                isWaitingForClick = false;
+                remainingStudents.push(studentName);
+                document.body.style.background = "linear-gradient(135deg, #ffd54f 0%, #ffb300 100%)"; 
+                setTimeout(() => { document.body.style.background = "linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)"; }, 500);
+                currentStudentName = ""; nextTurn(); 
+            } else { updateSidebarUI(); }
+        }
+
+        /* --- XỬ LÝ KHI BẤM NÚT CẤM LƯỢT --- */
+        function banStudent(studentName) {
+            if (!bannedStudents.includes(studentName)) bannedStudents.push(studentName);
+            const idx = remainingStudents.indexOf(studentName);
+            if (idx > -1) remainingStudents.splice(idx, 1);
+            
+            // 1. Phát âm thanh
+            playBanSound();
+
+            // 2. Hiện Popup thông báo
+            document.getElementById('ban-message-name').innerText = studentName;
+            banNotification.classList.add('show');
+            
+            // Tắt popup sau 2 giây
+            setTimeout(() => { 
+                banNotification.classList.remove('show'); 
+            }, 2000);
+
+            // 3. Xử lý logic chuyển lượt nếu người bị cấm đang trên bảng
+            if (currentStudentName === studentName) {
+                isWaitingForClick = false;
+                document.body.style.background = "linear-gradient(135deg, #ef5350 0%, #c62828 100%)"; 
+                
+                // Đợi 2 giây cho học sinh xem bảng phạt rồi mới chuyển lượt
+                setTimeout(() => { 
+                    document.body.style.background = "linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)"; 
+                    currentStudentName = ""; 
+                    nextTurn();
+                }, 2000);
+                
+                updateSidebarUI(); // Cập nhật màu đỏ trong danh sách ngay lập tức
+            } else { 
+                updateSidebarUI(); 
+            }
+        }
+
+        function unbanStudent(studentName) {
+            bannedStudents = bannedStudents.filter(name => name !== studentName);
+            if (!playedStudents.includes(studentName)) {
+                if (!remainingStudents.includes(studentName)) remainingStudents.push(studentName);
+            }
+            updateSidebarUI();
+        }
+    </script>
+</body>
+</html>
