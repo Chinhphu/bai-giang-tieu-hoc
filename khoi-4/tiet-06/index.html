@@ -1056,9 +1056,33 @@
             }
 
             $('#teams').innerHTML = TEAMS.map((t, i) => {
-                return `<div class="tm${i == turn && !over ? ' on' : ''}" style="--c:${t.c}"><b>${t.n}</b><span>Chiếm: ${owned[i].size} ô</span></div>`
+                return `<div class="tm${i == turn && !over ? ' on' : ''}" style="--c:${t.c}">
+                    <b>${t.n}</b>
+                    <span>Chiếm: ${owned[i].size} ô</span>
+                    <button class="btn bad" style="padding:5px 7px; margin-top:6px; font-size:.75rem"
+                        onclick="punishTeam(${i})" ${owned[i].size <= 1 || over || busy ? 'disabled' : ''}>⚠ Phạt lùi 1 node</button>
+                </div>`
             }).join('');
         }
+
+        window.punishTeam = function (teamId) {
+            if (over || busy || teamId < 0 || teamId >= numT) return;
+
+            const path = Array.from(owned[teamId]);
+            const previousHeadIndex = path.lastIndexOf(heads[teamId]) - 1;
+            if (previousHeadIndex < 0) return;
+
+            const previousHead = path[previousHeadIndex];
+            const removedHead = heads[teamId];
+            owned[teamId].delete(removedHead);
+            N[removedHead].owner = -1;
+            heads[teamId] = previousHead;
+            stuck[teamId] = false;
+
+            render();
+            saveGameState();
+            toast(`${TEAMS[teamId].n} bị phạt lùi về node trước đó.`, 'bad');
+        };
 
         // Render TOÀN BỘ danh sách học sinh
         function renderStudents() {
