@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điệp vụ mở két sắt Sa Pa</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800;900&display=swap');
+
+        :root {
+            --ink: #17243c;
+            --bg: #eaf5f2;
+            --mint: #16b89a;
+            --blue: #3178f6;
+            --yellow: #ffc857;
+            --coral: #ff6c65;
+            --white: #fff;
+            --line: #dce5ef;
+            --shadow: 0 8px 0 rgba(23, 36, 60, .15)
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Be Vietnam Pro', sans-serif
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+            background: var(--bg);
+            color: var(--ink)
+        }
+
+        button {
+            cursor: pointer;
+            border: 0;
+            font-weight: 800;
+            transition: .12s
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(3px);
+            box-shadow: none !important
+        }
+
+        .hidden {
+            display: none !important
+        }
+
+        #setup {
+            position: fixed;
+            inset: 0;
+            background: var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 16px
+        }
+
+        .setup-box {
+            background: #fff;
+            border-radius: 28px;
+            padding: 36px 40px;
+            width: min(520px, 100%);
+            text-align: center;
+            box-shadow: 0 14px 0 rgba(0, 0, 0, .3)
+        }
+
+        .setup-box h1 {
+            margin: 0 0 6px;
+            color: var(--blue);
+            font-size: 32px;
+            line-height: 1.2
+        }
+
+        .setup-box p {
+            margin: 0 0 22px;
+            color: #5b6b85;
+            font-weight: 600
+        }
+
+        .field {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            background: #f4f7fb;
+            border: 4px solid var(--line);
+            border-radius: 16px;
+            padding: 12px 18px;
+            margin-bottom: 14px;
+            font-weight: 800;
+            font-size: 20px
+        }
+
+        .field select {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--blue);
+            border: 3px solid var(--line);
+            border-radius: 12px;
+            padding: 6px 10px;
+            background: #fff
+        }
+
+        .btn-big {
+            background: var(--mint);
+            color: #fff;
+            font-size: 24px;
+            font-weight: 900;
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 7px 0 #087d69;
+            width: 100%;
+            margin-top: 8px
+        }
+
+        #setup-note {
+            margin-top: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #5b6b85
+        }
+
+        #game {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh
+        }
+
+        .topbar {
+            background: var(--ink);
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap
+        }
+
+        .brand {
+            font-size: 21px;
+            font-weight: 900;
+            color: var(--yellow);
+            margin-right: auto
+        }
+
+        .tab {
+            background: rgba(255, 255, 255, .1);
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 15px
+        }
+
+        .tab.on {
+            background: var(--yellow);
+            color: var(--ink);
+            box-shadow: 0 4px 0 #dca631
+        }
+
+        .btn-end {
+            background: var(--coral);
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 15px;
+            box-shadow: 0 4px 0 #cc4640
+        }
+
+        .btn-sm {
+            background: rgba(255, 255, 255, .12);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px
+        }
+
+        .challenge {
+            flex: 1;
+            padding: 14px 20px 6px;
+            min-height: 52vh
+        }
+
+        .panel {
+            background: #fff;
+            border: 6px solid var(--ink);
+            border-radius: 26px;
+            box-shadow: var(--shadow);
+            padding: 18px 24px
+        }
+
+        .phead {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 10px
+        }
+
+        .phead h2 {
+            margin: 0;
+            color: var(--blue);
+            font-size: 26px;
+            margin-right: auto
+        }
+
+        .round {
+            background: var(--ink);
+            color: var(--yellow);
+            font-weight: 900;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 17px
+        }
+
+        .btn-act {
+            background: var(--coral);
+            color: #fff;
+            font-size: 18px;
+            padding: 12px 24px;
+            border-radius: 14px;
+            box-shadow: 0 5px 0 #cc4640;
+            border: 3px solid var(--ink)
+        }
+
+        .btn-act.next {
+            background: var(--mint);
+            box-shadow: 0 5px 0 #087d69
+        }
+
+        .context {
+            background: var(--ink);
+            color: #fff;
+            border: 4px solid var(--yellow);
+            border-radius: 18px;
+            padding: 16px 22px;
+            font-size: 26px;
+            font-weight: 800;
+            line-height: 1.4;
+            margin-bottom: 14px
+        }
+
+        .pool {
+            min-height: 84px;
+            background: #f4f7fb;
+            border: 4px dashed var(--blue);
+            border-radius: 18px;
+            padding: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 14px;
+            transition: .15s
+        }
+
+        .pool.over,
+        .tray.over {
+            background: rgba(255, 200, 87, .3)
+        }
+
+        .pool:empty::before {
+            content: 'Bể từ vựng đã trống';
+            color: #8a97ad;
+            font-weight: 700;
+            align-self: center
+        }
+
+        .wcard {
+            background: var(--yellow);
+            border: 3px solid var(--ink);
+            border-radius: 12px;
+            padding: 9px 16px;
+            font-size: 20px;
+            font-weight: 900;
+            cursor: grab;
+            box-shadow: 0 4px 0 var(--ink);
+            user-select: none
+        }
+
+        .wcard.drag {
+            opacity: .35
+        }
+
+        .wcard.locked {
+            cursor: default
+        }
+
+        .wcard.good {
+            background: #4ade80
+        }
+
+        .wcard.mid {
+            background: #fde68a
+        }
+
+        .wcard.bad {
+            background: #fca5a5
+        }
+
+        .trays {
+            display: grid;
+            grid-template-columns: repeat(var(--n), 1fr);
+            gap: 12px
+        }
+
+        .tray {
+            border: 4px solid var(--tc);
+            border-radius: 16px;
+            min-height: 170px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            transition: .15s
+        }
+
+        .tray h4 {
+            margin: 0;
+            background: var(--tc);
+            color: #fff;
+            padding: 8px 10px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 17px
+        }
+
+        .tray .list {
+            flex: 1;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px
+        }
+
+        .tray .list .wcard {
+            font-size: 17px;
+            padding: 7px 12px;
+            display: flex;
+            gap: 8px
+        }
+
+        .tray .list .wcard b {
+            color: var(--blue)
+        }
+
+        .tray .gain {
+            background: var(--ink);
+            color: var(--yellow);
+            padding: 2px 10px;
+            border-radius: 20px
+        }
+
+        /* Ải 2 */
+        .fake {
+            border: 4px solid var(--ink);
+            border-radius: 16px;
+            overflow: hidden;
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--fb)
+        }
+
+        .fbar {
+            background: #e9eef5;
+            padding: 10px 14px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            border-bottom: 2px solid var(--line)
+        }
+
+        .dots i {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #c3ccd9;
+            margin-right: 5px
+        }
+
+        .fbar .fi {
+            flex: 1;
+            background: #fff;
+            border-radius: 20px;
+            font-family: monospace;
+            font-size: 17px;
+            text-align: left;
+            padding: 2px 10px
+        }
+
+        .fbody {
+            padding: 16px 24px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center
+        }
+
+        .fi {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            position: relative;
+            border: 3px dashed transparent
+        }
+
+        .trap {
+            cursor: crosshair
+        }
+
+        .trap:hover {
+            border-color: var(--coral);
+            background: rgba(255, 108, 101, .12)
+        }
+
+        .s-h {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--ac)
+        }
+
+        .s-p {
+            font-size: 19px
+        }
+
+        .s-in {
+            background: #fff;
+            border: 2px solid #cbd5e1;
+            color: #64748b
+        }
+
+        .s-btn {
+            background: var(--ac);
+            color: #fff;
+            font-size: 22px;
+            font-weight: 900;
+            padding: 12px 28px;
+            box-shadow: 0 5px 0 rgba(0, 0, 0, .3)
+        }
+
+        .s-ft {
+            font-size: 15px;
+            color: #667
+        }
+
+        .t-prize {
+            --fb: linear-gradient(#fff7d6, #fff);
+            --ac: #c2410c
+        }
+
+        .t-virus {
+            --fb: #1a0b0b;
+            --ac: #ef4444;
+            color: #fecaca
+        }
+
+        .t-virus .s-in {
+            background: #2b1212;
+            border-color: #7f1d1d;
+            color: #fca5a5
+        }
+
+        .t-virus .s-ft {
+            color: #fca5a5
+        }
+
+        .t-login {
+            --fb: #eef4ff;
+            --ac: #1d4ed8
+        }
+
+        .t-shop {
+            --fb: linear-gradient(135deg, #ffe4f1, #fff);
+            --ac: #db2777
+        }
+
+        .t-chat {
+            --fb: #e8fbe9;
+            --ac: #15803d
+        }
+
+        .trap.broken {
+            border-color: var(--coral);
+            pointer-events: none;
+            animation: shatter .6s
+        }
+
+        .trap.broken>span {
+            opacity: .3;
+            text-decoration: line-through;
+            text-decoration-color: var(--coral);
+            text-decoration-thickness: 4px
+        }
+
+        .trap.broken::after {
+            content: '💥 ' attr(data-by);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-5deg);
+            background: var(--coral);
+            color: #fff;
+            font-weight: 900;
+            padding: 5px 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            border: 3px solid var(--ink);
+            white-space: nowrap;
+            font-style: normal
+        }
+
+        @keyframes shatter {
+            0% {
+                transform: scale(1)
+            }
+
+            25% {
+                transform: scale(1.1) rotate(2deg)
+            }
+
+            50% {
+                transform: scale(.9) rotate(-3deg)
+            }
+
+            100% {
+                transform: scale(1)
+            }
+        }
+
+        .teams {
+            padding: 8px 20px 20px;
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(var(--n), 1fr)
+        }
+
+        .team {
+            position: relative;
+            background: #fff;
+            border: 5px solid var(--tc);
+            border-radius: 20px;
+            padding: 12px;
+            box-shadow: 0 6px 0 var(--tc);
+            text-align: center
+        }
+
+        .team.pulse {
+            animation: pulse .5s
+        }
+
+        .team.shake {
+            animation: shake .5s
+        }
+
+        @keyframes pulse {
+            50% {
+                transform: scale(1.04);
+                background: #fffbe6
+            }
+        }
+
+        @keyframes shake {
+
+            20%,
+            60% {
+                transform: translateX(-7px)
+            }
+
+            40%,
+            80% {
+                transform: translateX(7px)
+            }
+        }
+
+        .tname {
+            font-weight: 900;
+            font-size: 19px;
+            color: var(--tc)
+        }
+
+        .tscore {
+            font-size: 46px;
+            font-weight: 900;
+            line-height: 1.1
+        }
+
+        .tcount {
+            font-size: 13px;
+            font-weight: 700;
+            color: #5b6b85;
+            margin-bottom: 6px
+        }
+
+        .team select {
+            width: 100%;
+            padding: 9px;
+            border: 3px solid var(--line);
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 7px;
+            background: #fff
+        }
+
+        .team .ok {
+            background: var(--tc);
+            color: #fff;
+            width: 100%;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 15px;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, .25);
+            margin-bottom: 7px
+        }
+
+        .team .noise {
+            background: #fff0f0;
+            color: var(--coral);
+            border: 2px solid var(--coral);
+            width: 100%;
+            padding: 8px;
+            border-radius: 12px;
+            font-size: 14px
+        }
+
+        .team .noise:hover {
+            background: var(--coral);
+            color: #fff
+        }
+
+        .floatred {
+            position: absolute;
+            left: 50%;
+            top: 30%;
+            transform: translateX(-50%);
+            color: #ef4444;
+            font-size: 38px;
+            font-weight: 900;
+            pointer-events: none;
+            text-shadow: 0 2px 0 #fff, 0 0 8px #fff;
+            animation: fup 1.3s ease-out forwards;
+            white-space: nowrap
+        }
+
+        @keyframes fup {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, 20px) scale(.6)
+            }
+
+            20% {
+                opacity: 1;
+                transform: translate(-50%, 0) scale(1.2)
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -90px) scale(1)
+            }
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(23, 36, 60, .7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200
+        }
+
+        .modal-box {
+            background: var(--bg);
+            border: 6px solid var(--ink);
+            border-radius: 26px;
+            padding: 26px;
+            width: min(560px, 92%);
+            text-align: center;
+            animation: pop .3s cubic-bezier(.175, .885, .32, 1.275)
+        }
+
+        .modal-box h3 {
+            margin: 0 0 4px;
+            font-size: 26px;
+            color: var(--coral)
+        }
+
+        .modal-box .what {
+            font-weight: 800;
+            margin-bottom: 16px
+        }
+
+        .pick {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px
+        }
+
+        .pick button {
+            background: var(--tc);
+            color: #fff;
+            font-size: 20px;
+            padding: 18px 10px;
+            border-radius: 16px;
+            box-shadow: 0 6px 0 rgba(0, 0, 0, .3)
+        }
+
+        .cancel {
+            margin-top: 16px;
+            background: var(--line);
+            color: var(--ink);
+            padding: 10px 26px;
+            border-radius: 12px;
+            font-size: 16px
+        }
+
+        @keyframes pop {
+            0% {
+                opacity: 0;
+                transform: scale(.85)
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1)
+            }
+        }
+
+        .toast {
+            position: fixed;
+            top: 78px;
+            left: 50%;
+            transform: translate(-50%, -30px);
+            color: #fff;
+            font-weight: 900;
+            font-size: 20px;
+            padding: 12px 26px;
+            border-radius: 14px;
+            border: 4px solid var(--ink);
+            opacity: 0;
+            pointer-events: none;
+            transition: .3s;
+            z-index: 300
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, 0)
+        }
+
+        #endgame {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column
+        }
+
+        .ehead {
+            background: var(--ink);
+            padding: 14px 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .ehead h1 {
+            margin: 0 auto 0 0;
+            color: var(--yellow);
+            font-size: 25px
+        }
+
+        .btn-xl {
+            background: var(--mint);
+            color: #fff;
+            padding: 12px 22px;
+            border-radius: 12px;
+            font-size: 17px;
+            box-shadow: 0 4px 0 #087d69
+        }
+
+        .btn-back {
+            background: var(--yellow);
+            color: var(--ink);
+            padding: 12px 22px;
+            border-radius: 12px;
+            font-size: 17px;
+            box-shadow: 0 4px 0 #dca631
+        }
+
+        .kanban {
+            flex: 1;
+            padding: 18px 20px;
+            display: grid;
+            gap: 14px;
+            grid-template-columns: repeat(var(--n), minmax(170px, 1fr));
+            align-items: start;
+            overflow-x: auto
+        }
+
+        .col {
+            background: #f4f7fb;
+            border: 4px solid var(--tc);
+            border-radius: 20px;
+            min-height: 340px;
+            display: flex;
+            flex-direction: column
+        }
+
+        .col h4 {
+            margin: 0;
+            padding: 12px;
+            background: var(--tc);
+            color: #fff;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px
+        }
+
+        .drop {
+            flex: 1;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .drop.over {
+            background: rgba(255, 200, 87, .35)
+        }
+
+        .card {
+            background: #fff;
+            border: 3px solid var(--ink);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-weight: 800;
+            cursor: grab;
+            box-shadow: 0 4px 0 var(--line)
+        }
+
+        .card.drag {
+            opacity: .4
+        }
+
+        @media(max-width:900px) {
+
+            .teams,
+            .trays {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .context {
+                font-size: 20px
+            }
+        }
+
+        @media(prefers-reduced-motion:reduce) {
+            * {
+                animation: none !important
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="setup">
+        <div class="setup-box">
+            <h1>🕵️ Điệp vụ mở két sắt Sa Pa</h1>
+            <p>Chọn lớp và số đội để bắt đầu điệp vụ.</p>
+            <div class="field">Lớp <select id="s-class"></select></div>
+            <div class="field">Số đội <select id="s-teams">
+                    <option>2</option>
+                    <option>3</option>
+                    <option selected>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                </select></div>
+            <button class="btn-big" onclick="startGame()">Bắt đầu Game</button>
+            <div id="setup-note"></div>
+        </div>
+    </div>
+
+    <div id="game" class="hidden">
+        <div class="topbar">
+            <div class="brand">🕵️ Két sắt Sa Pa</div>
+            <button class="tab on" id="tab1" onclick="showAi(1)">🔥 Ải 1: Tường lửa từ khóa</button>
+            <button class="tab" id="tab2" onclick="showAi(2)">☠️ Ải 2: Tiêu diệt mã độc</button>
+            <button class="btn-sm" onclick="addStudents()">+ Thêm học sinh</button>
+            <button class="btn-end" onclick="openEnd()">Tổng kết</button>
+        </div>
+        <div class="challenge">
+            <div class="panel" id="panel"></div>
+        </div>
+        <div class="teams" id="teams"></div>
+    </div>
+
+    <div id="endgame" class="hidden">
+        <div class="ehead">
+            <h1>📋 Tổng kết: kéo thả thẻ tên để sửa đội</h1>
+            <button class="btn-back" onclick="closeEnd()">← Quay lại game</button>
+            <button class="btn-xl" onclick="exportExcel()">📥 Xuất Excel</button>
+        </div>
+        <div class="kanban" id="kanban"></div>
+    </div>
+
+    <div id="modal" class="modal hidden" onclick="if(event.target===this)closeModal()">
+        <div class="modal-box">
+            <h3>Đội nào phát hiện?</h3>
+            <div class="what" id="m-what"></div>
+            <div class="pick" id="m-pick"></div>
+            <button class="cancel" onclick="closeModal()">Hủy</button>
+        </div>
+    </div>
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const COLORS = ['#3178f6', '#16b89a', '#ff6c65', '#e0a100', '#8b5cf6', '#ec4899'];
+        const PTS = 100;
+        /* Ải 1: ans = từ đúng theo THỨ TỰ chuẩn; dis = từ nhiễu */
+        const A1 = [
+            { ctx: 'Gia đình em có kế hoạch đi du lịch ở Sa Pa vào dịp tết dương lịch. Em hãy tìm kiếm thông tin về các điểm tham quan ở Sa Pa.', ans: ['điểm tham quan', 'Sa Pa', 'tết dương lịch'], dis: ['giá vé máy bay', 'Phú Quốc', 'phim hoạt hình', 'công thức nấu ăn', 'bóng đá'] },
+            { ctx: 'Gia đình em cần tìm nơi ở gần trung tâm Sa Pa với giá hợp lí. Em hãy tìm kiếm thông tin về khách sạn.', ans: ['khách sạn', 'Sa Pa', 'trung tâm', 'giá rẻ'], dis: ['xe máy', 'đồng hồ', 'Nha Trang', 'truyện tranh'] },
+            { ctx: 'Em muốn biết thời tiết ở Sa Pa vào tháng 1 để chuẩn bị quần áo cho chuyến đi.', ans: ['thời tiết', 'Sa Pa', 'tháng 1', 'quần áo'], dis: ['bão', 'Đà Nẵng', 'trò chơi điện tử', 'giá vàng'] },
+            { ctx: 'Em muốn tìm các món ăn đặc sản ở Sa Pa để mua về làm quà cho bạn bè.', ans: ['món ăn', 'đặc sản', 'Sa Pa', 'mua làm quà'], dis: ['bánh pizza', 'nhà hàng Hà Nội', 'điện thoại', 'xem phim'] },
+            { ctx: 'Cả nhà muốn đi từ Hà Nội đến Sa Pa. Em hãy tìm xem nên đi bằng phương tiện nào.', ans: ['Hà Nội', 'đến', 'Sa Pa', 'phương tiện'], dis: ['máy bay đồ chơi', 'giày thể thao', 'tranh vẽ', 'bài hát'] }
+        ];
+        /* Ải 2: mỗi vòng có 6 vị trí [nhãn, nội dung BẪY, nội dung bình thường]; hệ thống chọn ngẫu nhiên đúng N vị trí làm bẫy */
+        const A2 = [
+            {
+                th: 'prize', slots: ['url', 'h', 'p', 'in', 'btn', 'ft'], it: [
+                    ['Tên miền lạ', 'https://khuyenmai-sapa.xyz', 'https://sapa.laocai.gov.vn'],
+                    ['Lời hứa quá tốt', '🎉 Bạn đã trúng thưởng chuyến du lịch Sa Pa miễn phí!', 'Thông tin du lịch Sa Pa'],
+                    ['Ép vội vàng', '⏰ Chỉ còn 02:59 để nhận quà!', 'Lịch tham quan cập nhật mỗi ngày'],
+                    ['Đòi mật khẩu ngân hàng', '🏦 Nhập mật khẩu ngân hàng', '🔍 Tìm điểm tham quan'],
+                    ['Nút nhận quà', 'Nhấn vào đây để nhận quà', 'Xem chi tiết'],
+                    ['Số người nhận ảo', '99.999 người đã nhận quà hôm nay', 'Cập nhật: hôm nay']]
+            },
+            {
+                th: 'virus', slots: ['url', 'h', 'p', 'in', 'btn', 'ft'], it: [
+                    ['Tên miền giả', 'http://baove-maytinh.top', 'https://support.microsoft.com'],
+                    ['Dọa có virus', '🚨 CẢNH BÁO: Máy bạn nhiễm 27 virus!', 'Kiểm tra bảo mật thiết bị'],
+                    ['Giả danh hệ thống', 'Hệ thống Windows yêu cầu quét ngay!', 'Windows đang cập nhật'],
+                    ['Đòi số điện thoại', '📱 Nhập số điện thoại để diệt virus', 'Cài đặt tự động'],
+                    ['Bắt tải phần mềm lạ', 'Tải “DietVirus.exe” ngay', 'Đóng'],
+                    ['Đếm ngược dọa dẫm', 'Máy sẽ bị khóa sau 00:59', 'Thiết bị đã được bảo vệ']]
+            },
+            {
+                th: 'login', slots: ['url', 'h', 'p', 'in', 'btn', 'ft'], it: [
+                    ['Tên miền sai', 'https://nganhang-xacminh.info', 'https://nganhang.com.vn'],
+                    ['Gây hoảng sợ', 'Tài khoản của bạn sắp bị khóa!', 'Đăng nhập Internet Banking'],
+                    ['Ép làm gấp', 'Xác minh trong 10 phút để tránh mất tiền', 'Nhập thông tin đăng nhập của bạn'],
+                    ['Đòi mã OTP', '🔑 Nhập mã OTP gửi về điện thoại', '👤 Tên đăng nhập'],
+                    ['Nút xác minh lạ', 'Xác minh ngay', 'Đăng nhập'],
+                    ['Hotline lạ', 'Hotline: 0999 888 777 (không chính thức)', 'Hotline chính thức: 1900 xxxx']]
+            },
+            {
+                th: 'shop', slots: ['url', 'h', 'p', 'in', 'btn', 'ft'], it: [
+                    ['Tên miền lạ', 'https://ve-sapa-0dong.shop', 'https://ve-sapa.vn'],
+                    ['Giá vô lí', 'Vé tham quan Sa Pa chỉ 0 đồng!', 'Vé tham quan Sa Pa'],
+                    ['Chỉ chuyển khoản cá nhân', 'Chỉ nhận chuyển khoản vào tài khoản cá nhân', 'Thanh toán tại quầy'],
+                    ['Xin ảnh căn cước', '📸 Tải ảnh căn cước lên', '📅 Chọn ngày đi'],
+                    ['Thúc ép mua', 'Mua ngay kẻo hết!', 'Đặt vé'],
+                    ['Đánh giá ảo', '⭐ 5 sao từ 10.000 người (chưa kiểm chứng)', 'Đánh giá từ khách đã đi']]
+            },
+            {
+                th: 'chat', slots: ['url', 'h', 'p', 'in', 'btn', 'ft'], it: [
+                    ['Link rút gọn lạ', 'http://bit.ly-sapa.click', 'https://zalo.me'],
+                    ['Giả danh người quen', 'Mình đây! Cho mình mượn tiền gấp nhé', 'Tin nhắn từ bạn cùng lớp'],
+                    ['Gửi link lạ', 'Bấm link này xem ảnh du lịch của bạn', 'Chúc em đi Sa Pa vui vẻ!'],
+                    ['Xin mật khẩu', '🔒 Nhập mật khẩu để xem ảnh', '💬 Trả lời tin nhắn'],
+                    ['Nút bấm lạ', 'Xem ngay!', 'Gửi'],
+                    ['Bắt giữ bí mật', 'Đừng nói cho ai biết nhé!', 'Đã xem']]
+            }
+        ];
+
+        let cls = '5_1', teams = [], students = [], ai = 1, a1, a2, pending = null, dragId = null, dragKan = null;
+        const $ = id => document.getElementById(id);
+        const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0;[a[i], a[j]] = [a[j], a[i]] } return a };
+        $('s-class').innerHTML = [1, 2, 3, 4, 5, 6].map(i => `<option>5_${i}</option>`).join('');
+        $('s-class').value = '5_2';
+
+        /* ---------- Dữ liệu học sinh ---------- */
+        const nameOf = s => typeof s === 'string' ? s : (s.name || s.hoTen || s.fullName || s.ten || s['Họ và tên'] || s.studentName || '').toString().trim();
+        const classOf = s => typeof s === 'object' ? (s.class || s.lop || s.className || s.Lop || s.classId || '') : '';
+        const norm = c => String(c).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        function pickClass(d, c) {
+            let arr = [];
+            if (Array.isArray(d)) arr = d;
+            else if (d && typeof d === 'object') {
+                if (d[c]) arr = d[c]; else if (d.students) arr = d.students;
+                else { const v = Object.values(d); arr = Array.isArray(v[0]) ? v.flat() : v }
+            }
+            return arr.filter(s => { const k = classOf(s); return !k || norm(k).endsWith(norm(c)) }).map(nameOf).filter(Boolean);
+        }
+        async function loadStudents(c) {
+            try { const r = await fetch('../../assets/data/students_5_2026_2027.json'); if (!r.ok) throw 0; return pickClass(await r.json(), c) }
+            catch (e) { console.warn('Không tải được danh sách học sinh', e); return null }
+        }
+
+        async function startGame() {
+            cls = $('s-class').value; const n = +$('s-teams').value;
+            const list = await loadStudents(cls);
+            students = (list || []).map(name => ({ name, team: null }));
+            teams = Array.from({ length: n }, (_, i) => ({ name: 'Đội ' + (i + 1), score: 0, color: COLORS[i] }));
+            a1 = {
+                r: 0, words: A1.map((R, r) => shuffle([...R.ans.map((w, k) => ({ id: `${r}-a${k}`, w, ok: true })), ...R.dis.map((w, k) => ({ id: `${r}-d${k}`, w, ok: false }))])),
+                place: A1.map(() => teams.map(() => [])), graded: A1.map(() => false), gain: A1.map(() => null)
+            };
+            a2 = { r: 0, chosen: A2.map(R => shuffle(R.it.map((_, i) => i)).slice(0, n)), br: A2.map(() => ({})) };
+            $('setup').classList.add('hidden'); $('game').classList.remove('hidden');
+            renderTeams(); showAi(1);
+            if (!students.length) toast('Chưa có danh sách lớp — bấm "+ Thêm học sinh"', 4000, 'var(--coral)');
+        }
+
+        /* ---------- Điều hướng ải ---------- */
+        function showAi(n) {
+            ai = n; $('tab1').classList.toggle('on', n === 1); $('tab2').classList.toggle('on', n === 2);
+            $('panel').innerHTML = n === 1 ? renderAi1() : renderAi2();
+        }
+
+        /* ---------- Ải 1 ---------- */
+        function wcard(w, extra, drag) { return `<div class="wcard ${extra || ''}" ${drag ? 'draggable="true"' : ''} data-id="${w.id}">${w.w}</div>` }
+        function renderAi1() {
+            const r = a1.r, R = A1[r], words = a1.words[r], pl = a1.place[r], g = a1.graded[r];
+            const placed = new Set(pl.flat()), byId = id => words.find(x => x.id === id);
+            const trays = teams.map((t, i) => `<div class="tray" data-t="${i}" style="--tc:${t.color}">
+    <h4><span>${t.name}</span>${g ? `<span class="gain">+${a1.gain[r][i].pts}${a1.gain[r][i].perfect ? ' ⭐' : ''}</span>` : ''}</h4>
+    <div class="list">${pl[i].map((id, k) => {
+                const w = byId(id);
+                const st = g ? (w.ok ? (R.ans[k] === w.w ? 'good' : 'mid') : 'bad') : '';
+                return `<div class="wcard ${st} ${g ? 'locked' : ''}" ${g ? '' : 'draggable="true"'} data-id="${id}"><b>${k + 1}.</b>${w.w}</div>`
+            }).join('')}</div></div>`).join('');
+            const last = r === A1.length - 1;
+            return `<div class="phead"><h2>🔥 Ải 1: Tường lửa từ khóa</h2><span class="round">Vòng ${r + 1}/${A1.length}</span>
+    ${g ? `<button class="btn-act next" onclick="${last ? "toast('🎉 Hoàn thành Ải 1! Sang Ải 2 nhé',2500)" : 'nextR1()'}">${last ? 'Hoàn thành Ải 1 🎉' : 'Vòng tiếp theo ▶'}</button>`
+                    : `<button class="btn-act" onclick="grade()">Chấm điểm vòng này</button>`}</div>
+   <div class="context">📍 ${R.ctx}</div>
+   <div class="pool" id="pool">${words.filter(w => !placed.has(w.id)).map(w => wcard(w, g ? 'locked' : '', !g)).join('')}</div>
+   <div class="trays" style="--n:${teams.length}">${trays}</div>`;
+        }
+        function grade() {
+            const r = a1.r, R = A1[r], words = a1.words[r];
+            a1.gain[r] = teams.map((_, t) => {
+                const ids = a1.place[r][t]; let pts = 0;
+                ids.forEach(id => { if (words.find(x => x.id === id).ok) pts += PTS });
+                const perfect = ids.length === R.ans.length && ids.every((id, i) => words.find(x => x.id === id).w === R.ans[i]);
+                if (perfect) pts += PTS; /* thưởng đúng hoàn toàn cả từ lẫn thứ tự */
+                addScore(t, pts); return { pts, perfect };
+            });
+            a1.graded[r] = true; showAi(1); toast('✅ Đã chấm điểm vòng ' + (r + 1), 1800, 'var(--mint)');
+        }
+        function nextR1() { a1.r++; showAi(1) }
+        function removeFromAll(id) { a1.place[a1.r].forEach(l => { const k = l.indexOf(id); if (k > -1) l.splice(k, 1) }) }
+        const panel = $('panel');
+        panel.addEventListener('dragstart', e => { const c = e.target.closest('.wcard[draggable]'); if (!c) return; dragId = c.dataset.id; c.classList.add('drag'); e.dataTransfer.setData('text/plain', dragId); e.dataTransfer.effectAllowed = 'move' });
+        panel.addEventListener('dragend', () => { dragId = null; panel.querySelectorAll('.drag,.over').forEach(x => x.classList.remove('drag', 'over')) });
+        panel.addEventListener('dragover', e => { if (!dragId) return; const z = e.target.closest('.pool,.tray'); if (!z) return; e.preventDefault(); panel.querySelectorAll('.over').forEach(x => x !== z && x.classList.remove('over')); z.classList.add('over') });
+        panel.addEventListener('drop', e => {
+            if (!dragId) return; const z = e.target.closest('.pool,.tray'); if (!z) return; e.preventDefault();
+            const id = dragId; removeFromAll(id);
+            if (z.classList.contains('tray')) {
+                const list = z.querySelector('.list'), kids = [...list.children].filter(c => c.dataset.id !== id);
+                let idx = kids.findIndex(c => { const b = c.getBoundingClientRect(); return e.clientY < b.top + b.height / 2 });
+                if (idx < 0) idx = kids.length;
+                a1.place[a1.r][+z.dataset.t].splice(idx, 0, id);
+            }
+            dragId = null; showAi(1);
+        });
+
+        /* ---------- Ải 2 ---------- */
+        function renderAi2() {
+            const r = a2.r, R = A2[r], ch = a2.chosen[r], br = a2.br[r];
+            const left = ch.filter(k => br[k] === undefined).length, last = r === A2.length - 1;
+            const slot = k => {
+                const [lab, bad, good] = R.it[k], s = R.slots[k];
+                if (!ch.includes(k)) return `<div class="fi s-${s}">${good}</div>`;
+                const o = br[k];
+                return o !== undefined ? `<div class="fi s-${s} trap broken" data-by="${teams[o].name}"><span>${bad}</span></div>`
+                    : `<div class="fi s-${s} trap" onclick="ask(${k})"><span>${bad}</span></div>`;
+            };
+            return `<div class="phead"><h2>☠️ Ải 2: Tiêu diệt mã độc</h2><span class="round">Vòng ${r + 1}/${A2.length}</span>
+    <span class="round" style="background:var(--coral);color:#fff">Còn ${left} điểm đáng ngờ</span>
+    ${left === 0 ? `<button class="btn-act next" onclick="${last ? "toast('🎉 Hoàn thành Ải 2!',2500)" : 'nextR2()'}">${last ? 'Hoàn thành Ải 2 🎉' : 'Vòng tiếp theo ▶'}</button>` : ''}</div>
+   <p style="margin:0 0 12px;font-weight:600;color:#5b6b85;font-size:17px">Trang web này có <b>${ch.length}</b> điểm đáng ngờ. Bấm vào điểm đáng ngờ rồi chọn đội phát hiện.</p>
+   <div class="fake t-${R.th}"><div class="fbar"><div class="dots"><i></i><i></i><i></i></div>${slot(0)}</div>
+   <div class="fbody">${[1, 2, 3, 4, 5].map(slot).join('')}</div></div>`;
+        }
+        function nextR2() { a2.r++; showAi(2) }
+        function ask(k) {
+            pending = k; $('m-what').textContent = 'Điểm đáng ngờ: “' + A2[a2.r].it[k][0] + '”';
+            $('m-pick').innerHTML = teams.map((t, i) => `<button style="--tc:${t.color}" onclick="award(${i})">${t.name}</button>`).join('');
+            $('modal').classList.remove('hidden');
+        }
+        function closeModal() { $('modal').classList.add('hidden'); pending = null }
+        function award(i) {
+            if (pending === null) return;
+            a2.br[a2.r][pending] = i; addScore(i, PTS); closeModal(); showAi(2);
+            const el = document.querySelector(`[data-team="${i}"]`); el.classList.add('pulse'); setTimeout(() => el.classList.remove('pulse'), 500);
+            toast(`+${PTS} điểm cho ${teams[i].name}! 🎯`, 1600, teams[i].color);
+        }
+
+        /* ---------- Điểm & Phạt ồn ---------- */
+        function updScore(i) { const e = $('sc-' + i); if (e) e.textContent = teams[i].score }
+        function addScore(i, p) { teams[i].score += p; updScore(i) }
+        function penalty(i) {
+            const d = Math.round(teams[i].score * 0.1);
+            teams[i].score -= d; updScore(i);
+            const c = document.querySelector(`[data-team="${i}"]`);
+            const f = document.createElement('div'); f.className = 'floatred'; f.textContent = `-10% (-${d})`; c.appendChild(f);
+            c.classList.add('shake'); setTimeout(() => { f.remove(); c.classList.remove('shake') }, 1300);
+        }
+
+        /* ---------- Ô đội + cooldown ---------- */
+        const opts = () => '<option value="">— Chọn học sinh —</option>' + students.map((s, i) => `<option value="${i}" ${s.team !== null ? 'disabled' : ''}>${s.team !== null ? '🔒 ' : ''}${s.name}</option>`).join('');
+        function renderTeams() {
+            const box = $('teams'); box.style.setProperty('--n', teams.length);
+            box.innerHTML = teams.map((t, i) => `<div class="team" data-team="${i}" style="--tc:${t.color}">
+    <div class="tname">${t.name}</div><div class="tscore" id="sc-${i}">${t.score}</div>
+    <div class="tcount">Đã trả lời: ${students.filter(s => s.team === i).length} em</div>
+    <select id="sel-${i}">${opts()}</select>
+    <button class="ok" onclick="confirmStudent(${i})">Xác nhận</button>
+    <button class="noise" onclick="penalty(${i})">Phạt Ồn 🔇</button></div>`).join('');
+        }
+        function refreshSelects() {
+            teams.forEach((_, i) => { const s = $('sel-' + i); if (s) s.innerHTML = opts() });
+            document.querySelectorAll('.tcount').forEach((el, i) => el.textContent = 'Đã trả lời: ' + students.filter(s => s.team === i).length + ' em');
+        }
+        function confirmStudent(i) {
+            const sel = $('sel-' + i); if (sel.value === '') return toast('Hãy chọn học sinh trước', 1500, 'var(--coral)');
+            const st = students[+sel.value]; if (st.team !== null) return;
+            st.team = i; refreshSelects(); toast(`✅ ${st.name} → ${teams[i].name}`, 1600, teams[i].color);
+        }
+        function addStudents() {
+            const txt = prompt('Nhập tên học sinh, cách nhau bằng dấu phẩy hoặc xuống dòng:'); if (!txt) return;
+            txt.split(/[,\n;]/).map(s => s.trim()).filter(Boolean).forEach(name => students.push({ name, team: null }));
+            refreshSelects();
+        }
+
+        /* ---------- Kanban & Excel ---------- */
+        function openEnd() { $('game').classList.add('hidden'); $('endgame').classList.remove('hidden'); renderKanban() }
+        function closeEnd() { $('endgame').classList.add('hidden'); $('game').classList.remove('hidden'); renderTeams(); showAi(ai) }
+        function renderKanban() {
+            const cols = [...teams.map((t, i) => ({ key: i, name: t.name, color: t.color })), { key: null, name: 'Tự do', color: '#64748b' }];
+            const k = $('kanban'); k.style.setProperty('--n', cols.length);
+            k.innerHTML = cols.map(c => {
+                const list = students.map((s, idx) => ({ s, idx })).filter(x => x.s.team === c.key);
+                return `<div class="col" style="--tc:${c.color}"><h4><span>${c.name}</span><span>${list.length}</span></h4>
+      <div class="drop" data-key="${c.key === null ? '' : c.key}">${list.map(x => `<div class="card" draggable="true" data-idx="${x.idx}">${x.s.name}</div>`).join('')}</div></div>`
+            }).join('');
+            k.querySelectorAll('.card').forEach(c => {
+                c.addEventListener('dragstart', e => { dragKan = +c.dataset.idx; c.classList.add('drag'); e.dataTransfer.setData('text/plain', dragKan) });
+                c.addEventListener('dragend', () => c.classList.remove('drag'));
+            });
+            k.querySelectorAll('.drop').forEach(d => {
+                d.addEventListener('dragover', e => { e.preventDefault(); d.classList.add('over') });
+                d.addEventListener('dragleave', () => d.classList.remove('over'));
+                d.addEventListener('drop', e => {
+                    e.preventDefault(); if (dragKan === null) return;
+                    students[dragKan].team = d.dataset.key === '' ? null : +d.dataset.key; dragKan = null; renderKanban()
+                });
+            });
+        }
+        function exportExcel() {
+            const rows = [['STT', 'Tên Học Sinh', 'Lớp', 'Đội']]; let n = 1;
+            [...teams.map((_, i) => i), null].forEach(key => students.filter(s => s.team === key).forEach(s =>
+                rows.push([n++, s.name, cls.replace('_', '/'), key === null ? 'Tự do' : teams[key].name])));
+            const ws = XLSX.utils.aoa_to_sheet(rows); ws['!cols'] = [{ wch: 6 }, { wch: 28 }, { wch: 8 }, { wch: 14 }];
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Tổng kết');
+            XLSX.writeFile(wb, `KetSatSaPa_Lop${cls}.xlsx`);
+        }
+
+        let tt; function toast(msg, ms = 1800, bg = 'var(--mint)') {
+            const t = $('toast'); t.textContent = msg; t.style.background = bg; t.classList.add('show');
+            clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), ms)
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal() });
+    </script>
+</body>
+
+</html>
