@@ -185,6 +185,12 @@
             color: var(--ink)
         }
 
+        .team select.need {
+            outline: 4px solid #ef4444;
+            background: #fee2e2;
+            animation: shake .5s
+        }
+
         .btn-penalty {
             background: rgba(255, 255, 255, .1);
             color: #fff;
@@ -1355,6 +1361,16 @@
             $('sc-' + i).textContent = teams[i].score;
             toast(`+${pts} điểm cho ${teams[i].name}!`, 1400, teams[i].color);
         }
+        /* Kiểm tra các đội trong danh sách đã chọn học sinh chưa; thiếu thì nhắc + tô đỏ ô chọn */
+        function needStudent(list) {
+            const miss = list.filter(i => $('sel-' + i).value === '');
+            document.querySelectorAll('.team select.need').forEach(s => s.classList.remove('need'));
+            if (!miss.length) return false;
+            miss.forEach(i => { const s = $('sel-' + i); void s.offsetWidth; s.classList.add('need') });
+            toast('⚠️ Hãy chọn học sinh cho: ' + miss.map(i => teams[i].name).join(', '), 3000, 'var(--coral)');
+            return true;
+        }
+        document.addEventListener('change', e => { if (e.target.matches('.team select')) e.target.classList.remove('need') });
         /* Ghi nhận học sinh đang chọn ở đội i vừa trả lời, rồi khóa tên em đó */
         function recordAnswer(i, text) {
             const sel = $('sel-' + i);
@@ -1453,6 +1469,7 @@
         function gradeR1() {
             const r = rd[1], st = a1State[r], ans = A1_DATA[r].ans;
             if (st.graded) return;
+            if (needStudent(teams.map((_, i) => i).filter(i => st.trays[i].length))) return; // thiếu tên thì chưa chấm
             teams.forEach((t, i) => {
                 const tray = st.trays[i], ok = tray.filter(w => ans.includes(w)).length;
                 const perfect = tray.length === ans.length && tray.every((w, k) => w === ans[k]);
@@ -1492,6 +1509,7 @@
         }
         function triggerTrap(r, k) {
             openModal('Điểm đáng ngờ: ' + A2_DATA[r][k].label, i => {
+                if (needStudent([i])) return; // đội chưa chọn học sinh: chưa ghi điểm, bẫy vẫn còn
                 a2State[r].broken[k] = i;
                 addScore(i, PTS);
                 recordAnswer(i, `Ải 2 - Vòng ${r + 1}: phát hiện “${A2_DATA[r][k].label}” → +${PTS}đ`);
