@@ -656,7 +656,7 @@
         <div id="turn"></div>
         <div class="header-btns">
             <button class="btn red" onclick="forceEnd()">Kết thúc / Quản lý HS</button>
-            <button class="btn yellow" onclick="$('#setup').classList.add('show')">Cài đặt</button>
+            <button class="btn yellow" onclick="$('#setup').classList.add('show')">Cài đặt / Đổi lớp</button>
         </div>
     </header>
     <main>
@@ -694,11 +694,10 @@
 
     <!-- Màn hình Setup -->
     <div id="setup" class="show">
-        <div class="mbox" style="text-align:center; max-width: 540px;">
+        <div class="mbox" style="text-align:center; max-width: 580px;">
             <h2 style="color: #7dffd4; font-size: 2rem; margin-top: 0">CÀI ĐẶT TRÒ CHƠI</h2>
             <div style="text-align: left; margin-bottom: 20px;">
-                <label style="font-weight: bold; margin-bottom: 8px; display: block;">1. Chọn lớp (Dữ liệu
-                    JSON):</label>
+                <label style="font-weight: bold; margin-bottom: 8px; display: block;">1. Chọn lớp:</label>
                 <select id="class-select"
                     style="width:100%; padding: 12px; border-radius: 10px; font-size: 1.1rem; background: #16295e; color: #fff; border: 2px solid #5b8cff; outline: none;">
                     <option value="4_1">Lớp 4/1</option>
@@ -720,16 +719,26 @@
                     <option value="6">6 Tổ</option>
                 </select>
             </div>
-            <button class="btn good" style="font-size: 1.3rem; padding: 15px 40px; width: 100%; margin-bottom: 15px;"
-                onclick="loadAndStart()">🚀 BẮT ĐẦU</button>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <p style="font-size:0.9rem; color:#888; margin: 0;">*Tiến trình chơi được tự động lưu lại.</p>
-                <button class="btn outline" style="font-size: 0.9rem; padding: 8px 12px;" onclick="clearLocalData()">♻️
-                    Xóa bộ nhớ</button>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="btn good" style="font-size: 1.2rem; flex: 1; padding: 15px;"
+                    onclick="loadAndStart(false)">▶ TIẾP TỤC VÁN CŨ</button>
+                <button class="btn yellow" style="font-size: 1.2rem; flex: 1; padding: 15px;"
+                    onclick="loadAndStart(true)">🔄 TẠO VÁN MỚI</button>
+            </div>
+
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1d3a7a; padding-top: 15px;">
+                <p style="font-size:0.9rem; color:#888; margin: 0; text-align: left;">*Game sẽ tự động lưu lại toàn bộ
+                    bản đồ và điểm số.</p>
+                <button class="btn outline"
+                    style="font-size: 0.9rem; padding: 8px 12px; border-color: #ff5c6c; color: #ff5c6c;"
+                    onclick="clearLocalData()">🗑️ Xóa sạch dữ liệu</button>
             </div>
         </div>
     </div>
 
+    <!-- Màn hình Modal Hỏi Đáp -->
     <div id="modal">
         <div class="mbox">
             <div id="mHead"></div>
@@ -787,11 +796,10 @@
         }
 
         /* ===== LOAD DỮ LIỆU & BẮT ĐẦU ===== */
-        async function loadAndStart() {
+        async function loadAndStart(forceNew = false) {
             currentClassID = $('#class-select').value;
             numT = parseInt($('#team-select').value);
             TEAMS = Array.from({ length: numT }, (_, i) => ({ n: 'Tổ ' + (i + 1), c: ALL_COLORS[i] }));
-            gameLog = [];
             $('#setup').classList.remove('show');
 
             // Khôi phục bộ nhớ từ LocalStorage
@@ -805,9 +813,7 @@
             try {
                 const qRes = await fetch('questions.json');
                 const qData = await qRes.json();
-                TF = qData.TF;
-                SIT = qData.SIT;
-                QZ = qData.QZ;
+                TF = qData.TF; SIT = qData.SIT; QZ = qData.QZ;
             } catch (err) {
                 console.error("Lỗi tải questions.json", err);
                 TF = [{ q: "Lỗi tải câu hỏi từ hệ thống.", a: true, exp: "Kiểm tra đường dẫn file JSON." }];
@@ -824,7 +830,7 @@
                 classStudents = FALLBACK_JSON[currentClassID] || FALLBACK_JSON["4_1"];
             }
 
-            // Khôi phục HS vãng lai
+            // Khôi phục HS bổ sung bằng tay
             const extraStr = localStorage.getItem('extra_students_' + currentClassID);
             if (extraStr) {
                 const extras = JSON.parse(extraStr);
@@ -835,7 +841,23 @@
                 });
             }
 
-            init();
+            init(forceNew);
+        }
+
+        /* ===== LƯU TRỮ VÀ KHÔI PHỤC TRẠNG THÁI GAME ===== */
+        function saveGameState() {
+            const state = {
+                numT: numT,
+                N: N,
+                E: E,
+                heads: heads,
+                owned: owned.map(set => Array.from(set)),
+                turn: turn,
+                over: over,
+                stuck: stuck
+            };
+            localStorage.setItem('gameState_' + currentClassID, JSON.stringify(state));
+            localStorage.setItem('gameLog_' + currentClassID, JSON.stringify(gameLog));
         }
 
         /* ===== MAP 10 BƯỚC ===== */
@@ -906,25 +928,53 @@
             return -1;
         }
 
-        function init() {
+        function init(forceNew = false) {
             stopT(); $('#modal').classList.remove('show');
             resetZoom(); selectedStudent = null;
-            const g = buildMap(numT);
 
-            N = g.P.map((p, i) => {
-                let isStart = p.t == 's';
-                let ownerIdx = isStart ? g.starts.indexOf(i) : -1;
-                return { x: p.x, y: p.y, t: p.t, owner: ownerIdx, dead: false };
-            });
-            E = g.E.map(([a, b]) => ({ a, b, alive: true }));
+            const savedStateStr = localStorage.getItem('gameState_' + currentClassID);
+            let state = null;
+            if (savedStateStr && !forceNew) {
+                state = JSON.parse(savedStateStr);
+            }
 
-            heads = [...g.starts];
-            owned = Array.from({ length: numT }, (_, i) => new Set([g.starts[i]]));
+            if (state && state.numT === numT) {
+                // Khôi phục State
+                N = state.N;
+                E = state.E;
+                heads = state.heads;
+                owned = state.owned.map(arr => new Set(arr));
+                turn = state.turn;
+                over = state.over;
+                stuck = state.stuck;
 
-            over = false; busy = false; stuck = Array(numT).fill(false); turn = numT - 1;
+                const savedLog = localStorage.getItem('gameLog_' + currentClassID);
+                gameLog = savedLog ? JSON.parse(savedLog) : [];
+                toast(`Đã khôi phục thành công bản đồ cũ của ${currentClassID.replace('_', '/')}.`, 'ok');
+            } else {
+                // Tạo mới hoàn toàn
+                const g = buildMap(numT);
+                N = g.P.map((p, i) => {
+                    let isStart = p.t == 's';
+                    let ownerIdx = isStart ? g.starts.indexOf(i) : -1;
+                    return { x: p.x, y: p.y, t: p.t, owner: ownerIdx, dead: false };
+                });
+                E = g.E.map(([a, b]) => ({ a, b, alive: true, rescue: false }));
+
+                heads = [...g.starts];
+                owned = Array.from({ length: numT }, (_, i) => new Set([g.starts[i]]));
+                over = false; busy = false; stuck = Array(numT).fill(false); turn = numT - 1;
+                gameLog = [];
+                nextTurn();
+                toast(`Khởi tạo bản đồ mới! Chào mừng ${currentClassID.replace('_', '/')}.`, 'ok');
+            }
 
             zGroup.innerHTML = '';
-            svgE = E.map(e => mk('line', { class: 'edge', x1: N[e.a].x, y1: N[e.a].y, x2: N[e.b].x, y2: N[e.b].y }, zGroup));
+            svgE = E.map(e => {
+                let cl = 'edge' + (e.rescue ? ' rescue' : '');
+                return mk('line', { class: cl, x1: N[e.a].x, y1: N[e.a].y, x2: N[e.b].x, y2: N[e.b].y }, zGroup)
+            });
+
             svgN = N.map((n, i) => {
                 const gr = mk('g', { class: 'node' }, zGroup), r = NS_R(n);
                 mk('circle', { class: 'r2', cx: n.x, cy: n.y, r: r + 8 }, gr);
@@ -936,8 +986,8 @@
                 return gr;
             });
 
-            nextTurn(); render();
-            toast(`Bắt đầu! ${currentClassID.replace('_', '/')} tham gia giải cứu.`, 'ok');
+            render();
+            saveGameState();
         }
 
         // TỰ ĐỘNG TẠO ĐƯỜNG CỨU VIỆN NẾU BỊ BÍT ĐƯỜNG
@@ -960,10 +1010,9 @@
             });
 
             if (bestEdge) {
-                let e = { a: bestEdge.a, b: bestEdge.b, alive: true };
+                let e = { a: bestEdge.a, b: bestEdge.b, alive: true, rescue: true };
                 E.push(e);
                 let line = mk('line', { class: 'edge rescue', x1: N[e.a].x, y1: N[e.a].y, x2: N[e.b].x, y2: N[e.b].y });
-                // Chèn đường line xuống dưới các Node
                 zGroup.insertBefore(line, zGroup.querySelector('.node'));
                 svgE.push(line);
                 toast(`✨ Hệ thống vừa kích hoạt ĐƯỜNG CỨU VIỆN cho ${TEAMS[t].n}!`, 'win');
@@ -975,13 +1024,14 @@
         function render() {
             const C = over ? [] : cands(turn);
             document.documentElement.style.setProperty('--tc', TEAMS[turn].c);
+
             E.forEach((e, k) => {
                 const a = N[e.a], own = e.alive && a.owner >= 0 && a.owner == N[e.b].owner;
-                // Preserve 'rescue' class if it has it
-                let isRescue = svgE[k].classList.contains('rescue') && !own;
+                let isRescue = e.rescue && !own;
                 svgE[k].setAttribute('class', 'edge' + (e.alive ? '' : ' cut') + (own ? ' own' : '') + (isRescue ? ' rescue' : ''));
                 svgE[k].style.stroke = own ? TEAMS[a.owner].c : '';
             });
+
             N.forEach((n, i) => {
                 const gr = svgN[i], ho = heads.indexOf(i);
                 gr.setAttribute('class', 'node' + (n.dead ? ' dead' : '') + (C.includes(i) ? ' cand' : ''));
@@ -994,7 +1044,7 @@
                 if (n.dead) { tx.textContent = 'X'; }
                 else if (n.t == 'c') { tx.textContent = 'LÕI'; }
                 else if (n.t == 's') { tx.textContent = 'T' + (n.owner + 1); }
-                else { tx.textContent = i; } // Đánh số Node
+                else { tx.textContent = i; }
             });
 
             if (over) {
@@ -1055,14 +1105,14 @@
                 // NẾU HẾT ĐƯỜNG ĐI (BỊ BÍT) -> MỞ ĐƯỜNG CỨU VIỆN
                 if (c.length === 0) {
                     if (regeneratePath(t)) {
-                        c = cands(t); // Quét lại đường đi
+                        c = cands(t);
                     }
                 }
 
                 if (c.length > 0) {
                     stuck[t] = false;
                     turn = t;
-                    // GIẢM COOLDOWN khi đến lượt của TỔ chứa học sinh đó
+                    // GIẢM COOLDOWN khi đến lượt
                     classStudents.forEach(stu => {
                         if (studentTeamMap[stu] === t && cooldowns[stu] > 0) cooldowns[stu]--;
                     });
@@ -1110,7 +1160,7 @@
         window.confirmChallenge = function (i, g) {
             done = false; stopT();
 
-            // LƯU GÁN TỔ CHO HỌC SINH VĨNH VIỄN NGAY KHI XÁC NHẬN CHƠI
+            // LƯU GÁN TỔ CHO HỌC SINH VĨNH VIỄN
             studentTeamMap[selectedStudent] = turn;
             localStorage.setItem('studentTeamMap_' + currentClassID, JSON.stringify(studentTeamMap));
 
@@ -1156,7 +1206,7 @@
             const t = turn, T = TEAMS[t];
             if (win) {
                 if (id == 0) {
-                    over = true; busy = false; N[0].owner = t; render(); toast(`Chiến thắng! ${T.n} đã chiếm Lõi Máy Chủ!`, 'win');
+                    over = true; busy = false; N[0].owner = t; render(); saveGameState(); toast(`Chiến thắng! ${T.n} đã chiếm Lõi Máy Chủ!`, 'win');
                     forceEnd(); return;
                 }
                 N[id].owner = t; heads[t] = id; owned[t].add(id);
@@ -1166,7 +1216,7 @@
                 N[id].dead = true; E.forEach(e => { if (e.a == id || e.b == id) e.alive = false });
                 toast(`[Thất bại] Ô #${id} thành Vùng Chết! Các đường nối bị đứt`, 'bad')
             }
-            busy = false; nextTurn(); render();
+            busy = false; nextTurn(); render(); saveGameState();
         }
 
         /* ===== MÀN HÌNH KẾT THÚC & KÉO THẢ QUẢN LÝ HỌC SINH ===== */
@@ -1183,7 +1233,7 @@
                 return b.nodes - a.nodes;
             });
 
-            $('#mHead').innerHTML = `<div style="font-size:1.8rem; color:#ffd84d; margin-bottom: 5px">BẢNG XẾP HẠNG & QUẢN LÝ LỚP</div><small>Nắm kéo tên học sinh để điều chỉnh Tổ</small>`;
+            $('#mHead').innerHTML = `<div style="font-size:1.8rem; color:#ffd84d; margin-bottom: 5px">BẢNG XẾP HẠNG & QUẢN LÝ LỚP</div><small>Nắm kéo tên học sinh để điều chỉnh Tổ (Trạng thái tự động lưu)</small>`;
             $('#tw').style.visibility = 'hidden';
 
             let endHtml = `<div class="rank-list" style="margin-bottom: 15px;">
@@ -1221,23 +1271,21 @@
             $('#mRes').innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top:15px;">
                     <button class="btn good" style="font-size: 1.1rem" onclick="exportCSV()">📊 Xuất danh sách lớp (Excel)</button>
-                    <button class="btn yellow" style="font-size: 1.1rem" onclick="$('#setup').classList.add('show'); $('#modal').classList.remove('show')">Ván mới / Đổi lớp</button>
+                    <button class="btn yellow" style="font-size: 1.1rem" onclick="$('#modal').classList.remove('show'); init(true);">🔄 Tạo Ván Mới (Xóa bản đồ)</button>
                 </div>`;
             $('#modal').classList.add('show');
 
             renderDD(); // Vẽ các nút kéo thả
-            render(); // Cập nhật lại UI sau cùng
+            render();
+            saveGameState();
         }
 
         // HÀM KÉO THẢ & GÁN TỔ
         window.renderDD = function () {
-            // Xóa rỗng các cột
             for (let i = -1; i < numT; i++) {
                 let z = document.getElementById('zone-' + i);
                 if (z) z.innerHTML = '';
             }
-
-            // Đổ học sinh vào cột tương ứng
             classStudents.forEach(stu => {
                 let t = studentTeamMap[stu];
                 if (t === undefined || t === null || t < 0 || t >= numT) t = -1; // -1 là chưa có tổ
@@ -1246,7 +1294,6 @@
                     let d = document.createElement('div');
                     d.className = 'dd-item';
                     d.draggable = true;
-                    // id chỉ để HTML ko báo lỗi, ko dùng chứa data thật
                     d.id = 'stu-' + Math.random().toString(36).substring(7);
                     d.textContent = stu;
                     d.ondragstart = (e) => { e.dataTransfer.setData('text/plain', stu); };
@@ -1267,9 +1314,9 @@
                     studentTeamMap[stu] = teamId;
                 }
                 localStorage.setItem('studentTeamMap_' + currentClassID, JSON.stringify(studentTeamMap));
-                toast(`Đã chuyển ${stu} sang ${teamId === -1 ? 'Chưa phân Tổ' : TEAMS[teamId].n}`, 'ok');
+                // ĐÃ XÓA ALERT ĐỂ KHÔNG BỊ PHIỀN KHI KÉO THẢ
                 renderDD();
-                if (!over) renderStudents(); // Cập nhật thanh bên phải
+                if (!over) renderStudents();
             }
         };
 
@@ -1279,7 +1326,7 @@
             if (name && !classStudents.includes(name)) {
                 classStudents.push(name);
 
-                // Lưu vào localstorage để nhớ vĩnh viễn HS vãng lai
+                // Lưu vào localstorage để nhớ vĩnh viễn HS bổ sung
                 const extraStr = localStorage.getItem('extra_students_' + currentClassID);
                 let extras = extraStr ? JSON.parse(extraStr) : [];
                 extras.push({ name: name, teamIdx: -1 });
@@ -1296,7 +1343,6 @@
         window.exportCSV = function () {
             let csvContent = "\uFEFFSTT,Họ tên,Tổ,Số lượt ĐÚNG,Số lượt SAI,Chi tiết câu hỏi\n";
 
-            // Tính điểm cho từng học sinh
             let stats = {};
             classStudents.forEach(stu => {
                 let tIdx = studentTeamMap[stu];
@@ -1316,7 +1362,7 @@
 
             // Sắp xếp theo Tổ -> Tên
             let sortedStudents = classStudents.slice().sort((a, b) => {
-                let tA = studentTeamMap[a] ?? 99; // Bọn chưa phân tổ xếp cuối
+                let tA = studentTeamMap[a] ?? 99;
                 let tB = studentTeamMap[b] ?? 99;
                 if (tA !== tB) return tA - tB;
                 return a.localeCompare(b);
@@ -1340,13 +1386,17 @@
         }
 
         window.clearLocalData = function () {
-            if (confirm("Xóa toàn bộ trí nhớ Gán Tổ và Cấm Lượt của lớp " + currentClassID.replace('_', '/') + "?")) {
+            if (confirm("Xác nhận xóa trắng dữ liệu lớp " + currentClassID.replace('_', '/') + " (Bao gồm Bản đồ đang lưu, Danh sách tổ, Điểm số)?")) {
+                localStorage.removeItem('gameState_' + currentClassID);
+                localStorage.removeItem('gameLog_' + currentClassID);
                 localStorage.removeItem('cooldowns_' + currentClassID);
                 localStorage.removeItem('studentTeamMap_' + currentClassID);
+                localStorage.removeItem('extra_students_' + currentClassID);
                 cooldowns = {};
                 studentTeamMap = {};
-                alert("Đã xóa! Trò chơi quay về trạng thái ban đầu.");
-                if (!over) renderStudents();
+                gameLog = [];
+                alert("Đã xóa! Trò chơi quay về trạng thái rỗng hoàn toàn.");
+                location.reload();
             }
         }
 
