@@ -647,6 +647,156 @@
             color: #000;
             border-color: #fff;
         }
+
+        #modal {
+            inset: auto;
+            top: 68px;
+            left: 14px;
+            right: 338px;
+            bottom: 14px;
+            padding: 0;
+            background: #030814f5;
+            border-radius: 18px
+        }
+
+        #modal .mbox {
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            max-height: none;
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            padding: 2vh 2vw;
+            overflow: auto
+        }
+
+        #modal #mHead {
+            font-size: clamp(1.1rem, 2.2vw, 2rem)
+        }
+
+        #modal #mHead small {
+            font-size: clamp(1rem, 1.6vw, 1.6rem)
+        }
+
+        #modal #mBody {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center
+        }
+
+        #modal .q {
+            font-size: clamp(1.2rem, 2vw, 2rem)
+        }
+
+        #modal .q.big {
+            font-size: clamp(1.6rem, 3.6vw, 3.6rem);
+            line-height: 1.3;
+            margin: 0 0 3vh
+        }
+
+        #modal .chat {
+            font-size: clamp(1.5rem, 3vw, 3rem);
+            padding: 3vh 2.5vw;
+            margin: 0 0 3vh
+        }
+
+        #modal .ans2,
+        #modal .ans4 {
+            flex: 1;
+            grid-auto-rows: 1fr;
+            gap: 2vh 1.5vw;
+            max-height: 55vh
+        }
+
+        #modal .ans2 .btn,
+        #modal .ans4 .btn {
+            font-size: clamp(1.3rem, 2.5vw, 2.6rem);
+            padding: 1.5vh 1.5vw;
+            display: flex;
+            align-items: center
+        }
+
+        #modal .tf-grid {
+            flex: 1;
+            max-height: 50vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2vw
+        }
+
+        #modal .tf-grid .btn {
+            font-size: clamp(2rem, 5vw, 5rem)
+        }
+
+        #modal .exp-box {
+            font-size: clamp(1.1rem, 1.8vw, 1.8rem)
+        }
+
+        #modal .confirm-box h3 {
+            font-size: clamp(1.5rem, 3vw, 3rem)
+        }
+
+        #modal .confirm-box .btn {
+            font-size: clamp(1.2rem, 2vw, 2rem) !important;
+            padding: 2vh 3vw !important
+        }
+
+        #modal #mRes .btn {
+            font-size: clamp(1.1rem, 1.8vw, 1.8rem)
+        }
+
+        #z {
+            transition: transform .8s ease;
+            transform-origin: 0 0
+        }
+
+        #z.drag {
+            transition: none
+        }
+
+        #modal .mbox {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden
+        }
+
+        #modal #mHead,
+        #modal #tw,
+        #modal #mRes {
+            flex: 0 0 auto
+        }
+
+        #modal #mBody {
+            flex: 1 0 auto;
+            min-height: 0;
+            justify-content: flex-start
+        }
+
+        #modal .ans2,
+        #modal .ans4 {
+            flex: none;
+            max-height: none;
+            grid-auto-rows: minmax(14vh, auto)
+        }
+
+        #modal .tf-grid {
+            flex: none;
+            max-height: none;
+            grid-auto-rows: minmax(26vh, auto)
+        }
+
+        #modal .exp-box {
+            flex: none;
+            margin-top: 3vh
+        }
+
+        #modal #mRes {
+            padding-bottom: 2vh
+        }
     </style>
 </head>
 
@@ -674,9 +824,10 @@
                 <g id="z"></g>
             </svg>
             <div class="zoom-controls">
-                <button class="btn outline" onclick="zoom(0.2)">Phóng to (+)</button>
-                <button class="btn outline" onclick="zoom(-0.2)">Thu nhỏ (-)</button>
-                <button class="btn outline" onclick="resetZoom()">Mặc định</button>
+                <button class="btn outline" onclick="zoom(0.2)">+</button>
+                <button class="btn outline" onclick="zoom(-0.2)">-</button>
+                <button class="btn outline" onclick="resetZoom()">Về lượt hiện tại</button>
+                <button class="btn outline" onclick="showAll()">Toàn cảnh</button>
             </div>
         </div>
         <aside>
@@ -773,17 +924,35 @@
         const NS_R = n => n.t == 'c' ? 40 : n.t == 's' ? 26 : 14;
 
         /* ===== ZOOM/PAN ===== */
-        let zScale = 1, zPanX = 0, zPanY = 0, isDragging = false, startX, startY;
+        let zScale = 1, zPanX = 0, zPanY = 0, isDragging = false, startX, startY, lastFocusKey = null;
         const svgEl = $('#g'); const zGroup = $('#z');
-        function applyTransform() { zGroup.setAttribute('transform', `translate(${zPanX}, ${zPanY}) scale(${zScale})`); }
-        function zoom(delta) { zScale = Math.max(0.4, Math.min(3, zScale + delta)); applyTransform(); }
-        function resetZoom() { zScale = 1; zPanX = 0; zPanY = 0; applyTransform(); }
+        function applyTransform() { zGroup.style.transform = `translate(${zPanX}px, ${zPanY}px) scale(${zScale})`; }
+        function zoom(d) {
+            const ns = Math.max(0.4, Math.min(3, zScale + d)), r = ns / zScale;
+            zPanX = 500 - (500 - zPanX) * r; zPanY = 320 - (320 - zPanY) * r; zScale = ns; applyTransform();
+        }
+        function showAll() { zScale = 1; zPanX = 0; zPanY = 0; applyTransform(); }
+        function resetZoom() { lastFocusKey = null; if (!N || over) showAll(); else focusTurn(); }
+
+        // Zoom vừa khít: node hiện tại + Lõi + các ô có thể đi
+        function focusTurn() {
+            if (over || !N) return;
+            const key = turn + '-' + heads[turn];
+            if (key === lastFocusKey) return;
+            lastFocusKey = key;
+            const pts = [heads[turn], 0, ...cands(turn)].map(i => N[i]);
+            const PAD = 90;
+            const x0 = Math.min(...pts.map(p => p.x)) - PAD, x1 = Math.max(...pts.map(p => p.x)) + PAD;
+            const y0 = Math.min(...pts.map(p => p.y)) - PAD * .8, y1 = Math.max(...pts.map(p => p.y)) + PAD * .8;
+            zScale = Math.max(.5, Math.min(2.2, 1000 / (x1 - x0), 640 / (y1 - y0)));
+            zPanX = 500 - (x0 + x1) / 2 * zScale; zPanY = 320 - (y0 + y1) / 2 * zScale;
+            applyTransform();
+        }
 
         svgEl.addEventListener('wheel', (e) => { e.preventDefault(); zoom(e.deltaY < 0 ? 0.1 : -0.1); });
-        svgEl.addEventListener('mousedown', (e) => { isDragging = true; startX = e.clientX - zPanX; startY = e.clientY - zPanY; });
+        svgEl.addEventListener('mousedown', (e) => { isDragging = true; zGroup.classList.add('drag'); startX = e.clientX - zPanX; startY = e.clientY - zPanY; });
         window.addEventListener('mousemove', (e) => { if (!isDragging) return; zPanX = e.clientX - startX; zPanY = e.clientY - startY; applyTransform(); });
-        window.addEventListener('mouseup', () => { isDragging = false; });
-
+        window.addEventListener('mouseup', () => { isDragging = false; zGroup.classList.remove('drag'); });
         // CÁC BIẾN CHỨA CÂU HỎI
         let TF = [];
         let SIT = [];
@@ -860,58 +1029,67 @@
             localStorage.setItem('gameLog_' + currentClassID, JSON.stringify(gameLog));
         }
 
-        /* ===== MAP 10 BƯỚC ===== */
+        /* ===== MAP N  BƯỚC ===== */
+        const MAP_LEVELS = 13;     // số tầng từ T tới Lõi
+        const START_ADVANCE = 3;  // mỗi tổ xuất phát sẵn đã đi 3 node sau T
+        const TWIST = 0.8;        // độ xoắn mỗi tầng phía trong (radian)
+
         function buildMap(num) {
-            const P = [{ x: 500, y: 320, t: 'c' }];
-            const E = [];
-            const rings = [6, 9, 12, 16, 20, 24, 28, 32, 36, 40];
-            const nodes = [[0]];
-            let nId = 1;
+            const D = MAP_LEVELS, A = START_ADVANCE, n = num, cIn = Math.max(4, n);
+            const RX = 470, RY = 295, TAU = Math.PI * 2;
+            const P = [{ x: 500, y: 320, t: 'c', a: 0 }];
+            const id = Array.from({ length: D + 1 }, () => []);
 
-            rings.forEach((cnt, rIdx) => {
-                const rNodes = [];
-                const radius = (rIdx + 1) * 31;
-                const angleOffset = (rIdx % 2) * (Math.PI / cnt);
+            // Đặt node theo tầng: tầng ngoài (đường xuất phát) n node thẳng hàng, tầng trong xoay dần
+            for (let k = D; k >= 1; k--) {
+                const lane = k >= D - A;
+                const cnt = lane ? n : (k === 1 ? 3 : cIn);
+                const f = 0.28 + 0.72 * (k - 1) / (D - 1);
+                const base = Math.PI / n + (lane ? 0 : (D - A - k + 1) * TWIST);
                 for (let i = 0; i < cnt; i++) {
-                    const angle = (i / cnt) * Math.PI * 2 + angleOffset;
-                    const rDistort = radius + (Math.random() * 8 - 4);
-                    const aDistort = angle + (Math.random() * 0.06 - 0.03);
-                    const x = 500 + Math.cos(aDistort) * rDistort * 1.55;
-                    const y = 320 + Math.sin(aDistort) * rDistort;
-                    P.push({ x, y, t: 'n' });
-                    rNodes.push(nId++);
+                    const a = base + TAU * i / cnt;
+                    const jit = lane ? 1 : 1 + Math.random() * .06 - .03;
+                    P.push({ x: 500 + Math.cos(a) * RX * f * jit, y: 320 + Math.sin(a) * RY * f * jit, t: k === D ? 's' : 'n', a });
+                    id[k].push(P.length - 1);
                 }
-                nodes.push(rNodes);
+            }
+
+            const S = new Set(), hasOuter = new Set();
+            const add = (a, b) => S.add(Math.min(a, b) + '-' + Math.max(a, b));
+            const angD = (a, b) => { const d = Math.abs(a - b) % TAU; return d > Math.PI ? TAU - d : d; };
+            const nearest = (u, level) => level.slice().sort((p, q) => angD(P[p].a, P[u].a) - angD(P[q].a, P[u].a));
+
+            // Đường xuất phát cố định: T -> n1 -> n2 -> n3
+            for (let j = 0; j < n; j++)
+                for (let k = D; k > D - A; k--) add(id[k][j], id[k - 1][j]);
+
+            // Mỗi node nối vào 1-2 node gần nhất ở tầng trong (đi lệch góc => đường xoắn)
+            for (let k = D - A; k >= 2; k--) {
+                for (const u of id[k]) {
+                    const c = nearest(u, id[k - 1]);
+                    add(u, c[0]); hasOuter.add(c[0]);
+                    if (Math.random() < .4) { add(u, c[1]); hasOuter.add(c[1]); }
+                }
+            }
+            // Chỉ 3 node tầng 1 nối vào Lõi
+            id[1].forEach(u => add(u, 0));
+
+            // Node tầng trong chưa có đường từ ngoài vào thì nối thêm
+            for (let k = 1; k < D - A; k++)
+                for (const v of id[k])
+                    if (!hasOuter.has(v)) add(nearest(v, id[k + 1])[0], v);
+
+            // Cạnh cung cùng tầng: làm đường đi vòng quanh Lõi (không làm đường ngắn hơn)
+            for (let k = 1; k < D - A; k++) {
+                const L = id[k];
+                L.forEach((u, i) => { if (Math.random() < .45) add(u, L[(i + 1) % L.length]); });
+            }
+
+            const E = [...S].map(s => s.split('-').map(Number)).filter(e => e[0] !== e[1]);
+            const lanes = Array.from({ length: n }, (_, j) => {
+                const l = []; for (let k = D; k >= D - A; k--) l.push(id[k][j]); return l;
             });
-
-            for (let r = 1; r <= rings.length; r++) {
-                const cur = nodes[r];
-                const inner = nodes[r - 1];
-                cur.forEach((u, i) => {
-                    const sortedInner = inner.slice().sort((a, b) => Math.hypot(P[a].x - P[u].x, P[a].y - P[u].y) - Math.hypot(P[b].x - P[u].x, P[b].y - P[u].y));
-                    E.push([u, sortedInner[0]]);
-                    if (Math.random() > 0.4 && sortedInner.length > 1) E.push([u, sortedInner[1]]);
-                    if (Math.random() > 0.6) E.push([u, cur[(i + 1) % cur.length]]);
-                });
-            }
-
-            const starts = [];
-            const outRadius = 340;
-            for (let i = 0; i < num; i++) {
-                const angle = (i / num) * Math.PI * 2 + (Math.PI / num);
-                const x = 500 + Math.cos(angle) * outRadius * 1.55;
-                const y = 320 + Math.sin(angle) * outRadius;
-                P.push({ x, y, t: 's' });
-                const sId = nId++;
-                starts.push(sId);
-
-                const outer = nodes[rings.length];
-                const sortedOuter = outer.slice().sort((a, b) => Math.hypot(P[a].x - P[sId].x, P[a].y - P[sId].y) - Math.hypot(P[b].x - P[sId].x, P[b].y - P[sId].y));
-                E.push([sId, sortedOuter[0]]);
-            }
-
-            const uE = Array.from(new Set(E.map(e => e.sort((a, b) => a - b).join('-')))).map(s => s.split('-').map(Number));
-            return { P, E: uE, starts };
+            return { P, E, lanes };
         }
 
         /* ===== INIT & RENDER GAME ===== */
@@ -930,8 +1108,7 @@
 
         function init(forceNew = false) {
             stopT(); $('#modal').classList.remove('show');
-            resetZoom(); selectedStudent = null;
-
+            zScale = 1; zPanX = 0; zPanY = 0; lastFocusKey = null; applyTransform(); selectedStudent = null;
             const savedStateStr = localStorage.getItem('gameState_' + currentClassID);
             let state = null;
             if (savedStateStr && !forceNew) {
@@ -954,15 +1131,11 @@
             } else {
                 // Tạo mới hoàn toàn
                 const g = buildMap(numT);
-                N = g.P.map((p, i) => {
-                    let isStart = p.t == 's';
-                    let ownerIdx = isStart ? g.starts.indexOf(i) : -1;
-                    return { x: p.x, y: p.y, t: p.t, owner: ownerIdx, dead: false };
-                });
+                N = g.P.map(p => ({ x: p.x, y: p.y, t: p.t, owner: -1, dead: false }));
+                g.lanes.forEach((ln, t) => ln.forEach(nid => N[nid].owner = t));
                 E = g.E.map(([a, b]) => ({ a, b, alive: true, rescue: false }));
-
-                heads = [...g.starts];
-                owned = Array.from({ length: numT }, (_, i) => new Set([g.starts[i]]));
+                heads = g.lanes.map(l => l[l.length - 1]);
+                owned = g.lanes.map(l => new Set(l));   // thứ tự: T, n1, n2, n3 (n3 là đầu)
                 over = false; busy = false; stuck = Array(numT).fill(false); turn = numT - 1;
                 gameLog = [];
                 nextTurn();
@@ -1063,6 +1236,7 @@
                         onclick="punishTeam(${i})" ${owned[i].size <= 1 || over || busy ? 'disabled' : ''}>⚠ Phạt lùi 1 node</button>
                 </div>`
             }).join('');
+            focusTurn();
         }
 
         window.punishTeam = function (teamId) {
@@ -1439,11 +1613,11 @@
         let currentQData = null;
         function G1() {
             currentQData = draw('tf', TF);
-            $('#mBody').innerHTML = `<p class="q big" style="font-size: 1.35rem; margin-bottom: 30px">${currentQData.q}</p>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <button class="btn" style="font-size:1.5rem; padding: 25px" onclick="ch1(true, this)">[ ĐÚNG ]</button>
-                    <button class="btn" style="font-size:1.5rem; padding: 25px" onclick="ch1(false, this)">[ SAI ]</button>
-                </div>`;
+            $('#mBody').innerHTML = `<p class="q big">${currentQData.q}</p>
+        <div class="tf-grid">
+            <button class="btn" onclick="ch1(true, this)">ĐÚNG</button>
+            <button class="btn" onclick="ch1(false, this)">SAI</button>
+        </div>`;
             window.ch1 = (ans, btnNode) => {
                 if (done) return;
                 const isOk = (ans === currentQData.a);
@@ -1452,7 +1626,6 @@
             };
             startT(30, () => finish(false, currentQData.exp));
         }
-
         function G2() {
             currentQData = draw('sit', SIT);
             const o = sh([[currentQData.g, true], [currentQData.b, false]]);
