@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tin học 3 - Xưởng Ráp PC</title>
+    <!-- SheetJS để xuất Excel thật (.xlsx). Nếu mất mạng, game tự xuất CSV mở được bằng Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&display=swap');
+
+        :root {
+            --bg: #f7f9ff;
+            --primary: #4361ee;
+            --secondary: #ffb703;
+            --text: #2b2d42;
+            --muted: #71809d;
+            --green: #2a9d8f;
+            --red: #e63946;
+            --navy: #101b35;
+            --cyan: #29d3d8;
+            --yellow: #ffc857;
+            --violet: #7667f5
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            font-family: 'Quicksand', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 2.6vh
+        }
+
+        .main {
+            flex: 1;
+            min-width: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 2vh 3vw;
+            background: radial-gradient(circle at 10% 5%, #e1f8fa 0, transparent 28%), var(--bg)
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            min-height: 96vh;
+            animation: fade .3s
+        }
+
+        .screen.on {
+            display: flex
+        }
+
+        @keyframes fade {
+            from {
+                opacity: 0;
+                transform: scale(.98)
+            }
+
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            font-size: 6vh;
+            margin: 1vh 0 2vh;
+            font-weight: 900
+        }
+
+        .tag,
+        .badge {
+            display: inline-block;
+            padding: .8vh 1.6vw;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 2.2vh
+        }
+
+        .tag {
+            background: var(--primary);
+            color: #fff
+        }
+
+        .badge {
+            background: #eef4ff;
+            border: 2px solid #dfe9ff;
+            color: var(--navy)
+        }
+
+        .bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.5vh
+        }
+
+        .btn {
+            border: 0;
+            border-radius: 14px;
+            padding: 1.4vh 2vw;
+            font: 800 2.6vh 'Quicksand';
+            color: #fff;
+            background: var(--violet);
+            box-shadow: 0 6px 0 #5044c9;
+            cursor: pointer;
+            transition: .15s
+        }
+
+        .btn:hover {
+            transform: translateY(-2px)
+        }
+
+        .btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #5044c9
+        }
+
+        .btn.warn {
+            background: var(--yellow);
+            color: #563a00;
+            box-shadow: 0 6px 0 #d89e28
+        }
+
+        .btn.gray {
+            background: #e9eefb;
+            color: var(--navy);
+            box-shadow: 0 5px 0 #cbd4e9
+        }
+
+        .btn.red {
+            background: var(--red);
+            box-shadow: 0 6px 0 #a82833
+        }
+
+        .btn.green {
+            background: var(--green);
+            box-shadow: 0 6px 0 #1d7167
+        }
+
+        .btn:disabled {
+            opacity: .45;
+            pointer-events: none
+        }
+
+        .panel {
+            padding: 2.5vh 2.5vw;
+            border-left: 8px solid var(--cyan);
+            border-radius: 0 16px 16px 0;
+            background: #e8fbfc;
+            font-weight: 700;
+            line-height: 1.5
+        }
+
+        select {
+            font: 700 2.4vh 'Quicksand';
+            padding: 1vh 1vw;
+            border-radius: 10px;
+            border: 2px solid var(--primary)
+        }
+
+        .spacer {
+            margin-top: auto;
+            padding-top: 2vh;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        /* ---- Thùng hàng Phase 1 ---- */
+        .box-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2.5vh 2vw;
+            margin: 2vh 0
+        }
+
+        .box {
+            position: relative;
+            text-align: center;
+            font-size: 11vh;
+            padding: 2vh;
+            background: #fff;
+            border: 4px dashed var(--secondary);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: .2s;
+            box-shadow: 0 10px 20px #0000001a
+        }
+
+        .box:hover {
+            transform: scale(1.06) rotate(-3deg)
+        }
+
+        .box.open {
+            cursor: default;
+            border-style: solid;
+            border-color: var(--green);
+            background: #e9f5f4;
+            transform: none
+        }
+
+        .box small {
+            display: block;
+            font-size: 2.4vh;
+            font-weight: 800;
+            color: var(--navy)
+        }
+
+        .box.seized {
+            border-color: var(--red);
+            background: #ffe5e5;
+            opacity: .7
+        }
+
+        .seize {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            width: 4vh;
+            height: 4vh;
+            border: 0;
+            border-radius: 50%;
+            background: var(--red);
+            color: #fff;
+            font-size: 2.4vh;
+            font-weight: 900;
+            cursor: pointer
+        }
+
+        /* ---- Kho đồ ---- */
+        .inv {
+            display: flex;
+            gap: 1.2vw;
+            align-items: stretch;
+            flex-wrap: wrap
+        }
+
+        .slots {
+            display: flex;
+            gap: 1vw
+        }
+
+        .slot {
+            width: 11vh;
+            height: 11vh;
+            display: grid;
+            place-items: center;
+            font-size: 6vh;
+            border: 3px dashed #b6c2dc;
+            border-radius: 16px;
+            background: #fff;
+            position: relative;
+            text-align: center
+        }
+
+        .slot span {
+            filter: grayscale(1) brightness(.3) opacity(.35)
+        }
+
+        .slot.have {
+            border: 3px solid var(--green);
+            background: #dff9ee;
+            box-shadow: 0 0 18px #38c98b88
+        }
+
+        .slot.have span {
+            filter: none
+        }
+
+        .slot b {
+            position: absolute;
+            right: 4px;
+            bottom: 2px;
+            font-size: 2.2vh;
+            color: var(--red)
+        }
+
+        .bag {
+            flex: 1;
+            min-width: 120px;
+            border: 3px solid #dfe9ff;
+            border-radius: 16px;
+            background: #fff;
+            padding: .8vh 1vw;
+            font-size: 3.6vh
+        }
+
+        .bag em {
+            display: block;
+            font-size: 1.8vh;
+            color: var(--muted);
+            font-style: normal;
+            font-weight: 800
+        }
+
+        .mini .slot {
+            width: 4.2vh;
+            height: 4.2vh;
+            font-size: 2.6vh;
+            border-width: 2px;
+            border-radius: 8px
+        }
+
+        .mini .slot b {
+            display: none
+        }
+
+        /* ---- Câu hỏi ---- */
+        .ans-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.6vh;
+            margin-top: 2vh
+        }
+
+        .ans {
+            background: #fff;
+            border: 3px solid #e0e4e8;
+            padding: 2vh;
+            font: 700 3.2vh 'Quicksand';
+            border-radius: 14px;
+            text-align: left;
+            cursor: pointer;
+            transition: .2s
+        }
+
+        .ans:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px)
+        }
+
+        .ans.ok {
+            background: var(--green);
+            color: #fff;
+            border-color: var(--green)
+        }
+
+        .ans.no {
+            background: var(--red);
+            color: #fff;
+            border-color: var(--red)
+        }
+
+        .qtext {
+            font-size: 4vh;
+            font-weight: 900;
+            color: var(--navy);
+            margin: 0 0 1vh
+        }
+
+        .fb {
+            min-height: 5vh;
+            font-size: 3.6vh;
+            font-weight: 900;
+            text-align: center;
+            margin-top: 1.5vh
+        }
+
+        .drag-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2vw;
+            margin-top: 1.5vh
+        }
+
+        .col {
+            min-height: 20vh;
+            padding: 1.2vh;
+            border: 3px dashed #c4d4ec;
+            border-radius: 16px;
+            background: #f8fbff
+        }
+
+        .col h3 {
+            margin: 0 0 1vh;
+            text-align: center;
+            font-size: 3vh
+        }
+
+        .col.yes h3 {
+            color: var(--green)
+        }
+
+        .col.no h3 {
+            color: var(--red)
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1vh 1vw;
+            justify-content: center;
+            margin: 1.5vh 0;
+            min-height: 7vh
+        }
+
+        .chip {
+            padding: 1.2vh 1.4vw;
+            background: #fff;
+            border: 3px solid #dfe9ff;
+            border-radius: 12px;
+            box-shadow: 0 4px 0 #dfe9ff;
+            font-weight: 800;
+            font-size: 2.8vh;
+            cursor: grab;
+            user-select: none
+        }
+
+        .chip.sel {
+            border-color: var(--violet);
+            background: #f4f6ff
+        }
+
+        .chip.good {
+            border-color: var(--green);
+            background: #dff9ee;
+            cursor: default
+        }
+
+        .chip.bad {
+            animation: shake .4s;
+            border-color: var(--red)
+        }
+
+        @keyframes shake {
+            25% {
+                transform: translateX(-8px)
+            }
+
+            75% {
+                transform: translateX(8px)
+            }
+        }
+
+        .scene {
+            font-size: 12vh;
+            text-align: center;
+            margin: 1vh 0;
+            letter-spacing: 1vw
+        }
+
+        /* ---- Quà đầu giờ & Kanban ---- */
+        .gift-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(20vw, 1fr));
+            gap: 2vh 1.5vw;
+            margin: 2vh 0
+        }
+
+        .gcard {
+            background: #fff;
+            border: 4px dashed var(--secondary);
+            border-radius: 20px;
+            padding: 2vh;
+            text-align: center
+        }
+
+        .gcard h3 {
+            margin: 0 0 1vh;
+            color: var(--primary);
+            font-size: 3.4vh
+        }
+
+        .gitem {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: .8vh 1vw;
+            margin: .8vh 0;
+            border-radius: 12px;
+            background: #f4f6f9;
+            font-size: 3vh;
+            font-weight: 800
+        }
+
+        .gitem.core {
+            background: #dff9ee;
+            border: 2px solid var(--green)
+        }
+
+        .gitem.seized {
+            background: #ffe5e5;
+            text-decoration: line-through;
+            opacity: .6
+        }
+
+        .gitem button {
+            border: 0;
+            border-radius: 50%;
+            width: 3.6vh;
+            height: 3.6vh;
+            background: var(--red);
+            color: #fff;
+            font-weight: 900;
+            cursor: pointer
+        }
+
+        .kcol {
+            max-height: 60vh;
+            overflow-y: auto
+        }
+
+        /* ---- Gacha ---- */
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            display: none;
+            place-items: center;
+            background: #071429d9
+        }
+
+        .modal.on {
+            display: grid
+        }
+
+        .mcard {
+            background: #fff;
+            border: 5px solid #dfe9ff;
+            border-radius: 30px;
+            padding: 5vh 5vw;
+            text-align: center;
+            min-width: 40vw;
+            max-width: 90vw;
+            animation: fade .3s
+        }
+
+        .capsule {
+            font-size: 22vh;
+            cursor: pointer;
+            display: inline-block;
+            animation: bob 1.2s ease-in-out infinite;
+            filter: drop-shadow(0 12px 0 #0000001f)
+        }
+
+        .capsule.shake {
+            animation: cshake .7s
+        }
+
+        @keyframes bob {
+            50% {
+                transform: translateY(-14px)
+            }
+        }
+
+        @keyframes cshake {
+
+            0%,
+            100% {
+                transform: rotate(0)
+            }
+
+            15% {
+                transform: rotate(-18deg) scale(1.1)
+            }
+
+            30% {
+                transform: rotate(18deg) scale(1.2)
+            }
+
+            45% {
+                transform: rotate(-14deg) scale(1.2)
+            }
+
+            60% {
+                transform: rotate(14deg) scale(1.25)
+            }
+
+            80% {
+                transform: scale(1.4)
+            }
+        }
+
+        .reveal {
+            font-size: 20vh;
+            animation: pop .5s
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(0) rotate(-40deg)
+            }
+
+            70% {
+                transform: scale(1.25)
+            }
+
+            100% {
+                transform: scale(1)
+            }
+        }
+
+        .cf {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            z-index: 900;
+            pointer-events: none;
+            font-size: 4vh;
+            animation: cf 1.6s ease-out forwards
+        }
+
+        @keyframes cf {
+            to {
+                transform: translate(var(--x), var(--y)) rotate(var(--r));
+                opacity: 0
+            }
+        }
+
+        /* ---- Sidebar: chiếm 1/2 màn hình, KHÔNG cuộn ---- */
+        .side {
+            width: 50vw;
+            height: 100vh;
+            flex-shrink: 0;
+            background: #fff;
+            border-left: 4px solid var(--primary);
+            box-shadow: -5px 0 20px #0000000d;
+            padding: 1.2vh 1vw;
+            display: flex;
+            flex-direction: column;
+            gap: 1vh;
+            font-size: 2.2vh
+        }
+
+        .shead {
+            display: flex;
+            align-items: center;
+            gap: .8vw;
+            font-weight: 900;
+            font-size: 2.8vh;
+            color: var(--navy)
+        }
+
+        .shead span {
+            flex: 1
+        }
+
+        .shead .btn {
+            font-size: 2.2vh;
+            padding: 1vh 1vw;
+            box-shadow: 0 4px 0 #5044c9
+        }
+
+        .shead .btn.gray {
+            box-shadow: 0 4px 0 #cbd4e9
+        }
+
+        .shead .btn.warn {
+            box-shadow: 0 4px 0 #d89e28
+        }
+
+        #teamList {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            gap: 1vh .8vw;
+            overflow: hidden
+        }
+
+        .tcard {
+            min-height: 0;
+            border: 3px solid #e0e4e8;
+            border-radius: 14px;
+            padding: .8vh .8vw;
+            background: #f4f6f9;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: .4vh
+        }
+
+        .tcard.active {
+            border-color: var(--secondary);
+            background: #fff8e1;
+            box-shadow: 0 0 14px #ffb70380
+        }
+
+        .tname {
+            font-weight: 900;
+            font-size: 2.8vh;
+            color: var(--primary);
+            outline: none
+        }
+
+        .tstat {
+            font-size: 1.9vh;
+            color: var(--muted);
+            font-weight: 800
+        }
+
+        .tcard .btn {
+            width: 100%;
+            font-size: 2vh;
+            padding: .7vh;
+            box-shadow: 0 3px 0 #a82833
+        }
+
+        .mini .inv {
+            flex-wrap: nowrap;
+            gap: .5vw
+        }
+
+        .mini .slots {
+            gap: .4vw
+        }
+
+        .mini .bag {
+            font-size: 2.8vh;
+            padding: .2vh .5vw;
+            overflow: hidden;
+            line-height: 1.15
+        }
+
+        .mini .bag em {
+            display: none
+        }
+
+        body.full .side {
+            display: none
+        }
+
+        svg {
+            vertical-align: -.12em
+        }
+
+        /* ---- Thùng hàng đánh số (sau khi trả lời đúng) ---- */
+        .gboxes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2vh 2vw;
+            margin: 1vh 0
+        }
+
+        .gbox {
+            position: relative;
+            font-size: 12vh;
+            padding: 1.5vh 3vw;
+            background: #fff;
+            border: 4px dashed var(--secondary);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: .2s;
+            line-height: 1.1
+        }
+
+        .gbox b {
+            position: absolute;
+            top: 4px;
+            left: 10px;
+            font-size: 3.4vh;
+            color: var(--primary);
+            background: #eef4ff;
+            border-radius: 8px;
+            padding: 0 8px
+        }
+
+        .gbox:hover {
+            transform: scale(1.08) rotate(-3deg);
+            border-color: var(--red)
+        }
+
+        .gbox.shake {
+            animation: cshake .7s
+        }
+
+        .gbox.dim {
+            opacity: .3;
+            pointer-events: none
+        }
+
+        .gbox.open {
+            border-style: solid;
+            border-color: var(--green);
+            background: #dff9ee;
+            cursor: default;
+            transform: none;
+            animation: pop .5s
+        }
+
+        .toast {
+            position: fixed;
+            top: 2vh;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            background: var(--red);
+            color: #fff;
+            padding: 1.5vh 2vw;
+            border-radius: 16px;
+            font-weight: 900;
+            font-size: 3vh;
+            box-shadow: 0 10px 30px #0004;
+            animation: fade .3s
+        }
+
+        /* ---- Kanban ---- */
+        .kanban {
+            display: flex;
+            gap: 1vw;
+            flex: 1;
+            align-items: flex-start;
+            overflow-x: auto
+        }
+
+        .kcol {
+            flex: 1;
+            min-width: 190px;
+            min-height: 40vh;
+            background: #fff;
+            border: 3px dashed #c4d4ec;
+            border-radius: 16px;
+            padding: 1vh
+        }
+
+        .kcol h3 {
+            text-align: center;
+            margin: 0 0 1vh;
+            color: var(--primary);
+            font-size: 2.6vh
+        }
+
+        .kcard {
+            background: #eef4ff;
+            border: 2px solid #dfe9ff;
+            border-radius: 10px;
+            padding: .8vh 1vw;
+            margin-bottom: .8vh;
+            font-weight: 800;
+            font-size: 2.2vh;
+            cursor: grab
+        }
+
+        .kcard small {
+            display: block;
+            color: var(--muted);
+            font-size: 1.8vh
+        }
+
+        .kcol {
+            min-width: 140px
+        }
+
+        .kcard {
+            font-size: 2vh
+        }
+
+        .ans {
+            font-size: 2.8vh
+        }
+
+        .qtext {
+            font-size: 3.4vh
+        }
+    </style>
+</head>
+
+<body class="full">
+    <!-- ================= KHU VỰC CHÍNH ================= -->
+    <div class="main">
+        <!-- 0. CHỌN LỚP & SỐ TỔ (chưa chia tổ - tổ được ghi nhận dần khi chơi) -->
+        <section class="screen on" id="s-welcome" style="justify-content:center;align-items:center;text-align:center">
+            <div class="tag">Tin học 3</div>
+            <h1 style="font-size:8vh">🛠️ XƯỞNG RÁP PC 🛠️</h1>
+            <p style="font-size:3.6vh;font-weight:800;color:var(--muted)">Điệp vụ lắp ráp máy tính — đội nào gom đủ 4
+                linh kiện sẽ vô địch!</p>
+            <p><b>Lớp:</b> <select id="classSel" onchange="setupClass()"></select>
+                &nbsp; <b>Số tổ:</b> <select id="teamCount" onchange="setupClass()">
+                    <option>2</option>
+                    <option>3</option>
+                    <option selected>4</option>
+                    <option>5</option>
+                </select></p>
+            <p id="setupMsg" style="font-weight:800;color:var(--muted);max-width:70vw">Đang tải dữ liệu...</p>
+            <button class="btn warn" style="font-size:4vh;padding:2vh 4vw" onclick="startPhase1()">Bắt đầu Phase 1
+                ➔</button>
+        </section>
+
+        <!-- 1. PHASE 1: QUÀ ĐẦU GIỜ -->
+        <section class="screen" id="s-p1">
+            <div class="bar"><span class="tag">Phase 1</span><span class="badge">Quà đầu giờ</span></div>
+            <h1>🎁 Quà đầu giờ cho các tổ</h1>
+            <div style="text-align:center"><button class="btn red" id="dealBtn" style="font-size:4vh"
+                    onclick="dealGifts()">🎁 PHÁT QUÀ CHO CÁC TỔ</button></div>
+            <div class="gift-grid" id="giftGrid"></div>
+            <div class="spacer"><span class="badge">Lớp ồn? Bấm ✕ đỏ để tịch thu món quà đó!</span>
+                <button class="btn warn" id="p1Next" onclick="startPhase2()" disabled>Sang Phase 2 ➔</button>
+            </div>
+        </section>
+
+        <!-- 2. PHASE 2: NHIỆM VỤ -->
+        <section class="screen" id="s-p2">
+            <div class="bar"><span class="tag">Phase 2</span><span class="badge" id="lvlBadge">Cấp độ</span>
+                <span></span>
+            </div>
+            <h1 id="turnTitle" style="font-size:5vh">Lượt của đội</h1>
+            <div style="display:flex;gap:1vw;justify-content:center;align-items:center;flex-wrap:wrap">
+                <span style="font-weight:900">👦 Bạn trả lời:</span><select id="stuSel"
+                    onchange="$('drawBtn').disabled=!this.value"></select>
+                <button class="btn red" id="drawBtn" onclick="drawQuestion()" disabled>🎲 BỐC NHIỆM VỤ</button>
+            </div>
+            <div class="panel" id="qBox" style="display:none;margin-top:2vh"></div>
+            <div class="fb" id="fb"></div>
+            <div style="text-align:center"><button class="btn gray" id="nextTurn" style="display:none"
+                    onclick="advanceTurn()">Đội kế tiếp ➔</button></div>
+            <div class="spacer" style="align-items:flex-end">
+                <div>
+                    <div style="font-weight:900;font-size:2.2vh;color:var(--muted)">KHO ĐỒ ĐỘI ĐANG CHƠI</div>
+                    <div id="bigInv"></div>
+                </div>
+                <div id="tradeBox"></div>
+            </div>
+        </section>
+
+        <!-- 3. TỔNG KẾT: KANBAN -->
+        <section class="screen" id="s-sum">
+            <div class="bar"><span class="tag">Tổng kết</span><span class="badge">Kéo thả học sinh sang đội khác để điều
+                    chỉnh</span></div>
+            <h1 id="sumTitle">📊 Tổng kết</h1>
+            <div class="kanban" id="kanban"></div>
+            <div class="spacer"><button class="btn gray" onclick="show(G.phase===1?'p1':'p2')">⬅ Quay lại game</button>
+                <button class="btn green" onclick="exportExcel()">📥 Xuất Excel báo cáo</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- ================= SIDEBAR QUẢN LÝ ================= -->
+    <aside class="side">
+        <div class="shead"><span>🛠️ Bảng đội</span><button class="btn gray" onclick="addStudent()">➕ Thêm học
+                sinh</button><button class="btn warn" onclick="showSummary()">📊 Tổng kết</button></div>
+        <div id="teamList"></div>
+    </aside>
+
+    <!-- Modal Gacha -->
+    <div class="modal" id="gacha">
+        <div class="mcard">
+            <h2 id="gTitle" style="color:var(--violet);font-size:4vh;margin:0 0 1vh">🎁 Phần thưởng!</h2>
+            <div id="gBody"></div>
+            <p id="gMsg" style="font-weight:800;font-size:3.4vh;color:var(--muted);margin:1vh 0"></p>
+            <button class="btn green" id="gClose" style="display:none" onclick="closeGacha()">Tuyệt vời! ➔</button>
+        </div>
+    </div>
+    <!-- Modal Thắng -->
+    <div class="modal" id="win">
+        <div class="mcard" style="border-color:var(--yellow)">
+            <div style="font-size:14vh">🏆</div>
+            <h1 id="winTxt" style="font-size:6vh"></h1>
+            <p style="font-weight:800">Đã ráp xong chiếc máy tính hoàn chỉnh!</p>
+            <button class="btn warn" onclick="$('win').classList.remove('on');showSummary()">Xem tổng kết</button>
+            <button class="btn gray" onclick="$('win').classList.remove('on')">Chơi tiếp</button>
+        </div>
+    </div>
+
+    <script>
+        /* =====================================================================
+           A. DỮ LIỆU CẤU HÌNH - THẦY CÔ CHỈNH Ở ĐÂY
+           ===================================================================== */
+        const STUDENT_JSON = '../../assets/data/students_3_2026_2027.json';   // dạng { "3_2": ["Tên", ...], "3_3": [...] }
+        const QUESTION_JSON = './cau-hoi-bai-3.json';   // ngân hàng câu hỏi nằm CẠNH file HTML này
+        // Quà đầu giờ (Phase 1): mỗi tổ nhận GIFT_MIN..GIFT_MAX món; mỗi món có GIFT_CORE_RATE khả năng là Core (tối đa 2 Core/tổ)
+        const GIFT_MIN = 3, GIFT_MAX = 4, GIFT_CORE_RATE = 0.25;
+        const GACHA_BOXES = 6;   // số thùng hàng (đánh số) học sinh được chọn sau khi trả lời đúng; tỉ lệ rớt vẫn theo DROP_RATE
+
+        // Icon SVG tự vẽ cho 4 linh kiện cốt lõi (emoji không có hình thân máy). Chữ nằm trong tên n.
+        const ico = b => '<svg viewBox="0 0 24 24" width="1em" height="1em">' + b + '</svg>';
+        const CORE = [
+            { id: 'case', n: 'Thân máy', e: ico('<rect x="6" y="2" width="12" height="20" rx="2" fill="#5b6b8c"/><rect x="8" y="5" width="8" height="2" fill="#2b2d42"/><rect x="8" y="9" width="8" height="2" fill="#2b2d42"/><circle cx="12" cy="17" r="2" fill="#38c98b"/>') },
+            { id: 'monitor', n: 'Màn hình', e: ico('<rect x="2" y="3" width="20" height="13" rx="2" fill="#2b3a67"/><rect x="4" y="5" width="16" height="9" fill="#29d3d8"/><rect x="10" y="16" width="4" height="3" fill="#5b6b8c"/><rect x="7" y="19" width="10" height="2" rx="1" fill="#5b6b8c"/>') },
+            { id: 'keyboard', n: 'Bàn phím', e: ico('<rect x="1" y="7" width="22" height="11" rx="2" fill="#5b6b8c"/><path d="M3 9h2v2H3zM7 9h2v2H7zM11 9h2v2h-2zM15 9h2v2h-2zM19 9h2v2h-2zM3 12.5h2v2H3zM7 12.5h2v2H7zM11 12.5h2v2h-2zM15 12.5h2v2h-2zM19 12.5h2v2h-2zM6 16h12v1.5H6z" fill="#e9eefb"/>') },
+            { id: 'mouse', n: 'Chuột', e: ico('<rect x="7" y="2" width="10" height="20" rx="5" fill="#5b6b8c"/><path d="M12 2v8M7 10h10" stroke="#e9eefb" stroke-width="1.2" fill="none"/>') }
+        ];
+        // Vật phẩm phụ (emoji khớp đúng thiết bị) - muốn thêm món cứ thêm 1 dòng
+        const FLUFF = [
+            { e: '🔊', n: 'Loa' }, { e: '🎧', n: 'Tai nghe' }, { e: '🎤', n: 'Micro' }, { e: '📹', n: 'Webcam' }, { e: '🖨️', n: 'Máy in' },
+            { e: '💿', n: 'Đĩa CD' }, { e: '🎮', n: 'Tay cầm chơi game' }, { e: '🥽', n: 'Kính VR' }, { e: '🔋', n: 'Pin sạc' }
+        ];
+        // Tỉ lệ rớt Core theo SỐ LOẠI core đội đang có (0,1,2,3 món). Chỉnh để game dài/ngắn hơn.
+        const DROP_RATE = [0.50, 0.40, 0.30, 0.12];
+
+        /* ---------------------------------------------------------------------
+           NGÂN HÀNG CÂU HỎI: sửa trong file cau-hoi-bai-3.json (xem dòng "_huongdan" trong file).
+           Chỉ có MỘT ngân hàng chung, game tự sắp theo "lv" (1 dễ -> 3 khó): rút hết câu dễ rồi mới tới câu khó.
+           --------------------------------------------------------------------- */
+
+        /* =====================================================================
+           B. TRẠNG THÁI & TIỆN ÍCH
+           ===================================================================== */
+        const $ = id => document.getElementById(id);
+        const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0;[a[i], a[j]] = [a[j], a[i]]; } return a; };
+        const G = { students: [], used: new Set(), teams: [], turn: 0, phase: 0, boxes: [], pick: 0, pools: {}, log: [], cur: null, won: false };
+        let allStudents = [];
+
+        function show(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+            $('s-' + id).classList.add('on');
+            document.body.classList.toggle('full', id === 'welcome' || id === 'sum');   // màn chào & tổng kết: ẩn bảng đội cho rộng
+            if (id === 'p2') refreshTurnUI();
+        }
+
+        const newTeam = i => ({ name: 'TỔ ' + (i + 1), inv: { case: 0, monitor: 0, keyboard: 0, mouse: 0 }, fluff: [], correct: 0, total: 0, pen: 0 });
+        const coreCount = t => CORE.filter(c => t.inv[c.id] > 0).length;
+
+        /* =====================================================================
+           C. CHỌN LỚP, PHASE 1 (QUÀ ĐẦU GIỜ)
+           Học sinh KHÔNG được chia tổ trước: s.team = null. Khi một em trả lời cho tổ nào, em đó được ghi vào tổ ấy.
+           Cuối buổi, màn Tổng kết cho kéo thả để sửa tổ.
+           ===================================================================== */
+        async function loadData() {
+            const errs = [];
+            try {
+                let d = await (await fetch(STUDENT_JSON)).json(); if (Array.isArray(d)) d = { 'Lớp học': d };
+                G.classes = {};
+                for (const [k, v] of Object.entries(d)) G.classes[k] = (Array.isArray(v) ? v : []).map(x => typeof x === 'string' ? x : (x.name || x.hoTen || x.ten || '')).filter(Boolean);
+            } catch (e) { errs.push('danh sách học sinh'); G.classes = { 'Lớp mẫu': Array.from({ length: 20 }, (_, i) => 'Học sinh ' + (i + 1)) }; }
+            try {
+                const q = await (await fetch(QUESTION_JSON)).json(); G.bank = (q.questions || q).slice().sort((a, b) => a.lv - b.lv);
+            } catch (e) { errs.push('ngân hàng câu hỏi'); G.bank = []; }
+            $('classSel').innerHTML = Object.keys(G.classes).map(k => `<option value="${esc(k)}">Lớp ${esc(k.replace('_', '/'))}</option>`).join('');
+            setupClass();
+            if (errs.length) $('setupMsg').innerText = '⚠ Không đọc được: ' + errs.join(', ') + ' — hãy mở game qua web server (không mở trực tiếp file://) và kiểm tra đường dẫn.';
+        }
+        function setupClass() {
+            if (!G.classes) return;
+            const names = G.classes[$('classSel').value] || [];
+            $('setupMsg').innerText = `${names.length} học sinh • ${$('teamCount').value} tổ — tổ của từng em được ghi nhận dần khi em trả lời; chỉnh lại ở màn Tổng kết.`;
+        }
+        // Màn Tổng kết: cột "Chưa có tổ" + các tổ, kéo thả học sinh để sửa
+        function renderKanban(elId) {
+            let dragged = null; const el = $(elId);
+            const cols = [{ id: -1, name: '❓ Chưa có tổ' }, ...G.teams.map((t, i) => ({ id: i, name: t.name }))];
+            el.innerHTML = cols.map(c => {
+                const list = G.students.filter(s => (s.team === null ? -1 : s.team) === c.id);
+                return `<div class="kcol" data-t="${c.id}"><h3>${esc(c.name)} — ${list.length} em</h3>${list.map(s =>
+                    `<div class="kcard" draggable="true" data-id="${s.id}">${esc(s.name)}<small>${s.correct}/${s.total} câu đúng</small></div>`).join('')}</div>`;
+            }).join('');
+            el.querySelectorAll('.kcard').forEach(c => c.ondragstart = () => dragged = c);
+            el.querySelectorAll('.kcol').forEach(col => {
+                col.ondragover = e => e.preventDefault();
+                col.ondrop = e => {
+                    e.preventDefault(); if (!dragged) return;
+                    const st = G.students.find(x => x.id === +dragged.dataset.id), to = +col.dataset.t; st.team = to < 0 ? null : to; renderKanban(elId);
+                };
+            });
+        }
+        function startPhase1() {
+            if (!G.bank.length) return alert('Chưa đọc được ngân hàng câu hỏi (' + QUESTION_JSON + ')');
+            const cls = $('classSel').value, names = G.classes[cls] || [];
+            if (!names.length) return alert('Lớp này chưa có học sinh!');
+            G.cls = cls; G.teams = Array.from({ length: +$('teamCount').value }, (_, i) => newTeam(i));
+            G.students = names.map((nm, i) => ({ id: i, name: nm, team: null, correct: 0, total: 0 })); G.nextId = names.length; G.used = new Set();
+            G.phase = 1; G.turn = 0; G.log = []; G.won = false; G.gifts = null; G.pool = G.bank.slice();
+            $('giftGrid').innerHTML = ''; $('dealBtn').disabled = false; $('p1Next').disabled = true; renderSide(); show('p1');
+        }
+        // PHÁT QUÀ: mỗi tổ nhận 3-4 món ngẫu nhiên, có thể có hoặc không có Core (tối đa 2 Core, không trùng loại)
+        function dealGifts() {
+            G.gifts = G.teams.map(t => {
+                const n = GIFT_MIN + (Math.random() * (GIFT_MAX - GIFT_MIN + 1) | 0), own = new Set(), list = []; let cores = 0;
+                for (let i = 0; i < n; i++) {
+                    let it;
+                    if (cores < 2 && Math.random() < GIFT_CORE_RATE) { const pool = CORE.filter(c => !own.has(c.id)); it = { ...pool[Math.random() * pool.length | 0], core: true }; own.add(it.id); cores++; }
+                    else it = { ...FLUFF[Math.random() * FLUFF.length | 0] };
+                    list.push({ it, seized: false }); addItem(t, it);
+                }
+                return list;
+            });
+            $('dealBtn').disabled = true; $('p1Next').disabled = false; confetti(40); renderGifts(); renderSide();
+        }
+        function renderGifts() {
+            $('giftGrid').innerHTML = G.gifts.map((list, i) => `<div class="gcard"><h3>${esc(G.teams[i].name)}</h3>${list.map((g, k) =>
+                `<div class="gitem ${g.it.core ? 'core' : ''} ${g.seized ? 'seized' : ''}"><span>${g.it.e} ${g.it.n}${g.it.core ? ' ⭐' : ''}</span>${g.seized ? '' : `<button title="Tịch thu" onclick="seizeGift(${i},${k})">✕</button>`}</div>`).join('')}</div>`).join('');
+        }
+        function seizeGift(i, k) { const g = G.gifts[i][k]; removeItem(G.teams[i], g.it); g.seized = true; renderGifts(); renderSide(); }
+        function startPhase2() { G.phase = 2; G.turn = 0; show('p2'); }
+
+        /* =====================================================================
+           D. KHO ĐỒ
+           ===================================================================== */
+        function addItem(t, it) { if (it.core) t.inv[it.id]++; else t.fluff.push(it); }
+        function removeItem(t, it) {
+            if (it.core) t.inv[it.id] = Math.max(0, t.inv[it.id] - 1);
+            else { const k = t.fluff.findIndex(f => f.n === it.n); if (k > -1) t.fluff.splice(k, 1); }
+        }
+        // Lưới slot: có món nào thì icon sáng; số đỏ = số lượng (nếu >1)
+        function invHTML(t) {
+            const slots = CORE.map(c => `<div class="slot ${t.inv[c.id] ? 'have' : ''}" title="${c.n}"><span>${c.e}</span>${t.inv[c.id] > 1 ? `<b>x${t.inv[c.id]}</b>` : ''}</div>`).join('');
+            const bag = t.fluff.map(f => `<span title="${f.n}">${f.e}</span>`).join(' ') || '<span style="font-size:2vh;color:#b6c2dc">trống</span>';
+            return `<div class="inv"><div class="slots">${slots}</div><div class="bag"><em>🎒 TÚI ĐỒ PHỤ</em>${bag}</div></div>`;
+        }
+
+        /* =====================================================================
+           E. GACHA - THUẬT TOÁN RỚT ĐỒ GIẢM DẦN
+           ---------------------------------------------------------------------
+           1. Tính tỉ lệ ra Core: p = DROP_RATE[số loại core đội đang có]
+              (0 món 50% | 1 món 40% | 2 món 30% | 3 món 12% -> mảnh cuối rất khó ra)
+           2. Nếu trúng Core: 75% chọn trong các món CÒN THIẾU, 25% chọn ngẫu nhiên cả 4 món
+              (nên đội có thể ra trùng, vd 3 cái Chuột -> dùng để Trao đổi).
+           3. Không trúng: ra vật phẩm phụ ngẫu nhiên.
+           ===================================================================== */
+        function rollItem(t) {
+            const p = DROP_RATE[Math.min(coreCount(t), 3)];
+            if (Math.random() < p) {
+                const missing = CORE.filter(c => !t.inv[c.id]);
+                const pool = (missing.length && Math.random() < 0.75) ? missing : CORE;
+                return { ...pool[Math.random() * pool.length | 0], core: true };
+            }
+            return { ...FLUFF[Math.random() * FLUFF.length | 0] };
+        }
+        function showGacha(ti, title, onDone) {
+            const t = G.teams[ti]; let opened = false;
+            $('gTitle').innerText = title || `🎁 ${t.name}: chọn 1 thùng hàng!`;
+            $('gBody').innerHTML = `<div class="gboxes">${Array.from({ length: GACHA_BOXES }, (_, i) => `<div class="gbox">📦<b>${i + 1}</b></div>`).join('')}</div>`;
+            $('gMsg').innerText = 'Chọn một số để mở thùng hàng!'; $('gClose').style.display = 'none'; $('gacha').classList.add('on');
+            const boxes = document.querySelectorAll('.gbox');
+            boxes.forEach(b => b.onclick = () => {
+                if (opened) return; opened = true; b.classList.add('shake'); boxes.forEach(x => { if (x !== b) x.classList.add('dim'); });
+                setTimeout(() => {
+                    const it = rollItem(t); addItem(t, it);          // thùng nào cũng như nhau: tỉ lệ rớt do rollItem() quyết định
+                    b.classList.remove('shake'); b.classList.add('open'); b.innerHTML = it.e;
+                    $('gMsg').innerText = it.core ? `🌟 LINH KIỆN CỐT LÕI: ${it.n}!` : `Đồ phụ: ${it.n}`;
+                    confetti(it.core ? 80 : 20); $('gClose').style.display = 'inline-block'; G.lastItem = it; renderSide(); refreshTurnUI();
+                }, 750);
+            });
+            G.gachaDone = onDone;
+        }
+        function closeGacha() {
+            $('gacha').classList.remove('on');
+            const t = G.teams[G.turn];
+            if (coreCount(t) === 4 && !G.won) { G.won = true; $('winTxt').innerText = `🎉 ${t.name} VÔ ĐỊCH! 🎉`; $('win').classList.add('on'); confetti(150); }
+            if (G.gachaDone) { const f = G.gachaDone; G.gachaDone = null; f(); }
+        }
+        // TRAO ĐỔI: có >= 3 cái cùng loại -> đổi 2 cái thừa lấy 1 lượt quay
+        function trade(id) {
+            const t = G.teams[G.turn]; if (t.inv[id] < 3) return;
+            t.inv[id] -= 2;
+            showGacha(G.turn, '🔄 Đổi 2 món thừa lấy 1 lượt quay!', null);
+        }
+        function confetti(n) {
+            const em = ['🎉', '✨', '⭐', '🎊', '💎'];
+            for (let i = 0; i < n; i++) {
+                const d = document.createElement('div'); d.className = 'cf'; d.textContent = em[i % em.length];
+                d.style.setProperty('--x', (Math.random() - .5) * 120 + 'vw'); d.style.setProperty('--y', (Math.random() - .7) * 100 + 'vh');
+                d.style.setProperty('--r', Math.random() * 720 + 'deg'); document.body.appendChild(d); setTimeout(() => d.remove(), 1700);
+            }
+        }
+
+        /* =====================================================================
+           F. PHASE 2: LƯỢT CHƠI, CHỌN HỌC SINH, CÂU HỎI 3 CẤP
+           ===================================================================== */
+        function refreshTurnUI() {
+            if (!G.teams.length) return;
+            const t = G.teams[G.turn];
+            $('turnTitle').innerText = `🎯 Lượt của ${t.name}`; $('bigInv').innerHTML = invHTML(t);
+            if (G.students.every(s => G.used.has(s.id))) G.used.clear();       // cả lớp đã trả lời hết -> mở khoá lại
+            const opt = s => `<option value="${s.id}">${esc(s.name)}</option>`, free = G.students.filter(s => !G.used.has(s.id));
+            const grp = (label, a, dis) => a.length ? `<optgroup label="${label}">${a.map(s => dis ? `<option disabled>${esc(s.name)}</option>` : opt(s)).join('')}</optgroup>` : '';
+            $('stuSel').innerHTML = '<option value="">-- Chọn học sinh --</option>'
+                + grp(esc(t.name) + ' (đã ghi nhận)', free.filter(s => s.team === G.turn))
+                + grp('Chưa có tổ', free.filter(s => s.team === null))
+                + grp('Đang ở tổ khác (chọn sẽ chuyển sang tổ này)', free.filter(s => s.team !== null && s.team !== G.turn))
+                + grp('🔒 Đã trả lời', G.students.filter(s => G.used.has(s.id)), true);
+            $('drawBtn').disabled = true;
+            $('tradeBox').innerHTML = CORE.filter(c => t.inv[c.id] >= 3).map(c => `<button class="btn warn" onclick="trade('${c.id}')">🔄 Đổi 2 ${c.e} thừa → 1 lượt quay</button>`).join(' ');
+            renderSide();
+        }
+        const LV_NAME = ['', 'Mức 1: Dễ', 'Mức 2: Vừa', 'Mức 3: Khó'];
+        // Rút câu hỏi: lấy NGẪU NHIÊN trong nhóm có lv thấp nhất còn lại -> độ khó tăng dần. Hết ngân hàng thì nạp lại từ đầu.
+        function nextQuestion() {
+            if (!G.pool.length) G.pool = G.bank.slice();
+            const lo = Math.min(...G.pool.map(q => q.lv)), c = G.pool.filter(q => q.lv === lo), q = c[Math.random() * c.length | 0];
+            G.pool.splice(G.pool.indexOf(q), 1); return q;
+        }
+        function drawQuestion() {
+            const t = G.teams[G.turn], sv = $('stuSel').value; if (sv === '') return;
+            const st = G.students.find(s => s.id === +sv); G.used.add(st.id); st.team = G.turn;   // em trả lời cho tổ nào thì ghi vào tổ đó          // KHOÁ tên em này
+            const q = nextQuestion(); G.cur = { q, lvl: q.lv, name: st.name, id: st.id };
+            $('lvlBadge').innerText = LV_NAME[q.lv] || 'Câu hỏi';
+            $('drawBtn').disabled = true; $('stuSel').disabled = true; $('fb').innerText = '';
+            const box = $('qBox'); box.style.display = 'block';
+            ({ mc: renderMC, drag: renderDrag, tf: renderTF }[q.type])(box, q);          // vẽ theo loại câu hỏi
+        }
+        // ---- Cấp 1: trắc nghiệm
+        function renderMC(box, q) {
+            const ans = shuffle(q.a.map((x, i) => ({ x, ok: i === 0 })));
+            box.innerHTML = `<p class="qtext">${esc(q.q)}</p><div class="ans-grid">${ans.map((a, i) => `<button class="ans" data-ok="${a.ok}">${'ABCD'[i]}. ${esc(a.x)}</button>`).join('')}</div>`;
+            box.querySelectorAll('.ans').forEach(b => b.onclick = () => {
+                box.querySelectorAll('.ans').forEach(x => { x.disabled = true; if (x.dataset.ok === 'true') x.classList.add('ok'); });
+                const ok = b.dataset.ok === 'true'; if (!ok) b.classList.add('no');
+                resolve(ok, b.innerText.slice(3));
+            });
+        }
+        // ---- Cấp 2: kéo thả (hỗ trợ cả bấm chọn rồi bấm cột - tiện cho bảng cảm ứng)
+        function renderDrag(box, q) {
+            let sel = null, mistakes = 0, left = q.items.length;
+            box.innerHTML = `<p class="qtext">${esc(q.q)}</p><div class="chips" id="chips"></div>
+    <div class="drag-area"><div class="col yes" data-s="1"><h3>✅ NÊN</h3></div><div class="col no" data-s="0"><h3>❌ KHÔNG NÊN</h3></div></div>`;
+            const chips = $('chips');
+            shuffle(q.items).forEach(([txt, s]) => {
+                const c = document.createElement('div'); c.className = 'chip'; c.draggable = true; c.textContent = txt; c.dataset.s = s;
+                c.ondragstart = e => { sel = c; e.dataTransfer.setData('text', txt); };
+                c.onclick = () => { if (c.classList.contains('good')) return; chips.querySelectorAll('.sel').forEach(x => x.classList.remove('sel')); c.classList.add('sel'); sel = c; };
+                chips.appendChild(c);
+            });
+            const place = col => {
+                if (!sel || sel.classList.contains('good')) return;
+                if (sel.dataset.s === col.dataset.s) {
+                    sel.classList.remove('sel'); sel.classList.add('good'); sel.draggable = false; col.appendChild(sel); sel = null;
+                    if (--left === 0) { const ok = mistakes <= 1; $('fb').innerText = ''; resolve(ok, `Sai ${mistakes} lần`); }
+                } else { mistakes++; sel.classList.add('bad'); const s = sel; setTimeout(() => s.classList.remove('bad'), 450); }
+            };
+            box.querySelectorAll('.col').forEach(col => { col.onclick = () => place(col); col.ondragover = e => e.preventDefault(); col.ondrop = e => { e.preventDefault(); place(col); }; });
+        }
+        // ---- Cấp 3: phán đoán - giáo viên xem đáp án rồi tự chấm
+        function renderTF(box, q) {
+            box.innerHTML = `${q.img ? `<img src="${esc(q.img)}" style="max-height:30vh;display:block;margin:auto">` : `<div class="scene">${q.scene || '🤔'}</div>`}<p class="qtext" style="text-align:center">${esc(q.q)}</p>
+    <div style="text-align:center"><button class="btn warn" id="peek">👁️ Xem đáp án (giáo viên)</button>
+    <div id="tfAns" style="display:none;margin-top:1.5vh"><p style="font-size:3.4vh;font-weight:900;color:var(--navy)">Đáp án: <span style="color:${q.ans ? 'var(--green)' : 'var(--red)'}">${q.ans ? 'ĐÚNG ✅' : 'SAI ❌'}</span> — ${esc(q.why)}</p>
+    <button class="btn green" id="tfOk">✅ Em trả lời ĐÚNG</button> <button class="btn red" id="tfNo">❌ Em trả lời SAI</button></div></div>`;
+            $('peek').onclick = () => { $('peek').style.display = 'none'; $('tfAns').style.display = 'block'; };
+            $('tfOk').onclick = () => resolve(true, 'Giáo viên chấm đúng'); $('tfNo').onclick = () => resolve(false, 'Giáo viên chấm sai');
+        }
+
+        /* =====================================================================
+           G. CHẤM KẾT QUẢ, GHI LOG, QUAY GACHA
+           ===================================================================== */
+        function resolve(ok, answer) {
+            const t = G.teams[G.turn], c = G.cur, st = G.students.find(s => s.id === c.id);
+            t.total++; if (ok) t.correct++;
+            if (st) { st.total = (st.total || 0) + 1; st.correct = (st.correct || 0) + (ok ? 1 : 0); }
+            const entry = { time: new Date().toLocaleTimeString('vi-VN'), team: t.name, student: c.name, level: c.lvl, question: c.q.q, answer: answer, result: ok ? 'Đúng' : 'Sai', item: '' };
+            G.log.push(entry);
+            const fb = $('fb');
+            if (ok) {
+                fb.style.color = 'var(--green)'; fb.innerText = '🎉 CHÍNH XÁC! Nhận thùng hàng nào!';
+                setTimeout(() => showGacha(G.turn, null, () => { entry.item = G.lastItem ? G.lastItem.n : ''; $('nextTurn').style.display = 'inline-block'; }), 700);
+            } else { fb.style.color = 'var(--red)'; fb.innerText = '❌ Chưa đúng rồi! Mất lượt nha.'; $('nextTurn').style.display = 'inline-block'; }
+            renderSide();
+        }
+        function advanceTurn() {
+            G.turn = (G.turn + 1) % G.teams.length; G.cur = null;
+            $('qBox').style.display = 'none'; $('fb').innerText = ''; $('nextTurn').style.display = 'none'; $('stuSel').disabled = false;
+            refreshTurnUI();
+        }
+
+        /* =====================================================================
+           H. SIDEBAR: ĐỘI, PHẠT ỒN, THÊM HỌC SINH
+           ===================================================================== */
+        function renderSide() {
+            const n = G.teams.length, cols = n <= 3 ? 1 : 2, el = $('teamList');          // xếp lưới vừa khít chiều cao, không cuộn
+            el.style.gridTemplateColumns = `repeat(${cols}, 1fr)`; el.style.gridTemplateRows = `repeat(${Math.ceil(n / cols)}, 1fr)`;
+            el.innerHTML = G.teams.map((t, i) => `<div class="tcard ${G.phase === 2 && i === G.turn ? 'active' : ''}">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px"><div class="tname" contenteditable="true" onblur="G.teams[${i}].name=this.innerText.trim()||G.teams[${i}].name">${esc(t.name)}</div>
+    <span class="tstat">⚙ ${coreCount(t)}/4 • 👥 ${G.students.filter(s => s.team === i).length}</span></div>
+    <div class="mini">${invHTML(t)}</div>
+    <div class="tstat">✅ ${t.correct}/${t.total} câu</div>
+    <button class="btn red" onclick="punish(${i})">🔊 Phạt ồn (mất 1 món ngẫu nhiên)</button></div>`).join('');
+        }
+        // PHẠT ỒN: xoá NGẪU NHIÊN 1 món trong kho đồ của đội (tính từng món, kể cả bản trùng)
+        function punish(i) {
+            const t = G.teams[i], all = [];
+            CORE.forEach(c => { for (let k = 0; k < t.inv[c.id]; k++) all.push({ ...c, core: true }); });
+            t.fluff.forEach(f => all.push(f));
+            if (!all.length) return toast(`${esc(t.name)} chưa có món nào để tịch thu!`);
+            const it = all[Math.random() * all.length | 0]; removeItem(t, it); t.pen++;
+            toast(`🔊 ${esc(t.name)} ồn ào! Bị tịch thu: ${it.e} ${it.n}`); renderSide(); if (G.phase === 2) refreshTurnUI();
+        }
+        function toast(html) { const d = document.createElement('div'); d.className = 'toast'; d.innerHTML = html; document.body.appendChild(d); setTimeout(() => d.remove(), 3200); }
+        function addStudent() {                           // thêm em mới (chưa có tổ) - sẽ gán tổ khi em trả lời hoặc ở màn Tổng kết
+            if (!G.teams.length) return;
+            const n = prompt('Nhập tên học sinh cần thêm:'); if (!n || !n.trim()) return;
+            G.students.push({ id: ++G.nextId, name: n.trim(), team: null, correct: 0, total: 0 }); if (G.phase === 2) refreshTurnUI();
+        }
+
+        /* =====================================================================
+           I. TỔNG KẾT: KANBAN KÉO THẢ + XUẤT EXCEL
+           ===================================================================== */
+        function showSummary() { show('sum'); renderKanban('kanban'); }
+        function exportExcel() {
+            const lop = G.cls || 'lop', lopTxt = lop.replace('_', '/'), tn = s => s.team === null ? 'Chưa có tổ' : G.teams[s.team].name;
+            const detail = G.log.map((l, i) => ({ 'STT': i + 1, 'Lớp': lopTxt, 'Giờ': l.time, 'Đội': l.team, 'Học sinh': l.student, 'Mức': l.level, 'Câu hỏi': l.question, 'Trả lời': l.answer, 'Kết quả': l.result, 'Vật phẩm nhận': l.item }));
+            const stu = G.students.map(s => ({ 'Lớp': lopTxt, 'Tổ': tn(s), 'Học sinh': s.name, 'Số câu': s.total, 'Đúng': s.correct, 'Sai': s.total - s.correct }));
+            const tm = G.teams.map((t, i) => ({ 'Lớp': lopTxt, 'Đội': t.name, 'Số học sinh': G.students.filter(s => s.team === i).length, 'Câu đúng': t.correct, 'Tổng câu': t.total, 'Linh kiện cốt lõi': coreCount(t) + '/4', 'Đồ phụ': t.fluff.length, 'Lần bị phạt ồn': t.pen }));
+            const name = `Xuong-Rap-PC_Lop-${lop}_${new Date().toISOString().slice(0, 10)}`;     // tên file có tên lớp
+            if (window.XLSX) {
+                const wb = XLSX.utils.book_new();
+                [['Chi tiết', detail], ['Theo học sinh', stu], ['Theo đội', tm]].forEach(([n, d]) => XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d), n));
+                XLSX.writeFile(wb, name + '.xlsx');
+            } else {                                           // Dự phòng khi không tải được SheetJS: CSV (có BOM để Excel đọc tiếng Việt)
+                const rows = d => d.length ? [Object.keys(d[0]).join(','), ...d.map(r => Object.values(r).map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))].join('\n') : '';
+                const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff' + rows(detail)], { type: 'text/csv;charset=utf-8' })); a.download = name + '.csv'; a.click();
+            }
+        }
+        loadData();
+    </script>
+</body>
+
+</html>
