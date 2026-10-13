@@ -1510,10 +1510,9 @@
         function assignKeyword(teamIndex, word) {
             const st = a1State[rd[1]];
             if (st.graded) return false;
-            if (st.trays[teamIndex].length >= 3) {
-                toast('Đội này đã dùng hết lượt chọn từ khóa.', 1500, 'var(--coral)');
-                return false;
-            }
+
+            // Đã xóa giới hạn số lượng từ ở đây. Thích kéo bao nhiêu thì kéo!
+
             const wordIndex = st.words.indexOf(word);
             if (wordIndex < 0) return false;
             st.words.splice(wordIndex, 1);
@@ -1522,6 +1521,7 @@
             renderAi1();
             return true;
         }
+
         ai1El.addEventListener('click', e => {
             const word = e.target.closest('#word-pool .word[draggable="true"]');
             if (word) {
@@ -1552,15 +1552,28 @@
             const r = rd[1], st = a1State[r];
             if (st.graded) return;
             if (needStudent(teams.map((_, i) => i))) return;
+
             teams.forEach((t, i) => {
                 const tray = st.trays[i], answers = st.cases[i].ans;
-                const ok = tray.filter(w => answers.includes(w)).length;
-                const perfect = ok === answers.length;
-                const pts = ok * PTS + (perfect ? PTS : 0);
+
+                const ok = tray.filter(w => answers.includes(w)).length; // Số từ kéo ĐÚNG
+                const wrong = tray.length - ok; // Số từ kéo SAI (kéo thừa, kéo rác)
+
+                // Chỉ đạt Perfect (+100đ thưởng) khi: Đủ từ đúng VÀ không có từ sai nào
+                const perfect = (ok === answers.length && wrong === 0);
+
+                // Tính điểm: +100đ/từ đúng, -50đ/từ sai. (Không để điểm bị âm)
+                let pts = ok * PTS - (wrong * 50);
+                if (pts < 0) pts = 0;
+                pts += (perfect ? PTS : 0);
+
                 st.gain[i] = pts;
                 if (pts > 0) addScore(i, pts);
-                recordAnswer(i, `Ải 1 - Vòng ${r + 1}: ${st.cases[i].ctx} Đúng ${ok}/${answers.length} từ khóa (${tray.join(' · ')}) → +${pts}đ`);
+
+                // Cập nhật câu log xuất ra Excel cho chi tiết
+                recordAnswer(i, `Ải 1 - Vòng ${r + 1}: ${st.cases[i].ctx} Kéo ${tray.length} từ (Đúng ${ok} - Sai ${wrong}) (${tray.join(' · ')}) → +${pts}đ`);
             });
+
             st.graded = true; renderAi1();
         }
 
