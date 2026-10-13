@@ -1004,6 +1004,15 @@
         const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0;[a[i], a[j]] = [a[j], a[i]]; } return a; };
         const G = { students: [], used: new Set(), teams: [], turn: 0, phase: 0, boxes: [], pick: 0, pools: {}, log: [], cur: null, won: false };
         let allStudents = [];
+        function studentDisplayName(student) {
+            const matches = G.students.filter(s => s.name === student.name);
+            return matches.length > 1 ? `${student.name} (${matches.findIndex(s => s.id === student.id) + 1})` : student.name;
+        }
+        function exportFileBase(classId) {
+            const d = new Date(), pad = n => String(n).padStart(2, '0');
+            const timestamp = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+            return `Tiet06_Lop${classId.replace('_', '-')}_${timestamp}`;
+        }
 
         function show(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
@@ -1046,7 +1055,7 @@
             el.innerHTML = cols.map(c => {
                 const list = G.students.filter(s => (s.team === null ? -1 : s.team) === c.id);
                 return `<div class="kcol" data-t="${c.id}"><h3>${esc(c.name)} — ${list.length} em</h3>${list.map(s =>
-                    `<div class="kcard" draggable="true" data-id="${s.id}">${esc(s.name)}<small>${s.correct}/${s.total} câu đúng</small></div>`).join('')}</div>`;
+                    `<div class="kcard" draggable="true" data-id="${s.id}">${esc(studentDisplayName(s))}<small>${s.correct}/${s.total} câu đúng</small></div>`).join('')}</div>`;
             }).join('');
             el.querySelectorAll('.kcard').forEach(c => c.ondragstart = () => dragged = c);
             el.querySelectorAll('.kcol').forEach(col => {
@@ -1166,8 +1175,8 @@
             const t = G.teams[G.turn];
             $('turnTitle').innerText = `🎯 Lượt của ${t.name}`; $('bigInv').innerHTML = invHTML(t);
             if (G.students.every(s => G.used.has(s.id))) G.used.clear();       // cả lớp đã trả lời hết -> mở khoá lại
-            const opt = s => `<option value="${s.id}">${esc(s.name)}</option>`, free = G.students.filter(s => !G.used.has(s.id));
-            const grp = (label, a, dis) => a.length ? `<optgroup label="${label}">${a.map(s => dis ? `<option disabled>${esc(s.name)}</option>` : opt(s)).join('')}</optgroup>` : '';
+            const opt = s => `<option value="${s.id}">${esc(studentDisplayName(s))}</option>`, free = G.students.filter(s => !G.used.has(s.id));
+            const grp = (label, a, dis) => a.length ? `<optgroup label="${label}">${a.map(s => dis ? `<option disabled>${esc(studentDisplayName(s))}</option>` : opt(s)).join('')}</optgroup>` : '';
             $('stuSel').innerHTML = '<option value="">-- Chọn học sinh --</option>'
                 + grp(esc(t.name) + ' (đã ghi nhận)', free.filter(s => s.team === G.turn))
                 + grp('Chưa có tổ', free.filter(s => s.team === null))
@@ -1187,7 +1196,7 @@
         function drawQuestion() {
             const t = G.teams[G.turn], sv = $('stuSel').value; if (sv === '') return;
             const st = G.students.find(s => s.id === +sv); G.used.add(st.id); st.team = G.turn;   // em trả lời cho tổ nào thì ghi vào tổ đó          // KHOÁ tên em này
-            const q = nextQuestion(); G.cur = { q, lvl: q.lv, name: st.name, id: st.id };
+            const q = nextQuestion(); G.cur = { q, lvl: q.lv, name: studentDisplayName(st), id: st.id };
             $('lvlBadge').innerText = LV_NAME[q.lv] || 'Câu hỏi';
             $('drawBtn').disabled = true; $('stuSel').disabled = true; $('fb').innerText = '';
             const box = $('qBox'); box.style.display = 'block';
@@ -1241,7 +1250,7 @@
             const t = G.teams[G.turn], c = G.cur, st = G.students.find(s => s.id === c.id);
             t.total++; if (ok) t.correct++;
             if (st) { st.total = (st.total || 0) + 1; st.correct = (st.correct || 0) + (ok ? 1 : 0); }
-            const entry = { time: new Date().toLocaleTimeString('vi-VN'), team: t.name, student: c.name, level: c.lvl, question: c.q.q, answer: answer, result: ok ? 'Đúng' : 'Sai', item: '' };
+            const entry = { time: new Date().toLocaleTimeString('vi-VN'), team: t.name, studentId: c.id, student: c.name, level: c.lvl, question: c.q.q, answer: answer, result: ok ? 'Đúng' : 'Sai', item: '' };
             G.log.push(entry);
             const fb = $('fb');
             if (ok) {
@@ -1282,7 +1291,7 @@
         function addStudent() {                           // thêm em mới (chưa có tổ) - sẽ gán tổ khi em trả lời hoặc ở màn Tổng kết
             if (!G.teams.length) return;
             const n = prompt('Nhập tên học sinh cần thêm:'); if (!n || !n.trim()) return;
-            G.students.push({ id: ++G.nextId, name: n.trim(), team: null, correct: 0, total: 0 }); if (G.phase === 2) refreshTurnUI();
+            G.students.push({ id: G.nextId++, name: n.trim(), team: null, correct: 0, total: 0 }); if (G.phase === 2) refreshTurnUI();
         }
 
         /* =====================================================================
@@ -1291,10 +1300,11 @@
         function showSummary() { show('sum'); renderKanban('kanban'); }
         function exportExcel() {
             const lop = G.cls || 'lop', lopTxt = lop.replace('_', '/'), tn = s => s.team === null ? 'Chưa có tổ' : G.teams[s.team].name;
-            const detail = G.log.map((l, i) => ({ 'STT': i + 1, 'Lớp': lopTxt, 'Giờ': l.time, 'Đội': l.team, 'Học sinh': l.student, 'Mức': l.level, 'Câu hỏi': l.question, 'Trả lời': l.answer, 'Kết quả': l.result, 'Vật phẩm nhận': l.item }));
-            const stu = G.students.map(s => ({ 'Lớp': lopTxt, 'Tổ': tn(s), 'Học sinh': s.name, 'Số câu': s.total, 'Đúng': s.correct, 'Sai': s.total - s.correct }));
+            const studentCode = id => Number.isInteger(id) ? `HS${String(id + 1).padStart(3, '0')}` : '';
+            const detail = G.log.map((l, i) => ({ 'STT': i + 1, 'Lớp': lopTxt, 'Giờ': l.time, 'Đội': l.team, 'Mã học sinh': studentCode(l.studentId), 'Học sinh': l.student, 'Mức': l.level, 'Câu hỏi': l.question, 'Trả lời': l.answer, 'Kết quả': l.result, 'Vật phẩm nhận': l.item }));
+            const stu = G.students.map(s => ({ 'Lớp': lopTxt, 'Mã học sinh': studentCode(s.id), 'Tổ': tn(s), 'Học sinh': studentDisplayName(s), 'Số câu': s.total, 'Đúng': s.correct, 'Sai': s.total - s.correct }));
             const tm = G.teams.map((t, i) => ({ 'Lớp': lopTxt, 'Đội': t.name, 'Số học sinh': G.students.filter(s => s.team === i).length, 'Câu đúng': t.correct, 'Tổng câu': t.total, 'Linh kiện cốt lõi': coreCount(t) + '/4', 'Đồ phụ': t.fluff.length, 'Lần bị phạt ồn': t.pen }));
-            const name = `Xuong-Rap-PC_Lop-${lop}_${new Date().toISOString().slice(0, 10)}`;     // tên file có tên lớp
+            const name = exportFileBase(lop);
             if (window.XLSX) {
                 const wb = XLSX.utils.book_new();
                 [['Chi tiết', detail], ['Theo học sinh', stu], ['Theo đội', tm]].forEach(([n, d]) => XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d), n));

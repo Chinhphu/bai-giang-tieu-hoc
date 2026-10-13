@@ -1298,7 +1298,16 @@
             }
         ];
 
-        let cls = '', teams = [], students = [], a1State = [], a2State = [], ai = 1, rd = { 1: 0, 2: 0 };
+        let cls = '', teams = [], students = [], nextStudentId = 0, a1State = [], a2State = [], ai = 1, rd = { 1: 0, 2: 0 };
+        function studentDisplayName(student) {
+            const matches = students.filter(s => s.name === student.name);
+            return matches.length > 1 ? `${student.name} (${matches.findIndex(s => s.id === student.id) + 1})` : student.name;
+        }
+        function exportFileBase(classId) {
+            const d = new Date(), pad = n => String(n).padStart(2, '0');
+            const timestamp = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+            return `Tiet06_Lop${classId.replace('_', '-')}_${timestamp}`;
+        }
 
         /* ---------- Dữ liệu học sinh ---------- */
         async function loadStudents(c) {
@@ -1316,7 +1325,8 @@
             cls = $('s-class').value; const n = +$('s-teams').value;
             let list = await loadStudents(cls);
             if (!list.length) { toast('Chưa có file JSON, dùng danh sách tạm — bấm ➕ để nhập học sinh', 3500, 'var(--coral)'); list = ['Nguyễn Văn A', 'Trần Thị B', 'Lê Văn C', 'Phạm Thị D', 'Hoàng Văn E'] }
-            students = list.map(name => ({ name, team: null, actions: [] }));
+            students = list.map((name, index) => ({ id: index + 1, name, team: null, actions: [] }));
+            nextStudentId = students.length;
             teams = Array.from({ length: n }, (_, i) => ({ name: `Đội ${i + 1}`, score: 0, color: COLORS[i] }));
             a1State = A1_DATA.map(d => ({ words: shuffle([...d.ans, ...d.dis]), trays: teams.map(() => []), graded: false, gain: [] }));
             a2State = A2_DATA.map(d => ({ broken: {}, chosen: shuffle(d.map((_, i) => i)).slice(0, n) })); // đúng N bẫy
@@ -1352,7 +1362,7 @@
             teams.forEach((_, i) => {
                 const s = $('sel-' + i); if (!s) return;
                 const v = s.value;
-                s.innerHTML = '<option value="">-- Chọn học sinh --</option>' + students.map((st, k) => `<option value="${k}" ${st.team !== null ? 'disabled' : ''}>${st.team !== null ? '🔒 ' : ''}${esc(st.name)}</option>`).join('');
+                s.innerHTML = '<option value="">-- Chọn học sinh --</option>' + students.map((st, k) => `<option value="${k}" ${st.team !== null ? 'disabled' : ''}>${st.team !== null ? '🔒 ' : ''}${esc(studentDisplayName(st))}</option>`).join('');
                 if (v !== '' && students[+v] && students[+v].team === null) s.value = v;
             });
         }
@@ -1394,7 +1404,7 @@
         function saveHs() {
             const names = $('hs-text').value.split(/[,\n;]/).map(s => s.trim()).filter(Boolean);
             if (!names.length) return closeHs();
-            names.forEach(name => students.push({ name, team: null, actions: [] }));
+            names.forEach(name => students.push({ id: ++nextStudentId, name, team: null, actions: [] }));
             refreshSelects(); closeHs(); toast(`Đã thêm ${names.length} học sinh`, 1500, 'var(--blue)');
         }
 
@@ -1527,7 +1537,7 @@
             k.innerHTML = cols.map(c => {
                 const list = students.map((s, idx) => ({ s, idx })).filter(x => x.s.team === c.key);
                 return `<div class="col" style="--tc:${c.color}"><h4><span>${c.name}</span><span>${list.length}</span></h4>
-    <div class="drop" data-key="${c.key === null ? '' : c.key}">${list.map(x => `<div class="card" draggable="true" data-idx="${x.idx}">${esc(x.s.name)}</div>`).join('')}</div></div>`
+    <div class="drop" data-key="${c.key === null ? '' : c.key}">${list.map(x => `<div class="card" draggable="true" data-idx="${x.idx}">${esc(studentDisplayName(x.s))}</div>`).join('')}</div></div>`
             }).join('');
             k.querySelectorAll('.card').forEach(c => {
                 c.addEventListener('dragstart', e => { dragKan = +c.dataset.idx; c.classList.add('drag'); e.dataTransfer.setData('text/plain', dragKan) });
@@ -1543,14 +1553,14 @@
             });
         }
         function exportExcel() {
-            const rows = [['STT', 'Tên Học Sinh', 'Lớp', 'Đội', 'Cách trả lời']]; let stt = 1;
+            const rows = [['STT', 'Mã học sinh', 'Tên Học Sinh', 'Lớp', 'Đội', 'Cách trả lời']]; let stt = 1;
             [...teams.map((_, i) => i), null].forEach(tid => students.filter(s => s.team === tid).forEach(s =>
-                rows.push([stt++, s.name, cls, tid === null ? 'Tự do' : teams[tid].name, s.actions.join('; ') || 'Chưa ghi điểm'])));
-            const ws = XLSX.utils.aoa_to_sheet(rows); ws['!cols'] = [{ wch: 5 }, { wch: 26 }, { wch: 8 }, { wch: 12 }, { wch: 80 }];
+                rows.push([stt++, `HS${String(s.id).padStart(3, '0')}`, studentDisplayName(s), cls, tid === null ? 'Tự do' : teams[tid].name, s.actions.join('; ') || 'Chưa ghi điểm'])));
+            const ws = XLSX.utils.aoa_to_sheet(rows); ws['!cols'] = [{ wch: 5 }, { wch: 12 }, { wch: 26 }, { wch: 8 }, { wch: 12 }, { wch: 80 }];
             const ws2 = XLSX.utils.aoa_to_sheet([['Đội', 'Tổng điểm'], ...teams.map(t => [t.name, t.score])]); ws2['!cols'] = [{ wch: 14 }, { wch: 12 }];
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Chi Tiết HS'); XLSX.utils.book_append_sheet(wb, ws2, 'Điểm các đội');
-            XLSX.writeFile(wb, `TongKet_KetSatSaPa_Lop${cls.replace('/', '_')}.xlsx`);
+            XLSX.writeFile(wb, `${exportFileBase(cls)}.xlsx`);
         }
 
         let tt;

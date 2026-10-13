@@ -919,6 +919,16 @@
         let selectedStudent = null;
         let gameLog = [];
 
+        function studentDisplayName(student) {
+            const matches = classStudents.filter(s => s.name === student.name);
+            return matches.length > 1 ? `${student.name} (${matches.findIndex(s => s.id === student.id) + 1})` : student.name;
+        }
+        function exportFileBase(classId) {
+            const d = new Date(), pad = n => String(n).padStart(2, '0');
+            const timestamp = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+            return `Tiet06_Lop${classId.replace('_', '-')}_${timestamp}`;
+        }
+
         // Các biến Đồ thị
         let N, E, heads, owned, turn, over, busy, stuck, svgN, svgE, tm, done, curId;
         const NS_R = n => n.t == 'c' ? 40 : n.t == 's' ? 26 : 14;
@@ -973,10 +983,9 @@
 
             // Khôi phục bộ nhớ từ LocalStorage
             const cdSaved = localStorage.getItem('cooldowns_' + currentClassID);
-            cooldowns = cdSaved ? JSON.parse(cdSaved) : {};
-
+            const savedCooldowns = cdSaved ? JSON.parse(cdSaved) : {};
             const teamMapSaved = localStorage.getItem('studentTeamMap_' + currentClassID);
-            studentTeamMap = teamMapSaved ? JSON.parse(teamMapSaved) : {};
+            const savedStudentTeamMap = teamMapSaved ? JSON.parse(teamMapSaved) : {};
 
             // LOAD FILE CÂU HỎI
             try {
@@ -991,12 +1000,13 @@
             }
 
             // LOAD DANH SÁCH LỚP
+            let studentNames;
             try {
                 const res = await fetch('../../assets/data/students_4_2026_2027.json');
                 const data = await res.json();
-                classStudents = data[currentClassID] || FALLBACK_JSON[currentClassID] || FALLBACK_JSON["4_1"];
+                studentNames = data[currentClassID] || FALLBACK_JSON[currentClassID] || FALLBACK_JSON["4_1"];
             } catch (err) {
-                classStudents = FALLBACK_JSON[currentClassID] || FALLBACK_JSON["4_1"];
+                studentNames = FALLBACK_JSON[currentClassID] || FALLBACK_JSON["4_1"];
             }
 
             // Khôi phục HS bổ sung bằng tay
@@ -1004,11 +1014,17 @@
             if (extraStr) {
                 const extras = JSON.parse(extraStr);
                 extras.forEach(ex => {
-                    if (!classStudents.includes(ex.name)) {
-                        classStudents.push(ex.name);
-                    }
+                    if (ex.name) studentNames.push(ex.name);
                 });
             }
+
+            classStudents = studentNames.map((name, index) => ({ id: `hs-${index + 1}`, name }));
+            const migrateStudentValues = saved => Object.fromEntries(classStudents.flatMap(student => {
+                if (Object.prototype.hasOwnProperty.call(saved, student.id)) return [[student.id, saved[student.id]]];
+                return Object.prototype.hasOwnProperty.call(saved, student.name) ? [[student.id, saved[student.name]]] : [];
+            }));
+            cooldowns = migrateStudentValues(savedCooldowns);
+            studentTeamMap = migrateStudentValues(savedStudentTeamMap);
 
             init(forceNew);
         }
@@ -1265,19 +1281,20 @@
             $('#students-header').style.borderColor = TEAMS[turn].c;
 
             const html = classStudents.map((stu, idx) => {
-                const cd = cooldowns[stu] || 0;
+                const cd = cooldowns[stu.id] || 0;
                 const isCD = cd > 0;
-                const isSelected = selectedStudent === stu;
-                const tIdx = studentTeamMap[stu];
+                const isSelected = selectedStudent === stu.id;
+                const tIdx = studentTeamMap[stu.id];
                 const teamBadge = (tIdx !== undefined && tIdx >= 0 && tIdx < numT) ? ` <span style="color:${TEAMS[tIdx].c}; font-size:0.85rem">[${TEAMS[tIdx].n}]</span>` : '';
 
-                return `<button class="stu-btn ${isSelected ? 'active' : ''}" data-name="${stu}"
+                return `<button class="stu-btn ${isSelected ? 'active' : ''}" data-id="${stu.id}" data-name="${esc(studentDisplayName(stu))}"
                             ${isCD ? 'disabled title="Đang bị cấm lượt"' : ''}
-                            onclick="selectStudent('${stu}')">
-                        ${idx + 1}. ${stu}${teamBadge} ${isCD ? `<br><small style="color:#ff5c6c">⏳ (Đang cấm ${cd} lượt ở Tổ này)</small>` : ''}
+                            >
+                        ${idx + 1}. ${esc(studentDisplayName(stu))}${teamBadge} ${isCD ? `<br><small style="color:#ff5c6c">⏳ (Đang cấm ${cd} lượt ở Tổ này)</small>` : ''}
                         </button>`;
             }).join('');
             $('#students-list').innerHTML = html;
+            document.querySelectorAll('.stu-btn').forEach(btn => btn.onclick = () => selectStudent(btn.dataset.id));
             filterStudents();
         }
 
@@ -1312,7 +1329,7 @@
                     turn = t;
                     // GIẢM COOLDOWN khi đến lượt
                     classStudents.forEach(stu => {
-                        if (studentTeamMap[stu] === t && cooldowns[stu] > 0) cooldowns[stu]--;
+                        if (studentTeamMap[stu.id] === t && cooldowns[stu.id] > 0) cooldowns[stu.id]--;
                     });
                     localStorage.setItem('cooldowns_' + currentClassID, JSON.stringify(cooldowns));
                     return;
@@ -1336,7 +1353,8 @@
             const nm = ['', 'NHẬN ĐỊNH ĐÚNG / SAI', 'PHÂN LOẠI TÌNH HUỐNG', 'VƯỢT TƯỜNG LỬA'];
 
             // XÁC NHẬN CHỐNG CHỌN NHẦM
-            $('#mHead').innerHTML = `<span style="color:${t.c}">Bạn ${selectedStudent} đại diện ${t.n} tiến vào Ô số ${i || 'LÕI'}</span><br><small>Thử thách: ${nm[g]}</small>`;
+            const student = classStudents.find(s => s.id === selectedStudent);
+            $('#mHead').innerHTML = `<span style="color:${t.c}">Bạn ${esc(studentDisplayName(student))} đại diện ${t.n} tiến vào Ô số ${i || 'LÕI'}</span><br><small>Thử thách: ${nm[g]}</small>`;
             $('#tw').style.visibility = 'hidden';
 
             $('#mBody').innerHTML = `<div class="confirm-box">
@@ -1378,10 +1396,12 @@
 
             // LƯU LOG XUẤT CSV
             if (selectedStudent && currentQData) {
+                const student = classStudents.find(s => s.id === selectedStudent);
                 gameLog.push({
                     time: formatTime(new Date()),
                     team: TEAMS[turn].n,
-                    student: selectedStudent,
+                    studentId: selectedStudent,
+                    student: studentDisplayName(student),
                     question: currentQData.q || currentQData.s,
                     result: win ? 'ĐÚNG' : 'SAI'
                 });
@@ -1485,7 +1505,7 @@
                 if (z) z.innerHTML = '';
             }
             classStudents.forEach(stu => {
-                let t = studentTeamMap[stu];
+                let t = studentTeamMap[stu.id];
                 if (t === undefined || t === null || t < 0 || t >= numT) t = -1; // -1 là chưa có tổ
                 let z = document.getElementById('zone-' + t);
                 if (z) {
@@ -1493,8 +1513,8 @@
                     d.className = 'dd-item';
                     d.draggable = true;
                     d.id = 'stu-' + Math.random().toString(36).substring(7);
-                    d.textContent = stu;
-                    d.ondragstart = (e) => { e.dataTransfer.setData('text/plain', stu); };
+                    d.textContent = studentDisplayName(stu);
+                    d.ondragstart = (e) => { e.dataTransfer.setData('text/plain', stu.id); };
                     z.appendChild(d);
                 }
             });
@@ -1504,12 +1524,12 @@
 
         window.dropStu = function (e, teamId) {
             e.preventDefault();
-            let stu = e.dataTransfer.getData('text/plain');
-            if (stu) {
+            let studentId = e.dataTransfer.getData('text/plain');
+            if (studentId) {
                 if (teamId === -1) {
-                    delete studentTeamMap[stu];
+                    delete studentTeamMap[studentId];
                 } else {
-                    studentTeamMap[stu] = teamId;
+                    studentTeamMap[studentId] = teamId;
                 }
                 localStorage.setItem('studentTeamMap_' + currentClassID, JSON.stringify(studentTeamMap));
                 // ĐÃ XÓA ALERT ĐỂ KHÔNG BỊ PHIỀN KHI KÉO THẢ
@@ -1521,63 +1541,79 @@
         window.addNewStu = function () {
             let input = document.getElementById('new-stu-input');
             let name = input.value.trim();
-            if (name && !classStudents.includes(name)) {
-                classStudents.push(name);
+            if (name) {
 
                 // Lưu vào localstorage để nhớ vĩnh viễn HS bổ sung
                 const extraStr = localStorage.getItem('extra_students_' + currentClassID);
                 let extras = extraStr ? JSON.parse(extraStr) : [];
                 extras.push({ name: name, teamIdx: -1 });
                 localStorage.setItem('extra_students_' + currentClassID, JSON.stringify(extras));
+                classStudents.push({ id: `hs-${classStudents.length + 1}`, name });
 
                 input.value = '';
                 renderDD();
+                if (!over) renderStudents();
             } else {
-                toast("Tên bị trống hoặc học sinh đã tồn tại!", "bad");
+                toast("Tên học sinh không được để trống!", "bad");
             }
         };
 
         // XUẤT CSV THEO DẠNG DANH SÁCH LỚP (1 HÀNG / HS)
         window.exportCSV = function () {
-            let csvContent = "\uFEFFSTT,Họ tên,Tổ,Số lượt ĐÚNG,Số lượt SAI,Chi tiết câu hỏi\n";
+            let csvContent = "\uFEFFSTT,Mã học sinh,Họ tên,Tổ,Số lượt ĐÚNG,Số lượt SAI,Chi tiết câu hỏi\n";
 
-            let stats = {};
+            const stats = new Map();
             classStudents.forEach(stu => {
-                let tIdx = studentTeamMap[stu];
+                let tIdx = studentTeamMap[stu.id];
                 let tName = (tIdx >= 0 && tIdx < numT) ? TEAMS[tIdx].n : 'Chưa phân tổ';
-                stats[stu] = { team: tName, correct: 0, wrong: 0, details: [] };
+                stats.set(stu.id, { team: tName, correct: 0, wrong: 0, details: [] });
             });
 
+            const unmatchedLegacy = new Map();
             gameLog.forEach(row => {
-                let stu = row.student;
-                if (!stats[stu]) stats[stu] = { team: row.team, correct: 0, wrong: 0, details: [] };
+                const matches = classStudents.filter(stu => stu.name === row.student);
+                const student = row.studentId
+                    ? classStudents.find(stu => stu.id === row.studentId)
+                    : matches.length === 1 ? matches[0] : null;
+                const stat = student ? stats.get(student.id) : null;
+                const target = stat || (() => {
+                    const key = row.student || 'Không rõ';
+                    if (!unmatchedLegacy.has(key)) unmatchedLegacy.set(key, { team: row.team, correct: 0, wrong: 0, details: [] });
+                    return unmatchedLegacy.get(key);
+                })();
 
-                if (row.result === 'ĐÚNG') stats[stu].correct++;
-                else stats[stu].wrong++;
+                if (row.result === 'ĐÚNG') target.correct++;
+                else target.wrong++;
 
-                stats[stu].details.push(`[${row.result}] ${row.question}`);
+                target.details.push(`[${row.result}] ${row.question}`);
             });
 
             // Sắp xếp theo Tổ -> Tên
             let sortedStudents = classStudents.slice().sort((a, b) => {
-                let tA = studentTeamMap[a] ?? 99;
-                let tB = studentTeamMap[b] ?? 99;
+                let tA = studentTeamMap[a.id] ?? 99;
+                let tB = studentTeamMap[b.id] ?? 99;
                 if (tA !== tB) return tA - tB;
-                return a.localeCompare(b);
+                return a.name.localeCompare(b.name);
             });
 
+            const csvEscape = value => `"${String(value).replace(/"/g, '""')}"`;
             sortedStudents.forEach((stu, index) => {
-                let s = stats[stu];
-                let detailStr = s.details.join(' | ').replace(/"/g, '""');
-                csvContent += `${index + 1},"${stu}","${s.team}",${s.correct},${s.wrong},"${detailStr}"\n`;
+                let s = stats.get(stu.id);
+                let detailStr = s.details.join(' | ');
+                const studentNumber = Number(stu.id.slice(3));
+                const studentCode = `HS${String(studentNumber).padStart(3, '0')}`;
+                csvContent += `${index + 1},${studentCode},${csvEscape(studentDisplayName(stu))},${csvEscape(s.team)},${s.correct},${s.wrong},${csvEscape(detailStr)}\n`;
+            });
+            let exportIndex = sortedStudents.length;
+            unmatchedLegacy.forEach((s, name) => {
+                csvContent += `${++exportIndex},,${csvEscape(`${name} (dữ liệu cũ không phân biệt được)`)},${csvEscape(s.team)},${s.correct},${s.wrong},${csvEscape(s.details.join(' | '))}\n`;
             });
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.setAttribute("href", url);
-            let safeClassName = currentClassID.replace('_', '-');
-            link.setAttribute("download", `DiemTongHop_Lop_${safeClassName}_${new Date().getTime()}.csv`);
+            link.setAttribute("download", `${exportFileBase(currentClassID)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
