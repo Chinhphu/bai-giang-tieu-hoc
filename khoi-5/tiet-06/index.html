@@ -1577,13 +1577,19 @@
                 const ok = tray.filter(w => answers.includes(w)).length; // Số từ kéo ĐÚNG
                 const wrong = tray.length - ok; // Số từ kéo SAI (kéo thừa, kéo rác)
 
+                // Quy định mức điểm chuẩn là 300 điểm cho việc tìm đủ từ khóa (dù câu đó có 2, 3 hay 4 từ).
+                const BASE_SCORE = 300;
+                const scorePerWord = BASE_SCORE / answers.length; // Chia đều điểm cho số lượng từ
+
                 // Chỉ đạt Perfect (+100đ thưởng) khi: Đủ từ đúng VÀ không có từ sai nào
                 const perfect = (ok === answers.length && wrong === 0);
 
-                // Tính điểm: +100đ/từ đúng, -50đ/từ sai. (Không để điểm bị âm)
-                let pts = ok * PTS - (wrong * 50);
+                // Tính điểm: (Số từ đúng * điểm mỗi từ) - (từ sai * 50). Không để điểm bị âm.
+                let pts = Math.round(ok * scorePerWord) - (wrong * 50);
                 if (pts < 0) pts = 0;
-                pts += (perfect ? PTS : 0);
+
+                // Cộng thêm 100 điểm thưởng Perfect (Sử dụng số 100 thay vì biến PTS cũ)
+                pts += (perfect ? 100 : 0);
 
                 st.gain[i] = pts;
                 if (pts > 0) addScore(i, pts);
