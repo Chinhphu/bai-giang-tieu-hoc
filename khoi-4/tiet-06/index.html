@@ -101,6 +101,13 @@
             opacity: 1
         }
 
+        .edge-trail {
+            fill: none;
+            stroke-width: 2.5;
+            opacity: .95;
+            pointer-events: none;
+        }
+
         .edge.cut {
             opacity: 0;
             stroke: #ff3b5c;
@@ -138,9 +145,17 @@
         }
 
         .node .r1,
-        .node .r2 {
+        .node .r2,
+        .node .trail-ring {
             fill: none;
             display: none
+        }
+
+        .node .trail-ring {
+            stroke-width: 2;
+            stroke-dasharray: 3 3;
+            opacity: .9;
+            pointer-events: none;
         }
 
         .node .r1 {
@@ -903,6 +918,7 @@
 
     <script>
         const $ = s => document.querySelector(s), sh = a => [...a].sort(() => Math.random() - .5), NS = 'http://www.w3.org/2000/svg';
+        const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         const ALL_COLORS = ['#2fa8ff', '#ff4d6a', '#ffd84d', '#b184ff', '#19e6a5', '#ff914d'];
 
         const FALLBACK_JSON = {
@@ -930,7 +946,8 @@
         }
 
         // Các biến Đồ thị
-        let N, E, heads, owned, turn, over, busy, stuck, svgN, svgE, tm, done, curId;
+        let N, E, heads, owned, turn, over, busy, stuck, svgN, svgE, svgTrail, tm, done, curId;
+        let paths = [], visitedByTeam = [], failedByTeam = [], traversedByTeam = [];
         const NS_R = n => n.t == 'c' ? 40 : n.t == 's' ? 26 : 14;
 
         /* ===== ZOOM/PAN ===== */
@@ -990,6 +1007,7 @@
             // LOAD FILE CÂU HỎI
             try {
                 const qRes = await fetch('questions.json');
+                if (!qRes.ok) throw new Error(`HTTP ${qRes.status} khi tải questions.json`);
                 const qData = await qRes.json();
                 TF = qData.TF; SIT = qData.SIT; QZ = qData.QZ;
             } catch (err) {
@@ -1003,9 +1021,11 @@
             let studentNames;
             try {
                 const res = await fetch('../../assets/data/students_4_2026_2027.json');
+                if (!res.ok) throw new Error(`HTTP ${res.status} khi tải danh sách lớp`);
                 const data = await res.json();
                 studentNames = data[currentClassID] || FALLBACK_JSON[currentClassID] || FALLBACK_JSON["4_1"];
             } catch (err) {
+                console.error("Lỗi tải danh sách lớp", err);
                 studentNames = FALLBACK_JSON[currentClassID] || FALLBACK_JSON["4_1"];
             }
 
@@ -1037,6 +1057,10 @@
                 E: E,
                 heads: heads,
                 owned: owned.map(set => Array.from(set)),
+                paths: paths.map(path => path.slice()),
+                visitedByTeam: visitedByTeam.map(set => Array.from(set)),
+                failedByTeam: failedByTeam.map(set => Array.from(set)),
+                traversedByTeam: traversedByTeam.map(set => Array.from(set)),
                 turn: turn,
                 over: over,
                 stuck: stuck
@@ -1051,73 +1075,168 @@
         const TWIST = 0.8;        // độ xoắn mỗi tầng phía trong (radian)
 
         function buildMap(num) {
-            const D = MAP_LEVELS, A = START_ADVANCE, n = num, cIn = Math.max(4, n);
-            const RX = 470, RY = 295, TAU = Math.PI * 2;
-            const P = [{ x: 500, y: 320, t: 'c', a: 0 }];
+            const D = 5;               // 5 vòng mê cung chính
+            const ADVANCE = 3;         // Cho sẵn 3 bước làm "vốn" để phạt
+            const n = num;             // Số đội chơi
+            const ptsPerRing = 12;     // 12 node trên mỗi vòng (ép đi ngang)
+
+            const RX = 420, RY = 260, TAU = Math.PI * 2;
+            const P = [{ x: 500, y: 320, t: 'c', a: 0 }]; // Lõi = node 0
             const id = Array.from({ length: D + 1 }, () => []);
 
-            // Đặt node theo tầng: tầng ngoài (đường xuất phát) n node thẳng hàng, tầng trong xoay dần
+            // 1. TẠO CÁC VÒNG MÊ CUNG CHÍNH
             for (let k = D; k >= 1; k--) {
-                const lane = k >= D - A;
-                const cnt = lane ? n : (k === 1 ? 3 : cIn);
-                const f = 0.28 + 0.72 * (k - 1) / (D - 1);
-                const base = Math.PI / n + (lane ? 0 : (D - A - k + 1) * TWIST);
-                for (let i = 0; i < cnt; i++) {
-                    const a = base + TAU * i / cnt;
-                    const jit = lane ? 1 : 1 + Math.random() * .06 - .03;
-                    P.push({ x: 500 + Math.cos(a) * RX * f * jit, y: 320 + Math.sin(a) * RY * f * jit, t: k === D ? 's' : 'n', a });
+                const f = Math.pow(k / D, 0.85);
+                const offset = (D - k) * 0.2;
+                for (let i = 0; i < ptsPerRing; i++) {
+                    const a = offset + TAU * i / ptsPerRing;
+                    const jit = 1 + (Math.random() * 0.02 - 0.01);
+                    P.push({
+                        x: 500 + Math.cos(a) * RX * f * jit,
+                        y: 320 + Math.sin(a) * RY * f * jit,
+                        t: 'n',
+                        a
+                    });
                     id[k].push(P.length - 1);
                 }
             }
 
-            const S = new Set(), hasOuter = new Set();
+            const S = new Set();
             const add = (a, b) => S.add(Math.min(a, b) + '-' + Math.max(a, b));
             const angD = (a, b) => { const d = Math.abs(a - b) % TAU; return d > Math.PI ? TAU - d : d; };
             const nearest = (u, level) => level.slice().sort((p, q) => angD(P[p].a, P[u].a) - angD(P[q].a, P[u].a));
+            const doorIndices = doorCount => {
+                const sectorSize = ptsPerRing / doorCount;
+                if (Number.isInteger(sectorSize)) {
+                    const offset = Math.floor(Math.random() * sectorSize);
+                    return Array.from({ length: doorCount }, (_, d) => d * sectorSize + offset);
+                }
+                return Array.from({ length: doorCount }, (_, d) => {
+                    const start = Math.floor(d * ptsPerRing / doorCount);
+                    const end = Math.floor((d + 1) * ptsPerRing / doorCount);
+                    return start + Math.floor(Math.random() * (end - start));
+                });
+            };
 
-            // Đường xuất phát cố định: T -> n1 -> n2 -> n3
-            for (let j = 0; j < n; j++)
-                for (let k = D; k > D - A; k--) add(id[k][j], id[k - 1][j]);
+            // 2. NỐI VÒNG LIÊN TỤC ĐỂ MỌI TỔ CÓ THỂ ĐI VÒNG
+            for (let k = 1; k <= D; k++) {
+                const L = id[k];
+                for (let i = 0; i < L.length; i++) add(L[i], L[(i + 1) % L.length]);
+            }
 
-            // Mỗi node nối vào 1-2 node gần nhất ở tầng trong (đi lệch góc => đường xoắn)
-            for (let k = D - A; k >= 2; k--) {
-                for (const u of id[k]) {
+            // 3. MỖI TỔ CÓ MỘT CỬA VÀO VÒNG TRONG, ĐẶT ĐỐI XỨNG KHI CÓ THỂ
+            for (let k = D; k >= 2; k--) {
+                for (const idx of doorIndices(n)) {
+                    const u = id[k][idx];
                     const c = nearest(u, id[k - 1]);
-                    add(u, c[0]); hasOuter.add(c[0]);
-                    if (Math.random() < .4) { add(u, c[1]); hasOuter.add(c[1]); }
+                    add(u, c[0]);
                 }
             }
-            // Chỉ 3 node tầng 1 nối vào Lõi
-            id[1].forEach(u => add(u, 0));
 
-            // Node tầng trong chưa có đường từ ngoài vào thì nối thêm
-            for (let k = 1; k < D - A; k++)
-                for (const v of id[k])
-                    if (!hasOuter.has(v)) add(nearest(v, id[k + 1])[0], v);
+            // 4. CỬA VÀO LÕI CŨNG ĐƯỢC CHIA ĐỀU THEO SỐ TỔ
+            doorIndices(n).forEach(idx => add(id[1][idx], 0));
 
-            // Cạnh cung cùng tầng: làm đường đi vòng quanh Lõi (không làm đường ngắn hơn)
-            for (let k = 1; k < D - A; k++) {
-                const L = id[k];
-                L.forEach((u, i) => { if (Math.random() < .45) add(u, L[(i + 1) % L.length]); });
+            // 5. TẠO ĐƯỜNG XUẤT PHÁT CHO SẴN (VỐN 3 BƯỚC)
+            const lanes = [];
+            for (let j = 0; j < n; j++) {
+                // Chia đều vị trí các đội trên vòng ngoài cùng
+                const entryIdx = Math.floor((j * ptsPerRing) / n);
+                const entryNodeId = id[D][entryIdx];
+                const entryA = P[entryNodeId].a;
+
+                const laneNodes = [];
+                // Vẽ thêm 3 node đâm thẳng ra ngoài từ cổng Entry
+                // step 3 là Base (ngoài cùng), step 1 là sát vòng ngoài
+                for (let step = ADVANCE; step >= 1; step--) {
+                    const f = 1 + (step * 0.15); // Kéo dài ra xa lõi
+                    P.push({
+                        x: 500 + Math.cos(entryA) * RX * f,
+                        y: 320 + Math.sin(entryA) * RY * f,
+                        t: step === ADVANCE ? 's' : 'n',
+                        a: entryA
+                    });
+                    laneNodes.push(P.length - 1);
+                }
+                // Nối thẳng vào EntryNode (bước cuối cùng của vốn 3 bước)
+                laneNodes.push(entryNodeId);
+
+                // Nối các node thẳng hàng này lại với nhau
+                for (let i = 0; i < laneNodes.length - 1; i++) {
+                    add(laneNodes[i], laneNodes[i + 1]);
+                }
+                lanes.push(laneNodes);
             }
 
             const E = [...S].map(s => s.split('-').map(Number)).filter(e => e[0] !== e[1]);
-            const lanes = Array.from({ length: n }, (_, j) => {
-                const l = []; for (let k = D; k >= D - A; k--) l.push(id[k][j]); return l;
-            });
+
             return { P, E, lanes };
+        }
+
+        function mapDistancesToCore(map) {
+            const adjacency = Array.from({ length: map.P.length }, () => []);
+            map.E.forEach(([a, b]) => {
+                adjacency[a].push(b);
+                adjacency[b].push(a);
+            });
+
+            return map.lanes.map(lane => {
+                const start = lane[lane.length - 1];
+                const visitedStartNodes = new Set(lane.slice(0, -1));
+                const distances = Array(map.P.length).fill(-1);
+                distances[start] = 0;
+                const queue = [start];
+                for (let i = 0; i < queue.length; i++) {
+                    const node = queue[i];
+                    for (const next of adjacency[node]) {
+                        if (distances[next] !== -1 || visitedStartNodes.has(next)) continue;
+                        distances[next] = distances[node] + 1;
+                        queue.push(next);
+                    }
+                }
+                return distances[0];
+            });
+        }
+
+        function buildBalancedMap(num) {
+            let bestMap = null;
+            let bestScore = Infinity;
+
+            for (let attempt = 0; attempt < 1000; attempt++) {
+                const map = buildMap(num);
+                const distances = mapDistancesToCore(map);
+                if (distances.some(distance => distance < 0)) continue;
+
+                const spread = Math.max(...distances) - Math.min(...distances);
+                const mean = distances.reduce((sum, distance) => sum + distance, 0) / distances.length;
+                const score = spread * 1000 + distances.reduce((sum, distance) => sum + Math.abs(distance - mean), 0);
+                if (score < bestScore) {
+                    bestMap = map;
+                    bestScore = score;
+                }
+                if (spread === 0) break;
+            }
+
+            if (!bestMap) throw new Error('Không tạo được bản đồ có đường đi tới lõi cho mọi tổ.');
+            return { ...bestMap, startDistances: mapDistancesToCore(bestMap) };
         }
 
         /* ===== INIT & RENDER GAME ===== */
         function mk(t, a, p) { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p && p.appendChild(e); return e }
         const nb = i => E.filter(e => e.alive && (e.a == i || e.b == i)).map(e => e.a == i ? e.b : e.a);
-        function nbrs(arr) { const s = new Set(); arr.forEach(i => nb(i).forEach(j => { if (!N[j].dead && (N[j].owner < 0 || j == 0)) s.add(j) })); return [...s] }
-        function cands(t) { let r = nbrs([heads[t]]); if (!r.length) r = nbrs([...owned[t]]); return r }
+        const edgeKey = (a, b) => a < b ? `${a}-${b}` : `${b}-${a}`;
+        function cands(t) {
+            return nb(heads[t]).filter(node => !visitedByTeam[t].has(node) && !failedByTeam[t].has(node));
+        }
         function dist(t) {
             const q = [[heads[t], 0]], seen = new Set([heads[t]]);
             while (q.length) {
                 const [i, d] = q.shift(); if (i == 0) return d;
-                nb(i).forEach(j => { if (!seen.has(j) && !N[j].dead && (N[j].owner < 0 || N[j].owner == t)) { seen.add(j); q.push([j, d + 1]) } })
+                nb(i).forEach(j => {
+                    if (!seen.has(j) && !visitedByTeam[t].has(j) && !failedByTeam[t].has(j)) {
+                        seen.add(j);
+                        q.push([j, d + 1]);
+                    }
+                });
             }
             return -1;
         }
@@ -1137,6 +1256,28 @@
                 E = state.E;
                 heads = state.heads;
                 owned = state.owned.map(arr => new Set(arr));
+                const isLegacyState = !Array.isArray(state.visitedByTeam) || !Array.isArray(state.failedByTeam);
+                if (isLegacyState) {
+                    E = E.filter(edge => !edge.rescue);
+                    E.forEach(edge => { edge.alive = true; });
+                }
+                N.forEach(node => { node.dead = false; });
+                paths = Array.isArray(state.paths) && state.paths.length === numT
+                    ? state.paths.map(path => path.slice())
+                    : owned.map((nodes, team) => {
+                        const path = Array.from(nodes);
+                        if (!path.includes(state.heads[team])) path.push(state.heads[team]);
+                        return path;
+                    });
+                visitedByTeam = Array.isArray(state.visitedByTeam) && state.visitedByTeam.length === numT
+                    ? state.visitedByTeam.map(nodes => new Set(nodes))
+                    : paths.map(path => new Set(path));
+                failedByTeam = Array.isArray(state.failedByTeam) && state.failedByTeam.length === numT
+                    ? state.failedByTeam.map(nodes => new Set(nodes))
+                    : Array.from({ length: numT }, () => new Set());
+                traversedByTeam = Array.isArray(state.traversedByTeam) && state.traversedByTeam.length === numT
+                    ? state.traversedByTeam.map(edges => new Set(edges))
+                    : paths.map(path => new Set(path.slice(1).map((node, i) => edgeKey(path[i], node))));
                 turn = state.turn;
                 over = state.over;
                 stuck = state.stuck;
@@ -1146,16 +1287,21 @@
                 toast(`Đã khôi phục thành công bản đồ cũ của ${currentClassID.replace('_', '/')}.`, 'ok');
             } else {
                 // Tạo mới hoàn toàn
-                const g = buildMap(numT);
+                const g = buildBalancedMap(numT);
                 N = g.P.map(p => ({ x: p.x, y: p.y, t: p.t, owner: -1, dead: false }));
                 g.lanes.forEach((ln, t) => ln.forEach(nid => N[nid].owner = t));
                 E = g.E.map(([a, b]) => ({ a, b, alive: true, rescue: false }));
                 heads = g.lanes.map(l => l[l.length - 1]);
                 owned = g.lanes.map(l => new Set(l));   // thứ tự: T, n1, n2, n3 (n3 là đầu)
+                paths = g.lanes.map(l => l.slice());
+                visitedByTeam = paths.map(path => new Set(path));
+                failedByTeam = Array.from({ length: numT }, () => new Set());
+                traversedByTeam = g.lanes.map(lane => new Set(lane.slice(1).map((node, i) => edgeKey(lane[i], node))));
                 over = false; busy = false; stuck = Array(numT).fill(false); turn = numT - 1;
                 gameLog = [];
                 nextTurn();
-                toast(`Khởi tạo bản đồ mới! Chào mừng ${currentClassID.replace('_', '/')}.`, 'ok');
+                const routeLengths = g.startDistances.map((distance, team) => `Tổ ${team + 1}: ${distance} bước`).join(' · ');
+                toast(`Bản đồ mới cho ${currentClassID.replace('_', '/')}. Đường ngắn nhất tới lõi: ${routeLengths}`, 'ok');
             }
 
             zGroup.innerHTML = '';
@@ -1163,6 +1309,7 @@
                 let cl = 'edge' + (e.rescue ? ' rescue' : '');
                 return mk('line', { class: cl, x1: N[e.a].x, y1: N[e.a].y, x2: N[e.b].x, y2: N[e.b].y }, zGroup)
             });
+            svgTrail = E.map(() => TEAMS.map(() => mk('line', { class: 'edge-trail', display: 'none' }, zGroup)));
 
             svgN = N.map((n, i) => {
                 const gr = mk('g', { class: 'node' }, zGroup), r = NS_R(n);
@@ -1170,6 +1317,13 @@
                 mk('circle', { class: 'r1', cx: n.x, cy: n.y, r: r + 5 }, gr);
                 mk('circle', { class: 'b', cx: n.x, cy: n.y, r }, gr);
                 mk('text', { x: n.x, y: n.y, 'font-size': n.t == 'c' ? 22 : n.t == 's' ? 14 : 11 }, gr);
+                TEAMS.forEach((team, teamId) => mk('circle', {
+                    class: 'trail-ring',
+                    cx: n.x,
+                    cy: n.y,
+                    r: r + 12 + teamId * 4,
+                    stroke: team.c
+                }, gr));
                 if (n.t == 'c') mk('text', { class: 'clabel', x: n.x, y: n.y + 60 }, gr).textContent = 'LÕI MÁY CHỦ';
                 gr.onclick = () => pick(i);
                 return gr;
@@ -1177,37 +1331,6 @@
 
             render();
             saveGameState();
-        }
-
-        // TỰ ĐỘNG TẠO ĐƯỜNG CỨU VIỆN NẾU BỊ BÍT ĐƯỜNG
-        function regeneratePath(t) {
-            let myNodes = Array.from(owned[t]);
-            let targetNodes = [];
-            N.forEach((n, i) => { if (!n.dead && n.owner !== t) targetNodes.push(i); });
-            if (targetNodes.length === 0) return false;
-
-            let bestEdge = null;
-            let minDist = Infinity;
-            myNodes.forEach(u => {
-                targetNodes.forEach(v => {
-                    let d = Math.hypot(N[u].x - N[v].x, N[u].y - N[v].y);
-                    let exists = E.some(e => (e.a == u && e.b == v) || (e.a == v && e.b == u));
-                    if (!exists && d < minDist) {
-                        minDist = d; bestEdge = { a: u, b: v };
-                    }
-                });
-            });
-
-            if (bestEdge) {
-                let e = { a: bestEdge.a, b: bestEdge.b, alive: true, rescue: true };
-                E.push(e);
-                let line = mk('line', { class: 'edge rescue', x1: N[e.a].x, y1: N[e.a].y, x2: N[e.b].x, y2: N[e.b].y });
-                zGroup.insertBefore(line, zGroup.querySelector('.node'));
-                svgE.push(line);
-                toast(`✨ Hệ thống vừa kích hoạt ĐƯỜNG CỨU VIỆN cho ${TEAMS[t].n}!`, 'win');
-                return true;
-            }
-            return false;
         }
 
         function render() {
@@ -1219,18 +1342,35 @@
                 let isRescue = e.rescue && !own;
                 svgE[k].setAttribute('class', 'edge' + (e.alive ? '' : ' cut') + (own ? ' own' : '') + (isRescue ? ' rescue' : ''));
                 svgE[k].style.stroke = own ? TEAMS[a.owner].c : '';
+                const dx = N[e.b].x - a.x, dy = N[e.b].y - a.y;
+                const length = Math.hypot(dx, dy) || 1;
+                traversedByTeam.forEach((teamEdges, teamId) => {
+                    const trail = svgTrail[k][teamId];
+                    const used = e.alive && teamEdges.has(edgeKey(e.a, e.b));
+                    const offset = (teamId - (numT - 1) / 2) * 3;
+                    trail.setAttribute('x1', a.x - dy / length * offset);
+                    trail.setAttribute('y1', a.y + dx / length * offset);
+                    trail.setAttribute('x2', N[e.b].x - dy / length * offset);
+                    trail.setAttribute('y2', N[e.b].y + dx / length * offset);
+                    trail.setAttribute('stroke', TEAMS[teamId].c);
+                    trail.style.display = used ? 'inline' : 'none';
+                });
             });
 
             N.forEach((n, i) => {
                 const gr = svgN[i], ho = heads.indexOf(i);
-                gr.setAttribute('class', 'node' + (n.dead ? ' dead' : '') + (C.includes(i) ? ' cand' : ''));
+                const failed = failedByTeam[turn].has(i);
+                gr.setAttribute('class', 'node' + (failed ? ' dead' : '') + (C.includes(i) ? ' cand' : ''));
                 const [r2, , b, tx] = gr.children;
-                r2.style.display = ho >= 0 && !n.dead ? 'block' : 'none';
+                r2.style.display = ho >= 0 && !failed ? 'block' : 'none';
                 if (ho >= 0) r2.style.stroke = TEAMS[ho].c;
-                b.style.fill = n.owner >= 0 && !n.dead ? TEAMS[n.owner].c : '';
-                tx.style.fill = n.owner >= 0 && !n.dead ? '#07101f' : '';
+                b.style.fill = n.owner >= 0 ? TEAMS[n.owner].c : '';
+                tx.style.fill = n.owner >= 0 ? '#07101f' : '';
+                TEAMS.forEach((team, teamId) => {
+                    gr.children[4 + teamId].style.display = visitedByTeam[teamId].has(i) ? 'block' : 'none';
+                });
 
-                if (n.dead) { tx.textContent = 'X'; }
+                if (failed) { tx.textContent = 'X'; }
                 else if (n.t == 'c') { tx.textContent = 'LÕI'; }
                 else if (n.t == 's') { tx.textContent = 'T' + (n.owner + 1); }
                 else { tx.textContent = i; }
@@ -1258,15 +1398,18 @@
         window.punishTeam = function (teamId) {
             if (over || busy || teamId < 0 || teamId >= numT) return;
 
-            const path = Array.from(owned[teamId]);
-            const previousHeadIndex = path.lastIndexOf(heads[teamId]) - 1;
+            const previousHeadIndex = paths[teamId].lastIndexOf(heads[teamId]) - 1;
             if (previousHeadIndex < 0) return;
 
-            const previousHead = path[previousHeadIndex];
+            const previousHead = paths[teamId][previousHeadIndex];
             const removedHead = heads[teamId];
-            owned[teamId].delete(removedHead);
-            N[removedHead].owner = -1;
+            paths[teamId].pop();
+            if (N[removedHead].owner === teamId) {
+                owned[teamId].delete(removedHead);
+                N[removedHead].owner = -1;
+            }
             heads[teamId] = previousHead;
+            visitedByTeam[teamId] = new Set(paths[teamId]);
             stuck[teamId] = false;
 
             render();
@@ -1313,16 +1456,10 @@
 
         function nextTurn() {
             selectedStudent = null;
+            let retreated = false;
             for (let k = 1; k <= numT; k++) {
                 const t = (turn + k) % numT;
-                let c = cands(t);
-
-                // NẾU HẾT ĐƯỜNG ĐI (BỊ BÍT) -> MỞ ĐƯỜNG CỨU VIỆN
-                if (c.length === 0) {
-                    if (regeneratePath(t)) {
-                        c = cands(t);
-                    }
-                }
+                const c = cands(t);
 
                 if (c.length > 0) {
                     stuck[t] = false;
@@ -1334,7 +1471,19 @@
                     localStorage.setItem('cooldowns_' + currentClassID, JSON.stringify(cooldowns));
                     return;
                 }
-                if (!stuck[t]) { stuck[t] = true; toast(`[Chú ý] ${TEAMS[t].n} bị cô lập, mất lượt`, 'bad') }
+                if (paths[t].length > 1) {
+                    paths[t].pop();
+                    heads[t] = paths[t][paths[t].length - 1];
+                    retreated = true;
+                    if (!stuck[t]) toast(`[Hết đường mới] ${TEAMS[t].n} lùi 1 ô và mất lượt.`, 'bad');
+                } else if (!stuck[t]) {
+                    toast(`[Hết đường] ${TEAMS[t].n} đã hết nhánh chưa thử; tổ này mất lượt`, 'bad');
+                }
+                stuck[t] = true;
+            }
+            if (retreated) {
+                nextTurn();
+                return;
             }
             over = true; toast('Tất cả đội đều kẹt cứng!', 'bad');
             forceEnd();
@@ -1427,12 +1576,22 @@
                     over = true; busy = false; N[0].owner = t; render(); saveGameState(); toast(`Chiến thắng! ${T.n} đã chiếm Lõi Máy Chủ!`, 'win');
                     forceEnd(); return;
                 }
-                N[id].owner = t; heads[t] = id; owned[t].add(id);
-                toast(`[Thành công] ${T.n} chiếm được ô #${id}`, 'ok');
+                const previousOwner = N[id].owner;
+                traversedByTeam[t].add(edgeKey(heads[t], id));
+                if (previousOwner < 0) {
+                    N[id].owner = t;
+                    owned[t].add(id);
+                }
+                heads[t] = id;
+                paths[t].push(id);
+                visitedByTeam[t].add(id);
+                toast(previousOwner < 0
+                    ? `[Thành công] ${T.n} chiếm được ô #${id}`
+                    : `[Thành công] ${T.n} đi qua ô #${id}; ô vẫn thuộc ${TEAMS[previousOwner].n}`, 'ok');
             } else if (id == 0) { toast(`Lõi Máy Chủ vẫn đứng vững! ${T.n} mất lượt`, 'bad') }
             else {
-                N[id].dead = true; E.forEach(e => { if (e.a == id || e.b == id) e.alive = false });
-                toast(`[Thất bại] Ô #${id} thành Vùng Chết! Các đường nối bị đứt`, 'bad')
+                failedByTeam[t].add(id);
+                toast(`[Thất bại] Ô #${id} bị khóa riêng với ${T.n}; các tổ khác vẫn có thể đi qua`, 'bad')
             }
             busy = false; nextTurn(); render(); saveGameState();
         }
