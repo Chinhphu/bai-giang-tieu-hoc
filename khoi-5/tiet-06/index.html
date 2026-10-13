@@ -1329,8 +1329,9 @@
                 if (!Array.isArray(round.cases) || round.cases.length < 6 || !Array.isArray(round.distractors)) return false;
                 const answers = round.cases.flatMap(task => task.ans || []);
                 const allWords = [...answers, ...round.distractors];
+                // Đã xóa điều kiện kiểm tra new Set(...) ở cuối cùng
                 return round.cases.every(task => typeof task.ctx === 'string' && Array.isArray(task.ans) && task.ans.length >= 1 && task.ans.every(word => typeof word === 'string' && word.trim().length)) &&
-                    allWords.every(word => typeof word === 'string' && word.trim().length) && new Set(allWords.map(word => word.trim().toLocaleLowerCase())).size === allWords.length;
+                    allWords.every(word => typeof word === 'string' && word.trim().length);
             });
             const validA2 = Array.isArray(data.a2) && data.a2.length === 5 && data.a2.every(round => {
                 if (!Array.isArray(round.signals) || round.signals.length !== 12 || !round.theme ||
@@ -1502,7 +1503,7 @@
     <div class="tray-head" style="background:${t.color}"><span>${t.name}</span>${st.graded ? `<span class="gain">+${st.gain[i] || 0}</span>` : ''}</div>
     <div class="tray-body"><div class="team-task">${esc(st.cases[i].ctx)}</div>${st.trays[i].map((w, k) => {
                 const c = st.graded ? (st.cases[i].ans.includes(w) ? 'good' : 'bad') : '';
-                return `<div class="word clone ${c}" style="--d:${k}"><b>${k + 1}.</b><span>${esc(w)}</span></div>`
+                return `<div class="word clone ${c}" style="--d:${k}" draggable="${!st.graded}" data-w="${esc(w)}" data-src="tray" data-team="${i}"><b>${k + 1}.</b><span>${esc(w)}</span></div>`
             }).join('')}</div></div>`).join('');
             renderRounds();
         }
@@ -1521,6 +1522,17 @@
             renderAi1();
             return true;
         }
+        function returnKeyword(teamIndex, word) {
+            const st = a1State[rd[1]];
+            if (st.graded) return false;
+
+            if (!st.trays[teamIndex] || !st.trays[teamIndex].includes(word)) return false;
+            st.trays[teamIndex].splice(st.trays[teamIndex].indexOf(word), 1);
+            st.words.push(word);
+            selectedWord = null;
+            renderAi1();
+            return true;
+        }
 
         ai1El.addEventListener('click', e => {
             const word = e.target.closest('#word-pool .word[draggable="true"]');
@@ -1534,19 +1546,25 @@
         });
         ai1El.addEventListener('dragstart', e => {
             const c = e.target.closest('.word[draggable="true"]'); if (!c) return;
-            drag = { w: c.dataset.w, src: c.dataset.src };
+            drag = { w: c.dataset.w, src: c.dataset.src, team: +c.dataset.team };
             c.classList.add('drag'); e.dataTransfer.setData('text/plain', drag.w); e.dataTransfer.effectAllowed = 'move';
         });
         ai1El.addEventListener('dragend', () => { drag = null; ai1El.querySelectorAll('.drag,.drag-over').forEach(x => x.classList.remove('drag', 'drag-over')) });
         ai1El.addEventListener('dragover', e => {
-            if (!drag) return; const z = e.target.closest('.tray'); if (!z) return;
+            if (!drag) return;
+            const z = drag.src === 'pool' ? e.target.closest('.tray') : e.target.closest('#word-pool');
+            if (!z) return;
             e.preventDefault(); ai1El.querySelectorAll('.drag-over').forEach(x => x !== z && x.classList.remove('drag-over')); z.classList.add('drag-over');
         });
         ai1El.addEventListener('drop', e => {
-            if (!drag) return; const z = e.target.closest('.tray'); if (!z) return; e.preventDefault();
-            const d = drag, tid = +z.dataset.team;
+            if (!drag) return;
+            const z = drag.src === 'pool' ? e.target.closest('.tray') : e.target.closest('#word-pool');
+            if (!z) return;
+            e.preventDefault();
+            const d = drag;
             drag = null;
-            if (d.src === 'pool') assignKeyword(tid, d.w);
+            if (d.src === 'pool') assignKeyword(+z.dataset.team, d.w);
+            else if (d.src === 'tray') returnKeyword(d.team, d.w);
         });
         function gradeR1() {
             const r = rd[1], st = a1State[r];
