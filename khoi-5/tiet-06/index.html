@@ -156,10 +156,31 @@
         }
 
         @keyframes penalty-hit {
-            0%, 100% { transform: translateX(0); box-shadow: 0 0 0 transparent }
-            12%, 36%, 60% { transform: translateX(-9px); box-shadow: 0 0 20px #ef4444 }
-            24%, 48%, 72% { transform: translateX(9px); box-shadow: 0 0 20px #ef4444 }
-            86% { transform: translateX(-3px); box-shadow: 0 0 8px #ef4444 }
+
+            0%,
+            100% {
+                transform: translateX(0);
+                box-shadow: 0 0 0 transparent
+            }
+
+            12%,
+            36%,
+            60% {
+                transform: translateX(-9px);
+                box-shadow: 0 0 20px #ef4444
+            }
+
+            24%,
+            48%,
+            72% {
+                transform: translateX(9px);
+                box-shadow: 0 0 20px #ef4444
+            }
+
+            86% {
+                transform: translateX(-3px);
+                box-shadow: 0 0 8px #ef4444
+            }
         }
 
         .trow {
@@ -1367,7 +1388,8 @@
         function setRound(r) { if (r < 0 || r > 4) return; selectedWord = null; rd[ai] = r; ai === 1 ? renderAi1() : renderAi2() }
         function renderRounds() {
             $('rounds').innerHTML = [0, 1, 2, 3, 4].map(i => {
-                const done = ai === 1 ? a1State[i].graded : a2State[i].chosen.every(k => a2State[i].broken[k] !== undefined);
+                // Mới (Chỉ cần tìm ra hết các vị trí correct là done):
+                const done = ai === 1 ? a1State[i].graded : [...a2State[i].correct].every(k => a2State[i].broken[k] !== undefined);
                 return `<button class="rd ${rd[ai] === i ? 'on' : ''} ${done ? 'done' : ''}" onclick="setRound(${i})">${i + 1}</button>`
             }).join('');
         }
@@ -1545,8 +1567,9 @@
         /* ================= ẢI 2 ================= */
         function renderAi2() {
             const r = rd[2], R = A2_DATA[r].signals, T = A2_DATA[r].theme, st = a2State[r];
-            const left = st.chosen.filter(k => st.broken[k] === undefined).length;
-            $('a2-left').textContent = left ? `Còn ${left}/${st.chosen.length} dấu hiệu` : 'Đã nhận diện hết! 🎉';
+            // Chỉ đếm những dấu hiệu fake (correct) chưa bị lật
+            const left = [...st.correct].filter(k => st.broken[k] === undefined).length;
+            $('a2-left').textContent = left ? `Còn ${left}/${st.correct.size} dấu hiệu lừa đảo` : 'Đã nhận diện hết! 🎉';
             $('a2-next').classList.toggle('hidden', !(left === 0 && r < 4));
             const item = k => {
                 const it = R[k], c = it.type === 'url' ? 'trap-url' : 'trap-' + it.type;
