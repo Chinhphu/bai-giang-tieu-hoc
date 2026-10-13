@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Điệp vụ mở két sắt Sa Pa</title>
+    <title>Điệp vụ tìm kiếm và nhận diện trang web</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800;900&display=swap');
@@ -149,6 +149,17 @@
             border-radius: 12px;
             padding: 6px 8px;
             position: relative
+        }
+
+        .team.penalty-hit {
+            animation: penalty-hit .9s ease-out
+        }
+
+        @keyframes penalty-hit {
+            0%, 100% { transform: translateX(0); box-shadow: 0 0 0 transparent }
+            12%, 36%, 60% { transform: translateX(-9px); box-shadow: 0 0 20px #ef4444 }
+            24%, 48%, 72% { transform: translateX(9px); box-shadow: 0 0 20px #ef4444 }
+            86% { transform: translateX(-3px); box-shadow: 0 0 8px #ef4444 }
         }
 
         .trow {
@@ -297,14 +308,14 @@
 
         .stage {
             flex: 1;
-            padding: 18px 20px
+            padding: 8px 12px
         }
 
         .panel {
             background: #fff;
             border: 6px solid var(--ink);
             border-radius: 28px;
-            padding: 20px 26px;
+            padding: 12px 16px;
             box-shadow: var(--shadow)
         }
 
@@ -312,7 +323,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 14px
+            margin-bottom: 8px
         }
 
         .phead h2 {
@@ -348,30 +359,23 @@
             box-shadow: 0 4px 0 #087d69
         }
 
-        .big-ctx {
-            background: var(--ink);
-            color: #fff;
-            border: 4px solid var(--yellow);
-            border-radius: 18px;
-            padding: 16px 22px;
-            font-size: 26px;
-            font-weight: 800;
-            line-height: 1.4;
-            margin-bottom: 14px
+        /* Ải 1 */
+        .a1-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
         }
 
-        /* Ải 1 */
         .pool {
-            min-height: 100px;
             background: #eaf5f2;
             border: 4px dashed var(--mint);
             border-radius: 20px;
-            padding: 15px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
-            margin-bottom: 14px;
+            padding: 8px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            align-items: stretch;
+            gap: 7px;
+            margin-bottom: 0;
             transition: .15s
         }
 
@@ -384,32 +388,27 @@
             position: relative;
             background: var(--yellow);
             color: var(--ink);
-            font-size: 18px;
+            font-size: 15px;
             font-weight: 900;
-            padding: 10px 18px;
+            line-height: 1.25;
+            padding: 8px 10px;
             border-radius: 12px;
             border: 3px solid var(--ink);
             box-shadow: 0 4px 0 var(--ink);
-            cursor: grab
+            cursor: grab;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center
         }
 
         .word.drag {
             opacity: .35
         }
 
-        .word .dots {
-            position: absolute;
-            top: -7px;
-            right: -4px;
-            display: flex;
-            gap: 2px
-        }
-
-        .word .dots i {
-            width: 11px;
-            height: 11px;
-            border-radius: 50%;
-            border: 2px solid #fff
+        .word.selected {
+            outline: 5px solid var(--blue);
+            outline-offset: 2px
         }
 
         .word em {
@@ -472,8 +471,8 @@
 
         .trays {
             display: grid;
-            gap: 14px;
-            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr))
+            gap: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(185px, 1fr))
         }
 
         .tray {
@@ -482,7 +481,8 @@
             background: #fff;
             display: flex;
             flex-direction: column;
-            min-height: 180px;
+            min-width: 0;
+            min-height: 130px;
             transition: .15s
         }
 
@@ -504,10 +504,19 @@
 
         .tray-body {
             flex: 1;
-            padding: 10px;
+            padding: 8px;
             display: flex;
             flex-direction: column;
-            gap: 8px
+            gap: 6px
+        }
+
+        .team-task {
+            min-height: 3em;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.35;
+            color: #475569;
+            overflow-wrap: anywhere
         }
 
         .word.clone {
@@ -515,27 +524,13 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 17px;
-            padding: 8px 12px;
+            font-size: 14px;
+            padding: 7px 10px;
             z-index: 1
         }
 
         .word.clone b {
             color: var(--blue)
-        }
-
-        .word.clone .rm {
-            margin-left: auto;
-            padding-left: 8px;
-            font-size: 22px;
-            line-height: 1;
-            font-weight: 700;
-            color: #94a3b8;
-            cursor: pointer
-        }
-
-        .word.clone .rm:hover {
-            color: var(--coral)
         }
 
         /* Ải 2: trang web giả */
@@ -645,6 +640,13 @@
             background: #f8fafc
         }
 
+        .signal-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin: 6px 0
+        }
+
         .s-main {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -686,7 +688,10 @@
             border: 2px solid var(--line);
             border-radius: 14px;
             padding: 12px;
-            text-align: center
+            text-align: center;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px
         }
 
         .widget {
@@ -747,25 +752,61 @@
             z-index: 10
         }
 
+        .trap.missed {
+            pointer-events: none;
+            opacity: .6;
+            filter: grayscale(.8);
+            border-color: #64748b
+        }
+
+        .trap.missed::after {
+            content: '❌ Sai — mất lượt';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-8deg);
+            background: #475569;
+            color: #fff;
+            font-weight: 900;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            border: 2px solid var(--ink);
+            white-space: nowrap;
+            z-index: 10
+        }
+
         .trap-url {
             flex: 1;
             background: #fff;
-            padding: 7px 15px;
+            padding: 7px 10px;
             border-radius: 20px;
             font-family: monospace;
-            font-size: 16px;
+            font-size: 13px;
             font-weight: bold;
-            text-align: left
+            text-align: left;
+            min-width: 0;
+            overflow-wrap: anywhere
+        }
+
+        .trap-link {
+            display: inline-block;
+            color: #2563eb;
+            font-weight: 800;
+            text-decoration: underline;
+            padding: 8px 10px;
+            overflow-wrap: anywhere
         }
 
         .trap-banner {
             background: var(--bn);
             color: #fff;
-            padding: 26px;
-            font-size: 26px;
+            padding: 12px;
+            font-size: 17px;
             font-weight: 900;
             text-transform: uppercase;
-            border-radius: 12px
+            border-radius: 12px;
+            min-width: 0
         }
 
         .trap-timer {
@@ -783,32 +824,35 @@
         .trap-btn {
             background: linear-gradient(#22c55e, #15803d);
             color: #fff;
-            font-size: 20px;
+            font-size: 15px;
             font-weight: 900;
-            padding: 12px 34px;
+            padding: 10px;
             border-radius: 12px;
             box-shadow: 0 6px 0 #166534;
-            display: inline-block;
-            margin: 8px
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0
         }
 
         .trap-input {
             border: 2px solid #ccc;
-            padding: 11px;
-            font-size: 17px;
+            padding: 9px;
+            font-size: 14px;
             border-radius: 8px;
-            width: 90%;
-            margin: 8px auto;
+            width: 100%;
+            margin: 0;
             background: #f9f9f9;
             display: block;
             font-weight: bold
         }
 
         .trap-text {
-            font-size: 17px;
+            font-size: 14px;
             color: #555;
             font-weight: bold;
-            margin: 8px
+            margin: 0;
+            overflow-wrap: anywhere
         }
 
         .safe.trap-banner {
@@ -933,6 +977,12 @@
             color: #fff;
             border-radius: 12px;
             box-shadow: 0 4px 0 rgba(0, 0, 0, .2)
+        }
+
+        .modal-btn:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            box-shadow: none
         }
 
         .btn-cancel {
@@ -1103,6 +1153,11 @@
             .s-main {
                 grid-template-columns: 1fr
             }
+
+            .trays {
+                grid-template-columns: repeat(auto-fit, minmax(210px, 1fr))
+            }
+
         }
 
         @media(prefers-reduced-motion:reduce) {
@@ -1117,7 +1172,7 @@
 
     <div id="setup-screen">
         <div class="setup-box">
-            <h2>🕵️ Điệp vụ mở két sắt</h2>
+            <h2>🕵️ Điệp vụ tìm kiếm và nhận diện trang web</h2>
             <div class="setup-row">Lớp
                 <select id="s-class">
                     <option>5/1</option>
@@ -1153,29 +1208,27 @@
 
         <div class="main">
             <div class="topbar">
-                <button class="tab on" id="tab1" onclick="switchAi(1)">🔥 Ải 1 · Tường lửa từ khóa</button>
-                <button class="tab" id="tab2" onclick="switchAi(2)">☠️ Ải 2 · Tiêu diệt mã độc</button>
+                <button class="tab on" id="tab1" onclick="switchAi(1)">🔎 Ải 1 · Tìm kiếm thông tin</button>
+                <button class="tab" id="tab2" onclick="switchAi(2)">🕵️ Ải 2 · Nhận diện trang web</button>
                 <span class="tb-gap"></span>
-                <span class="tb-label">Vòng</span>
                 <div class="rounds" id="rounds"></div>
             </div>
 
             <div class="stage">
                 <section class="panel" id="ai1">
                     <div class="phead">
-                        <h2>Tường lửa từ khóa</h2>
                         <button class="btn-grade" id="a1-grade" onclick="gradeR1()">Chấm điểm vòng này</button>
                         <button class="btn-next hidden" id="a1-next" onclick="setRound(rd[1]+1)">Vòng tiếp theo
                             ▶</button>
                     </div>
-                    <div class="big-ctx" id="a1-ctx"></div>
-                    <div class="pool" id="word-pool"></div>
-                    <div class="trays" id="trays"></div>
+                    <div class="a1-layout">
+                        <div class="trays" id="trays"></div>
+                        <div class="pool" id="word-pool"></div>
+                    </div>
                 </section>
 
                 <section class="panel hidden" id="ai2">
                     <div class="phead">
-                        <h2>Tiêu diệt mã độc</h2>
                         <span class="chip" id="a2-left"></span>
                         <button class="btn-next hidden" id="a2-next" onclick="setRound(rd[2]+1)">Vòng tiếp theo
                             ▶</button>
@@ -1218,86 +1271,12 @@
     <script>
         const COLORS = ['#3178f6', '#16b89a', '#ff6c65', '#e0a100', '#8b5cf6', '#ec4899'];
         const PTS = 100;
+        const STARTING_SCORE = 1000;
         const $ = id => document.getElementById(id);
         const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
         const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0;[a[i], a[j]] = [a[j], a[i]] } return a };
 
-        /* ---------- Ải 1: ans = từ đúng theo thứ tự chuẩn, dis = từ nhiễu ---------- */
-        const A1_DATA = [
-            { ctx: 'Gia đình em có kế hoạch đi du lịch ở Sa Pa vào dịp tết dương lịch. Em hãy tìm kiếm thông tin về các điểm tham quan ở Sa Pa.', ans: ['điểm tham quan', 'Sa Pa', 'tết dương lịch'], dis: ['giá vé máy bay', 'Phú Quốc', 'phim hoạt hình', 'nấu ăn'] },
-            { ctx: 'Gia đình em cần tìm nơi ở gần trung tâm Sa Pa với giá hợp lí. Em hãy tìm kiếm thông tin về khách sạn.', ans: ['khách sạn', 'Sa Pa', 'trung tâm', 'giá rẻ'], dis: ['xe máy', 'Đà Nẵng', 'truyện tranh', 'đồng hồ'] },
-            { ctx: 'Em muốn biết thời tiết ở Sa Pa vào tháng 1 để chuẩn bị quần áo cho chuyến đi.', ans: ['thời tiết', 'Sa Pa', 'tháng 1', 'quần áo'], dis: ['bão', 'Đà Lạt', 'trò chơi điện tử', 'giá vàng'] },
-            { ctx: 'Em muốn tìm các món ăn đặc sản ở Sa Pa để mua về làm quà cho bạn bè.', ans: ['món ăn', 'đặc sản', 'Sa Pa', 'mua làm quà'], dis: ['pizza', 'nhà hàng Hà Nội', 'điện thoại', 'xem phim'] },
-            { ctx: 'Cả nhà muốn đi từ Hà Nội đến Sa Pa. Em hãy tìm xem nên đi bằng phương tiện nào.', ans: ['Hà Nội', 'đến', 'Sa Pa', 'phương tiện'], dis: ['máy bay đồ chơi', 'giày thể thao', 'tranh vẽ', 'bài hát'] }
-        ];
-
-        /* ---------- Ải 2: mỗi vòng 6 vị trí (0=url,1=banner,2=timer,3=input,4=btn,5=text); hệ thống chọn ngẫu nhiên đúng N vị trí làm bẫy ---------- */
-        const A2_DATA = [
-            [{ type: 'url', fake: 'khuyenmai-sapa.xyz', real: 'sapa.laocai.gov.vn', label: 'Tên miền lạ' },
-            { type: 'banner', fake: '🎉 CHÚC MỪNG BẠN TRÚNG CHUYẾN ĐI SA PA!', real: 'Khám phá Sa Pa mùa lúa chín', label: 'Thông báo trúng thưởng vô lí' },
-            { type: 'timer', fake: '⏰ Chỉ còn 02:59 để nhận quà!', real: 'Giờ mở cửa: 08:00 - 17:00', label: 'Đồng hồ ép buộc thời gian' },
-            { type: 'input', fake: '🏦 Nhập mật khẩu thẻ ATM', real: '🔍 Tìm kiếm bài viết', label: 'Đòi mật khẩu ngân hàng' },
-            { type: 'btn', fake: 'NHẬN QUÀ NGAY KẺO HẾT', real: 'Xem chi tiết lịch trình', label: 'Nút bấm hối thúc' },
-            { type: 'text', fake: '99.999 người đã nhận quà hôm nay', real: 'Cập nhật: hôm nay', label: 'Số người nhận ảo' }],
-            [{ type: 'url', fake: 'baove-maytinh.top', real: 'support.microsoft.com', label: 'Tên miền giả mạo' },
-            { type: 'banner', fake: '🚨 MÁY BẠN ĐÃ NHIỄM 27 VIRUS!', real: 'Cập nhật bảo mật Windows', label: 'Dọa nạt nhiễm virus' },
-            { type: 'timer', fake: 'Máy sẽ bị khóa sau 00:59', real: 'Thiết bị đã được bảo vệ', label: 'Đếm ngược dọa dẫm' },
-            { type: 'input', fake: '📱 Nhập số điện thoại để diệt virus', real: 'Nhập mã lỗi để tra cứu', label: 'Đòi thông tin cá nhân vô lí' },
-            { type: 'btn', fake: 'TẢI DIETVIRUS.EXE', real: 'Tải bản cập nhật chính thức', label: 'Bắt tải file lạ (.exe)' },
-            { type: 'text', fake: 'Tất cả dữ liệu sẽ bị xóa sau 1 phút!', real: 'Hệ thống đang hoạt động bình thường', label: 'Dọa xóa dữ liệu' }],
-            [{ type: 'url', fake: 've-sapa-0dong.shop', real: 've-sapa.vn', label: 'Đuôi tên miền không uy tín (.shop)' },
-            { type: 'banner', fake: '🔥 VÉ CÁP TREO CHỈ 0 ĐỒNG!', real: 'Bảng giá vé cáp treo', label: 'Giá rẻ vô lí (0 đồng)' },
-            { type: 'timer', fake: 'Chỉ còn 3 vé cuối cùng!', real: 'Vé còn đủ trong ngày', label: 'Khan hiếm giả tạo' },
-            { type: 'input', fake: '📸 Tải ảnh 2 mặt Căn cước công dân', real: '📅 Chọn ngày tham quan', label: 'Đòi ảnh giấy tờ tùy thân' },
-            { type: 'btn', fake: 'CHUYỂN TIỀN NGAY', real: 'Tiến hành đặt vé', label: 'Nút bấm mờ ám' },
-            { type: 'text', fake: 'Chỉ nhận chuyển khoản vào tài khoản cá nhân: NGUYEN VAN A', real: 'Thanh toán qua cổng thanh toán chính thức', label: 'Yêu cầu chuyển khoản cá nhân' }],
-            [{ type: 'url', fake: 'nganhang-xacminh.info', real: 'nganhang.com.vn', label: 'Tên miền sai khác' },
-            { type: 'banner', fake: '⚠️ TÀI KHOẢN CỦA BẠN SẮP BỊ KHÓA!', real: 'Đăng nhập Internet Banking', label: 'Gây hoảng sợ' },
-            { type: 'timer', fake: 'Xác minh trong 10 phút!', real: 'Phiên làm việc: 15 phút', label: 'Ép làm gấp' },
-            { type: 'input', fake: '🔑 Nhập mã OTP gửi về điện thoại', real: '👤 Tên đăng nhập', label: 'Đòi mã OTP' },
-            { type: 'btn', fake: 'XÁC MINH NGAY', real: 'Đăng nhập', label: 'Nút xác minh lạ' },
-            { type: 'text', fake: 'Hotline: 0999 888 777 (không chính thức)', real: 'Hotline in trên thẻ ngân hàng', label: 'Số hotline lạ' }],
-            [{ type: 'url', fake: 'bit.ly-sapa.click', real: 'zalo.me', label: 'Đường link rút gọn lạ' },
-            { type: 'banner', fake: 'Mình đây! Cho mình mượn tiền gấp nhé', real: 'Tin nhắn từ bạn cùng lớp', label: 'Giả danh người quen mượn tiền' },
-            { type: 'timer', fake: 'Link hết hạn sau 5 phút!', real: 'Đã xem 14:20', label: 'Ép bấm vội' },
-            { type: 'input', fake: '🔒 Nhập mật khẩu để xem ảnh', real: '💬 Trả lời tin nhắn', label: 'Xin mật khẩu' },
-            { type: 'btn', fake: 'XEM NGAY!', real: 'Gửi', label: 'Nút bấm lạ' },
-            { type: 'text', fake: 'Bấm link này xem ảnh du lịch của bạn', real: 'Chúc em đi Sa Pa vui vẻ!', label: 'Gửi link lạ' }]
-        ];
-        /* Thành phần trang trí (không phải bẫy) cho từng vòng */
-        const THEMES = [
-            {
-                brand: '🏔️ SAPA TRAVEL',
-                nav: ['Trang chủ', 'Tour', 'Khách sạn', 'Tin tức', 'Liên hệ'],
-                cards: [['🏔️', 'Fansipan', 'Đỉnh núi cao nhất Đông Dương'], ['🍜', 'Ẩm thực', 'Thắng cố, cá hồi'], ['🏨', 'Lưu trú', 'Homestay bản làng']],
-                side: ['⛅ Sa Pa 14°C, có sương mù', '📰 Mùa lúa chín trên đồi Mường Hoa', '⭐ Điểm đến được xem nhiều nhất']
-            },
-            {
-                brand: '🛡️ Security Center',
-                nav: ['Trang chủ', 'Bảo vệ', 'Cập nhật', 'Hỗ trợ'],
-                cards: [['🛡️', 'Bảo vệ', 'Tường lửa đang bật'], ['🔄', 'Cập nhật', 'Phiên bản mới nhất'], ['💾', 'Lưu trữ', '120 GB còn trống']],
-                side: ['🕒 Quét lần cuối: hôm qua', '📘 Hướng dẫn tạo mật khẩu mạnh', '💬 Trò chuyện với kỹ thuật viên']
-            },
-            {
-                brand: '🎟️ VÉ SA PA',
-                nav: ['Vé cáp treo', 'Tour', 'Combo', 'Hỗ trợ'],
-                cards: [['🚡', 'Cáp treo', 'Fansipan Legend'], ['🚂', 'Tàu hỏa', 'Mường Hoa'], ['🎟️', 'Combo', 'Vé + ăn trưa']],
-                side: ['🔥 Ưu đãi cho học sinh', '📍 Quầy vé tại ga cáp treo', '❓ Câu hỏi thường gặp']
-            },
-            {
-                brand: '🏦 Ngân hàng Số',
-                nav: ['Tài khoản', 'Chuyển tiền', 'Thẻ', 'Hỗ trợ'],
-                cards: [['💳', 'Thẻ', 'Quản lý thẻ'], ['💸', 'Chuyển tiền', 'Nhanh 24/7'], ['📈', 'Tiết kiệm', 'Lãi suất hấp dẫn']],
-                side: ['🔔 Thông báo hệ thống', '📞 Hỗ trợ khách hàng 24/7', '📍 Tìm chi nhánh gần nhất']
-            },
-            {
-                brand: '💬 Nhắn Tin',
-                nav: ['Tin nhắn', 'Danh bạ', 'Nhóm', 'Cài đặt'],
-                cards: [['👩‍🏫', 'Cô giáo', 'Nhớ nộp bài nhé'], ['👥', 'Nhóm lớp 5/2', 'Ai đi Sa Pa?'], ['👩', 'Mẹ', 'Con ăn cơm chưa?']],
-                side: ['🟢 3 người bạn đang online', '📎 Ảnh đã chia sẻ', '⚙️ Quyền riêng tư']
-            }
-        ];
-
+        let A1_DATA = [], A2_DATA = [];
         let cls = '', teams = [], students = [], nextStudentId = 0, a1State = [], a2State = [], ai = 1, rd = { 1: 0, 2: 0 };
         function studentDisplayName(student) {
             const matches = students.filter(s => s.name === student.name);
@@ -1321,27 +1300,71 @@
                     .map(s => typeof s === 'string' ? s : (s.name || s.hoTen || s.fullName || s.ten || '')).filter(Boolean);
             } catch { return [] }
         }
+        async function loadQuests() {
+            const response = await fetch('./quests.json');
+            if (!response.ok) throw new Error(`quests.json trả về trạng thái ${response.status}`);
+            const data = await response.json();
+            const validA1 = Array.isArray(data.a1) && data.a1.length === 5 && data.a1.every(round => {
+                if (!Array.isArray(round.cases) || round.cases.length < 6 || !Array.isArray(round.distractors)) return false;
+                const answers = round.cases.flatMap(task => task.ans || []);
+                const allWords = [...answers, ...round.distractors];
+                return round.cases.every(task => typeof task.ctx === 'string' && Array.isArray(task.ans) && task.ans.length >= 1 && task.ans.every(word => typeof word === 'string' && word.trim().length)) &&
+                    allWords.every(word => typeof word === 'string' && word.trim().length) && new Set(allWords.map(word => word.trim().toLocaleLowerCase())).size === allWords.length;
+            });
+            const validA2 = Array.isArray(data.a2) && data.a2.length === 5 && data.a2.every(round => {
+                if (!Array.isArray(round.signals) || round.signals.length !== 12 || !round.theme ||
+                    typeof round.theme.brand !== 'string' || !Array.isArray(round.theme.nav) ||
+                    !Array.isArray(round.theme.cards) || !Array.isArray(round.theme.side)) return false;
+                const types = round.signals.map(signal => signal.type);
+                return ['url', 'banner', 'timer', 'input', 'btn', 'text'].every(type => types.filter(value => value === type).length === 2) &&
+                    round.signals.every(signal => typeof signal.fake === 'string' && typeof signal.real === 'string' && typeof signal.label === 'string');
+            });
+            if (!validA1 || !validA2) throw new Error('Cấu trúc hoặc nội dung quests.json không hợp lệ');
+            A1_DATA = data.a1;
+            A2_DATA = data.a2;
+        }
         async function startGame() {
+            try {
+                await loadQuests();
+            } catch (error) {
+                console.error('Không tải được quests.json', error);
+                toast('Không tải được bộ nhiệm vụ. Hãy kiểm tra file quests.json rồi thử lại.', 4000, 'var(--coral)');
+                return;
+            }
             cls = $('s-class').value; const n = +$('s-teams').value;
             let list = await loadStudents(cls);
             if (!list.length) { toast('Chưa có file JSON, dùng danh sách tạm — bấm ➕ để nhập học sinh', 3500, 'var(--coral)'); list = ['Nguyễn Văn A', 'Trần Thị B', 'Lê Văn C', 'Phạm Thị D', 'Hoàng Văn E'] }
             students = list.map((name, index) => ({ id: index + 1, name, team: null, actions: [] }));
             nextStudentId = students.length;
-            teams = Array.from({ length: n }, (_, i) => ({ name: `Đội ${i + 1}`, score: 0, color: COLORS[i] }));
-            a1State = A1_DATA.map(d => ({ words: shuffle([...d.ans, ...d.dis]), trays: teams.map(() => []), graded: false, gain: [] }));
-            a2State = A2_DATA.map(d => ({ broken: {}, chosen: shuffle(d.map((_, i) => i)).slice(0, n) })); // đúng N bẫy
+            teams = Array.from({ length: n }, (_, i) => ({ name: `Đội ${i + 1}`, score: STARTING_SCORE, color: COLORS[i] }));
+            a1State = A1_DATA.map(round => {
+                const cases = shuffle(round.cases).slice(0, n);
+                return {
+                    cases,
+                    words: shuffle([...cases.flatMap(task => task.ans), ...round.distractors]),
+                    trays: teams.map(() => []),
+                    graded: false,
+                    gain: []
+                };
+            });
+            a2State = A2_DATA.map(round => {
+                const chosen = shuffle(round.signals.map((_, i) => i)).slice(0, n * 2);
+                const correct = new Set(shuffle(chosen).slice(0, Math.max(1, Math.floor(chosen.length / 2))));
+                return { broken: {}, chosen, correct };
+            });
             $('setup-screen').classList.add('hidden'); $('game-screen').style.display = 'flex';
             renderTeams(); switchAi(1);
         }
 
         /* ---------- Điều hướng ---------- */
         function switchAi(n) {
+            selectedWord = null;
             ai = n;
             $('tab1').classList.toggle('on', n === 1); $('tab2').classList.toggle('on', n === 2);
             $('ai1').classList.toggle('hidden', n !== 1); $('ai2').classList.toggle('hidden', n !== 2);
             n === 1 ? renderAi1() : renderAi2();
         }
-        function setRound(r) { if (r < 0 || r > 4) return; rd[ai] = r; ai === 1 ? renderAi1() : renderAi2() }
+        function setRound(r) { if (r < 0 || r > 4) return; selectedWord = null; rd[ai] = r; ai === 1 ? renderAi1() : renderAi2() }
         function renderRounds() {
             $('rounds').innerHTML = [0, 1, 2, 3, 4].map(i => {
                 const done = ai === 1 ? a1State[i].graded : a2State[i].chosen.every(k => a2State[i].broken[k] !== undefined);
@@ -1394,8 +1417,27 @@
             const d = Math.round(teams[i].score * 0.1);
             teams[i].score -= d; $('sc-' + i).textContent = teams[i].score;
             const el = $('team-' + i), f = document.createElement('div');
-            f.className = 'floatred'; f.textContent = '-10%'; el.appendChild(f); el.classList.add('shake');
-            setTimeout(() => { f.remove(); el.classList.remove('shake') }, 1300);
+            f.className = 'floatred'; f.textContent = `-${d}`; el.appendChild(f); el.classList.add('penalty-hit');
+            playPenaltySound();
+            toast(`🔊 ${teams[i].name} bị trừ ${d} điểm!`, 1800, 'var(--coral)');
+            setTimeout(() => { f.remove(); el.classList.remove('penalty-hit') }, 1000);
+        }
+
+        function playPenaltySound() {
+            const AudioContextType = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextType) return;
+            const audio = new AudioContextType(), now = audio.currentTime;
+            const oscillator = audio.createOscillator(), volume = audio.createGain();
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(260, now);
+            oscillator.frequency.exponentialRampToValueAtTime(70, now + .65);
+            volume.gain.setValueAtTime(.0001, now);
+            volume.gain.exponentialRampToValueAtTime(.28, now + .04);
+            volume.gain.setValueAtTime(.28, now + .32);
+            volume.gain.exponentialRampToValueAtTime(.0001, now + .72);
+            oscillator.connect(volume); volume.connect(audio.destination);
+            oscillator.start(now); oscillator.stop(now + .74);
+            oscillator.onended = () => audio.close();
         }
 
         /* ---------- Thêm học sinh ---------- */
@@ -1410,121 +1452,148 @@
 
         /* ---------- Popup chọn đội (Ải 2) ---------- */
         let modalCb = null;
-        function openModal(desc, cb) {
+        function openModal(desc, cb, maxSignsPerTeam = null) {
             $('modal-desc').textContent = desc;
-            $('modal-btns').innerHTML = teams.map((t, i) => `<button class="modal-btn" style="background:${t.color}" onclick="resolveModal(${i})">${t.name}</button>`).join('');
+            const counts = maxSignsPerTeam === null ? [] : teams.map((_, teamIndex) =>
+                Object.values(a2State[rd[2]].broken).filter(result => result.team === teamIndex).length);
+            $('modal-btns').innerHTML = teams.map((t, i) => {
+                const full = maxSignsPerTeam !== null && counts[i] >= maxSignsPerTeam;
+                return `<button class="modal-btn" style="background:${t.color}" ${full ? 'disabled title="Đội đã hết lượt trong vòng này"' : ''} onclick="resolveModal(${i})">${t.name}${maxSignsPerTeam !== null ? `<br><small>${counts[i]}/${maxSignsPerTeam} lượt</small>` : ''}</button>`;
+            }).join('');
             modalCb = cb; $('team-modal').style.display = 'flex';
         }
         function closeModal() { $('team-modal').style.display = 'none'; modalCb = null }
         function resolveModal(i) { const cb = modalCb; closeModal(); if (cb) cb(i) }
 
         /* ================= ẢI 1 ================= */
-        let drag = null;
+        let drag = null, selectedWord = null;
         function renderAi1() {
-            const r = rd[1], st = a1State[r], ans = A1_DATA[r].ans;
+            const r = rd[1], st = a1State[r];
             $('ai1').classList.toggle('graded', st.graded);
-            $('a1-ctx').textContent = '📍 ' + A1_DATA[r].ctx;
             $('a1-grade').classList.toggle('hidden', st.graded);
             $('a1-next').classList.toggle('hidden', !(st.graded && r < 4));
-            const used = w => teams.map((t, i) => st.trays[i].includes(w) ? `<i style="background:${t.color}"></i>` : '').join('');
             $('word-pool').innerHTML = st.words.map((w, k) => {
-                const a = ans.indexOf(w);
-                return `<div class="word ${st.graded ? (a > -1 ? 'answer' : 'dim') : ''}" style="--d:${k}" draggable="${!st.graded}" data-w="${esc(w)}" data-src="pool">${esc(w)}${st.graded ? (a > -1 ? `<em>${a + 1}</em>` : '') : `<span class="dots">${used(w)}</span>`}</div>`
+                const isAnswer = st.cases.some(task => task.ans.includes(w));
+                return `<div class="word ${st.graded ? (isAnswer ? 'answer' : 'dim') : ''} ${selectedWord === w ? 'selected' : ''}" style="--d:${k}" draggable="${!st.graded}" data-w="${esc(w)}" data-src="pool">${esc(w)}</div>`
             }).join('');
             $('trays').innerHTML = teams.map((t, i) => `<div class="tray" data-team="${i}" style="border-color:${t.color}">
     <div class="tray-head" style="background:${t.color}"><span>${t.name}</span>${st.graded ? `<span class="gain">+${st.gain[i] || 0}</span>` : ''}</div>
-    <div class="tray-body">${st.trays[i].map((w, k) => {
-                const c = st.graded ? (ans[k] === w ? 'good' : ans.includes(w) ? 'mid' : 'bad') : '';
-                return `<div class="word clone ${c}" style="--d:${k}" draggable="${!st.graded}" data-w="${esc(w)}" data-src="${i}" data-idx="${k}"><b>${k + 1}.</b><span>${esc(w)}</span>${st.graded ? '' : '<span class="rm" title="Bỏ từ này">×</span>'}</div>`
+    <div class="tray-body"><div class="team-task">${esc(st.cases[i].ctx)}</div>${st.trays[i].map((w, k) => {
+                const c = st.graded ? (st.cases[i].ans.includes(w) ? 'good' : 'bad') : '';
+                return `<div class="word clone ${c}" style="--d:${k}"><b>${k + 1}.</b><span>${esc(w)}</span></div>`
             }).join('')}</div></div>`).join('');
             renderRounds();
         }
-        function flyIn(el, from) { // thẻ bay từ vị trí cũ vào đúng chỗ thả
-            const b = el.getBoundingClientRect();
-            el.animate([{ transform: `translate(${from.left - b.left}px,${from.top - b.top}px) scale(.85) rotate(-6deg)`, opacity: .7 }, { transform: 'none', opacity: 1 }],
-                { duration: 480, easing: 'cubic-bezier(.2,.9,.3,1.15)' });
-        }
         const ai1El = $('ai1');
+        function assignKeyword(teamIndex, word) {
+            const st = a1State[rd[1]];
+            if (st.graded) return false;
+            if (st.trays[teamIndex].length >= 3) {
+                toast('Đội này đã dùng hết lượt chọn từ khóa.', 1500, 'var(--coral)');
+                return false;
+            }
+            const wordIndex = st.words.indexOf(word);
+            if (wordIndex < 0) return false;
+            st.words.splice(wordIndex, 1);
+            st.trays[teamIndex].push(word);
+            selectedWord = null;
+            renderAi1();
+            return true;
+        }
+        ai1El.addEventListener('click', e => {
+            const word = e.target.closest('#word-pool .word[draggable="true"]');
+            if (word) {
+                selectedWord = selectedWord === word.dataset.w ? null : word.dataset.w;
+                renderAi1();
+                return;
+            }
+            const tray = e.target.closest('.tray');
+            if (tray && selectedWord !== null) assignKeyword(+tray.dataset.team, selectedWord);
+        });
         ai1El.addEventListener('dragstart', e => {
             const c = e.target.closest('.word[draggable="true"]'); if (!c) return;
-            drag = { w: c.dataset.w, src: c.dataset.src, idx: +c.dataset.idx, el: c };
+            drag = { w: c.dataset.w, src: c.dataset.src };
             c.classList.add('drag'); e.dataTransfer.setData('text/plain', drag.w); e.dataTransfer.effectAllowed = 'move';
         });
         ai1El.addEventListener('dragend', () => { drag = null; ai1El.querySelectorAll('.drag,.drag-over').forEach(x => x.classList.remove('drag', 'drag-over')) });
         ai1El.addEventListener('dragover', e => {
-            if (!drag) return; const z = e.target.closest('.tray,.pool'); if (!z) return;
+            if (!drag) return; const z = e.target.closest('.tray'); if (!z) return;
             e.preventDefault(); ai1El.querySelectorAll('.drag-over').forEach(x => x !== z && x.classList.remove('drag-over')); z.classList.add('drag-over');
         });
         ai1El.addEventListener('drop', e => {
-            if (!drag) return; const z = e.target.closest('.tray,.pool'); if (!z) return; e.preventDefault();
-            const trays = a1State[rd[1]].trays, d = drag, from = d.el.getBoundingClientRect();
-            let fly = null;
-            if (z.classList.contains('tray')) {
-                const tid = +z.dataset.team;
-                if (trays[tid].includes(d.w) && String(d.src) !== String(tid)) return toast('Đội này đã có từ này rồi!', 1500, 'var(--coral)');
-                const kids = [...z.querySelector('.tray-body').children].filter(c => c !== d.el);
-                let pos = kids.findIndex(c => { const b = c.getBoundingClientRect(); return e.clientY < b.top + b.height / 2 });
-                if (pos < 0) pos = kids.length;
-                if (d.src !== 'pool') trays[+d.src].splice(d.idx, 1);
-                trays[tid].splice(pos, 0, d.w); fly = { tid, pos };
-            } else if (d.src !== 'pool') { trays[+d.src].splice(d.idx, 1) } // thả về bể = bỏ từ khỏi khay
-            drag = null; renderAi1();
-            if (fly) { const nw = document.querySelector(`.clone[data-src="${fly.tid}"][data-idx="${fly.pos}"]`); if (nw) flyIn(nw, from) }
-        });
-        ai1El.addEventListener('click', e => {
-            if (!e.target.classList.contains('rm')) return;
-            const c = e.target.closest('.clone'), st = a1State[rd[1]];
-            if (c && !st.graded) { st.trays[+c.dataset.src].splice(+c.dataset.idx, 1); renderAi1() }
+            if (!drag) return; const z = e.target.closest('.tray'); if (!z) return; e.preventDefault();
+            const d = drag, tid = +z.dataset.team;
+            drag = null;
+            if (d.src === 'pool') assignKeyword(tid, d.w);
         });
         function gradeR1() {
-            const r = rd[1], st = a1State[r], ans = A1_DATA[r].ans;
+            const r = rd[1], st = a1State[r];
             if (st.graded) return;
-            if (needStudent(teams.map((_, i) => i).filter(i => st.trays[i].length))) return; // thiếu tên thì chưa chấm
+            if (needStudent(teams.map((_, i) => i))) return;
             teams.forEach((t, i) => {
-                const tray = st.trays[i], ok = tray.filter(w => ans.includes(w)).length;
-                const perfect = tray.length === ans.length && tray.every((w, k) => w === ans[k]);
-                const pts = ok * PTS + (perfect ? PTS : 0); // +100/từ đúng, +100 thưởng nếu đúng hết cả thứ tự
+                const tray = st.trays[i], answers = st.cases[i].ans;
+                const ok = tray.filter(w => answers.includes(w)).length;
+                const perfect = ok === answers.length;
+                const pts = ok * PTS + (perfect ? PTS : 0);
                 st.gain[i] = pts;
                 if (pts > 0) addScore(i, pts);
-                if (tray.length) recordAnswer(i, `Ải 1 - Vòng ${r + 1}: đúng ${ok} từ khóa${perfect ? ', đúng thứ tự' : ''} (${tray.join(' → ')}) → +${pts}đ`);
+                recordAnswer(i, `Ải 1 - Vòng ${r + 1}: ${st.cases[i].ctx} Đúng ${ok}/${answers.length} từ khóa (${tray.join(' · ')}) → +${pts}đ`);
             });
             st.graded = true; renderAi1();
         }
 
         /* ================= ẢI 2 ================= */
         function renderAi2() {
-            const r = rd[2], R = A2_DATA[r], T = THEMES[r], st = a2State[r];
+            const r = rd[2], R = A2_DATA[r].signals, T = A2_DATA[r].theme, st = a2State[r];
             const left = st.chosen.filter(k => st.broken[k] === undefined).length;
-            $('a2-left').textContent = left ? `Còn ${left}/${st.chosen.length} bẫy` : 'Đã dọn sạch! 🎉';
+            $('a2-left').textContent = left ? `Còn ${left}/${st.chosen.length} dấu hiệu` : 'Đã nhận diện hết! 🎉';
             $('a2-next').classList.toggle('hidden', !(left === 0 && r < 4));
             const item = k => {
                 const it = R[k], c = it.type === 'url' ? 'trap-url' : 'trap-' + it.type;
                 if (!st.chosen.includes(k)) return `<div class="${c} safe">${esc(it.real)}</div>`;
-                const o = st.broken[k];
-                if (o !== undefined) return `<div class="${c} safe trap broken" data-by="${teams[o].name}">${esc(it.real)}</div>`;
-                return `<div class="${c} trap" onclick="triggerTrap(${r},${k})">${esc(it.fake)}</div>`;
+                const result = st.broken[k];
+                if (result) {
+                    return `<div class="${c} safe trap ${result.correct ? 'broken' : 'missed'}" data-by="${teams[result.team].name}">${esc(result.correct ? it.fake : it.real)}</div>`;
+                }
+                return `<div class="${c} trap" onclick="triggerTrap(${r},${k})">${esc(st.correct.has(k) ? it.fake : it.real)}</div>`;
             };
+            const group = type => R.map((signal, k) => signal.type === type ? item(k) : '').filter(Boolean).join('');
+            const urlKeys = R.map((signal, k) => signal.type === 'url' ? k : -1).filter(k => k >= 0);
+            const urlBar = item(urlKeys[0]);
+            const linkKey = urlKeys[1], linkSignal = R[linkKey], linkResult = st.broken[linkKey];
+            const urlLink = !st.chosen.includes(linkKey)
+                ? `<div class="trap-link safe">${esc(linkSignal.real)}</div>`
+                : linkResult
+                    ? `<div class="trap-link safe trap ${linkResult.correct ? 'broken' : 'missed'}" data-by="${teams[linkResult.team].name}">${esc(linkResult.correct ? linkSignal.fake : linkSignal.real)}</div>`
+                    : `<div class="trap-link trap" onclick="triggerTrap(${r},${linkKey})">${esc(st.correct.has(linkKey) ? linkSignal.fake : linkSignal.real)}</div>`;
             $('a2-site').className = 'site th' + r;
             $('a2-site').innerHTML = `
-    <div class="fake-bar"><div class="fake-dots"><i></i><i></i><i></i></div><span class="nv">‹ › ⟳</span><div class="urlwrap">${item(0)}</div><span class="nv">⋮</span></div>
+    <div class="fake-bar"><div class="fake-dots"><i></i><i></i><i></i></div><span class="nv">‹ › ⟳</span><div class="urlwrap">${urlBar}</div><span class="nv">⋮</span></div>
     <div class="s-head"><div class="logo">${T.brand}</div><nav>${T.nav.map(n => `<span>${n}</span>`).join('')}</nav><div class="s-search">🔍 Tìm kiếm...</div></div>
-    <div class="s-hero">${item(1)}${item(2)}</div>
+    <div class="s-hero"><div class="signal-row">${group('banner')}</div><div class="signal-row">${group('timer')}</div><div class="signal-row">${urlLink}</div></div>
     <div class="s-main">
       <div><div class="s-cards">${T.cards.map(c => `<div class="s-card"><div>${c[0]}</div><b>${c[1]}</b><span>${c[2]}</span></div>`).join('')}</div>
-      <div class="s-form">${item(5)}${item(3)}${item(4)}</div></div>
+      <div class="s-form">${group('text')}${group('input')}${group('btn')}</div></div>
       <aside>${T.side.map(s => `<div class="widget">${s}</div>`).join('')}</aside>
     </div>
     <div class="s-foot">© 2026 ${T.brand.replace(/^\S+\s/, '')} · Điều khoản · Chính sách · Liên hệ</div>`;
             renderRounds();
         }
         function triggerTrap(r, k) {
-            openModal('Điểm đáng ngờ: ' + A2_DATA[r][k].label, i => {
+            openModal('Đội nào kiểm tra dấu hiệu này?', i => {
                 if (needStudent([i])) return; // đội chưa chọn học sinh: chưa ghi điểm, bẫy vẫn còn
-                a2State[r].broken[k] = i;
-                addScore(i, PTS);
-                recordAnswer(i, `Ải 2 - Vòng ${r + 1}: phát hiện “${A2_DATA[r][k].label}” → +${PTS}đ`);
+                const correct = a2State[r].correct.has(k);
+                a2State[r].broken[k] = { team: i, correct };
+                const shownText = correct ? A2_DATA[r].signals[k].fake : A2_DATA[r].signals[k].real;
+                if (correct) {
+                    addScore(i, PTS);
+                    recordAnswer(i, `Ải 2 - Vòng ${r + 1}: nhận diện đúng dấu hiệu “${shownText}” → +${PTS}đ`);
+                } else {
+                    recordAnswer(i, `Ải 2 - Vòng ${r + 1}: chọn nhầm dấu hiệu “${shownText}” → mất lượt`);
+                    toast(`${teams[i].name} chọn nhầm dấu hiệu — mất lượt, không được cộng điểm.`, 2500, 'var(--coral)');
+                }
                 renderAi2();
-            });
+            }, 2);
         }
 
         /* ================= KANBAN & EXCEL ================= */
