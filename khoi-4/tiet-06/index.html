@@ -183,16 +183,6 @@
             stroke: #fff
         }
 
-        .node.dead .b {
-            fill: #000 !important;
-            stroke: #555;
-            filter: none
-        }
-
-        .node.dead text {
-            fill: #ff4d6a !important
-        }
-
         @keyframes pl {
             50% {
                 transform: scale(1.3);
@@ -947,7 +937,7 @@
 
         // Các biến Đồ thị
         let N, E, heads, owned, turn, over, busy, stuck, svgN, svgE, svgTrail, tm, done, curId;
-        let paths = [], visitedByTeam = [], failedByTeam = [], traversedByTeam = [];
+        let paths = [], visitedByTeam = [], traversedByTeam = [];
         const NS_R = n => n.t == 'c' ? 40 : n.t == 's' ? 26 : 14;
 
         /* ===== ZOOM/PAN ===== */
@@ -1059,7 +1049,6 @@
                 owned: owned.map(set => Array.from(set)),
                 paths: paths.map(path => path.slice()),
                 visitedByTeam: visitedByTeam.map(set => Array.from(set)),
-                failedByTeam: failedByTeam.map(set => Array.from(set)),
                 traversedByTeam: traversedByTeam.map(set => Array.from(set)),
                 turn: turn,
                 over: over,
@@ -1225,14 +1214,14 @@
         const nb = i => E.filter(e => e.alive && (e.a == i || e.b == i)).map(e => e.a == i ? e.b : e.a);
         const edgeKey = (a, b) => a < b ? `${a}-${b}` : `${b}-${a}`;
         function cands(t) {
-            return nb(heads[t]).filter(node => !visitedByTeam[t].has(node) && !failedByTeam[t].has(node));
+            return nb(heads[t]).filter(node => !visitedByTeam[t].has(node));
         }
         function dist(t) {
             const q = [[heads[t], 0]], seen = new Set([heads[t]]);
             while (q.length) {
                 const [i, d] = q.shift(); if (i == 0) return d;
                 nb(i).forEach(j => {
-                    if (!seen.has(j) && !visitedByTeam[t].has(j) && !failedByTeam[t].has(j)) {
+                    if (!seen.has(j) && !visitedByTeam[t].has(j)) {
                         seen.add(j);
                         q.push([j, d + 1]);
                     }
@@ -1256,12 +1245,11 @@
                 E = state.E;
                 heads = state.heads;
                 owned = state.owned.map(arr => new Set(arr));
-                const isLegacyState = !Array.isArray(state.visitedByTeam) || !Array.isArray(state.failedByTeam);
+                const isLegacyState = !Array.isArray(state.visitedByTeam);
                 if (isLegacyState) {
                     E = E.filter(edge => !edge.rescue);
                     E.forEach(edge => { edge.alive = true; });
                 }
-                N.forEach(node => { node.dead = false; });
                 paths = Array.isArray(state.paths) && state.paths.length === numT
                     ? state.paths.map(path => path.slice())
                     : owned.map((nodes, team) => {
@@ -1272,9 +1260,6 @@
                 visitedByTeam = Array.isArray(state.visitedByTeam) && state.visitedByTeam.length === numT
                     ? state.visitedByTeam.map(nodes => new Set(nodes))
                     : paths.map(path => new Set(path));
-                failedByTeam = Array.isArray(state.failedByTeam) && state.failedByTeam.length === numT
-                    ? state.failedByTeam.map(nodes => new Set(nodes))
-                    : Array.from({ length: numT }, () => new Set());
                 traversedByTeam = Array.isArray(state.traversedByTeam) && state.traversedByTeam.length === numT
                     ? state.traversedByTeam.map(edges => new Set(edges))
                     : paths.map(path => new Set(path.slice(1).map((node, i) => edgeKey(path[i], node))));
@@ -1295,7 +1280,6 @@
                 owned = g.lanes.map(l => new Set(l));   // thứ tự: T, n1, n2, n3 (n3 là đầu)
                 paths = g.lanes.map(l => l.slice());
                 visitedByTeam = paths.map(path => new Set(path));
-                failedByTeam = Array.from({ length: numT }, () => new Set());
                 traversedByTeam = g.lanes.map(lane => new Set(lane.slice(1).map((node, i) => edgeKey(lane[i], node))));
                 over = false; busy = false; stuck = Array(numT).fill(false); turn = numT - 1;
                 gameLog = [];
@@ -1344,10 +1328,14 @@
                 svgE[k].style.stroke = own ? TEAMS[a.owner].c : '';
                 const dx = N[e.b].x - a.x, dy = N[e.b].y - a.y;
                 const length = Math.hypot(dx, dy) || 1;
+                const edge = edgeKey(e.a, e.b);
+                const teamsUsingEdge = traversedByTeam
+                    .flatMap((teamEdges, teamId) => e.alive && teamEdges.has(edge) ? [teamId] : []);
                 traversedByTeam.forEach((teamEdges, teamId) => {
                     const trail = svgTrail[k][teamId];
-                    const used = e.alive && teamEdges.has(edgeKey(e.a, e.b));
-                    const offset = (teamId - (numT - 1) / 2) * 3;
+                    const trailIndex = teamsUsingEdge.indexOf(teamId);
+                    const used = trailIndex >= 0;
+                    const offset = (trailIndex - (teamsUsingEdge.length - 1) / 2) * 3;
                     trail.setAttribute('x1', a.x - dy / length * offset);
                     trail.setAttribute('y1', a.y + dx / length * offset);
                     trail.setAttribute('x2', N[e.b].x - dy / length * offset);
@@ -1359,10 +1347,9 @@
 
             N.forEach((n, i) => {
                 const gr = svgN[i], ho = heads.indexOf(i);
-                const failed = failedByTeam[turn].has(i);
-                gr.setAttribute('class', 'node' + (failed ? ' dead' : '') + (C.includes(i) ? ' cand' : ''));
+                gr.setAttribute('class', 'node' + (C.includes(i) ? ' cand' : ''));
                 const [r2, , b, tx] = gr.children;
-                r2.style.display = ho >= 0 && !failed ? 'block' : 'none';
+                r2.style.display = ho >= 0 ? 'block' : 'none';
                 if (ho >= 0) r2.style.stroke = TEAMS[ho].c;
                 b.style.fill = n.owner >= 0 ? TEAMS[n.owner].c : '';
                 tx.style.fill = n.owner >= 0 ? '#07101f' : '';
@@ -1370,8 +1357,7 @@
                     gr.children[4 + teamId].style.display = visitedByTeam[teamId].has(i) ? 'block' : 'none';
                 });
 
-                if (failed) { tx.textContent = 'X'; }
-                else if (n.t == 'c') { tx.textContent = 'LÕI'; }
+                if (n.t == 'c') { tx.textContent = 'LÕI'; }
                 else if (n.t == 's') { tx.textContent = 'T' + (n.owner + 1); }
                 else { tx.textContent = i; }
             });
@@ -1589,10 +1575,7 @@
                     ? `[Thành công] ${T.n} chiếm được ô #${id}`
                     : `[Thành công] ${T.n} đi qua ô #${id}; ô vẫn thuộc ${TEAMS[previousOwner].n}`, 'ok');
             } else if (id == 0) { toast(`Lõi Máy Chủ vẫn đứng vững! ${T.n} mất lượt`, 'bad') }
-            else {
-                failedByTeam[t].add(id);
-                toast(`[Thất bại] Ô #${id} bị khóa riêng với ${T.n}; các tổ khác vẫn có thể đi qua`, 'bad')
-            }
+            else toast(`[Thất bại] ${T.n} mất lượt và đứng tại chỗ; ô #${id} vẫn có thể đi tiếp ở lượt sau`, 'bad');
             busy = false; nextTurn(); render(); saveGameState();
         }
 
