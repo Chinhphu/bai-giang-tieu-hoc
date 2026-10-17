@@ -1,0 +1,3317 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tin học 3 - Tiết 7: Em Tập Sử Dụng Chuột & Tư Thế Chuẩn</title>
+    <link rel="stylesheet" href="../theme/style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800;900&display=swap');
+
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3046b8;
+            --secondary: #ffb703;
+            --accent-green: #2a9d8f;
+            --accent-red: #e63946;
+            --accent-purple: #8b5cf6;
+            --accent-orange: #fb8500;
+            --bg-color: #f0f4fc;
+            --slide-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-light: #64748b;
+            --t1-color: #ef476f;
+            --t2-color: #118ab2;
+            --t3-color: #06d6a0;
+            --t4-color: #9d4edd;
+            --topbar-height: 84px;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+        }
+
+        /* ================= THANH TOP BAR CỐ ĐỊNH ================= */
+        .topbar-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--topbar-height);
+            background: linear-gradient(135deg, #101b35 0%, #1e294b 100%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.2vw;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            z-index: 500;
+            border-bottom: 3px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .lesson-badge {
+            background: linear-gradient(135deg, #3a86ff, #4361ee);
+            color: white;
+            font-weight: 900;
+            font-size: 1.8vh;
+            padding: 6px 14px;
+            border-radius: 999px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 3px 10px rgba(67, 97, 238, 0.4);
+            white-space: nowrap;
+        }
+
+        .class-picker {
+            background: #202e52;
+            color: #ffdd59;
+            border: 2px solid #3d4f7c;
+            border-radius: 10px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.8vh;
+            font-weight: 800;
+            padding: 5px 10px;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .class-picker:hover {
+            border-color: #ffdd59;
+        }
+
+        /* 4 Thẻ Đội / Tổ Trên Top Bar */
+        .teams-scoreboard {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            justify-content: center;
+            max-width: 900px;
+        }
+
+        .team-topcard {
+            flex: 1;
+            max-width: 200px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 5px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .team-topcard.team-0 { border-color: var(--t1-color); }
+        .team-topcard.team-1 { border-color: var(--t2-color); }
+        .team-topcard.team-2 { border-color: var(--t3-color); }
+        .team-topcard.team-3 { border-color: var(--t4-color); }
+
+        .team-topcard:hover {
+            background: rgba(255, 255, 255, 0.16);
+            transform: translateY(-2px);
+        }
+
+        .team-info {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            min-width: 0;
+        }
+
+        .team-title {
+            font-size: 1.7vh;
+            font-weight: 800;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .team-0 .team-title { color: #ff758f; }
+        .team-1 .team-title { color: #48cae4; }
+        .team-2 .team-title { color: #52b788; }
+        .team-3 .team-title { color: #c77dff; }
+
+        .team-score {
+            font-size: 2.7vh;
+            font-weight: 900;
+            color: #ffffff;
+            line-height: 1.1;
+            transition: transform 0.2s;
+        }
+
+        .team-cooldown-count {
+            font-size: 1.3vh;
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+
+        .btn-summon-team {
+            background: linear-gradient(135deg, #ffd166, #ffb703);
+            color: #432800;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 900;
+            font-size: 1.6vh;
+            padding: 6px 10px;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #cc8b00;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .btn-summon-team:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 0 #cc8b00;
+        }
+
+        .btn-summon-team:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #cc8b00;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-posture-scan {
+            background: linear-gradient(135deg, #ff4757, #e63946);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.9vh;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            animation: pulseAlert 2.2s infinite;
+        }
+
+        @keyframes pulseAlert {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 12px rgba(230, 57, 70, 0.4); }
+            50% { transform: scale(1.04); box-shadow: 0 6px 20px rgba(230, 57, 70, 0.8); }
+        }
+
+        .btn-top-util {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            padding: 7px 11px;
+            border-radius: 9px;
+            font-size: 1.8vh;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-top-util:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* ================= VÙNG TRÌNH CHIẾU CHÍNH ================= */
+        .presentation-workspace {
+            position: absolute;
+            top: var(--topbar-height);
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            background: radial-gradient(circle at 10% 8%, #e1f2fe 0, transparent 40%),
+                        radial-gradient(circle at 90% 90%, #fef3c7 0, transparent 35%),
+                        var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5vh 2vw;
+        }
+
+        .slide-screen {
+            width: 100%;
+            max-width: 1560px;
+            height: calc(100vh - var(--topbar-height) - 3vh);
+            background: var(--slide-bg);
+            border-radius: 24px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
+            border: 2px solid #e2e8f0;
+            display: none;
+            flex-direction: column;
+            padding: 2.5vh 3vw;
+            box-sizing: border-box;
+            animation: slideEntrance 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .slide-screen.active {
+            display: flex;
+        }
+
+        @keyframes slideEntrance {
+            from { opacity: 0; transform: translateY(12px) scale(0.99); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .slide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2vh;
+            border-bottom: 2px dashed #e2e8f0;
+            padding-bottom: 1.2vh;
+            flex-shrink: 0;
+        }
+
+        .slide-tag {
+            background: linear-gradient(135deg, var(--primary), var(--accent-purple));
+            color: #fff;
+            padding: 0.8vh 1.8vw;
+            border-radius: 999px;
+            font-size: 2.2vh;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.25);
+        }
+
+        .slide-title-wrap {
+            text-align: center;
+            flex: 1;
+        }
+
+        .slide-title-wrap h1 {
+            margin: 0;
+            font-size: 4.8vh;
+            font-weight: 900;
+            color: #1e293b;
+            letter-spacing: -0.5px;
+        }
+
+        .slide-title-wrap p {
+            margin: 0.3vh 0 0;
+            font-size: 2.2vh;
+            color: var(--text-light);
+            font-weight: 700;
+        }
+
+        .slide-nav-pills {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-page {
+            background: #e2e8f0;
+            color: #334155;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.9vh;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-page:hover {
+            background: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .btn-page.primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-page.primary:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Slide Body Content */
+        .slide-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        /* ================= SLIDE 1: BÌA BÀI HỌC ================= */
+        .cover-container {
+            display: flex;
+            height: 100%;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4vw;
+        }
+
+        .cover-left {
+            flex: 1.2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .cover-title {
+            font-size: 6.8vh;
+            font-weight: 900;
+            line-height: 1.15;
+            color: #101b35;
+            margin: 1.5vh 0;
+        }
+
+        .cover-title span {
+            background: linear-gradient(135deg, #4361ee, #ff5400);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cover-desc {
+            font-size: 2.8vh;
+            color: #475569;
+            font-weight: 600;
+            margin-bottom: 3vh;
+            line-height: 1.4;
+        }
+
+        .cover-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 3.5vh;
+        }
+
+        .feature-box {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 2.2vh;
+            font-weight: 700;
+            color: #334155;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .feature-box span.icon {
+            font-size: 3.8vh;
+        }
+
+        .cover-right {
+            flex: 0.9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cover-artwork {
+            width: 100%;
+            max-width: 460px;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #e0e7ff 0%, #fae8ff 100%);
+            border-radius: 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid #fff;
+            box-shadow: 0 20px 40px rgba(67, 97, 238, 0.15);
+            position: relative;
+        }
+
+        .btn-launch-game {
+            background: linear-gradient(135deg, #ff7b00, #ff5400);
+            color: white;
+            border: none;
+            border-radius: 999px;
+            padding: 2vh 3.5vw;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 3.4vh;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(255, 84, 0, 0.45);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            align-self: flex-start;
+        }
+
+        .btn-launch-game:hover {
+            transform: scale(1.04);
+            box-shadow: 0 12px 30px rgba(255, 84, 0, 0.6);
+        }
+
+        /* ================= SLIDE 2: LUẬT CHƠI & QUÂN SƯ ================= */
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 2vh;
+            height: 100%;
+        }
+
+        .rule-card {
+            background: #ffffff;
+            border: 3px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 2.5vh 2vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .rule-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .rule-icon-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-bottom: 2vh;
+        }
+
+        .rule-card h3 {
+            margin: 0 0 1.5vh;
+            font-size: 3vh;
+            font-weight: 900;
+            color: #1e293b;
+        }
+
+        .rule-card p {
+            margin: 0;
+            font-size: 2.3vh;
+            line-height: 1.5;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .rule-pill-alert {
+            margin-top: auto;
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+            border-radius: 12px;
+            padding: 8px 14px;
+            font-size: 2vh;
+            font-weight: 800;
+        }
+
+        /* ================= SLIDE 3: BẢNG KIẾN THỨC TƯ THẾ CHUẨN ================= */
+        .posture-intro-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 3vw;
+            height: 100%;
+            align-items: center;
+        }
+
+        .posture-diagram-box {
+            background: #f8fafc;
+            border: 3px solid #cbd5e1;
+            border-radius: 24px;
+            padding: 2vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        .posture-point-tag {
+            position: absolute;
+            background: #101b35;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 2vh;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border: 2px solid #38bdf8;
+            pointer-events: none;
+        }
+
+        .posture-rules-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .posture-rule-item {
+            background: #f0fdf4;
+            border-left: 6px solid #22c55e;
+            padding: 1.6vh 1.8vw;
+            border-radius: 0 16px 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 2.4vh;
+            font-weight: 700;
+            color: #14532d;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.03);
+        }
+
+        .posture-rule-item span.icon {
+            font-size: 3.5vh;
+        }
+
+        /* ================= GAME 1: BÁC SĨ MÁY TÍNH ================= */
+        .doctor-game-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+            height: 100%;
+        }
+
+        .cases-sidebar {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+        }
+
+        .case-button {
+            background: #fff;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 2vh;
+            font-weight: 800;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .case-button:hover {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
+        .case-button.active {
+            border-color: var(--primary);
+            background: #dbeafe;
+            color: var(--primary-dark);
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.2);
+        }
+
+        .case-button.solved {
+            border-color: #22c55e;
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .case-main-arena {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 2vh 2.5vw;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+            overflow-y: auto;
+        }
+
+        .case-status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2vh;
+        }
+
+        .case-team-badge {
+            background: #f1f5f9;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 2.2vh;
+            color: #1e293b;
+            border: 2px solid #cbd5e1;
+        }
+
+        .case-stage-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: center;
+            flex: 1;
+        }
+
+        .patient-illustration {
+            background: #f8fafc;
+            border: 3px solid #e2e8f0;
+            border-radius: 20px;
+            height: 100%;
+            min-height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.03);
+        }
+
+        .hotspot-point {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(230, 57, 70, 0.35);
+            border: 3px dashed #e63946;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            animation: pulseHotspot 1.4s infinite;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .hotspot-point:hover {
+            transform: scale(1.2);
+            background: rgba(230, 57, 70, 0.75);
+            color: #fff;
+        }
+
+        @keyframes pulseHotspot {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.7); }
+            70% { transform: scale(1.15); box-shadow: 0 0 0 18px rgba(230, 57, 70, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(230, 57, 70, 0); }
+        }
+
+        .case-treatment-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .case-symptom-title {
+            font-size: 3.2vh;
+            font-weight: 900;
+            color: #0f172a;
+            margin: 0 0 1vh;
+        }
+
+        .case-symptom-desc {
+            font-size: 2.3vh;
+            color: #475569;
+            font-weight: 600;
+            margin: 0 0 2.5vh;
+            line-height: 1.4;
+        }
+
+        .prescription-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn-prescription {
+            background: #fff;
+            border: 2px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 1.4vh 1.6vw;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 2.3vh;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-prescription:hover {
+            border-color: var(--primary);
+            background: #f8faff;
+            transform: translateX(4px);
+        }
+
+        .btn-prescription.correct {
+            background: #dcfce7;
+            border-color: #22c55e;
+            color: #14532d;
+            font-weight: 800;
+        }
+
+        .btn-prescription.wrong {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #7f1d1d;
+        }
+
+        /* ================= KHUNG CHÉP BÀI TẬP VỞ ================= */
+        .copy-notebook-wrap {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 25px;
+            height: 100%;
+        }
+
+        .notebook-sheet {
+            background: #fffdf5;
+            border: 3px solid #e8dfcf;
+            border-radius: 24px;
+            padding: 3vh 3vw;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background-image: repeating-linear-gradient(transparent, transparent 38px, #e2e8f0 39px, #e2e8f0 40px);
+            line-height: 40px;
+        }
+
+        .notebook-pin {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #e63946;
+            color: white;
+            padding: 4px 18px;
+            border-radius: 999px;
+            font-weight: 900;
+            font-size: 2vh;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .notebook-lines {
+            font-size: 2.8vh;
+            font-weight: 700;
+            color: #1e293b;
+            margin-top: 1vh;
+        }
+
+        .notebook-lines ol {
+            margin: 0;
+            padding-left: 2.5vw;
+        }
+
+        .notebook-lines li {
+            margin-bottom: 8px;
+        }
+
+        .notebook-lines strong {
+            color: #d90429;
+            background: #ffe3e3;
+            padding: 0 6px;
+            border-radius: 6px;
+        }
+
+        .copy-timer-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: #fff;
+            border-radius: 24px;
+            padding: 3vh 2vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .timer-display {
+            font-size: 7.5vh;
+            font-weight: 900;
+            color: #ffdd59;
+            font-family: monospace;
+            margin: 1.5vh 0;
+            text-shadow: 0 0 20px rgba(255, 221, 89, 0.4);
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-timer {
+            border: none;
+            border-radius: 12px;
+            padding: 10px 18px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 2.2vh;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-timer.start { background: #22c55e; color: white; }
+        .btn-timer.pause { background: #f59e0b; color: white; }
+        .btn-timer.reset { background: #64748b; color: white; }
+
+        /* ================= GAME 2 - VÒNG 1: GHÉP BỘ PHẬN CHUỘT ================= */
+        .mouse-match-arena {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 3vw;
+            height: 100%;
+            align-items: center;
+        }
+
+        .mouse-visual-container {
+            background: #f8fafc;
+            border: 3px solid #cbd5e1;
+            border-radius: 28px;
+            padding: 2vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .mouse-match-tasks {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .match-row-item {
+            background: #ffffff;
+            border: 2px solid #cbd5e1;
+            border-radius: 16px;
+            padding: 1.5vh 1.5vw;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+
+        .match-label {
+            font-size: 2.5vh;
+            font-weight: 800;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .match-select {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 2.2vh;
+            font-weight: 800;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 2px solid #cbd5e1;
+            background: #f8fafc;
+            color: #1e293b;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* ================= GAME 2 - VÒNG 2: ĐẤU TRƯỜNG DIỆT BUG ================= */
+        .bug-arena-wrapper {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            height: 100%;
+        }
+
+        .bug-mission-sidebar {
+            background: #0f172a;
+            color: #fff;
+            border-radius: 20px;
+            padding: 2vh 1.4vw;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bug-type-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            padding: 12px 14px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 2vh;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .bug-type-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .bug-type-btn.active {
+            border-color: #ffd166;
+            background: rgba(255, 209, 102, 0.2);
+            color: #ffd166;
+        }
+
+        .bug-type-btn.defeated {
+            border-color: #22c55e;
+            color: #86efac;
+        }
+
+        .bug-battlefield {
+            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0a0f1d 100%);
+            border-radius: 24px;
+            border: 3px solid #334155;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
+            cursor: crosshair;
+        }
+
+        .battle-hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            z-index: 20;
+        }
+
+        .battle-timer {
+            font-size: 3.5vh;
+            font-weight: 900;
+            color: #ff4757;
+            font-family: monospace;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 16px;
+            border-radius: 999px;
+            border: 2px solid #ff4757;
+        }
+
+        .battle-objective {
+            font-size: 2.4vh;
+            font-weight: 800;
+            color: #ffdd59;
+            text-align: center;
+        }
+
+        .battle-play-zone {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Các Entity Bug */
+        .bug-entity {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.1s;
+            user-select: none;
+        }
+
+        .bug-entity:hover {
+            transform: scale(1.08);
+        }
+
+        .bug-nameplate {
+            background: rgba(0,0,0,0.75);
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 1.6vh;
+            font-weight: 800;
+            margin-top: 6px;
+            border: 1px solid rgba(255,255,255,0.3);
+            white-space: nowrap;
+        }
+
+        /* Recycle Bin cho Bug Rác */
+        .trash-bin-target {
+            position: absolute;
+            right: 40px;
+            bottom: 40px;
+            width: 160px;
+            height: 180px;
+            background: rgba(239, 68, 68, 0.15);
+            border: 3px dashed #ef4444;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fca5a5;
+            font-weight: 800;
+            font-size: 2vh;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .trash-bin-target.drag-over {
+            background: rgba(239, 68, 68, 0.4);
+            transform: scale(1.1);
+            border-color: #ffedd5;
+        }
+
+        /* ================= SLIDE 10: TỔNG KẾT & PODIUM ================= */
+        .podium-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 24px;
+            height: 380px;
+            margin-top: 3vh;
+        }
+
+        .podium-slot {
+            width: 220px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .podium-avatar {
+            font-size: 60px;
+            margin-bottom: 8px;
+            animation: bounceAvatar 2s infinite;
+        }
+
+        @keyframes bounceAvatar {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .podium-team-name {
+            font-size: 2.6vh;
+            font-weight: 900;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+
+        .podium-score-pill {
+            background: #101b35;
+            color: #ffdd59;
+            font-weight: 900;
+            font-size: 2.6vh;
+            padding: 4px 18px;
+            border-radius: 999px;
+            margin-bottom: 12px;
+        }
+
+        .podium-bar {
+            width: 100%;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4.5vh;
+            font-weight: 900;
+            color: #fff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .podium-bar.rank-1 { height: 220px; background: linear-gradient(180deg, #ffd166, #ffb703); color: #523a00; }
+        .podium-bar.rank-2 { height: 160px; background: linear-gradient(180deg, #cbd5e1, #94a3b8); }
+        .podium-bar.rank-3 { height: 120px; background: linear-gradient(180deg, #fdba74, #ea580c); }
+        .podium-bar.rank-4 { height: 80px; background: linear-gradient(180deg, #cbd5e1, #64748b); }
+
+        /* ================= MODAL TRIỆU HỒI / GACHA ================= */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 15, 30, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .gacha-box-card {
+            width: min(92vw, 720px);
+            background: #ffffff;
+            border-radius: 32px;
+            padding: 4vh 3vw;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+            border: 4px solid #4361ee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            animation: zoomModal 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+
+        @keyframes zoomModal {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .gacha-modal-title {
+            font-size: 4vh;
+            font-weight: 900;
+            color: #101b35;
+            margin: 0 0 1vh;
+        }
+
+        .gacha-slot-window {
+            width: 100%;
+            height: 120px;
+            background: #0f172a;
+            border-radius: 20px;
+            border: 4px solid #f59e0b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin: 2vh 0;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.6);
+            position: relative;
+        }
+
+        .gacha-candidate-name {
+            font-size: 5.5vh;
+            font-weight: 900;
+            color: #facc15;
+            text-shadow: 0 0 15px rgba(250, 204, 21, 0.6);
+            transition: all 0.08s;
+            white-space: nowrap;
+        }
+
+        .peer-coaching-box {
+            background: #eef2ff;
+            border: 2px dashed #6366f1;
+            border-radius: 16px;
+            padding: 1.6vh 1.8vw;
+            margin-top: 2vh;
+            text-align: left;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .peer-coaching-box h4 {
+            margin: 0 0 6px;
+            color: #4338ca;
+            font-size: 2.2vh;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .peer-coaching-box p {
+            margin: 0;
+            color: #3730a3;
+            font-size: 2vh;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .btn-modal-action {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 999px;
+            padding: 1.6vh 3vw;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 2.8vh;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            margin-top: 2.5vh;
+            transition: all 0.2s;
+        }
+
+        .btn-modal-action:hover {
+            transform: scale(1.05);
+        }
+
+        /* ================= MODAL QUÉT TƯ THẾ ================= */
+        .posture-modal-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            width: 100%;
+            margin-top: 2vh;
+        }
+
+        .posture-team-cell {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .posture-team-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 2.3vh;
+            font-weight: 900;
+        }
+
+        .posture-btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-posture-good {
+            flex: 1;
+            background: #dcfce7;
+            border: 2px solid #22c55e;
+            color: #15803d;
+            border-radius: 10px;
+            padding: 10px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 800;
+            font-size: 1.9vh;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-posture-good:hover {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        .btn-posture-bad {
+            flex: 1;
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #b91c1c;
+            border-radius: 10px;
+            padding: 10px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 800;
+            font-size: 1.9vh;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-posture-bad:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn-posture-noise {
+            background: #fff3cd;
+            border: 2px solid #f59e0b;
+            color: #854d0e;
+            border-radius: 10px;
+            padding: 10px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 800;
+            font-size: 1.9vh;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-posture-noise:hover {
+            background: #f59e0b;
+            color: #fff;
+        }
+
+        /* Toast Alert Banner */
+        .toast-banner {
+            position: fixed;
+            top: 96px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-150%);
+            background: #1e293b;
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 999px;
+            font-size: 2.4vh;
+            font-weight: 800;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            pointer-events: none;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .toast-banner.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Canvas Pháo Hoa */
+        #confettiCanvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1500;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Canvas Hiệu Ứng Pháo Hoa -->
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- Banner Thông Báo Nhanh -->
+    <div id="toastBanner" class="toast-banner">
+        <span id="toastIcon">✨</span>
+        <span id="toastMsg">Chào mừng đến với tiết học!</span>
+    </div>
+
+    <!-- ================= 1. THANH TOP BAR CỐ ĐỊNH ================= -->
+    <header class="topbar-fixed">
+        <div class="topbar-left">
+            <span class="lesson-badge">TIN HỌC 3 • TIẾT 7</span>
+            <select id="classSelector" class="class-picker" title="Chọn Lớp Học">
+                <option value="3_2">Lớp 3/2</option>
+                <option value="3_3">Lớp 3/3</option>
+                <option value="3_4">Lớp 3/4</option>
+                <option value="3_5">Lớp 3/5</option>
+                <option value="3_6">Lớp 3/6</option>
+            </select>
+        </div>
+
+        <!-- Bảng Điểm 4 Tổ & Nút Triệu Hồi Riêng Biệt -->
+        <div class="teams-scoreboard">
+            <!-- Tổ 1 -->
+            <div class="team-topcard team-0" id="topcard-0">
+                <div class="team-info">
+                    <span class="team-title">🚩 Tổ 1</span>
+                    <span class="team-score" id="score-0">0</span>
+                    <span class="team-cooldown-count" id="remain-0">còn 12 bạn</span>
+                </div>
+                <button type="button" class="btn-summon-team" onclick="triggerSummon(0)">
+                    🎲 Triệu Hồi
+                </button>
+            </div>
+
+            <!-- Tổ 2 -->
+            <div class="team-topcard team-1" id="topcard-1">
+                <div class="team-info">
+                    <span class="team-title">⚡ Tổ 2</span>
+                    <span class="team-score" id="score-1">0</span>
+                    <span class="team-cooldown-count" id="remain-1">còn 12 bạn</span>
+                </div>
+                <button type="button" class="btn-summon-team" onclick="triggerSummon(1)">
+                    🎲 Triệu Hồi
+                </button>
+            </div>
+
+            <!-- Tổ 3 -->
+            <div class="team-topcard team-2" id="topcard-2">
+                <div class="team-info">
+                    <span class="team-title">🌿 Tổ 3</span>
+                    <span class="team-score" id="score-2">0</span>
+                    <span class="team-cooldown-count" id="remain-2">còn 12 bạn</span>
+                </div>
+                <button type="button" class="btn-summon-team" onclick="triggerSummon(2)">
+                    🎲 Triệu Hồi
+                </button>
+            </div>
+
+            <!-- Tổ 4 -->
+            <div class="team-topcard team-3" id="topcard-3">
+                <div class="team-info">
+                    <span class="team-title">⭐ Tổ 4</span>
+                    <span class="team-score" id="score-3">0</span>
+                    <span class="team-cooldown-count" id="remain-3">còn 12 bạn</span>
+                </div>
+                <button type="button" class="btn-summon-team" onclick="triggerSummon(3)">
+                    🎲 Triệu Hồi
+                </button>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <!-- Nút Quét Tư Thế Bắt Buộc Theo Đề Bài -->
+            <button type="button" class="btn-posture-scan" onclick="openPostureModal()">
+                🚨 Quét Tư Thế
+            </button>
+            <button type="button" class="btn-top-util" id="audioToggleBtn" title="Bật/Tắt Âm Thanh" onclick="toggleAudio()">
+                🔊
+            </button>
+            <button type="button" class="btn-top-util" title="Toàn Màn Hình" onclick="toggleFullScreen()">
+                ⛶
+            </button>
+        </div>
+    </header>
+
+    <!-- ================= 2. KHÔNG GIAN SLIDE ================= -->
+    <main class="presentation-workspace">
+
+        <!-- ================= SLIDE 1: BÌA BÀI HỌC ================= -->
+        <section class="slide-screen active" id="slide-1">
+            <div class="slide-header">
+                <div class="slide-tag">✨ KHỐI 3 • CHỦ ĐỀ 1</div>
+                <div class="slide-title-wrap">
+                    <h1>BÀI HỌC: EM TẬP SỬ DỤNG CHUỘT & TƯ THẾ CHUẨN</h1>
+                    <p>Khám phá tư thế vàng cho mắt & Làm chủ 5 tuyệt chiêu điều khiển chuột máy tính</p>
+                </div>
+                <div class="slide-nav-pills">
+                    <button class="btn-page primary" onclick="goToSlide(2)">Bắt đầu ➔</button>
+                </div>
+            </div>
+
+            <div class="slide-body">
+                <div class="cover-container">
+                    <div class="cover-left">
+                        <div class="cover-title">
+                            Đấu Trường <span>Bác Sĩ & Biệt Đội Chuột</span>
+                        </div>
+                        <div class="cover-desc">
+                            Chào mừng 4 Tổ tham gia buổi học thực chiến! Hãy cùng ngồi thẳng lưng, rèn luyện 5 thao tác chuột siêu đẳng và rinh cúp vô địch cho Tổ của mình!
+                        </div>
+                        <div class="cover-features">
+                            <div class="feature-box">
+                                <span class="icon">🩺</span>
+                                <div>
+                                    <strong>Bác Sĩ Máy Tính</strong><br>
+                                    Chữa 8 ca dáng ngồi sai chuẩn SGK
+                                </div>
+                            </div>
+                            <div class="feature-box">
+                                <span class="icon">🖱️</span>
+                                <div>
+                                    <strong>Biệt Đội Diệt Bug</strong><br>
+                                    Cầm chuột thật diệt 5 loại bọ giáp
+                                </div>
+                            </div>
+                            <div class="feature-box">
+                                <span class="icon">🎲</span>
+                                <div>
+                                    <strong>Vòng Quay Triệu Hồi</strong><br>
+                                    Gacha ngẫu nhiên, không trùng lặp
+                                </div>
+                            </div>
+                            <div class="feature-box">
+                                <span class="icon">👑</span>
+                                <div>
+                                    <strong>Quân Sư Đồng Đội</strong><br>
+                                    Nhắc bài bằng khẩu hình, chống quê!
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn-launch-game" onclick="goToSlide(2)">
+                            🚀 VÀO ĐẤU TRƯỜNG NGAY ➔
+                        </button>
+                    </div>
+
+                    <div class="cover-right">
+                        <div class="cover-artwork">
+                            <!-- SVG Minh Họa Học Sinh Ngồi Chuẩn & Chuột Công Nghệ -->
+                            <svg width="340" height="340" viewBox="0 0 340 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="170" cy="170" r="140" fill="#e0e7ff" />
+                                <rect x="90" y="80" width="160" height="110" rx="12" fill="#1e293b" />
+                                <rect x="100" y="90" width="140" height="90" rx="8" fill="#38bdf8" />
+                                <path d="M120 130 L140 110 L160 130 Z" fill="#ffffff" />
+                                <rect x="155" y="190" width="30" height="35" fill="#64748b" />
+                                <path d="M130 225 L210 225 L200 235 L140 235 Z" fill="#475569" />
+                                <!-- Chú Chuột Dễ Thương -->
+                                <rect x="140" y="245" width="60" height="85" rx="30" fill="#ffffff" stroke="#4361ee" stroke-width="6" />
+                                <line x1="170" y1="245" x2="170" y2="280" stroke="#4361ee" stroke-width="4" />
+                                <rect x="165" y="260" width="10" height="18" rx="5" fill="#f59e0b" />
+                                <!-- Khiên Bảo Vệ Tư Thế -->
+                                <circle cx="260" cy="90" r="35" fill="#22c55e" />
+                                <path d="M250 90 L258 98 L274 82" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SLIDE 2: LUẬT CHƠI & QUÂN SƯ ================= -->
+        <section class="slide-screen" id="slide-2">
+            <div class="slide-header">
+                <div class="slide-tag">📜 HƯỚNG DẪN CHIẾN ĐẤU</div>
+                <div class="slide-title-wrap">
+                    <h1>CƠ CHẾ TRIỆU HỒI & LUẬT QUÂN SƯ ĐỒNG ĐỘI</h1>
+                    <p>Sức mạnh đoàn kết - Không ai bị bỏ lại phía sau!</p>
+                </div>
+                <div class="slide-nav-pills">
+                    <button class="btn-page" onclick="goToSlide(1)">⬅ Trước</button>
+                    <button class="btn-page primary" onclick="goToSlide(3)">Tiếp tục ➔</button>
+                </div>
+            </div>
+
+            <div class="slide-body">
+                <div class="rules-grid">
+                    <!-- Luật 1 -->
+                    <div class="rule-card">
+                        <div class="rule-icon-circle" style="background: #e0e7ff; color: #4361ee;">🎲</div>
+                        <h3>Vòng Quay Triệu Hồi</h3>
+                        <p>
+                            Đến lượt Tổ nào, thầy cô bấm nút <strong>"Triệu Hồi"</strong> của Tổ đó.<br><br>
+                            Tên các thành viên sẽ chạy hiệu ứng <strong>Gacha / Slot Machine</strong> dồn dập rồi chọn ra 1 chiến binh đại diện bước lên bảng.
+                        </p>
+                        <div class="rule-pill-alert" style="background:#ecfdf5; color:#047857; border-color:#a7f3d0;">
+                            ✨ Không trùng lặp (No-Repeat): Ai đã lên sẽ nghỉ ngơi để các bạn khác cùng thử sức!
+                        </div>
+                    </div>
+
+                    <!-- Luật 2 -->
+                    <div class="rule-card">
+                        <div class="rule-icon-circle" style="background: #fef3c7; color: #d97706;">👑</div>
+                        <h3>Quân Sư Đồng Đội (Peer Coaching)</h3>
+                        <p>
+                            Nếu trúng bạn hơi nhút nhát hoặc lúng túng khi thực hành nháy đúp chuột:<br><br>
+                            Các bạn còn lại trong Tổ ở dưới được phép làm <strong>Quân Sư</strong>: Dùng <strong>KHẨU HÌNH hoặc HÀNH ĐỘNG TAY MẪU</strong> để hướng dẫn bạn!
+                        </p>
+                        <div class="rule-pill-alert">
+                            ⚠️ TUYỆT ĐỐI KHÔNG LA LỚN! Tổ nào la to sẽ bị trừ 20 điểm trật tự!
+                        </div>
+                    </div>
+
+                    <!-- Luật 3 -->
+                    <div class="rule-card">
+                        <div class="rule-icon-circle" style="background: #fee2e2; color: #e11d48;">🚨</div>
+                        <h3>Nút Quét Tư Thế Bất Ngờ</h3>
+                        <p>
+                            Suốt 35 phút học, thầy cô có thể bấm nút <strong>"🚨 Quét Tư Thế"</strong> bất kỳ lúc nào!<br><br>
+                            • Tổ nào cả dãy ngồi <strong>thẳng lưng chuẩn bạn Khoa</strong>: <strong>+50 điểm Thưởng</strong>!<br>
+                            • Ai nằm bò, chống cằm, gù lưng: <strong>-50 điểm Phạt</strong>!
+                        </p>
+                        <div class="rule-pill-alert" style="background:#eff6ff; color:#1d4ed8; border-color:#bfdbfe;">
+                            💡 Giúp phòng tránh Cận thị & Vẹo cột sống từ hôm nay!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SLIDE 3: KHÁM PHÁ TƯ THẾ CHUẨN ================= -->
+        <section class="slide-screen" id="slide-3">
+            <div class="slide-header">
+                <div class="slide-tag">🩺 HOẠT ĐỘNG 1: KHỞI ĐỘNG</div>
+                <div class="slide-title-wrap">
+                    <h1>TIÊU CHUẨN VÀNG: DÁNG NGỒI MÁY TÍNH CHUẨN</h1>
+                    <p>Học tập bạn Khoa trong SGK để luôn khỏe mạnh và sáng mắt</p>
+                </div>
+                <div class="slide-nav-pills">
+                    <button class="btn-page" onclick="goToSlide(2)">⬅ Trước</button>
+                    <button class="btn-page primary" onclick="goToSlide(4)">Khám Bệnh Ngay ➔</button>
+                </div>
+            </div>
+
+            <div class="slide-body">
+                <div class="posture-intro-grid">
+                    <!-- Tranh Đồ Họa Tư Thế Ngồi Chuẩn -->
+                    <div class="posture-diagram-box">
+                        <svg width="420" height="340" viewBox="0 0 420 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Bàn và Máy Tính -->
+                            <rect x="250" y="160" width="150" height="15" rx="4" fill="#64748b" />
+                            <rect x="360" y="175" width="20" height="120" fill="#94a3b8" />
+                            <!-- Màn Hình -->
+                            <rect x="280" y="80" width="110" height="80" rx="8" fill="#1e293b" />
+                            <rect x="288" y="88" width="94" height="64" rx="4" fill="#38bdf8" />
+                            <rect x="325" y="160" width="20" height="20" fill="#475569" />
+                            <rect x="305" y="177" width="60" height="8" rx="4" fill="#334155" />
+                            <!-- Bạn Khoa Ngồi Thẳng Lưng -->
+                            <!-- Ghế -->
+                            <rect x="80" y="195" width="100" height="15" rx="4" fill="#f59e0b" />
+                            <rect x="70" y="100" width="16" height="110" rx="6" fill="#f59e0b" />
+                            <rect x="120" y="210" width="18" height="85" fill="#475569" />
+                            <path d="M80 295 L180 295" stroke="#334155" stroke-width="10" stroke-linecap="round" />
+                            <!-- Đầu & Cổ -->
+                            <circle cx="140" cy="75" r="30" fill="#ffedd5" stroke="#ea580c" stroke-width="3" />
+                            <!-- Tóc -->
+                            <path d="M115 70 Q140 40 165 70 Q140 55 115 70 Z" fill="#334155" />
+                            <!-- Thân Lưng Thẳng Đứng -->
+                            <rect x="125" y="105" width="30" height="90" rx="10" fill="#3b82f6" />
+                            <!-- Tay Ngang Tầm Bàn -->
+                            <path d="M135 125 L180 165 L270 165" stroke="#ea580c" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+                            <!-- Chân Vuông Góc Đặt Trên Sàn -->
+                            <path d="M140 195 L190 205 L190 295 L220 295" stroke="#1d4ed8" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+                            <!-- Tia Khoảng Cách Mắt 50-80cm -->
+                            <line x1="165" y1="85" x2="280" y2="105" stroke="#ef4444" stroke-width="3" stroke-dasharray="6 6" />
+                            <circle cx="280" cy="105" r="5" fill="#ef4444" />
+                        </svg>
+
+                        <!-- Tag Điểm Vàng -->
+                        <div class="posture-point-tag" style="top: 25px; left: 160px;">
+                            📏 Mắt cách màn hình: 50 – 80 cm
+                        </div>
+                        <div class="posture-point-tag" style="top: 110px; left: 10px;">
+                            ✨ Lưng luôn thẳng
+                        </div>
+                        <div class="posture-point-tag" style="bottom: 85px; right: 50px;">
+                            ⌨️ Tay ngang bàn phím
+                        </div>
+                        <div class="posture-point-tag" style="bottom: 15px; left: 140px;">
+                            🦶 Hai bàn chân chạm sàn
+                        </div>
+                    </div>
+
+                    <!-- Danh Sách 5 Nguyên Tắc Vàng -->
+                    <div class="posture-rules-list">
+                        <div class="posture-rule-item">
+                            <span class="icon">📏</span>
+                            <div>
+                                <strong>Khoảng cách an toàn:</strong><br>
+                                Giữ khoảng cách từ mắt đến màn hình từ <strong>50 cm đến 80 cm</strong> (tầm 1 sải tay).
+                            </div>
+                        </div>
+
+                        <div class="posture-rule-item">
+                            <span class="icon">🧘</span>
+                            <div>
+                                <strong>Cột sống & Đôi chân:</strong><br>
+                                <strong>Ngồi thẳng lưng</strong>, hai vai thả lỏng, hai bàn chân đặt bằng phẳng vuông góc trên sàn nhà.
+                            </div>
+                        </div>
+
+                        <div class="posture-rule-item">
+                            <span class="icon">⌨️</span>
+                            <div>
+                                <strong>Cổ tay & Bàn phím:</strong><br>
+                                Cánh tay đặt <strong>ngang tầm bàn phím và chuột</strong>, không gồng vai hay với tay quá cao.
+                            </div>
+                        </div>
+
+                        <div class="posture-rule-item">
+                            <span class="icon">⏱️</span>
+                            <div>
+                                <strong>Quy tắc 30 phút:</strong><br>
+                                Cứ sau mỗi <strong>30 phút</strong> làm việc, hãy đứng dậy vận động và nhìn xa 5–10 phút.
+                            </div>
+                        </div>
+
+                        <div class="posture-rule-item" style="background:#fff1f2; border-left-color:#e11d48; color:#9f1239;">
+                            <span class="icon">🛡️</span>
+                            <div>
+                                <strong>Phòng bệnh học đường:</strong><br>
+                                Ngồi đúng tư thế giúp em phòng tránh bệnh <strong>CẬN THỊ</strong> và <strong>VẸO CỘT SỐNG</strong>!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SLIDE 4: GAME 1: BÁC SĨ MÁY TÍNH ================= -->
+        <section class="slide-screen" id="slide-4">
+            <div class="slide-header">
+                <div class="slide-tag">🩺 GAME 1: PHÒNG KHÁM BÁC SĨ NHÍ</div>
+                <div class="slide-title-wrap">
+                    <h1>BÁC SĨ MÁY TÍNH - CHỈNH DÁNG CHUẨN</h1>
+                    <p>8 ca bệnh lâm sàng dành cho 4 Tổ • Bấm điểm sai & Chọn toa thuốc đúng (+100 điểm/ca)</p>
+                </div>
+                <div class="slide-nav-pills">
+                    <button class="btn-page" onclick="goToSlide(3)">⬅ Trước</button>
+                    <button class="btn-page primary" onclick="goToSlide(5)">Sang Chép Bài ➔</button>
+                </div>
+            </div>
+
+            <div class="slide-body">
+                <div class="doctor-game-layout">
+                    <!-- Danh Sách 8 Ca Bệnh -->
+                    <div class="cases-sidebar" id="casesSidebar">
+                        <!-- Rendered by JS -->
+                    </div>
+
+                    <!-- Khu Vực Thăm Khám Chính -->
+                    <div class="case-main-arena">
+                        <div class="case-status-bar">
+                            <div class="case-team-badge" id="currentCaseTeamTurn">
+                                Lượt khám của: <span style="color:var(--primary); font-weight:900;">Tổ 1</span>
+                            </div>
+                            <button type="button" class="btn-summon-team" style="font-size:2vh;" id="btnSummonForDoctor" onclick="summonForActiveCase()">
+                                🎲 Triệu Hồi Bác Sĩ Của Tổ
+                            </button>
+                        </div>
+
+                        <div class="case-stage-card" id="caseStageArea">
+                            <!-- Hình Ảnh Bệnh Nhân SVG với Hotspot Tương Tác -->
+                            <div class="patient-illustration" id="patientIllustrationBox">
+                                <!-- Dynamic Graphic Loaded by JS -->
+                            </div>
+
+                            <!-- Toa Thuốc & Câu Hỏi Chẩn Đoán -->
+                            <div class="case-treatment-panel">
+                                <h2 class="case-symptom-title" id="caseTitleText">Ca 1: Bạn Nam ngồi dí sát màn hình</h2>
+                                <p class="case-symptom-desc" id="caseDescText">
+                                    Bệnh nhân Nam ngồi học mà mắt chỉ cách màn hình 15 cm. Hãy chạm vào điểm sai trên hình và kê toa khoảng cách chuẩn cho bạn ấy!
+                                </p>
+                                <div class="prescription-options" id="prescriptionList">
+                                    <!-- Dynamic Options Loaded by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SLIDE 5: CHÉP BÀI 1: TƯ THẾ NGỒI ================= -->
+        <section class="slide-screen" id="slide-5">
+            <div class="slide-header">
+                <div class="slide-tag">✍️ GHI NHỚ NỘI DUNG 1</div>
+                <div class="slide-title-wrap">
+                    <h1>THỜI GIAN CHÉP BÀI: TƯ THẾ NGỒI CHUẨN</h1>
+                    <p>Các em mở vở Tin học và nắn nót chép 5 điều ghi nhớ quan trọng này nhé</p>
+                </div>
+                <div class="slide-nav-pills">
+                    <button class="btn-page" onclick="goToSlide(4)">⬅ Trước</button>
+                    <button class="btn-page primary" onclick="goToSlide(6)">Khám Phá Chuột ➔</button>
+                </div>
+            </div>
+
+            <div class="slide-body">
+                <div class="copy-notebook-wrap">
+                    <!-- Trang Vở Ô Ly -->
+                    <div class="notebook-sheet">
+                        <div class="notebook-pin">VỞ TIN HỌC 3</div>
+                        <div class="notebook-lines">
+                            <ol>
+                                <li><strong>Ngồi thẳng lưng</strong>, hai vai thả lỏng, hai bàn chân đặt vuông góc trên sàn.</li>
+                                <li>Mắt cách màn hình từ <strong>50 cm đến 80 cm</strong> (khoảng một sải tay).</li>
+                                <li>Tay đặt <strong>ngang tầm bàn phím</strong> và chuột máy tính.</li>
+                                <li><strong>Nghỉ ngơi 5 - 10 phút</strong> sau mỗi <strong>30 phút</strong> sử dụng máy tính.</li>
+                                <li>Ngồi đúng tư thế giúp phòng tránh <strong>CẬN THỊ</strong> và <strong>VẸO CỘT SỐNG</strong>.</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- Đồng Hồ Đếm Giờ Chép Bài -->
+                    <div class="copy-timer-card">
+                        <span style="font-size: 4vh;">⏳</span>
+                        <h3 style="margin: 0; font-size: 2.8vh;">THỜI GIAN CHÉP BÀI</h3>
+                        <div class="timer-display" id="copyTimerDisplay1">03:00</div>
+                        <div class="timer-controls">
+                            <button type="button" class="btn-timer start" onclick="startCopyTimer(1)">▶ Bắt đầu</button>
+                            <button type="button" class="btn-timer pause" onclick="pauseCopyTimer(1)">⏸ Tạm dừng</button>
+                            <button type="button" class="btn-timer reset" onclick="resetCopyTimer(1, 180)">🔄 3 Phút</button>
+                        </div>
+                        <p style="margin-top: 2vh; font-size: 1.8vh; color: #94a3b8;">
+                            Thầy cô có thể điều chỉnh thời gian theo tốc độ viết của lớp!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SLIDE 6: KHÁM PHÁ CHUỘT MÁY TÍNH ================= -->
+        <section class="slide-screen" id="slide-6">
+            <div class="slide-header">
+                <div class="slide-tag">🖱️ HOẠT ĐỘNG 2: CHUỘT MÁY TÍNH</div>
+                <div class="slide-title-wrap">
+                    <h1>CẤU TẠO CHUỘT & CÁCH CẦM CHUỘT TAY PHẢI</h1>
+                    <p>Nhận diện 3 bộ phận cốt lõi và tư thế cầm chuột đúng chuẩn kỹ thuật viên</p>
+                </div>
+                <div class="slide-nav-pills">
+                    <button class="btn-page" onclick="goToSlide(5)">⬅ Trước</button>
+                    <button class="btn-page primary" onclick="goToSlide(7)">Khởi Động Nối ➔</button>
+                </div>
+            </div>
+
+            <div class="slide-body">
+                <div class="posture-intro-grid">
+                    <!-- Tranh Đồ Họa Cấu Tạo Chuột & Bàn Tay -->
+                    <div class="posture-diagram-box" style="background:#ffffff;">
+                        <svg width="420" height="340" viewBox="0 0 420 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Chuột Máy Tính -->
+                            <path d="M140 100 C140 40, 280 40, 280 100 L280 230 C280 300, 140 300, 140 230 Z" fill="#f1f5f9" stroke="#334155" stroke-width="6" />
+                            <!-- Nút Trái -->
+                            <path d="M142 95 C142 45, 207 45, 207 95 L207 140 L142 140 Z" fill="#ef476f" opacity="0.85" />
+                            <!-- Nút Phải -->
+                            <path d="M213 95 C213 45, 278 45, 278 95 L278 140 L213 140 Z" fill="#118ab2" opacity="0.85" />
+                            <!-- Nút Cuộn / Bánh Lăn -->
+                            <rect x="202" y="70" width="16" height="36" rx="8" fill="#ffd166" stroke="#b45309" stroke-width="3" />
+                            <!-- Vạch Chia -->
+                            <line x1="210" y1="110" x2="210" y2="150" stroke="#334155" stroke-width="4" />
+                            <line x1="140" y1="140" x2="280" y2="140" stroke="#334155" stroke-width="4" />
+                            <!-- Bàn Tay Trong Suốt Đặt Lên Chuột -->
+                            <path d="M110 260 C110 180, 150 140, 175 100" stroke="#f59e0b" stroke-width="8" stroke-dasharray="8 8" />
+                            <!-- Chỉ Dẫn Ngón Tay -->
+                            <circle cx="175" cy="100" r="14" fill="#ef476f" />
+                            <text x="175" y="105" font-size="14" font-weight="900" fill="#fff" text-anchor="middle">Trỏ</text>
+
+                            <circle cx="245" cy="100" r="14" fill="#118ab2" />
+                            <text x="245" y="105" font-size="14" font-weight="900" fill="#fff" text-anchor="middle">Giữa</text>
+                        </svg>
+
+                        <div class="posture-point-tag" style="top: 25px; left: 40px; border-color:#ef476f;">
+                            🔴 Nút trái ➔ Ngón trỏ
+                        </div>
+                        <div class="posture-point-tag" style="top: 25px; right: 30px; border-color:#118ab2;">
+                            🔵 Nút phải ➔ Ngón giữa
+                        </div>
+                        <div class="posture-point-tag" style="bottom: 120px; left: 10px; border-color:#ffd166;">
+                            🟡 Nút cuộn (Bánh lăn)
+                        </div>
+                        <div class="posture-point-tag" style="bottom: 20px; right: 50px;">
+                            🖐️ Ngón cái & còn lại ôm thân chuột
+                        </div>
+                    </div>
+
+                    <!-- 5 Tuyệt Chiêu Thao Tác Chuột -->
+                    <div class="posture-rules-list">
+                        <div class="posture-rule-item" style="background:#eff6ff; border-left-color:#3b82f6;">
+                            <span class="icon">1️⃣</span>
+                            <div>
+                                <strong>Di chuyển chuột (Move):</strong><br>
+                                Cầm chuột trượt trên mặt phẳng mà không nhấn nút nào.
+                            </div>
+                        </div>
+
+                        <div class="posture-rule-item" style="background:#fef2f2; border-left-color:#ef4444;">
+                            <span class="icon">2️⃣</span>
+                            <div>
+                                <strong>Nháy chuột (Click trái):</strong><br>
+                                Dùng ngón trỏ nhấn <strong>nút trái chuột</strong> 1 lần rồi thả tay ra ngay.
+                            </div>
+                        </div>
+
+                        <div class="posture-rule-item" style="background:#f0fdfa; border-left-color:#0d9488;">
+                            <span class="icon">3️⃣</span>
+                            <div>
+                                <strong>Nháy nút phải chuột (Right-click):</strong><br>
+                                Dùng ngón giữa nhấn <strong>nút phải chuột</strong> 1 lần rồi thả tay ra.
+                            </div>
+                        </div>
+
+                        <div class="posture-rule-item" style="background:#fdf4ff; border-left-color:#c026d3;">
+                            <span class="icon">4️⃣</span>
+                            <div>
+                                <strong>Nháy đúp chuột (Double-click):</strong><br>
+                                Nhấn <strong>nút trái chuột 2 lần liên tiếp</strong> thật nhanh và dứt khoát!
+                            </div>
+                        </div>
+
+                        <div class="posture-rule-item" style="background:#fffbeb; border-left-color:#f59e0b;">
+                            <span class="icon">5️⃣</span>
+                            <div>
+                                <strong>Kéo thả chuột (Drag and Drop):</strong><br>
+                                Nhấn giữ nút trái, di chuyển con trỏ đến vị trí mới rồi thả tay ra.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SLIDE 7: GAME 2 - VÒNG 1: KHỞI ĐỘNG GHÉP NỐI ================= -->
+        <section class="slide-screen" id="slide-7">
+            <div class="slide-header">
+                <div class="slide-tag">⚡ GAME 2 - VÒNG 1: KHỞI ĐỘNG</div>
+                <div class="slide-title-wrap">
+                    <h1>GHÉP BỘ PHẬN CHUỘT & VỊ TRÍ NGÓN TAY</h1>
+                    <p>Mỗi Tổ cử 1 bạn lên hoàn thành ghép nối nhận +50 điểm/câu!</p>
+                </div>
+                <div class="slide-nav-pills">
+                    <button class="btn-page" onclick="goToSlide(6)">⬅ Trước</button>
+                    <button class="btn-page primary" onclick="goToSlide(8)">Vào Thực Chiến ➔</button>
+                </div>
+            </div>
+
+            <div class="slide-body">
+                <div class="mouse-match-arena">
+                    <!-- Tranh Minh Họa Trực Quan -->
+                    <div class="mouse-visual-container">
+                        <svg width="380" height="320" viewBox="0 0 380 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="40" y="20" width="300" height="280" rx="30" fill="#f8fafc" stroke="#cbd5e1" stroke-width="4" />
+                            <!-- Chuột -->
+                            <path d="M120 70 C120 20, 260 20, 260 70 L260 210 C260 270, 120 270, 120 210 Z" fill="#ffffff" stroke="#334155" stroke-width="5" />
+                            <path d="M122 68 C122 25, 188 25, 188 68 L188 115 L122 115 Z" fill="#ef476f" />
+                            <path d="M192 68 C192 25, 258 25, 258 68 L258 115 L192 115 Z" fill="#118ab2" />
+                            <rect x="183" y="55" width="14" height="28" rx="6" fill="#ffd166" />
+                            <text x="155" y="95" font-size="20" font-weight="900" fill="#fff" text-anchor="middle">A</text>
+                            <text x="225" y="95" font-size="20" font-weight="900" fill="#fff" text-anchor="middle">B</text>
+                            <text x="190" y="45" font-size="20" font-weight="900" fill="#b45309" text-anchor="middle">C</text>
+                        </svg>
+                        <div style="font-size: 2.2vh; font-weight: 800; color: #475569; margin-top: 1vh;">
+                            A: Nút trái | B: Nút phải | C: Nút cuộn
+                        </div>
+                    </div>
+
+                    <!-- 4 Thử Thách Ghép Nối -->
+                    <div class="mouse-match-tasks">
+                        <div class="match-row-item">
+                            <div class="match-label">
+                                <span style="font-size:3.5vh;">👉</span>
+                                <span>1. <strong>Nút trái chuột (A)</strong> điều khiển bằng:</span>
+                            </div>
+                            <select class="match-select" id="matchSelect-1" onchange="checkMatchItem(1, 0)">
+                                <option value="">-- Chọn ngón tay --</option>
+                                <option value="tro">Ngón trỏ tay phải (ĐÚNG)</option>
+                                <option value="giua">Ngón giữa tay phải</option>
+                                <option value="cai">Ngón cái tay phải</option>
+                            </select>
+                        </div>
+
+                        <div class="match-row-item">
+                            <div class="match-label">
+                                <span style="font-size:3.5vh;">🖕</span>
+                                <span>2. <strong>Nút phải chuột (B)</strong> điều khiển bằng:</span>
+                            </div>
+                            <select class="match-select" id="matchSelect-2" onchange="checkMatchItem(2, 1)">
+                                <option value="">-- Chọn ngón tay --</option>
+                                <option value="tro">Ngón trỏ tay phải</option>
+                                <option value="giua">Ngón giữa tay phải (ĐÚNG)</option>
+                                <option value="ut">Ngón út tay phải</option>
+                            </select>
+                        </div>
+
+                        <div class="match-row-item">
+                            <div class="match-label">
+                                <span style="font-size:3.5vh;">🎡</span>
+                                <span>3. <strong>Nút cuộn (C)</strong> dùng để:</span>
+                            </div>
+                            <select class="match-select" id="matchSelect-3" onchange="checkMatchItem(3, 2)">
+                                <option value="">-- Chọn công dụng --</option>
+                                <option value="cuon">Cuộn trang lên hoặc xuống (ĐÚNG)</option>
+                                <option value="tat">Tắt máy vi tính</option>
+                                <option value="chuot">Chỉnh âm lượng to nhỏ</option>
+                            </select>
+                        </div>
+
+                        <div class="match-row-item">
+                            <div class="match-label">
+                                <span style="font-size:3.5vh;">✋</span>
+                                <span>4. <strong>Lòng bàn tay và các ngón còn lại</strong>:</span>
+                            </div>
+                            <select class="match-select" id="matchSelect-4" onchange="checkMatchItem(4, 3)">
+                                <option value="">-- Chọn vị trí --</option>
+                                <option value="om">Giữ và ôm hai bên thân chuột (ĐÚNG)</option>
+                                <option value="nhay">Nhấn mạnh vào bàn phím</option>
+                                <option value="xoay">Xoay tròn con chuột</option>
+                            </select>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1vh;">
+                            <span id="matchFeedback" style="font-size:2.2vh; font-weight:800; color:var(--primary);">
+                                Hãy chọn đáp án chính xác cho từng vị trí!
+                            </span>
+                            <button type="button" class="btn-page primary" onclick="checkAllMatchAnswers()">
+                                ✅ Chấm Điểm (+200 Điểm)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SLIDE 8: GAME 2 - VÒNG 2: THỰC CHIẾN DIỆT BUG ================= -->
+        <section class="slide-screen" id="slide-8">
+            <div class="slide-header">
+                <div class="slide-tag">🎮 GAME 2 - VÒNG 2: THỰC CHIẾN</div>
+                <div class="slide-title-wrap">
+                    <h1>BIỆT ĐỘI DIỆT BUG - 5 TUYỆT CHIÊU CHUỘT</h1>
+                    <p>Chiến binh lên cầm chuột thật trên bàn giáo viên • 15 giây tiêu diệt Bug mang giáp!</p>
+                </div>
+                <div class="slide-nav-pills">
+                    <button class="btn-page" onclick="goToSlide(7)">⬅ Trước</button>
+                    <button class="btn-page primary" onclick="goToSlide(9)">Sang Chép Bài ➔</button>
+                </div>
+            </div>
+
+            <div class="slide-body">
+                <div class="bug-arena-wrapper">
+                    <!-- Danh Sách 5 Loại Bug -->
+                    <div class="bug-mission-sidebar">
+                        <h3 style="margin: 0 0 10px; font-size: 2.3vh; color: #ffdd59;">DANH SÁCH BUG:</h3>
+
+                        <button type="button" class="bug-type-btn active" id="bugBtn-0" onclick="selectBugType(0)">
+                            <span>🟢</span>
+                            <div>
+                                <strong>1. Bug Xanh</strong><br>
+                                <small>Di chuyển trỏ chuột chạm</small>
+                            </div>
+                        </button>
+
+                        <button type="button" class="bug-type-btn" id="bugBtn-1" onclick="selectBugType(1)">
+                            <span>🟡</span>
+                            <div>
+                                <strong>2. Bug Vàng</strong><br>
+                                <small>Nháy chuột (Click trái 1 lần)</small>
+                            </div>
+                        </button>
+
+                        <button type="button" class="bug-type-btn" id="bugBtn-2" onclick="selectBugType(2)">
+                            <span>🟣</span>
+                            <div>
+                                <strong>3. Bug Tàng Hình</strong><br>
+                                <small>Nháy nút phải chuột (Radar)</small>
+                            </div>
+                        </button>
+
+                        <button type="button" class="bug-type-btn" id="bugBtn-3" onclick="selectBugType(3)">
+                            <span>🔴</span>
+                            <div>
+                                <strong>4. Boss Khiên Đỏ</strong><br>
+                                <small>Nháy đúp chuột (Double-click)</small>
+                            </div>
+                        </button>
+
+                        <button type="button" class="bug-type-btn" id="bugBtn-4" onclick="selectBugType(4)">
+                            <span>🗑️</span>
+                            <div>
+                                <strong>5. Bug Rác Dữ Liệu</strong><br>
+                                <small>Kéo thả chuột vào Thùng Rác</small>
+                            </div>
+                        </button>
+
+                        <button type="button" class="btn-summon-team" style="margin-top:auto; width:100%; justify-content:center; padding:12px;" onclick="summonForBugArena()">
+                            🎲 Triệu Hồi Chiến Binh
+                        </button>
+                    </div>
+
+                    <!-- Sân Đấu Diệt Bug Tương Tác Cầm Chuột Thật -->
+                    <div class="bug-battlefield" id="bugBattleZone" oncontextmenu="handleBugRightClick(event)">
+                        <div class="battle-hud">
+                            <div style="font-weight:900; font-size:2.2vh;" id="activeBugTeamTurn">
+                                Chiến Binh: <span style="color:#ffdd59;">Tổ 1</span>
+                            </div>
+                            <div class="battle-objective" id="battleTaskInstructions">
+                                🎯 NHIỆM VỤ: Di chuyển con trỏ chuột chạm vào Bug Xanh!
+                            </div>
+                            <div class="battle-timer" id="bugBattleTimer">15s</div>
+                        </div>
+
+                        <div class="battle-play-zone" id="bugPlayArea">
+                            <!-- Bug Entity Spawned by JS -->
+                            <div class="bug-entity" id="activeBugTarget">
+                                <!-- Graphic -->
+                            </div>
+
+                            <!-- Thùng Rác Cho Bug 5 (Drag and Drop) -->
+                            <div class="trash-bin-target" id="trashBinDropZone" style="display:none;" ondragover="event.preventDefault(); this.classList.add('drag-over');" ondragleave="this.classList.remove('drag-over');" ondrop="handleDropToTrash(event)">
+                                <span style="font-size: 50px;">🗑️</span>
+                                <span>THÙNG RÁC</span>
+                                <small>(Thả bug vào đây)</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SLIDE 9: CHÉP BÀI 2: CHUỘT MÁY TÍNH ================= -->
+        <section class="slide-screen" id="slide-9">
+            <div class="slide-header">
+                <div class="slide-tag">✍️ GHI NHỚ NỘI DUNG 2</div>
+                <div class="slide-title-wrap">
+                    <h1>THỜI GIAN CHÉP BÀI: 5 THAO TÁC VỚI CHUỘT</h1>
+                    <p>Các em ghi nhớ 5 thao tác thần thánh này để áp dụng thực hành suốt cấp 1</p>
+                </div>
+                <div class="slide-nav-pills">
+                    <button class="btn-page" onclick="goToSlide(8)">⬅ Trước</button>
+                    <button class="btn-page primary" onclick="goToSlide(10)">Xem Cúp Vô Địch 🏆</button>
+                </div>
+            </div>
+
+            <div class="slide-body">
+                <div class="copy-notebook-wrap">
+                    <div class="notebook-sheet">
+                        <div class="notebook-pin">VỞ TIN HỌC 3</div>
+                        <div class="notebook-lines">
+                            <ol>
+                                <li>Chuột máy tính gồm 3 bộ phận: <strong>Nút trái</strong>, <strong>Nút phải</strong> và <strong>Nút cuộn</strong>.</li>
+                                <li>Cầm chuột bằng <strong>tay phải</strong>: ngón trỏ đặt nút trái, ngón giữa đặt nút phải.</li>
+                                <li><strong>Di chuyển chuột:</strong> Đổi vị trí con trỏ chuột trên màn hình.</li>
+                                <li><strong>Nháy chuột:</strong> Nhấn nút trái chuột rồi thả ngón tay.</li>
+                                <li><strong>Nháy đúp chuột:</strong> Nhấn nhanh nút trái <strong>2 lần liên tiếp</strong>.</li>
+                                <li><strong>Kéo thả chuột:</strong> Nhấn giữ nút trái, di chuyển đến nơi mới rồi thả tay.</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="copy-timer-card">
+                        <span style="font-size: 4vh;">⏳</span>
+                        <h3 style="margin: 0; font-size: 2.8vh;">THỜI GIAN CHÉP BÀI</h3>
+                        <div class="timer-display" id="copyTimerDisplay2">03:00</div>
+                        <div class="timer-controls">
+                            <button type="button" class="btn-timer start" onclick="startCopyTimer(2)">▶ Bắt đầu</button>
+                            <button type="button" class="btn-timer pause" onclick="pauseCopyTimer(2)">⏸ Tạm dừng</button>
+                            <button type="button" class="btn-timer reset" onclick="resetCopyTimer(2, 180)">🔄 3 Phút</button>
+                        </div>
+                        <p style="margin-top: 2vh; font-size: 1.8vh; color: #94a3b8;">
+                            Thầy cô có thể điều chỉnh thời gian chép bài tùy theo lớp!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SLIDE 10: TỔNG KẾT & PODIUM ================= -->
+        <section class="slide-screen" id="slide-10">
+            <div class="slide-header">
+                <div class="slide-tag">🏆 VINH DANH CHIẾN BINH</div>
+                <div class="slide-title-wrap">
+                    <h1>BẢNG VÀNG XẾP HẠNG TIẾT 7</h1>
+                    <p>Chúc mừng cả 4 Tổ đã hoàn thành xuất sắc nhiệm vụ Bác Sĩ & Diệt Bug hôm nay!</p>
+                </div>
+                <div class="slide-nav-pills">
+                    <button class="btn-page" onclick="goToSlide(9)">⬅ Trước</button>
+                    <button class="btn-page primary" onclick="fireVictoryConfetti()">🎉 Bắn Pháo Hoa</button>
+                </div>
+            </div>
+
+            <div class="slide-body">
+                <div style="text-align: center; margin-top: 1vh;">
+                    <h2 style="font-size: 3.5vh; color: var(--primary); margin: 0;">
+                        🌟 ĐẠI TIỆC TRAO CÚP VINH QUANG 🌟
+                    </h2>
+                    <p style="font-size: 2.2vh; color: var(--text-light); margin: 5px 0 0;">
+                        Điểm số từ Game 1 (Bác Sĩ) + Game 2 (Diệt Bug) + Điểm Tư Thế Thẳng Lưng
+                    </p>
+                </div>
+
+                <div class="podium-container" id="podiumLeaderboard">
+                    <!-- Dynamic Podium Bars Rendered by JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ================= 3. MODAL VÒNG QUAY TRIỆU HỒI (GACHA) ================= -->
+    <div class="modal-overlay" id="summonModal">
+        <div class="gacha-box-card">
+            <h2 class="gacha-modal-title" id="summonModalTeamName">🎲 TRIỆU HỒI CHIẾN BINH TỔ 1</h2>
+            <p style="font-size: 2.2vh; color: var(--text-light); margin: 0;">
+                Tên các bạn trong tổ đang chạy ngẫu nhiên trong guồng quay...
+            </p>
+
+            <div class="gacha-slot-window">
+                <div class="gacha-candidate-name" id="slotMachineRollingText">Đang quay...</div>
+            </div>
+
+            <div class="peer-coaching-box">
+                <h4>👑 LUẬT QUÂN SƯ ĐỒNG ĐỘI (CHỐNG "QUÊ"):</h4>
+                <p>
+                    Khi bạn bước lên bảng, các thành viên còn lại của Tổ hãy làm <strong>Quân sư</strong>: Nhắc bài bằng <strong>KHẨU HÌNH hoặc ĐỘNG TÁC TAY/NGỒI MẪU</strong>. Tuyệt đối <strong>KHÔNG ĐƯỢC PHÁT RA TIẾNG ỒN</strong> kẻo bị trừ điểm trật tự!
+                </p>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-top:2vh;">
+                <button type="button" class="btn-modal-action" id="btnConfirmSummon" onclick="closeSummonModal()">
+                    ✅ BƯỚC LÊN BẢNG XUẤT TRẬN!
+                </button>
+                <button type="button" class="btn-top-util" style="background:#cbd5e1; color:#334155;" onclick="rerollSummon()">
+                    🔄 Quay lại nếu vắng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 4. MODAL QUÉT TƯ THẾ ================= -->
+    <div class="modal-overlay" id="postureModal">
+        <div class="gacha-box-card" style="width: min(94vw, 860px);">
+            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                <h2 style="margin:0; font-size:3.5vh; color:#e11d48; display:flex; align-items:center; gap:8px;">
+                    🚨 QUÉT TƯ THẾ CẢ LỚP
+                </h2>
+                <button type="button" onclick="closePostureModal()" style="background:none; border:none; font-size:30px; cursor:pointer;">✖</button>
+            </div>
+            <p style="margin:6px 0 14px; font-size:2.2vh; color:#64748b; text-align:left; width:100%;">
+                Thầy cô nhìn bao quát lớp: Tổ nào ngồi thẳng lưng chuẩn được thưởng; tổ nào nằm bò/gù lưng bị trừ điểm!
+            </p>
+
+            <div class="posture-modal-grid">
+                <!-- Tổ 1 -->
+                <div class="posture-team-cell">
+                    <div class="posture-team-head">
+                        <span style="color:var(--t1-color);">🚩 Tổ 1</span>
+                        <span id="postureScoreVal-0">0 điểm</span>
+                    </div>
+                    <div class="posture-btn-group">
+                        <button class="btn-posture-good" onclick="judgePosture(0, 50)">✨ Thẳng Lưng (+50)</button>
+                        <button class="btn-posture-bad" onclick="judgePosture(0, -50)">⚠️ Gù/Nằm (-50)</button>
+                        <button class="btn-posture-noise" onclick="judgePosture(0, -20)">🤫 Ồn (-20)</button>
+                    </div>
+                </div>
+
+                <!-- Tổ 2 -->
+                <div class="posture-team-cell">
+                    <div class="posture-team-head">
+                        <span style="color:var(--t2-color);">⚡ Tổ 2</span>
+                        <span id="postureScoreVal-1">0 điểm</span>
+                    </div>
+                    <div class="posture-btn-group">
+                        <button class="btn-posture-good" onclick="judgePosture(1, 50)">✨ Thẳng Lưng (+50)</button>
+                        <button class="btn-posture-bad" onclick="judgePosture(1, -50)">⚠️ Gù/Nằm (-50)</button>
+                        <button class="btn-posture-noise" onclick="judgePosture(1, -20)">🤫 Ồn (-20)</button>
+                    </div>
+                </div>
+
+                <!-- Tổ 3 -->
+                <div class="posture-team-cell">
+                    <div class="posture-team-head">
+                        <span style="color:var(--t3-color);">🌿 Tổ 3</span>
+                        <span id="postureScoreVal-2">0 điểm</span>
+                    </div>
+                    <div class="posture-btn-group">
+                        <button class="btn-posture-good" onclick="judgePosture(2, 50)">✨ Thẳng Lưng (+50)</button>
+                        <button class="btn-posture-bad" onclick="judgePosture(2, -50)">⚠️ Gù/Nằm (-50)</button>
+                        <button class="btn-posture-noise" onclick="judgePosture(2, -20)">🤫 Ồn (-20)</button>
+                    </div>
+                </div>
+
+                <!-- Tổ 4 -->
+                <div class="posture-team-cell">
+                    <div class="posture-team-head">
+                        <span style="color:var(--t4-color);">⭐ Tổ 4</span>
+                        <span id="postureScoreVal-3">0 điểm</span>
+                    </div>
+                    <div class="posture-btn-group">
+                        <button class="btn-posture-good" onclick="judgePosture(3, 50)">✨ Thẳng Lưng (+50)</button>
+                        <button class="btn-posture-bad" onclick="judgePosture(3, -50)">⚠️ Gù/Nằm (-50)</button>
+                        <button class="btn-posture-noise" onclick="judgePosture(3, -20)">🤫 Ồn (-20)</button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="btn-modal-action" style="margin-top:20px; padding:10px 30px;" onclick="closePostureModal()">
+                Đã Hoàn Thành Quét Dáng
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= 5. SCRIPT JAVASCRIPT ================= -->
+    <script>
+        /* ================= DỮ LIỆU HỌC SINH 5 LỚP ================= */
+        const ALL_CLASSES_DATA = {
+            "3_2": [
+                "Nguyễn Khả Ái", "Nguyễn Đức Anh", "Nguyễn Quốc Anh", "Trịnh Gia Bảo", "Ngô Hoàng Bảo Châu",
+                "Nguyễn Doanh Doanh", "Phạm Đại Dương", "Danh Thành Đạt", "Vũ Nghi Đình", "Võ Đoàn Nhã Hân",
+                "Võ Hứa Chí Hiếu", "Nguyễn Trần Gia Huy", "Đoàn Gia Hưng", "Nguyễn Phúc Hưng", "Đỗ Minh Khang",
+                "Đặng Nguyễn Quốc Khởi", "Đặng Lê Thiên Kim", "Trương Quân Kỳ", "Mai Hoàng Lam", "Lê Trúc Ly",
+                "Vũ Hoàng Ánh Minh", "Vương Lê Bảo Minh", "Đinh Kim Ngân", "Trần Y Như Ngọc", "Chiêm Nguyễn Khôi Nguyên",
+                "Nguyễn Công Gia Phát", "Trần Thiên Phú", "Keo Trần Kim Phúc", "Lê Đức Phúc", "Bùi Mai Phương",
+                "Nguyễn Quốc Quân", "Lê Anh Quốc", "Nguyễn Xuân Quý", "Hình Minh Thanh", "Nguyễn Việt Thanh",
+                "Nguyễn Minh Thành", "Lê Đức Thịnh", "Huỳnh Minh Thuận", "Huỳnh Gia Tiến", "Nguyễn Ngọc Trâm",
+                "Nguyễn Ngọc Bảo Trân", "Nguyễn Thanh Trọng", "Nguyễn Đức Tuấn", "Đoàn Thị Bảo Vy", "Hình Lê Khánh Vy",
+                "Hồ Nhật Vy", "Nguyễn Trần Thảo Vy", "Lê Ngọc Kim Yến"
+            ],
+            "3_3": [
+                "Tống Huỳnh Tâm An", "Bùi Ngọc Tú Anh", "Hồng Hoàng Nhật Anh", "Võ Khuê Anh", "Lê Huỳnh Thiên Bách",
+                "Nguyễn Hoàng Bách", "Nguyễn Phạm Bảo Châu", "Võ Hữu Duy", "Trần Quốc Đạt", "Phạm Thế Hào",
+                "Huỳnh Nhã Hân", "Nguyễn Lê Khả Hân", "Nguyễn Ngọc Gia Hân", "Nguyễn Phạm Gia Hân", "Lê Thị Phương Hoa",
+                "Phan Mạnh Hùng", "Lý Gia Hưng", "Nguyễn Minh Khang", "Phạm Nguyễn Minh Khôi", "Cao Thiên Kim",
+                "Nguyễn Hồ Phương Lam", "Mai Nhật Lan", "Vũ Bảo Long", "Huỳnh Thiên Lộc", "Bùi Diệu Mẫn",
+                "Dương Quang Minh", "Huỳnh Phúc Minh", "Nguyễn Ngọc Tuệ Minh", "Trần Phạm Khánh My", "Nguyễn Ngọc Kim Ngân",
+                "Nguyễn Khởi Nghiệp", "Đào Phúc Nguyên", "Tạ Hoàng Nhân", "Phan An Nhiên", "Trần Lê An Nhiên",
+                "Nguyễn Phúc", "Phạm Thiên Phúc", "Hoàng Bảo Phước", "Cao Lê Nhã Phương", "Trần Quốc Sang",
+                "Từ Tấn Sang", "Nguyễn Minh Tâm", "Phạm Quang Thành", "Nguyễn Phương Thảo", "Nguyễn Quốc Thắng",
+                "Đinh Trung Tín", "Võ Cát Tường", "Hà Mỹ Uyên"
+            ],
+            "3_4": [
+                "Đỗ Mỹ Ái", "Lê Đặng Trâm Anh", "Phạm Quốc Anh", "Trần Ngọc Tú Anh", "Trương Tuyết Anh",
+                "Nguyễn Dương Thiên Ân", "Thạch Thiên Bảo", "Trần Lâm Hữu Duyên", "Nguyễn Lê Hoàng Đăng", "Phạm Minh Đăng",
+                "Huỳnh Bích Hà", "Trần Ngọc Khánh Hà", "Đặng Thị Ngọc Hân", "Lê Nguyễn Quang Hưng", "Thái Minh Khang",
+                "Vũ Duy Khang", "Lê Trịnh Minh Khoa", "Lý Minh Khôi", "Nguyễn Đặng Đăng Khôi", "Phạm Trọng Kiên",
+                "Huỳnh Ngọc Thiên Kim", "Lưu Hoàng Kim", "Lưu Nhựt Lam", "Hà Tuyết Lan", "Nguyễn Tuyết Loan",
+                "Lê Đình Mạnh", "Trần Tuệ Mẫn", "Nguyễn Hoàng Gia Mỹ", "Thái Bảo Ngọc", "Lưu Nguyễn Đan Nguyên",
+                "Nguyễn Thảo Nguyên", "Cao Phương Nhã", "Phan Thị Xuân Nhi", "Trần Tuệ Nhi", "Phạm Hoàng Oanh",
+                "Trang Trường Phát", "Đỗ Hoàng Bảo Quân", "Nguyễn Phương Thảo", "Trương Bùi Phương Thảo", "Nguyễn Ngọc Kim Thiên",
+                "Huỳnh Chí Thiện", "Lương Phúc Thịnh", "Nguyễn Ngọc Thịnh", "Nguyễn Trần Phước Thịnh", "Quách Hoàng Thịnh",
+                "Mai Minh Thư", "Trần Anh Thư", "Đỗ Thị Thu Trang", "Lê Huyền Trâm", "Nguyễn Minh Triết", "Giang Ngọc Cát Tường"
+            ],
+            "3_5": [
+                "Đỗ Nhật Anh", "Phạm Lưu Duy Bách", "Đặng Tuệ Băng", "Thái Thị Kim Chi", "Lê Trần Bảo Di",
+                "Huỳnh Tấn Đạt", "Đặng Minh Đức", "Trần Nhật Thiên Đức", "Trần Ngọc Thiên Hà", "Lâm Ngọc Hân",
+                "Nguyễn Thị Xuân Hiền", "Nguyễn Hoàng An Khang", "Nguyễn Quốc Khánh", "Nguyễn Duy Khiêm", "Võ Thiên Kim",
+                "Nguyễn Gia Kỳ", "Lê Ngọc Kim Ngân", "Nguyễn Thị Bảo Ngọc", "Nguyễn Hồ Kim Nguyên", "Nguyễn Đặng Thành Nhân",
+                "Huỳnh Bảo Nhi", "Đặng Thị Quỳnh Như", "Trần Quỳnh Như", "Nguyễn Hồng Phát", "Nguyễn Lâm Gia Phát",
+                "Đàm Tâm Phúc", "Đặng Thành Hữu Phúc", "Huỳnh Gia Phúc", "Trần Hoàng Quân", "Nguyễn Chí Thiện",
+                "Trần Trường Quân", "Tăng Thế Tài", "Võ Thị Thu Thảo", "Nguyễn Trọng Thắng", "Tăng Ngọc Thi",
+                "Nguyễn Hồng Minh Thư", "Ngô Văn Tiền", "Chu Mạnh Tiến", "Nguyễn Thiên Trường", "Nguyễn Ngọc Thu Tuyền",
+                "Trần Thị Khánh Tuyết"
+            ],
+            "3_6": [
+                "Nguyễn Ngọc Khả Ái", "Trần Khả Ái", "Hoàng Thiên An", "Nguyễn Thiên An", "Nguyễn Ngọc Diệp Anh",
+                "Trần Nguyễn Hải Anh", "Phạm Kiều Thiên Ân", "TỪ QUỐC BẢO", "Danh Minh Châu", "Dương Hoàng Hải Đăng",
+                "Nguyễn Hoàng Đăng", "Nguyễn Lưu Nhật Hạ", "Trương Minh Hằng", "Cao Ngọc Gia Hân", "Lê Ngọc Khả Hân",
+                "Lại Xuân Khang", "Trương Trọng Nghĩa", "Phạm Ngô Thanh Ngọc", "Danh Nguyễn Yến Nhi", "Nguyễn Ngọc Tuệ Nhi",
+                "Trần Khánh Nhi", "Danh Thị Kiều Oanh", "Nguyễn Kỳ Phương", "Lê Hoàng Đăng Quang", "Phan Huỳnh Phú Quý",
+                "Nguyễn Ngọc Thảo Quyên", "Châu Ngọc Ngân Thanh", "Vi Huỳnh Kim Thanh", "Lâm Huỳnh Phương Thảo", "Trần Quốc Thiện",
+                "Nguyễn Ngọc Tiên", "Lâm Đức Tiến", "Trương Ngoc Toàn", "Mai Võ Thanh Trúc", "Lư Nhã Uyên",
+                "Nguyễn Ngọc Nhã Uyên", "Võ Huỳnh Khánh Vy", "Lê Như Ý", "Nguyễn Phúc Khang Lam", "Huỳnh Hoàng Yến"
+            ]
+        };
+
+        /* ================= STATE HỆ THỐNG ================= */
+        const APP = {
+            currentSlide: 1,
+            totalSlides: 10,
+            selectedClass: "3_2",
+            teams: [
+                { name: "Tổ 1", color: "var(--t1-color)", score: 0, students: [], cooldownSet: new Set() },
+                { name: "Tổ 2", color: "var(--t2-color)", score: 0, students: [], cooldownSet: new Set() },
+                { name: "Tổ 3", color: "var(--t3-color)", score: 0, students: [], cooldownSet: new Set() },
+                { name: "Tổ 4", color: "var(--t4-color)", score: 0, students: [], cooldownSet: new Set() }
+            ],
+            summonTargetTeam: 0,
+            audioEnabled: true,
+            activeCaseIndex: 0,
+            activeBugIndex: 0,
+            bugTimerInterval: null,
+            bugTimeRemaining: 15,
+            copyTimers: { 1: null, 2: null }
+        };
+
+        /* ================= HỆ THỐNG ÂM THANH SYNTHESIZER ================= */
+        const AudioSys = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            },
+            playTone(freq, type = 'sine', duration = 0.2, gainVal = 0.15) {
+                if (!APP.audioEnabled) return;
+                try {
+                    this.init();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {}
+            },
+            ding() {
+                this.playTone(523.25, 'sine', 0.15, 0.2);
+                setTimeout(() => this.playTone(659.25, 'sine', 0.2, 0.2), 100);
+                setTimeout(() => this.playTone(783.99, 'sine', 0.4, 0.25), 200);
+            },
+            buzzer() {
+                this.playTone(180, 'sawtooth', 0.35, 0.25);
+            },
+            click() {
+                this.playTone(800, 'triangle', 0.05, 0.1);
+            },
+            fanfare() {
+                const notes = [440, 554, 659, 880];
+                notes.forEach((freq, idx) => {
+                    setTimeout(() => this.playTone(freq, 'triangle', 0.3, 0.25), idx * 120);
+                });
+            },
+            alarm() {
+                this.playTone(900, 'square', 0.15, 0.2);
+                setTimeout(() => this.playTone(600, 'square', 0.15, 0.2), 160);
+            },
+            laser() {
+                if (!APP.audioEnabled) return;
+                try {
+                    this.init();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(1200, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.25);
+                    gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.25);
+                } catch(e) {}
+            },
+            shieldBreak() {
+                if (!APP.audioEnabled) return;
+                try {
+                    this.init();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(900, this.ctx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.3);
+                } catch(e) {}
+            }
+        };
+
+        function toggleAudio() {
+            APP.audioEnabled = !APP.audioEnabled;
+            const btn = document.getElementById('audioToggleBtn');
+            btn.innerText = APP.audioEnabled ? '🔊' : '🔇';
+            showToast(APP.audioEnabled ? "Đã bật âm thanh 🔊" : "Đã tắt âm thanh 🔇");
+        }
+
+        /* ================= KHỞI TẠO VÀ CHIA TỔ ================= */
+        function initClassData(clsKey) {
+            APP.selectedClass = clsKey;
+            const list = ALL_CLASSES_DATA[clsKey] || [];
+            
+            // Chia đều học sinh vào 4 tổ theo vòng tròn round-robin
+            APP.teams.forEach(t => {
+                t.students = [];
+                t.cooldownSet.clear();
+            });
+
+            list.forEach((stName, idx) => {
+                const teamIdx = idx % 4;
+                APP.teams[teamIdx].students.push(stName);
+            });
+
+            updateTeamsUI();
+            showToast(`Đã nạp ${list.length} học sinh Lớp ${clsKey.replace('_', '/')}`);
+        }
+
+        function updateTeamsUI() {
+            APP.teams.forEach((t, i) => {
+                const scoreEl = document.getElementById(`score-${i}`);
+                if (scoreEl) scoreEl.innerText = t.score;
+
+                const remainEl = document.getElementById(`remain-${i}`);
+                const remaining = t.students.length - t.cooldownSet.size;
+                if (remainEl) {
+                    remainEl.innerText = `còn ${remaining}/${t.students.length} bạn`;
+                }
+
+                const postVal = document.getElementById(`postureScoreVal-${i}`);
+                if (postVal) postVal.innerText = `${t.score} điểm`;
+            });
+        }
+
+        function addTeamScore(teamIdx, delta) {
+            APP.teams[teamIdx].score += delta;
+            updateTeamsUI();
+
+            const scoreEl = document.getElementById(`score-${teamIdx}`);
+            if (scoreEl) {
+                scoreEl.style.transform = 'scale(1.35)';
+                scoreEl.style.color = delta >= 0 ? '#4ade80' : '#f87171';
+                setTimeout(() => {
+                    scoreEl.style.transform = 'scale(1)';
+                    scoreEl.style.color = '#ffffff';
+                }, 300);
+            }
+        }
+
+        /* ================= ĐIỀU HƯỚNG SLIDE ================= */
+        function goToSlide(slideNum) {
+            if (slideNum < 1 || slideNum > APP.totalSlides) return;
+            APP.currentSlide = slideNum;
+
+            document.querySelectorAll('.slide-screen').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById(`slide-${slideNum}`);
+            if (target) {
+                target.classList.add('active');
+            }
+
+            AudioSys.click();
+
+            if (slideNum === 4) {
+                renderCaseList();
+                loadClinicalCase(APP.activeCaseIndex);
+            } else if (slideNum === 8) {
+                selectBugType(APP.activeBugIndex);
+            } else if (slideNum === 10) {
+                renderPodium();
+                fireVictoryConfetti();
+            }
+        }
+
+        /* ================= VÒNG QUAY TRIỆU HỒI (GACHA) ================= */
+        let slotInterval = null;
+
+        function triggerSummon(teamIdx) {
+            AudioSys.init();
+            APP.summonTargetTeam = teamIdx;
+            const team = APP.teams[teamIdx];
+
+            // Kiểm tra Cooldown: Nếu đã gọi hết thì tự động làm mới vòng quay
+            if (team.cooldownSet.size >= team.students.length) {
+                team.cooldownSet.clear();
+                showToast(`🎉 Cả ${team.name} đã lên bảng hết 1 lượt! Khởi động vòng mới.`);
+            }
+
+            // Danh sách các bạn chưa lên bảng
+            const available = team.students.filter(s => !team.cooldownSet.has(s));
+            if (!available.length) return;
+
+            document.getElementById('summonModalTeamName').innerText = `🎲 TRIỆU HỒI CHIẾN BINH ${team.name.toUpperCase()}`;
+            document.getElementById('summonModal').classList.add('open');
+
+            const textEl = document.getElementById('slotMachineRollingText');
+            let rollCount = 0;
+            const maxRolls = 22;
+            let currentSpeed = 50;
+
+            if (slotInterval) clearInterval(slotInterval);
+
+            function rollStep() {
+                const randName = available[Math.floor(Math.random() * available.length)];
+                textEl.innerText = randName;
+                AudioSys.playTone(500 + rollCount * 25, 'triangle', 0.05, 0.08);
+
+                rollCount++;
+                if (rollCount < maxRolls) {
+                    currentSpeed += 12; // Chậm dần như bánh xe số học
+                    slotInterval = setTimeout(rollStep, currentSpeed);
+                } else {
+                    // Chọn ra học sinh may mắn
+                    const chosen = available[Math.floor(Math.random() * available.length)];
+                    textEl.innerText = `⭐ ${chosen} ⭐`;
+                    team.cooldownSet.add(chosen);
+                    updateTeamsUI();
+                    AudioSys.fanfare();
+                    fireSmallConfetti();
+                }
+            }
+
+            rollStep();
+        }
+
+        function rerollSummon() {
+            triggerSummon(APP.summonTargetTeam);
+        }
+
+        function closeSummonModal() {
+            document.getElementById('summonModal').classList.remove('open');
+            AudioSys.click();
+        }
+
+        /* ================= QUẢN LÝ LỚP & QUÉT TƯ THẾ ================= */
+        function openPostureModal() {
+            AudioSys.alarm();
+            document.getElementById('postureModal').classList.add('open');
+        }
+
+        function closePostureModal() {
+            document.getElementById('postureModal').classList.remove('open');
+            AudioSys.click();
+        }
+
+        function judgePosture(teamIdx, delta) {
+            addTeamScore(teamIdx, delta);
+            const tName = APP.teams[teamIdx].name;
+
+            if (delta > 0) {
+                AudioSys.ding();
+                showToast(`✨ ${tName} ngồi thẳng lưng đẹp như Bạn Khoa! +${delta} điểm`);
+            } else if (delta === -20) {
+                AudioSys.buzzer();
+                showToast(`🤫 ${tName} mất trật tự khi làm quân sư! ${delta} điểm`);
+            } else {
+                AudioSys.buzzer();
+                showToast(`⚠️ ${tName} có bạn nằm bò / gù lưng! ${delta} điểm`);
+            }
+        }
+
+        /* ================= GAME 1: BÁC SĨ MÁY TÍNH (8 CA LÂM SÀNG) ================= */
+        const CLINICAL_CASES = [
+            {
+                id: 1, teamIdx: 0,
+                title: "Ca 1: Bạn Nam dí mắt sát màn hình (Khoảng cách 15 cm)",
+                desc: "Bệnh nhân ngồi cong người, mắt chỉ cách màn hình 15 cm. Hãy chạm vào điểm sai trên hình và kê toa khoảng cách chuẩn!",
+                hotspot: { x: 58, y: 32, label: "Mắt sát" },
+                options: [
+                    { text: "Khoảng cách chuẩn: 50 cm – 80 cm (khoảng một sải tay)", correct: true },
+                    { text: "Khoảng cách chuẩn: Càng gần càng tốt để nhìn rõ", correct: false },
+                    { text: "Khoảng cách chuẩn: 10 cm – 20 cm", correct: false }
+                ],
+                explain: "Khoảng cách an toàn từ mắt đến màn hình là 50–80 cm để bảo vệ thị lực và chống mỏi mắt!"
+            },
+            {
+                id: 2, teamIdx: 1,
+                title: "Ca 2: Bạn Lan ngồi gù lưng hình dấu hỏi, chân co lên ghế",
+                desc: "Lan có thói quen co chân lên ghế, lưng cong gập xuống. Tư thế này cực kỳ nguy hiểm cho cột sống!",
+                hotspot: { x: 38, y: 55, label: "Lưng gù" },
+                options: [
+                    { text: "Ngồi thẳng lưng, hai vai thả lỏng, hai chân chạm sàn", correct: true },
+                    { text: "Nằm hẳn ra bàn cho đỡ mỏi lưng", correct: false },
+                    { text: "Khoanh chân trên ghế suốt cả buổi học", correct: false }
+                ],
+                explain: "Ngồi thẳng lưng và chân đặt trên sàn giúp trọng lực phân tán đều, ngăn ngừa vẹo cột sống!"
+            },
+            {
+                id: 3, teamIdx: 2,
+                title: "Ca 3: Bạn Minh chơi game liên tục suốt 2 giờ liền",
+                desc: "Minh ngồi dán mắt vào máy tính suốt 2 tiếng không rời. Mắt bạn đỏ hoe và đau mỏi vai gáy!",
+                hotspot: { x: 80, y: 25, label: "Thời gian quá dài" },
+                options: [
+                    { text: "Nghỉ ngơi 5 – 10 phút sau mỗi 30 phút sử dụng", correct: true },
+                    { text: "Chơi tiếp thêm 2 tiếng nữa rồi mới nghỉ", correct: false },
+                    { text: "Uống nước ngọt để chống buồn ngủ rồi chơi tiếp", correct: false }
+                ],
+                explain: "Quy tắc vàng: Cứ sau 30 phút làm việc với máy tính phải cho mắt và cơ thể nghỉ ngơi!"
+            },
+            {
+                id: 4, teamIdx: 3,
+                title: "Ca 4: Ánh nắng cửa sổ chiếu chói thẳng vào màn hình",
+                desc: "Máy tính đặt đối diện cửa sổ, nắng gắt chiếu trực tiếp làm màn hình bị lóa, mắt phải nheo lại!",
+                hotspot: { x: 85, y: 50, label: "Ánh sáng chói" },
+                options: [
+                    { text: "Kéo rèm hoặc đổi vị trí để tránh ánh sáng chiếu trực tiếp", correct: true },
+                    { text: "Bật độ sáng màn hình lên 100% để át ánh nắng", correct: false },
+                    { text: "Đeo kính râm đen khi ngồi học máy tính", correct: false }
+                ],
+                explain: "Vị trí đặt máy tính cần đủ ánh sáng nhưng phải tránh ánh sáng chiếu thẳng vào mắt và màn hình!"
+            },
+            {
+                id: 5, teamIdx: 0,
+                title: "Ca 5: Bạn Hùng ngồi ghế quá thấp, tay phải với cao lên bàn",
+                desc: "Hùng ngồi chiếc ghế lùn khiến cổ tay bị gập ngược lên mặt bàn, vai gồng cứng rất mỏi!",
+                hotspot: { x: 45, y: 68, label: "Tay với cao" },
+                options: [
+                    { text: "Nâng cao ghế để cánh tay đặt ngang tầm bàn phím", correct: true },
+                    { text: "Đứng cả buổi học để gõ bàn phím", correct: false },
+                    { text: "Kê bàn phím lên đùi để gõ", correct: false }
+                ],
+                explain: "Tay phải đặt ngang tầm bàn phím và chuột để các cơ cánh tay được thả lỏng tự nhiên!"
+            },
+            {
+                id: 6, teamIdx: 1,
+                title: "Ca 6: Câu hỏi bác sĩ: 2 căn bệnh học đường nguy hiểm nhất?",
+                desc: "Bệnh nhân hỏi: 'Bác sĩ ơi, nếu em cứ ngồi sai tư thế lâu ngày thì cơ thể em sẽ mắc bệnh gì ạ?'",
+                hotspot: { x: 50, y: 45, label: "Bệnh học đường" },
+                options: [
+                    { text: "Cận thị và Vẹo cột sống", correct: true },
+                    { text: "Đau răng và Viêm họng", correct: false },
+                    { text: "Bệnh lười vận động và Say xe", correct: false }
+                ],
+                explain: "Cận thị (mờ mắt) và Vẹo cột sống (lưng cong gù) là 2 căn bệnh học đường nguy hiểm nhất!"
+            },
+            {
+                id: 7, teamIdx: 2,
+                title: "Ca 7: Bạn An ngồi vẹo người, một tay chống cằm",
+                desc: "An ngồi nghiêng hẳn sang một bên, tay chống cằm làm lệch cổ và cột sống bị uốn cong chữ S!",
+                hotspot: { x: 42, y: 40, label: "Chống cằm vẹo cổ" },
+                options: [
+                    { text: "Ngồi ngay ngắn, hai tay thả lỏng tự nhiên", correct: true },
+                    { text: "Đổi sang chống cằm bằng tay kia cho đều", correct: false },
+                    { text: "Tựa cằm vào cạnh bàn phím", correct: false }
+                ],
+                explain: "Không được chống cằm hay nghiêng người vì sẽ làm lệch đốt sống cổ và méo dáng ngồi!"
+            },
+            {
+                id: 8, teamIdx: 3,
+                title: "Ca 8: Toa thuốc tổng hợp 5 Nguyên Tắc Vàng",
+                desc: "Ca bệnh cuối cùng của vòng 1! Hãy chọn bộ thông số vàng chuẩn nhất của học sinh tiểu học:",
+                hotspot: { x: 50, y: 50, label: "Toa thuốc vàng" },
+                options: [
+                    { text: "50-80cm, nghỉ sau 30 phút, thẳng lưng, 2 chân chạm sàn", correct: true },
+                    { text: "20cm, chơi 3 tiếng, ngồi co chân, nhìn nghiêng", correct: false },
+                    { text: "Càng xa càng tốt (2 mét), không cần nghỉ ngơi", correct: false }
+                ],
+                explain: "Xuất sắc! Đây chính là bí kíp trọn vẹn của Bác sĩ máy tính nhí!"
+            }
+        ];
+
+        function renderCaseList() {
+            const sidebar = document.getElementById('casesSidebar');
+            sidebar.innerHTML = CLINICAL_CASES.map((c, i) => `
+                <button type="button" class="case-button ${i === APP.activeCaseIndex ? 'active' : ''}" id="caseBtn-${i}" onclick="loadClinicalCase(${i})">
+                    <span>🩺 Ca ${c.id} (${APP.teams[c.teamIdx].name})</span>
+                    <span id="caseSolvedBadge-${i}">⏳</span>
+                </button>
+            `).join('');
+        }
+
+        function loadClinicalCase(idx) {
+            APP.activeCaseIndex = idx;
+            const c = CLINICAL_CASES[idx];
+
+            document.querySelectorAll('.case-button').forEach((b, i) => {
+                b.classList.toggle('active', i === idx);
+            });
+
+            document.getElementById('currentCaseTeamTurn').innerHTML = `
+                Lượt khám của: <span style="color:${APP.teams[c.teamIdx].color}; font-weight:900;">${APP.teams[c.teamIdx].name}</span>
+            `;
+
+            document.getElementById('caseTitleText').innerText = c.title;
+            document.getElementById('caseDescText').innerText = c.desc;
+
+            // Render Tranh Minh Họa Kèm Hotspot Chạm Điểm Sai
+            const illBox = document.getElementById('patientIllustrationBox');
+            illBox.innerHTML = `
+                <svg width="340" height="280" viewBox="0 0 340 280" fill="none">
+                    <rect x="220" y="140" width="100" height="10" rx="3" fill="#64748b" />
+                    <rect x="240" y="70" width="70" height="70" rx="6" fill="#1e293b" />
+                    <rect x="246" y="76" width="58" height="58" rx="4" fill="#38bdf8" />
+                    <circle cx="110" cy="80" r="28" fill="#fed7aa" stroke="#c2410c" stroke-width="2" />
+                    <path d="M100 110 C80 150, 110 190, 100 230" stroke="#ef4444" stroke-width="12" stroke-linecap="round" />
+                    <line x1="125" y1="80" x2="240" y2="90" stroke="#f87171" stroke-width="2" stroke-dasharray="4 4" />
+                </svg>
+                <div class="hotspot-point" style="left:${c.hotspot.x}%; top:${c.hotspot.y}%;" title="Bấm vào điểm sai!" onclick="clickHotspotPoint(this, '${c.hotspot.label}')">
+                    ⚠️
+                </div>
+            `;
+
+            // Render Toa Thuốc Trắc Nghiệm
+            const optsBox = document.getElementById('prescriptionList');
+            optsBox.innerHTML = c.options.map((opt, optIdx) => `
+                <button type="button" class="btn-prescription" onclick="selectPrescription(${idx}, ${optIdx}, this, ${opt.correct})">
+                    <span>💊</span>
+                    <span>${opt.text}</span>
+                </button>
+            `).join('');
+        }
+
+        function clickHotspotPoint(el, label) {
+            AudioSys.alarm();
+            el.style.background = '#22c55e';
+            el.style.borderColor = '#15803d';
+            el.innerText = '✓';
+            showToast(`🎯 Bác sĩ đã bắt đúng lỗi: ${label}! Giờ hãy chọn toa thuốc chuẩn.`);
+        }
+
+        function summonForActiveCase() {
+            const c = CLINICAL_CASES[APP.activeCaseIndex];
+            triggerSummon(c.teamIdx);
+        }
+
+        function selectPrescription(caseIdx, optIdx, btnEl, isCorrect) {
+            const c = CLINICAL_CASES[caseIdx];
+            const allBtns = document.querySelectorAll('.btn-prescription');
+            allBtns.forEach(b => b.disabled = true);
+
+            if (isCorrect) {
+                btnEl.classList.add('correct');
+                AudioSys.ding();
+                addTeamScore(c.teamIdx, 100);
+                showToast(`🎉 CHẨN ĐOÁN XUẤT SẮC! +100 điểm cho ${APP.teams[c.teamIdx].name}`);
+                fireSmallConfetti();
+
+                document.getElementById(`caseSolvedBadge-${caseIdx}`).innerText = '✅ +100';
+                document.getElementById(`caseBtn-${caseIdx}`).classList.add('solved');
+            } else {
+                btnEl.classList.add('wrong');
+                AudioSys.buzzer();
+                showToast(`❌ Chưa chính xác! Toa thuốc đúng là: ${c.explain}`);
+            }
+        }
+
+        /* ================= GAME 2 - VÒNG 1: GHÉP NỐI BỘ PHẬN ================= */
+        const MATCH_CORRECT = { 1: "tro", 2: "giua", 3: "cuon", 4: "om" };
+
+        function checkMatchItem(itemIdx, teamIdx) {
+            const sel = document.getElementById(`matchSelect-${itemIdx}`);
+            if (sel.value === MATCH_CORRECT[itemIdx]) {
+                AudioSys.ding();
+                sel.style.borderColor = "#22c55e";
+                sel.style.background = "#dcfce7";
+            } else {
+                sel.style.borderColor = "#cbd5e1";
+                sel.style.background = "#f8fafc";
+            }
+        }
+
+        function checkAllMatchAnswers() {
+            let correctCount = 0;
+            for (let i = 1; i <= 4; i++) {
+                const sel = document.getElementById(`matchSelect-${i}`);
+                if (sel.value === MATCH_CORRECT[i]) {
+                    correctCount++;
+                }
+            }
+
+            if (correctCount === 4) {
+                AudioSys.fanfare();
+                // Thưởng đều cho 4 tổ mỗi tổ +50 điểm
+                for (let t = 0; t < 4; t++) {
+                    addTeamScore(t, 50);
+                }
+                document.getElementById('matchFeedback').innerHTML = `
+                    🎉 XUẤT SẮC! Cả 4 câu đều đúng! Thưởng nóng <strong>+50 điểm</strong> cho mỗi Tổ!
+                `;
+                fireVictoryConfetti();
+            } else {
+                AudioSys.buzzer();
+                document.getElementById('matchFeedback').innerHTML = `
+                    ⚠️ Đúng ${correctCount}/4 câu. Quân sư các tổ hãy hỗ trợ nhau chỉnh lại nhé!
+                `;
+            }
+        }
+
+        /* ================= GAME 2 - VÒNG 2: THỰC CHIẾN DIỆT BUG ================= */
+        const BUG_TYPES = [
+            {
+                id: 0, name: "Bug Xanh Lá", color: "#22c55e",
+                task: "🎯 DI CHUYỂN chuột chạm vào Bug Xanh để làm quá tải động cơ né tránh!",
+                instruction: "Chỉ cần Di chuyển con trỏ chuột chạm vào người con bọ",
+                points: 150,
+                renderSvg: () => `
+                    <svg width="120" height="120" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="42" fill="#22c55e" stroke="#15803d" stroke-width="5" />
+                        <circle cx="48" cy="50" r="8" fill="#fff" /><circle cx="50" cy="50" r="4" fill="#000" />
+                        <circle cx="72" cy="50" r="8" fill="#fff" /><circle cx="70" cy="50" r="4" fill="#000" />
+                        <path d="M40 30 L20 10 M80 30 L100 10" stroke="#15803d" stroke-width="4" stroke-linecap="round" />
+                        <path d="M45 75 Q60 90 75 75" stroke="#15803d" stroke-width="4" fill="none" />
+                    </svg>
+                `
+            },
+            {
+                id: 1, name: "Bug Vàng", color: "#eab308",
+                task: "🎯 NHÁY CHUỘT (Click trái 1 lần) chuẩn xác vào hồng tâm!",
+                instruction: "Dùng ngón trỏ nhấn nút trái 1 lần để bắn hạ",
+                points: 150,
+                renderSvg: () => `
+                    <svg width="120" height="120" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="42" fill="#eab308" stroke="#a16207" stroke-width="5" />
+                        <circle cx="48" cy="50" r="8" fill="#fff" /><circle cx="50" cy="50" r="4" fill="#ef4444" />
+                        <circle cx="72" cy="50" r="8" fill="#fff" /><circle cx="70" cy="50" r="4" fill="#ef4444" />
+                        <circle cx="60" cy="60" r="25" stroke="#ef4444" stroke-width="3" stroke-dasharray="4 4" fill="none" />
+                        <line x1="60" y1="30" x2="60" y2="90" stroke="#ef4444" stroke-width="2" />
+                        <line x1="30" y1="60" x2="90" y2="60" stroke="#ef4444" stroke-width="2" />
+                    </svg>
+                `
+            },
+            {
+                id: 2, name: "Bug Tàng Hình", color: "#a855f7",
+                task: "🎯 NHÁY NÚT PHẢI CHUỘT (Right-click) để bật Radar phát hiện!",
+                instruction: "Dùng ngón giữa nhấn nút phải để kích hoạt sóng quét tàng hình",
+                points: 150,
+                renderSvg: () => `
+                    <svg width="120" height="120" viewBox="0 0 120 120" opacity="0.45" id="stealthBugSvg">
+                        <circle cx="60" cy="60" r="42" fill="#a855f7" stroke="#6b21a8" stroke-width="5" />
+                        <circle cx="48" cy="50" r="7" fill="#fff" /><circle cx="50" cy="50" r="3" fill="#6b21a8" />
+                        <circle cx="72" cy="50" r="7" fill="#fff" /><circle cx="70" cy="50" r="3" fill="#6b21a8" />
+                        <text x="60" y="80" font-size="14" font-weight="900" fill="#fff" text-anchor="middle">TÀNG HÌNH</text>
+                    </svg>
+                `
+            },
+            {
+                id: 3, name: "Boss Khiên Đỏ", color: "#ef4444",
+                task: "🎯 NHÁY ĐÚP CHUỘT (Double-click 2 lần thật nhanh) để phá vỡ Khiên Titan!",
+                instruction: "Nhấn nút trái 2 phát liên tiếp thật dứt khoát",
+                points: 200,
+                renderSvg: () => `
+                    <svg width="130" height="130" viewBox="0 0 130 130" id="shieldBossSvg">
+                        <rect x="25" y="25" width="80" height="80" rx="20" fill="#ef4444" stroke="#991b1b" stroke-width="6" />
+                        <path d="M40 40 L90 40 L85 85 L65 100 L45 85 Z" fill="#b91c1c" />
+                        <circle cx="55" cy="55" r="7" fill="#fff" /><circle cx="55" cy="55" r="3" fill="#000" />
+                        <circle cx="75" cy="55" r="7" fill="#fff" /><circle cx="75" cy="55" r="3" fill="#000" />
+                        <text x="65" y="78" font-size="12" font-weight="900" fill="#fef08a" text-anchor="middle">GIÁP TITAN</text>
+                    </svg>
+                `
+            },
+            {
+                id: 4, name: "Bug Rác Dữ Liệu", color: "#64748b",
+                task: "🎯 KÉO THẢ CHUỘT: Nhấn giữ nút trái và KÉO con bọ vào Thùng Rác!",
+                instruction: "Nhấn giữ nút trái, rê chuột vào thùng rác rồi thả tay ra",
+                points: 200,
+                renderSvg: () => `
+                    <svg width="120" height="120" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="42" fill="#64748b" stroke="#334155" stroke-width="5" />
+                        <circle cx="48" cy="50" r="7" fill="#cbd5e1" /><circle cx="50" cy="50" r="3" fill="#0f172a" />
+                        <circle cx="72" cy="50" r="7" fill="#cbd5e1" /><circle cx="70" cy="50" r="3" fill="#0f172a" />
+                        <text x="60" y="80" font-size="28" text-anchor="middle">☣️</text>
+                    </svg>
+                `
+            }
+        ];
+
+        let doubleClickTimer = 0;
+
+        function selectBugType(idx) {
+            APP.activeBugIndex = idx;
+            const bug = BUG_TYPES[idx];
+
+            document.querySelectorAll('.bug-type-btn').forEach((b, i) => {
+                b.classList.toggle('active', i === idx);
+            });
+
+            document.getElementById('battleTaskInstructions').innerText = bug.task;
+            const targetTeamIdx = idx % 4;
+            document.getElementById('activeBugTeamTurn').innerHTML = `
+                Chiến Binh: <span style="color:${APP.teams[targetTeamIdx].color}; font-weight:900;">${APP.teams[targetTeamIdx].name}</span> (+${bug.points}đ)
+            `;
+
+            // Reset Sân Đấu
+            const playArea = document.getElementById('bugPlayArea');
+            const target = document.getElementById('activeBugTarget');
+            target.style.display = 'flex';
+            target.style.transform = 'scale(1)';
+            target.innerHTML = bug.renderSvg() + `<div class="bug-nameplate">${bug.name}</div>`;
+
+            // Vị trí ngẫu nhiên
+            target.style.left = `${Math.floor(25 + Math.random() * 45)}%`;
+            target.style.top = `${Math.floor(25 + Math.random() * 45)}%`;
+
+            // Reset Event Handlers
+            target.onmouseenter = null;
+            target.onclick = null;
+            target.ondblclick = null;
+            target.draggable = false;
+            target.ondragstart = null;
+
+            const trashBin = document.getElementById('trashBinDropZone');
+            trashBin.style.display = idx === 4 ? 'flex' : 'none';
+
+            if (idx === 0) {
+                // Bug Xanh: Di chuyển chuột chạm vào
+                target.onmouseenter = () => defeatBug(0);
+            } else if (idx === 1) {
+                // Bug Vàng: Click chuột trái 1 lần
+                target.onclick = () => defeatBug(1);
+            } else if (idx === 2) {
+                // Bug Tàng Hình: Nháy chuột phải (radar)
+                // Được kích hoạt bởi handleBugRightClick
+            } else if (idx === 3) {
+                // Bug Boss Khiên Đỏ: Double Click
+                target.ondblclick = () => defeatBug(3);
+                target.onclick = () => {
+                    AudioSys.playTone(400, 'square', 0.1, 0.1);
+                    showToast("🛡️ Cần NHÁY ĐÚP CHUỘT liên tiếp 2 phát thật nhanh mới vỡ giáp!");
+                };
+            } else if (idx === 4) {
+                // Bug Rác: Kéo Thả
+                target.draggable = true;
+                target.ondragstart = (e) => {
+                    e.dataTransfer.setData('text/plain', 'bug-trash');
+                    AudioSys.click();
+                };
+            }
+
+            // Bắt đầu đếm ngược 15 giây
+            startBugTimer();
+        }
+
+        function startBugTimer() {
+            if (APP.bugTimerInterval) clearInterval(APP.bugTimerInterval);
+            APP.bugTimeRemaining = 15;
+            const timerEl = document.getElementById('bugBattleTimer');
+            timerEl.innerText = `${APP.bugTimeRemaining}s`;
+            timerEl.style.color = '#ff4757';
+
+            APP.bugTimerInterval = setInterval(() => {
+                APP.bugTimeRemaining--;
+                timerEl.innerText = `${APP.bugTimeRemaining}s`;
+
+                if (APP.bugTimeRemaining <= 5) {
+                    AudioSys.playTone(850, 'triangle', 0.05, 0.05);
+                }
+
+                if (APP.bugTimeRemaining <= 0) {
+                    clearInterval(APP.bugTimerInterval);
+                    timerEl.innerText = "HẾT GIỜ!";
+                    AudioSys.buzzer();
+                    showToast("⏰ Hết 15 giây! Quân sư hãy giơ tay hướng dẫn bạn thao tác lại nhé!");
+                }
+            }, 1000);
+        }
+
+        function handleBugRightClick(e) {
+            e.preventDefault(); // Chặn menu chuột phải của trình duyệt
+            if (APP.activeBugIndex === 2) {
+                AudioSys.laser();
+                const stealthSvg = document.getElementById('stealthBugSvg');
+                if (stealthSvg) {
+                    stealthSvg.style.opacity = '1';
+                    stealthSvg.style.filter = 'drop-shadow(0 0 15px #c084fc)';
+                }
+                showToast("📡 RADAR ĐÃ PHÁ TÀNG HÌNH! Nháy chuột trái để kết liễu!");
+
+                // Cho phép click kết liễu
+                const target = document.getElementById('activeBugTarget');
+                target.onclick = () => defeatBug(2);
+            }
+        }
+
+        function handleDropToTrash(e) {
+            e.preventDefault();
+            document.getElementById('trashBinDropZone').classList.remove('drag-over');
+            if (APP.activeBugIndex === 4) {
+                AudioSys.ding();
+                defeatBug(4);
+            }
+        }
+
+        function defeatBug(bugIdx) {
+            if (APP.bugTimerInterval) clearInterval(APP.bugTimerInterval);
+            const bug = BUG_TYPES[bugIdx];
+            const targetTeamIdx = bugIdx % 4;
+            const target = document.getElementById('activeBugTarget');
+
+            if (bugIdx === 3) {
+                AudioSys.shieldBreak();
+            } else {
+                AudioSys.ding();
+            }
+
+            target.style.transform = 'scale(0) rotate(180deg)';
+            target.style.transition = 'all 0.4s';
+
+            addTeamScore(targetTeamIdx, bug.points);
+            showToast(`💥 TIÊU DIỆT ${bug.name.toUpperCase()} THÀNH CÔNG! +${bug.points} điểm cho ${APP.teams[targetTeamIdx].name}`);
+            fireSmallConfetti();
+
+            document.getElementById(`bugBtn-${bugIdx}`).classList.add('defeated');
+
+            setTimeout(() => {
+                if (bugIdx < BUG_TYPES.length - 1) {
+                    selectBugType(bugIdx + 1);
+                } else {
+                    showToast("🎉 TẤT CẢ 5 BUG ĐÃ BỊ TIÊU DIỆT! Chuyển sang phần ghi nhớ.");
+                }
+            }, 1200);
+        }
+
+        function summonForBugArena() {
+            const targetTeamIdx = APP.activeBugIndex % 4;
+            triggerSummon(targetTeamIdx);
+        }
+
+        /* ================= ĐỒNG HỒ ĐẾM NGƯỢC CHÉP BÀI ================= */
+        const copyTimeLeft = { 1: 180, 2: 180 };
+
+        function formatTimerString(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function startCopyTimer(timerId) {
+            if (APP.copyTimers[timerId]) clearInterval(APP.copyTimers[timerId]);
+            AudioSys.click();
+
+            APP.copyTimers[timerId] = setInterval(() => {
+                if (copyTimeLeft[timerId] > 0) {
+                    copyTimeLeft[timerId]--;
+                    document.getElementById(`copyTimerDisplay${timerId}`).innerText = formatTimerString(copyTimeLeft[timerId]);
+                } else {
+                    clearInterval(APP.copyTimers[timerId]);
+                    AudioSys.fanfare();
+                    showToast(`⏰ HẾT GIỜ CHÉP BÀI ${timerId}! Nhanh tay gác bút nào các em.`);
+                }
+            }, 1000);
+        }
+
+        function pauseCopyTimer(timerId) {
+            if (APP.copyTimers[timerId]) clearInterval(APP.copyTimers[timerId]);
+            AudioSys.click();
+        }
+
+        function resetCopyTimer(timerId, defaultSec = 180) {
+            pauseCopyTimer(timerId);
+            copyTimeLeft[timerId] = defaultSec;
+            document.getElementById(`copyTimerDisplay${timerId}`).innerText = formatTimerString(defaultSec);
+        }
+
+        /* ================= SLIDE 10: PODIUM TỔNG KẾT ================= */
+        function renderPodium() {
+            // Sắp xếp các tổ theo điểm số giảm dần
+            const sorted = [...APP.teams].map((t, origIdx) => ({ ...t, origIdx })).sort((a, b) => b.score - a.score);
+            const container = document.getElementById('podiumLeaderboard');
+
+            // Thứ tự hiển thị trực quan trên bục: Hạng 2, Hạng 1 (ở giữa cao nhất), Hạng 3, Hạng 4
+            const displayOrder = [sorted[1], sorted[0], sorted[2], sorted[3]];
+            const rankLabels = ["HẠNG 2", "QUÁN QUÂN 🏆", "HẠNG 3", "HẠNG 4"];
+            const rankClass = ["rank-2", "rank-1", "rank-3", "rank-4"];
+            const avatars = ["🥈", "👑", "🥉", "⭐"];
+
+            container.innerHTML = displayOrder.map((team, idx) => `
+                <div class="podium-slot">
+                    <div class="podium-avatar">${avatars[idx]}</div>
+                    <div class="podium-team-name">${team.name}</div>
+                    <div class="podium-score-pill">${team.score} điểm</div>
+                    <div class="podium-bar ${rankClass[idx]}">
+                        ${rankLabels[idx]}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /* ================= HIỆU ỨNG PHÁO HOA CANVAS ================= */
+        const canvas = document.getElementById('confettiCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function createConfetti(x, y, count = 50) {
+            const colors = ['#ef476f', '#ffd166', '#06d6a0', '#118ab2', '#8338ec', '#ff5400'];
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 14,
+                    vy: (Math.random() - 0.5) * 14 - 3,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    life: 80
+                });
+            }
+        }
+
+        function updateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, i) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.25; // Trọng lực
+                p.life--;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            particles = particles.filter(p => p.life > 0);
+            requestAnimationFrame(updateConfetti);
+        }
+        updateConfetti();
+
+        function fireSmallConfetti() {
+            createConfetti(window.innerWidth / 2, window.innerHeight / 2, 40);
+        }
+
+        function fireVictoryConfetti() {
+            AudioSys.fanfare();
+            createConfetti(window.innerWidth * 0.25, window.innerHeight * 0.4, 70);
+            createConfetti(window.innerWidth * 0.5, window.innerHeight * 0.3, 100);
+            createConfetti(window.innerWidth * 0.75, window.innerHeight * 0.4, 70);
+        }
+
+        /* ================= TIỆN ÍCH TOAST & TOÀN MÀN HÌNH ================= */
+        let toastTimeout = null;
+        function showToast(msg, icon = "📢") {
+            const banner = document.getElementById('toastBanner');
+            document.getElementById('toastMsg').innerText = msg;
+            document.getElementById('toastIcon').innerText = icon;
+            banner.classList.add('show');
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => banner.classList.remove('show'), 3500);
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        /* ================= PHÍM TẮT ĐIỀU HƯỚNG BÀI GIẢNG ================= */
+        window.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+            if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+                goToSlide(APP.currentSlide + 1);
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                goToSlide(APP.currentSlide - 1);
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullScreen();
+            } else if (e.key === '1') {
+                triggerSummon(0);
+            } else if (e.key === '2') {
+                triggerSummon(1);
+            } else if (e.key === '3') {
+                triggerSummon(2);
+            } else if (e.key === '4') {
+                triggerSummon(3);
+            } else if (e.key === 'q' || e.key === 'Q') {
+                openPostureModal();
+            }
+        });
+
+        /* ================= LẮNG NGHE CHỌN LỚP HỌC ================= */
+        document.getElementById('classSelector').addEventListener('change', (e) => {
+            initClassData(e.target.value);
+        });
+
+        // Tự động tải lớp 3/2 khi mở trang
+        window.onload = () => {
+            initClassData("3_2");
+            // Cố gắng fetch file JSON ngoài nếu đang chạy qua local HTTP server
+            fetch('../../assets/data/students_3_2026_2027.json')
+                .then(r => r.json())
+                .then(data => {
+                    if (data && typeof data === 'object') {
+                        Object.assign(ALL_CLASSES_DATA, data);
+                        initClassData(APP.selectedClass);
+                    }
+                })
+                .catch(() => {
+                    // Dùng mảng fallback nhúng sẵn hoàn toàn trơn tru
+                });
+        };
+    </script>
+</body>
+
+</html>
+
