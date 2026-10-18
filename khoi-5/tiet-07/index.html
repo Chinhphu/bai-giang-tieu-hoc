@@ -1,0 +1,3352 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tin học 5 – Bài 4: Cây thư mục (Tiết 1)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800;900&display=swap');
+
+        :root {
+            --ink: #17243c;
+            --bg: #eaf5f2;
+            --mint: #16b89a;
+            --blue: #3178f6;
+            --yellow: #ffc857;
+            --coral: #ff6c65;
+            --line: #dce5ef;
+            --white: #ffffff;
+            --shadow: 0 8px 0 rgba(23, 36, 60, .15);
+            --sidebar-width: 225px;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            user-select: none;
+        }
+
+        input,
+        textarea,
+        select {
+            user-select: text;
+            font: inherit;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--bg);
+            color: var(--ink);
+        }
+
+        button {
+            cursor: pointer;
+            border: 0;
+            font-family: inherit;
+            transition: .1s ease;
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(3px);
+            box-shadow: none !important;
+        }
+
+        /* ================= SETUP SCREEN ================= */
+        #setup-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--ink);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .setup-box {
+            background: var(--white);
+            padding: 36px 44px;
+            border-radius: 26px;
+            text-align: center;
+            max-width: 520px;
+            width: 92%;
+            box-shadow: 0 16px 0 rgba(0, 0, 0, .35);
+        }
+
+        .setup-box h2 {
+            color: var(--blue);
+            font-size: 34px;
+            font-weight: 900;
+            margin: 0 0 16px;
+        }
+
+        .setup-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 14px 0;
+            font-size: 21px;
+            font-weight: 800;
+            background: #f4f7fb;
+            padding: 10px 18px;
+            border-radius: 14px;
+            border: 2px solid var(--line);
+        }
+
+        .setup-box select {
+            font-size: 22px;
+            font-weight: 900;
+            padding: 6px 14px;
+            border: 3px solid var(--line);
+            border-radius: 12px;
+            color: var(--coral);
+            text-align: center;
+            outline: none;
+            background: #fff;
+        }
+
+        .btn-setup {
+            background: var(--mint);
+            color: #fff;
+            font-size: 26px;
+            font-weight: 900;
+            padding: 15px 36px;
+            border-radius: 15px;
+            box-shadow: 0 6px 0 #087d69;
+            width: 100%;
+            margin-top: 18px;
+        }
+
+        /* ================= MAIN LAYOUT ================= */
+        #app {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .side {
+            width: var(--sidebar-width);
+            flex-shrink: 0;
+            background: var(--ink);
+            color: #fff;
+            padding: 10px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 3px solid rgba(255, 255, 255, .1);
+            position: relative;
+            z-index: 100;
+        }
+
+        .teams {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .team {
+            background: rgba(255, 255, 255, .08);
+            border: 3px solid var(--tc, var(--mint));
+            border-radius: 13px;
+            padding: 6px 8px;
+            position: relative;
+            transition: .2s;
+        }
+
+        /* DẤU HIỆU ĐẾN LƯỢT TỔ: CỰC KỲ RÕ RÀNG */
+        .team.turn {
+            border: 4px solid var(--yellow) !important;
+            background: rgba(255, 200, 87, .28) !important;
+            box-shadow: 0 0 25px rgba(255, 200, 87, .9) !important;
+            animation: pulseTurn 1.1s infinite alternate;
+            transform: scale(1.02);
+        }
+
+        @keyframes pulseTurn {
+            from {
+                box-shadow: 0 0 10px rgba(255, 200, 87, .5);
+            }
+
+            to {
+                box-shadow: 0 0 26px rgba(255, 200, 87, 1);
+            }
+        }
+
+        .turn-badge {
+            display: none;
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--yellow);
+            color: var(--ink);
+            font-size: 11px;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 20px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, .4);
+            white-space: nowrap;
+        }
+
+        .team.turn .turn-badge {
+            display: block;
+        }
+
+        .team.penalty-hit {
+            animation: penalty-hit .9s ease-out;
+        }
+
+        @keyframes penalty-hit {
+
+            0%,
+            100% {
+                transform: translateX(0);
+                box-shadow: 0 0 0 transparent;
+            }
+
+            15%,
+            45%,
+            75% {
+                transform: translateX(-8px);
+                box-shadow: 0 0 20px #ef4444;
+            }
+
+            30%,
+            60%,
+            90% {
+                transform: translateX(8px);
+                box-shadow: 0 0 20px #ef4444;
+            }
+        }
+
+        .floatred {
+            position: absolute;
+            top: -10px;
+            right: 8px;
+            background: #ef4444;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 900;
+            padding: 3px 8px;
+            border-radius: 8px;
+            animation: floatup .9s forwards;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        @keyframes floatup {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-26px);
+            }
+        }
+
+        .trow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4px;
+        }
+
+        .tname {
+            font-weight: 900;
+            font-size: 15px;
+            color: var(--tc);
+            filter: brightness(1.35);
+        }
+
+        /* ĐIỂM SỐ CÓ THỂ NHẬP TAY TRỰC TIẾP */
+        .tscore {
+            font-size: 26px;
+            font-weight: 900;
+            line-height: 1.1;
+            color: var(--yellow);
+            text-align: center;
+            margin: 2px 0 4px;
+            cursor: pointer;
+            border-bottom: 2px dashed rgba(255, 200, 87, 0.4);
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .tscore:focus {
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            border-bottom-style: solid;
+        }
+
+        .btn-penalty {
+            background: rgba(255, 255, 255, .14);
+            color: #fff;
+            border-radius: 6px;
+            padding: 2px 6px;
+            font-size: 11.5px;
+            font-weight: 800;
+        }
+
+        .btn-penalty:hover {
+            background: #ef4444;
+        }
+
+        .team select {
+            width: 100%;
+            padding: 3px 5px;
+            font-size: 11px;
+            border: 0;
+            border-radius: 6px;
+            font-weight: 700;
+            background: #fff;
+            color: var(--ink);
+            outline: none;
+        }
+
+        .team select.need {
+            outline: 3px solid #ef4444;
+            background: #fee2e2;
+            animation: shake .4s;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-4px);
+            }
+
+            75% {
+                transform: translateX(4px);
+            }
+        }
+
+        /* Quest badge dưới ô chọn học sinh */
+        .tquest-badge {
+            margin-top: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #cbd5e1;
+            background: rgba(0, 0, 0, .35);
+            padding: 4px 6px;
+            border-radius: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+            cursor: pointer;
+            transition: .15s;
+            border: 1px solid rgba(255, 255, 255, .1);
+        }
+
+        .tquest-badge:hover {
+            background: rgba(49, 120, 246, .35);
+            border-color: var(--blue);
+            color: #fff;
+        }
+
+        .tquest-badge.found {
+            color: #34d399;
+            background: rgba(16, 185, 129, .25);
+            font-weight: 900;
+            border-color: #10b981;
+        }
+
+        /* Tooltip hiển thị quest to khi hover */
+        #floating-quest-tooltip {
+            position: fixed;
+            left: calc(var(--sidebar-width) + 14px);
+            background: #0f172a;
+            color: #fff;
+            border: 3px solid var(--yellow);
+            border-radius: 16px;
+            padding: 16px 20px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, .6);
+            z-index: 9999;
+            pointer-events: none;
+            max-width: 380px;
+            width: 350px;
+            line-height: 1.4;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            text-align: left;
+        }
+
+        #floating-quest-tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .spacer {
+            flex: 1;
+        }
+
+        .tc-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .btn-tiny {
+            background: rgba(255, 255, 255, .1);
+            color: #fff;
+            padding: 7px 0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .btn-tiny:hover {
+            background: rgba(255, 255, 255, .25);
+        }
+
+        .nav {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .nav button {
+            flex: 1;
+            background: rgba(255, 255, 255, .15);
+            color: #fff;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 900;
+        }
+
+        .nav button:hover {
+            background: var(--blue);
+        }
+
+        /* ================= STAGE & SLIDES ================= */
+        .stage {
+            flex: 1;
+            height: 100vh;
+            overflow-y: auto;
+            position: relative;
+            background: var(--bg);
+        }
+
+        .slide {
+            display: none;
+            min-height: 100vh;
+            padding: 24px 38px 40px;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background: #fff;
+            animation: popIn .2s ease-out;
+        }
+
+        .slide.on {
+            display: flex;
+        }
+
+        .slide.fs {
+            justify-content: center;
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(.99);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .tag {
+            background: var(--blue);
+            color: #fff;
+            padding: 7px 26px;
+            border-radius: 40px;
+            font-weight: 900;
+            font-size: 20px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .tag.vo {
+            background: var(--coral);
+        }
+
+        .tag.game {
+            background: var(--mint);
+        }
+
+        h1 {
+            font-size: 52px;
+            color: var(--blue);
+            margin: 0 0 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            line-height: 1.15;
+        }
+
+        h2 {
+            font-size: 38px;
+            margin: 0 0 12px;
+            font-weight: 900;
+            color: var(--ink);
+        }
+
+        /* NOTEBOOK STYLING (VỞ Ô LY) */
+        .notebook {
+            width: 100%;
+            max-width: 1040px;
+            background: #fffdfa;
+            border: 4px solid var(--ink);
+            border-radius: 20px;
+            padding: 26px 36px;
+            text-align: left;
+            box-shadow: 6px 6px 0 var(--line);
+            margin-bottom: 16px;
+            position: relative;
+            background-image: repeating-linear-gradient(#fffdfa 0px, #fffdfa 39px, #e7edf5 40px);
+            line-height: 40px;
+        }
+
+        .notebook.vo-main {
+            border-color: var(--coral);
+            box-shadow: 8px 8px 0 rgba(255, 108, 101, .2);
+        }
+
+        .nb-header {
+            border-bottom: 3px dashed #b8c8dc;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .currentDateDisplay {
+            font-size: 26px;
+            font-weight: 800;
+            color: #556987;
+            text-align: center;
+        }
+
+        .nb-subject {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--blue);
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        .nb-title {
+            font-size: 40px;
+            font-weight: 900;
+            color: var(--coral);
+            text-align: center;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .nb-section {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--blue);
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .notebook p,
+        .notebook li {
+            font-size: 27px;
+            line-height: 1.5;
+            margin: 6px 0;
+            font-weight: 800;
+            color: var(--ink);
+        }
+
+        .q {
+            background: var(--ink);
+            color: #fff;
+            font-size: 28px;
+            font-weight: 800;
+            padding: 16px 26px;
+            border-radius: 16px;
+            border: 4px solid var(--yellow);
+            width: 100%;
+            max-width: 1040px;
+            text-align: left;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .rev {
+            background: #eaf5f2;
+            border: 4px dashed var(--mint);
+            border-radius: 16px;
+            padding: 16px 24px;
+            font-size: 28px;
+            font-weight: 800;
+            width: 100%;
+            max-width: 1040px;
+            text-align: left;
+            cursor: pointer;
+            min-height: 64px;
+            color: #6b7d96;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+
+        .rev.show {
+            border-style: solid;
+            color: var(--ink);
+            background: #e3fbf5;
+        }
+
+        .rev:not(.show)>* {
+            display: none;
+        }
+
+        .rev:not(.show)::before {
+            content: '👆 Nhấn vào đây để xem đáp án';
+        }
+
+        .two {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 1040px;
+        }
+
+        .tree-box {
+            background: #f4f7fb;
+            border: 4px solid var(--ink);
+            border-radius: 16px;
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.55;
+        }
+
+        .tree-box ul {
+            list-style: none;
+            margin: 0;
+            padding-left: 24px;
+            border-left: 3px solid #9fb0c9;
+        }
+
+        .tree-box>ul {
+            border: 0;
+            padding: 0;
+        }
+
+        .tree-box h3 {
+            margin: 0 0 8px;
+            text-align: center;
+            color: var(--blue);
+            font-size: 25px;
+        }
+
+        /* Hình minh họa Tìm kiếm Hình 21 */
+        .fe-preview {
+            background: #fff;
+            border: 4px solid var(--ink);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 1040px;
+            overflow: hidden;
+            text-align: left;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 12px 0;
+        }
+
+        .fe-preview .bar {
+            background: #dce5ef;
+            padding: 10px 16px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .fe-preview .bar span {
+            background: #fff;
+            border-radius: 8px;
+            padding: 6px 14px;
+            flex: 1;
+        }
+
+        .fe-preview .bar .s {
+            flex: 0 0 380px;
+            border: 4px solid #ef4444;
+            color: #ef4444;
+            font-weight: 900;
+            box-shadow: 0 0 12px rgba(239, 68, 68, .4);
+        }
+
+        .opts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            width: 100%;
+            max-width: 1040px;
+        }
+
+        .ans {
+            background: #f4f7fb;
+            border: 5px solid var(--ink);
+            border-radius: 16px;
+            padding: 16px;
+            font-size: 26px;
+            font-weight: 800;
+            text-align: left;
+            cursor: pointer;
+            transition: .15s;
+        }
+
+        .ans.ok {
+            background: #bff3e6;
+            border-color: var(--mint);
+        }
+
+        .ans.no {
+            opacity: .4;
+        }
+
+        /* ================= GAME SCREEN ================= */
+        .game-wrapper {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quest-banner {
+            background: var(--ink);
+            color: #fff;
+            border: 4px solid var(--yellow);
+            border-radius: 16px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            text-align: left;
+        }
+
+        .qb-team {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--yellow);
+            white-space: nowrap;
+        }
+
+        .qb-info {
+            flex: 1;
+            font-size: 20px;
+            line-height: 1.35;
+        }
+
+        .qb-info b {
+            color: #38bdf8;
+            font-size: 23px;
+        }
+
+        .qb-radar {
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 900;
+            text-align: center;
+            white-space: nowrap;
+            background: rgba(255, 255, 255, .1);
+        }
+
+        .qb-radar.hot {
+            background: #ef4444;
+            color: #fff;
+            animation: pulse 1s infinite alternate;
+        }
+
+        .qb-radar.warm {
+            background: #f59e0b;
+            color: #fff;
+        }
+
+        .qb-radar.cold {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.05);
+            }
+        }
+
+        /* Khối phát Mật lệnh ở đầu game */
+        .draw-panel {
+            background: #fff;
+            border: 4px solid var(--ink);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .draw-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin: 18px 0;
+        }
+
+        .quest-card {
+            background: #f8fafc;
+            border: 3px solid var(--ink);
+            border-radius: 14px;
+            padding: 16px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 0 var(--line);
+        }
+
+        .quest-card.assigned {
+            background: #eff6ff;
+            border-color: var(--blue);
+            animation: popIn .3s;
+        }
+
+        .quest-card .qc-team-tag {
+            font-size: 14px;
+            font-weight: 900;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 6px;
+        }
+
+        .quest-card .qc-icon {
+            font-size: 40px;
+            margin-bottom: 6px;
+        }
+
+        .quest-card .qc-name {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--blue);
+            word-break: break-word;
+        }
+
+        .quest-card .qc-clue {
+            font-size: 13px;
+            font-weight: 700;
+            color: #475569;
+            margin-top: 6px;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        /* File Explorer mô phỏng Windows tiếng Anh */
+        .win-explorer {
+            background: #ffffff;
+            border: 4px solid var(--ink);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .we-toolbar {
+            background: #edf2f7;
+            border-bottom: 3px solid var(--line);
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .we-btn {
+            background: #fff;
+            border: 2px solid var(--line);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .we-btn:hover:not(:disabled) {
+            border-color: var(--blue);
+            background: #eff6ff;
+        }
+
+        .we-address {
+            flex: 1;
+            background: #fff;
+            border: 2px solid var(--line);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .we-crumb {
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 5px;
+        }
+
+        .we-crumb:hover {
+            background: #e2e8f0;
+            color: var(--blue);
+        }
+
+        .we-search {
+            flex: 0 0 280px;
+            position: relative;
+        }
+
+        .we-search input {
+            width: 100%;
+            padding: 6px 12px 6px 32px;
+            border: 2px solid var(--line);
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            outline: none;
+        }
+
+        .we-search .glass {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .we-body {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: 380px;
+            max-height: 480px;
+        }
+
+        .we-navpane {
+            background: #f8fafc;
+            border-right: 3px solid var(--line);
+            padding: 12px 10px;
+            overflow-y: auto;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .tree-node {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 2px 0;
+            transition: .1s;
+        }
+
+        .tree-node:hover {
+            background: #e2e8f0;
+        }
+
+        .tree-node.active {
+            background: #dbeafe;
+            color: var(--blue);
+            font-weight: 900;
+        }
+
+        .we-content {
+            padding: 16px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+            gap: 14px;
+            align-content: flex-start;
+            background: #fff;
+        }
+
+        .item-icon-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 10px 8px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: .15s;
+            position: relative;
+        }
+
+        .item-icon-box:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .item-icon-box.folder-locked {
+            opacity: .85;
+            background: #fafafa;
+            border: 2px dashed #cbd5e1;
+        }
+
+        .item-icon-box.folder-locked:hover {
+            border-color: var(--coral);
+            background: #fff5f5;
+        }
+
+        .item-icon-box .big-icon {
+            font-size: 52px;
+            line-height: 1;
+            margin-bottom: 6px;
+            position: relative;
+        }
+
+        .item-icon-box .lock-overlay {
+            position: absolute;
+            bottom: -2px;
+            right: -4px;
+            background: var(--coral);
+            color: #fff;
+            font-size: 14px;
+            padding: 2px 5px;
+            border-radius: 6px;
+            border: 2px solid #fff;
+        }
+
+        .item-icon-box .item-name {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--ink);
+            word-break: break-word;
+            line-height: 1.25;
+        }
+
+        .item-icon-box.target-glow {
+            border-color: #10b981;
+            background: #ecfdf5;
+            box-shadow: 0 0 16px rgba(16, 185, 129, .6);
+            animation: target-pulse 1s infinite alternate;
+        }
+
+        @keyframes target-pulse {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.04);
+            }
+        }
+
+        .btn-steal-quest {
+            margin-top: 5px;
+            background: #f59e0b;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 900;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #b45309;
+        }
+
+        .btn-steal-quest:hover {
+            background: #d97706;
+        }
+
+        .we-statusbar {
+            background: #edf2f7;
+            border-top: 2px solid var(--line);
+            padding: 6px 14px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 6px;
+        }
+
+        .btn-ctrl {
+            background: var(--blue);
+            color: #fff;
+            font-size: 18px;
+            font-weight: 900;
+            padding: 10px 22px;
+            border-radius: 12px;
+        }
+
+        .btn-ctrl.skip {
+            background: #64748b;
+        }
+
+        .btn-ctrl.end {
+            background: var(--coral);
+        }
+
+        /* ================= WRAPPER PHÁT MẬT LỆNH (SLIDE 5) ================= */
+        .roll-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ================= POP-UP CÂU HỎI TRÀN TOÀN BỘ MÀN HÌNH SLIDE (LÀM MỜ NỀN PHÍA SAU) ================= */
+        .challenge-slide-overlay {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            z-index: 2500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            animation: fadeInOverlay .2s ease-out;
+        }
+
+        @keyframes fadeInOverlay {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .cp-card {
+            background: #ffffff;
+            border: 5px solid var(--ink);
+            border-radius: 28px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+            width: 100%;
+            max-width: 1060px;
+            max-height: 92vh;
+            overflow-y: auto;
+            padding: 32px 42px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            text-align: left;
+            animation: zoomCard .25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes zoomCard {
+            from {
+                transform: scale(0.92);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .cp-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 14px;
+            border-bottom: 3px solid #e2e8f0;
+        }
+
+        .cp-folder-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .cp-lock-icon {
+            font-size: 38px;
+            background: #fee2e2;
+            border: 3px solid #ef4444;
+            border-radius: 16px;
+            width: 58px;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cp-for-team {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--coral);
+            background: #fff1f2;
+            border: 3px solid #fecdd3;
+            padding: 6px 20px;
+            border-radius: 999px;
+        }
+
+        .cp-question-box {
+            background: #f8fafc;
+            border: 4px solid var(--ink);
+            border-radius: 20px;
+            padding: 24px 30px;
+            box-shadow: 0 6px 0 var(--line);
+        }
+
+        .cp-q-text {
+            font-size: 34px;
+            font-weight: 900;
+            color: var(--ink);
+            line-height: 1.4;
+        }
+
+        .cp-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 900px) {
+            .cp-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .cp-opt-btn {
+            background: #ffffff;
+            border: 4px solid var(--line);
+            border-radius: 18px;
+            padding: 16px 20px;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: transform .12s, border-color .12s, background .12s;
+            line-height: 1.35;
+            cursor: pointer;
+        }
+
+        .cp-opt-btn:hover {
+            border-color: var(--blue);
+            background: #eff6ff;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(49, 120, 246, 0.2);
+        }
+
+        .cp-opt-btn .opt-badge {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #f1f5f9;
+            border: 2px solid var(--line);
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cp-opt-btn.correct {
+            background: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #15803d !important;
+            box-shadow: 0 0 25px rgba(34, 197, 94, 0.4) !important;
+        }
+
+        .cp-opt-btn.wrong {
+            background: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #b91c1c !important;
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.4) !important;
+        }
+
+        .cp-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 4px;
+        }
+
+        .btn-clear-search {
+            position: absolute;
+            right: 8px;
+            background: #cbd5e1;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 12px;
+            font-weight: 900;
+            color: #334155;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-clear-search:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn-skip-q {
+            background: #64748b;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 900;
+            padding: 10px 24px;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        .btn-skip-q:hover {
+            background: #475569;
+        }
+
+        /* Modal thêm học sinh */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .75);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3500;
+        }
+
+        .modal-box {
+            background: #fff;
+            padding: 28px 34px;
+            border-radius: 24px;
+            border: 5px solid var(--ink);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 16px 0 rgba(0, 0, 0, .4);
+        }
+
+        .modal-box textarea {
+            width: 100%;
+            height: 130px;
+            font-size: 18px;
+            font-weight: 700;
+            border: 3px solid var(--line);
+            border-radius: 12px;
+            padding: 10px;
+            margin: 12px 0;
+            outline: none;
+        }
+
+        .btn-modal-ok {
+            background: var(--mint);
+            color: #fff;
+            font-size: 20px;
+            font-weight: 900;
+            padding: 10px 24px;
+            border-radius: 12px;
+            margin-right: 8px;
+        }
+
+        .btn-modal-cancel {
+            background: #64748b;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 900;
+            padding: 10px 24px;
+            border-radius: 12px;
+        }
+
+        /* ================= KANBAN & EXCEL TOTAL SCREEN ================= */
+        #end-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 3500;
+            display: none;
+            flex-direction: column;
+            padding: 18px 24px;
+        }
+
+        .ehead {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            padding: 12px 24px;
+            border-radius: 16px;
+            border: 4px solid var(--ink);
+            margin-bottom: 14px;
+        }
+
+        .ehead h1 {
+            font-size: 28px;
+            margin: 0;
+        }
+
+        .kanban {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(var(--n, 5), 1fr);
+            gap: 10px;
+            overflow-x: auto;
+        }
+
+        .kan-col {
+            background: #fff;
+            border: 3px solid var(--tc, var(--ink));
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .kan-col h4 {
+            margin: 0;
+            padding: 10px;
+            background: var(--tc, var(--ink));
+            color: #fff;
+            font-size: 18px;
+            font-weight: 900;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .kan-drop {
+            flex: 1;
+            padding: 8px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-height: 120px;
+        }
+
+        .kan-drop.over {
+            background: #fef3c7;
+        }
+
+        .kan-card {
+            background: #f8fafc;
+            border: 2px solid var(--line);
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: grab;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .kan-card.drag {
+            opacity: .4;
+        }
+
+        /* ================= RANKING PODIUM ================= */
+        .rankings-box {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 16px 0;
+        }
+
+        .rank-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+            border: 4px solid var(--ink);
+            border-radius: 18px;
+            padding: 12px 28px;
+            font-size: 34px;
+            font-weight: 900;
+        }
+
+        .rank-card:nth-child(1) {
+            background: #fef9c3;
+            border-color: #ca8a04;
+        }
+
+        .rank-card:nth-child(2) {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        .rank-card:nth-child(3) {
+            background: #ffedd5;
+            border-color: #ea580c;
+        }
+
+        /* ================= TOAST ================= */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--mint);
+            color: #fff;
+            border: 3px solid var(--ink);
+            padding: 12px 28px;
+            border-radius: 14px;
+            font-weight: 900;
+            font-size: 22px;
+            z-index: 4000;
+            box-shadow: 0 10px 0 rgba(0, 0, 0, .25);
+            display: none;
+            max-width: 90%;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- TOOLTIP TO TỰ NỔI KHI HOVER VÀO QUEST CỦA TỔ (0.5s - 1s) -->
+    <div id="floating-quest-tooltip"></div>
+
+    <!-- ================= MÀN HÌNH SETUP ================= -->
+    <div id="setup-screen">
+        <div class="setup-box">
+            <h2>📁 TIN HỌC 5 · BÀI 4</h2>
+            <div style="font-size: 20px; font-weight: 800; color: #64748b; margin-bottom: 12px;">CÂY THƯ MỤC (TIẾT 1)
+            </div>
+
+            <div class="setup-row">
+                <span>Chọn lớp học:</span>
+                <select id="s-class">
+                    <option value="5_1" selected>Lớp 5/1</option>
+                    <option value="5_2">Lớp 5/2</option>
+                    <option value="5_3">Lớp 5/3</option>
+                    <option value="5_4">Lớp 5/4</option>
+                    <option value="5_5">Lớp 5/5</option>
+                    <option value="5_6">Lớp 5/6</option>
+                </select>
+            </div>
+
+            <div class="setup-row">
+                <span>Số lượng tổ (Tối đa 6):</span>
+                <select id="s-teams">
+                    <option value="2">2 Tổ</option>
+                    <option value="3">3 Tổ</option>
+                    <option value="4" selected>4 Tổ</option>
+                    <option value="5">5 Tổ</option>
+                    <option value="6">6 Tổ</option>
+                </select>
+            </div>
+
+            <div class="setup-row">
+                <span>Điểm sàn mỗi tổ:</span>
+                <span
+                    style="color: var(--yellow); font-size: 26px; font-weight: 900; background: var(--ink); padding: 4px 16px; border-radius: 10px;">1000
+                    Điểm</span>
+            </div>
+
+            <button class="btn-setup" onclick="startGame()">VÀO TIẾT HỌC 🚀</button>
+        </div>
+    </div>
+
+    <!-- ================= GIAO DIỆN CHÍNH ================= -->
+    <div id="app">
+        <!-- SIDEBAR -->
+        <aside class="side">
+            <div class="teams" id="teams"></div>
+            <div class="spacer"></div>
+            <div class="tc-buttons">
+                <button class="btn-tiny" onclick="openAddHs()" title="Thêm học sinh mới">➕ Thêm HS</button>
+                <button class="btn-tiny" onclick="openEnd()" title="Tổng kết đánh giá và xuất Excel">📋 Tổng
+                    kết</button>
+            </div>
+            <div class="nav">
+                <button onclick="goSlide(-1)" title="Trang trước (Phím mũi tên trái)">◀</button>
+                <button onclick="goSlide(1)" title="Trang tiếp (Phím mũi tên phải)">▶</button>
+            </div>
+        </aside>
+
+        <!-- SÂN KHẤU CHÍNH CHỨA SLIDE -->
+        <main class="stage" id="stage">
+
+            <!-- SLIDE 0: TRANG BÌA GIỚI THIỆU -->
+            <section class="slide fs on">
+                <div class="tag">Chủ đề 3 · Tổ chức lưu trữ, tìm kiếm và trao đổi thông tin</div>
+                <h1>Bài 4: Cây thư mục</h1>
+                <h2 style="color: var(--mint); font-size: 46px;">Tiết 1</h2>
+                <div style="font-size: 30px; font-weight: 800; margin-top: 24px; color: var(--ink);">
+                    Sách giáo khoa Tin học 5 · Kết nối tri thức với cuộc sống
+                </div>
+            </section>
+
+            <!-- SLIDE 1: KHỞI ĐỘNG (HÌNH 18 & HÌNH 19 SGK) -->
+            <section class="slide">
+                <div class="tag">Khởi động · Hình 18 & Hình 19 SGK</div>
+                <div class="q">Quan sát hai sơ đồ cây thư mục Anh-Bai-tap-nhom dưới đây. Theo em, cây thư mục nào hợp lí
+                    hơn? Vì sao?</div>
+                <div class="two">
+                    <div class="tree-box">
+                        <h3>Hình 18. Cây thư mục 1</h3>
+                        <ul>
+                            <li>💾 Local Disk (D:)
+                                <ul>
+                                    <li>📁 Anh-Bai-tap-nhom
+                                        <ul>
+                                            <li>📁 Khoa
+                                                <ul>
+                                                    <li>📁 An
+                                                        <ul>
+                                                            <li>🖼️ San-bay-Cam-Ranh.jpg</li>
+                                                            <li>🖼️ Vien-Hai-Duong-hoc.jpg</li>
+                                                            <li>🖼️ Vinpearl-Land.jpg</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li>🖼️ Cho-Da-Lat.jpg</li>
+                                                    <li>🖼️ Ho-Than-tho.jpg</li>
+                                                    <li>🖼️ Nha-tho-Con-ga.jpg</li>
+                                                </ul>
+                                            </li>
+                                            <li>📁 Minh
+                                                <ul>
+                                                    <li>🖼️ Chuot-tui.jpg</li>
+                                                    <li>🖼️ Nha-hat-Opera.jpg</li>
+                                                </ul>
+                                            </li>
+                                            <li>🖼️ Tuyet-roi.jpg</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="tree-box">
+                        <h3>Hình 19. Cây thư mục 2</h3>
+                        <ul>
+                            <li>💾 Local Disk (D:)
+                                <ul>
+                                    <li>📁 Anh-Bai-tap-nhom
+                                        <ul>
+                                            <li>📁 An
+                                                <ul>
+                                                    <li>🖼️ San-bay-Cam-Ranh.jpg</li>
+                                                    <li>🖼️ Vien-Hai-Duong-hoc.jpg</li>
+                                                    <li>🖼️ Vinpearl-Land.jpg</li>
+                                                </ul>
+                                            </li>
+                                            <li>📁 Khoa
+                                                <ul>
+                                                    <li>🖼️ Cho-Da-Lat.jpg</li>
+                                                    <li>🖼️ Ho-Than-tho.jpg</li>
+                                                    <li>🖼️ Nha-tho-Con-ga.jpg</li>
+                                                </ul>
+                                            </li>
+                                            <li>📁 Minh
+                                                <ul>
+                                                    <li>🖼️ Chuot-tui.jpg</li>
+                                                    <li>🖼️ Nha-hat-Opera.jpg</li>
+                                                    <li>🖼️ Tuyet-roi.jpg</li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="rev" onclick="this.classList.toggle('show')">
+                    <div>
+                        ✅ <b>Cây thư mục Hình 19 hợp lí hơn</b> vì: tên thư mục rõ ràng; ảnh của bạn nào nằm đúng trong
+                        thư mục mang tên bạn đó → giúp tìm kiếm dễ dàng và chính xác!
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 2: CHÉP BÀI ĐỢT 1 - CHỈ CHÉP TÊN BÀI VÀO VỞ -->
+            <section class="slide fs">
+                <div class="tag vo">✍️ Em chép bài vào vở</div>
+                <div class="notebook vo-main" style="text-align: center;">
+                    <div class="nb-header">
+                        <div class="currentDateDisplay">Thứ ..., ngày ... tháng 10 năm 2026</div>
+                        <div class="nb-subject">TIN HỌC</div>
+                        <div class="nb-title">Bài 4: Cây thư mục (Tiết 1)</div>
+                    </div>
+                    <p style="text-align: center; color: #64748b; font-size: 24px; font-weight: 700; margin-top: 15px;">
+                        ✏️ <i>Em viết Thứ ngày tháng, Môn và Tên bài vào vở thực hành.</i>
+                    </p>
+                </div>
+            </section>
+
+            <!-- SLIDE 3: CHIẾU GIẢNG MỤC 1 (KHÔNG CHÉP) -->
+            <section class="slide fs">
+                <div class="tag">1. Tạo thư mục với cấu trúc cây hợp lí</div>
+                <div class="q" style="font-size: 32px;">
+                    Máy tính có rất nhiều tệp, nếu không sắp xếp hợp lí sẽ <b>rất khó tìm</b>.
+                </div>
+                <div class="two" style="max-width: 980px;">
+                    <div class="tree-box" style="text-align: center; border-color: var(--blue);">
+                        <div style="font-size: 50px;">🏷️</div>
+                        <h3 style="font-size: 28px; margin: 10px 0;">Bước 1: Đặt tên</h3>
+                        <p style="font-size: 24px; font-weight: 800; color: var(--ink);">
+                            Đặt tên thống nhất, rõ ràng, <b>gợi nhớ nội dung</b> bên trong.
+                        </p>
+                    </div>
+                    <div class="tree-box" style="text-align: center; border-color: var(--mint);">
+                        <div style="font-size: 50px;">🗂️</div>
+                        <h3 style="font-size: 28px; margin: 10px 0;">Bước 2: Phân loại</h3>
+                        <p style="font-size: 24px; font-weight: 800; color: var(--ink);">
+                            Phân loại tệp vào các thư mục theo: <b>loại tệp, thời gian, môn học, người sở hữu...</b>
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 4: CHÉP BÀI ĐỢT 2 - NỘI DUNG PHẦN 1 -->
+            <section class="slide fs">
+                <div class="tag vo">✍️ Em chép bài vào vở</div>
+                <div class="notebook vo-main">
+                    <div class="nb-section">1. Tạo thư mục với cấu trúc cây hợp lí</div>
+                    <p>• Đặt tên thư mục và tệp rõ ràng, thống nhất để gợi nhớ nội dung.</p>
+                    <p>• Phân loại và sắp xếp tệp theo tiêu chí (nội dung, loại tệp, thời gian, người sở hữu,...) giúp
+                        tìm kiếm dễ dàng, nhanh chóng.</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 5: PHÁT MẬT LỆNH (ROLL NHIỆM VỤ CHO CÁC TỔ) -->
+            <section class="slide fs" id="roll-slide">
+                <div class="tag game">🎲 Chuẩn bị thám hiểm · Phát Mật Lệnh Cho Các Tổ</div>
+                <div class="roll-wrapper" id="roll-wrapper"></div>
+            </section>
+
+            <!-- SLIDE 6: GAME THÁM HIỂM CÂY THƯ MỤC Ổ D: (GIAI ĐOẠN 1) -->
+            <section class="slide" id="game-slide-1">
+                <div class="tag game">🎮 Trò chơi · Truy Tìm Tệp Mật (Giai đoạn 1: Khám phá Cây thư mục)</div>
+                <div class="game-wrapper" id="gw1"></div>
+            </section>
+
+            <!-- SLIDE 7: CHIẾU GIẢNG MỤC 2 (KHÔNG CHÉP) -->
+            <section class="slide">
+                <div class="tag">2. Công cụ tìm kiếm trên máy tính</div>
+                <div class="q">
+                    Khi nào dùng? Khi em chỉ nhớ <b>tên (hoặc một phần tên)</b> tệp mà quên mất tệp được lưu ở thư mục
+                    nào.
+                </div>
+                <div class="fe-preview">
+                    <div class="bar">
+                        <span>◀ ▶ 💻 This PC › 💾 Local Disk (D:) › 📁 Anh-Bai-tap-nhom</span>
+                        <span class="s">🔍 Ho-Than-tho &nbsp;[Enter]</span>
+                    </div>
+                    <div style="padding: 16px 20px; font-size: 22px;">
+                        📁 An &nbsp;&nbsp;&nbsp;&nbsp; 📁 Minh &nbsp;&nbsp;&nbsp;&nbsp; 📁 Khoa
+                    </div>
+                </div>
+                <div class="q" style="background:#0f172a; margin-top: 14px; font-size: 26px;">
+                    ❓ <b>Câu hỏi (Hình 21 SGK):</b> Đang mở thư mục Anh-Bai-tap-nhom, gõ "Ho-Than-tho" rồi nhấn Enter
+                    thì máy tính sẽ tìm tệp đó ở đâu?
+                </div>
+                <div class="opts" id="mc-options">
+                    <div class="ans" data-k="0">A. Trong toàn bộ máy tính</div>
+                    <div class="ans" data-k="1">B. Trong thư mục Anh-Bai-tap-nhom (Đang mở)</div>
+                    <div class="ans" data-k="0">C. Trong ổ đĩa C:</div>
+                    <div class="ans" data-k="0">D. Trong thùng rác Recycle Bin</div>
+                </div>
+            </section>
+
+            <!-- SLIDE 8: CHÉP BÀI ĐỢT 3 - MỤC 2 (RẤT NGẮN) -->
+            <section class="slide fs">
+                <div class="tag vo">✍️ Em chép bài vào vở</div>
+                <div class="notebook vo-main">
+                    <div class="nb-section">2. Công cụ tìm kiếm trên máy tính</div>
+                    <p>• Ô tìm kiếm nằm ở góc trên, bên phải cửa sổ phần mềm File Explorer (This PC).</p>
+                    <p>• Cách tìm: Mở ổ đĩa / thư mục → Nhập tên tệp cần tìm vào ô tìm kiếm → Nhấn phím
+                        <strong>Enter</strong>.
+                    </p>
+                </div>
+            </section>
+
+            <!-- SLIDE 9: GAME THÁM HIỂM CÂY THƯ MỤC Ổ D: (GIAI ĐOẠN 2 - TIẾP TỤC GAME) -->
+            <section class="slide" id="game-slide-2">
+                <div class="tag game">🎮 Trò chơi · Truy Tìm Tệp Mật (Giai đoạn 2: Mở khóa Tìm kiếm & Tăng tốc về đích!)</div>
+                <div class="game-wrapper" id="gw2"></div>
+            </section>
+
+            <!-- SLIDE 10: BẢNG VÀNG TỔNG KẾT & XUẤT EXCEL -->
+            <section class="slide fs" id="last-slide">
+                <div class="tag">Tổng kết tiết học</div>
+                <h1 style="font-size: 60px;">🏆 BẢNG VÀNG VINH DANH</h1>
+                <div class="rankings-box" id="rankings-box"></div>
+                <div style="margin-top: 15px;">
+                    <button
+                        style="background:var(--mint); color:#fff; font-size:22px; font-weight:900; padding:12px 30px; border-radius:14px; box-shadow:0 6px 0 #087d69;"
+                        onclick="exportExcel()">
+                        📥 Xuất Báo Cáo Tiết Học (Excel)
+                    </button>
+                </div>
+            </section>
+
+            <!-- ================= POP-UP CÂU HỎI TRÀN TOÀN BỘ MÀN HÌNH SLIDE (LÀM MỜ NỘI DUNG PHÍA SAU) ================= -->
+            <div id="challenge-panel" class="challenge-slide-overlay">
+                <div class="cp-card">
+                    <div class="cp-header">
+                        <div class="cp-folder-info">
+                            <span class="cp-lock-icon">🔐</span>
+                            <div>
+                                <div
+                                    style="font-size: 15px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">
+                                    Thử thách mở khóa thư mục</div>
+                                <h3 id="cp-title"
+                                    style="margin: 0; font-size: 32px; font-weight: 900; color: var(--ink);">📁 An</h3>
+                            </div>
+                        </div>
+                        <div class="cp-for-team" id="cp-team-name">👉 Đang tới lượt: Tổ 1</div>
+                    </div>
+
+                    <div class="cp-question-box">
+                        <div class="cp-q-text" id="cp-q">Nội dung câu hỏi...</div>
+                    </div>
+
+                    <div class="cp-options" id="cp-options"></div>
+
+                    <div class="cp-footer">
+                        <button class="btn-skip-q" onclick="closeChallengePanel()">⏭ Bỏ qua lượt này</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ================= MODAL THÊM HỌC SINH ================= -->
+    <div class="modal-overlay" id="hs-modal" onclick="if(event.target===this)closeAddHs()">
+        <div class="modal-box">
+            <h3 style="font-size:28px; color:var(--blue); margin-top:0;">➕ Thêm Học Sinh</h3>
+            <div style="font-weight: 600; color: #64748b; font-size: 16px;">Nhập tên học sinh (mỗi bạn một dòng hoặc
+                cách nhau bằng dấu phẩy)</div>
+            <textarea id="hs-input" placeholder="Nguyễn Văn A&#10;Trần Thị B&#10;Lê Văn C"></textarea>
+            <div>
+                <button class="btn-modal-ok" onclick="saveAddHs()">Thêm vào danh sách</button>
+                <button class="btn-modal-cancel" onclick="closeAddHs()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MÀN HÌNH TỔNG KẾT KANBAN & XUẤT EXCEL ================= -->
+    <div id="end-screen">
+        <div class="ehead">
+            <h1>📋 Quản lí học sinh các tổ (Kéo thả thẻ tên)</h1>
+            <div style="display:flex; gap:10px;">
+                <button
+                    style="background:var(--blue); color:#fff; font-weight:900; font-size:18px; padding:8px 18px; border-radius:10px;"
+                    onclick="closeEnd()">← Quay lại</button>
+                <button
+                    style="background:var(--mint); color:#fff; font-weight:900; font-size:18px; padding:8px 18px; border-radius:10px;"
+                    onclick="exportExcel()">📥 Xuất File Excel</button>
+            </div>
+        </div>
+        <div class="kanban" id="kanban"></div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        /* ================= MAP TUẦN 7 (ĐỘ KHÓ: DỄ - 2 TẦNG THƯ MỤC) ================= */
+        const TREE_DATA = {
+            id: 'root',
+            name: 'Local Disk (D:)',
+            icon: '💾',
+            children: [
+                {
+                    id: 'd_anhnhom',
+                    name: '1. Anh-Bai-tap-nhom',
+                    icon: '📁',
+                    tier: 1,
+                    children: [
+                        {
+                            id: 'd_an',
+                            name: 'An',
+                            icon: '📁',
+                            tier: 2,
+                            children: [],
+                            files: [
+                                { name: 'Ho-Than-tho.jpg', icon: '🖼️', size: '2.5 MB', type: 'JPG File', qId: 1 },
+                                { name: 'Doi-che.jpg', icon: '🖼️', size: '1.9 MB', type: 'JPG File' }
+                            ]
+                        },
+                        {
+                            id: 'd_minh',
+                            name: 'Minh',
+                            icon: '📁',
+                            tier: 2,
+                            children: [],
+                            files: [
+                                { name: 'Tuyet-roi.jpg', icon: '🖼️', size: '3.1 MB', type: 'JPG File', qId: 2 },
+                                { name: 'Hoa-da-quy.jpg', icon: '🖼️', size: '2.2 MB', type: 'JPG File' }
+                            ]
+                        }
+                    ],
+                    files: []
+                },
+                {
+                    id: 'd_hoctap',
+                    name: '2. goc-hoc-tap',
+                    icon: '📁',
+                    tier: 1,
+                    children: [
+                        {
+                            id: 'd_toan',
+                            name: 'Mon-Toan',
+                            icon: '📁',
+                            tier: 2,
+                            children: [],
+                            files: [
+                                { name: 'De-on-thi-Toan.docx', icon: '📄', size: '35 KB', type: 'Word Document', qId: 3 },
+                                { name: 'Bang-cuu-chuong.pdf', icon: '📑', size: '110 KB', type: 'PDF Document' }
+                            ]
+                        },
+                        {
+                            id: 'd_tinhoc',
+                            name: 'Mon-Tin-hoc',
+                            icon: '📁',
+                            tier: 2,
+                            children: [],
+                            files: [
+                                { name: 'Bai-4-Cay-thu-muc.pptx', icon: '📊', size: '620 KB', type: 'PowerPoint Presentation', qId: 4 },
+                                { name: 'Danh-sach-to.xlsx', icon: '📈', size: '22 KB', type: 'Excel Worksheet' }
+                            ]
+                        }
+                    ],
+                    files: []
+                },
+                {
+                    id: 'd_giaitri',
+                    name: '3. Giai-tri-Ca-nhan',
+                    icon: '📁',
+                    tier: 1,
+                    children: [
+                        {
+                            id: 'd_hoathinh',
+                            name: 'Phim-Hoat-hinh',
+                            icon: '📁',
+                            tier: 2,
+                            children: [],
+                            files: [
+                                { name: 'Doraemon-tap-1.mp4', icon: '🎬', size: '48 MB', type: 'MP4 Video', qId: 5 },
+                                { name: 'Conan-movie.mp4', icon: '🎬', size: '55 MB', type: 'MP4 Video' }
+                            ]
+                        },
+                        {
+                            id: 'd_nhac',
+                            name: 'Nhac-Thieu-nhi',
+                            icon: '📁',
+                            tier: 2,
+                            children: [],
+                            files: [
+                                { name: 'Bui-phan.mp3', icon: '🎵', size: '3.8 MB', type: 'MP3 Audio', qId: 6 },
+                                { name: 'Trong-com.mp3', icon: '🎵', size: '3.2 MB', type: 'MP3 Audio' }
+                            ]
+                        }
+                    ],
+                    files: []
+                }
+            ]
+        };
+
+        /* ================= KHO DỮ LIỆU & NẠP TỪ FILE QUESTIONS.JSON RIÊNG ================= */
+        let QUEST_LIST = [
+            {
+                id: 1,
+                file: 'Ho-Than-tho.jpg',
+                tier1: '1. Anh-Bai-tap-nhom',
+                tier2: 'An',
+                icon: '🖼️',
+                desc: 'Tìm bức ảnh chụp Hồ Than Thở (Ho-Than-tho.jpg) do bạn An chụp cho nhóm.'
+            },
+            {
+                id: 2,
+                file: 'Tuyet-roi.jpg',
+                tier1: '1. Anh-Bai-tap-nhom',
+                tier2: 'Minh',
+                icon: '🖼️',
+                desc: 'Tìm bức ảnh Tuyết rơi (Tuyet-roi.jpg) nằm trong thư mục của bạn Minh.'
+            },
+            {
+                id: 3,
+                file: 'De-on-thi-Toan.docx',
+                tier1: '2. goc-hoc-tap',
+                tier2: 'Mon-Toan',
+                icon: '📄',
+                desc: 'Tìm tệp văn bản Đề ôn thi Toán (De-on-thi-Toan.docx) để chuẩn bị kiểm tra.'
+            },
+            {
+                id: 4,
+                file: 'Bai-4-Cay-thu-muc.pptx',
+                tier1: '2. goc-hoc-tap',
+                tier2: 'Mon-Tin-hoc',
+                icon: '📊',
+                desc: 'Tìm bài trình chiếu Bài 4 Cây thư mục (Bai-4-Cay-thu-muc.pptx) môn Tin học.'
+            },
+            {
+                id: 5,
+                file: 'Doraemon-tap-1.mp4',
+                tier1: '3. Giai-tri-Ca-nhan',
+                tier2: 'Phim-Hoat-hinh',
+                icon: '🎬',
+                desc: 'Tìm tệp video phim Doraemon tập 1 (Doraemon-tap-1.mp4) để xem giờ giải lao.'
+            },
+            {
+                id: 6,
+                file: 'Bui-phan.mp3',
+                tier1: '3. Giai-tri-Ca-nhan',
+                tier2: 'Nhac-Thieu-nhi',
+                icon: '🎵',
+                desc: 'Tìm tệp âm thanh bài hát Bụi phấn (Bui-phan.mp3).'
+            }
+        ];
+
+        let CHALLENGE_POOL = [
+            {
+                id: 1,
+                section: 1,
+                q: 'Để mở một thư mục trên máy tính, em thực hiện thao tác chuột nào?',
+                options: ['Nháy đúp chuột vào biểu tượng thư mục', 'Nháy nút phải chuột một lần', 'Kéo thả thư mục vào thùng rác', 'Nháy nút cuộn chuột'],
+                ans: 0
+            },
+            {
+                id: 2,
+                section: 1,
+                q: 'Tệp có phần mở rộng là ".docx" thường là loại tệp nào?',
+                options: ['Tệp văn bản Word', 'Tệp hình ảnh', 'Tệp bài hát âm thanh', 'Tệp video clip'],
+                ans: 0
+            },
+            {
+                id: 3,
+                section: 1,
+                q: 'Tệp có phần mở rộng ".jpg" hoặc ".png" thuộc loại dữ liệu nào?',
+                options: ['Hình ảnh', 'Bài hát', 'Trình chiếu', 'Bảng tính'],
+                ans: 0
+            },
+            {
+                id: 4,
+                section: 1,
+                q: 'Tệp có đuôi ".mp3" là loại tệp gì?',
+                options: ['Tệp âm thanh / bài hát', 'Tệp văn bản', 'Tệp phim hoạt hình', 'Tệp chương trình cài đặt'],
+                ans: 0
+            },
+            {
+                id: 5,
+                section: 1,
+                q: 'Tệp có phần mở rộng ".pptx" thường được tạo bởi phần mềm nào?',
+                options: ['PowerPoint (Trình chiếu)', 'Paint (Tập vẽ)', 'Word (Soạn thảo văn bản)', 'Calculator (Máy tính)'],
+                ans: 0
+            },
+            {
+                id: 6,
+                section: 1,
+                q: 'Tên thư mục và tệp nên đặt như thế nào để quản lí dữ liệu khoa học?',
+                options: ['Rõ ràng, thống nhất và gợi nhớ nội dung', 'Càng ngắn càng tốt, ví dụ: a, b, c', 'Đặt tên tiếng nước ngoài không dấu', 'Đặt tên tùy tiện lúc nào nhớ thì sửa'],
+                ans: 0
+            },
+            {
+                id: 7,
+                section: 1,
+                q: 'Trong một thư mục trên máy tính, ta có thể lưu trữ những gì?',
+                options: ['Cả các tệp tin và các thư mục con', 'Chỉ lưu được tệp văn bản', 'Chỉ lưu được tối đa 3 thư mục', 'Không thể chứa thư mục khác'],
+                ans: 0
+            },
+            {
+                id: 8,
+                section: 1,
+                q: 'Cấu trúc sắp xếp phân nhánh nhiều tầng của thư mục được gọi là gì?',
+                options: ['Cấu trúc cây (Cây thư mục)', 'Cấu trúc hàng ngang', 'Cấu trúc vòng tròn', 'Cấu trúc kim tự tháp'],
+                ans: 0
+            },
+            {
+                id: 9,
+                section: 1,
+                q: 'Tệp video clip thường có đuôi mở rộng nào sau đây?',
+                options: ['.mp4', '.docx', '.xlsx', '.mp3'],
+                ans: 0
+            },
+            {
+                id: 10,
+                section: 1,
+                q: 'Việc tổ chức cây thư mục hợp lí mang lại lợi ích lớn nhất là gì?',
+                options: ['Dễ tìm kiếm, tiết kiệm thời gian và ngăn nắp', 'Làm máy tính chạy nhanh gấp 100 lần', 'Giúp máy tính không bị mất điện', 'Tự động làm bài tập giúp em'],
+                ans: 0
+            },
+            {
+                id: 11,
+                section: 2,
+                q: 'Khi sử dụng công cụ tìm kiếm trong File Explorer, sau khi gõ từ khóa em cần bấm phím gì?',
+                options: ['Phím Enter', 'Phím Shift', 'Phím Space (Cách)', 'Phím Esc'],
+                ans: 0
+            },
+            {
+                id: 12,
+                section: 2,
+                q: 'Ô tìm kiếm trong cửa sổ File Explorer / This PC nằm ở vị trí nào?',
+                options: ['Góc trên, bên phải cửa sổ', 'Góc dưới bên trái', 'Chính giữa thanh trạng thái', 'Bên trong thùng rác'],
+                ans: 0
+            },
+            {
+                id: 13,
+                section: 2,
+                q: 'Khi nào em nên sử dụng công cụ tìm kiếm trên máy tính?',
+                options: ['Khi chỉ nhớ tên tệp mà quên mất lưu ở thư mục nào', 'Khi máy tính bị hết pin', 'Khi muốn tắt máy tính nhanh', 'Khi muốn vẽ tranh trong phần mềm Paint'],
+                ans: 0
+            },
+            {
+                id: 14,
+                section: 2,
+                q: 'Nếu đang mở thư mục "Anh-Bai-tap-nhom" và gõ tìm kiếm, máy tính sẽ tìm tệp ở đâu?',
+                options: ['Trong thư mục Anh-Bai-tap-nhom và các thư mục con bên trong', 'Trong toàn bộ máy tính', 'Chỉ tìm trong thùng rác', 'Chỉ tìm trên mạng Internet'],
+                ans: 0
+            }
+        ];
+
+        /* Tự động tải từ file questions.json riêng */
+        async function loadQuestionsFromJSON() {
+            try {
+                const res = await fetch('questions.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data.quests) && data.quests.length > 0) {
+                        QUEST_LIST = data.quests;
+                    }
+                    if (Array.isArray(data.challenges) && data.challenges.length > 0) {
+                        CHALLENGE_POOL = data.challenges;
+                    }
+                    console.log('✅ Đã nạp thành công câu hỏi & quest từ questions.json!');
+                }
+            } catch (err) {
+                console.warn('questions.json nạp qua mạng không khả dụng (do giao thức file://), dùng dữ liệu tích hợp sẵn.', err);
+            }
+        }
+        loadQuestionsFromJSON();
+
+        /* ================= BIẾN TOÀN CỤC ================= */
+        const TEAM_COLORS = ['#3178f6', '#16b89a', '#ff6c65', '#e0a100', '#8b5cf6', '#ec4899'];
+        const STARTING_SCORE = 1000;
+
+        let currentClass = '5_1';
+        let teams = [];
+        let students = [];
+        let nextStudentId = 0;
+
+        // Trạng thái game
+        let gameState = {
+            activeTeam: 0,
+            currentPath: ['Local Disk (D:)'],
+            unlocked: new Set(['root']),
+            questsAssigned: false,
+            searchQuery: ''
+        };
+
+        let activeChallenge = null;
+
+        /* ================= ÂM THANH ================= */
+        function playPenaltySound() {
+            const AudioContextType = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextType) return;
+            const audio = new AudioContextType(), now = audio.currentTime;
+            const osc = audio.createOscillator(), vol = audio.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(260, now);
+            osc.frequency.exponentialRampToValueAtTime(70, now + .65);
+            vol.gain.setValueAtTime(.0001, now);
+            vol.gain.exponentialRampToValueAtTime(.28, now + .04);
+            vol.gain.setValueAtTime(.28, now + .32);
+            vol.gain.exponentialRampToValueAtTime(.0001, now + .72);
+            osc.connect(vol); vol.connect(audio.destination);
+            osc.start(now); osc.stop(now + .74);
+            osc.onended = () => audio.close();
+        }
+
+        function playSuccessSound() {
+            const AudioContextType = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextType) return;
+            const audio = new AudioContextType();
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, idx) => {
+                const osc = audio.createOscillator(), gain = audio.createGain();
+                const t = audio.currentTime + idx * 0.1;
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, t);
+                gain.gain.setValueAtTime(0.001, t);
+                gain.gain.exponentialRampToValueAtTime(0.24, t + 0.03);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+                osc.connect(gain); gain.connect(audio.destination);
+                osc.start(t); osc.stop(t + 0.34);
+            });
+            setTimeout(() => audio.close(), 1000);
+        }
+
+        function playCorrectSound() {
+            const AudioContextType = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextType) return;
+            const audio = new AudioContextType(), now = audio.currentTime;
+            const osc = audio.createOscillator(), gain = audio.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, now);
+            osc.frequency.setValueAtTime(880, now + 0.12);
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.exponentialRampToValueAtTime(0.2, now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+            osc.connect(gain); gain.connect(audio.destination);
+            osc.start(now); osc.stop(now + 0.36);
+            setTimeout(() => audio.close(), 500);
+        }
+
+        /* ================= KHỞI TẠO TIẾT HỌC ================= */
+        async function loadStudentList(clsKey) {
+            try {
+                const res = await fetch('../../assets/data/students_5_2026_2027.json');
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                const norm = s => String(s).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                const list = data[clsKey] || data[norm(clsKey)] || [];
+                if (Array.isArray(list) && list.length) return list;
+            } catch (err) { }
+            return [
+                'Ngô Phương Anh', 'Nguyễn Quốc Anh', 'Phạm Minh Anh', 'Đào Thiên Ân',
+                'Trương Gia Bảo', 'Nguyễn Trọng Đức', 'Đỗ Hoàng Hiếu', 'Nguyễn Nhật Huy',
+                'Dương Uyển Khanh', 'Trương Ngọc Lâm', 'Lâm Đường Vạn Lý', 'Mạc Kim Ngân',
+                'Chu Dương Bảo Như', 'Phương Phú Quý', 'Bùi Quốc Thành', 'Trần Bảo Vy'
+            ];
+        }
+
+        async function startGame() {
+            currentClass = document.getElementById('s-class').value;
+            const numTeams = parseInt(document.getElementById('s-teams').value) || 4;
+
+            let rawList = await loadStudentList(currentClass);
+            students = rawList.map((name, i) => ({
+                id: i + 1,
+                name: typeof name === 'string' ? name : (name.name || 'Học sinh ' + (i + 1)),
+                team: null,
+                actions: []
+            }));
+            nextStudentId = students.length;
+
+            teams = [];
+            for (let i = 0; i < numTeams; i++) {
+                teams.push({
+                    id: i,
+                    name: `Tổ ${i + 1}`,
+                    color: TEAM_COLORS[i % TEAM_COLORS.length],
+                    score: STARTING_SCORE,
+                    quest: null,
+                    won: false
+                });
+            }
+
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('app').style.display = 'flex';
+            document.title = `Tin học 5 – Bài 4: Cây thư mục (Lớp ${currentClass.replace('_', '/')})`;
+
+            updateDateDisplay();
+            renderTeamsSidebar();
+            initGame();
+        }
+
+        function updateDateDisplay() {
+            const daysOfWeek = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
+            const today = new Date();
+            const dateStr = `${daysOfWeek[today.getDay()]}, ngày ${String(today.getDate()).padStart(2, '0')} tháng ${String(today.getMonth() + 1).padStart(2, '0')} năm ${today.getFullYear()}`;
+            document.querySelectorAll('.currentDateDisplay').forEach(el => el.textContent = dateStr);
+        }
+
+        /* ================= SIDEBAR & ĐIỂM SỐ & PHẠT TIẾNG ỒN ================= */
+        function renderTeamsSidebar() {
+            const teamsContainer = document.getElementById('teams');
+            teamsContainer.innerHTML = teams.map((t, i) => `
+                <div class="team ${i === gameState.activeTeam ? 'turn' : ''}" id="team-${i}" style="--tc:${t.color}">
+                    <div class="turn-badge">👉 ĐANG TỚI LƯỢT</div>
+                    <div class="trow">
+                        <span class="tname">${t.name}</span>
+                        <button class="btn-penalty" onclick="penalizeTeam(${i})" title="Bấm phạt khi tổ ồn (-10%)">🔇 Phạt ồn</button>
+                    </div>
+                    <div class="tscore" contenteditable="true" spellcheck="false" title="Nhấp vào để nhập tay sửa điểm" onblur="setManualScore(${i}, this.innerText)" onkeydown="if(event.key==='Enter'){this.blur(); event.preventDefault();}">${t.score}</div>
+                    <select id="sel-${i}">
+                        <option value="">-- Chọn học sinh --</option>
+                    </select>
+                    <div class="tquest-badge" id="qb-${i}" 
+                         onmouseenter="showQuestTooltip(event, ${i})" 
+                         onmouseleave="hideQuestTooltip()">Chưa phát Quest</div>
+                </div>
+            `).join('');
+
+            refreshStudentSelects();
+            updateQuestBadges();
+        }
+
+        /* TOOLTIP HOVER 0.5s - 1s HIỂN THỊ QUEST TO CHO CÁC TỔ XEM */
+        let tooltipTimer = null;
+        const tooltipEl = document.getElementById('floating-quest-tooltip');
+
+        function showQuestTooltip(e, teamIdx) {
+            clearTimeout(tooltipTimer);
+            tooltipTimer = setTimeout(() => {
+                const t = teams[teamIdx];
+                if (!t) return;
+                const rect = e.target.getBoundingClientRect();
+                tooltipEl.style.top = Math.min(window.innerHeight - 250, Math.max(15, rect.top - 15)) + 'px';
+
+                if (!t.quest) {
+                    tooltipEl.innerHTML = `
+                        <div style="color:${t.color}; font-size:18px; font-weight:900;">${t.name}</div>
+                        <div style="color:#94a3b8; font-size:14px; margin-top:4px;">Chưa phát Mật Lệnh</div>
+                    `;
+                } else {
+                    tooltipEl.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid rgba(255,255,255,0.2); padding-bottom:6px; margin-bottom:8px;">
+                            <span style="color:${t.color}; font-size:19px; font-weight:900;">🎯 NHIỆM VỤ: ${t.name}</span>
+                            <span style="font-size:12px; font-weight:900; background:${t.won ? '#10b981' : '#f59e0b'}; color:#fff; padding:2px 8px; border-radius:12px;">
+                                ${t.won ? '✅ ĐÃ TÌM THẤY' : '⏳ ĐANG TÌM'}
+                            </span>
+                        </div>
+                        <div style="font-size:20px; color:#38bdf8; font-weight:900; margin-bottom:8px;">
+                            ${t.quest.icon || '📄'} ${escapeHtml(t.quest.file)}
+                        </div>
+                        <div style="font-size:14px; color:#e2e8f0; line-height:1.35; background:rgba(255,255,255,0.08); padding:8px 10px; border-radius:8px;">
+                            💡 <i>${escapeHtml(t.quest.desc)}</i>
+                        </div>
+                    `;
+                }
+                tooltipEl.classList.add('visible');
+            }, 550); // Đợi 0.55s hover mới hiện to rõ
+        }
+
+        function hideQuestTooltip() {
+            clearTimeout(tooltipTimer);
+            tooltipEl.classList.remove('visible');
+        }
+
+        /* NHẬP TAY SỬA ĐIỂM TỔ */
+        function setManualScore(teamIdx, rawText) {
+            const cleaned = rawText.replace(/[^0-9]/g, '');
+            const num = parseInt(cleaned);
+            if (!isNaN(num)) {
+                teams[teamIdx].score = num;
+                toast(`Đã sửa điểm ${teams[teamIdx].name}: ${num} điểm`, 1600, teams[teamIdx].color);
+            }
+            renderTeamsSidebar();
+        }
+
+        /* PHẠT ỒN TRỪ 10% */
+        function penalizeTeam(i) {
+            const penaltyPts = Math.max(20, Math.round(teams[i].score * 0.1));
+            teams[i].score = Math.max(0, teams[i].score - penaltyPts);
+            document.getElementById('sc-' + i)?.textContent || renderTeamsSidebar();
+
+            const el = document.getElementById('team-' + i);
+            if (el) {
+                const floatBadge = document.createElement('div');
+                floatBadge.className = 'floatred';
+                floatBadge.textContent = `-${penaltyPts} (10%)`;
+                el.appendChild(floatBadge);
+                el.classList.add('penalty-hit');
+                setTimeout(() => {
+                    floatBadge.remove();
+                    el.classList.remove('penalty-hit');
+                }, 1000);
+            }
+
+            playPenaltySound();
+            toast(`🔇 ${teams[i].name} bị phạt trừ 10% (-${penaltyPts} điểm) vì mất trật tự!`, 2500, 'var(--coral)');
+        }
+
+        function refreshStudentSelects() {
+            teams.forEach((_, i) => {
+                const sel = document.getElementById('sel-' + i);
+                if (!sel) return;
+                const curVal = sel.value;
+                sel.innerHTML = '<option value="">-- Chọn học sinh --</option>' +
+                    students.map((st, idx) => `
+                        <option value="${idx}" ${st.team !== null ? 'disabled' : ''}>
+                            ${st.team !== null ? '🔒 ' : ''}${escapeHtml(st.name)}
+                        </option>
+                    `).join('');
+                if (curVal !== '' && students[+curVal] && students[+curVal].team === null) {
+                    sel.value = curVal;
+                }
+            });
+        }
+
+        function needStudent(teamIdx) {
+            const sel = document.getElementById('sel-' + teamIdx);
+            if (!sel || sel.value === '') {
+                if (sel) {
+                    sel.classList.remove('need');
+                    void sel.offsetWidth;
+                    sel.classList.add('need');
+                }
+                toast(`⚠️ Hãy chọn học sinh đại diện cho ${teams[teamIdx].name}!`, 2600, 'var(--coral)');
+                return true;
+            }
+            return false;
+        }
+
+        function recordAnswer(teamIdx, text) {
+            const sel = document.getElementById('sel-' + teamIdx);
+            if (!sel || sel.value === '') return;
+            const st = students[+sel.value];
+            st.team = teamIdx;
+            st.actions.push(text);
+            sel.value = '';
+            refreshStudentSelects();
+        }
+
+        function addScore(i, pts, reason) {
+            teams[i].score += pts;
+            renderTeamsSidebar();
+            toast(`+${pts} điểm cho ${teams[i].name}! ${reason ? `(${reason})` : ''}`, 2200, teams[i].color);
+        }
+
+        function updateQuestBadges() {
+            teams.forEach((t, i) => {
+                const el = document.getElementById('qb-' + i);
+                if (!el) return;
+                if (!t.quest) {
+                    el.textContent = 'Chưa có Mật lệnh';
+                    el.className = 'tquest-badge';
+                } else if (t.won) {
+                    el.textContent = `🎯 ĐÃ TÌM: ${t.quest.file}`;
+                    el.className = 'tquest-badge found';
+                } else {
+                    el.textContent = `🔍 Cần: ${t.quest.file}`;
+                    el.className = 'tquest-badge';
+                }
+            });
+        }
+
+        /* ================= LOGIC GAME MAP TUẦN 7 ================= */
+        function initGame() {
+            gameState.activeTeam = 0;
+            gameState.currentPath = ['Local Disk (D:)'];
+            gameState.unlocked = new Set(['root']);
+            gameState.questsAssigned = false;
+        }
+
+        /* SLIDE 5: PHÁT MẬT LỆNH CHO CÁC TỔ */
+        function renderRollScreen() {
+            const container = document.getElementById('roll-wrapper');
+            if (!container) return;
+
+            renderTeamsSidebar();
+
+            if (!gameState.questsAssigned) {
+                // Giai đoạn 1: 6 Thẻ bài úp bí ẩn
+                container.innerHTML = `
+                    <div class="draw-panel" style="animation: popIn .3s;">
+                        <div style="font-size: 38px; font-weight: 900; color: var(--ink); margin-bottom: 8px;">
+                            🃏 6 THẺ MẬT LỆNH BÍ ẨN
+                        </div>
+                        <p style="font-size: 22px; font-weight: 700; color: #475569; margin: 0 0 20px;">
+                            Hệ thống sẽ phát ngẫu nhiên 1 Mật Lệnh cho mỗi tổ để bắt đầu cuộc đua tìm tệp trong ổ đĩa D:\\
+                        </p>
+                        <div class="draw-grid" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));">
+                            ${[1, 2, 3, 4, 5, 6].map(num => `
+                                <div class="quest-card" style="padding: 24px 14px; background: #f8fafc;">
+                                    <div class="qc-icon" style="font-size: 50px;">📜</div>
+                                    <div class="qc-name" style="font-size: 20px;">Mật lệnh 0${num}</div>
+                                    <div class="qc-clue" style="font-size: 15px;">🔒 Thẻ bài úp</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="margin-top: 25px;">
+                            <button class="btn-setup" style="font-size: 26px; padding: 16px 42px; box-shadow: 0 8px 0 #000;" onclick="autoDrawQuests()">
+                                🎲 BẤM PHÁT MẬT LỆNH NGAY!
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Giai đoạn 2: Đã phát mật lệnh -> Hiển thị nhiệm vụ của các tổ
+                container.innerHTML = `
+                    <div class="draw-panel" style="animation: popIn .3s;">
+                        <div style="font-size: 38px; font-weight: 900; color: var(--mint); margin-bottom: 6px;">
+                            🎉 BẢNG NHIỆM VỤ CỦA CÁC TỔ
+                        </div>
+                        <p style="font-size: 20px; font-weight: 700; color: #475569; margin: 0 0 16px;">
+                            Các tổ hãy nhìn thật kỹ tệp mật và manh mối của tổ mình trước khi bắt đầu thám hiểm!
+                        </p>
+                        <div class="draw-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+                            ${teams.map((t) => `
+                                <div class="quest-card assigned" style="border-color:${t.color}; box-shadow: 0 8px 0 ${t.color};">
+                                    <div class="qc-team-tag" style="background:${t.color}; font-size: 16px; padding: 4px 14px;">${t.name}</div>
+                                    <div class="qc-icon" style="font-size: 44px;">${t.quest?.icon || '📄'}</div>
+                                    <div class="qc-name" style="color:${t.color}; font-size: 19px;">${escapeHtml(t.quest?.file || '')}</div>
+                                    <div class="qc-clue" style="font-size: 14px;">${escapeHtml(t.quest?.desc || '')}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="display: flex; gap: 16px; justify-content: center; margin-top: 25px;">
+                            <button class="btn-setup" style="background: var(--blue); font-size: 26px; padding: 16px 38px; box-shadow: 0 8px 0 #000;" onclick="goSlide(1)">
+                                🚀 VÀO THÁM HIỂM CÂY THƯ MỤC ▶
+                            </button>
+                            <button style="background: #64748b; color: #fff; font-size: 18px; font-weight: 800; padding: 14px 24px; border-radius: 16px; border: 3px solid var(--ink); cursor: pointer;" onclick="reRollQuests()">
+                                🔄 Phát lại
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        /* TỰ ĐỘNG PHÁT MẬT LỆNH */
+        function autoDrawQuests() {
+            const shuffled = [...QUEST_LIST].sort(() => Math.random() - .5);
+            teams.forEach((t, i) => {
+                t.quest = shuffled[i % shuffled.length];
+                t.won = false;
+            });
+            gameState.questsAssigned = true;
+            playSuccessSound();
+            toast('🎲 Đã phát xong Mật Lệnh! Hãy xem nhiệm vụ của từng tổ.', 2500, 'var(--mint)');
+            updateQuestBadges();
+            renderRollScreen();
+        }
+
+        function reRollQuests() {
+            gameState.questsAssigned = false;
+            autoDrawQuests();
+        }
+
+        /* ================= GAME MAP TUẦN 7: GIAI ĐOẠN 1 & GIAI ĐOẠN 2 ================= */
+        function getCurrentSlideIndex() {
+            const allSlides = getSlideElements();
+            const idx = allSlides.findIndex(s => s.classList.contains('on'));
+            return idx >= 0 ? idx : 0;
+        }
+
+        function getAllTreeFiles(node, list = []) {
+            if (node.files) {
+                node.files.forEach(f => list.push({ ...f, parentFolder: node.name }));
+            }
+            if (node.children) {
+                node.children.forEach(c => getAllTreeFiles(c, list));
+            }
+            return list;
+        }
+
+        function executeExplorerSearch(query) {
+            const q = (query || '').trim().toLowerCase();
+            gameState.searchQuery = q;
+            if (q) {
+                playCorrectSound();
+                toast(`🔍 Đang tìm kiếm "${q}" trong ổ đĩa D:...`, 1500, 'var(--blue)');
+            }
+            renderGameScreen();
+        }
+
+        function clearExplorerSearch() {
+            gameState.searchQuery = '';
+            renderGameScreen();
+        }
+
+        function renderGameScreen() {
+            const curIdx = getCurrentSlideIndex();
+            const isStage2 = (curIdx >= 9);
+            const containerId = isStage2 ? 'gw2' : 'gw1';
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            // Nếu chưa phát mật lệnh mà giáo viên đã chuyển sang slide game thì tự động phát
+            if (!gameState.questsAssigned) {
+                const shuffled = [...QUEST_LIST].sort(() => Math.random() - .5);
+                teams.forEach((t, i) => {
+                    t.quest = shuffled[i % shuffled.length];
+                    t.won = false;
+                });
+                gameState.questsAssigned = true;
+                updateQuestBadges();
+            }
+
+            const currentTeam = teams[gameState.activeTeam];
+            renderTeamsSidebar();
+
+            const currentFolderNode = getNodeByPath(gameState.currentPath);
+            const radar = calculateRadar(currentTeam.quest, currentFolderNode);
+
+            container.innerHTML = `
+                <!-- Thanh nhiệm vụ hiển thị cực rõ đội đang đến lượt -->
+                <div class="quest-banner" style="border-color:${currentTeam.color}">
+                    <div>
+                        <div style="font-size: 13px; font-weight: 900; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.5px;">
+                            🔥 LƯỢT CHƠI HIỆN TẠI ${isStage2 ? '(GIAI ĐOẠN 2 · ĐÃ MỞ TÌM KIẾM 🔍)' : '(GIAI ĐOẠN 1 · KHÁM PHÁ CÂY THƯ MỤC)'}:
+                        </div>
+                        <span class="qb-team" style="color:${currentTeam.color}; font-size: 32px;">${currentTeam.name}</span>
+                        <div class="qb-info">
+                            🎯 Mục tiêu: <b>${escapeHtml(currentTeam.quest?.file || '')}</b><br>
+                            💡 <i>${escapeHtml(currentTeam.quest?.desc || '')}</i>
+                        </div>
+                    </div>
+                    <div class="qb-radar ${radar.cls}">
+                        ${radar.label}
+                    </div>
+                </div>
+
+                <!-- Cửa sổ Windows File Explorer (Tiếng Anh) -->
+                <div class="win-explorer">
+                    <div class="we-toolbar">
+                        <button class="we-btn" onclick="navUp()" ${gameState.currentPath.length <= 1 || gameState.searchQuery ? 'disabled' : ''} title="Up to parent folder">
+                            ↑ Up
+                        </button>
+                        <button class="we-btn" onclick="navBackRoot()" title="Go to Local Disk (D:)">
+                            🏠 Local Disk (D:)
+                        </button>
+                        <div class="we-address">
+                            <span>💻 This PC ›</span>
+                            ${gameState.searchQuery ? `
+                                <span class="we-crumb" onclick="clearExplorerSearch()">Local Disk (D:) › Search Results</span>
+                            ` : gameState.currentPath.map((name, idx) => `
+                                <span class="we-crumb" onclick="jumpToCrumb(${idx})">${name} ${idx < gameState.currentPath.length - 1 ? '›' : ''}</span>
+                            `).join('')}
+                        </div>
+                        <div class="we-search">
+                            <span class="glass" ${isStage2 ? 'style="cursor:pointer;" onclick="const inp=document.getElementById(\'we-search-input\'); if(inp) executeExplorerSearch(inp.value);"' : ''}>🔍</span>
+                            ${!isStage2 ? `
+                                <input placeholder="Search (Mở khóa ở Mục 2)" readonly onclick="toast('💡 Hãy học xong Mục 2 để mở khóa ô Tìm kiếm nhé!', 2500, 'var(--blue)')">
+                            ` : `
+                                <input id="we-search-input" type="text" placeholder="Tìm tệp... (Gõ tên & nhấn Enter)" value="${escapeHtml(gameState.searchQuery || '')}" onkeydown="if(event.key==='Enter') executeExplorerSearch(this.value)">
+                                ${gameState.searchQuery ? `<button class="btn-clear-search" onclick="clearExplorerSearch()" title="Xóa tìm kiếm">✕</button>` : ''}
+                            `}
+                        </div>
+                    </div>
+
+                    <div class="we-body">
+                        <!-- Navigation pane bên trái -->
+                        <div class="we-navpane">
+                            <div style="font-weight: 900; color: #64748b; margin-bottom: 6px; font-size: 13px; text-transform:uppercase;">
+                                Navigation pane
+                            </div>
+                            ${renderNavTree(TREE_DATA)}
+                        </div>
+
+                        <!-- Content pane bên phải -->
+                        <div class="we-content">
+                            ${renderFolderContent(currentFolderNode, currentTeam)}
+                        </div>
+                    </div>
+
+                    <div class="we-statusbar">
+                        <span>Path: ${gameState.searchQuery ? 'Search: "' + escapeHtml(gameState.searchQuery) + '"' : 'D:\\' + gameState.currentPath.slice(1).join('\\')}</span>
+                        <span>Tier 1 correct (+100 pts) · Tier 2 correct (+200 pts) · Collect file (+300 pts)</span>
+                    </div>
+                </div>
+
+                <!-- Điều khiển lượt -->
+                <div class="game-controls">
+                    <button class="btn-ctrl skip" onclick="skipTurn()">⏭ Skip turn (Chuyển tổ khác)</button>
+                    <div style="font-size: 18px; font-weight: 800; color: #475569;">
+                        Đã tìm thấy: ${teams.filter(t => t.won).length} / ${teams.length} tệp mật!
+                    </div>
+                    ${!isStage2 ? `
+                        <button class="btn-ctrl end" onclick="goSlide(1)">📖 Sang Mục 2: Công cụ tìm kiếm ▶</button>
+                    ` : `
+                        <button class="btn-ctrl end" style="background:var(--mint);" onclick="goSlide(1)">🏆 Xem Bảng Vàng Tổng Kết ▶</button>
+                    `}
+                </div>
+            `;
+        }
+
+        /* Lấy Node thư mục */
+        function getNodeByPath(pathArray) {
+            let current = TREE_DATA;
+            for (let i = 1; i < pathArray.length; i++) {
+                const targetName = pathArray[i];
+                if (!current.children) return null;
+                const found = current.children.find(c => c.name === targetName);
+                if (!found) return null;
+                current = found;
+            }
+            return current;
+        }
+
+        /* Render Ngăn điều hướng cây thư mục (Tiếng Anh) */
+        function renderNavTree(node, depth = 0) {
+            const isUnlocked = gameState.unlocked.has(node.id) || node.id === 'root';
+            const isActive = !gameState.searchQuery && gameState.currentPath[gameState.currentPath.length - 1] === node.name;
+            let html = `
+                <div class="tree-node ${isActive ? 'active' : ''}" style="padding-left: ${depth * 14 + 6}px;" onclick="selectTreeNode('${node.id}')">
+                    <span>${node.children && node.children.length ? (isUnlocked ? '📂' : '🔒') : '📁'}</span>
+                    <span style="${!isUnlocked ? 'opacity:.6;' : ''}">${escapeHtml(node.name)}</span>
+                </div>
+            `;
+            if (isUnlocked && node.children) {
+                node.children.forEach(child => {
+                    html += renderNavTree(child, depth + 1);
+                });
+            }
+            return html;
+        }
+
+        function selectTreeNode(nodeId) {
+            gameState.searchQuery = '';
+            const path = findPathToNode(nodeId, TREE_DATA);
+            if (path) {
+                gameState.currentPath = path;
+                renderGameScreen();
+            }
+        }
+
+        function findPathToNode(targetId, current, curPath = []) {
+            const newPath = [...curPath, current.name];
+            if (current.id === targetId) return newPath;
+            if (current.children) {
+                for (const child of current.children) {
+                    const res = findPathToNode(targetId, child, newPath);
+                    if (res) return res;
+                }
+            }
+            return null;
+        }
+
+        /* Render Nội dung thư mục (File Explorer) */
+        function renderFolderContent(node, currentTeam) {
+            // 1. Chế độ hiển thị kết quả tìm kiếm Search (khi gõ từ khóa)
+            if (gameState.searchQuery) {
+                const q = gameState.searchQuery.toLowerCase();
+                const allFiles = getAllTreeFiles(TREE_DATA);
+                const matches = allFiles.filter(f => f.name.toLowerCase().includes(q));
+
+                if (!matches.length) {
+                    return `
+                        <div style="grid-column: 1/-1; padding: 40px; text-align: center; color: #64748b;">
+                            <div style="font-size: 40px; margin-bottom: 8px;">🔍🚫</div>
+                            <div style="font-size: 22px; font-weight: 800;">Không tìm thấy tệp nào khớp với "${escapeHtml(gameState.searchQuery)}".</div>
+                            <div style="font-size: 16px; margin-top: 6px; color: #94a3b8;">Em hãy kiểm tra lại từ khóa hoặc bấm nút ✕ để quay lại duyệt thư mục.</div>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div style="grid-column: 1/-1; padding: 8px 14px; background: #eff6ff; border-radius: 10px; border: 2px solid #bfdbfe; font-size: 15px; font-weight: 800; color: #1e40af; display:flex; justify-content:space-between; align-items:center;">
+                        <span>🔍 Kết quả tìm kiếm cho "${escapeHtml(gameState.searchQuery)}" (${matches.length} tệp)</span>
+                        <button style="background:none; border:none; color:#dc2626; font-weight:900; cursor:pointer;" onclick="clearExplorerSearch()">✕ Đóng tìm kiếm</button>
+                    </div>
+                ` + matches.map(file => {
+                    const isMyTarget = currentTeam.quest && file.name === currentTeam.quest.file;
+                    const isOtherQuestFile = QUEST_LIST.some(q => q.file === file.name && q.file !== currentTeam.quest?.file);
+                    const isOtherQuestNotWon = teams.some(t => t.quest?.file === file.name && !t.won);
+
+                    return `
+                        <div class="item-icon-box ${isMyTarget ? 'target-glow' : ''}">
+                            <div class="big-icon">${file.icon || '📄'}</div>
+                            <div class="item-name" style="${isMyTarget ? 'color:#15803d; font-weight:900;' : ''}">${escapeHtml(file.name)}</div>
+                            <div style="font-size:11px; color:#64748b;">📁 Thư mục: ${escapeHtml(file.parentFolder)}</div>
+                            ${isMyTarget ? `
+                                <button style="margin-top:5px; background:#10b981; color:#fff; font-size:12px; font-weight:900; padding:4px 8px; border-radius:6px;" onclick="collectTargetFile('${escapeHtml(file.name)}')">
+                                    🎯 THU THẬP (+300đ)
+                                </button>
+                            ` : ''}
+                            ${!isMyTarget && isOtherQuestFile && isOtherQuestNotWon && !currentTeam.won ? `
+                                <button class="btn-steal-quest" onclick="stealQuest('${escapeHtml(file.name)}')">
+                                    🔄 Đổi Quest (-30đ)
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // 2. Chế độ duyệt thư mục thông thường
+            if (!node) return '<div style="padding:20px; color:#64748b;">This folder is empty.</div>';
+
+            let items = [];
+
+            // Các thư mục con
+            if (node.children) {
+                node.children.forEach(child => {
+                    const isUnlocked = gameState.unlocked.has(child.id);
+                    items.push(`
+                        <div class="item-icon-box ${!isUnlocked ? 'folder-locked' : ''}" onclick="clickFolderItem('${child.id}')">
+                            <div class="big-icon">
+                                📁
+                                ${!isUnlocked ? '<span class="lock-overlay">🔒</span>' : ''}
+                            </div>
+                            <div class="item-name">${escapeHtml(child.name)}</div>
+                            <div style="font-size:11px; color:#64748b; margin-top:2px;">
+                                ${isUnlocked ? 'File folder' : 'Locked · Click to open'}
+                            </div>
+                        </div>
+                    `);
+                });
+            }
+
+            // Các tệp tin
+            const isUnlocked = gameState.unlocked.has(node.id) || node.id === 'root';
+            if (isUnlocked && node.files) {
+                node.files.forEach(file => {
+                    const isMyTarget = currentTeam.quest && file.name === currentTeam.quest.file;
+                    const isOtherQuestFile = QUEST_LIST.some(q => q.file === file.name && q.file !== currentTeam.quest?.file);
+                    const isOtherQuestNotWon = teams.some(t => t.quest?.file === file.name && !t.won);
+
+                    items.push(`
+                        <div class="item-icon-box ${isMyTarget ? 'target-glow' : ''}">
+                            <div class="big-icon">${file.icon || '📄'}</div>
+                            <div class="item-name" style="${isMyTarget ? 'color:#15803d; font-weight:900;' : ''}">${escapeHtml(file.name)}</div>
+                            <div style="font-size:11px; color:#64748b;">${file.type || 'File'}</div>
+                            ${isMyTarget ? `
+                                <button style="margin-top:5px; background:#10b981; color:#fff; font-size:12px; font-weight:900; padding:4px 8px; border-radius:6px;" onclick="collectTargetFile('${escapeHtml(file.name)}')">
+                                    🎯 THU THẬP (+300đ)
+                                </button>
+                            ` : ''}
+                            ${!isMyTarget && isOtherQuestFile && isOtherQuestNotWon && !currentTeam.won ? `
+                                <button class="btn-steal-quest" onclick="stealQuest('${escapeHtml(file.name)}')">
+                                    🔄 Đổi Quest (-30đ)
+                                </button>
+                            ` : ''}
+                        </div>
+                    `);
+                });
+            }
+
+            if (!items.length) {
+                return '<div style="grid-column: 1/-1; padding: 40px; text-align: center; color: #94a3b8; font-size: 20px; font-weight: 700;">This folder is empty.</div>';
+            }
+
+            return items.join('');
+        }
+
+        /* QUYỀN CỨU TRỢ: ĐỔI QUEST (-30 ĐIỂM) ĐỂ LỤM LUÔN FILE */
+        function stealQuest(fileName) {
+            const currentTeam = teams[gameState.activeTeam];
+            const targetQuest = QUEST_LIST.find(q => q.file === fileName);
+            if (!targetQuest) return;
+
+            if (confirm(`${currentTeam.name} muốn dùng QUYỀN ĐỔI QUEST tốn 30 điểm sàn để đổi sang tìm tệp "${fileName}" và thu thập luôn (+300đ)?`)) {
+                currentTeam.score = Math.max(0, currentTeam.score - 30);
+                currentTeam.quest = targetQuest;
+                currentTeam.won = true;
+                addScore(currentTeam.id, 300, 'Thu thập tệp Quest đã đổi');
+                playSuccessSound();
+                triggerConfetti();
+                toast(`🔄 ${currentTeam.name} đổi Quest thành công và thu thập tệp ${fileName}! (+270đ)`, 3500, 'var(--mint)');
+                updateQuestBadges();
+                setTimeout(() => nextTeamTurn(), 2000);
+            }
+        }
+
+        /* Thu thập đúng File Quest của tổ mình (+300đ) */
+        function collectTargetFile(fileName) {
+            const currentTeam = teams[gameState.activeTeam];
+            if (currentTeam.won) {
+                toast(`${currentTeam.name} đã hoàn thành nhiệm vụ này rồi!`, 1800, 'var(--mint)');
+                return;
+            }
+
+            currentTeam.won = true;
+            addScore(currentTeam.id, 300, 'XUẤT SẮC TÌM THẤY TỆP MẬT');
+            playSuccessSound();
+            triggerConfetti();
+            toast(`🎉🎯 CHÚC MỪNG ${currentTeam.name} ĐÃ TÌM THẤY ${fileName}! (+300đ)`, 4000, 'var(--mint)');
+            updateQuestBadges();
+            setTimeout(() => nextTeamTurn(), 2200);
+        }
+
+        /* Thao tác nhấp vào thư mục */
+        function clickFolderItem(folderId) {
+            gameState.searchQuery = '';
+            const currentTeam = teams[gameState.activeTeam];
+
+            // Nếu thư mục đã mở -> đi vào
+            if (gameState.unlocked.has(folderId)) {
+                const child = findNodeById(folderId, TREE_DATA);
+                if (child) {
+                    gameState.currentPath.push(child.name);
+                    renderGameScreen();
+                }
+                return;
+            }
+
+            // Thư mục bị khóa -> Mở bảng câu hỏi to khổng lồ bên phải
+            const targetFolder = findNodeById(folderId, TREE_DATA);
+            if (!targetFolder) return;
+
+            if (needStudent(gameState.activeTeam)) return;
+
+            openChallengePanel(targetFolder, currentTeam);
+        }
+
+        function findNodeById(id, current) {
+            if (current.id === id) return current;
+            if (current.children) {
+                for (const c of current.children) {
+                    const f = findNodeById(id, c);
+                    if (f) return f;
+                }
+            }
+            return null;
+        }
+
+        /* LẤY NGÂN HÀNG CÂU HỎI THÍCH ỨNG THEO TIẾN TRÌNH BÀI HỌC */
+        function getAvailableChallenges() {
+            const curIdx = getCurrentSlideIndex();
+            // Giai đoạn 1 (Slide 6 trở về trước): Chỉ xuất hiện câu hỏi Mục 1
+            if (curIdx <= 6) {
+                const s1 = CHALLENGE_POOL.filter(q => q.section === 1);
+                return s1.length ? s1 : CHALLENGE_POOL;
+            }
+            // Giai đoạn 2 (Sau khi đã học Mục 2 - Slide 7 & 8): Xuất hiện cả câu hỏi Mục 1 và Mục 2
+            return CHALLENGE_POOL;
+        }
+
+        /* POP-UP CÂU HỎI TRÀN TOÀN BỘ MÀN HÌNH SLIDE (LÀM MỜ NỘI DUNG PHÍA SAU) */
+        function openChallengePanel(folderNode, team) {
+            const pool = getAvailableChallenges();
+            const q = pool[Math.floor(Math.random() * pool.length)];
+            activeChallenge = { folder: folderNode, team, q };
+
+            document.getElementById('cp-title').textContent = `📁 ${folderNode.name}`;
+            const teamBadge = document.getElementById('cp-team-name');
+            teamBadge.textContent = `👉 Lượt trả lời của: ${team.name}`;
+            teamBadge.style.color = team.color;
+            teamBadge.style.borderColor = team.color;
+
+            document.getElementById('cp-q').textContent = q.q;
+
+            const optContainer = document.getElementById('cp-options');
+            optContainer.innerHTML = q.options.map((opt, idx) => `
+                <button class="cp-opt-btn" onclick="submitChallengeAnswer(${idx})">
+                    <span class="opt-badge">${String.fromCharCode(65 + idx)}</span>
+                    <span style="flex:1;">${escapeHtml(opt)}</span>
+                </button>
+            `).join('');
+
+            document.getElementById('challenge-panel').style.display = 'flex';
+        }
+
+        function closeChallengePanel() {
+            document.getElementById('challenge-panel').style.display = 'none';
+            activeChallenge = null;
+        }
+
+        function submitChallengeAnswer(choiceIdx) {
+            if (!activeChallenge) return;
+            const { folder, team, q } = activeChallenge;
+            const buttons = document.querySelectorAll('#cp-options .cp-opt-btn');
+
+            if (choiceIdx === q.ans) {
+                playCorrectSound();
+                if (buttons[choiceIdx]) buttons[choiceIdx].classList.add('correct');
+                recordAnswer(team.id, `Mở khóa thành công thư mục ${folder.name}`);
+
+                setTimeout(() => {
+                    closeChallengePanel();
+                    gameState.unlocked.add(folder.id);
+                    gameState.currentPath.push(folder.name);
+
+                    // TÍNH ĐIỂM KHOẢNG CÁCH TUẦN 7
+                    calculateDistanceScore(folder, team);
+
+                    renderGameScreen();
+                }, 600);
+
+            } else {
+                playPenaltySound();
+                if (buttons[choiceIdx]) buttons[choiceIdx].classList.add('wrong');
+                if (buttons[q.ans]) buttons[q.ans].classList.add('correct');
+                toast(`❌ Chưa chính xác! Ổ khóa vẫn đóng. Chuyển lượt sang tổ tiếp theo!`, 2800, 'var(--coral)');
+
+                setTimeout(() => {
+                    closeChallengePanel();
+                    nextTeamTurn();
+                }, 1300);
+            }
+        }
+
+        /* TÍNH ĐIỂM KHOẢNG CÁCH CHUẨN TUẦN 7 */
+        function calculateDistanceScore(folder, team) {
+            const quest = team.quest;
+            if (!quest) return;
+
+            if (folder.tier === 1) {
+                if (folder.name === quest.tier1) {
+                    addScore(team.id, 100, 'Đúng thư mục Tầng 1');
+                    toast(`🔥 ĐÚNG HƯỚNG! Mở trúng nhánh Tầng 1 chứa tệp (+100đ)!`, 2500, 'var(--mint)');
+                } else {
+                    addScore(team.id, 50, 'Mở trật nhánh Tầng 1');
+                    toast(`❄️ LỆCH NHÁNH! Mở trật nhánh Tầng 1 (+50đ).`, 2500, '#3b82f6');
+                }
+            } else if (folder.tier === 2) {
+                if (folder.name === quest.tier2) {
+                    addScore(team.id, 200, 'Đúng thư mục con Tầng 2');
+                    toast(`🔥🔥 RẤT NÓNG! Mở trúng thư mục Tầng 2 chứa tệp (+200đ)! Hãy bấm thu thập tệp!`, 3000, 'var(--coral)');
+                } else {
+                    addScore(team.id, 50, 'Mở trật thư mục con Tầng 2');
+                    toast(`❄️ LỆCH HƯỚNG! Mở trật thư mục con (+50đ).`, 2500, '#3b82f6');
+                }
+            }
+        }
+
+        function calculateRadar(quest, currentFolder) {
+            if (!quest || !currentFolder) return { label: 'Đang thám hiểm', cls: '' };
+            if (currentFolder.files && currentFolder.files.some(f => f.name === quest.file)) {
+                return { label: '🎯 ĐÍCH ĐẾN: TỆP MẬT ĐANG Ở ĐÂY!', cls: 'hot' };
+            }
+            if (currentFolder.name === quest.tier2) {
+                return { label: '🔥 RẤT NÓNG: Đúng thư mục Tầng 2!', cls: 'hot' };
+            }
+            if (currentFolder.name === quest.tier1) {
+                return { label: '🌤️ ẤM ÁP: Đang đúng nhánh Tầng 1!', cls: 'warm' };
+            }
+            if (currentFolder.id === 'root') {
+                return { label: '🧭 Hãy chọn 1 nhánh Tầng 1 phù hợp', cls: '' };
+            }
+            return { label: '❄️ LẠNH BĂNG: Nhánh này xa tệp cần tìm', cls: 'cold' };
+        }
+
+        function navUp() {
+            gameState.searchQuery = '';
+            if (gameState.currentPath.length > 1) {
+                gameState.currentPath.pop();
+                renderGameScreen();
+            }
+        }
+
+        function navBackRoot() {
+            gameState.searchQuery = '';
+            gameState.currentPath = ['Local Disk (D:)'];
+            renderGameScreen();
+        }
+
+        function jumpToCrumb(crumbIdx) {
+            gameState.searchQuery = '';
+            gameState.currentPath = gameState.currentPath.slice(0, crumbIdx + 1);
+            renderGameScreen();
+        }
+
+        function nextTeamTurn() {
+            const n = teams.length;
+            let count = 0;
+            do {
+                gameState.activeTeam = (gameState.activeTeam + 1) % n;
+                count++;
+            } while (teams[gameState.activeTeam].won && count < n);
+
+            if (teams.every(t => t.won)) {
+                toast(`🎉 TẤT CẢ CÁC TỔ ĐÃ TÌM THẤY TỆP MẬT!`, 4000, 'var(--mint)');
+                triggerConfetti();
+            }
+
+            renderGameScreen();
+        }
+
+        function skipTurn() {
+            toast(`Đã chuyển lượt chơi sang tổ tiếp theo.`, 1500, '#64748b');
+            nextTeamTurn();
+        }
+
+        function finishGame() {
+            goSlide(1);
+        }
+
+        /* ================= CÂU HỎI TRẮC NGHIỆM SLIDE 7 (HÌNH 21 SGK) ================= */
+        document.addEventListener('click', e => {
+            const ans = e.target.closest('#mc-options .ans');
+            if (!ans) return;
+            document.querySelectorAll('#mc-options .ans').forEach(el => {
+                if (el.dataset.k === '1') {
+                    el.classList.add('ok');
+                } else {
+                    el.classList.add('no');
+                }
+            });
+            playCorrectSound();
+        });
+
+        /* ================= ĐIỀU HƯỚNG SLIDE ================= */
+        function getSlideElements() {
+            return [...document.querySelectorAll('.slide')];
+        }
+
+        function goSlide(direction) {
+            const allSlides = getSlideElements();
+            let currentIndex = allSlides.findIndex(s => s.classList.contains('on'));
+            if (currentIndex < 0) currentIndex = 0;
+
+            allSlides[currentIndex].classList.remove('on');
+            let nextIndex = Math.max(0, Math.min(allSlides.length - 1, currentIndex + direction));
+            allSlides[nextIndex].classList.add('on');
+
+            document.getElementById('stage').scrollTo(0, 0);
+
+            // Slide 5: Phát Mật Lệnh Cho Các Tổ
+            if (nextIndex === 5) {
+                renderRollScreen();
+            }
+
+            // Slide 6: Game Thám Hiểm Cây Thư Mục Ổ D: (Giai đoạn 1 - Tìm thủ công)
+            if (nextIndex === 6) {
+                if (!gameState.questsAssigned) {
+                    const shuffled = [...QUEST_LIST].sort(() => Math.random() - .5);
+                    teams.forEach((t, i) => {
+                        t.quest = shuffled[i % shuffled.length];
+                        t.won = false;
+                    });
+                    gameState.questsAssigned = true;
+                    updateQuestBadges();
+                }
+                gameState.searchQuery = '';
+                renderGameScreen();
+            }
+
+            // Slide 9: Game Thám Hiểm Cây Thư Mục Ổ D: (Giai đoạn 2 - Mở khóa Tìm kiếm)
+            if (nextIndex === 9) {
+                gameState.searchQuery = '';
+                renderGameScreen();
+            }
+
+            // Slide cuối cùng (Slide 10): Bảng vàng
+            if (nextIndex === allSlides.length - 1) {
+                renderRankings();
+            }
+        }
+
+        function renderRankings() {
+            const medals = ['🥇', '🥈', '🥉', '🏅', '🏅', '🏅'];
+            const sorted = [...teams].sort((a, b) => b.score - a.score);
+            const box = document.getElementById('rankings-box');
+            box.innerHTML = sorted.map((t, idx) => `
+                <div class="rank-card">
+                    <span style="font-size:42px;">${medals[idx] || '🏅'}</span>
+                    <span style="flex:1; text-align:left; margin-left:18px; color:${t.color};">${t.name}</span>
+                    <span style="color:var(--coral);">${t.score} ĐIỂM</span>
+                </div>
+            `).join('');
+            triggerConfetti();
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || document.getElementById('app').style.display === 'none') return;
+            if (e.key === 'ArrowRight' || e.key === 'PageDown') goSlide(1);
+            else if (e.key === 'ArrowLeft' || e.key === 'PageUp') goSlide(-1);
+            else if (e.key === 'Escape') {
+                closeChallengePanel();
+                closeAddHs();
+                closeEnd();
+            }
+        });
+
+        /* ================= THÊM HỌC SINH MỚI ================= */
+        function openAddHs() {
+            document.getElementById('hs-input').value = '';
+            document.getElementById('hs-modal').style.display = 'flex';
+            setTimeout(() => document.getElementById('hs-input').focus(), 50);
+        }
+
+        function closeAddHs() {
+            document.getElementById('hs-modal').style.display = 'none';
+        }
+
+        function saveAddHs() {
+            const text = document.getElementById('hs-input').value;
+            const names = text.split(/[,\n;]/).map(s => s.trim()).filter(Boolean);
+            if (names.length) {
+                names.forEach(name => {
+                    students.push({
+                        id: ++nextStudentId,
+                        name,
+                        team: null,
+                        actions: []
+                    });
+                });
+                refreshStudentSelects();
+                toast(`Đã thêm ${names.length} học sinh!`, 2000, 'var(--mint)');
+            }
+            closeAddHs();
+        }
+
+        /* ================= KANBAN & XUẤT EXCEL ================= */
+        let draggedStudentIdx = null;
+
+        function openEnd() {
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'flex';
+            renderKanban();
+        }
+
+        function closeEnd() {
+            document.getElementById('end-screen').style.display = 'none';
+            document.getElementById('app').style.display = 'flex';
+            refreshStudentSelects();
+        }
+
+        function renderKanban() {
+            const cols = [
+                ...teams.map(t => ({ key: t.id, name: t.name, color: t.color })),
+                { key: null, name: 'Chưa xếp tổ', color: '#64748b' }
+            ];
+            const kanbanContainer = document.getElementById('kanban');
+            kanbanContainer.style.setProperty('--n', cols.length);
+
+            kanbanContainer.innerHTML = cols.map(c => {
+                const list = students.map((s, idx) => ({ s, idx })).filter(item => item.s.team === c.key);
+                return `
+                    <div class="kan-col" style="--tc:${c.color}">
+                        <h4>
+                            <span>${c.name}</span>
+                            <span>${list.length} HS</span>
+                        </h4>
+                        <div class="kan-drop" data-key="${c.key === null ? '' : c.key}">
+                            ${list.map(item => `
+                                <div class="kan-card" draggable="true" data-idx="${item.idx}">
+                                    <span>${escapeHtml(item.s.name)}</span>
+                                    <small style="color:#64748b;">HS${String(item.s.id).padStart(3, '0')}</small>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            kanbanContainer.querySelectorAll('.kan-card').forEach(card => {
+                card.addEventListener('dragstart', e => {
+                    draggedStudentIdx = +card.dataset.idx;
+                    card.classList.add('drag');
+                    e.dataTransfer.setData('text/plain', draggedStudentIdx);
+                });
+                card.addEventListener('dragend', () => card.classList.remove('drag'));
+            });
+
+            kanbanContainer.querySelectorAll('.kan-drop').forEach(drop => {
+                drop.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    drop.classList.add('over');
+                });
+                drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+                drop.addEventListener('drop', e => {
+                    e.preventDefault();
+                    drop.classList.remove('over');
+                    if (draggedStudentIdx === null) return;
+                    students[draggedStudentIdx].team = drop.dataset.key === '' ? null : +drop.dataset.key;
+                    draggedStudentIdx = null;
+                    renderKanban();
+                });
+            });
+        }
+
+        function exportExcel() {
+            const rows = [
+                ['STT', 'Mã Học Sinh', 'Họ Và Tên', 'Lớp', 'Tổ / Nhóm', 'Lịch Sử Hoạt Động & Ghi Điểm']
+            ];
+            let stt = 1;
+
+            [...teams.map(t => t.id), null].forEach(tid => {
+                students.filter(s => s.team === tid).forEach(s => {
+                    rows.push([
+                        stt++,
+                        `HS${String(s.id).padStart(3, '0')}`,
+                        s.name,
+                        currentClass.replace('_', '/'),
+                        tid === null ? 'Chưa xếp tổ' : teams[tid].name,
+                        s.actions.join('; ') || 'Tham gia học tập tích cực'
+                    ]);
+                });
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            ws['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 28 }, { wch: 10 }, { wch: 16 }, { wch: 80 }];
+
+            const wsScores = XLSX.utils.aoa_to_sheet([
+                ['Tổ / Đội', 'Tổng Điểm Cuối Tiết'],
+                ...teams.map(t => [t.name, t.score])
+            ]);
+            wsScores['!cols'] = [{ wch: 16 }, { wch: 16 }];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Danh Sách Học Sinh');
+            XLSX.utils.book_append_sheet(wb, wsScores, 'Bảng Điểm Các Tổ');
+
+            const d = new Date(), pad = n => String(n).padStart(2, '0');
+            const timeStr = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
+            XLSX.writeFile(wb, `TinHoc5_Bai4_Tiet1_Lop${currentClass}_${timeStr}.xlsx`);
+            toast('📥 Đã xuất file Excel thành công!', 2500, 'var(--mint)');
+        }
+
+        /* ================= TIỆN ÍCH ================= */
+        let toastTimer;
+        function toast(msg, ms = 2200, bg = 'var(--mint)') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.background = bg;
+            t.style.display = 'block';
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => t.style.display = 'none', ms);
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>
