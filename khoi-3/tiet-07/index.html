@@ -133,7 +133,7 @@
             border: 2px solid #3d4f7c;
             border-radius: 10px;
             font-family: 'Quicksand', sans-serif;
-            font-size: 1.8vh;
+            font-size: clamp(13px, 1.8vh, 18px);
             font-weight: 800;
             padding: 5px 10px;
             cursor: pointer;
@@ -197,7 +197,7 @@
         .team-title {
             grid-column: 1;
             grid-row: 1;
-            font-size: clamp(12px, 1.7vh, 18px);
+            font-size: clamp(14px, 1.7vh, 18px);
             font-weight: 800;
             white-space: nowrap;
             overflow: hidden;
@@ -210,7 +210,6 @@
         .team-score {
             grid-column: 2;
             grid-row: 1;
-            font-size: clamp(16px, 2.3vh, 24px);
             line-height: 1;
             white-space: nowrap;
         }
@@ -221,7 +220,7 @@
         .team-3 .team-title { color: #c77dff; }
 
         .team-score {
-            font-size: clamp(16px, 2.3vh, 24px);
+            font-size: clamp(18px, 2.4vh, 24px);
             font-weight: 900;
             color: #ffffff;
             margin: 0;
@@ -232,7 +231,7 @@
         .team-cooldown-count {
             grid-column: 1 / -1;
             grid-row: 2;
-            font-size: clamp(11px, 1.35vh, 14px);
+            font-size: clamp(12px, 1.45vh, 14px);
             color: #cbd5e1;
             font-weight: 600;
             line-height: 1.1;
@@ -2490,7 +2489,7 @@
         }
 
         /* ================= KHỞI TẠO VÀ CHIA TỔ ================= */
-        function initClassData(clsKey) {
+        function initClassData(clsKey, notify = true) {
             APP.selectedClass = clsKey;
             const list = ALL_CLASSES_DATA[clsKey] || [];
             if (APP.bugTimerInterval) clearInterval(APP.bugTimerInterval);
@@ -2522,7 +2521,7 @@
             } else if (APP.currentSlide === 8) {
                 selectBugType(0);
             }
-            showToast(`Đã nạp ${list.length} học sinh Lớp ${clsKey.replace('_', '/')}. Chọn tên; tổ sẽ tự xoay vòng.`);
+            if (notify) showToast(`Đã nạp ${list.length} học sinh Lớp ${clsKey.replace('_', '/')}. Chọn tên; tổ sẽ tự xoay vòng.`);
         }
 
         function setupTeamCount(value) {
@@ -3450,14 +3449,14 @@
             document.getElementById('copyMeta2').innerText = `${lessonMeta} • Thao tác với chuột`;
             renderCopyRound(1);
             renderCopyRound(2);
-            initClassData("3_2");
+            initClassData("3_2", false);
             // Cố gắng fetch file JSON ngoài nếu đang chạy qua local HTTP server
             fetch('../../assets/data/students_3_2026_2027.json')
                 .then(r => r.json())
                 .then(data => {
                     if (data && typeof data === 'object') {
                         Object.assign(ALL_CLASSES_DATA, data);
-                        initClassData(APP.selectedClass);
+                        initClassData(APP.selectedClass, false);
                     }
                 })
                 .catch(() => {
