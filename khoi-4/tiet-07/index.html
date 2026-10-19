@@ -181,6 +181,20 @@
             display: block
         }
 
+        #s-game.active {
+            position: fixed;
+            inset: 0;
+            z-index: 40;
+            overflow-y: auto;
+            padding: clamp(12px, 2vw, 28px);
+            background: #eef8f4
+        }
+
+        #s-game .panel {
+            max-width: 1700px;
+            margin: 0 auto
+        }
+
         @keyframes arrive {
             from {
                 opacity: 0;
@@ -833,10 +847,10 @@
 </head>
 
 <body>
-    <!-- ===== HUD: đồng hồ bom chạy xuyên suốt mọi màn hình ===== -->
+    <!-- ===== HUD ===== -->
     <header class="hud">
         <div class="brand">💣 BOMB SEARCH<small>Tin học 4 · Bài 4 · Tìm kiếm thông tin</small></div>
-        <div class="clock" id="clock">30:00</div>
+        <div class="clock" id="clock">02:00</div>
         <span class="chip" id="hTeam">Đội: –</span><span class="chip" id="hErr">💥 Lỗi 0/5</span>
         <div class="prog"><span id="progLabel">Tiến độ giải cứu: 0/0</span>
             <div class="bar"><i id="progBar"></i></div>
@@ -879,12 +893,12 @@
                                 nhầm từ khoá: <strong>−10</strong> và tăng 1 lỗi.</li>
                             <li>Câu tìm kiếm <strong>không phải càng ngắn càng tốt</strong>: phải còn đủ từ khoá để biết
                                 đang tìm gì.</li>
-                            <li>Giữa chừng có phần <strong>chép bài</strong> – đồng hồ bom vẫn chạy!</li>
+                            <li>Đồng hồ chỉ đếm khi đang mở câu hỏi; khi <strong>chép bài</strong>, đồng hồ tạm dừng.</li>
                             <li>Lỡ bom nổ? Bài học <strong>không dừng</strong>: có bom dự phòng hoặc học tiếp không tính
                                 giờ.</li>
                         </ul>
                     </div>
-                    <button class="btn teal big" onclick="startGame()">🚀 BẮT ĐẦU NHIỆM VỤ</button>
+                    <button class="btn teal big" id="startBtn" onclick="startGame()">🚀 BẮT ĐẦU NHIỆM VỤ</button>
                 </div>
             </div>
 
@@ -902,7 +916,7 @@
                                 <ellipse cx="55" cy="62" rx="12" ry="7" fill="#fff" opacity=".15" />
                                 <circle class="led" cx="72" cy="102" r="5" fill="#ff3b3b" />
                             </svg>
-                            <div class="bomb-clock mc" id="bombClock">30:00</div>
+                            <div class="bomb-clock mc" id="bombClock">02:00</div>
                         </div>
                         <div class="wires" id="wires"></div>
                         <div class="live">🔎 Câu tìm kiếm hiện tại: <span id="liveQ"></span></div>
@@ -927,10 +941,10 @@
                 </div>
             </div>
 
-            <!-- 3. CHÉP BÀI GIỮA GIỜ (đồng hồ bom vẫn chạy) -->
+            <!-- 3. CHÉP BÀI GIỮA GIỜ (đồng hồ tạm dừng) -->
             <div id="s-note1" class="screen">
                 <div class="panel center">
-                    <div class="ribbon">💣 Bom vẫn đang đếm ngược: <b class="mc">--:--</b> – chép bài thật nhanh nhé!
+                    <div class="ribbon">⏸ Đồng hồ tạm dừng khi chép bài: <b class="mc">--:--</b>
                     </div>
                     <div style="font-size:3rem">⌨️ 🔎 🌐</div>
                     <div class="notebook">
@@ -948,7 +962,7 @@
 
             <div id="s-note2" class="screen">
                 <div class="panel center">
-                    <div class="ribbon">💣 Bom vẫn đang đếm ngược: <b class="mc">--:--</b> – chép bài thật nhanh nhé!
+                    <div class="ribbon">⏸ Đồng hồ tạm dừng khi chép bài: <b class="mc">--:--</b>
                     </div>
                     <div style="font-size:3rem">🤖 🧠 ✍️</div>
                     <div class="notebook">
@@ -1005,7 +1019,7 @@
         <label>Đội đang chơi <select id="cActive" onchange="setActive(+this.value)"></select></label>
         <p style="font-size:.8rem;margin:0">(Sửa tên đội ngay trên bảng điểm bên phải.)</p>
         <h3>Luật chơi</h3>
-        <label>Thời lượng tổng (phút) <input type="number" id="cMin" value="30" min="1" max="90"
+        <label>Thời lượng tổng (phút) <input type="number" id="cMin" value="2" min="1" max="90"
                 onchange="applyCfg()"></label>
         <label>Số lỗi tối đa <input type="number" id="cErr" value="5" min="1" max="20" onchange="applyCfg()"></label>
         <label>Số câu mỗi cấp (áp dụng ván mới) <input type="number" id="cPer" value="3" min="1" max="4"
@@ -1040,71 +1054,12 @@
 
     <script>
         'use strict';
-        /* =====================================================================
-           1. DỮ LIỆU CÂU HỎI  (giáo viên chỉnh/thêm câu ở đây)
-           lv: 1 Dễ | 2 Vừa | 3 Thử thách
-           Mỗi thẻ: [nội dung, loại, giải thích]
-             'K' = từ khoá cần GIỮ   'C' = phần THỪA nên cắt   'O' = giữ hay cắt đều được
-           Tiêu chí đạt: không cắt thẻ K và không giữ thẻ C (thẻ O tuỳ ý).
-           ===================================================================== */
-        const QUESTIONS = [
-            // ---------- CẤP 1: DỄ ----------
-            {
-                lv: 1, goal: 'Tìm thông tin về các đời vua Hùng', hint: 'Tìm cụm từ cho biết chủ đề chính. Lời nhờ và mục đích sử dụng không giúp máy tìm kiếm.',
-                cards: [['Em hãy giúp mình', 'C', 'Lời nhờ lịch sự nhưng máy tìm kiếm không cần.'], ['tìm hiểu thông tin', 'C', 'Ai tìm kiếm cũng là đang tìm thông tin, từ này không thu hẹp nội dung.'], ['về', 'C', 'Từ nối, bỏ đi không đổi ý nghĩa.'], ['các đời vua Hùng', 'K', 'Từ khoá cốt lõi cho biết chủ đề cần tìm.'], ['trong lịch sử Việt Nam', 'O', 'Giữ để thu hẹp phạm vi, bỏ cũng vẫn tìm được vì vua Hùng đã gắn với lịch sử nước ta.'], ['để làm bài học ở lớp', 'C', 'Mục đích sử dụng, không phải nội dung cần tìm.']]
-            },
-            {
-                lv: 1, goal: 'Tìm vòng đời của con bướm', hint: 'Có 2 cụm từ nói lên chủ đề: đang tìm cái gì, của con vật nào.',
-                cards: [['Bạn ơi, cho mình hỏi', 'C', 'Lời chào hỏi, không phải nội dung tìm kiếm.'], ['vòng đời', 'K', 'Cho biết đang tìm điều gì về con vật.'], ['của', 'C', 'Từ nối, bỏ đi vẫn hiểu.'], ['con bướm', 'K', 'Cho biết đối tượng cần tìm.'], ['là như thế nào nhỉ', 'C', 'Câu hỏi thừa, máy tìm kiếm không cần.']]
-            },
-            {
-                lv: 1, goal: 'Tìm các hành tinh trong Hệ Mặt Trời', hint: 'Giữ lại hai cụm cho biết: tìm cái gì và ở đâu.',
-                cards: [['Mình muốn biết', 'C', 'Câu dẫn, không phải từ khoá.'], ['các hành tinh', 'K', 'Cho biết loại thông tin cần tìm.'], ['trong', 'C', 'Từ nối, bỏ đi không đổi ý.'], ['Hệ Mặt Trời', 'K', 'Phạm vi cần tìm, bỏ đi sẽ ra mọi loại hành tinh.'], ['nhanh lên giúp mình nhé', 'C', 'Lời giục, máy tìm kiếm không cần.']]
-            },
-            {
-                lv: 1, goal: 'Tìm cách tiết kiệm nước', hint: 'Từ khoá chính nằm ở việc cần làm với nước.',
-                cards: [['Hôm nay cô giáo giao bài, mình cần', 'C', 'Kể hoàn cảnh, không phải từ khoá.'], ['cách', 'O', 'Giữ để ra các hướng dẫn, bỏ vẫn ra kết quả gần giống.'], ['tiết kiệm nước', 'K', 'Từ khoá cốt lõi.'], ['ở nhà', 'O', 'Giữ để thu hẹp, bỏ cũng được nếu muốn tìm rộng.'], ['rất gấp', 'C', 'Lời giục, không phải nội dung tìm.']]
-            },
-            // ---------- CẤP 2: VỪA ----------
-            {
-                lv: 2, goal: 'Tìm động vật sống dưới nước', hint: 'Tìm hai cụm: nói về loài nào và sống ở đâu. Các cụm khen đẹp, đáng yêu có làm đổi nội dung tìm không?',
-                cards: [['Mình đang rất tò mò muốn tìm', 'C', 'Cảm xúc của người hỏi, không phải từ khoá.'], ['các loài', 'O', 'Giữ hay bỏ đều được vì có từ động vật.'], ['động vật', 'K', 'Cho biết đối tượng cần tìm.'], ['sống dưới nước', 'K', 'Điều kiện quan trọng, bỏ đi sẽ ra mọi động vật.'], ['có hình dáng đẹp mắt', 'C', 'Làm kết quả lệch, không phải điều cần tìm.'], ['và rất đáng yêu', 'C', 'Nhận xét cá nhân, không phải từ khoá.'], ['cho bài thuyết trình', 'C', 'Mục đích sử dụng.']]
-            },
-            {
-                lv: 2, goal: 'Biết giờ mở cửa của Văn Miếu – Quốc Tử Giám', hint: 'Cần giữ thông tin muốn biết (giờ mở cửa) và tên địa danh.',
-                cards: [['Chị gái nhờ mình tra giúp', 'C', 'Hoàn cảnh nhờ vả, không phải từ khoá.'], ['giờ mở cửa', 'K', 'Thông tin cụ thể cần tìm.'], ['của', 'C', 'Từ nối, bỏ đi vẫn hiểu.'], ['Văn Miếu – Quốc Tử Giám', 'K', 'Tên di tích, bỏ đi sẽ không biết tìm nơi nào.'], ['ở Hà Nội', 'O', 'Giữ để chắc chắn đúng nơi, bỏ cũng được vì tên di tích đã rõ.'], ['vào cuối tuần này nhé', 'C', 'Không cần để tìm giờ mở cửa.']]
-            },
-            {
-                lv: 2, goal: 'Tìm các bước trồng cây cà chua từ hạt', hint: 'Muốn biết các bước làm gì, với cây nào. Cụm "từ hạt" thu hẹp thêm cách trồng.',
-                cards: [['Em muốn nhờ máy tính chỉ cho em', 'C', 'Lời nhờ, không phải từ khoá.'], ['các bước', 'K', 'Cho biết muốn tìm hướng dẫn từng bước.'], ['trồng cây cà chua', 'K', 'Việc cần làm và loại cây.'], ['từ hạt', 'O', 'Giữ để thu hẹp cách trồng, bỏ thì ra nhiều cách trồng khác.'], ['thật nhanh và dễ', 'C', 'Mong muốn cá nhân, làm lệch kết quả.'], ['trong vườn nhà bà', 'C', 'Hoàn cảnh, không cần.']]
-            },
-            {
-                lv: 2, goal: 'Tìm cách bảo vệ môi trường biển khỏi rác thải nhựa', hint: 'Có 3 cụm cho biết: làm gì, bảo vệ cái gì, khỏi cái gì.',
-                cards: [['Nhờ bạn tìm giúp', 'C', 'Lời nhờ vả.'], ['cách', 'O', 'Giữ hay bỏ đều được.'], ['bảo vệ', 'K', 'Hành động cần tìm hiểu.'], ['môi trường biển', 'K', 'Đối tượng cần bảo vệ, bỏ đi sẽ ra mọi môi trường.'], ['khỏi', 'C', 'Từ nối, bỏ được khi đã có "rác thải nhựa".'], ['rác thải nhựa', 'K', 'Nguy cơ cần tránh, bỏ đi sẽ mất trọng tâm.'], ['mà bạn thấy hay nhất', 'C', 'Ý kiến cá nhân, không phải từ khoá.']]
-            },
-            // ---------- CẤP 3: THỬ THÁCH ----------
-            {
-                lv: 3, goal: 'Tìm hành tinh lớn nhất trong Hệ Mặt Trời', hint: 'Chú ý cụm quyết định "cái nào" trong các hành tinh. Phần đoán mò có thể làm kết quả lệch.',
-                cards: [['Cô giáo hỏi lớp mình là', 'C', 'Kể lại tình huống.'], ['hành tinh', 'K', 'Đối tượng cần tìm.'], ['lớn nhất', 'K', 'Cụm quyết định, bỏ đi sẽ ra tất cả hành tinh.'], ['trong Hệ Mặt Trời', 'O', 'Giữ để rõ phạm vi, bỏ vẫn ra kết quả đúng.'], ['và nó có màu gì', 'C', 'Hỏi một thông tin khác, làm lệch mục tiêu.'], ['mình đoán là Sao Hoả', 'C', 'Đoán của cá nhân, có thể kéo kết quả sang Sao Hoả.'], ['nhờ bạn xem giúp', 'C', 'Lời nhờ.']]
-            },
-            {
-                lv: 3, goal: 'Tìm hình ảnh Quốc kỳ Việt Nam để giới thiệu trước lớp', hint: 'Muốn có ảnh hay chữ? Nhớ giữ cụm cho biết loại thông tin.',
-                cards: [['Mình được giao nhiệm vụ', 'C', 'Hoàn cảnh, không phải từ khoá.'], ['tìm', 'C', 'Máy tìm kiếm đã hiểu bạn đang tìm.'], ['hình ảnh', 'K', 'Loại thông tin cần tìm, bỏ đi sẽ ra cả bài viết.'], ['Quốc kỳ Việt Nam', 'K', 'Nội dung cốt lõi.'], ['thật đẹp và rõ nét', 'O', 'Giữ nếu muốn lọc ảnh chất lượng, bỏ vẫn được.'], ['để giới thiệu trước lớp', 'C', 'Mục đích sử dụng.'], ['vào thứ Hai tuần sau', 'C', 'Thời hạn, không giúp tìm kiếm.']]
-            },
-            {
-                lv: 3, goal: 'Tìm sự khác nhau giữa cá heo và cá mập', hint: 'So sánh thì phải còn đủ cả hai đối tượng được so sánh.',
-                cards: [['Mình đang phân vân không biết', 'C', 'Cảm xúc người hỏi.'], ['sự khác nhau', 'K', 'Cho biết muốn so sánh.'], ['giữa', 'O', 'Từ nối, bỏ vẫn hiểu.'], ['cá heo', 'K', 'Đối tượng thứ nhất, bỏ đi sẽ mất một vế so sánh.'], ['và', 'O', 'Từ nối, máy tìm kiếm thường tự hiểu.'], ['cá mập', 'K', 'Đối tượng thứ hai, bỏ đi sẽ mất một vế so sánh.'], ['vì trông chúng khá giống nhau', 'C', 'Lý do cá nhân, không phải từ khoá.'], ['ở dưới đại dương', 'C', 'Làm kết quả lệch, hai loài này đã quen thuộc.']]
-            },
-            {
-                lv: 3, goal: 'Xem dự báo thời tiết Đà Nẵng ngày mai', hint: 'Địa điểm và thời gian trông như chi tiết nhỏ nhưng quyết định kết quả.',
-                cards: [['Mình sắp đi dã ngoại cùng lớp nên', 'C', 'Hoàn cảnh, không phải từ khoá.'], ['dự báo thời tiết', 'K', 'Loại thông tin cần tìm.'], ['Đà Nẵng', 'K', 'Địa điểm, bỏ đi sẽ ra thời tiết nơi khác.'], ['ngày mai', 'K', 'Thời gian, bỏ đi sẽ ra dự báo chung chung.'], ['để chuẩn bị áo mưa và nón', 'C', 'Mục đích sử dụng.'], ['nhé', 'C', 'Từ đệm.']]
-            }
-        ];
+        let QUESTIONS = null;
 
         /* =====================================================================
            2. CẤU HÌNH & TRẠNG THÁI
            ===================================================================== */
-        const CFG = { min: 30, maxErr: 5, per: 3, sCut: 10, sKeep: 5, pen: 10, confirmCut: true, sound: true, fx: true, teach: false, present: false };
+        const CFG = { min: 2, maxErr: 5, per: 3, sCut: 10, sKeep: 5, pen: 10, confirmCut: true, sound: true, fx: true, teach: false, present: false };
         const BACKUP_MIN = 5;                       // phút cộng khi dùng bom dự phòng
         const NOTE_AFTER = ['s-note1', 's-note2'];  // màn chép bài sau cấp 1 và cấp 2
         const LV_NAME = ['', 'Dễ', 'Vừa', 'Thử thách'];
@@ -1145,7 +1100,7 @@
         let timerId = null;
         function tick() {
             const now = Date.now(), d = now - S.last; S.last = now;
-            const running = S.started && !S.paused && !S.halt && !S.free && !S.finished;
+            const running = S.started && S.screen === 's-game' && !S.paused && !S.halt && !S.free && !S.finished;
             if (running) {
                 S.remain -= d;
                 const sec = Math.ceil(S.remain / 1000);
@@ -1159,7 +1114,7 @@
             const txt = S.free ? '∞' : fmt(S.remain);
             $('clock').textContent = txt;
             document.querySelectorAll('.mc').forEach(e => e.textContent = S.started ? txt : '--:--');
-            const run = S.started && !S.free && !S.finished && !S.halt;
+            const run = S.started && S.screen === 's-game' && !S.free && !S.finished && !S.halt;
             document.body.classList.toggle('warn', run && S.remain <= 60000);
             document.body.classList.toggle('crit', run && S.remain <= 10000);
         }
@@ -1169,9 +1124,38 @@
            ===================================================================== */
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            $(id).classList.add('active'); S.screen = id; window.scrollTo(0, 0); render();
+            $(id).classList.add('active'); S.screen = id; S.last = Date.now(); window.scrollTo(0, 0); render();
         }
-        function startGame() {
+        function validateQuestionBank(questions) {
+            if (!Array.isArray(questions) || ![1, 2, 3].every(lv => questions.filter(q => q?.lv === lv).length >= CFG.per)) {
+                throw new Error('Ngân hàng phải có đủ số câu cho cả ba cấp độ.');
+            }
+            const validTypes = ['K', 'C', 'O'];
+            if (questions.some(q => !q || ![1, 2, 3].includes(q.lv) || typeof q.goal !== 'string' || typeof q.hint !== 'string' ||
+                !Array.isArray(q.cards) || !q.cards.length ||
+                q.cards.some(card => !Array.isArray(card) || card.length !== 3 ||
+                    typeof card[0] !== 'string' || !validTypes.includes(card[1]) || typeof card[2] !== 'string'))) {
+                throw new Error('Dữ liệu câu hỏi trong questions.json không đúng định dạng.');
+            }
+            return questions;
+        }
+        async function startGame() {
+            const startButton = $('startBtn');
+            startButton.disabled = true;
+            try {
+                if (!QUESTIONS) {
+                    const response = await fetch('./questions.json');
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const data = await response.json();
+                    QUESTIONS = validateQuestionBank(data.questions);
+                }
+            } catch (error) {
+                console.error('Không thể tải ngân hàng câu hỏi questions.json.', error);
+                toast('Không tải được câu hỏi. Hãy kiểm tra questions.json và mở trò chơi qua máy chủ web.');
+                startButton.disabled = false;
+                return;
+            }
+            startButton.disabled = false;
             S.started = true; S.remain = CFG.min * 60000; S.last = Date.now();
             S.queue = [1, 2, 3].map(lv => shuffle(QUESTIONS.filter(q => q.lv === lv)).slice(0, CFG.per));
             S.total = S.queue.reduce((n, a) => n + a.length, 0); S.stage = 0; S.qi = 0;
@@ -1210,6 +1194,7 @@
             if (!canAct() || S.sel === null) return;
             const i = S.sel, d = S.q.cards[i], t = T[S.active];
             snap(); S.cards[i].st = kind; S.sel = null; S.checked = false;
+            if (S.q.solved) { S.q.solved = false; S.solved = Math.max(0, S.solved - 1); }
             let msg, cls = 'ok';
             if (kind === 'cut') {
                 if (d[1] === 'K') {
@@ -1256,6 +1241,7 @@
                 html += '🎉 Đạt! Câu tìm kiếm ngắn gọn mà vẫn đủ từ khoá. Có thể có cách chọn khác cũng đúng, miễn giữ đủ từ khoá.';
                 if (!S.q.solved) { S.q.solved = true; S.solved++; beep(1000, .3, 'sine'); }
             } else {
+                if (S.q.solved) { S.q.solved = false; S.solved = Math.max(0, S.solved - 1); }
                 if (missing.length) html += '⚠️ Đã mất từ khoá: <b>' + missing.join(', ') + '</b>. Câu tìm kiếm chưa đủ thông tin.<br>';
                 if (extra.length) html += '✂️ Còn phần thừa có thể cân nhắc bỏ: <b>' + extra.join(', ') + '</b>.';
             }
@@ -1394,7 +1380,7 @@
         function toggleFull() { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => { }); }
         function applyCfg() {
             const g = id => +$(id).value;
-            const nm = Math.max(1, g('cMin') || 30);
+            const nm = Math.max(1, g('cMin') || 2);
             S.remain = Math.max(5000, S.remain + (nm - CFG.min) * 60000); CFG.min = nm;   // đổi thời lượng: cộng/trừ phần chênh
             CFG.maxErr = Math.max(1, g('cErr') || 5); CFG.per = Math.min(4, Math.max(1, g('cPer') || 3));
             CFG.sCut = g('cSC'); CFG.sKeep = g('cSK'); CFG.pen = g('cPen');
