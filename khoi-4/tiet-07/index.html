@@ -644,6 +644,35 @@
             gap: 6px;
         }
 
+        .team-cut-status {
+            background: #e2e8f0;
+            color: #334155;
+            font-size: 0.78rem;
+            font-weight: 900;
+            padding: 2px 7px;
+            border-radius: 6px;
+            white-space: nowrap;
+            border: 1px solid #cbd5e1;
+        }
+
+        .team-cut-status.done {
+            background: #dcfce7;
+            color: #15803d;
+            border-color: #86efac;
+        }
+
+        .wire-split-bar {
+            padding: 6px 12px;
+            background: #eff6ff;
+            border-bottom: 2px dashed #bfdbfe;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.86rem;
+            font-weight: 800;
+            color: #1e40af;
+        }
+
         .team-name {
             font-weight: 900;
             font-size: 1.08rem;
@@ -1051,9 +1080,12 @@
                         </div>
 
                         <div class="current-turn-indicator">
-                            <div>
+                            <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
                                 <span>✂️ LƯỢT CẮT DÂY: </span><b id="indicatorTeamName">TỔ 1</b>
-                                <span id="indicatorStudentName" style="margin-left:10px; color:#facc15;"></span>
+                                <span id="indicatorCutProgress"
+                                    style="background:#2563eb; color:#fff; padding:3px 10px; border-radius:8px; font-size:0.95rem; font-weight:800;">Lượt
+                                    1/2</span>
+                                <span id="indicatorStudentName" style="color:#facc15;"></span>
                             </div>
                             <div style="font-size:0.95rem; color:#fde047;">
                                 Cắt đúng dây thừa: <strong>+20đ</strong> · Cắt nhầm <strong>TỪ KHOÁ CHÍNH</strong>:
@@ -1067,8 +1099,8 @@
                                     <span style="color:#4285F4">G</span><span style="color:#EA4335">o</span><span
                                         style="color:#FBBC05">o</span><span style="color:#4285F4">g</span><span
                                         style="color:#34A853">l</span><span style="color:#EA4335">e</span>
-                                    <span style="color:#475569; font-size:0.98rem; margin-left:6px;">— Có 12 dây từ
-                                        vựng, hãy cắt bỏ các dây thừa để giữ lại Từ khoá:</span>
+                                    <span style="color:#475569; font-size:0.98rem; margin-left:6px;"
+                                        id="searchHeaderHint">— Có 12 dây, hãy cắt bỏ các dây thừa theo số tổ để giữ lại Từ khoá:</span>
                                 </span>
                                 <span id="wiresRemainingBadge"
                                     style="background:#fee2e2; color:#991b1b; padding:4px 12px; border-radius:99px;">Đang
@@ -1134,6 +1166,19 @@
                             <option value="5">5 tổ</option>
                             <option value="6">6 tổ</option>
                         </select>
+                    </div>
+                </div>
+                <div class="wire-split-bar">
+                    <span>✂️ Chia dây theo tổ:</span>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <select id="wiresPerTeamSelect" onchange="changeWiresPerTeam(this.value)"
+                            title="Số dây mỗi tổ cần cắt"
+                            style="padding:3px 8px; border-radius:6px; border:1px solid #3b82f6; font-weight:800; font-size:0.86rem; background:#fff; color:#1e3a8a;">
+                            <option value="1">1 dây / tổ</option>
+                            <option value="2" selected>2 dây / tổ</option>
+                            <option value="3">3 dây / tổ</option>
+                        </select>
+                        <span id="totalWiresTargetLabel" style="color:#2563eb; font-weight:900;">8 dây</span>
                     </div>
                 </div>
                 <div style="padding:4px 8px; background:#f8fafc; color:#475569; font-size:.76rem; font-weight:800; text-align:center; border-bottom:1px solid #e2e8f0;"
@@ -1237,6 +1282,16 @@
                 <button class="chip on" onclick="pickStart('teams',4,this)">4 tổ</button>
                 <button class="chip" onclick="pickStart('teams',5,this)">5 tổ</button>
                 <button class="chip" onclick="pickStart('teams',6,this)">6 tổ</button>
+            </div>
+            <div style="font-size:1.3rem; font-weight:900;">Số dây mỗi tổ cần cắt</div>
+            <div class="chip-row" id="startWireChips">
+                <button class="chip" onclick="pickStart('wires',1,this)">1 dây / tổ</button>
+                <button class="chip on" onclick="pickStart('wires',2,this)">2 dây / tổ</button>
+                <button class="chip" onclick="pickStart('wires',3,this)">3 dây / tổ</button>
+            </div>
+            <div style="color:#2563eb; font-size:1.05rem; font-weight:800; margin-top:-6px; margin-bottom:14px;"
+                id="startWireCalcText">
+                👉 4 tổ × 2 dây = 8 dây cần cắt mỗi quả bom
             </div>
             <button class="btn success huge" onclick="confirmStart()">▶ Bắt đầu đếm ngược 35 phút</button>
         </div>
@@ -1478,14 +1533,14 @@
                 ]
             },
             {
-                "goal": "[DỰ PHÒNG 2] Tìm hiểu cách nhận trang phục Liliana miễn phí trong Liên Quân",
-                "hint": "Giữ lại đúng cụm từ chỉ cách nhận trang phục Liliana!",
+                "goal": "[DỰ PHÒNG 2] Tìm hiểu cách chơi trò FC Mobile",
+                "hint": "Giúp thầy giáo tìm hiểu cách chơi tựa game bóng đá FC Mobile!",
                 "cards": [
                     { "text": "Thầy giáo Tin học", "type": "C", "explanation": "Người hỏi, không đưa vào ô tìm kiếm.", "critical": false },
                     { "text": "chưa biết gì cả nên", "type": "C", "explanation": "Lời kể chuyện thừa, cần cắt bỏ.", "critical": false },
                     { "text": "nhờ cả lớp lên Google tìm", "type": "C", "explanation": "Hành động nhờ vả, cần cắt bỏ.", "critical": false },
-                    { "text": "hướng dẫn chi tiết", "type": "O", "explanation": "Có thể giữ hoặc rút gọn.", "critical": false },
-                    { "text": "cách nhận trang phục Liliana Liên Quân", "type": "K", "explanation": "TỪ KHOÁ CHÍNH! Ngắn gọn và trúng đích!", "critical": true },
+                    { "text": "hướng dẫn cách chơi", "type": "O", "explanation": "Có thể giữ hoặc rút gọn.", "critical": false },
+                    { "text": "cách chơi FC Mobile", "type": "K", "explanation": "TỪ KHOÁ CHÍNH! Ngắn gọn và trúng đích!", "critical": true },
                     { "text": "trên điện thoại thông minh", "type": "O", "explanation": "Thiết bị chơi, có thể cắt cho gọn.", "critical": false },
                     { "text": "dành cho người mới bắt đầu", "type": "O", "explanation": "Phạm vi bổ sung, có thể cắt.", "critical": false },
                     { "text": "để giải thích lại cho thầy", "type": "C", "explanation": "Mục đích giao tiếp trên lớp, cần cắt bỏ.", "critical": false },
@@ -1496,21 +1551,21 @@
                 ]
             },
             {
-                "goal": "[DỰ PHÒNG 3] Tìm công thức chế tạo Cúp Kim Cương trong Minecraft",
-                "hint": "Giữ lại đúng cụm công thức chế tạo cúp kim cương Minecraft!",
+                "goal": "[DỰ PHÒNG 3] Tìm danh lam thắng cảnh ở Rạch Giá",
+                "hint": "Giữ lại cụm từ chỉ danh lam thắng cảnh và tên địa phương Rạch Giá!",
                 "cards": [
-                    { "text": "Dịp nghỉ cuối tuần này", "type": "C", "explanation": "Thời gian dự kiến, cần cắt bỏ.", "critical": false },
-                    { "text": "em vào chơi với bạn", "type": "C", "explanation": "Hoàn cảnh riêng, cần cắt bỏ.", "critical": false },
-                    { "text": "nhưng quên mất cách ghép đồ", "type": "C", "explanation": "Lời kể lể, cần cắt bỏ.", "critical": false },
-                    { "text": "nên muốn tra cứu nhanh", "type": "C", "explanation": "Cụm từ thừa, cần cắt bỏ.", "critical": false },
-                    { "text": "công thức chế tạo cúp kim cương Minecraft", "type": "K", "explanation": "TỪ KHOÁ CHÍNH! Đúng nội dung và tên game!", "critical": true },
-                    { "text": "trên bàn chế tạo", "type": "O", "explanation": "Chi tiết bổ sung, có thể cắt.", "critical": false },
-                    { "text": "để đi đào đá đỏ", "type": "C", "explanation": "Mục đích sau đó, cần cắt bỏ.", "critical": false },
-                    { "text": "xây ngôi nhà thật to", "type": "C", "explanation": "Hoàn cảnh riêng, cần cắt bỏ.", "critical": false },
-                    { "text": "rồi khoe với các bạn", "type": "C", "explanation": "Việc làm cá nhân, cần cắt bỏ.", "critical": false },
-                    { "text": "trong xóm của mình", "type": "C", "explanation": "Chi tiết không liên quan tới kết quả tìm.", "critical": false },
-                    { "text": "vào tối thứ Bảy", "type": "C", "explanation": "Thời gian thừa, cần cắt bỏ.", "critical": false },
-                    { "text": "thật là vui vẻ", "type": "C", "explanation": "Cụm từ cảm thán, bắt buộc cắt bỏ.", "critical": false }
+                    { "text": "Dịp nghỉ lễ sắp tới", "type": "C", "explanation": "Thời gian dự kiến, cần cắt bỏ.", "critical": false },
+                    { "text": "gia đình em dự định", "type": "C", "explanation": "Kế hoạch riêng của gia đình, cần cắt bỏ.", "critical": false },
+                    { "text": "đi tham quan và chụp ảnh", "type": "C", "explanation": "Hành động đi chơi, cần cắt bỏ.", "critical": false },
+                    { "text": "các địa điểm du lịch", "type": "O", "explanation": "Cụm từ tương đương, có thể cắt cho gọn.", "critical": false },
+                    { "text": "danh lam thắng cảnh Rạch Giá", "type": "K", "explanation": "TỪ KHOÁ CHÍNH! Đúng nội dung và địa phương!", "critical": true },
+                    { "text": "nổi tiếng và đẹp nhất", "type": "O", "explanation": "Tính từ bổ sung, có thể cắt.", "critical": false },
+                    { "text": "để giới thiệu với bạn bè", "type": "C", "explanation": "Mục đích cá nhân, cần cắt bỏ.", "critical": false },
+                    { "text": "từ nơi xa mới đến chơi", "type": "C", "explanation": "Hoàn cảnh riêng, cần cắt bỏ.", "critical": false },
+                    { "text": "rồi làm thành cuốn album", "type": "C", "explanation": "Việc làm sau chuyến đi, cần cắt bỏ.", "critical": false },
+                    { "text": "kỉ niệm của cả lớp mình", "type": "C", "explanation": "Chi tiết không liên quan tới kết quả tìm.", "critical": false },
+                    { "text": "vào cuối năm học này", "type": "C", "explanation": "Thời gian thừa, cần cắt bỏ.", "critical": false },
+                    { "text": "thật là đáng nhớ", "type": "C", "explanation": "Cụm từ cảm thán, bắt buộc cắt bỏ.", "critical": false }
                 ]
             }
         ];
@@ -1538,6 +1593,7 @@
 
         let currentClassID = "4_1";
         let numT = 4;
+        let wiresPerTeam = 2; // Số dây mỗi tổ cần cắt
         let TEAMS = [];
         let classStudents = [];
         let selectedStudent = null;
@@ -1545,6 +1601,45 @@
         let calledStudents = new Set();
         let turn = 0;
         let gameLog = [];
+
+        function getDefaultWiresPerTeam(teams) {
+            if (teams <= 2) return 4;
+            if (teams === 3) return 3;
+            if (teams === 4) return 2;
+            if (teams === 5) return 2;
+            return 1;
+        }
+
+        function getTargetCutsForRound(roundIdx) {
+            const q = (roundIdx !== null && roundIdx !== undefined && QUESTIONS[roundIdx]) ? QUESTIONS[roundIdx] : curQ;
+            if (!q) return numT * wiresPerTeam;
+            const cuttableCount = q.cards.filter(c => c.type !== 'K' && !c.critical).length;
+            return Math.min(cuttableCount, numT * wiresPerTeam);
+        }
+
+        function changeWiresPerTeam(val) {
+            const n = Number(val);
+            if (![1, 2, 3].includes(n)) return;
+            wiresPerTeam = n;
+            if ($('#wiresPerTeamSelect')) $('#wiresPerTeamSelect').value = String(wiresPerTeam);
+            updateWiresInfo();
+            if (activeRound !== null) {
+                renderWireCards();
+                renderTeams();
+                updateTurnIndicator();
+            }
+            toast(`✂️ Đã chỉnh: Mỗi tổ cắt ${wiresPerTeam} dây (Tổng: ${numT * wiresPerTeam} dây)!`, 'ok');
+        }
+
+        function updateWiresInfo() {
+            const total = numT * wiresPerTeam;
+            if ($('#totalWiresTargetLabel')) {
+                $('#totalWiresTargetLabel').textContent = `${total} dây`;
+            }
+            if ($('#startWireCalcText')) {
+                $('#startWireCalcText').textContent = `👉 ${numT} tổ × ${wiresPerTeam} dây = ${total} dây cần cắt mỗi quả bom`;
+            }
+        }
 
         const SLIDES = [
             { id: 'slide-intro' },
@@ -1710,8 +1805,17 @@
                 rounds[i] = {
                     status: 'running',
                     cards: q.cards.map(() => ({ status: 'intact' })),
+                    teamCuts: Array(numT).fill(0),
+                    totalCuts: 0,
                     boomReason: ''
                 };
+            }
+            if (!rounds[i].teamCuts) {
+                rounds[i].teamCuts = Array(numT).fill(0);
+                rounds[i].totalCuts = 0;
+            }
+            while (rounds[i].teamCuts.length < numT) {
+                rounds[i].teamCuts.push(0);
             }
             return rounds[i];
         }
@@ -1741,6 +1845,7 @@
             banner.className = 'answer-reveal-banner';
             if (!curQ) return;
             const exactKey = getExactKeywordsString(curQ);
+            const target = getTargetCutsForRound(activeRound);
 
             if (r.status === 'boom') {
                 banner.classList.add('show-boom');
@@ -1752,7 +1857,7 @@
             } else if (r.status === 'done') {
                 banner.classList.add('show-done');
                 banner.innerHTML = `
-                    🎉 <strong>GỠ BOM THÀNH CÔNG!</strong> Tất cả các dây từ thừa đã bị cắt sạch!<br/>
+                    🎉 <strong>GỠ BOM THÀNH CÔNG!</strong> Các tổ đã cắt đủ ${r.totalCuts || target} dây thừa (${numT} tổ × ${wiresPerTeam} dây)!<br/>
                     🔑 <strong>TỪ KHOÁ CHUẨN GÕ VÀO GOOGLE:</strong>
                     <span style="background:#fef08a; color:#713f12; padding:3px 12px; border-radius:8px; margin-left:6px;">"${exactKey}"</span>
                 `;
@@ -1761,9 +1866,10 @@
 
         function countRemainingMustCut() {
             if (!curQ) return 0;
-            return curQ.cards.reduce((acc, c, i) => {
-                return acc + (c.type === 'C' && cardStates[i].status === 'intact' ? 1 : 0);
-            }, 0);
+            const target = getTargetCutsForRound(activeRound);
+            const r = activeRound !== null ? rounds[activeRound] : null;
+            const cutsDone = r ? (r.totalCuts || 0) : 0;
+            return Math.max(0, target - cutsDone);
         }
 
         function renderWireCards() {
@@ -1792,19 +1898,31 @@
 
             $('#liveSearchPreview').textContent = `"${remainingWords.join(' ')}"`;
 
-            const mustCutLeft = countRemainingMustCut();
+            const target = getTargetCutsForRound(activeRound);
+            const r = activeRound !== null ? rounds[activeRound] : null;
+            const cutsDone = r ? (r.totalCuts || 0) : 0;
+            const left = Math.max(0, target - cutsDone);
             const badge = $('#wiresRemainingBadge');
-            const r = rounds[activeRound];
+            const headerHint = $('#searchHeaderHint');
+
+            if (headerHint) {
+                headerHint.textContent = `— Có 12 dây, nhiệm vụ: cắt bỏ ${target} dây thừa (${numT} tổ × ${wiresPerTeam} dây/tổ) để giữ lại Từ khoá:`;
+            }
+
             if (r && r.status === 'boom') {
                 badge.textContent = `💥 Đã phát nổ! Đã công bố đáp án`;
                 badge.style.background = '#fee2e2';
                 badge.style.color = '#991b1b';
-            } else if (mustCutLeft > 0) {
-                badge.textContent = `✂️ Còn ${mustCutLeft} dây từ rác bắt buộc cắt`;
+            } else if (r && r.status === 'done') {
+                badge.textContent = `✅ Đã gỡ thành công (${cutsDone}/${target} dây)!`;
+                badge.style.background = '#dcfce7';
+                badge.style.color = '#166534';
+            } else if (left > 0) {
+                badge.textContent = `✂️ Cần cắt: ${target} dây (${numT} tổ × ${wiresPerTeam} dây) · Còn ${left} dây`;
                 badge.style.background = '#fee2e2';
                 badge.style.color = '#991b1b';
             } else {
-                badge.textContent = `✅ Đã sạch từ rác!`;
+                badge.textContent = `✅ Đã đủ ${target} dây! Nhấn Enter chốt`;
                 badge.style.background = '#dcfce7';
                 badge.style.color = '#166534';
             }
@@ -1820,8 +1938,9 @@
             const card = curQ.cards[idx];
             const activeTeam = TEAMS[turn];
             const studentObj = classStudents.find(s => s.id === selectedStudent);
+            const doneCuts = (r && r.teamCuts) ? (r.teamCuts[turn] || 0) : 0;
 
-            $('#modalTeamLabel').textContent = `✂️ LƯỢT CỦA ${activeTeam.n.toUpperCase()}`;
+            $('#modalTeamLabel').textContent = `✂️ LƯỢT CỦA ${activeTeam.n.toUpperCase()} (Lượt ${doneCuts + 1}/${wiresPerTeam})`;
             $('#modalStudentLabel').textContent = studentObj ? `Học sinh cầm kéo: ${studentObj.name}` : '(Chưa chọn học sinh cụ thể)';
             $('#modalGoal').textContent = `🎯 Yêu cầu: ${curQ.goal}`;
             $('#modalWordTarget').textContent = `Dây số ${idx + 1}: "${card.text}"`;
@@ -1882,19 +2001,32 @@
 
             // TRƯỜNG HỢP 2: CẮT ĐÚNG DÂY TỪ THỪA (+20đ)
             cardStates[idx].status = 'cut';
+            r.teamCuts[turn] = (r.teamCuts[turn] || 0) + 1;
+            r.totalCuts = (r.totalCuts || 0) + 1;
+
             const gained = applyScore(team, CUT_RIGHT_POINTS);
-            logAction(team.n, studentName, `Cắt dây thừa "${card.text}"`, 'ĐÚNG');
-            toast(`✂️ ${team.n} cắt đúng dây thừa! +${gained} điểm`, 'ok');
+            const teamDoneCuts = r.teamCuts[turn];
+            logAction(team.n, studentName, `Cắt dây thừa "${card.text}" (${teamDoneCuts}/${wiresPerTeam})`, 'ĐÚNG');
+            toast(`✂️ ${team.n} cắt đúng dây thừa (${teamDoneCuts}/${wiresPerTeam})! +${gained} điểm`, 'ok');
 
-            turn = (turn + 1) % numT;
+            const target = getTargetCutsForRound(activeRound);
+            const allTeamsDone = r.totalCuts >= target || r.teamCuts.slice(0, numT).every(c => c >= wiresPerTeam);
 
-            if (countRemainingMustCut() === 0) {
+            if (allTeamsDone) {
                 r.status = 'done';
                 curQ.cards.forEach((c, i) => {
                     if (c.type === 'K' || c.critical) cardStates[i].status = 'safe-key';
                     else cardStates[i].status = 'cut';
                 });
-                toast('🎉 Đã cắt sạch từ thừa! Quả bom được gỡ thành công!', 'ok');
+                toast(`🎉 Cả ${numT} tổ đã cắt đủ ${target} dây! Quả bom được gỡ thành công!`, 'ok');
+            } else {
+                let nextTurn = (turn + 1) % numT;
+                let checked = 0;
+                while ((r.teamCuts[nextTurn] || 0) >= wiresPerTeam && checked < numT) {
+                    nextTurn = (nextTurn + 1) % numT;
+                    checked++;
+                }
+                turn = nextTurn;
             }
 
             renderWireCards();
@@ -1908,8 +2040,9 @@
             if (activeRound === null) return;
             const r = rounds[activeRound];
             if (!r || r.status === 'done' || r.status === 'boom') return;
-            const left = countRemainingMustCut();
-            if (left === 0) {
+            const target = getTargetCutsForRound(activeRound);
+            const cutsDone = r.totalCuts || 0;
+            if (cutsDone >= target) {
                 r.status = 'done';
                 curQ.cards.forEach((c, i) => {
                     if (c.type === 'K' || c.critical) cardStates[i].status = 'safe-key';
@@ -1919,13 +2052,19 @@
                 renderAnswerBanner(r);
                 toast('🎉 Gỡ bom thành công!', 'ok');
             } else {
-                toast(`⚠️ Vẫn còn ${left} dây từ rác bắt buộc phải cắt bỏ trước khi nhấn Enter!`, 'bad');
+                toast(`⚠️ Vẫn còn ${target - cutsDone} dây cần cắt (${numT} tổ × ${wiresPerTeam} dây) trước khi chốt!`, 'bad');
             }
         }
 
         function updateTurnIndicator() {
             const activeTeam = TEAMS[turn];
             $('#indicatorTeamName').textContent = activeTeam ? activeTeam.n : '–';
+            const r = activeRound !== null ? rounds[activeRound] : null;
+            const doneCuts = (r && r.teamCuts) ? (r.teamCuts[turn] || 0) : 0;
+            const indProgress = $('#indicatorCutProgress');
+            if (indProgress) {
+                indProgress.textContent = `Lượt ${doneCuts + 1}/${wiresPerTeam}`;
+            }
             const studentObj = classStudents.find(s => s.id === selectedStudent);
             $('#indicatorStudentName').textContent = studentObj ? `(Học sinh: ${studentObj.name})` : '';
         }
@@ -1979,8 +2118,22 @@
             const count = Number(value);
             if (!Number.isInteger(count) || count < 2 || count > 6) return;
             numT = count;
+            if (numT * wiresPerTeam > 10) {
+                wiresPerTeam = getDefaultWiresPerTeam(numT);
+                if ($('#wiresPerTeamSelect')) $('#wiresPerTeamSelect').value = String(wiresPerTeam);
+            }
             initTeams();
-            toast(`👥 Đã cập nhật số lượng thành ${numT} tổ!`, 'ok');
+            updateWiresInfo();
+            if (activeRound !== null) {
+                const r = rounds[activeRound];
+                if (r && r.teamCuts) {
+                    while (r.teamCuts.length < numT) r.teamCuts.push(0);
+                }
+                renderWireCards();
+                renderTeams();
+                updateTurnIndicator();
+            }
+            toast(`👥 Đã cập nhật thành ${numT} tổ (Mỗi tổ cắt ${wiresPerTeam} dây)!`, 'ok');
         }
 
         function renderTeams() {
@@ -1989,12 +2142,18 @@
 
             TEAMS.forEach((t, i) => {
                 const isActive = i === turn;
+                const r = activeRound !== null ? rounds[activeRound] : null;
+                const doneCuts = (r && r.teamCuts) ? (r.teamCuts[i] || 0) : 0;
+                const isDone = doneCuts >= wiresPerTeam;
                 const d = document.createElement('div');
                 d.className = `team-row ${isActive ? 'active' : ''}`;
                 d.onclick = () => setTurnManual(i);
                 d.innerHTML = `
                     <div class="team-top">
-                        <span class="team-name" style="color:${t.color}">${t.n} ${isActive ? '✂️' : ''}</span>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span class="team-name" style="color:${t.color}">${t.n} ${isActive ? '✂️' : ''}</span>
+                            <span class="team-cut-status ${isDone ? 'done' : ''}" title="Số dây đã cắt trong quả bom này">${doneCuts}/${wiresPerTeam} ✂️</span>
+                        </div>
                         <div class="team-action-btns">
                             <button class="plus-btn" onclick="rewardBonus(${i}, event)" title="Thưởng nóng +20 điểm">🌟 +20</button>
                             <button class="noise-btn" onclick="penalizeNoise(${i}, event)" title="Phạt ồn trừ ${NOISE_PERCENT}% số điểm hiện có">🔊 −${NOISE_PERCENT}%</button>
@@ -2161,14 +2320,35 @@
 
         let startClass = '4_1';
         let startTeams = 4;
+        let startWiresPerTeam = 2;
 
         function pickStart(kind, val, el) {
-            if (kind === 'class') startClass = val; else startTeams = Number(val);
+            if (kind === 'class') {
+                startClass = val;
+            } else if (kind === 'teams') {
+                startTeams = Number(val);
+                if (startTeams >= 5 && startWiresPerTeam > 2) {
+                    startWiresPerTeam = 2;
+                    const chips = document.querySelectorAll('#startWireChips .chip');
+                    chips.forEach((c, idx) => c.classList.toggle('on', idx === 1));
+                }
+            } else if (kind === 'wires') {
+                startWiresPerTeam = Number(val);
+            }
             el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === el));
+            updateStartWireCalcText();
+        }
+
+        function updateStartWireCalcText() {
+            const total = startTeams * startWiresPerTeam;
+            const el = $('#startWireCalcText');
+            if (el) el.textContent = `👉 ${startTeams} tổ × ${startWiresPerTeam} dây = ${total} dây cần cắt mỗi quả bom`;
         }
 
         function confirmStart() {
             $('#teamCount').value = String(startTeams);
+            wiresPerTeam = startWiresPerTeam;
+            if ($('#wiresPerTeamSelect')) $('#wiresPerTeamSelect').value = String(wiresPerTeam);
             changeTeamCount(startTeams);
             $('#classSelect').value = startClass;
             if (startClass !== currentClassID) changeClass(startClass);
@@ -2181,6 +2361,7 @@
             const weekdays = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
             $('#lessonDate').textContent = `${weekdays[now.getDay()]}, ngày ${now.getDate()} tháng ${now.getMonth() + 1} năm ${now.getFullYear()}`;
             initTeams();
+            updateWiresInfo();
             renderGameSearchQuest();
             await loadClassData("4_1");
             await loadQuestions();
