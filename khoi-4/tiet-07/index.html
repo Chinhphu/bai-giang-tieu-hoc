@@ -4,1398 +4,2189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bomb Search – Cắt từ khóa, giải cứu quả bom (Tin học 4 · Bài 4)</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800;900&display=swap');
+    <title>Bài 4: Tìm Kiếm Thông Tin Trên Internet – Đấu Trường Gỡ Bom (Tin Học 4)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
 
-        /* ===== BỘ MÀU GỐC (giống tiết 6) ===== */
+    <style>
         :root {
-            --ink: #17233c;
-            --paper: #fffdf7;
-            --yellow: #ffd84d;
-            --orange: #ff914d;
-            --coral: #ff5c6c;
-            --teal: #19b7a5;
-            --purple: #7357d9;
-            --green: #63bf58;
-            --navy: #1b2236;
-            --shadow: 0 8px 0 rgba(23, 35, 60, .12), 0 15px 28px rgba(23, 35, 60, .11)
+            --ink: #0f172a;
+            --white: #ffffff;
+            --shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
         }
 
         * {
-            box-sizing: border-box
+            box-sizing: border-box;
+            user-select: none;
         }
 
         body {
             margin: 0;
             color: var(--ink);
-            background: #eef8f4;
+            background: #eef4fb;
             font-family: 'Be Vietnam Pro', sans-serif;
-            font-size: 20px;
-            overflow-x: hidden
+            font-size: 19px;
+            overflow-x: hidden;
+            min-height: 100vh;
         }
 
         button,
         input,
         select {
-            font: inherit
+            font-family: inherit;
         }
 
         button {
             cursor: pointer;
             border: 0;
-            color: var(--ink)
+            touch-action: manipulation;
         }
 
         button:disabled {
             opacity: .4;
-            cursor: not-allowed
+            cursor: not-allowed;
+            pointer-events: none;
         }
 
-        button:focus-visible,
-        input:focus-visible,
-        select:focus-visible {
-            outline: 4px solid #1c9dff;
-            outline-offset: 3px
-        }
-
-        .nofx * {
-            animation: none !important;
-            transition: none !important
-        }
-
-        /* ===== HUD ===== */
-        .hud {
-            position: sticky;
-            top: 0;
-            z-index: 30;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            flex-wrap: wrap;
-            background: var(--ink);
-            color: #fff;
-            padding: 10px 22px
-        }
-
-        .hud .brand {
-            font-size: 1.25rem;
-            font-weight: 900;
-            line-height: 1.1
-        }
-
-        .hud .brand small {
-            display: block;
-            font-size: .65rem;
-            color: #bcd4ec;
-            font-weight: 600
-        }
-
-        .clock {
-            font: 900 2.4rem/1 'Be Vietnam Pro', monospace;
-            background: #000;
-            color: #ff4d4d;
-            padding: 4px 16px;
-            border-radius: 12px;
-            border: 3px solid #444;
-            letter-spacing: .06em;
-            min-width: 140px;
-            text-align: center
-        }
-
-        .chip {
-            background: #2b3a5c;
-            border-radius: 99px;
-            padding: 6px 14px;
-            font-weight: 800;
-            font-size: .9rem
-        }
-
-        .prog {
-            flex: 1;
-            min-width: 150px;
-            font-size: .75rem
-        }
-
-        .prog .bar {
-            height: 12px;
-            background: #40506c;
-            border-radius: 20px;
-            overflow: hidden;
-            margin-top: 4px
-        }
-
-        .prog i {
-            display: block;
-            height: 100%;
-            width: 0;
-            background: var(--yellow);
-            transition: width .4s
-        }
-
-        .hbtns {
-            display: flex;
-            gap: 8px
-        }
-
-        .hbtns button {
-            background: #2b3a5c;
-            color: #fff;
-            border-radius: 10px;
-            padding: 8px 12px;
-            font-size: 1.1rem
-        }
-
-        body.warn .clock {
-            animation: blink 1s infinite
-        }
-
-        body.crit .clock {
-            animation: blink .4s infinite;
-            background: #600
-        }
-
-        @keyframes blink {
-            50% {
-                opacity: .55
-            }
-        }
-
-        /* ===== BỐ CỤC ===== */
-        .lesson-layout {
+        /* ===== BỐ CỤC 2 CỘT: TRÁI (SLIDE/GAME) - PHẢI (SIDEBAR CỐ ĐỊNH) ===== */
+        .layout-container {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 300px;
-            gap: 24px;
-            max-width: 1700px;
+            grid-template-columns: minmax(0, 1fr) 390px;
+            gap: 16px;
+            max-width: 1900px;
             margin: 0 auto;
-            padding: 22px;
-            align-items: start
+            padding: 12px 16px;
+            min-height: 100vh;
+            align-items: start;
         }
 
-        .screen {
+        .slide-screen {
             display: none;
-            animation: arrive .4s ease both
+            animation: slideIn .25s ease forwards;
         }
 
-        .screen.active {
-            display: block
+        .slide-screen.active {
+            display: block;
         }
 
-        #s-game.active {
-            position: fixed;
-            inset: 0;
-            z-index: 40;
-            overflow-y: auto;
-            padding: clamp(12px, 2vw, 28px);
-            background: #eef8f4
-        }
-
-        #s-game .panel {
-            max-width: 1700px;
-            margin: 0 auto
-        }
-
-        @keyframes arrive {
+        @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(14px)
+                transform: translateY(6px);
             }
 
             to {
                 opacity: 1;
-                transform: none
+                transform: translateY(0);
             }
         }
 
-        .panel {
-            background: var(--paper);
-            border: 4px solid var(--ink);
-            border-radius: 24px;
+        .card-panel {
+            background: var(--white);
+            border: 3px solid #cbd5e1;
+            border-radius: 20px;
             box-shadow: var(--shadow);
-            padding: clamp(18px, 2.4vw, 34px)
+            padding: clamp(18px, 2vw, 28px);
+            position: relative;
         }
 
-        .center {
-            text-align: center
+        .panel-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px dashed #e2e8f0;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
         }
 
-        .btn {
-            background: var(--purple);
-            color: #fff;
+        .panel-heading h2 {
+            font-size: 1.55rem;
             font-weight: 900;
-            padding: 12px 18px;
-            border-radius: 14px;
-            box-shadow: 0 5px 0 #4b399e;
-            font-size: 1rem;
-            transition: transform .15s
+            color: #1e3a8a;
+            margin: 0;
+        }
+
+        /* ===== NÚT BẤM ===== */
+        .btn {
+            font-weight: 800;
+            padding: 9px 16px;
+            border-radius: 10px;
+            font-size: 0.98rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all .15s;
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.14);
         }
 
         .btn:hover:enabled {
-            transform: translateY(-2px)
+            transform: translateY(-2px);
+            filter: brightness(1.05);
         }
 
         .btn:active:enabled {
-            transform: translateY(3px);
-            box-shadow: none
+            transform: translateY(1px);
+            box-shadow: none;
         }
 
-        .btn.orange {
-            background: var(--orange);
-            box-shadow: 0 5px 0 #c96029
+        .btn.primary {
+            background: #2563eb;
+            color: #fff;
+            box-shadow: 0 3px 0 #1d4ed8;
         }
 
-        .btn.teal {
-            background: var(--teal);
-            box-shadow: 0 5px 0 #087c70
+        .btn.success {
+            background: #16a34a;
+            color: #fff;
+            box-shadow: 0 3px 0 #15803d;
         }
 
-        .btn.yellow {
-            background: var(--yellow);
-            color: var(--ink);
-            box-shadow: 0 5px 0 #c5a718
+        .btn.danger {
+            background: #dc2626;
+            color: #fff;
+            box-shadow: 0 3px 0 #b91c1c;
+        }
+
+        .btn.warning {
+            background: #eab308;
+            color: #422006;
+            box-shadow: 0 3px 0 #ca8a04;
+        }
+
+        .btn.purple {
+            background: #9333ea;
+            color: #fff;
+            box-shadow: 0 3px 0 #6b21a8;
         }
 
         .btn.gray {
-            background: #95a5a6;
-            box-shadow: 0 5px 0 #7f8c8d
-        }
-
-        .btn.coral {
-            background: var(--coral);
-            box-shadow: 0 5px 0 #b83344
-        }
-
-        .btn.big {
-            font-size: 1.4rem;
-            padding: 16px 30px
-        }
-
-        /* ===== VỞ GHI BÀI (giống tiết 6) ===== */
-        .notebook {
-            background: #fff;
-            border: 3px solid #ccc;
-            border-radius: 16px;
-            padding: 22px 34px;
-            margin: 16px auto;
-            box-shadow: 6px 6px 0 rgba(0, 0, 0, .06);
-            background-image: repeating-linear-gradient(transparent, transparent 49px, #a3d2f0 49px, #a3d2f0 50px);
-            background-size: 100% 50px;
-            line-height: 50px;
-            font-size: 1.7rem;
-            text-align: left
-        }
-
-        .notebook .date {
-            text-align: center;
-            font-style: italic;
-            font-size: 1.2rem;
-            color: #53617b;
-            font-weight: 600;
-            line-height: 1.2
-        }
-
-        .notebook .subject {
-            text-align: center;
-            font-weight: 900;
-            color: var(--coral);
-            font-size: 1.8rem;
-            line-height: 1.2
-        }
-
-        .notebook .title {
-            text-align: center;
-            font-weight: 900;
-            font-size: 2.1rem;
-            line-height: 1.2;
-            margin-bottom: 12px
-        }
-
-        .notebook .content {
-            font-weight: 700;
-            color: #111
-        }
-
-        .notebook ul {
-            margin: 0;
-            padding-left: 30px
-        }
-
-        .ribbon {
-            background: #fff0a6;
-            border: 3px solid var(--orange);
-            border-radius: 14px;
-            padding: 10px 16px;
-            font-weight: 900;
-            margin-bottom: 8px
-        }
-
-        .ribbon b {
-            color: #d00;
-            font-size: 1.3em
-        }
-
-        .story {
-            background: #eef4ff;
-            border: 3px dashed var(--purple);
-            border-radius: 16px;
-            padding: 20px 26px;
-            max-width: 880px;
-            margin: 16px auto;
-            text-align: left;
-            font-size: 1.2rem;
-            line-height: 1.6
-        }
-
-        .story ul {
-            margin: 6px 0 0;
-            padding-left: 22px
-        }
-
-        /* ===== PHÒNG BOM ===== */
-        .goal {
-            font-size: 1.25rem;
-            font-weight: 800;
-            text-align: left;
-            margin-bottom: 10px
-        }
-
-        .goal b {
-            color: var(--coral)
-        }
-
-        .lv {
-            display: inline-block;
-            background: var(--yellow);
-            border-radius: 99px;
-            padding: 3px 12px;
-            font-size: .8rem;
-            font-weight: 900;
-            margin-right: 8px
-        }
-
-        .bomb-stage {
-            background: var(--navy);
-            border: 4px solid var(--ink);
-            border-radius: 20px;
+            background: #64748b;
             color: #fff;
-            padding: 14px 14px 20px;
-            position: relative
+            box-shadow: 0 3px 0 #475569;
         }
 
-        .bomb-top {
+        .btn.huge {
+            font-size: 1.2rem;
+            padding: 13px 24px;
+            border-radius: 14px;
+        }
+
+        /* ===== VỞ CHÉP BÀI – CANH GIỮA THỨ NGÀY, MÔN, TÊN BÀI ===== */
+        .note-step {
+            display: inline-block;
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: #fff;
+            background: #16a34a;
+            padding: 5px 18px;
+            border-radius: 99px;
+            margin-bottom: 8px;
+        }
+
+        .notebook-box {
+            background-color: #ffffff;
+            border: 3px solid #94a3b8;
+            border-left: 16px solid #ef4444;
+            border-radius: 16px;
+            padding: 0 36px;
+            margin: 6px 0;
+            box-shadow: 4px 6px 0 rgba(100, 116, 139, 0.12);
+            text-align: left;
+            font-size: clamp(2.1rem, 3.4vw, 3.6rem);
+            line-height: 1.7em;
+            background-image: repeating-linear-gradient(transparent, transparent calc(1.7em - 1px), #bae6fd calc(1.7em - 1px), #bae6fd 1.7em);
+            background-size: 100% 1.7em;
+            min-height: 72vh;
+        }
+
+        .notebook-date {
+            text-align: center;
+            color: #475569;
+            font-size: 0.58em;
+            font-style: italic;
+            font-weight: 800;
+            margin: 0;
+            line-height: 1.7em;
+        }
+
+        .notebook-subject {
+            text-align: center;
+            color: #2563eb;
+            font-size: 0.78em;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 1.7em;
+        }
+
+        .notebook-lesson-title {
+            text-align: center;
+            color: #b91c1c;
+            font-size: 0.92em;
+            font-weight: 900;
+            margin: 0 0 0.4em 0;
+            line-height: 1.7em;
+        }
+
+        .notebook-content {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .notebook-content ol {
+            margin: 0;
+            padding-left: 1.3em;
+        }
+
+        /* ===== ĐẤU TRƯỜNG GỠ BOM TỪ KHOÁ ===== */
+        .bomb-stage {
+            background: linear-gradient(180deg, #090e1a 0%, #152238 100%);
+            border: 4px solid #1e293b;
+            border-radius: 22px;
+            color: #fff;
+            padding: 18px 20px;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.7);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bomb-goal-banner {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 14px;
+            padding: 12px 18px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 16px
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        .bomb-top svg {
-            width: 150px;
-            height: 130px
+        .bomb-goal-title {
+            font-size: 1.4rem;
+            font-weight: 800;
         }
 
-        .bomb-clock {
-            font: 900 2.4rem monospace;
-            color: #ff4d4d;
-            background: #000;
-            border-radius: 10px;
-            padding: 4px 14px
+        .bomb-goal-title b {
+            color: #facc15;
+            font-size: 1.65rem;
         }
 
-        .spark {
-            animation: spark .3s infinite alternate
+        .current-turn-indicator {
+            background: #1e3a8a;
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #93c5fd;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
-        @keyframes spark {
-            to {
-                transform: scale(1.5);
-                opacity: .6
-            }
+        .current-turn-indicator b {
+            color: #ffffff;
+            font-size: 1.3rem;
         }
 
-        .led {
-            animation: blink 1s infinite
+        /* THANH TÌM KIẾM GOOGLE GẮN 12 DÂY BOM */
+        .search-bomb-shell {
+            background: #ffffff;
+            border: 4px solid #38bdf8;
+            border-radius: 24px;
+            padding: 16px 20px;
+            margin: 10px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
         }
 
-        body.warn .bomb-top svg,
-        body.crit .bomb-top svg {
-            animation: shake .5s infinite
+        .search-bar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            color: #334155;
+            font-weight: 800;
+            font-size: 1rem;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .google-badge {
+            font-weight: 900;
+            font-size: 1.3rem;
+        }
+
+        .wire-cards-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px 8px;
+            padding: 6px 2px;
+        }
+
+        .wire-card {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: #0f172a;
+            background: #f8fafc;
+            border: 3px solid var(--wc, #3b82f6);
+            border-bottom-width: 5px;
+            border-radius: 12px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: clamp(1.18rem, 1.7vw, 1.6rem);
+            font-weight: 800;
+            transition: transform .12s, background .12s, box-shadow .12s;
+            position: relative;
+        }
+
+        .wire-card .wire-num {
+            background: var(--wc, #3b82f6);
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 900;
+            padding: 2px 7px;
+            border-radius: 99px;
+        }
+
+        .wire-card:hover:not(.cut):not(.safe-key):not(.boom-wire) {
+            transform: translateY(-3px) scale(1.02);
+            background: #fef2f2;
+            box-shadow: 0 6px 14px rgba(220, 38, 38, 0.25);
+        }
+
+        .wire-card:hover:not(.cut):not(.safe-key):not(.boom-wire)::after {
+            content: '✂️';
+            position: absolute;
+            top: -12px;
+            right: -8px;
+            font-size: 1.3rem;
+        }
+
+        .wire-card.cut {
+            color: #94a3b8;
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            border-style: dashed;
+            cursor: default;
+            text-decoration: line-through;
+            text-decoration-color: #ef4444;
+            text-decoration-thickness: 3px;
+            opacity: 0.5;
+            transform: scale(0.96);
+        }
+
+        .wire-card.safe-key {
+            background: #dcfce7;
+            border-color: #16a34a;
+            color: #14532d;
+            cursor: default;
+            box-shadow: 0 0 18px rgba(34, 197, 94, 0.75);
+            transform: scale(1.04);
+        }
+
+        .wire-card.boom-wire {
+            background: #fee2e2;
+            border-color: #dc2626;
+            color: #991b1b;
+            cursor: default;
+            animation: shake .4s;
         }
 
         @keyframes shake {
+
+            0%,
+            100% {
+                transform: translate(0);
+            }
+
             25% {
-                transform: translateX(-3px) rotate(-1deg)
+                transform: translate(-8px, 4px);
             }
 
             75% {
-                transform: translateX(3px) rotate(1deg)
+                transform: translate(8px, -4px);
             }
         }
 
-        .wires {
+        .search-preview-bar {
+            margin-top: 12px;
+            background: #0f172a;
+            color: #38bdf8;
+            padding: 12px 16px;
+            border-radius: 14px;
             display: flex;
+            align-items: center;
+            justify-content: space-between;
             flex-wrap: wrap;
-            justify-content: center;
-            gap: 38px 14px;
-            padding: 36px 8px 6px;
-            position: relative
+            gap: 10px;
+            font-size: 1.15rem;
+            font-weight: 800;
         }
 
-        .wires::before {
-            content: "";
-            position: absolute;
-            left: 3%;
-            right: 3%;
-            top: 8px;
-            height: 10px;
-            background: #3a4560;
-            border-radius: 6px
+        .search-preview-text {
+            color: #facc15;
+            font-size: 1.3rem;
         }
 
-        .card {
-            position: relative;
-            min-width: 150px;
-            max-width: 290px;
+        /* HỘP CÔNG BỐ ĐÁP ÁN SAU KHI BOM NỔ HOẶC GỠ XONG */
+        .answer-reveal-banner {
+            display: none;
+            margin-top: 12px;
             padding: 14px 18px;
             border-radius: 14px;
-            background: #fff;
-            border: 4px solid var(--w);
-            font-weight: 800;
             font-size: 1.25rem;
-            line-height: 1.3;
-            transition: .25s
-        }
-
-        .card::before {
-            content: "";
-            position: absolute;
-            left: 50%;
-            top: -30px;
-            height: 26px;
-            border-left: 6px solid var(--w);
-            transform: translateX(-50%)
-        }
-
-        .card.hid {
-            background: #2a3350;
-            color: #9fb0d8
-        }
-
-        .card .lock {
-            display: block;
-            font-size: 1.6rem
-        }
-
-        .card.flip {
-            animation: flip .45s
-        }
-
-        @keyframes flip {
-            from {
-                transform: rotateY(90deg)
-            }
-
-            to {
-                transform: none
-            }
-        }
-
-        .card.sel {
-            box-shadow: 0 0 0 5px var(--yellow), 0 0 26px var(--yellow);
-            transform: translateY(-4px)
-        }
-
-        .card.keep {
-            background: #e8fbe9;
-            border-color: #2e9e45
-        }
-
-        .card.keep::after {
-            content: "✅";
-            position: absolute;
-            right: -12px;
-            top: -14px;
-            font-size: 1.5rem
-        }
-
-        .card.cut {
-            opacity: .5;
-            text-decoration: line-through;
-            transform: translateY(20px) rotate(-3deg);
-            border-style: dashed;
-            cursor: default
-        }
-
-        .card.cut::before {
-            height: 8px;
-            border-left-style: dotted
-        }
-
-        .card.cut::after {
-            content: "✂️";
-            position: absolute;
-            right: -10px;
-            top: -14px;
-            font-size: 1.5rem
-        }
-
-        .tag {
-            display: none;
-            position: absolute;
-            left: 6px;
-            bottom: -12px;
-            background: var(--ink);
-            color: #fff;
-            border-radius: 8px;
-            font: 800 .7rem/1 sans-serif;
-            padding: 3px 7px;
-            font-style: normal
-        }
-
-        .teach .tag {
-            display: block
-        }
-
-        .live {
-            margin: 16px 0 4px;
-            background: #0e1424;
-            border-radius: 12px;
-            padding: 10px 16px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #7dffd4;
-            text-align: left
-        }
-
-        #fb {
-            min-height: 64px;
-            margin-top: 12px;
-            border-radius: 14px;
-            padding: 10px 16px;
             font-weight: 800;
-            font-size: 1.1rem;
-            text-align: left;
-            background: #eef4ff;
-            border: 3px dashed var(--purple)
+            line-height: 1.5;
         }
 
-        #fb.ok {
-            background: #e6f9e8;
-            border: 3px solid #2e9e45
+        .answer-reveal-banner.show-boom {
+            display: block;
+            background: #450a0a;
+            border: 3px solid #ef4444;
+            color: #fecaca;
         }
 
-        #fb.bad {
-            background: #ffe8ea;
-            border: 3px solid var(--coral)
+        .answer-reveal-banner.show-done {
+            display: block;
+            background: #064e3b;
+            border: 3px solid #22c55e;
+            color: #bbf7d0;
         }
 
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-            gap: 12px;
-            margin-top: 16px
+        /* ===== MÁY RANDOM CHỦ ĐỀ SEARCH GAME MOBILE ===== */
+        .game-quest-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #fff;
+            border: 3px solid #38bdf8;
+            border-radius: 18px;
+            padding: 18px;
+            margin-top: 10px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
         }
 
-        /* ===== BẢNG ĐIỂM ===== */
-        .scoreboard {
-            background: var(--paper);
-            border: 4px solid var(--ink);
-            border-radius: 20px;
-            box-shadow: var(--shadow);
+        .gq-tag {
+            display: inline-block;
+            background: #facc15;
+            color: #422006;
+            font-weight: 900;
+            font-size: 0.95rem;
+            padding: 4px 12px;
+            border-radius: 99px;
+            margin-bottom: 8px;
+        }
+
+        .gq-question {
+            font-size: 1.45rem;
+            font-weight: 900;
+            color: #ffffff;
+            line-height: 1.45;
+            margin: 6px 0 12px;
+        }
+
+        .gq-keyword-box {
+            display: none;
+            background: #064e3b;
+            border: 2px dashed #34d399;
+            color: #a7f3d0;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        /* ===== SIDEBAR ALL-IN-ONE BÊN PHẢI (FIX CỐ ĐỊNH KHÔNG BỊ ÉP ẨN) ===== */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
             position: sticky;
-            top: 96px;
-            overflow: hidden
+            top: 10px;
+        }
+
+        .dock-box {
+            background: #0f172a;
+            color: #fff;
+            border: 3px solid #1e293b;
+            border-radius: 16px;
+            padding: 10px 12px;
+            box-shadow: var(--shadow);
+            flex-shrink: 0;
+        }
+
+        .lesson-clock-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #000;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 5px 12px;
+            margin-bottom: 8px;
+        }
+
+        .lesson-clock-led {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #4ade80;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(74, 222, 128, 0.45);
+        }
+
+        .lesson-clock-led.low-time {
+            color: #f87171;
+        }
+
+        .mini-ctrl-btn {
+            background: #1e293b;
+            color: #e2e8f0;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.78rem;
+            font-weight: 800;
+        }
+
+        .mini-ctrl-btn:hover {
+            background: #334155;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 6px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .quest-ctrl-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            background: #1e293b;
+            padding: 7px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+        }
+
+        .quest-status-line {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #facc15;
+        }
+
+        /* KHUNG ĐIỂM CÁC TỔ LUÔN HIỂN THỊ RÕ RÀNG */
+        .scoreboard-panel {
+            background: #ffffff;
+            border: 3px solid #2563eb;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            flex-shrink: 0;
         }
 
         .score-head {
-            background: var(--coral);
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
             color: #fff;
-            text-align: center;
+            padding: 8px 12px;
+            border-radius: 12px 12px 0 0;
             font-weight: 900;
-            padding: 12px
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .team {
-            padding: 12px;
-            border-bottom: 2px dashed #d4d9e2;
+        .score-head select {
+            padding: 3px 8px;
+            border: 0;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+
+        .team-row {
+            padding: 8px 10px;
+            border-bottom: 2px dashed #e2e8f0;
+            border-left: 8px solid transparent;
+            transition: all .15s;
             cursor: pointer;
-            border-left: 8px solid transparent
         }
 
-        .team.active {
-            background: #eef4ff;
-            border-left-color: var(--purple)
+        .team-row:last-child {
+            border-bottom: 0;
+        }
+
+        .team-row.active {
+            background: #eff6ff;
+            border-left-color: #2563eb;
+        }
+
+        .team-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
         }
 
         .team-name {
-            width: 100%;
-            border: 2px solid #ccd7e5;
-            border-radius: 8px;
-            padding: 5px 8px;
             font-weight: 900;
-            font-size: 1.05rem;
-            background: #fff
+            font-size: 1.08rem;
         }
 
-        .t-0 {
-            color: var(--coral)
+        .team-score {
+            font-size: 1.75rem;
+            font-weight: 900;
+            color: #0f172a;
+            min-width: 48px;
+            text-align: right;
         }
 
-        .t-1 {
-            color: var(--purple)
-        }
-
-        .t-2 {
-            color: #2e9e45
-        }
-
-        .t-3 {
-            color: #d17a00
-        }
-
-        .score-row {
+        .team-action-btns {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin: 6px 0 2px
+            gap: 5px;
         }
 
-        .score-row b {
-            font-size: 2rem;
-            min-width: 70px;
-            text-align: center
-        }
-
-        .sb {
-            background: var(--yellow);
-            border-radius: 8px;
+        .plus-btn {
+            background: #dcfce7;
+            color: #166534;
+            border: 2px solid #86efac;
+            border-radius: 7px;
             font-weight: 900;
-            padding: 4px 10px
-        }
-
-        .meta {
-            text-align: center;
             font-size: .8rem;
-            font-weight: 700;
-            color: #53617b
+            padding: 4px 8px;
         }
 
-        /* ===== NGĂN GIÁO VIÊN / OVERLAY ===== */
-        .drawer {
-            position: fixed;
-            top: 0;
-            right: -430px;
-            width: 410px;
-            height: 100%;
-            background: var(--paper);
-            border-left: 4px solid var(--ink);
-            z-index: 60;
-            overflow: auto;
-            padding: 18px;
-            transition: right .3s;
-            font-size: .95rem
+        .plus-btn:hover {
+            background: #bbf7d0;
         }
 
-        .drawer.open {
-            right: 0
+        .noise-btn {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid #fca5a5;
+            border-radius: 7px;
+            font-weight: 900;
+            font-size: .8rem;
+            padding: 4px 8px;
         }
 
-        .drawer h3 {
-            margin: 14px 0 6px
+        .noise-btn:hover {
+            background: #fecaca;
         }
 
-        .drawer label {
+        /* PANEL HỌC SINH */
+        #students-panel {
+            border: 2px solid #5b8cff;
+            border-radius: 14px;
+            background: #0b1530;
+            flex-shrink: 0;
+        }
+
+        #students-summary {
+            padding: 8px 12px;
+            background: #16295e;
+            color: #fff;
+            font-weight: 900;
+            font-size: 0.92rem;
+            cursor: pointer;
+            border-radius: 12px;
+        }
+
+        #students-header {
+            background: #16295e;
+            padding: 6px 8px;
+            font-weight: 900;
+            text-align: center;
+            border-bottom: 2px solid #5b8cff;
+            color: #7dffd4;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            margin: 6px 0;
-            font-weight: 700
+            flex-direction: column;
+            gap: 5px;
         }
 
-        .drawer input[type=number],
-        .drawer select {
-            width: 90px;
-            padding: 5px;
-            border: 2px solid #ccd7e5;
-            border-radius: 8px
+        #search-student {
+            width: 100%;
+            padding: 5px 8px;
+            border-radius: 6px;
+            border: 1px solid #5b8cff;
+            background: #0d1a3a;
+            color: #fff;
+            outline: none;
+            font-size: 0.85rem;
         }
 
-        .ans li {
-            margin: 4px 0;
-            font-weight: 600
+        #students-list {
+            max-height: 190px;
+            overflow-y: auto;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
-        .ans b {
-            color: var(--purple)
+        .stu-btn {
+            background: #112347;
+            border: 1px solid #2f56b3;
+            border-radius: 7px;
+            color: #fff;
+            padding: 5px 8px;
+            text-align: left;
+            font-size: .85rem;
+            font-weight: 600;
         }
 
-        .ov {
+        .stu-btn.active {
+            background: #2fa8ff;
+            color: #000;
+            font-weight: 800;
+        }
+
+        /* POPUP CẮT DÂY */
+        .action-modal {
             position: fixed;
             inset: 0;
-            background: rgba(10, 15, 30, .82);
-            z-index: 80;
+            background: rgba(10, 15, 30, 0.85);
+            backdrop-filter: blur(4px);
+            z-index: 120;
             display: none;
             align-items: center;
             justify-content: center;
-            padding: 20px
+            padding: 20px;
         }
 
-        .ov.show {
-            display: flex
+        .action-modal.show {
+            display: flex;
         }
 
-        #cf {
-            z-index: 90
-        }
-
-        .ov-box {
-            background: var(--paper);
-            border: 5px solid var(--ink);
-            border-radius: 26px;
-            padding: 28px 34px;
-            max-width: 720px;
+        .action-box {
+            background: #ffffff;
+            border: 4px solid #0f172a;
+            border-radius: 24px;
+            padding: 24px 28px;
+            max-width: 780px;
             width: 100%;
             text-align: center;
-            animation: arrive .35s
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
-        .ov-box h2 {
-            margin: 0 0 10px;
-            font-size: 2.4rem
-        }
-
-        .ov-box p {
-            font-size: 1.15rem;
-            font-weight: 600
-        }
-
-        .ov-box .btn {
-            margin: 6px
-        }
-
-        .stats {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin: 12px 0
-        }
-
-        .stats span {
-            background: #eef4ff;
-            border-radius: 12px;
-            padding: 8px 14px;
-            font-weight: 800
-        }
-
-        #toast {
-            position: fixed;
-            top: 92px;
-            left: 50%;
-            transform: translate(-50%, -200%);
-            background: var(--orange);
-            color: #fff;
-            border: 4px solid #c96029;
+        .action-word-target {
+            background: #fef2f2;
+            border: 3px dashed #ef4444;
             border-radius: 16px;
-            padding: 12px 26px;
+            padding: 14px 18px;
+            margin: 12px 0;
+            font-size: 2.1rem;
             font-weight: 900;
-            z-index: 99;
-            transition: .4s
+            color: #991b1b;
         }
 
-        #toast.show {
-            transform: translate(-50%, 0)
+        .action-btns-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 14px;
         }
 
-        body.boom::after {
-            content: "";
+        /* MÀN HÌNH KHỞI ĐẦU */
+        .start-screen {
             position: fixed;
             inset: 0;
-            background: #ff7a00;
-            opacity: 0;
+            z-index: 300;
+            background: linear-gradient(180deg, #090e1a 0%, #152238 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .start-screen.hidden {
+            display: none;
+        }
+
+        .start-box {
+            background: #fff;
+            border: 4px solid #1e293b;
+            border-radius: 28px;
+            padding: 28px 36px;
+            max-width: 820px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .chip-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 8px 0 18px;
+        }
+
+        .chip {
+            background: #e2e8f0;
+            color: #0f172a;
+            font-weight: 900;
+            font-size: 1.4rem;
+            padding: 9px 22px;
+            border-radius: 14px;
+            border: 3px solid #cbd5e1;
+        }
+
+        .chip.on {
+            background: #2563eb;
+            color: #fff;
+            border-color: #1d4ed8;
+        }
+
+        /* TOAST */
+        #toasts {
+            position: fixed;
+            top: 18px;
+            left: 42%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
             pointer-events: none;
-            z-index: 70;
-            animation: flash .9s
+            max-width: 85vw;
         }
 
-        @keyframes flash {
-            20% {
-                opacity: .8
-            }
-
-            to {
-                opacity: 0
-            }
+        .toast-item {
+            background: #111c33;
+            color: #ffffff;
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
         }
 
-        body.present .admin {
-            display: none !important
+        .toast-item.bad {
+            background: #3b0d0d;
+            border-color: #ef4444;
+            color: #fca5a5;
         }
 
-        @media(max-width:1100px) {
-            .lesson-layout {
-                grid-template-columns: 1fr
+        .toast-item.ok {
+            background: #064e3b;
+            border-color: #10b981;
+            color: #a7f3d0;
+        }
+
+        @media(max-width: 1120px) {
+            .layout-container {
+                grid-template-columns: 1fr;
             }
 
-            .scoreboard {
-                position: static
+            .sidebar {
+                position: static;
             }
         }
     </style>
 </head>
 
 <body>
-    <!-- ===== HUD ===== -->
-    <header class="hud">
-        <div class="brand">💣 BOMB SEARCH<small>Tin học 4 · Bài 4 · Tìm kiếm thông tin</small></div>
-        <div class="clock" id="clock">02:00</div>
-        <span class="chip" id="hTeam">Đội: –</span><span class="chip" id="hErr">💥 Lỗi 0/5</span>
-        <div class="prog"><span id="progLabel">Tiến độ giải cứu: 0/0</span>
-            <div class="bar"><i id="progBar"></i></div>
-        </div>
-        <div class="hbtns">
-            <button id="bSnd" onclick="toggleSound()" title="Bật/tắt âm thanh">🔊</button>
-            <button onclick="togglePresent()" title="Chế độ trình chiếu (ẩn nút quản trị)">🎬</button>
-            <button class="admin" onclick="togglePanel()" title="Bảng điều khiển giáo viên">⚙️</button>
-            <button onclick="toggleFull()" title="Toàn màn hình">⛶</button>
-        </div>
-    </header>
+    <div id="toasts"></div>
 
-    <div class="lesson-layout">
+    <div class="layout-container">
+        <!-- ==================== CỘT TRÁI: SLIDE BÀI GIẢNG & BÀN GỠ BOM ==================== -->
         <main>
-            <!-- 0. GHI TỰA BÀI -->
-            <div id="s-note0" class="screen active">
-                <div class="panel center">
-                    <div class="notebook">
-                        <div class="date" id="dateDisp"></div>
-                        <div class="subject">Môn: Tin học</div>
-                        <div class="title">Bài 4: Tìm kiếm thông tin trên Internet</div>
-                        <div class="content" style="border-top:2px dashed #a3d2f0;padding-top:10px"><strong>1. Từ
-                                khoá</strong> là từ hoặc cụm từ thể hiện nội dung muốn tìm kiếm.<br>Ví dụ: <em>Các đời
-                                vua Hùng</em>.</div>
+            <!-- SLIDE 1: KHỞI ĐỘNG -->
+            <section id="slide-intro" class="slide-screen active">
+                <div class="card-panel">
+                    <div class="panel-heading">
+                        <h2>🔍 KHỞI ĐỘNG: BẠN KHOA VÀ MINH TÌM THÔNG TIN</h2>
                     </div>
-                    <button class="btn orange big" onclick="showScreen('s-rules')">Nhận nhiệm vụ gỡ bom ➔</button>
-                </div>
-            </div>
-
-            <!-- 1. CỐT TRUYỆN & LUẬT -->
-            <div id="s-rules" class="screen">
-                <div class="panel center">
-                    <h2 style="color:var(--coral);font-size:2.4rem;margin:0">💣 BOMB SEARCH – CẮT TỪ KHÓA 💣</h2>
-                    <div class="story">
-                        <p style="margin-top:0">Một quả bom thông tin đang đếm ngược! Mỗi <strong>dây</strong> là một
-                            từ/cụm từ trong câu tìm kiếm. Các đội thảo luận: dây nào <strong>cắt bỏ</strong> (thừa), dây
-                            nào <strong>giữ lại</strong> (từ khoá).</p>
-                        <ul>
-                            <li>Cắt đúng phần thừa: <strong>+10</strong>. Giữ đúng từ khoá: <strong>+5</strong>. Cắt
-                                nhầm từ khoá: <strong>−10</strong> và tăng 1 lỗi.</li>
-                            <li>Câu tìm kiếm <strong>không phải càng ngắn càng tốt</strong>: phải còn đủ từ khoá để biết
-                                đang tìm gì.</li>
-                            <li>Đồng hồ chỉ đếm khi đang mở câu hỏi; khi <strong>chép bài</strong>, đồng hồ tạm dừng.</li>
-                            <li>Lỡ bom nổ? Bài học <strong>không dừng</strong>: có bom dự phòng hoặc học tiếp không tính
-                                giờ.</li>
-                        </ul>
+                    <div style="font-size: 1.35rem; line-height: 1.75; color: #1e293b;">
+                        <p>📌 <strong>Tình huống SGK (Trang 19):</strong> Bạn Khoa chỉ cho bạn Minh tìm thông tin về
+                            lịch sử các đời vua Hùng trên Internet.</p>
+                        <div
+                            style="background:#eff6ff; border-left:6px solid #2563eb; padding:16px 20px; border-radius:12px; margin:14px 0;">
+                            <div>🌐 <strong>Địa chỉ máy tìm kiếm:</strong> <code
+                                    style="color:#dc2626; font-weight:900;">google.com</code></div>
+                            <div style="margin-top:8px;">⌨️ <strong>Từ khoá gõ vào ô tìm kiếm:</strong> <span
+                                    style="background:#fef08a; padding:4px 12px; border-radius:8px; font-weight:900; color:#b91c1c;">Các
+                                    đời vua Hùng</span></div>
+                            <div style="margin-top:8px;">📄 <strong>Kết quả:</strong> Danh sách các <strong>siêu liên
+                                    kết</strong> dẫn tới các trang web chứa thông tin.</div>
+                        </div>
+                        <p style="font-weight:800; color:#15803d; font-size:1.4rem;">
+                            💡 Tại sao không gõ cả câu dài lê thê vào Google? Hãy cùng bước vào <strong>Đấu Trường Gỡ
+                                Bom Từ Khoá</strong> để cắt bỏ các từ thừa!
+                        </p>
                     </div>
-                    <button class="btn teal big" id="startBtn" onclick="startGame()">🚀 BẮT ĐẦU NHIỆM VỤ</button>
                 </div>
-            </div>
+            </section>
 
-            <!-- 2. MÀN HÌNH GAME -->
-            <div id="s-game" class="screen">
-                <div class="panel">
-                    <div class="goal"><span class="lv" id="lvBadge"></span>🎯 Mục tiêu tìm kiếm: <b id="goal"></b></div>
+            <!-- SLIDE 2: CHÉP BÀI ĐỢT 1 (CANH GIỮA THỨ NGÀY, MÔN, TÊN BÀI) -->
+            <section id="slide-note-1" class="slide-screen">
+                <div class="card-panel">
+                    <span class="note-step">✍️ CHÉP BÀI · Đợt 1/3</span>
+                    <div class="notebook-box">
+                        <div class="notebook-date" id="lessonDate"></div>
+                        <div class="notebook-subject">Môn: Tin học</div>
+                        <h2 class="notebook-lesson-title">Bài 4: Tìm kiếm thông tin trên Internet</h2>
+                        <div class="notebook-content">
+                            <strong>1. Từ khoá:</strong> là từ hoặc cụm từ thể hiện nội dung muốn tìm kiếm.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 3: CHÉP BÀI ĐỢT 2 (4 BƯỚC TÌM KIẾM) -->
+            <section id="slide-note-2" class="slide-screen">
+                <div class="card-panel">
+                    <span class="note-step">✍️ CHÉP BÀI · Đợt 2/3</span>
+                    <div class="notebook-box">
+                        <div class="notebook-content">
+                            <strong>2. Các bước tìm kiếm thông tin:</strong>
+                            <ol>
+                                <li>Xác định từ khoá cần tìm.</li>
+                                <li>Mở trình duyệt, vào máy tìm kiếm (google.com).</li>
+                                <li>Gõ từ khoá vào ô tìm kiếm rồi nhấn Enter.</li>
+                                <li>Nháy chuột vào một siêu liên kết để xem chi tiết.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 4: TÍCH HỢP AI & MÁY RANDOM NHIỆM VỤ SEARCH GAME MOBILE -->
+            <section id="slide-google" class="slide-screen">
+                <div class="card-panel">
+                    <div class="panel-heading">
+                        <h2>🎮 THỬ THÁCH GOOGLE SEARCH: TÌM BÀI HƯỚNG DẪN GAME CHỈ THẦY!</h2>
+                    </div>
+
+                    <!-- MÁY QUAY RANDOM 16 NHIỆM VỤ TUTORIAL GAME MOBILE -->
+                    <div class="game-quest-card">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <span class="gq-tag" id="gqGameTitle">🎲 BẤM NÚT ĐỂ QUAY NHIỆM VỤ TÌM KIẾM</span>
+                            <span style="font-size:0.95rem; color:#93c5fd; font-weight:700;" id="gqCounter">Chủ đề: 1 /
+                                16</span>
+                        </div>
+
+                        <div class="gq-question" id="gqQuestionText">
+                            Làm thế nào để nhận tướng hoặc trang phục (skin) Liliana / Valhein miễn phí trong sự kiện
+                            Liên Quân Mobile?
+                        </div>
+
+                        <div class="gq-keyword-box" id="gqKeywordHint">
+                            🔑 <strong>Từ khoá gợi ý gõ vào Google:</strong> <span id="gqKeywordSpan"
+                                style="color:#fef08a;">cách nhận tướng miễn phí Liên Quân</span>
+                        </div>
+
+                        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+                            <button class="btn warning huge" onclick="spinRandomGameQuest()">🎲 Random Nhiệm Vụ
+                                Khác</button>
+                            <button class="btn purple huge" onclick="toggleGameQuestKeyword()">👁️ Hiện / Ẩn Từ Khoá Gợi
+                                Ý</button>
+                            <a class="btn primary huge" href="https://www.google.com/" target="_blank"
+                                rel="noopener noreferrer" style="text-decoration:none;">
+                                🔍 Mở Google Lên Tìm & Đọc Bài Viết ↗
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- HỘP TÍCH HỢP AI NGẮN GỌN BÊN DƯỚI -->
+                    <div
+                        style="background:#faf5ff; border:2px solid #d8b4fe; border-radius:14px; padding:12px 16px; margin-top:14px; font-size:1.1rem; line-height:1.5;">
+                        <strong style="color:#6b21a8;">🤖 Lưu ý khi tìm kiếm & dùng AI (Tích hợp AI):</strong>
+                        Khi Google hoặc AI đưa ra bài viết mẫu (ví dụ bạn Hà dùng AI gợi ý bài văn kể về gia đình),
+                        chúng ta <strong>chỉ đọc để hiểu cách làm rồi tự trình bày lại bằng lời của mình, không sao chép
+                            nguyên văn</strong>!
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 5: CHÉP BÀI ĐỢT 3 (GHI NHỚ) -->
+            <section id="slide-note-3" class="slide-screen">
+                <div class="card-panel">
+                    <span class="note-step">✍️ CHÉP BÀI · Đợt 3/3 (Hoàn tất)</span>
+                    <div class="notebook-box">
+                        <div class="notebook-content">
+                            <strong>Ghi nhớ:</strong> Sử dụng máy tìm kiếm với từ khoá phù hợp giúp em tìm thông tin
+                            trên Internet nhanh chóng và chính xác.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- BÀN GỠ BOM TỪ KHOÁ (DÙNG CHUNG CHO CÁC QUẢ BOM) -->
+            <section id="slide-bomb" class="slide-screen">
+                <div class="card-panel" style="padding:14px;">
                     <div class="bomb-stage">
-                        <div class="bomb-top">
-                            <svg viewBox="0 0 150 130" aria-hidden="true">
-                                <path d="M98 30 Q112 12 128 20" stroke="#c9a56b" stroke-width="5" fill="none" />
-                                <circle class="spark" cx="130" cy="20" r="6" fill="#ffd84d" />
-                                <circle cx="72" cy="78" r="46" fill="#10131f" stroke="#444c66" stroke-width="4" />
-                                <rect x="58" y="26" width="30" height="16" rx="4" fill="#444c66" />
-                                <ellipse cx="55" cy="62" rx="12" ry="7" fill="#fff" opacity=".15" />
-                                <circle class="led" cx="72" cy="102" r="5" fill="#ff3b3b" />
-                            </svg>
-                            <div class="bomb-clock mc" id="bombClock">02:00</div>
+                        <div class="bomb-goal-banner">
+                            <div>
+                                <div class="bomb-goal-title">🎯 Nhiệm vụ: <b id="gameGoal">…</b></div>
+                                <div style="font-weight:700; color:#93c5fd; margin-top:4px;" id="gameHint"></div>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span
+                                    style="background:#334155; color:#facc15; font-weight:900; padding:6px 14px; border-radius:10px; font-size:1.15rem;"
+                                    id="gameProgress">Bom 1</span>
+                                <button class="btn warning" onclick="skipOrNextBomb()"
+                                    title="Chuyển nhanh sang quả bom hoặc slide kế tiếp">⏭ Qua slide kế</button>
+                            </div>
                         </div>
-                        <div class="wires" id="wires"></div>
-                        <div class="live">🔎 Câu tìm kiếm hiện tại: <span id="liveQ"></span></div>
-                    </div>
-                    <div id="fb">Giáo viên bấm vào một dây để lật mở, cả lớp thảo luận rồi chọn ✂️ CẮT BỎ hoặc ✅ GIỮ
-                        LẠI.</div>
-                    <div class="controls">
-                        <button class="btn yellow" id="bOpen" onclick="openNext()">🔓 MỞ TỪ</button>
-                        <button class="btn coral" id="bCut" onclick="decide('cut')">✂️ CẮT BỎ</button>
-                        <button class="btn teal" id="bKeep" onclick="decide('keep')">✅ GIỮ LẠI</button>
-                        <button class="btn gray" id="bUndo" onclick="undoLast()">↩️ HOÀN TÁC</button>
-                        <button class="btn gray" id="bPause" onclick="setPause(true)">⏸ TẠM DỪNG</button>
-                        <button class="btn gray" id="bResume" onclick="setPause(false)">▶ TIẾP TỤC</button>
-                        <button class="btn yellow" id="bHint" onclick="hint()">💡 GỢI Ý</button>
-                        <button class="btn" id="bCheck" onclick="checkQuery()">🔍 KIỂM TRA CÂU TÌM KIẾM</button>
-                        <button class="btn orange" id="bNext" onclick="nextQ()">⏭ CÂU TIẾP THEO</button>
-                        <button class="btn gray"
-                            onclick="ask('Chơi lại sẽ đặt lại toàn bộ điểm, lỗi và đồng hồ. Tiếp tục?','Chơi lại',resetGame)">🔄
-                            CHƠI LẠI</button>
-                        <button class="btn gray" onclick="toggleFull()">⛶ TOÀN MÀN HÌNH</button>
-                    </div>
-                </div>
-            </div>
 
-            <!-- 3. CHÉP BÀI GIỮA GIỜ (đồng hồ tạm dừng) -->
-            <div id="s-note1" class="screen">
-                <div class="panel center">
-                    <div class="ribbon">⏸ Đồng hồ tạm dừng khi chép bài: <b class="mc">--:--</b>
-                    </div>
-                    <div style="font-size:3rem">⌨️ 🔎 🌐</div>
-                    <div class="notebook">
-                        <div class="content"><strong>2. Cách tìm kiếm thông tin:</strong>
-                            <ul>
-                                <li>Mở máy tìm kiếm (ví dụ: google.com).</li>
-                                <li>Nhập <em>từ khoá</em> vào ô tìm kiếm, nhấn Enter.</li>
-                                <li>Xem kết quả tìm kiếm.</li>
-                            </ul>
+                        <div class="current-turn-indicator">
+                            <div>
+                                <span>✂️ LƯỢT CẮT DÂY: </span><b id="indicatorTeamName">TỔ 1</b>
+                                <span id="indicatorStudentName" style="margin-left:10px; color:#facc15;"></span>
+                            </div>
+                            <div style="font-size:0.95rem; color:#fde047;">
+                                Cắt đúng dây thừa: <strong>+20đ</strong> · Cắt nhầm <strong>TỪ KHOÁ CHÍNH</strong>:
+                                <strong>NỔ BOM (−30đ)</strong>!
+                            </div>
                         </div>
-                    </div>
-                    <button class="btn teal big" onclick="resumeStage()">Tiếp tục gỡ bom (Cấp Vừa) ➔</button>
-                </div>
-            </div>
 
-            <div id="s-note2" class="screen">
-                <div class="panel center">
-                    <div class="ribbon">⏸ Đồng hồ tạm dừng khi chép bài: <b class="mc">--:--</b>
-                    </div>
-                    <div style="font-size:3rem">🤖 🧠 ✍️</div>
-                    <div class="notebook">
-                        <div class="content"><strong>3. AI hỗ trợ học tập:</strong> AI là trợ lý hữu ích nhưng em phải
-                            tự suy nghĩ,
-                            chọn ý phù hợp và viết lại bằng lời của mình, <em>không chép nguyên văn</em> kết quả của AI.
-                        </div>
-                    </div>
-                    <button class="btn teal big" onclick="resumeStage()">Tiếp tục gỡ bom (Thử thách) ➔</button>
-                </div>
-            </div>
+                        <div class="search-bomb-shell">
+                            <div class="search-bar-header">
+                                <span class="google-badge">
+                                    <span style="color:#4285F4">G</span><span style="color:#EA4335">o</span><span
+                                        style="color:#FBBC05">o</span><span style="color:#4285F4">g</span><span
+                                        style="color:#34A853">l</span><span style="color:#EA4335">e</span>
+                                    <span style="color:#475569; font-size:0.98rem; margin-left:6px;">— Có 12 dây từ
+                                        vựng, hãy cắt bỏ các dây thừa để giữ lại Từ khoá:</span>
+                                </span>
+                                <span id="wiresRemainingBadge"
+                                    style="background:#fee2e2; color:#991b1b; padding:4px 12px; border-radius:99px;">Đang
+                                    gỡ...</span>
+                            </div>
 
-            <!-- 4. VẬN DỤNG (sau khi kết thúc) -->
-            <div id="s-apply" class="screen">
-                <div class="panel center">
-                    <h2 style="color:var(--coral);margin-top:0">🇻🇳 VẬN DỤNG</h2>
-                    <div class="notebook">
-                        <div class="content">Em được giao tìm hình ảnh về <strong>Quốc kỳ Việt Nam</strong> để giới
-                            thiệu trước lớp.
-                            <ul>
-                                <li>Em sẽ dùng công cụ số nào để tìm kiếm?</li>
-                                <li>Em sẽ gõ từ khoá gì?</li>
-                            </ul>
-                            <div id="applyAns" style="display:none;color:var(--purple)">👉 Máy tìm kiếm (ví dụ
-                                google.com); từ khoá: <em>hình ảnh Quốc kỳ Việt Nam</em>.</div>
+                            <div class="wire-cards-row" id="wireCardsRow"></div>
+
+                            <div class="search-preview-bar">
+                                <div>🔎 Chuỗi tìm kiếm hiện tại: <span class="search-preview-text"
+                                        id="liveSearchPreview">...</span></div>
+                                <button class="btn success" onclick="tryManualDefuse()">⏎ Nhấn Enter Chốt Từ
+                                    Khoá</button>
+                            </div>
                         </div>
+
+                        <!-- BẢNG CÔNG BỐ ĐÁP ÁN NGAY SAU KHI BOM NỔ HOẶC GỠ XONG -->
+                        <div class="answer-reveal-banner" id="answerRevealBanner"></div>
                     </div>
-                    <button class="btn yellow" onclick="document.getElementById('applyAns').style.display='block'">👀
-                        Xem gợi ý</button>
-                    <button class="btn orange" onclick="ask('Bắt đầu ván mới?','Chơi lại',resetGame)">🔄 Chơi ván
-                        mới</button>
                 </div>
-            </div>
+            </section>
+
+            <!-- SLIDE TỔNG KẾT & VINH DANH -->
+            <section id="slide-final" class="slide-screen">
+                <div class="card-panel" style="text-align:center;">
+                    <div class="panel-heading">
+                        <h2>🌟 TỔNG KẾT TIẾT HỌC & VINH DANH CÁC TỔ</h2>
+                    </div>
+
+                    <div style="background:#0f172a; color:#fff; border-radius:18px; padding:22px; margin-top:10px;">
+                        <h3 style="font-size:1.7rem; color:#facc15; margin:0 0 16px;">🏆 BẢNG XẾP HẠNG CHUNG CUỘC 🏆
+                        </h3>
+                        <div id="finalRankings"
+                            style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-bottom:20px;">
+                        </div>
+                        <button class="btn success huge" onclick="exportCSV()">📊 Tải Bảng Điểm & Lịch Sử Trả Lời
+                            (Excel)</button>
+                    </div>
+                </div>
+            </section>
         </main>
 
-        <aside class="scoreboard">
-            <div class="score-head">BẢNG ĐIỂM CÁC ĐỘI</div>
-            <div id="teams"></div>
-            <div class="meta" style="padding:8px">Bấm vào đội để chọn đội đang chơi</div>
+        <!-- ==================== CỘT PHẢI: SIDEBAR ĐIỀU KHIỂN ALL-IN-ONE ==================== -->
+        <aside class="sidebar">
+            <!-- 1. BẢNG ĐIỂM CÁC TỔ ĐẶT LÊN TRÊN CÙNG ĐỂ LUÔN THẤY RÕ RÀNG -->
+            <div class="scoreboard-panel">
+                <div class="score-head">
+                    <span>🏆 ĐIỂM CÁC TỔ</span>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <select id="classSelect" onchange="changeClass(this.value)" title="Chọn lớp">
+                            <option value="4_1">Lớp 4/1</option>
+                            <option value="4_2">Lớp 4/2</option>
+                            <option value="4_3">Lớp 4/3</option>
+                            <option value="4_4">Lớp 4/4</option>
+                            <option value="4_5">Lớp 4/5</option>
+                            <option value="4_6">Lớp 4/6</option>
+                        </select>
+                        <select id="teamCount" aria-label="Số tổ" onchange="changeTeamCount(this.value)"
+                            title="Đổi số tổ bất cứ lúc nào">
+                            <option value="2">2 tổ</option>
+                            <option value="3">3 tổ</option>
+                            <option value="4" selected>4 tổ</option>
+                            <option value="5">5 tổ</option>
+                            <option value="6">6 tổ</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="padding:4px 8px; background:#f8fafc; color:#475569; font-size:.76rem; font-weight:800; text-align:center; border-bottom:1px solid #e2e8f0;"
+                    id="scoreRules"></div>
+                <div id="teamsContainer"></div>
+            </div>
+
+            <!-- 2. ĐỒNG HỒ 35 PHÚT CẢ TIẾT & ĐIỀU HƯỚNG SLIDE & THÊM/BỚT QUEST -->
+            <div class="dock-box">
+                <div
+                    style="font-size:0.8rem; font-weight:800; color:#93c5fd; margin-bottom:4px; display:flex; justify-content:space-between;">
+                    <span>⏳ ĐỒNG HỒ TIẾT HỌC (35 PHÚT)</span>
+                    <span id="clockStatusLabel" style="color:#4ade80;">Đang chạy</span>
+                </div>
+                <div class="lesson-clock-wrap">
+                    <div class="lesson-clock-led" id="lessonClockDisplay">35:00</div>
+                    <div style="display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end;">
+                        <button class="mini-ctrl-btn" onclick="adjustLessonClock(60)" title="Cộng 1 phút">+1p</button>
+                        <button class="mini-ctrl-btn" onclick="adjustLessonClock(-60)" title="Trừ 1 phút">−1p</button>
+                        <button class="mini-ctrl-btn" id="btnPauseClock" onclick="toggleLessonClock()">⏸ Dừng</button>
+                    </div>
+                </div>
+
+                <!-- NÚT CHUYỂN SLIDE -->
+                <div class="nav-grid">
+                    <button class="btn primary" onclick="prevSlide()">◀ Trước</button>
+                    <span style="font-weight:900; font-size:0.95rem; color:#facc15;" id="slideIndicator">Slide
+                        1/9</span>
+                    <button class="btn primary" onclick="nextSlide()">Tiếp ▶</button>
+                </div>
+
+                <!-- BỘ ĐIỀU KHIỂN SỐ LƯỢNG QUEST (BOM) TRỰC TIẾP TRONG LÚC CHƠI -->
+                <div class="quest-ctrl-bar">
+                    <div class="quest-status-line" id="questCountStatus">💣 Số bom kích hoạt: 5 / 8 quả</div>
+                    <button class="mini-ctrl-btn" style="padding:6px; background:#7f1d1d; border-color:#ef4444;"
+                        onclick="changeActiveBombLimit(-1)">
+                        ➖ Bớt 1 Bom (Thiếu giờ)
+                    </button>
+                    <button class="mini-ctrl-btn" style="padding:6px; background:#065f46; border-color:#10b981;"
+                        onclick="changeActiveBombLimit(1)">
+                        ➕ Thêm 1 Bom (Dư giờ)
+                    </button>
+                    <button class="mini-ctrl-btn"
+                        style="grid-column: 1 / -1; padding:6px; background:#b45309; border-color:#f59e0b;"
+                        onclick="jumpToFinalSlide()">
+                        🏁 Tới Bảng Vinh Danh Chung Cuộc
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3. PANEL CHỌN HỌC SINH & GACHA -->
+            <details id="students-panel" open>
+                <summary id="students-summary">👥 Danh sách học sinh</summary>
+                <div id="students-header">
+                    <span id="st-head-title" style="font-size:0.8rem;">CÒN LƯỢT</span>
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" id="search-student" placeholder="Tìm tên..." onkeyup="filterStudents()">
+                        <button class="btn primary" style="padding:4px 10px; font-size:0.82rem;"
+                            onclick="randomPickStudent()">🎲 Gacha</button>
+                    </div>
+                </div>
+                <div id="students-list"></div>
+            </details>
         </aside>
     </div>
 
-    <!-- ===== BẢNG ĐIỀU KHIỂN GIÁO VIÊN ===== -->
-    <div class="drawer admin" id="drawer">
-        <button class="btn gray" style="float:right;padding:6px 12px" onclick="togglePanel()">✖ Đóng</button>
-        <h2 style="margin:0">⚙️ Giáo viên</h2>
-        <p style="font-size:.8rem;color:#b00">Lưu ý: game không lưu trạng thái. Tải lại trang sẽ bắt đầu ván mới.</p>
-        <h3>Đội chơi</h3>
-        <label>Số đội <select id="cTeams" onchange="setTeams(+this.value)">
-                <option>2</option>
-                <option selected>3</option>
-                <option>4</option>
-            </select></label>
-        <label>Đội đang chơi <select id="cActive" onchange="setActive(+this.value)"></select></label>
-        <p style="font-size:.8rem;margin:0">(Sửa tên đội ngay trên bảng điểm bên phải.)</p>
-        <h3>Luật chơi</h3>
-        <label>Thời lượng tổng (phút) <input type="number" id="cMin" value="2" min="1" max="90"
-                onchange="applyCfg()"></label>
-        <label>Số lỗi tối đa <input type="number" id="cErr" value="5" min="1" max="20" onchange="applyCfg()"></label>
-        <label>Số câu mỗi cấp (áp dụng ván mới) <input type="number" id="cPer" value="3" min="1" max="4"
-                onchange="applyCfg()"></label>
-        <label>Điểm cắt đúng <input type="number" id="cSC" value="10" onchange="applyCfg()"></label>
-        <label>Điểm giữ đúng <input type="number" id="cSK" value="5" onchange="applyCfg()"></label>
-        <label>Điểm phạt cắt nhầm <input type="number" id="cPen" value="10" onchange="applyCfg()"></label>
-        <h3>Tuỳ chọn</h3>
-        <label>Hỏi xác nhận trước khi cắt <input type="checkbox" id="cConf" checked onchange="applyCfg()"></label>
-        <label>Âm thanh <input type="checkbox" id="cSnd" checked onchange="applyCfg()"></label>
-        <label>Hiệu ứng <input type="checkbox" id="cFx" checked onchange="applyCfg()"></label>
-        <label>Chế độ giáo viên (hiện đáp án) <input type="checkbox" id="cTeach" onchange="applyCfg()"></label>
-        <h3>Đáp án câu hiện tại</h3>
-        <ul class="ans" id="ansList">
-            <li>Chưa có câu hỏi.</li>
-        </ul>
-        <p id="critList" style="font-size:.85rem"></p>
-    </div>
-
-    <!-- ===== OVERLAY / XÁC NHẬN / TOAST ===== -->
-    <div class="ov" id="ov">
-        <div class="ov-box" id="ovBox"></div>
-    </div>
-    <div class="ov" id="cf">
-        <div class="ov-box">
-            <h2>🤔 Xác nhận</h2>
-            <p id="cfMsg"></p>
-            <button class="btn teal" id="cfYes">OK</button><button class="btn gray" onclick="closeCf()">Đổi ý</button>
+    <!-- POP-UP XÁC NHẬN CẮT DÂY -->
+    <div class="action-modal" id="actionModal">
+        <div class="action-box">
+            <div style="font-size:1.25rem; font-weight:900; color:#2563eb;" id="modalTeamLabel"></div>
+            <div style="font-size:1.05rem; color:#475569; font-weight:700;" id="modalStudentLabel"></div>
+            <div style="font-size:1.3rem; font-weight:900; color:#1e3a8a; margin-top:6px;" id="modalGoal"></div>
+            <div class="action-word-target" id="modalWordTarget"></div>
+            <div class="action-btns-grid">
+                <button class="btn danger huge" onclick="confirmCutWire()">✂️ CẮT BỎ DÂY NÀY!</button>
+                <button class="btn gray huge" onclick="cancelCardDecision()">↩ Khoan, chọn dây khác</button>
+            </div>
         </div>
     </div>
-    <div id="toast"></div>
+
+    <!-- MÀN HÌNH KHỞI ĐẦU -->
+    <div class="start-screen" id="startScreen">
+        <div class="start-box">
+            <div style="font-size:3.8rem;">💣</div>
+            <h1 style="margin:4px 0; font-size:2.4rem; color:#1e3a8a;">ĐẤU TRƯỜNG GỠ BOM TỪ KHOÁ</h1>
+            <p style="color:#475569; font-weight:700;">Bài 4: Tìm kiếm thông tin trên Internet · Tin học 4 (Thời lượng:
+                35 phút)</p>
+            <div style="font-size:1.3rem; font-weight:900; margin-top:10px;">Chọn lớp</div>
+            <div class="chip-row">
+                <button class="chip on" onclick="pickStart('class','4_1',this)">4/1</button>
+                <button class="chip" onclick="pickStart('class','4_2',this)">4/2</button>
+                <button class="chip" onclick="pickStart('class','4_3',this)">4/3</button>
+                <button class="chip" onclick="pickStart('class','4_4',this)">4/4</button>
+                <button class="chip" onclick="pickStart('class','4_5',this)">4/5</button>
+                <button class="chip" onclick="pickStart('class','4_6',this)">4/6</button>
+            </div>
+            <div style="font-size:1.3rem; font-weight:900;">Chọn số tổ (2 đến 6 tổ)</div>
+            <div class="chip-row">
+                <button class="chip" onclick="pickStart('teams',2,this)">2 tổ</button>
+                <button class="chip" onclick="pickStart('teams',3,this)">3 tổ</button>
+                <button class="chip on" onclick="pickStart('teams',4,this)">4 tổ</button>
+                <button class="chip" onclick="pickStart('teams',5,this)">5 tổ</button>
+                <button class="chip" onclick="pickStart('teams',6,this)">6 tổ</button>
+            </div>
+            <button class="btn success huge" onclick="confirmStart()">▶ Bắt đầu đếm ngược 35 phút</button>
+        </div>
+    </div>
 
     <script>
         'use strict';
-        let QUESTIONS = null;
 
-        /* =====================================================================
-           2. CẤU HÌNH & TRẠNG THÁI
-           ===================================================================== */
-        const CFG = { min: 2, maxErr: 5, per: 3, sCut: 10, sKeep: 5, pen: 10, confirmCut: true, sound: true, fx: true, teach: false, present: false };
-        const BACKUP_MIN = 5;                       // phút cộng khi dùng bom dự phòng
-        const NOTE_AFTER = ['s-note1', 's-note2'];  // màn chép bài sau cấp 1 và cấp 2
-        const LV_NAME = ['', 'Dễ', 'Vừa', 'Thử thách'];
-        const WIRE = ['#ff4d5e', '#3aa0ff', '#ffd84d', '#34c77b', '#ff914d', '#a67cff', '#19b7a5'];
-        const $ = id => document.getElementById(id);
-        let T = [];   // đội: {n, score, err}
-        let S;        // trạng thái ván chơi
+        const $ = s => document.querySelector(s);
+        const $$ = s => document.querySelectorAll(s);
 
-        function freshState() {
-            return {
-                started: false, paused: false, halt: false, haltWhy: '', free: false, finished: false,
-                remain: CFG.min * 60000, last: Date.now(), lastSec: 0, active: S ? S.active : 0,
-                queue: [], stage: 0, qi: 0, total: 0, solved: 0, done: 0, errors: 0, booms: 0,
-                q: null, cards: [], sel: null, checked: false, hist: [], flip: -1, screen: 's-note0'
-            };
-        }
-        const shuffle = a => a.map(v => [Math.random(), v]).sort((x, y) => x[0] - y[0]).map(x => x[1]);
-        const fmt = ms => { const s = Math.ceil(ms / 1000); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
-        const canAct = () => S.started && !S.paused && !S.halt && !S.finished && S.q && S.screen === 's-game';
+        /* ================= CẤU HÌNH ĐIỂM & ĐỒNG HỒ 35 PHÚT ================= */
+        const LESSON_TOTAL_SECONDS = 35 * 60; // 35 phút = 2100 giây
+        const START_SCORE = 100;
+        const SCORE_FLOOR = 0;
+        const CUT_RIGHT_POINTS = 20;
+        const BOOM_PENALTY = 30;
+        const NOISE_PERCENT = 10;
 
-        /* =====================================================================
-           3. ÂM THANH (tắt/bật được)
-           ===================================================================== */
-        let AC;
-        function beep(f = 600, d = .1, t = 'square', v = .05) {
-            if (!CFG.sound) return;
-            try {
-                AC = AC || new (window.AudioContext || window.webkitAudioContext)();
-                const o = AC.createOscillator(), g = AC.createGain(); o.type = t; o.frequency.value = f; g.gain.value = v;
-                o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime + d);
-            } catch (e) { }
-        }
-        const boomSound = () => [180, 120, 80, 50].forEach((f, i) => setTimeout(() => beep(f, .25, 'sawtooth', .12), i * 90));
+        let lessonRemainingSeconds = LESSON_TOTAL_SECONDS;
+        let lessonClockPaused = false;
+        let lessonClockInterval = null;
 
-        /* =====================================================================
-           4. ĐỒNG HỒ: dựa trên thời gian thật (Date.now), chỉ có MỘT bộ đếm
-           ===================================================================== */
-        let timerId = null;
-        function tick() {
-            const now = Date.now(), d = now - S.last; S.last = now;
-            const running = S.started && S.screen === 's-game' && !S.paused && !S.halt && !S.free && !S.finished;
-            if (running) {
-                S.remain -= d;
-                const sec = Math.ceil(S.remain / 1000);
-                if (sec !== S.lastSec) { S.lastSec = sec; if (sec <= 60 && sec > 0) beep(sec <= 10 ? 1000 : 700, .05); }
-                if (S.remain <= 0) { S.remain = 0; boom('time'); }
+        /* ================= NGÂN HÀNG 16 NHIỆM VỤ GOOGLE SEARCH GAME MOBILE CỤ THỂ ================= */
+        const GAME_SEARCH_QUESTS = [
+            {
+                game: "⚔️ Liên Quân Mobile",
+                q: "Làm thế nào để nhận tướng hoặc trang phục (skin) Liliana / Valhein miễn phí trong sự kiện Liên Quân?",
+                kw: "cách nhận trang phục miễn phí Liên Quân"
+            },
+            {
+                game: "⛏️ Minecraft",
+                q: "Cần những nguyên liệu gì và sắp xếp như thế nào trên bàn chế tạo để làm ra một chiếc Cúp Kim Cương (Diamond Pickaxe)?",
+                kw: "công thức chế tạo cúp kim cương Minecraft"
+            },
+            {
+                game: "⛏️ Minecraft",
+                q: "Cần bao nhiêu khối Hắc Diện Thạch (Obsidian) và làm thế nào để xây dựng Cổng Địa Ngục (Nether Portal)?",
+                kw: "cách làm cổng địa ngục trong Minecraft"
+            },
+            {
+                game: "🎣 Play Together",
+                q: "Làm sao để câu được Cá Mập hoặc các loài cá hiếm (bóng to) ở vùng biển đảo Kaia trong Play Together?",
+                kw: "mẹo câu cá hiếm Play Together"
+            },
+            {
+                game: "💎 Play Together",
+                q: "Những cách nào giúp kiếm thật nhiều Tiền Sao và Đá Quý (Gem) miễn phí mỗi ngày trong Play Together?",
+                kw: "cách kiếm tiền sao và đá quý Play Together"
+            },
+            {
+                game: "⚽ FC Mobile",
+                q: "Làm thế nào để thực hiện cú Sút Xoáy (Finesse Shot / Cứa lòng) vào góc xa khung thành trong FC Mobile?",
+                kw: "cách sút xoáy cứa lòng FC Mobile"
+            },
+            {
+                game: "⚽ FC Mobile",
+                q: "Làm sao để nâng cấp chỉ số OVR của đội hình và huấn luyện cầu thủ lên cấp nhanh trong FC Mobile?",
+                kw: "cách tăng OVR đội hình FC Mobile"
+            },
+            {
+                game: "🏴‍☠️ Roblox (Blox Fruits)",
+                q: "Làm thế nào để thức tỉnh Trái Ác Quỷ (Awaken Devil Fruit) khi lên vùng biển Sea 2 trong Blox Fruits?",
+                kw: "cách thức tỉnh trái ác quỷ Blox Fruits"
+            },
+            {
+                game: "🏴‍☠️ Roblox (Blox Fruits)",
+                q: "Làm thế nào để học được võ Karate Người Cá (Sharkman Karate) hoặc kiếm điểm Thông Thạo (Mastery) nhanh?",
+                kw: "cách lấy Karate người cá Blox Fruits"
+            },
+            {
+                game: "🐺 Minecraft",
+                q: "Dùng thức ăn gì để thuần hoá Chó Sói và Mèo rừng trong Minecraft để chúng đi theo bảo vệ mình?",
+                kw: "cách thuần hoá chó sói và mèo trong Minecraft"
+            },
+            {
+                game: "🛡️ Liên Quân Mobile",
+                q: "Người mới chơi Liên Quân nên chỉnh Bảng Ngọc và Phù Hiệu như thế nào cho tướng Xạ Thủ (như Valhein, Tel'Annas)?",
+                kw: "cách lên đồ và bảng ngọc Valhein Liên Quân"
+            },
+            {
+                game: "🌻 Plants vs. Zombies",
+                q: "Làm thế nào để tiêu diệt Zombie Khổng Lồ (Gargantuar) nhanh nhất mà không bị nó đập nát hàng cây?",
+                kw: "cách diệt Zombie khổng lồ Plants vs Zombies"
+            },
+            {
+                game: "⚡ Pokémon",
+                q: "Trong Pokémon, các hệ Lửa, Nước, Cỏ và Điện khắc chế lẫn nhau theo quy tắc nào khi thi đấu?",
+                kw: "bảng khắc chế các hệ trong Pokemon"
+            },
+            {
+                game: "🏃 Subway Surfers",
+                q: "Làm thế nào để sử dụng Ván Trượt (Hoverboard) và nhân đôi điểm số (Score Multiplier) đạt kỷ lục trong Subway Surfers?",
+                kw: "mẹo chơi Subway Surfers đạt điểm cao"
+            },
+            {
+                game: "🏡 Play Together",
+                q: "Làm thế nào để nuôi Thú Cưng (Pet) lớn nhanh và mở khoá kỹ năng tìm kho báu trong Play Together?",
+                kw: "cách nuôi thú cưng nhanh lớn Play Together"
+            },
+            {
+                game: "🔥 Free Fire / Sinh Tồn",
+                q: "Trợ thủ (Pet) nào trong Free Fire giúp hồi máu hoặc tạo keo bảo vệ tốt nhất cho nhân vật?",
+                kw: "top trợ thủ mạnh nhất trong Free Fire"
             }
-            renderClock();
-        }
-        function startTimer() { if (timerId) return; timerId = setInterval(tick, 200); }  // chống chạy nhiều timer
-        function renderClock() {
-            const txt = S.free ? '∞' : fmt(S.remain);
-            $('clock').textContent = txt;
-            document.querySelectorAll('.mc').forEach(e => e.textContent = S.started ? txt : '--:--');
-            const run = S.started && S.screen === 's-game' && !S.free && !S.finished && !S.halt;
-            document.body.classList.toggle('warn', run && S.remain <= 60000);
-            document.body.classList.toggle('crit', run && S.remain <= 10000);
+        ];
+        let currentGameQuestIdx = 0;
+
+        function renderGameSearchQuest() {
+            const item = GAME_SEARCH_QUESTS[currentGameQuestIdx];
+            $('#gqGameTitle').textContent = `${item.game} — Nhiệm vụ tra cứu Google`;
+            $('#gqCounter').textContent = `Đề số ${currentGameQuestIdx + 1} / ${GAME_SEARCH_QUESTS.length}`;
+            $('#gqQuestionText').textContent = item.q;
+            $('#gqKeywordSpan').textContent = item.kw;
+            $('#gqKeywordHint').style.display = 'none';
         }
 
-        /* =====================================================================
-           5. ĐIỀU HƯỚNG MÀN HÌNH
-           ===================================================================== */
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            $(id).classList.add('active'); S.screen = id; S.last = Date.now(); window.scrollTo(0, 0); render();
+        function spinRandomGameQuest() {
+            let nextIdx = Math.floor(Math.random() * GAME_SEARCH_QUESTS.length);
+            if (nextIdx === currentGameQuestIdx) nextIdx = (nextIdx + 1) % GAME_SEARCH_QUESTS.length;
+            currentGameQuestIdx = nextIdx;
+            renderGameSearchQuest();
+            toast(`🎲 Đã đổi sang nhiệm vụ game: ${GAME_SEARCH_QUESTS[currentGameQuestIdx].game}!`, 'ok');
         }
-        function validateQuestionBank(questions) {
-            if (!Array.isArray(questions) || ![1, 2, 3].every(lv => questions.filter(q => q?.lv === lv).length >= CFG.per)) {
-                throw new Error('Ngân hàng phải có đủ số câu cho cả ba cấp độ.');
-            }
-            const validTypes = ['K', 'C', 'O'];
-            if (questions.some(q => !q || ![1, 2, 3].includes(q.lv) || typeof q.goal !== 'string' || typeof q.hint !== 'string' ||
-                !Array.isArray(q.cards) || !q.cards.length ||
-                q.cards.some(card => !Array.isArray(card) || card.length !== 3 ||
-                    typeof card[0] !== 'string' || !validTypes.includes(card[1]) || typeof card[2] !== 'string'))) {
-                throw new Error('Dữ liệu câu hỏi trong questions.json không đúng định dạng.');
-            }
-            return questions;
+
+        function toggleGameQuestKeyword() {
+            const box = $('#gqKeywordHint');
+            box.style.display = box.style.display === 'block' ? 'none' : 'block';
         }
-        async function startGame() {
-            const startButton = $('startBtn');
-            startButton.disabled = true;
-            try {
-                if (!QUESTIONS) {
-                    const response = await fetch('./questions.json');
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    const data = await response.json();
-                    QUESTIONS = validateQuestionBank(data.questions);
+
+        /* ================= 8 QUẢ BOM X 12 DÂY (5 CHÍNH + 3 DỰ PHÒNG) ================= */
+        const DEFAULT_QUESTIONS = [
+            {
+                "goal": "Tìm thông tin về các đời vua Hùng (SGK trang 19)",
+                "hint": "Giữ lại cụm từ chỉ đúng chủ đề lịch sử cần tìm, cắt bỏ hết lời kể chuyện và thời gian!",
+                "cards": [
+                    { "text": "Bạn Khoa ơi", "type": "C", "explanation": "Lời gọi bạn, không gõ vào máy tìm kiếm.", "critical": false },
+                    { "text": "hãy chỉ giúp mình", "type": "C", "explanation": "Lời nhờ vả thừa, cần cắt bỏ.", "critical": false },
+                    { "text": "cách tìm kiếm thông tin về", "type": "C", "explanation": "Cụm dẫn lời dài dòng, cần cắt bỏ.", "critical": false },
+                    { "text": "các đời vua Hùng", "type": "K", "explanation": "TỪ KHOÁ CHÍNH! Cắt dây này bom nổ ngay!", "critical": true },
+                    { "text": "trong lịch sử nước ta", "type": "O", "explanation": "Cụm bổ sung, cắt đi cho từ khoá ngắn gọn.", "critical": false },
+                    { "text": "để mình chép vào vở", "type": "C", "explanation": "Hành động cá nhân, cần cắt bỏ.", "critical": false },
+                    { "text": "hoàn thành bài tập về nhà", "type": "C", "explanation": "Mục đích làm bài, không phải từ khoá.", "critical": false },
+                    { "text": "môn Lịch sử và Địa lí", "type": "O", "explanation": "Tên môn học, có thể cắt bỏ cho gọn.", "critical": false },
+                    { "text": "vào buổi sáng ngày mai", "type": "C", "explanation": "Thời gian học trên lớp, cần cắt bỏ.", "critical": false },
+                    { "text": "trước khi trống trường điểm", "type": "C", "explanation": "Chi tiết thừa, cần cắt bỏ.", "critical": false },
+                    { "text": "thật nhanh chóng", "type": "C", "explanation": "Từ cảm thán không giúp tìm đúng kết quả.", "critical": false },
+                    { "text": "nhé bạn thân ơi", "type": "C", "explanation": "Lời nhắn nhủ cuối câu, bắt buộc cắt bỏ.", "critical": false }
+                ]
+            },
+            {
+                "goal": "Tìm thông tin về Bảo tàng Dân tộc học Việt Nam (Luyện tập SGK trang 20)",
+                "hint": "Tên riêng đầy đủ của bảo tàng là dây lõi duy nhất không được cắt!",
+                "cards": [
+                    { "text": "Tối hôm qua", "type": "C", "explanation": "Thời điểm kể chuyện, cần cắt bỏ.", "critical": false },
+                    { "text": "bố mẹ có nhờ em", "type": "C", "explanation": "Hoàn cảnh gia đình, không gõ vào Google.", "critical": false },
+                    { "text": "lên mạng Internet", "type": "C", "explanation": "Cụm từ thừa, cần cắt bỏ.", "critical": false },
+                    { "text": "tìm hiểu thông tin về", "type": "C", "explanation": "Cụm dẫn lời, cần cắt bỏ.", "critical": false },
+                    { "text": "Bảo tàng Dân tộc học Việt Nam", "type": "K", "explanation": "TỪ KHOÁ CHÍNH! Tên địa điểm cần tìm!", "critical": true },
+                    { "text": "nằm ở thủ đô Hà Nội", "type": "O", "explanation": "Địa danh phụ, có thể cắt để gọn từ khoá.", "critical": false },
+                    { "text": "xem mấy giờ mở cửa", "type": "O", "explanation": "Chi tiết phụ, có thể cắt bỏ.", "critical": false },
+                    { "text": "và giá vé vào cổng", "type": "O", "explanation": "Chi tiết phụ, có thể cắt bỏ.", "critical": false },
+                    { "text": "rồi ghi ra tờ giấy", "type": "C", "explanation": "Hành động ghi chép không liên quan.", "critical": false },
+                    { "text": "trước khi đi ngủ", "type": "C", "explanation": "Thời gian sinh hoạt cá nhân, cần cắt bỏ.", "critical": false },
+                    { "text": "để cuối tuần cả nhà đi chơi", "type": "C", "explanation": "Kế hoạch riêng của gia đình, cần cắt bỏ.", "critical": false },
+                    { "text": "cùng với ông bà ngoại", "type": "C", "explanation": "Thông tin cá nhân thừa, cần cắt bỏ.", "critical": false }
+                ]
+            },
+            {
+                "goal": "Tìm hình ảnh về Quốc kỳ Việt Nam (Vận dụng giáo án)",
+                "hint": "Giữ lại tên đối tượng cần tìm hình ảnh để giới thiệu trước lớp.",
+                "cards": [
+                    { "text": "Thầy giáo giao nhiệm vụ", "type": "C", "explanation": "Lời kể hoàn cảnh, cần cắt bỏ.", "critical": false },
+                    { "text": "cho tổ của chúng em", "type": "C", "explanation": "Thông tin nhóm học sinh, cần cắt bỏ.", "critical": false },
+                    { "text": "phải sưu tầm thật đẹp", "type": "C", "explanation": "Cụm từ cảm thán thừa, cần cắt bỏ.", "critical": false },
+                    { "text": "hình ảnh", "type": "O", "explanation": "Từ chỉ loại thông tin, có thể giữ hoặc cắt.", "critical": false },
+                    { "text": "Quốc kỳ Việt Nam", "type": "K", "explanation": "TỪ KHOÁ CHÍNH! Cắt là nổ bom ngay!", "critical": true },
+                    { "text": "lá cờ đỏ sao vàng", "type": "O", "explanation": "Mô tả bổ sung, có thể cắt cho gọn.", "critical": false },
+                    { "text": "để đưa vào bài trình chiếu", "type": "C", "explanation": "Mục đích sử dụng, cần cắt bỏ.", "critical": false },
+                    { "text": "giới thiệu trước cả lớp", "type": "C", "explanation": "Hoạt động trên lớp, cần cắt bỏ.", "critical": false },
+                    { "text": "trong giờ sinh hoạt dưới cờ", "type": "C", "explanation": "Thời điểm tổ chức, cần cắt bỏ.", "critical": false },
+                    { "text": "vào sáng thứ Hai tuần tới", "type": "C", "explanation": "Thời gian không cần gõ vào ô tìm kiếm.", "critical": false },
+                    { "text": "sao cho thật ấn tượng", "type": "C", "explanation": "Mong muốn cá nhân, cần cắt bỏ.", "critical": false },
+                    { "text": "và được thầy khen thưởng", "type": "C", "explanation": "Mục đích riêng, bắt buộc cắt bỏ.", "critical": false }
+                ]
+            },
+            {
+                "goal": "Tìm hiểu lịch sử Hồ Gươm",
+                "hint": "Giữ lại đúng chủ đề lịch sử và tên địa danh Hồ Gươm.",
+                "cards": [
+                    { "text": "Cô giáo chủ nhiệm dặn", "type": "C", "explanation": "Hoàn cảnh giao bài, cần cắt bỏ.", "critical": false },
+                    { "text": "chúng em về nhà", "type": "C", "explanation": "Cụm từ thừa, cần cắt bỏ.", "critical": false },
+                    { "text": "mở máy tính tìm hiểu", "type": "C", "explanation": "Hành động sử dụng máy, cần cắt bỏ.", "critical": false },
+                    { "text": "lịch sử Hồ Gươm", "type": "K", "explanation": "TỪ KHOÁ CHÍNH! Chủ đề và địa danh cần tìm!", "critical": true },
+                    { "text": "và truyền thuyết trả gươm báu", "type": "O", "explanation": "Chi tiết bổ sung, có thể cắt cho gọn.", "critical": false },
+                    { "text": "của vua Lê Lợi", "type": "O", "explanation": "Nhân vật liên quan, có thể cắt.", "critical": false },
+                    { "text": "để làm bài thuyết trình", "type": "C", "explanation": "Mục đích học tập, cần cắt bỏ.", "critical": false },
+                    { "text": "cùng các bạn trong nhóm", "type": "C", "explanation": "Thông tin làm việc nhóm, cần cắt bỏ.", "critical": false },
+                    { "text": "vào tiết học chiều mai", "type": "C", "explanation": "Thời gian học, cần cắt bỏ.", "critical": false },
+                    { "text": "trên màn hình tivi lớn", "type": "C", "explanation": "Thiết bị trình chiếu, không phải từ khoá.", "critical": false },
+                    { "text": "một cách thật tự tin", "type": "C", "explanation": "Thái độ trình bày, cần cắt bỏ.", "critical": false },
+                    { "text": "và đạt điểm mười", "type": "C", "explanation": "Mong muốn cá nhân, cần cắt bỏ.", "critical": false }
+                ]
+            },
+            {
+                "goal": "Tìm cách tiết kiệm nước trong gia đình",
+                "hint": "Giữ lại việc cần làm (tiết kiệm nước), cắt bỏ các từ kể lể.",
+                "cards": [
+                    { "text": "Em đang rất muốn", "type": "C", "explanation": "Từ mở đầu thừa, cần cắt bỏ.", "critical": false },
+                    { "text": "lên Google tra cứu", "type": "C", "explanation": "Không gõ chữ 'lên Google tra cứu' vào Google!", "critical": false },
+                    { "text": "những biện pháp", "type": "O", "explanation": "Từ dẫn, có thể cắt cho ngắn gọn.", "critical": false },
+                    { "text": "tiết kiệm nước", "type": "K", "explanation": "TỪ KHOÁ CHÍNH! Nội dung cốt lõi cần tìm!", "critical": true },
+                    { "text": "trong gia đình", "type": "O", "explanation": "Phạm vi áp dụng, có thể giữ hoặc cắt.", "critical": false },
+                    { "text": "khi rửa rau và tắm giặt", "type": "O", "explanation": "Ví dụ chi tiết, có thể cắt cho gọn.", "critical": false },
+                    { "text": "để bảo vệ tài nguyên", "type": "O", "explanation": "Mục đích bổ sung, có thể cắt.", "critical": false },
+                    { "text": "và giúp bố mẹ đỡ tốn tiền", "type": "C", "explanation": "Lý do cá nhân dài dòng, cần cắt bỏ.", "critical": false },
+                    { "text": "hàng tháng", "type": "C", "explanation": "Từ chỉ thời gian thừa, cần cắt bỏ.", "critical": false },
+                    { "text": "rồi viết vào sổ tay", "type": "C", "explanation": "Hành động cá nhân, cần cắt bỏ.", "critical": false },
+                    { "text": "dán lên tường nhà tắm", "type": "C", "explanation": "Hành động thực hiện, không phải từ khoá.", "critical": false },
+                    { "text": "ngay tối hôm nay", "type": "C", "explanation": "Thời gian cá nhân, bắt buộc cắt bỏ.", "critical": false }
+                ]
+            },
+            {
+                "goal": "[DỰ PHÒNG 1] Tìm hiểu vai trò của không khí đối với con người",
+                "hint": "Quả bom có 2 DÂY TỪ KHOÁ CHÍNH (vai trò của không khí + đối với con người)!",
+                "cards": [
+                    { "text": "Nhóm em cần tìm kiếm", "type": "C", "explanation": "Cụm dẫn lời thừa, cần cắt bỏ.", "critical": false },
+                    { "text": "tài liệu nói về", "type": "C", "explanation": "Từ nối không cần thiết, cắt bỏ.", "critical": false },
+                    { "text": "vai trò của không khí", "type": "K", "explanation": "TỪ KHOÁ CHÍNH 1! Không được cắt!", "critical": true },
+                    { "text": "đối với con người", "type": "K", "explanation": "TỪ KHOÁ CHÍNH 2! Không được cắt!", "critical": true },
+                    { "text": "và các loài sinh vật", "type": "O", "explanation": "Ý mở rộng, có thể cắt cho đúng đề bài.", "critical": false },
+                    { "text": "trong đời sống hằng ngày", "type": "O", "explanation": "Cụm bổ sung, có thể cắt.", "critical": false },
+                    { "text": "để làm bài tập môn Khoa học", "type": "C", "explanation": "Mục đích học tập, cần cắt bỏ.", "critical": false },
+                    { "text": "ở lớp bốn của chúng em", "type": "C", "explanation": "Thông tin lớp học, cần cắt bỏ.", "critical": false },
+                    { "text": "vào tiết học sáng thứ Năm", "type": "C", "explanation": "Thời gian học, cần cắt bỏ.", "critical": false },
+                    { "text": "sao cho thật đầy đủ", "type": "C", "explanation": "Từ cảm thán thừa, cần cắt bỏ.", "critical": false },
+                    { "text": "rồi đọc cho cả lớp nghe", "type": "C", "explanation": "Hành động báo cáo, cần cắt bỏ.", "critical": false },
+                    { "text": "cùng cô giáo nhận xét", "type": "C", "explanation": "Hoạt động trên lớp, cần cắt bỏ.", "critical": false }
+                ]
+            },
+            {
+                "goal": "[DỰ PHÒNG 2] Tìm hiểu cách nhận trang phục Liliana miễn phí trong Liên Quân",
+                "hint": "Giữ lại đúng cụm từ chỉ cách nhận trang phục Liliana!",
+                "cards": [
+                    { "text": "Thầy giáo Tin học", "type": "C", "explanation": "Người hỏi, không đưa vào ô tìm kiếm.", "critical": false },
+                    { "text": "chưa biết gì cả nên", "type": "C", "explanation": "Lời kể chuyện thừa, cần cắt bỏ.", "critical": false },
+                    { "text": "nhờ cả lớp lên Google tìm", "type": "C", "explanation": "Hành động nhờ vả, cần cắt bỏ.", "critical": false },
+                    { "text": "hướng dẫn chi tiết", "type": "O", "explanation": "Có thể giữ hoặc rút gọn.", "critical": false },
+                    { "text": "cách nhận trang phục Liliana Liên Quân", "type": "K", "explanation": "TỪ KHOÁ CHÍNH! Ngắn gọn và trúng đích!", "critical": true },
+                    { "text": "trên điện thoại thông minh", "type": "O", "explanation": "Thiết bị chơi, có thể cắt cho gọn.", "critical": false },
+                    { "text": "dành cho người mới bắt đầu", "type": "O", "explanation": "Phạm vi bổ sung, có thể cắt.", "critical": false },
+                    { "text": "để giải thích lại cho thầy", "type": "C", "explanation": "Mục đích giao tiếp trên lớp, cần cắt bỏ.", "critical": false },
+                    { "text": "ngay trong tiết học hôm nay", "type": "C", "explanation": "Thời điểm nói chuyện, cần cắt bỏ.", "critical": false },
+                    { "text": "ở phòng học của lớp bốn", "type": "C", "explanation": "Địa điểm lớp học, cần cắt bỏ.", "critical": false },
+                    { "text": "một cách thật dễ hiểu", "type": "C", "explanation": "Yêu cầu diễn đạt, cần cắt bỏ.", "critical": false },
+                    { "text": "và vui nhộn nhất", "type": "C", "explanation": "Từ cảm thán thừa, cần cắt bỏ.", "critical": false }
+                ]
+            },
+            {
+                "goal": "[DỰ PHÒNG 3] Tìm công thức chế tạo Cúp Kim Cương trong Minecraft",
+                "hint": "Giữ lại đúng cụm công thức chế tạo cúp kim cương Minecraft!",
+                "cards": [
+                    { "text": "Dịp nghỉ cuối tuần này", "type": "C", "explanation": "Thời gian dự kiến, cần cắt bỏ.", "critical": false },
+                    { "text": "em vào chơi với bạn", "type": "C", "explanation": "Hoàn cảnh riêng, cần cắt bỏ.", "critical": false },
+                    { "text": "nhưng quên mất cách ghép đồ", "type": "C", "explanation": "Lời kể lể, cần cắt bỏ.", "critical": false },
+                    { "text": "nên muốn tra cứu nhanh", "type": "C", "explanation": "Cụm từ thừa, cần cắt bỏ.", "critical": false },
+                    { "text": "công thức chế tạo cúp kim cương Minecraft", "type": "K", "explanation": "TỪ KHOÁ CHÍNH! Đúng nội dung và tên game!", "critical": true },
+                    { "text": "trên bàn chế tạo", "type": "O", "explanation": "Chi tiết bổ sung, có thể cắt.", "critical": false },
+                    { "text": "để đi đào đá đỏ", "type": "C", "explanation": "Mục đích sau đó, cần cắt bỏ.", "critical": false },
+                    { "text": "xây ngôi nhà thật to", "type": "C", "explanation": "Hoàn cảnh riêng, cần cắt bỏ.", "critical": false },
+                    { "text": "rồi khoe với các bạn", "type": "C", "explanation": "Việc làm cá nhân, cần cắt bỏ.", "critical": false },
+                    { "text": "trong xóm của mình", "type": "C", "explanation": "Chi tiết không liên quan tới kết quả tìm.", "critical": false },
+                    { "text": "vào tối thứ Bảy", "type": "C", "explanation": "Thời gian thừa, cần cắt bỏ.", "critical": false },
+                    { "text": "thật là vui vẻ", "type": "C", "explanation": "Cụm từ cảm thán, bắt buộc cắt bỏ.", "critical": false }
+                ]
+            }
+        ];
+
+        let QUESTIONS = [];
+        let activeBombLimit = 5;
+
+        const FALLBACK_STUDENTS = {
+            "4_1": [
+                "Nguyễn Trung An", "Hồ Nhựt Anh", "Lý Ngọc Hà Anh", "Tống Nguyễn Bảo Anh", "Trần Lưu Ngọc Anh",
+                "Trần Mai Mỹ Anh", "Trần Ngọc Vy Anh", "Bùi Ngọc Bách", "Nguyễn Minh Châu", "Trần Bảo Châu",
+                "Vũ Hoàng Kim Chi", "Đoàn Quang Trí Dũng", "Nguyễn Minh Đạt", "Hồ Minh Đức", "Hà Thu Hòa",
+                "Trần Anh Hòa", "Nguyễn Lê Khang", "Phạm Tuấn Khang", "Nguyễn Minh Khôi", "Hình Nhật Ngọc Lâm",
+                "Ngô Hoàng Long", "Trần Minh Mẫn", "Dương Ngọc Quý Minh", "Nguyễn Dương Minh Minh", "Phạm Ngọc Khánh My",
+                "Dương Khánh Nam", "Phan Kim Ngân", "Huỳnh Phương Yến Ngọc", "Hoàng Phúc Nhã", "Phan Võ Minh Nhân",
+                "Lâm Thành Nhất", "Nguyễn Huỳnh Nhi", "Lăng Nguyễn Hồng Nhung", "Trần Đức Phát", "Quách Gia Phú",
+                "Ngô Quang Phúc", "Nguyễn Lê Đại Phúc", "Nguyễn Xuân Phúc", "Đặng Nguyễn Phương Quỳnh", "Từ Anh Thy",
+                "Huỳnh Lâm Mộc Trà", "Trần Cao Thanh Trà", "Trần Minh Triết", "Lê Hoàng Phú Trọng", "Nguyễn Phú Trọng",
+                "Danh Thanh Vân", "Nguyễn Ngọc Bạch Vân", "La Tường Vi", "Đặng Ngọc Vy", "Lê Trần Phương Vy"
+            ]
+        };
+
+        const TEAM_COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#a855f7', '#ec4899'];
+        const WIRE_COLORS = ['#ef4444', '#3b82f6', '#eab308', '#10b981', '#a855f7', '#f97316'];
+
+        let currentClassID = "4_1";
+        let numT = 4;
+        let TEAMS = [];
+        let classStudents = [];
+        let selectedStudent = null;
+        let calledStudentsByClass = {};
+        let calledStudents = new Set();
+        let turn = 0;
+        let gameLog = [];
+
+        const SLIDES = [
+            { id: 'slide-intro' },
+            { id: 'slide-note-1' },
+            { id: 'slide-bomb', round: 0 },
+            { id: 'slide-bomb', round: 1 },
+            { id: 'slide-note-2' },
+            { id: 'slide-bomb', round: 2 },
+            { id: 'slide-google' },
+            { id: 'slide-note-3' },
+            { id: 'slide-bomb', round: 3 },
+            { id: 'slide-bomb', round: 4 },
+            { id: 'slide-bomb', round: 5 },
+            { id: 'slide-bomb', round: 6 },
+            { id: 'slide-bomb', round: 7 },
+            { id: 'slide-final' }
+        ];
+
+        let currentSlide = 0;
+        const rounds = [];
+        let activeRound = null;
+        let curQ = null;
+        let cardStates = [];
+        let pendingCardIdx = null;
+
+        /* ================= 1. ĐỒNG HỒ ĐẾM NGƯỢC 35 PHÚT TOÀN TIẾT HỌC ================= */
+        function startLessonClock() {
+            clearInterval(lessonClockInterval);
+            lessonClockInterval = setInterval(() => {
+                if (!lessonClockPaused && lessonRemainingSeconds > 0) {
+                    lessonRemainingSeconds--;
+                    renderLessonClock();
                 }
-            } catch (error) {
-                console.error('Không thể tải ngân hàng câu hỏi questions.json.', error);
-                toast('Không tải được câu hỏi. Hãy kiểm tra questions.json và mở trò chơi qua máy chủ web.');
-                startButton.disabled = false;
+            }, 1000);
+            renderLessonClock();
+        }
+
+        function renderLessonClock() {
+            const mm = Math.floor(lessonRemainingSeconds / 60);
+            const ss = lessonRemainingSeconds % 60;
+            const el = $('#lessonClockDisplay');
+            el.textContent = `${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
+            el.classList.toggle('low-time', lessonRemainingSeconds <= 300);
+        }
+
+        function adjustLessonClock(deltaSec) {
+            lessonRemainingSeconds = Math.max(0, lessonRemainingSeconds + deltaSec);
+            renderLessonClock();
+        }
+
+        function toggleLessonClock() {
+            lessonClockPaused = !lessonClockPaused;
+            $('#btnPauseClock').textContent = lessonClockPaused ? '▶ Chạy' : '⏸ Dừng';
+            $('#clockStatusLabel').textContent = lessonClockPaused ? 'Đã tạm dừng' : 'Đang chạy';
+            $('#clockStatusLabel').style.color = lessonClockPaused ? '#facc15' : '#4ade80';
+        }
+
+        /* ================= 2. ĐIỀU KHIỂN SỐ LƯỢNG BOM (QUEST) TRONG LÚC CHƠI ================= */
+        function changeActiveBombLimit(delta) {
+            const maxBombs = QUESTIONS.length || 8;
+            const nextLimit = Math.max(1, Math.min(maxBombs, activeBombLimit + delta));
+            if (nextLimit === activeBombLimit) {
+                toast(delta > 0 ? 'Đã bật tối đa tất cả 8 quả bom!' : 'Tối thiểu phải giữ lại 1 quả bom!', 'bad');
                 return;
             }
-            startButton.disabled = false;
-            S.started = true; S.remain = CFG.min * 60000; S.last = Date.now();
-            S.queue = [1, 2, 3].map(lv => shuffle(QUESTIONS.filter(q => q.lv === lv)).slice(0, CFG.per));
-            S.total = S.queue.reduce((n, a) => n + a.length, 0); S.stage = 0; S.qi = 0;
-            loadQ();
-        }
-        function loadQ() {
-            S.q = S.queue[S.stage][S.qi]; S.q.solved = false;
-            S.cards = S.q.cards.map(() => ({ st: 'hid' })); S.sel = null; S.checked = false; S.hist = []; S.flip = -1;
-            $('fb').className = ''; $('fb').textContent = 'Giáo viên bấm vào một dây để lật mở, cả lớp thảo luận rồi chọn ✂️ CẮT BỎ hoặc ✅ GIỮ LẠI.';
-            showScreen('s-game'); renderAns();
-        }
-        const resumeStage = () => loadQ();   // từ màn chép bài quay lại bom
+            activeBombLimit = nextLimit;
+            updateQuestStatusText();
+            toast(`💣 Đã chỉnh tổng số quả bom trong tiết học thành: ${activeBombLimit} quả!`, 'ok');
 
-        /* =====================================================================
-           6. THAO TÁC TRÊN THẺ
-           ===================================================================== */
-        function snap() {
-            S.hist.push(JSON.stringify({ cards: S.cards, sel: S.sel, checked: S.checked, qs: S.q.solved, T: T.map(t => [t.score, t.err]), errors: S.errors, solved: S.solved }));
-        }
-        function onCard(i) {
-            if (!canAct()) return; const c = S.cards[i];
-            if (c.st === 'hid') { snap(); c.st = 'open'; S.sel = i; S.flip = i; S.checked = false; beep(800, .06); }
-            else if (c.st === 'open') { S.sel = i; }
-            else return;
-            render();
-        }
-        function openNext() { if (!canAct()) return; const i = S.cards.findIndex(c => c.st === 'hid'); if (i >= 0) onCard(i); }
-        function decide(kind) {
-            if (!canAct() || S.sel === null || S.cards[S.sel].st !== 'open') return;
-            if (kind === 'cut' && CFG.confirmCut) {
-                ask('✂️ Cắt dây "' + S.q.cards[S.sel][0] + '"? Hãy chắc chắn cả lớp đã đồng ý!', '✂️ Cắt!', () => doDecide('cut')); return;
-            }
-            doDecide(kind);
-        }
-        function doDecide(kind) {
-            if (!canAct() || S.sel === null) return;
-            const i = S.sel, d = S.q.cards[i], t = T[S.active];
-            snap(); S.cards[i].st = kind; S.sel = null; S.checked = false;
-            if (S.q.solved) { S.q.solved = false; S.solved = Math.max(0, S.solved - 1); }
-            let msg, cls = 'ok';
-            if (kind === 'cut') {
-                if (d[1] === 'K') {
-                    t.score = Math.max(0, t.score - CFG.pen); t.err++; S.errors++; cls = 'bad'; beep(200, .35, 'sawtooth');
-                    msg = '❌ Dây "' + d[0] + '" là TỪ KHOÁ cần giữ. ' + d[2] + ' (−' + CFG.pen + ' điểm). Có thể bấm ↩️ HOÀN TÁC.';
-                }
-                else if (d[1] === 'C') { t.score += CFG.sCut; beep(900, .12); msg = '✂️ Cắt đúng! +' + CFG.sCut + ' điểm. ' + d[2]; }
-                else { t.score += CFG.sKeep; beep(700, .1); msg = '👌 Cắt cũng được (cụm này tuỳ cách tìm). +' + CFG.sKeep + ' điểm. ' + d[2]; }
+            const curS = SLIDES[currentSlide];
+            if (curS && curS.round !== undefined && curS.round >= activeBombLimit) {
+                showSlide(currentSlide + 1, 1);
             } else {
-                if (d[1] === 'K') { t.score += CFG.sKeep; beep(900, .12); msg = '✅ Giữ đúng! +' + CFG.sKeep + ' điểm. ' + d[2]; }
-                else if (d[1] === 'C') { cls = 'bad'; beep(300, .2); msg = '🤔 Dây này nên cắt, 0 điểm. ' + d[2]; }
-                else { t.score += CFG.sKeep; beep(700, .1); msg = '👌 Giữ cũng được. +' + CFG.sKeep + ' điểm. ' + d[2]; }
-            }
-            if (S.cards.every(c => c.st === 'cut' || c.st === 'keep')) msg += ' 👉 Đã quyết định hết các dây, bấm 🔍 KIỂM TRA.';
-            fb(msg, cls);
-            if (S.errors >= CFG.maxErr && !S.free) boom('err');
-            render();
-        }
-        function undoLast() {
-            const h = S.hist.pop(); if (!h || S.finished) return;
-            const o = JSON.parse(h);
-            S.cards = o.cards; S.sel = o.sel; S.checked = o.checked; S.q.solved = o.qs; S.errors = o.errors; S.solved = o.solved;
-            T.forEach((t, i) => { const v = o.T[i] || [t.score, t.err]; t.score = v[0]; t.err = v[1]; });
-            if (S.halt && S.haltWhy === 'err') { S.halt = false; closeOv(); }
-            fb('↩️ Đã hoàn tác thao tác gần nhất (đồng hồ không bị ảnh hưởng).'); render();
-        }
-        function hint() { if (canAct()) fb('💡 Gợi ý: ' + S.q.hint); }
-
-        /* ===== Kiểm tra câu tìm kiếm cuối cùng ===== */
-        function checkQuery() {
-            if (!canAct()) return;
-            if (S.cards.some(c => c.st === 'hid' || c.st === 'open')) { toast('Còn dây chưa quyết định. Hãy mở và chọn Cắt/Giữ hết đã!'); return; }
-            snap(); S.checked = true;
-            const kept = [], missing = [], extra = [];
-            S.q.cards.forEach((d, i) => {
-                const st = S.cards[i].st;
-                if (st === 'keep') kept.push(d[0]);
-                if (d[1] === 'K' && st === 'cut') missing.push(d[0]);
-                if (d[1] === 'C' && st === 'keep') extra.push(d[0]);
-            });
-            const sentence = kept.join(' ') || '(trống)';
-            let html = '🔎 Câu tìm kiếm sau khi xử lý: <u>' + sentence + '</u><br>', ok = !missing.length && !extra.length;
-            if (ok) {
-                html += '🎉 Đạt! Câu tìm kiếm ngắn gọn mà vẫn đủ từ khoá. Có thể có cách chọn khác cũng đúng, miễn giữ đủ từ khoá.';
-                if (!S.q.solved) { S.q.solved = true; S.solved++; beep(1000, .3, 'sine'); }
-            } else {
-                if (S.q.solved) { S.q.solved = false; S.solved = Math.max(0, S.solved - 1); }
-                if (missing.length) html += '⚠️ Đã mất từ khoá: <b>' + missing.join(', ') + '</b>. Câu tìm kiếm chưa đủ thông tin.<br>';
-                if (extra.length) html += '✂️ Còn phần thừa có thể cân nhắc bỏ: <b>' + extra.join(', ') + '</b>.';
-            }
-            fb(html, ok ? 'ok' : 'bad', true); render();
-        }
-        function nextQ() {
-            if (!canAct()) return;
-            const go = () => {
-                S.done++; S.active = (S.active + 1) % T.length; S.qi++;
-                if (S.qi >= S.queue[S.stage].length) {
-                    S.stage++; S.qi = 0;
-                    if (S.stage >= 3) { finish(); return; }
-                    S.q = null; showScreen(NOTE_AFTER[S.stage - 1]); return;   // sang màn chép bài
+                const validSlides = getActiveSlideList();
+                const pos = validSlides.indexOf(currentSlide) + 1;
+                $('#slideIndicator').textContent = `Slide ${pos}/${validSlides.length}`;
+                if (activeRound !== null) {
+                    $('#gameProgress').textContent = `Bom ${activeRound + 1} / ${activeBombLimit}`;
                 }
-                loadQ();
-            };
-            S.checked ? go() : ask('Chưa kiểm tra câu tìm kiếm. Bỏ qua câu này (không tính tiến độ)?', 'Bỏ qua', go);
+            }
         }
 
-        /* =====================================================================
-           7. THẮNG / THUA / NỔ BOM  (bom nổ KHÔNG làm đứng tiết học)
-           ===================================================================== */
-        function boom(why) {
-            if (S.halt || S.finished) return;
-            S.halt = true; S.haltWhy = why; S.booms++;
-            document.body.classList.add('boom'); setTimeout(() => document.body.classList.remove('boom'), 1000); boomSound();
-            const byTime = why === 'time';
-            $('ovBox').innerHTML = '<h2>💥 BÙM!</h2><p style="font-size:1.4rem">' + (byTime ? '⏰ Hết giờ, quả bom đã phát nổ!' : 'Cắt nhầm quá nhiều dây (' + S.errors + '/' + CFG.maxErr + ' lỗi)!') + '</p>'
-                + '<p>Đừng lo, <b>bài học vẫn tiếp tục</b>. Điểm các đội được giữ nguyên. Chọn một cách:</p>'
-                + '<button class="btn teal" onclick="backupBomb()">🧯 Bom dự phòng (+' + BACKUP_MIN + ' phút, xoá lỗi)</button>'
-                + '<button class="btn orange" onclick="freeMode()">📖 Học tiếp, không tính giờ</button>'
-                + (!byTime && S.hist.length ? '<button class="btn gray" onclick="undoLast()">↩️ Hoàn tác thao tác vừa rồi</button>' : '');
-            $('ov').classList.add('show'); render();
-        }
-        function backupBomb() { S.remain += BACKUP_MIN * 60000; S.errors = 0; S.halt = false; S.last = Date.now(); closeOv(); toast('🧯 Đã lắp bom dự phòng!'); render(); }
-        function freeMode() { S.free = true; S.halt = false; closeOv(); toast('📖 Chế độ học tiếp, không tính giờ'); render(); }
-        function finish() {
-            S.finished = true; S.q = null;
-            const rank = T.map(t => ({ n: t.n, s: t.score })).sort((a, b) => b.s - a.s);
-            $('ovBox').innerHTML = '<h2>🎉 GIẢI CỨU THÀNH CÔNG!</h2><p>Cả lớp đã gỡ xong quả bom' + (S.booms ? ' (bom từng nổ ' + S.booms + ' lần, nhưng cả lớp không bỏ cuộc!)' : '') + '.</p>'
-                + '<div class="stats"><span>✅ Hoàn thành: ' + S.done + '/' + S.total + ' câu</span><span>🎯 Câu đúng: ' + S.solved + '</span><span>💥 Lỗi: ' + S.errors + '</span><span>⏱ Còn lại: ' + (S.free ? 'không tính giờ' : fmt(S.remain)) + '</span></div>'
-                + '<div class="stats">' + rank.map((r, i) => '<span>' + (i === 0 ? '🏆 ' : '') + r.n + ': ' + r.s + ' điểm</span>').join('') + '</div>'
-                + '<button class="btn orange" onclick="closeOv();showScreen(\'s-apply\')">Sang phần Vận dụng ➔</button>'
-                + '<button class="btn gray" onclick="closeOv();ask(\'Chơi lại từ đầu?\',\'Chơi lại\',resetGame)">🔄 Chơi lại</button>';
-            $('ov').classList.add('show'); beep(1000, .4, 'sine'); render();
-        }
-        function resetGame() {
-            S = freshState(); T.forEach(t => { t.score = 0; t.err = 0; }); closeOv();
-            document.body.classList.remove('warn', 'crit'); showScreen('s-note0');
-        }
-        function setPause(p) {
-            if (!S.started || S.finished || S.halt || S.free) return;
-            S.paused = p; S.last = Date.now();
-            if (p) { $('ovBox').innerHTML = '<h2>⏸ TẠM DỪNG</h2><p>Đồng hồ bom đã dừng.</p><button class="btn teal big" onclick="setPause(false)">▶ TIẾP TỤC</button>'; $('ov').classList.add('show'); }
-            else closeOv();
-            render();
+        function updateQuestStatusText() {
+            const maxBombs = QUESTIONS.length || 8;
+            $('#questCountStatus').textContent = `💣 Số bom kích hoạt: ${activeBombLimit} / ${maxBombs} quả`;
         }
 
-        /* =====================================================================
-           8. ĐỘI CHƠI
-           ===================================================================== */
-        function setTeams(n) {
-            while (T.length < n) T.push({ n: 'ĐỘI ' + (T.length + 1), score: 0, err: 0 });
-            T.length = n; if (S.active >= n) S.active = 0; buildTeams(); render();
+        function jumpToFinalSlide() {
+            showSlide(SLIDES.length - 1, 1);
+            toast('🏁 Đã chuyển tới Bảng Vinh Danh tổng kết!', 'ok');
         }
-        function buildTeams() {
-            $('teams').innerHTML = '';
-            T.forEach((t, i) => {
-                const d = document.createElement('div'); d.className = 'team'; d.id = 'tm' + i;
-                d.innerHTML = '<input class="team-name t-' + i + '" value="' + t.n + '" oninput="T[' + i + '].n=this.value;renderHud()">'
-                    + '<div class="score-row"><button class="sb admin" onclick="adj(' + i + ',-5)">−5</button><b id="sc' + i + '">0</b><button class="sb admin" onclick="adj(' + i + ',5)">+5</button></div><div class="meta" id="mt' + i + '"></div>';
-                d.onclick = e => { if (e.target.tagName !== 'BUTTON') setActive(i); };
-                $('teams').appendChild(d);
+
+        function skipOrNextBomb() {
+            nextSlide();
+        }
+
+        function isSkippable(i) {
+            const s = SLIDES[i];
+            if (s.round === undefined) return false;
+            return s.round >= activeBombLimit || !QUESTIONS[s.round];
+        }
+
+        function getActiveSlideList() {
+            return SLIDES.map((s, idx) => idx).filter(idx => !isSkippable(idx));
+        }
+
+        function showSlide(target, dir = 1) {
+            let idx = Math.max(0, Math.min(SLIDES.length - 1, target));
+            while (isSkippable(idx)) {
+                const nxt = idx + dir;
+                if (nxt < 0 || nxt >= SLIDES.length) { idx = currentSlide; break; }
+                idx = nxt;
+            }
+
+            closeActionModal();
+            currentSlide = idx;
+            const s = SLIDES[idx];
+            $$('.slide-screen').forEach(el => el.classList.toggle('active', el.id === s.id));
+
+            const validSlides = getActiveSlideList();
+            const pos = validSlides.indexOf(idx) + 1;
+            $('#slideIndicator').textContent = `Slide ${pos}/${validSlides.length}`;
+
+            if (s.round !== undefined && QUESTIONS.length) enterRound(s.round);
+            else activeRound = null;
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function nextSlide() { showSlide(currentSlide + 1, 1); }
+        function prevSlide() { showSlide(currentSlide - 1, -1); }
+
+        window.addEventListener('keydown', e => {
+            if (!$('#startScreen').classList.contains('hidden')) return;
+            if ($('#actionModal').classList.contains('show')) {
+                if (e.key === 'Escape') cancelCardDecision();
+                return;
+            }
+            if (e.target instanceof HTMLElement && (e.target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName))) return;
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        /* ================= 3. LOGIC CẮT DÂY BOM & CÔNG BỐ ĐÁP ÁN ================= */
+        async function loadQuestions() {
+            try {
+                const response = await fetch('./questions.json');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                if (Array.isArray(data) && data.length >= 8) {
+                    QUESTIONS = data;
+                    return;
+                }
+            } catch (e) {
+                console.warn('Sử dụng bộ 8 quả bom x 12 dây tích hợp sẵn:', e);
+            }
+            QUESTIONS = DEFAULT_QUESTIONS;
+        }
+
+        function getRound(i) {
+            if (!rounds[i]) {
+                const q = QUESTIONS[i];
+                rounds[i] = {
+                    status: 'running',
+                    cards: q.cards.map(() => ({ status: 'intact' })),
+                    boomReason: ''
+                };
+            }
+            return rounds[i];
+        }
+
+        function getExactKeywordsString(q) {
+            return q.cards.filter(c => c.type === 'K' || c.critical).map(c => c.text).join(' ');
+        }
+
+        function enterRound(i) {
+            activeRound = i;
+            curQ = QUESTIONS[i];
+            const r = getRound(i);
+            cardStates = r.cards;
+            pendingCardIdx = null;
+
+            $('#gameGoal').textContent = curQ.goal;
+            $('#gameHint').textContent = `💡 Gợi ý: ${curQ.hint}`;
+            $('#gameProgress').textContent = `Bom ${i + 1} / ${activeBombLimit}`;
+
+            renderWireCards();
+            updateTurnIndicator();
+            renderAnswerBanner(r);
+        }
+
+        function renderAnswerBanner(r) {
+            const banner = $('#answerRevealBanner');
+            banner.className = 'answer-reveal-banner';
+            if (!curQ) return;
+            const exactKey = getExactKeywordsString(curQ);
+
+            if (r.status === 'boom') {
+                banner.classList.add('show-boom');
+                banner.innerHTML = `
+                    💥 <strong>BOM ĐÃ NỔ! (${r.boomReason})</strong> — Quest này đã khép lại!<br/>
+                    🔑 <strong>ĐÁP ÁN TỪ KHOÁ CHÍNH XÁC LÀ:</strong>
+                    <span style="background:#dcfce7; color:#14532d; padding:3px 12px; border-radius:8px; margin-left:6px;">"${exactKey}"</span>
+                `;
+            } else if (r.status === 'done') {
+                banner.classList.add('show-done');
+                banner.innerHTML = `
+                    🎉 <strong>GỠ BOM THÀNH CÔNG!</strong> Tất cả các dây từ thừa đã bị cắt sạch!<br/>
+                    🔑 <strong>TỪ KHOÁ CHUẨN GÕ VÀO GOOGLE:</strong>
+                    <span style="background:#fef08a; color:#713f12; padding:3px 12px; border-radius:8px; margin-left:6px;">"${exactKey}"</span>
+                `;
+            }
+        }
+
+        function countRemainingMustCut() {
+            if (!curQ) return 0;
+            return curQ.cards.reduce((acc, c, i) => {
+                return acc + (c.type === 'C' && cardStates[i].status === 'intact' ? 1 : 0);
+            }, 0);
+        }
+
+        function renderWireCards() {
+            const container = $('#wireCardsRow');
+            container.innerHTML = '';
+            if (!curQ) return;
+
+            const remainingWords = [];
+
+            curQ.cards.forEach((card, idx) => {
+                const cState = cardStates[idx];
+                const cardEl = document.createElement('button');
+                cardEl.className = `wire-card ${cState.status}`;
+                cardEl.type = 'button';
+                cardEl.style.setProperty('--wc', WIRE_COLORS[idx % WIRE_COLORS.length]);
+
+                cardEl.innerHTML = `<span class="wire-num">${idx + 1}</span> <span>${card.text}</span>`;
+                cardEl.title = cState.status === 'intact' ? 'Bấm để cắt bỏ sợi dây này' : card.explanation;
+                cardEl.onclick = () => onCardClicked(idx);
+                container.appendChild(cardEl);
+
+                if (cState.status === 'intact' || cState.status === 'safe-key') {
+                    remainingWords.push(card.text);
+                }
             });
-            $('cActive').innerHTML = T.map((t, i) => '<option value="' + i + '">' + t.n + '</option>').join('');
-        }
-        function setActive(i) { S.active = i; render(); }
-        function adj(i, v) { T[i].score += v; render(); }   // cộng/trừ điểm thủ công
 
-        /* =====================================================================
-           9. HIỂN THỊ
-           ===================================================================== */
-        function fb(msg, cls, html) { const e = $('fb'); e.className = cls || ''; html ? e.innerHTML = msg : e.textContent = msg; }
-        function renderHud() {
-            $('hTeam').textContent = '🎯 ' + (T[S.active] ? T[S.active].n : '–');
-            $('hErr').textContent = '💥 Lỗi ' + S.errors + '/' + CFG.maxErr;
-            const tot = S.total || CFG.per * 3;
-            $('progLabel').textContent = 'Tiến độ giải cứu: ' + S.solved + '/' + tot;
-            $('progBar').style.width = (S.solved / tot * 100) + '%';
-            [...$('cActive').options].forEach((o, i) => { o.textContent = T[i].n; }); $('cActive').value = S.active;
+            $('#liveSearchPreview').textContent = `"${remainingWords.join(' ')}"`;
+
+            const mustCutLeft = countRemainingMustCut();
+            const badge = $('#wiresRemainingBadge');
+            const r = rounds[activeRound];
+            if (r && r.status === 'boom') {
+                badge.textContent = `💥 Đã phát nổ! Đã công bố đáp án`;
+                badge.style.background = '#fee2e2';
+                badge.style.color = '#991b1b';
+            } else if (mustCutLeft > 0) {
+                badge.textContent = `✂️ Còn ${mustCutLeft} dây từ rác bắt buộc cắt`;
+                badge.style.background = '#fee2e2';
+                badge.style.color = '#991b1b';
+            } else {
+                badge.textContent = `✅ Đã sạch từ rác!`;
+                badge.style.background = '#dcfce7';
+                badge.style.color = '#166534';
+            }
         }
-        function render() {
-            renderHud(); renderClock();
-            T.forEach((t, i) => {
-                $('sc' + i).textContent = t.score; $('mt' + i).textContent = '❌ ' + t.err + ' lỗi · ' + (i === S.active ? '🎯 Đang chơi' : '⏳ Chờ');
-                $('tm' + i).classList.toggle('active', i === S.active);
-            });
-            if (S.q) {
-                $('goal').textContent = S.q.goal; $('lvBadge').textContent = 'Cấp ' + LV_NAME[S.q.lv] + ' · Câu ' + (S.done + 1) + '/' + S.total;
-                const w = $('wires'); w.innerHTML = '';
-                S.cards.forEach((c, i) => {
-                    const b = document.createElement('button'), d = S.q.cards[i];
-                    b.className = 'card ' + c.st + (S.sel === i ? ' sel' : '') + (S.flip === i ? ' flip' : ''); b.style.setProperty('--w', WIRE[i % 7]);
-                    b.innerHTML = (c.st === 'hid' ? '<span class="lock">🔒</span>Dây ' + (i + 1) : d[0]) + '<i class="tag">' + ({ K: '🔑 giữ', C: '✂ thừa', O: '≈ tuỳ' })[d[1]] + '</i>';
-                    b.onclick = () => onCard(i); w.appendChild(b);
+
+        function onCardClicked(idx) {
+            if (activeRound === null) return;
+            const r = rounds[activeRound];
+            if (pendingCardIdx !== null || r.status === 'done' || r.status === 'boom') return;
+            if (cardStates[idx].status !== 'intact') return;
+
+            pendingCardIdx = idx;
+            const card = curQ.cards[idx];
+            const activeTeam = TEAMS[turn];
+            const studentObj = classStudents.find(s => s.id === selectedStudent);
+
+            $('#modalTeamLabel').textContent = `✂️ LƯỢT CỦA ${activeTeam.n.toUpperCase()}`;
+            $('#modalStudentLabel').textContent = studentObj ? `Học sinh cầm kéo: ${studentObj.name}` : '(Chưa chọn học sinh cụ thể)';
+            $('#modalGoal').textContent = `🎯 Yêu cầu: ${curQ.goal}`;
+            $('#modalWordTarget').textContent = `Dây số ${idx + 1}: "${card.text}"`;
+            $('#actionModal').classList.add('show');
+        }
+
+        function closeActionModal() {
+            $('#actionModal').classList.remove('show');
+            pendingCardIdx = null;
+        }
+
+        function cancelCardDecision() {
+            closeActionModal();
+        }
+
+        function confirmCutWire() {
+            if (pendingCardIdx === null || !curQ) return;
+            const r = rounds[activeRound];
+            if (!r || r.status === 'done' || r.status === 'boom') { closeActionModal(); return; }
+
+            const idx = pendingCardIdx;
+            const card = curQ.cards[idx];
+            const team = TEAMS[turn];
+            closeActionModal();
+
+            const studentObj = classStudents.find(s => s.id === selectedStudent);
+            const studentName = studentObj ? studentObj.name : 'Cả tổ';
+
+            if (selectedStudent) {
+                calledStudents.add(selectedStudent);
+                calledStudentsByClass[currentClassID] = calledStudents;
+                selectedStudent = null;
+            }
+
+            // TRƯỜNG HỢP 1: CẮT NHẦM TỪ KHOÁ CHÍNH -> NỔ BOM & CÔNG BỐ LUÔN ĐÁP ÁN!
+            if (card.type === 'K' || card.critical) {
+                const lost = applyScore(team, -BOOM_PENALTY);
+                r.status = 'boom';
+                r.boomReason = `${team.n} cắt nhầm từ khoá chính "${card.text}" (${lost}đ)`;
+
+                curQ.cards.forEach((c, i) => {
+                    if (i === idx) cardStates[i].status = 'boom-wire';
+                    else if (c.type === 'K' || c.critical) cardStates[i].status = 'safe-key';
+                    else cardStates[i].status = 'cut';
                 });
-                S.flip = -1;
-                $('liveQ').textContent = S.q.cards.map((d, i) => S.cards[i].st === 'cut' ? null : (S.cards[i].st === 'hid' ? '▒▒▒' : d[0])).filter(Boolean).join(' ');
+
+                logAction(team.n, studentName, `Cắt nhầm từ khoá "${card.text}"`, 'NỔ BOM');
+                toast(`💥 BÙM! ${team.n} cắt nhầm Từ khoá chính "${card.text}"! Đã mở đáp án!`, 'bad');
+
+                turn = (turn + 1) % numT;
+                renderWireCards();
+                renderTeams();
+                updateTurnIndicator();
+                renderStudents();
+                renderAnswerBanner(r);
+                return;
             }
-            const act = canAct(), sel = act && S.sel !== null && S.cards[S.sel].st === 'open';
-            $('bOpen').disabled = !(act && S.cards.some(c => c.st === 'hid'));
-            $('bCut').disabled = $('bKeep').disabled = !sel;
-            $('bUndo').disabled = !(S.hist.length && !S.finished && S.started);
-            $('bPause').disabled = !(S.started && !S.paused && !S.finished && !S.halt && !S.free);
-            $('bResume').disabled = !S.paused;
-            $('bHint').disabled = $('bCheck').disabled = $('bNext').disabled = !act;
-        }
-        function renderAns() {
-            const q = S.q; if (!q) return;
-            $('ansList').innerHTML = q.cards.map(d => '<li><b>' + ({ K: '🔑 GIỮ', C: '✂ CẮT', O: '≈ TUỲ' })[d[1]] + '</b> "' + d[0] + '": ' + d[2] + '</li>').join('');
-            $('critList').innerHTML = '<b>Tiêu chí đạt:</b> giữ đủ [' + q.cards.filter(d => d[1] === 'K').map(d => d[0]).join(' | ') + '], bỏ các phần thừa; thẻ "tuỳ" giữ hay bỏ đều được: [' + q.cards.filter(d => d[1] === 'O').map(d => d[0]).join(' | ') + '].';
+
+            // TRƯỜNG HỢP 2: CẮT ĐÚNG DÂY TỪ THỪA (+20đ)
+            cardStates[idx].status = 'cut';
+            const gained = applyScore(team, CUT_RIGHT_POINTS);
+            logAction(team.n, studentName, `Cắt dây thừa "${card.text}"`, 'ĐÚNG');
+            toast(`✂️ ${team.n} cắt đúng dây thừa! +${gained} điểm`, 'ok');
+
+            turn = (turn + 1) % numT;
+
+            if (countRemainingMustCut() === 0) {
+                r.status = 'done';
+                curQ.cards.forEach((c, i) => {
+                    if (c.type === 'K' || c.critical) cardStates[i].status = 'safe-key';
+                    else cardStates[i].status = 'cut';
+                });
+                toast('🎉 Đã cắt sạch từ thừa! Quả bom được gỡ thành công!', 'ok');
+            }
+
+            renderWireCards();
+            renderTeams();
+            updateTurnIndicator();
+            renderStudents();
+            renderAnswerBanner(r);
         }
 
-        /* =====================================================================
-           10. TIỆN ÍCH GIAO DIỆN: xác nhận, thông báo, bảng GV, toàn màn hình
-           ===================================================================== */
-        let cfCb = null;
-        function ask(msg, label, cb) { $('cfMsg').textContent = msg; $('cfYes').textContent = label; cfCb = cb; $('cf').classList.add('show'); }
-        function closeCf() { $('cf').classList.remove('show'); cfCb = null; }
-        $('cfYes').onclick = () => { const f = cfCb; closeCf(); if (f) f(); };
-        function closeOv() { $('ov').classList.remove('show'); }
-        let toastT; function toast(m) { const e = $('toast'); e.textContent = m; e.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove('show'), 2600); }
-        function togglePanel() { $('drawer').classList.toggle('open'); }
-        function togglePresent() { CFG.present = !CFG.present; document.body.classList.toggle('present', CFG.present); if (CFG.present) $('drawer').classList.remove('open'); }
-        function toggleSound() { CFG.sound = !CFG.sound; $('cSnd').checked = CFG.sound; $('bSnd').textContent = CFG.sound ? '🔊' : '🔇'; }
-        function toggleFull() { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => { }); }
-        function applyCfg() {
-            const g = id => +$(id).value;
-            const nm = Math.max(1, g('cMin') || 2);
-            S.remain = Math.max(5000, S.remain + (nm - CFG.min) * 60000); CFG.min = nm;   // đổi thời lượng: cộng/trừ phần chênh
-            CFG.maxErr = Math.max(1, g('cErr') || 5); CFG.per = Math.min(4, Math.max(1, g('cPer') || 3));
-            CFG.sCut = g('cSC'); CFG.sKeep = g('cSK'); CFG.pen = g('cPen');
-            CFG.confirmCut = $('cConf').checked; CFG.sound = $('cSnd').checked; CFG.fx = $('cFx').checked; CFG.teach = $('cTeach').checked;
-            document.body.classList.toggle('nofx', !CFG.fx); document.body.classList.toggle('teach', CFG.teach);
-            $('bSnd').textContent = CFG.sound ? '🔊' : '🔇';
-            if (S.started && !S.free && S.errors >= CFG.maxErr) boom('err');
-            render();
+        function tryManualDefuse() {
+            if (activeRound === null) return;
+            const r = rounds[activeRound];
+            if (!r || r.status === 'done' || r.status === 'boom') return;
+            const left = countRemainingMustCut();
+            if (left === 0) {
+                r.status = 'done';
+                curQ.cards.forEach((c, i) => {
+                    if (c.type === 'K' || c.critical) cardStates[i].status = 'safe-key';
+                    else cardStates[i].status = 'cut';
+                });
+                renderWireCards();
+                renderAnswerBanner(r);
+                toast('🎉 Gỡ bom thành công!', 'ok');
+            } else {
+                toast(`⚠️ Vẫn còn ${left} dây từ rác bắt buộc phải cắt bỏ trước khi nhấn Enter!`, 'bad');
+            }
         }
 
-        /* ===== KHỞI TẠO ===== */
-        window.addEventListener('beforeunload', e => { if (S.started && !S.finished) { e.preventDefault(); e.returnValue = ''; } });
-        const _d = new Date(), _days = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
-        $('dateDisp').textContent = _days[_d.getDay()] + ', ngày ' + _d.getDate() + ' tháng ' + (_d.getMonth() + 1) + ' năm ' + _d.getFullYear();
-        S = freshState(); setTeams(3); startTimer(); render();
+        function updateTurnIndicator() {
+            const activeTeam = TEAMS[turn];
+            $('#indicatorTeamName').textContent = activeTeam ? activeTeam.n : '–';
+            const studentObj = classStudents.find(s => s.id === selectedStudent);
+            $('#indicatorStudentName').textContent = studentObj ? `(Học sinh: ${studentObj.name})` : '';
+        }
+
+        /* ================= 4. QUẢN LÝ 2 - 6 TỔ (NÚT CỘNG +20 & PHẠT ỒN -10%) ================= */
+        function applyScore(team, delta) {
+            const before = team.score;
+            team.score = Math.max(SCORE_FLOOR, before + delta);
+            return team.score - before;
+        }
+
+        function penalizeNoise(i, ev) {
+            if (ev) ev.stopPropagation();
+            const team = TEAMS[i];
+            if (!team) return;
+            const pen = team.score > SCORE_FLOOR ? Math.max(1, Math.ceil(team.score * NOISE_PERCENT / 100)) : 0;
+            const lost = applyScore(team, -pen);
+            renderTeams();
+            toast(lost < 0 ? `🔊 ${team.n} mất trật tự: Trừ ${-lost} điểm (−${NOISE_PERCENT}%)!` : `🔊 ${team.n} đang ở điểm sàn!`, 'bad');
+        }
+
+        function rewardBonus(i, ev) {
+            if (ev) ev.stopPropagation();
+            const team = TEAMS[i];
+            if (!team) return;
+            applyScore(team, 20);
+            renderTeams();
+            toast(`🌟 Thưởng nóng ${team.n} +20 điểm!`, 'ok');
+        }
+
+        function setTurnManual(i) {
+            turn = i;
+            renderTeams();
+            updateTurnIndicator();
+        }
+
+        function initTeams() {
+            $('#scoreRules').textContent = `Vốn: ${START_SCORE}đ · Đúng: +${CUT_RIGHT_POINTS}đ · Nổ: −${BOOM_PENALTY}đ · Ồn: −${NOISE_PERCENT}%`;
+            TEAMS = Array.from({ length: numT }, (_, i) => TEAMS[i] || ({
+                id: i,
+                n: `Tổ ${i + 1}`,
+                color: TEAM_COLORS[i % TEAM_COLORS.length],
+                score: START_SCORE
+            }));
+            turn %= numT;
+            renderTeams();
+            updateTurnIndicator();
+        }
+
+        function changeTeamCount(value) {
+            const count = Number(value);
+            if (!Number.isInteger(count) || count < 2 || count > 6) return;
+            numT = count;
+            initTeams();
+            toast(`👥 Đã cập nhật số lượng thành ${numT} tổ!`, 'ok');
+        }
+
+        function renderTeams() {
+            const container = $('#teamsContainer');
+            container.innerHTML = '';
+
+            TEAMS.forEach((t, i) => {
+                const isActive = i === turn;
+                const d = document.createElement('div');
+                d.className = `team-row ${isActive ? 'active' : ''}`;
+                d.onclick = () => setTurnManual(i);
+                d.innerHTML = `
+                    <div class="team-top">
+                        <span class="team-name" style="color:${t.color}">${t.n} ${isActive ? '✂️' : ''}</span>
+                        <div class="team-action-btns">
+                            <button class="plus-btn" onclick="rewardBonus(${i}, event)" title="Thưởng nóng +20 điểm">🌟 +20</button>
+                            <button class="noise-btn" onclick="penalizeNoise(${i}, event)" title="Phạt ồn trừ ${NOISE_PERCENT}% số điểm hiện có">🔊 −${NOISE_PERCENT}%</button>
+                            <span class="team-score">${t.score}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(d);
+            });
+
+            renderFinalRankings();
+        }
+
+        function renderFinalRankings() {
+            const c = $('#finalRankings');
+            if (!c) return;
+            const sorted = [...TEAMS].sort((a, b) => b.score - a.score);
+            c.innerHTML = sorted.map((t, idx) => `
+                <div style="background:#1e293b; border:2px solid ${t.color}; border-radius:12px; padding:12px 18px; min-width:130px;">
+                    <div style="font-size:1.8rem;">${idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : '🎖️'))}</div>
+                    <div style="font-weight:900; color:${t.color}; font-size:1.2rem;">${t.n}</div>
+                    <div style="font-size:1.5rem; font-weight:900; color:#facc15;">${t.score} đ</div>
+                </div>
+            `).join('');
+        }
+
+        async function loadClassData(classId) {
+            currentClassID = classId;
+            let studentNames;
+            try {
+                const res = await fetch('../../assets/data/students_4_2026_2027.json');
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                studentNames = Array.isArray(data[classId]) ? data[classId] : FALLBACK_STUDENTS["4_1"];
+            } catch (err) {
+                studentNames = FALLBACK_STUDENTS[classId] || FALLBACK_STUDENTS["4_1"];
+            }
+
+            classStudents = studentNames.map((name, i) => ({ id: `hs-${i + 1}`, name }));
+            calledStudents = calledStudentsByClass[classId] || new Set();
+            calledStudentsByClass[classId] = calledStudents;
+
+            renderStudents();
+            updateTurnIndicator();
+        }
+
+        function renderStudents() {
+            const remaining = classStudents.length - calledStudents.size;
+            $('#st-head-title').textContent = `CÒN LƯỢT: ${remaining}/${classStudents.length}`;
+            $('#students-summary').textContent = `👥 Học sinh (${remaining} còn lượt)`;
+
+            const html = classStudents.map((stu, idx) => {
+                const alreadyCalled = calledStudents.has(stu.id);
+                const isSelected = selectedStudent === stu.id;
+                return `<button class="stu-btn ${isSelected ? 'active' : ''}" data-id="${stu.id}" data-name="${stu.name.toLowerCase()}" ${alreadyCalled ? 'disabled' : ''}>
+                    ${idx + 1}. ${stu.name}${alreadyCalled ? ' ✓' : ''}
+                </button>`;
+            }).join('');
+
+            $('#students-list').innerHTML = html;
+            document.querySelectorAll('.stu-btn').forEach(b => {
+                b.onclick = () => selectStudent(b.dataset.id);
+            });
+            filterStudents();
+        }
+
+        function randomPickStudent() {
+            const avail = classStudents.filter(s => !calledStudents.has(s.id));
+            if (!avail.length) {
+                toast('Tất cả học sinh trong lớp đều đã được gọi!', 'bad');
+                return;
+            }
+            const pick = avail[Math.floor(Math.random() * avail.length)];
+            selectStudent(pick.id);
+        }
+
+        function filterStudents() {
+            const v = $('#search-student').value.toLowerCase();
+            document.querySelectorAll('.stu-btn').forEach(btn => {
+                const name = btn.getAttribute('data-name');
+                btn.style.display = name.includes(v) ? 'block' : 'none';
+            });
+        }
+
+        function selectStudent(id) {
+            if (calledStudents.has(id)) return;
+            selectedStudent = id;
+            renderStudents();
+            updateTurnIndicator();
+            const s = classStudents.find(x => x.id === id);
+            if (s) toast(`🎲 Mời ${s.name} đại diện ${TEAMS[turn].n}!`, 'ok');
+        }
+
+        function changeClass(cid) {
+            selectedStudent = null;
+            loadClassData(cid);
+        }
+
+        function logAction(team, student, action, result) {
+            gameLog.push({
+                time: new Date().toLocaleTimeString('vi-VN'),
+                classID: currentClassID,
+                studentId: selectedStudent,
+                team: team,
+                student: student,
+                action: action,
+                result: result,
+                goal: curQ ? curQ.goal : ''
+            });
+        }
+
+        function exportCSV() {
+            let csv = "\uFEFFSTT,Mã học sinh,Họ tên,Tổ,Số lượt ĐÚNG,Số lượt NỔ BOM,Chi tiết thao tác\n";
+            const stats = new Map();
+
+            classStudents.forEach(stu => {
+                stats.set(stu.id, { team: '—', correct: 0, wrong: 0, details: [] });
+            });
+
+            gameLog.filter(row => row.classID === currentClassID).forEach(row => {
+                const stu = classStudents.find(s => s.name === row.student);
+                if (stu && stats.has(stu.id)) {
+                    const st = stats.get(stu.id);
+                    st.team = row.team;
+                    if (row.result === 'ĐÚNG') st.correct++;
+                    else st.wrong++;
+                    st.details.push(`[${row.result}] ${row.action}`);
+                }
+            });
+
+            let idx = 1;
+            stats.forEach((s, sid) => {
+                const stu = classStudents.find(x => x.id === sid);
+                const code = `HS${String(idx).padStart(3, '0')}`;
+                const esc = val => `"${String(val).replace(/"/g, '""')}"`;
+                const detailStr = s.details.length ? s.details.join(' | ') : 'Chưa phát biểu';
+                csv += `${idx++},${code},${esc(stu.name)},${esc(s.team)},${s.correct},${s.wrong},${esc(detailStr)}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `KetQua_GoBomTuKhoa_Lop${currentClassID.replace('_', '-')}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            toast('📊 Đã xuất file Excel kết quả học tập!', 'ok');
+        }
+
+        function toast(msg, cls = '') {
+            const d = document.createElement('div');
+            d.className = `toast-item ${cls}`;
+            d.textContent = msg;
+            $('#toasts').appendChild(d);
+
+            setTimeout(() => {
+                d.style.transition = 'all 0.3s';
+                d.style.opacity = '0';
+                d.style.transform = 'translateY(-10px)';
+                setTimeout(() => d.remove(), 300);
+            }, 3000);
+        }
+
+        let startClass = '4_1';
+        let startTeams = 4;
+
+        function pickStart(kind, val, el) {
+            if (kind === 'class') startClass = val; else startTeams = Number(val);
+            el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === el));
+        }
+
+        function confirmStart() {
+            $('#teamCount').value = String(startTeams);
+            changeTeamCount(startTeams);
+            $('#classSelect').value = startClass;
+            if (startClass !== currentClassID) changeClass(startClass);
+            $('#startScreen').classList.add('hidden');
+            startLessonClock();
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const now = new Date();
+            const weekdays = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+            $('#lessonDate').textContent = `${weekdays[now.getDay()]}, ngày ${now.getDate()} tháng ${now.getMonth() + 1} năm ${now.getFullYear()}`;
+            initTeams();
+            renderGameSearchQuest();
+            await loadClassData("4_1");
+            await loadQuestions();
+            updateQuestStatusText();
+            showSlide(0);
+        });
     </script>
 </body>
 
