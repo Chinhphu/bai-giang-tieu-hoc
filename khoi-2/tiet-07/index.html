@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 4: Hàng Phím Dưới - Lớp 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Baloo 2', cursive, sans-serif;
+            background-color: #e0f7fa;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #0f172a;
+        }
+
+        /* --- SLIDE MỞ ĐẦU (CANH GIỮA THỨ NGÀY, MÔN, TÊN BÀI) --- */
+        .intro-slide {
+            position: fixed;
+            inset: 0;
+            background: #e0f7fa;
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .intro-content {
+            text-align: center;
+            background: white;
+            padding: 55px 80px;
+            border-radius: 28px;
+            border: 6px solid #4dd0e1;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .intro-date {
+            font-size: 28px;
+            color: #555;
+            font-style: italic;
+            margin-bottom: 16px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .intro-subject {
+            font-size: 40px;
+            color: #00838f;
+            font-weight: 800;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .intro-title {
+            font-size: 56px;
+            color: #d84315;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 36px;
+            text-shadow: 2px 2px 0px #ffe0b2;
+            text-align: center;
+        }
+
+        .btn-enter {
+            font-size: 28px;
+            padding: 14px 50px;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 800;
+            box-shadow: 0 6px 0 #f57c00;
+        }
+
+        .btn-enter:active {
+            transform: translateY(5px);
+            box-shadow: none;
+        }
+
+        /* --- KHUNG CHÍNH --- */
+        #app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 12px 16px;
+            gap: 10px;
+        }
+
+        .header-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 8px 18px;
+            border: 4px solid #4dd0e1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h1 {
+            color: #00838f;
+            font-size: 25px;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        select,
+        button {
+            font-family: 'Baloo 2', cursive;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            border: none;
+        }
+
+        select {
+            font-size: 18px;
+            padding: 5px 12px;
+            border: 2px solid #00acc1;
+            color: #006064;
+            outline: none;
+        }
+
+        .btn-ctrl {
+            font-size: 16px;
+            padding: 6px 14px;
+            color: white;
+        }
+
+        .btn-green {
+            background: #4caf50;
+            box-shadow: 0 3px 0 #388e3c;
+        }
+
+        .btn-orange {
+            background: #ff9800;
+            box-shadow: 0 3px 0 #e65100;
+        }
+
+        .btn-red {
+            background: #ef5350;
+            box-shadow: 0 3px 0 #c62828;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 420px;
+            gap: 14px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* --- MÀN HÌNH CHƠI CHÍNH (SIÊU TỐI GIẢN CHO LỚP 2) --- */
+        .game-area {
+            background: white;
+            border-radius: 20px;
+            padding: 18px 28px;
+            border: 4px solid #4dd0e1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* 1. TÊN EM ĐANG GÕ & EM CHUẨN BỊ LÊN */
+        .turn-banner {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        #student-name {
+            font-size: 62px;
+            color: #d84315;
+            font-weight: 800;
+            line-height: 1.05;
+            text-shadow: 2px 2px 0px #ffe0b2;
+        }
+
+        .next-student-pill {
+            background: #e0f2f1;
+            border: 2px dashed #26a69a;
+            color: #00695c;
+            padding: 4px 20px;
+            border-radius: 99px;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        /* 2. CÂU TIẾNG ANH ĐẦY ĐỦ */
+        .sentence-bar {
+            display: flex;
+            gap: 18px;
+            justify-content: center;
+            align-items: center;
+            background: #f8fafc;
+            border: 3px solid #e2e8f0;
+            padding: 10px 30px;
+            border-radius: 18px;
+        }
+
+        .sentence-word {
+            font-size: 38px;
+            font-weight: 800;
+            color: #94a3b8;
+            padding: 2px 14px;
+            border-radius: 12px;
+            letter-spacing: 2px;
+        }
+
+        .sentence-word.done {
+            color: #16a34a;
+            background: #dcfce7;
+        }
+
+        .sentence-word.active {
+            color: #b91c1c;
+            background: #fef08a;
+            border: 3px solid #f59e0b;
+            transform: scale(1.08);
+        }
+
+        /* 3. BA CHỮ CÁI CẦN GÕ (SIÊU TO) & ĐIỂM TỐC ĐỘ */
+        .typing-zone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .key-container {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+        }
+
+        .key-box {
+            font-size: 115px;
+            color: #2e7d32;
+            font-weight: 800;
+            background-color: #f1f8e9;
+            border: 6px solid #aed581;
+            border-radius: 26px;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 0 #81c784;
+            transition: all 0.15s ease;
+        }
+
+        .key-box.active {
+            border-color: #ff9800;
+            box-shadow: 0 10px 0 #f57c00;
+            background-color: #fff3e0;
+            transform: scale(1.1);
+            color: #ef6c00;
+        }
+
+        .key-box.done {
+            border-color: #4caf50;
+            box-shadow: 0 2px 0 #388e3c;
+            background-color: #c8e6c9;
+            color: #1b5e20;
+            transform: translateY(8px);
+        }
+
+        .key-box.error {
+            border-color: #f44336;
+            background-color: #ffcdd2;
+            color: #b71c1c;
+            animation: shake 0.3s;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        .speed-score-pill {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0369a1;
+            background: #e0f2fe;
+            border: 3px solid #7dd3fc;
+            padding: 4px 24px;
+            border-radius: 99px;
+            transition: all 0.2s;
+        }
+
+        .speed-score-pill.counting {
+            color: #d97706;
+            background: #fffbeb;
+            border-color: #fde68a;
+        }
+
+        /* HIỆU ỨNG KHI GÕ XONG 1 BẠN */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.94);
+            border-radius: 16px;
+            z-index: 20;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 58px;
+            font-weight: 800;
+            color: #e91e63;
+        }
+
+        /* --- CỘT PHẢI CHIA 2 TẦNG: 60% XẾP HẠNG THỜI GIAN THỰC + 40% HÀNG ĐỢI --- */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 0;
+            height: 100%;
+        }
+
+        .panel-box {
+            background: white;
+            border-radius: 18px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Tầng trên: Bảng Xếp Hạng Thời Gian Thực (Chiếm ~60% chiều cao) */
+        .rank-panel {
+            flex: 1.55;
+            border: 4px solid #ffb300;
+            background: #fffdf7;
+        }
+
+        /* Tầng dưới: Hàng Đợi Chưa Gõ (Chiếm ~40% chiều cao) */
+        .queue-panel {
+            flex: 1;
+            border: 4px solid #9ccc65;
+        }
+
+        .panel-title {
+            font-size: 19px;
+            font-weight: 800;
+            margin: 0 0 6px 0;
+            padding-bottom: 4px;
+            border-bottom: 2px dashed #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .scroll-list {
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 4px;
+        }
+
+        .scroll-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scroll-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .list-item {
+            padding: 6px 9px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            font-size: 16.5px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .list-item.rank-1 {
+            background: #fef9c3;
+            border-color: #eab308;
+            color: #854d0e;
+        }
+
+        .list-item.rank-2 {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+            color: #1e293b;
+        }
+
+        .list-item.rank-3 {
+            background: #ffedd5;
+            border-color: #f97316;
+            color: #9a3412;
+        }
+
+        .list-item.current {
+            background-color: #fef08a;
+            color: #b91c1c;
+            border-color: #f59e0b;
+            border-left-width: 6px;
+        }
+
+        .list-item.pushed {
+            background-color: #fff3e0;
+            border-left: 5px solid #ff9800;
+        }
+
+        .list-item.banned {
+            background-color: #ffcdd2;
+            color: #b71c1c;
+            text-decoration: line-through;
+        }
+
+        .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .score-tag {
+            background: #fef9c3;
+            border: 1px solid #facc15;
+            color: #854d0e;
+            padding: 1px 7px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .action-btn {
+            background: white;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 1px 6px;
+            font-size: 13.5px;
+            font-weight: 800;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.08);
+        }
+
+        .btn-noise-pen {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        /* --- MODAL TỔNG KẾT XẾP HẠNG CUỐI GIỜ --- */
+        .endgame-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.85);
+            z-index: 1500;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .endgame-box {
+            background: white;
+            border: 6px solid #ff9800;
+            border-radius: 28px;
+            max-width: 980px;
+            width: 100%;
+            max-height: 90vh;
+            padding: 24px 32px;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .endgame-list {
+            overflow-y: auto;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 10px 4px;
+            text-align: left;
+        }
+
+        .rank-card {
+            background: #f8fafc;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 8px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .rank-card.top-1 {
+            background: #fef9c3;
+            border-color: #eab308;
+            color: #854d0e;
+        }
+
+        .rank-card.top-2 {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+            color: #334155;
+        }
+
+        .rank-card.top-3 {
+            background: #ffedd5;
+            border-color: #f97316;
+            color: #9a3412;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SLIDE MỞ ĐẦU -->
+    <div id="intro-slide" class="intro-slide">
+        <div class="intro-content">
+            <div id="intro-date" class="intro-date"></div>
+            <div class="intro-subject">Môn: Tin học</div>
+            <div class="intro-title">BÀI 4: HÀNG PHÍM DƯỚI</div>
+            <button class="btn-enter" onclick="enterGame()">Bắt đầu bài học 🐸</button>
+        </div>
+    </div>
+
+    <!-- GIAO DIỆN CHÍNH -->
+    <div id="app-container" style="display: none;">
+        <div class="header-bar">
+            <div class="header-left">
+                <h1>🐸 BÀI 4: HÀNG PHÍM DƯỚI</h1>
+                <select id="class-select" onchange="switchClass(this.value)">
+                    <option value="2_2">Lớp 2/2</option>
+                    <option value="2_4">Lớp 2/4</option>
+                    <option value="2_5">Lớp 2/5</option>
+                </select>
+            </div>
+
+            <div style="display:flex; gap:8px; align-items:center;">
+                <button class="btn-ctrl btn-green" onclick="skipStudent()"
+                    title="Đẩy bạn hiện tại xuống cuối và gọi bạn kế tiếp">⏭ Qua bạn kế</button>
+                <button class="btn-ctrl btn-orange" onclick="showEndGameModal()">🏆 Bảng Vinh Danh</button>
+                <button class="btn-ctrl btn-red" onclick="clearSavedData()"
+                    title="Xóa dữ liệu đã lưu của lớp này để chơi lại từ đầu">🗑️ Xóa Data</button>
+            </div>
+        </div>
+
+        <div class="main-container">
+            <!-- KHU VỰC HIỂN THỊ CHO HỌC SINH -->
+            <div class="game-area">
+                <div id="overlay-msg" class="overlay"></div>
+
+                <!-- 1. TÊN EM ĐANG GÕ & EM CHUẨN BỊ LÊN -->
+                <div class="turn-banner">
+                    <div id="student-name">...</div>
+                    <div class="next-student-pill" id="next-student-name">👟 Chuẩn bị lên: ...</div>
+                </div>
+
+                <!-- 2. CÂU TIẾNG ANH ĐẦY ĐỦ (28 CÂU - MỖI TỪ ĐỀU ĐÚNG 3 CHỮ CÁI) -->
+                <div class="sentence-bar" id="sentence-bar"></div>
+
+                <!-- 3. BA CHỮ CÁI EM ĐÓ CẦN GÕ & ĐIỂM TỐC ĐỘ (CHỈ ĐẾM KHI GÕ CHỮ ĐẦU TIÊN) -->
+                <div class="typing-zone">
+                    <div id="key-container" class="key-container"></div>
+                    <div class="speed-score-pill" id="speed-pill">
+                        ⚡ Điểm tốc độ: <span id="live-speed-score">1000</span> điểm <span id="speed-state-note">(Chờ gõ
+                            chữ đầu tiên...)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI CHIA 2 KHUNG CỐ ĐỊNH: TRÊN (60% XẾP HẠNG THỰC) - DƯỚI (40% HÀNG ĐỢI) -->
+            <div class="sidebar">
+                <!-- TẦNG TRÊN (~60%): XẾP HẠNG THỜI GIAN THỰC -->
+                <div class="panel-box rank-panel">
+                    <div class="panel-title" style="color:#b45309;">
+                        <span>🏆 XẾP HẠNG THỜI GIAN THỰC</span>
+                        <span style="font-size:14px; color:#78350f;" id="played-count-label">Đã gõ: 0</span>
+                    </div>
+                    <div class="scroll-list" id="realtime-rank-list"></div>
+                </div>
+
+                <!-- TẦNG DƯỚI (~40%): HÀNG ĐỢI CHƯA LÊN -->
+                <div class="panel-box queue-panel">
+                    <div class="panel-title" style="color:#33691e;">
+                        <span>📋 HÀNG ĐỢI CHỜ LÊN</span>
+                        <span style="font-size:14px; color:#558b2f;">Còn: <span id="counter">0</span> bạn</span>
+                    </div>
+                    <div class="scroll-list" id="queue-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TỔNG KẾT XẾP HẠNG CUỐI GIỜ -->
+    <div class="endgame-modal" id="endgame-modal">
+        <div class="endgame-box">
+            <h2 style="font-size:38px; color:#d84315; margin:0 0 10px;">🏆 BẢNG XẾP HẠNG CHUNG CUỘC 🏆</h2>
+            <div class="endgame-list" id="endgame-list"></div>
+            <div style="margin-top:14px; display:flex; justify-content:center; gap:12px;">
+                <button class="btn-ctrl btn-green" style="font-size:20px; padding:10px 30px;"
+                    onclick="closeEndGameModal()">Đóng bảng</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* =========================================================================
+           1. NGÂN HÀNG 28 CÂU TIẾNG ANH CÔNG BẰNG TUYỆT ĐỐI (84 TỪ)
+           Tất cả các từ đều dài ĐÚNG 3 CHỮ CÁI và giàu phím Hàng dưới (Z, X, C, V, B, N, M)
+           ========================================================================= */
+        const SENTENCES = [
+            ["CAT", "CAN", "RUN"],
+            ["BIG", "RED", "VAN"],
+            ["MOM", "HAS", "BOX"],
+            ["SIX", "FAT", "PIG"],
+            ["DOG", "SEE", "ZOO"],
+            ["NEW", "BUS", "MAN"],
+            ["FOX", "CAN", "MIX"],
+            ["SUN", "AND", "SKY"],
+            ["TEN", "RED", "PEN"],
+            ["BOY", "CAN", "JAM"],
+            ["COW", "EAT", "HAY"],
+            ["BEE", "GET", "WAX"],
+            ["ANT", "DIG", "MUD"],
+            ["HEN", "LAY", "EGG"],
+            ["DAD", "FIX", "CAR"],
+            ["KID", "HUG", "MOM"],
+            ["OWL", "FLY", "LOW"],
+            ["BUG", "SIT", "LOG"],
+            ["RAT", "HID", "BOX"],
+            ["CUB", "RUN", "NOW"],
+            ["PUG", "WAG", "LEG"],
+            ["CAT", "NAP", "MAT"],
+            ["JIM", "WIN", "CUP"],
+            ["MAX", "GOT", "TOY"],
+            ["ZAC", "ZIP", "BAG"],
+            ["SAM", "MIX", "JAM"],
+            ["BEN", "BUY", "BUN"],
+            ["TOM", "MOP", "RUG"]
+        ];
+
+        const FALLBACK_CLASSES = {
+            "2_2": [
+                "Nguyễn Minh An", "Trần Bảo Anh", "Lê Hoàng Bách", "Phạm Ngọc Châu", "Võ Minh Chiến",
+                "Đặng Quốc Cường", "Bùi Khánh Duy", "Hồ Minh Đức", "Ngô Gia Hân", "Dương Phúc Hậu",
+                "Lý Minh Hiếu", "Trương Bảo Hoàng", "Phan Tuấn Kiệt", "Vũ Ngọc Lan", "Đỗ Hoàng Long",
+                "Huỳnh Bảo Minh", "Nguyễn Thảo My", "Trần Khánh Nam", "Lê Kim Ngân", "Phạm Bảo Ngọc",
+                "Võ Hoàng Nhân", "Đặng Yến Nhi", "Bùi Gia Phúc", "Hồ Minh Quân", "Ngô Phương Quỳnh",
+                "Dương Thanh Tâm", "Lý Minh Tân", "Trương Anh Thư", "Phan Thủy Tiên", "Vũ Mộc Trà"
+            ],
+            "2_4": [
+                "Lê Gia Bảo", "Nguyễn Ngọc Bích", "Trần Minh Cảnh", "Phạm Hoàng Danh", "Võ Tiến Đạt",
+                "Đặng Hải Đăng", "Bùi Khánh Hà", "Hồ Ngọc Hân", "Ngô Minh Khang", "Dương Tuấn Khôi",
+                "Lý Thiên Kim", "Trương Hoàng Lâm", "Phan Nhật Linh", "Vũ Bảo Lộc", "Đỗ Minh Mẫn",
+                "Huỳnh Ái My", "Nguyễn Thành Nam", "Trần Bảo Nghi", "Lê Phương Nguyên", "Phạm Hồng Nhung"
+            ],
+            "2_5": [
+                "Trần Quốc An", "Lê Kiều Anh", "Nguyễn Tuấn Bằng", "Phạm Minh Châu", "Võ Hoàng Chương",
+                "Đặng Thành Đạt", "Bùi Minh Đông", "Hồ Khánh Giang", "Ngô Gia Huy", "Dương Ngọc Huyền",
+                "Lý Quốc Khánh", "Trương Minh Khoa", "Phan Hoàng Khôi", "Vũ Ngọc Kỳ", "Đỗ Thiên Ân"
+            ]
+        };
+
+        const MAX_WORD_SCORE = 1000;
+        const MIN_WORD_SCORE = 400;
+        const DECAY_PER_SEC = 25;
+        const NOISE_PENALTY = 100;
+
+        let classLists = FALLBACK_CLASSES;
+        let selectedClass = "2_2";
+        let currentClassList = [];
+        let remainingStudents = [];
+        let playedStudents = [];
+        let bannedStudents = [];
+        let pushedStudents = [];
+        let studentScores = {};
+
+        let curSentenceIdx = 0;
+        let curWordIdx = 0;
+        let targetKeys = [];
+        let currentKeyIndex = 0;
+        let currentStudentName = "";
+        let isWaitingForKey = false;
+
+        let liveSpeedScore = MAX_WORD_SCORE;
+        let speedTimer = null;
+
+        /* =========================================================================
+           2. KHỞI TẠO & LƯU TRỮ LOCALSTORAGE (CHỐNG F5 MẤT DỮ LIỆU)
+           ========================================================================= */
+        window.onload = async function () {
+            const today = new Date();
+            const days = ["Chủ nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+            document.getElementById("intro-date").innerText =
+                `${days[today.getDay()]}, ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}`;
+
+            try {
+                const res = await fetch('../../assets/data/students_2_2026_2027.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && Object.keys(data).length) classLists = data;
+                }
+            } catch (e) {
+                console.log("Dùng danh sách dự phòng tích hợp sẵn.");
+            }
+
+            const lastClass = localStorage.getItem("ech_b4_active_class");
+            if (lastClass) {
+                selectedClass = lastClass;
+                document.getElementById("class-select").value = selectedClass;
+            }
+        };
+
+        function getStorageKey(cls) {
+            return `ech_b4_state_${cls}`;
+        }
+
+        function saveStateToLocal() {
+            const payload = {
+                selectedClass,
+                currentClassList,
+                remainingStudents,
+                playedStudents,
+                bannedStudents,
+                pushedStudents,
+                studentScores,
+                curSentenceIdx,
+                curWordIdx,
+                currentStudentName
+            };
+            localStorage.setItem("ech_b4_active_class", selectedClass);
+            localStorage.setItem(getStorageKey(selectedClass), JSON.stringify(payload));
+        }
+
+        function loadStateFromLocal(cls) {
+            const raw = localStorage.getItem(getStorageKey(cls));
+            if (!raw) return false;
+            try {
+                const st = JSON.parse(raw);
+                if (!st || !Array.isArray(st.currentClassList) || st.currentClassList.length === 0) return false;
+                currentClassList = st.currentClassList;
+                remainingStudents = st.remainingStudents || [];
+                playedStudents = st.playedStudents || [];
+                bannedStudents = st.bannedStudents || [];
+                pushedStudents = st.pushedStudents || [];
+                studentScores = st.studentScores || {};
+                curSentenceIdx = st.curSentenceIdx || 0;
+                curWordIdx = st.curWordIdx || 0;
+                currentStudentName = st.currentStudentName || "";
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function clearSavedData() {
+            if (!confirm(`Bạn có chắc muốn XÓA SẠCH điểm và lượt chơi của lớp ${selectedClass.replace('_', '/')} để bắt đầu lại từ đầu không?`)) return;
+            localStorage.removeItem(getStorageKey(selectedClass));
+            initFreshClass(selectedClass);
+        }
+
+        function enterGame() {
+            document.getElementById("intro-slide").style.display = "none";
+            document.getElementById("app-container").style.display = "flex";
+            switchClass(document.getElementById("class-select").value);
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function switchClass(cls) {
+            selectedClass = cls;
+            if (loadStateFromLocal(cls)) {
+                if (!currentStudentName && remainingStudents.length > 0) {
+                    nextTurn();
+                } else {
+                    setupGameUI();
+                }
+            } else {
+                initFreshClass(cls);
+            }
+        }
+
+        function initFreshClass(cls) {
+            const list = classLists[cls] || FALLBACK_CLASSES["2_2"];
+            currentClassList = [...list];
+            remainingStudents = shuffleArray([...currentClassList]);
+            playedStudents = [];
+            bannedStudents = [];
+            pushedStudents = [];
+            studentScores = {};
+            // Mỗi em có 200 điểm vốn ban đầu để ai chưa lên bảng mà nói chuyện vẫn bị trừ được ngay!
+            currentClassList.forEach(s => { studentScores[s] = 200; });
+            curSentenceIdx = 0;
+            curWordIdx = 0;
+            currentStudentName = "";
+            nextTurn();
+        }
+
+        /* =========================================================================
+           3. ĐỒNG HỒ TỐC ĐỘ: CHỈ ĐẾM NGƯỢC SAU KHI BẤM TRÚNG CHỮ CÁI ĐẦU TIÊN!
+           ========================================================================= */
+        function resetSpeedDisplayBeforeFirstKey() {
+            clearInterval(speedTimer);
+            speedTimer = null;
+            liveSpeedScore = MAX_WORD_SCORE;
+            document.getElementById("live-speed-score").innerText = liveSpeedScore;
+            document.getElementById("speed-state-note").innerText = "(Chờ gõ chữ đầu tiên...)";
+            document.getElementById("speed-pill").classList.remove("counting");
+        }
+
+        function startSpeedCountdownAfterFirstKey() {
+            clearInterval(speedTimer);
+            document.getElementById("speed-state-note").innerText = "(Đang tính tốc độ!)";
+            document.getElementById("speed-pill").classList.add("counting");
+            speedTimer = setInterval(() => {
+                if (isWaitingForKey && liveSpeedScore > MIN_WORD_SCORE) {
+                    liveSpeedScore = Math.max(MIN_WORD_SCORE, liveSpeedScore - DECAY_PER_SEC);
+                    document.getElementById("live-speed-score").innerText = liveSpeedScore;
+                }
+            }, 1000);
+        }
+
+        function renderSentenceWords() {
+            const bar = document.getElementById("sentence-bar");
+            bar.innerHTML = "";
+            const words = SENTENCES[curSentenceIdx % SENTENCES.length];
+            words.forEach((w, idx) => {
+                const span = document.createElement("div");
+                span.className = "sentence-word" + (idx < curWordIdx ? " done" : (idx === curWordIdx ? " active" : ""));
+                span.innerText = w;
+                bar.appendChild(span);
+            });
+        }
+
+        function setupGameUI() {
+            saveStateToLocal();
+            renderSidebar();
+
+            if (!currentStudentName) {
+                document.getElementById("student-name").innerText = "🎉 Đã xong hết lớp!";
+                document.getElementById("next-student-name").innerText = "Bấm xem Bảng Vinh Danh";
+                document.getElementById("key-container").innerHTML = "";
+                resetSpeedDisplayBeforeFirstKey();
+                showEndGameModal();
+                return;
+            }
+
+            document.getElementById("student-name").innerText = currentStudentName;
+            const nextStu = remainingStudents.length > 0 ? remainingStudents[0] : "Hết lượt";
+            document.getElementById("next-student-name").innerText = `👟 Chuẩn bị lên tiếp theo: ${nextStu}`;
+
+            renderSentenceWords();
+            const currentWord = SENTENCES[curSentenceIdx % SENTENCES.length][curWordIdx];
+            targetKeys = currentWord.split("");
+            currentKeyIndex = 0;
+
+            const keyContainer = document.getElementById("key-container");
+            keyContainer.innerHTML = "";
+            targetKeys.forEach((k, idx) => {
+                const box = document.createElement("div");
+                box.id = `key-${idx}`;
+                box.className = idx === 0 ? "key-box active" : "key-box";
+                box.innerText = k;
+                keyContainer.appendChild(box);
+            });
+
+            isWaitingForKey = true;
+            // Chưa đếm ngược vội, đợi gõ chữ đầu tiên mới chạy!
+            resetSpeedDisplayBeforeFirstKey();
+        }
+
+        function nextTurn() {
+            if (remainingStudents.length === 0) {
+                currentStudentName = "";
+                isWaitingForKey = false;
+                clearInterval(speedTimer);
+                setupGameUI();
+                return;
+            }
+            currentStudentName = remainingStudents.shift();
+            pushedStudents = pushedStudents.filter(n => n !== currentStudentName);
+            setupGameUI();
+        }
+
+        function skipStudent() {
+            if (!currentStudentName) return;
+            pushDownStudent(currentStudentName);
+        }
+
+        /* =========================================================================
+           4. RENDER 2 KHUNG SIDEBAR SONG SONG: XẾP HẠNG THỰC (60%) & HÀNG ĐỢI (40%)
+           ========================================================================= */
+        function renderSidebar() {
+            document.getElementById("counter").innerText = remainingStudents.length + (currentStudentName ? 1 : 0);
+            document.getElementById("played-count-label").innerText = `Đã gõ: ${playedStudents.length}/${currentClassList.length}`;
+
+            // 1. RENDER KHUNG TRÊN: BẢNG XẾP HẠNG THỜI GIAN THỰC (Sắp xếp điểm cao -> thấp)
+            const rankContainer = document.getElementById("realtime-rank-list");
+            rankContainer.innerHTML = "";
+
+            const sortedRank = [...currentClassList].sort((a, b) => {
+                const diff = (studentScores[b] || 0) - (studentScores[a] || 0);
+                if (diff !== 0) return diff;
+                return playedStudents.indexOf(a) - playedStudents.indexOf(b);
+            });
+
+            sortedRank.forEach((stu, idx) => {
+                const div = document.createElement("div");
+                const isPlayed = playedStudents.includes(stu);
+                const rankCls = idx === 0 && isPlayed ? "rank-1" : (idx === 1 && isPlayed ? "rank-2" : (idx === 2 && isPlayed ? "rank-3" : ""));
+                div.className = `list-item ${rankCls}`;
+
+                const medal = idx === 0 ? "🥇" : (idx === 1 ? "🥈" : (idx === 2 ? "🥉" : `#${idx + 1}`));
+                div.innerHTML = `
+                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                        ${medal} ${stu} ${isPlayed ? "✓" : ""}
+                    </span>
+                    <div class="item-actions">
+                        <span class="score-tag">${studentScores[stu] || 0}đ</span>
+                        <button class="action-btn btn-noise-pen" title="Nói chuyện: Trừ 100 điểm!" onclick="penalizeStudentNoise('${stu}')">🔊-100</button>
+                    </div>
+                `;
+                rankContainer.appendChild(div);
+            });
+
+            // 2. RENDER KHUNG DƯỚI: HÀNG ĐỢI CHỜ LÊN BẢNG
+            const queueContainer = document.getElementById("queue-list");
+            queueContainer.innerHTML = "";
+
+            const queueOrder = [
+                ...(currentStudentName ? [currentStudentName] : []),
+                ...remainingStudents,
+                ...bannedStudents
+            ];
+
+            queueOrder.forEach(stu => {
+                const div = document.createElement("div");
+                let statusCls = "";
+                if (bannedStudents.includes(stu)) statusCls = "banned";
+                else if (stu === currentStudentName) statusCls = "current";
+                else if (pushedStudents.includes(stu)) statusCls = "pushed";
+
+                div.className = `list-item ${statusCls}`;
+
+                const leftSpan = document.createElement("span");
+                leftSpan.style.overflow = "hidden";
+                leftSpan.style.textOverflow = "ellipsis";
+                leftSpan.style.whiteSpace = "nowrap";
+                leftSpan.innerText = stu === currentStudentName ? `👉 ${stu}` : stu;
+
+                const actions = document.createElement("div");
+                actions.className = "item-actions";
+
+                const btnNoise = document.createElement("button");
+                btnNoise.className = "action-btn btn-noise-pen";
+                btnNoise.title = "Nói chuyện: Trừ 100 điểm!";
+                btnNoise.innerText = "-100";
+                btnNoise.onclick = () => penalizeStudentNoise(stu);
+                actions.appendChild(btnNoise);
+
+                if (bannedStudents.includes(stu)) {
+                    const btnUnban = document.createElement("button");
+                    btnUnban.className = "action-btn";
+                    btnUnban.innerText = "💚";
+                    btnUnban.title = "Tha lỗi";
+                    btnUnban.onclick = () => unbanStudent(stu);
+                    actions.appendChild(btnUnban);
+                } else {
+                    if (stu !== currentStudentName) {
+                        const btnCall = document.createElement("button");
+                        btnCall.className = "action-btn";
+                        btnCall.innerText = "⭐";
+                        btnCall.title = "Gọi lên ngay";
+                        btnCall.onclick = () => favorStudent(stu);
+                        actions.appendChild(btnCall);
+                    }
+                    const btnPush = document.createElement("button");
+                    btnPush.className = "action-btn";
+                    btnPush.innerText = "⬇️";
+                    btnPush.title = "Đẩy xuống cuối hàng";
+                    btnPush.onclick = () => pushDownStudent(stu);
+                    actions.appendChild(btnPush);
+
+                    const btnBan = document.createElement("button");
+                    btnBan.className = "action-btn";
+                    btnBan.innerText = "🚫";
+                    btnBan.title = "Khóa lượt";
+                    btnBan.onclick = () => banStudent(stu);
+                    actions.appendChild(btnBan);
+                }
+
+                div.appendChild(leftSpan);
+                div.appendChild(actions);
+                queueContainer.appendChild(div);
+            });
+        }
+
+        function penalizeStudentNoise(stu) {
+            studentScores[stu] = Math.max(0, (studentScores[stu] || 0) - NOISE_PENALTY);
+            saveStateToLocal();
+            renderSidebar();
+        }
+
+        function favorStudent(studentName) {
+            if (studentName === currentStudentName) return;
+            if (currentStudentName) remainingStudents.unshift(currentStudentName);
+            const idx = remainingStudents.indexOf(studentName);
+            if (idx > -1) remainingStudents.splice(idx, 1);
+            currentStudentName = studentName;
+            setupGameUI();
+        }
+
+        function pushDownStudent(studentName) {
+            if (!pushedStudents.includes(studentName)) pushedStudents.push(studentName);
+            const idx = remainingStudents.indexOf(studentName);
+            if (idx > -1) {
+                remainingStudents.splice(idx, 1);
+                remainingStudents.push(studentName);
+            }
+            if (currentStudentName === studentName) {
+                remainingStudents.push(studentName);
+                currentStudentName = "";
+                nextTurn();
+            } else {
+                saveStateToLocal();
+                renderSidebar();
+            }
+        }
+
+        function banStudent(studentName) {
+            if (!bannedStudents.includes(studentName)) bannedStudents.push(studentName);
+            const idx = remainingStudents.indexOf(studentName);
+            if (idx > -1) remainingStudents.splice(idx, 1);
+            if (currentStudentName === studentName) {
+                currentStudentName = "";
+                nextTurn();
+            } else {
+                saveStateToLocal();
+                renderSidebar();
+            }
+        }
+
+        function unbanStudent(studentName) {
+            bannedStudents = bannedStudents.filter(n => n !== studentName);
+            if (!playedStudents.includes(studentName) && !remainingStudents.includes(studentName)) {
+                remainingStudents.push(studentName);
+            }
+            saveStateToLocal();
+            renderSidebar();
+        }
+
+        /* =========================================================================
+           5. BẢNG VINH DANH XẾP HẠNG CUỐI GIỜ
+           ========================================================================= */
+        function showEndGameModal() {
+            const listEl = document.getElementById("endgame-list");
+            listEl.innerHTML = "";
+            const sorted = [...currentClassList].sort((a, b) => (studentScores[b] || 0) - (studentScores[a] || 0));
+            sorted.forEach((stu, i) => {
+                const card = document.createElement("div");
+                const topCls = i === 0 ? "top-1" : (i === 1 ? "top-2" : (i === 2 ? "top-3" : ""));
+                const icon = i === 0 ? "🥇 Hạng 1" : (i === 1 ? "🥈 Hạng 2" : (i === 2 ? "🥉 Hạng 3" : `#${i + 1}`));
+                card.className = `rank-card ${topCls}`;
+                card.innerHTML = `
+                    <span>${icon}: ${stu}</span>
+                    <span>${studentScores[stu] || 0} điểm</span>
+                `;
+                listEl.appendChild(card);
+            });
+            document.getElementById("endgame-modal").style.display = "flex";
+        }
+
+        function closeEndGameModal() {
+            document.getElementById("endgame-modal").style.display = "none";
+        }
+
+        /* =========================================================================
+           6. BẮT PHÍM GÕ & KÍCH HOẠT ĐẾM NGƯỢC SAU CHỮ CÁI ĐẦU TIÊN
+           ========================================================================= */
+        window.addEventListener("keydown", function (event) {
+            if (event.key === "F5" || (event.ctrlKey && event.key.toLowerCase() === "r") || event.key === "Backspace") {
+                event.preventDefault();
+                return;
+            }
+
+            if (!isWaitingForKey || !currentStudentName) return;
+
+            const keyPressed = event.key.toUpperCase();
+            if (!/^[A-Z]$/.test(keyPressed)) return;
+
+            const currentBoxEl = document.getElementById(`key-${currentKeyIndex}`);
+            const expectedKey = targetKeys[currentKeyIndex];
+
+            if (keyPressed === expectedKey) {
+                currentBoxEl.className = "key-box done";
+                currentKeyIndex++;
+
+                // NGAY KHI BẤM ĐÚNG CHỮ CÁI ĐẦU TIÊN -> BẮT ĐẦU ĐẾM NGƯỢC ĐIỂM TỐC ĐỘ!
+                if (currentKeyIndex === 1) {
+                    startSpeedCountdownAfterFirstKey();
+                }
+
+                if (currentKeyIndex === targetKeys.length) {
+                    isWaitingForKey = false;
+                    clearInterval(speedTimer);
+
+                    studentScores[currentStudentName] = (studentScores[currentStudentName] || 0) + liveSpeedScore;
+                    if (!playedStudents.includes(currentStudentName)) {
+                        playedStudents.push(currentStudentName);
+                    }
+
+                    const words = SENTENCES[curSentenceIdx % SENTENCES.length];
+                    curWordIdx++;
+                    if (curWordIdx >= words.length) {
+                        curWordIdx = 0;
+                        curSentenceIdx = (curSentenceIdx + 1) % SENTENCES.length;
+                    }
+
+                    const overlay = document.getElementById("overlay-msg");
+                    overlay.innerText = `Xuất sắc! +${liveSpeedScore} điểm ✨`;
+                    overlay.style.display = "flex";
+
+                    saveStateToLocal();
+                    renderSidebar();
+
+                    setTimeout(() => {
+                        overlay.style.display = "none";
+                        currentStudentName = "";
+                        nextTurn();
+                    }, 950);
+                } else {
+                    document.getElementById(`key-${currentKeyIndex}`).className = "key-box active";
+                }
+            } else {
+                currentBoxEl.classList.remove("error");
+                void currentBoxEl.offsetWidth;
+                currentBoxEl.classList.add("error");
+            }
+        });
+    </script>
+</body>
+
+</html>
