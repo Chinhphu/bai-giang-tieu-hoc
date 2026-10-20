@@ -454,6 +454,129 @@
             text-decoration: line-through;
         }
 
+        /* --- THẺ XẾP HẠNG TOP 3 THỜI GIAN THỰC --- */
+        .rank-card-tier {
+            padding: 9px 12px;
+            margin-bottom: 7px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 3px solid #cbd5e1;
+            font-size: 16.5px;
+            font-weight: 800;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.04);
+            animation: fadeInRank 0.25s ease-out;
+        }
+
+        @keyframes fadeInRank {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .rank-card-tier.tier-1 {
+            background: #fef9c3;
+            border-color: #eab308;
+            color: #854d0e;
+            box-shadow: 0 4px 0 #ca8a04;
+        }
+
+        .rank-card-tier.tier-2 {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+            color: #1e293b;
+            box-shadow: 0 4px 0 #64748b;
+        }
+
+        .rank-card-tier.tier-3 {
+            background: #ffedd5;
+            border-color: #f97316;
+            color: #9a3412;
+            box-shadow: 0 4px 0 #ea580c;
+        }
+
+        .tier-badge {
+            font-size: 15px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .tie-badge {
+            font-size: 11.5px;
+            font-weight: 800;
+            background: #dbeafe;
+            color: #1d4ed8;
+            border: 1.5px solid #93c5fd;
+            border-radius: 6px;
+            padding: 1px 6px;
+            flex-shrink: 0;
+            letter-spacing: 0.3px;
+        }
+
+        .rank-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 175px;
+        }
+
+        /* --- THANH TÌM KIẾM TRONG HÀNG ĐỢI --- */
+        .queue-search-wrap {
+            display: flex;
+            align-items: center;
+            background: #f1f8e9;
+            border: 2px solid #aed581;
+            border-radius: 10px;
+            padding: 3px 8px;
+            margin-bottom: 7px;
+            gap: 6px;
+        }
+
+        .queue-search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #2e7d32;
+        }
+
+        .queue-search-input::placeholder {
+            color: #81c784;
+            font-weight: 600;
+        }
+
+        .queue-search-clear {
+            background: #c8e6c9;
+            color: #1b5e20;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            font-weight: 800;
+        }
+
+        .queue-search-clear:hover {
+            background: #a5d6a7;
+        }
+
         .item-actions {
             display: flex;
             align-items: center;
@@ -616,20 +739,26 @@
 
             <!-- CỘT PHẢI CHIA 2 KHUNG CỐ ĐỊNH: TRÊN (60% XẾP HẠNG THỰC) - DƯỚI (40% HÀNG ĐỢI) -->
             <div class="sidebar">
-                <!-- TẦNG TRÊN (~60%): XẾP HẠNG THỜI GIAN THỰC -->
+                <!-- TẦNG TRÊN (~60%): XẾP HẠNG THỜI GIAN THỰC (TẬP TRUNG RANK, TỐI ĐA GIẢI BA) -->
                 <div class="panel-box rank-panel">
                     <div class="panel-title" style="color:#b45309;">
-                        <span>🏆 XẾP HẠNG THỜI GIAN THỰC</span>
+                        <span>🏆 XẾP HẠNG TOP 3</span>
                         <span style="font-size:14px; color:#78350f;" id="played-count-label">Đã gõ: 0</span>
                     </div>
                     <div class="scroll-list" id="realtime-rank-list"></div>
                 </div>
 
-                <!-- TẦNG DƯỚI (~40%): HÀNG ĐỢI CHƯA LÊN -->
+                <!-- TẦNG DƯỚI (~40%): HÀNG ĐỢI CHƯA LÊN (CÓ TÌM KIẾM TÊN) -->
                 <div class="panel-box queue-panel">
                     <div class="panel-title" style="color:#33691e;">
                         <span>📋 HÀNG ĐỢI CHỜ LÊN</span>
                         <span style="font-size:14px; color:#558b2f;">Còn: <span id="counter">0</span> bạn</span>
+                    </div>
+                    <div class="queue-search-wrap">
+                        <input type="text" id="queue-search-input" class="queue-search-input"
+                            placeholder="🔍 Tìm tên trong hàng đợi..." oninput="onQueueSearch(this.value)" autocomplete="off">
+                        <button id="queue-search-clear" class="queue-search-clear" onclick="clearQueueSearch()"
+                            title="Xóa tìm kiếm">✕</button>
                     </div>
                     <div class="scroll-list" id="queue-list"></div>
                 </div>
@@ -708,28 +837,28 @@
         };
 
         const MAX_WORD_SCORE = 1000;
-        const MIN_WORD_SCORE = 400;
-        const DECAY_PER_SEC = 25;
-        const NOISE_PENALTY = 100;
+        const DECAY_PER_SEC = 25; // Giảm 25 điểm / 1s (0.025 điểm/ms) tính sát sao theo từng mili giây
 
         let classLists = FALLBACK_CLASSES;
         let selectedClass = "2_2";
         let currentClassList = [];
         let remainingStudents = [];
-        let playedStudents = [];
-        let bannedStudents = [];
-        let pushedStudents = [];
+        let playedStudentIds = [];
+        let bannedStudentIds = [];
+        let pushedStudentIds = [];
         let studentScores = {};
 
         let curSentenceIdx = 0;
         let curWordIdx = 0;
         let targetKeys = [];
         let currentKeyIndex = 0;
-        let currentStudentName = "";
+        let currentStudent = null;
         let isWaitingForKey = false;
 
         let liveSpeedScore = MAX_WORD_SCORE;
-        let speedTimer = null;
+        let speedStartTime = null;
+        let speedAnimFrame = null;
+        let queueSearchKeyword = "";
 
         /* =========================================================================
            2. KHỞI TẠO & LƯU TRỮ LOCALSTORAGE (CHỐNG F5 MẤT DỮ LIỆU)
@@ -766,13 +895,13 @@
                 selectedClass,
                 currentClassList,
                 remainingStudents,
-                playedStudents,
-                bannedStudents,
-                pushedStudents,
+                playedStudentIds,
+                bannedStudentIds,
+                pushedStudentIds,
                 studentScores,
                 curSentenceIdx,
                 curWordIdx,
-                currentStudentName
+                currentStudent
             };
             localStorage.setItem("ech_b4_active_class", selectedClass);
             localStorage.setItem(getStorageKey(selectedClass), JSON.stringify(payload));
@@ -784,15 +913,27 @@
             try {
                 const st = JSON.parse(raw);
                 if (!st || !Array.isArray(st.currentClassList) || st.currentClassList.length === 0) return false;
-                currentClassList = st.currentClassList;
-                remainingStudents = st.remainingStudents || [];
-                playedStudents = st.playedStudents || [];
-                bannedStudents = st.bannedStudents || [];
-                pushedStudents = st.pushedStudents || [];
-                studentScores = st.studentScores || {};
+
+                // Tương thích ngược: nếu dữ liệu cũ lưu mảng chuỗi tên, chuyển sang mảng object có ID duy nhất
+                if (typeof st.currentClassList[0] === 'string') {
+                    currentClassList = buildStudentList(st.currentClassList);
+                    remainingStudents = shuffleArray([...currentClassList]);
+                    playedStudentIds = [];
+                    bannedStudentIds = [];
+                    pushedStudentIds = [];
+                    studentScores = {};
+                    currentStudent = null;
+                } else {
+                    currentClassList = st.currentClassList;
+                    remainingStudents = st.remainingStudents || [];
+                    playedStudentIds = st.playedStudentIds || st.playedStudents || [];
+                    bannedStudentIds = st.bannedStudentIds || st.bannedStudents || [];
+                    pushedStudentIds = st.pushedStudentIds || st.pushedStudents || [];
+                    studentScores = st.studentScores || {};
+                    currentStudent = st.currentStudent || null;
+                }
                 curSentenceIdx = st.curSentenceIdx || 0;
                 curWordIdx = st.curWordIdx || 0;
-                currentStudentName = st.currentStudentName || "";
                 return true;
             } catch (e) {
                 return false;
@@ -822,7 +963,7 @@
         function switchClass(cls) {
             selectedClass = cls;
             if (loadStateFromLocal(cls)) {
-                if (!currentStudentName && remainingStudents.length > 0) {
+                if (!currentStudent && remainingStudents.length > 0) {
                     nextTurn();
                 } else {
                     setupGameUI();
@@ -832,28 +973,73 @@
             }
         }
 
+        function normalizeVN(str) {
+            if (!str) return '';
+            return str
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[đĐ]/g, 'd')
+                .toLowerCase()
+                .trim();
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag] || tag));
+        }
+
+        /* Khởi tạo danh sách học sinh với ID duy nhất & nhận diện trùng cả họ và tên */
+        function buildStudentList(rawNames) {
+            const nameCounts = {};
+            rawNames.forEach(name => {
+                const trimmed = (name || '').trim();
+                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
+            });
+
+            return rawNames.map((name, i) => {
+                const trimmed = (name || '').trim();
+                const isDup = (nameCounts[trimmed] || 0) > 1;
+                return {
+                    id: `hs_${i + 1}`,
+                    stt: i + 1,
+                    name: trimmed,
+                    isDup: isDup,
+                    displayName: isDup ? `${trimmed} [STT ${i + 1}]` : trimmed
+                };
+            });
+        }
+
         function initFreshClass(cls) {
-            const list = classLists[cls] || FALLBACK_CLASSES["2_2"];
-            currentClassList = [...list];
+            const rawList = classLists[cls] || FALLBACK_CLASSES["2_2"];
+            currentClassList = buildStudentList(rawList);
             remainingStudents = shuffleArray([...currentClassList]);
-            playedStudents = [];
-            bannedStudents = [];
-            pushedStudents = [];
+            playedStudentIds = [];
+            bannedStudentIds = [];
+            pushedStudentIds = [];
             studentScores = {};
-            // Mỗi em có 200 điểm vốn ban đầu để ai chưa lên bảng mà nói chuyện vẫn bị trừ được ngay!
-            currentClassList.forEach(s => { studentScores[s] = 200; });
+            // Không áp dụng điểm sàn, điểm tính chính xác khi học sinh hoàn thành bài gõ
             curSentenceIdx = 0;
             curWordIdx = 0;
-            currentStudentName = "";
+            currentStudent = null;
+            clearQueueSearch();
             nextTurn();
         }
 
         /* =========================================================================
-           3. ĐỒNG HỒ TỐC ĐỘ: CHỈ ĐẾM NGƯỢC SAU KHI BẤM TRÚNG CHỮ CÁI ĐẦU TIÊN!
+           3. ĐỒNG HỒ TỐC ĐỘ: TÍNH ĐIỂM CHÍNH XÁC THEO TỪNG MILI GIÂY (SAU PHÍM ĐẦU)
            ========================================================================= */
         function resetSpeedDisplayBeforeFirstKey() {
-            clearInterval(speedTimer);
-            speedTimer = null;
+            if (speedAnimFrame) {
+                cancelAnimationFrame(speedAnimFrame);
+                speedAnimFrame = null;
+            }
+            speedStartTime = null;
             liveSpeedScore = MAX_WORD_SCORE;
             document.getElementById("live-speed-score").innerText = liveSpeedScore;
             document.getElementById("speed-state-note").innerText = "(Chờ gõ chữ đầu tiên...)";
@@ -861,15 +1047,25 @@
         }
 
         function startSpeedCountdownAfterFirstKey() {
-            clearInterval(speedTimer);
-            document.getElementById("speed-state-note").innerText = "(Đang tính tốc độ!)";
+            if (speedAnimFrame) {
+                cancelAnimationFrame(speedAnimFrame);
+            }
+            speedStartTime = performance.now();
             document.getElementById("speed-pill").classList.add("counting");
-            speedTimer = setInterval(() => {
-                if (isWaitingForKey && liveSpeedScore > MIN_WORD_SCORE) {
-                    liveSpeedScore = Math.max(MIN_WORD_SCORE, liveSpeedScore - DECAY_PER_SEC);
-                    document.getElementById("live-speed-score").innerText = liveSpeedScore;
+
+            function tickSpeed() {
+                if (!isWaitingForKey || !speedStartTime) return;
+                const elapsedMs = performance.now() - speedStartTime;
+                liveSpeedScore = Math.max(0, Math.round(MAX_WORD_SCORE - (elapsedMs * (DECAY_PER_SEC / 1000))));
+                document.getElementById("live-speed-score").innerText = liveSpeedScore;
+                const elapsedSec = (elapsedMs / 1000).toFixed(2);
+                document.getElementById("speed-state-note").innerText = `(${elapsedSec}s)`;
+
+                if (liveSpeedScore > 0) {
+                    speedAnimFrame = requestAnimationFrame(tickSpeed);
                 }
-            }, 1000);
+            }
+            speedAnimFrame = requestAnimationFrame(tickSpeed);
         }
 
         function renderSentenceWords() {
@@ -888,7 +1084,7 @@
             saveStateToLocal();
             renderSidebar();
 
-            if (!currentStudentName) {
+            if (!currentStudent) {
                 document.getElementById("student-name").innerText = "🎉 Đã xong hết lớp!";
                 document.getElementById("next-student-name").innerText = "Bấm xem Bảng Vinh Danh";
                 document.getElementById("key-container").innerHTML = "";
@@ -897,8 +1093,14 @@
                 return;
             }
 
-            document.getElementById("student-name").innerText = currentStudentName;
-            const nextStu = remainingStudents.length > 0 ? remainingStudents[0] : "Hết lượt";
+            const nameEl = document.getElementById("student-name");
+            if (currentStudent.isDup) {
+                nameEl.innerHTML = `${escapeHTML(currentStudent.name)} <span style="font-size:32px; color:#f59e0b; font-weight:800; background:#fef3c7; border:2px solid #fde68a; padding:2px 14px; border-radius:99px; vertical-align:middle;">STT ${currentStudent.stt}</span>`;
+            } else {
+                nameEl.innerText = currentStudent.name;
+            }
+
+            const nextStu = remainingStudents.length > 0 ? remainingStudents[0].displayName : "Hết lượt";
             document.getElementById("next-student-name").innerText = `👟 Chuẩn bị lên tiếp theo: ${nextStu}`;
 
             renderSentenceWords();
@@ -917,80 +1119,151 @@
             });
 
             isWaitingForKey = true;
-            // Chưa đếm ngược vội, đợi gõ chữ đầu tiên mới chạy!
             resetSpeedDisplayBeforeFirstKey();
         }
 
         function nextTurn() {
+            if (speedAnimFrame) {
+                cancelAnimationFrame(speedAnimFrame);
+                speedAnimFrame = null;
+            }
             if (remainingStudents.length === 0) {
-                currentStudentName = "";
+                currentStudent = null;
                 isWaitingForKey = false;
-                clearInterval(speedTimer);
                 setupGameUI();
                 return;
             }
-            currentStudentName = remainingStudents.shift();
-            pushedStudents = pushedStudents.filter(n => n !== currentStudentName);
+            currentStudent = remainingStudents.shift();
+            pushedStudentIds = pushedStudentIds.filter(id => id !== currentStudent.id);
             setupGameUI();
         }
 
         function skipStudent() {
-            if (!currentStudentName) return;
-            pushDownStudent(currentStudentName);
+            if (!currentStudent) return;
+            pushDownStudent(currentStudent.id);
         }
 
         /* =========================================================================
-           4. RENDER 2 KHUNG SIDEBAR SONG SONG: XẾP HẠNG THỰC (60%) & HÀNG ĐỢI (40%)
+           4. RENDER SIDEBAR: BẢNG XẾP HẠNG TOP 3 ĐỒNG HẠNG & HÀNG ĐỢI TÌM KIẾM
            ========================================================================= */
-        function renderSidebar() {
-            document.getElementById("counter").innerText = remainingStudents.length + (currentStudentName ? 1 : 0);
-            document.getElementById("played-count-label").innerText = `Đã gõ: ${playedStudents.length}/${currentClassList.length}`;
+        function onQueueSearch(val) {
+            queueSearchKeyword = val;
+            const clearBtn = document.getElementById("queue-search-clear");
+            if (clearBtn) clearBtn.style.display = val.trim() ? "flex" : "none";
+            renderQueue();
+        }
 
-            // 1. RENDER KHUNG TRÊN: BẢNG XẾP HẠNG THỜI GIAN THỰC (Sắp xếp điểm cao -> thấp)
+        function clearQueueSearch() {
+            queueSearchKeyword = "";
+            const input = document.getElementById("queue-search-input");
+            if (input) input.value = "";
+            const clearBtn = document.getElementById("queue-search-clear");
+            if (clearBtn) clearBtn.style.display = "none";
+            renderQueue();
+        }
+
+        function renderSidebar() {
+            renderRealtimeRank();
+            renderQueue();
+        }
+
+        function renderRealtimeRank() {
+            document.getElementById("played-count-label").innerText = `Đã gõ: ${playedStudentIds.length}/${currentClassList.length}`;
             const rankContainer = document.getElementById("realtime-rank-list");
             rankContainer.innerHTML = "";
 
-            const sortedRank = [...currentClassList].sort((a, b) => {
-                const diff = (studentScores[b] || 0) - (studentScores[a] || 0);
-                if (diff !== 0) return diff;
-                return playedStudents.indexOf(a) - playedStudents.indexOf(b);
-            });
+            // Lọc danh sách học sinh đã hoàn thành theo ID duy nhất
+            const eligible = playedStudentIds
+                .map(id => currentClassList.find(s => s.id === id))
+                .filter(stu => stu && studentScores[stu.id] !== undefined)
+                .map(stu => ({
+                    id: stu.id,
+                    name: stu.displayName,
+                    score: studentScores[stu.id] || 0
+                }));
 
-            sortedRank.forEach((stu, idx) => {
-                const div = document.createElement("div");
-                const isPlayed = playedStudents.includes(stu);
-                const rankCls = idx === 0 && isPlayed ? "rank-1" : (idx === 1 && isPlayed ? "rank-2" : (idx === 2 && isPlayed ? "rank-3" : ""));
-                div.className = `list-item ${rankCls}`;
-
-                const medal = idx === 0 ? "🥇" : (idx === 1 ? "🥈" : (idx === 2 ? "🥉" : `#${idx + 1}`));
-                div.innerHTML = `
-                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                        ${medal} ${stu} ${isPlayed ? "✓" : ""}
-                    </span>
-                    <div class="item-actions">
-                        <span class="score-tag">${studentScores[stu] || 0}đ</span>
-                        <button class="action-btn btn-noise-pen" title="Nói chuyện: Trừ 100 điểm!" onclick="penalizeStudentNoise('${stu}')">🔊-100</button>
+            if (eligible.length === 0) {
+                rankContainer.innerHTML = `
+                    <div style="text-align:center; padding:32px 12px; color:#94a3b8; font-size:16px;">
+                        <div style="font-size:32px; margin-bottom:8px;">🏆</div>
+                        <div style="font-weight:700;">Chưa có bạn nào hoàn thành lượt gõ</div>
+                        <div style="font-size:13.5px; color:#cbd5e1; margin-top:4px;">Top 3 giải thưởng sẽ xuất hiện tại đây!</div>
                     </div>
                 `;
-                rankContainer.appendChild(div);
-            });
+                return;
+            }
 
-            // 2. RENDER KHUNG DƯỚI: HÀNG ĐỢI CHỜ LÊN BẢNG
+            // Lấy danh sách điểm riêng biệt xếp từ cao xuống thấp
+            const distinctScores = [...new Set(eligible.map(e => e.score))].sort((a, b) => b - a);
+            // Chỉ hiển thị tới Giải Ba (3 mức điểm cao nhất), còn lại khỏi hiện
+            const top3Scores = distinctScores.slice(0, 3);
+
+            const tierTitles = ["Giải Nhất", "Giải Nhì", "Giải Ba"];
+            const tierIcons = ["🥇", "🥈", "🥉"];
+            const tierCls = ["tier-1", "tier-2", "tier-3"];
+
+            top3Scores.forEach((score, tierIdx) => {
+                const studentsInTier = eligible.filter(e => e.score === score);
+                const isTie = studentsInTier.length > 1;
+
+                studentsInTier.forEach(stuObj => {
+                    const div = document.createElement("div");
+                    div.className = `rank-card-tier ${tierCls[tierIdx]}`;
+                    div.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:6px; min-width:0;">
+                            <span class="tier-badge">${tierIcons[tierIdx]} ${tierTitles[tierIdx]}</span>
+                            ${isTie ? '<span class="tie-badge">Đồng hạng</span>' : ''}
+                            <span class="rank-name" title="${escapeHTML(stuObj.name)}">${escapeHTML(stuObj.name)}</span>
+                        </div>
+                        <div class="score-tag">${stuObj.score}đ</div>
+                    `;
+                    rankContainer.appendChild(div);
+                });
+            });
+        }
+
+        function renderQueue() {
+            const totalRemaining = remainingStudents.length + (currentStudent ? 1 : 0);
+            document.getElementById("counter").innerText = totalRemaining;
+
             const queueContainer = document.getElementById("queue-list");
             queueContainer.innerHTML = "";
 
-            const queueOrder = [
-                ...(currentStudentName ? [currentStudentName] : []),
+            let queueOrder = [
+                ...(currentStudent ? [currentStudent] : []),
                 ...remainingStudents,
-                ...bannedStudents
+                ...bannedStudentIds.map(id => currentClassList.find(s => s.id === id)).filter(Boolean)
             ];
+
+            const qNorm = normalizeVN(queueSearchKeyword);
+            const isSearching = qNorm.length > 0;
+            if (isSearching) {
+                queueOrder = queueOrder.filter(stu =>
+                    normalizeVN(stu.name).includes(qNorm) ||
+                    normalizeVN(stu.displayName).includes(qNorm) ||
+                    String(stu.stt) === qNorm
+                );
+            }
+
+            if (queueOrder.length === 0) {
+                queueContainer.innerHTML = `
+                    <div style="text-align:center; padding:22px 10px; color:#7cb342; font-size:15px; font-weight:700;">
+                        ${isSearching ? `Không tìm thấy "${escapeHTML(queueSearchKeyword)}" trong hàng đợi` : 'Hàng đợi đang trống'}
+                    </div>
+                `;
+                return;
+            }
 
             queueOrder.forEach(stu => {
                 const div = document.createElement("div");
+                const isBanned = bannedStudentIds.includes(stu.id);
+                const isCurrent = currentStudent && currentStudent.id === stu.id;
+                const isPushed = pushedStudentIds.includes(stu.id);
+
                 let statusCls = "";
-                if (bannedStudents.includes(stu)) statusCls = "banned";
-                else if (stu === currentStudentName) statusCls = "current";
-                else if (pushedStudents.includes(stu)) statusCls = "pushed";
+                if (isBanned) statusCls = "banned";
+                else if (isCurrent) statusCls = "current";
+                else if (isPushed) statusCls = "pushed";
 
                 div.className = `list-item ${statusCls}`;
 
@@ -998,46 +1271,39 @@
                 leftSpan.style.overflow = "hidden";
                 leftSpan.style.textOverflow = "ellipsis";
                 leftSpan.style.whiteSpace = "nowrap";
-                leftSpan.innerText = stu === currentStudentName ? `👉 ${stu}` : stu;
+                leftSpan.innerText = isCurrent ? `👉 ${stu.displayName}` : stu.displayName;
 
                 const actions = document.createElement("div");
                 actions.className = "item-actions";
 
-                const btnNoise = document.createElement("button");
-                btnNoise.className = "action-btn btn-noise-pen";
-                btnNoise.title = "Nói chuyện: Trừ 100 điểm!";
-                btnNoise.innerText = "-100";
-                btnNoise.onclick = () => penalizeStudentNoise(stu);
-                actions.appendChild(btnNoise);
-
-                if (bannedStudents.includes(stu)) {
+                if (isBanned) {
                     const btnUnban = document.createElement("button");
                     btnUnban.className = "action-btn";
                     btnUnban.innerText = "💚";
-                    btnUnban.title = "Tha lỗi";
-                    btnUnban.onclick = () => unbanStudent(stu);
+                    btnUnban.title = "Tha lỗi cho bạn";
+                    btnUnban.onclick = () => unbanStudent(stu.id);
                     actions.appendChild(btnUnban);
                 } else {
-                    if (stu !== currentStudentName) {
+                    if (!isCurrent) {
                         const btnCall = document.createElement("button");
                         btnCall.className = "action-btn";
                         btnCall.innerText = "⭐";
-                        btnCall.title = "Gọi lên ngay";
-                        btnCall.onclick = () => favorStudent(stu);
+                        btnCall.title = "Gọi bạn này lên ngay";
+                        btnCall.onclick = () => favorStudent(stu.id);
                         actions.appendChild(btnCall);
                     }
                     const btnPush = document.createElement("button");
                     btnPush.className = "action-btn";
                     btnPush.innerText = "⬇️";
-                    btnPush.title = "Đẩy xuống cuối hàng";
-                    btnPush.onclick = () => pushDownStudent(stu);
+                    btnPush.title = "Đẩy bạn này xuống cuối hàng";
+                    btnPush.onclick = () => pushDownStudent(stu.id);
                     actions.appendChild(btnPush);
 
                     const btnBan = document.createElement("button");
                     btnBan.className = "action-btn";
                     btnBan.innerText = "🚫";
-                    btnBan.title = "Khóa lượt";
-                    btnBan.onclick = () => banStudent(stu);
+                    btnBan.title = "Khóa lượt tạm thời";
+                    btnBan.onclick = () => banStudent(stu.id);
                     actions.appendChild(btnBan);
                 }
 
@@ -1047,31 +1313,42 @@
             });
         }
 
-        function penalizeStudentNoise(stu) {
-            studentScores[stu] = Math.max(0, (studentScores[stu] || 0) - NOISE_PENALTY);
-            saveStateToLocal();
-            renderSidebar();
-        }
-
-        function favorStudent(studentName) {
-            if (studentName === currentStudentName) return;
-            if (currentStudentName) remainingStudents.unshift(currentStudentName);
-            const idx = remainingStudents.indexOf(studentName);
-            if (idx > -1) remainingStudents.splice(idx, 1);
-            currentStudentName = studentName;
+        function favorStudent(studentId) {
+            if (currentStudent && currentStudent.id === studentId) return;
+            if (currentStudent) remainingStudents.unshift(currentStudent);
+            const idx = remainingStudents.findIndex(s => s.id === studentId);
+            if (idx > -1) {
+                const [stu] = remainingStudents.splice(idx, 1);
+                currentStudent = stu;
+            }
             setupGameUI();
         }
 
-        function pushDownStudent(studentName) {
-            if (!pushedStudents.includes(studentName)) pushedStudents.push(studentName);
-            const idx = remainingStudents.indexOf(studentName);
+        function pushDownStudent(studentId) {
+            if (!pushedStudentIds.includes(studentId)) pushedStudentIds.push(studentId);
+            const idx = remainingStudents.findIndex(s => s.id === studentId);
+            if (idx > -1) {
+                const [stu] = remainingStudents.splice(idx, 1);
+                remainingStudents.push(stu);
+            }
+            if (currentStudent && currentStudent.id === studentId) {
+                remainingStudents.push(currentStudent);
+                currentStudent = null;
+                nextTurn();
+            } else {
+                saveStateToLocal();
+                renderSidebar();
+            }
+        }
+
+        function banStudent(studentId) {
+            if (!bannedStudentIds.includes(studentId)) bannedStudentIds.push(studentId);
+            const idx = remainingStudents.findIndex(s => s.id === studentId);
             if (idx > -1) {
                 remainingStudents.splice(idx, 1);
-                remainingStudents.push(studentName);
             }
-            if (currentStudentName === studentName) {
-                remainingStudents.push(studentName);
-                currentStudentName = "";
+            if (currentStudent && currentStudent.id === studentId) {
+                currentStudent = null;
                 nextTurn();
             } else {
                 saveStateToLocal();
@@ -1079,46 +1356,62 @@
             }
         }
 
-        function banStudent(studentName) {
-            if (!bannedStudents.includes(studentName)) bannedStudents.push(studentName);
-            const idx = remainingStudents.indexOf(studentName);
-            if (idx > -1) remainingStudents.splice(idx, 1);
-            if (currentStudentName === studentName) {
-                currentStudentName = "";
-                nextTurn();
-            } else {
-                saveStateToLocal();
-                renderSidebar();
-            }
-        }
-
-        function unbanStudent(studentName) {
-            bannedStudents = bannedStudents.filter(n => n !== studentName);
-            if (!playedStudents.includes(studentName) && !remainingStudents.includes(studentName)) {
-                remainingStudents.push(studentName);
+        function unbanStudent(studentId) {
+            bannedStudentIds = bannedStudentIds.filter(id => id !== studentId);
+            const stu = currentClassList.find(s => s.id === studentId);
+            if (stu && !playedStudentIds.includes(studentId) && !remainingStudents.some(s => s.id === studentId)) {
+                remainingStudents.push(stu);
             }
             saveStateToLocal();
             renderSidebar();
         }
 
         /* =========================================================================
-           5. BẢNG VINH DANH XẾP HẠNG CUỐI GIỜ
+           5. BẢNG VINH DANH XẾP HẠNG CUỐI GIỜ (TRAO GIẢI TOP 3 ĐỒNG HẠNG)
            ========================================================================= */
         function showEndGameModal() {
             const listEl = document.getElementById("endgame-list");
             listEl.innerHTML = "";
-            const sorted = [...currentClassList].sort((a, b) => (studentScores[b] || 0) - (studentScores[a] || 0));
-            sorted.forEach((stu, i) => {
-                const card = document.createElement("div");
-                const topCls = i === 0 ? "top-1" : (i === 1 ? "top-2" : (i === 2 ? "top-3" : ""));
-                const icon = i === 0 ? "🥇 Hạng 1" : (i === 1 ? "🥈 Hạng 2" : (i === 2 ? "🥉 Hạng 3" : `#${i + 1}`));
-                card.className = `rank-card ${topCls}`;
-                card.innerHTML = `
-                    <span>${icon}: ${stu}</span>
-                    <span>${studentScores[stu] || 0} điểm</span>
-                `;
-                listEl.appendChild(card);
+
+            const eligible = playedStudentIds
+                .map(id => currentClassList.find(s => s.id === id))
+                .filter(stu => stu && studentScores[stu.id] !== undefined)
+                .map(stu => ({
+                    id: stu.id,
+                    name: stu.displayName,
+                    score: studentScores[stu.id] || 0
+                }));
+
+            if (eligible.length === 0) {
+                listEl.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; padding:30px; font-size:20px; color:#64748b; font-weight:700;">Chưa có bạn nào hoàn thành lượt chơi!</div>`;
+                document.getElementById("endgame-modal").style.display = "flex";
+                return;
+            }
+
+            const distinctScores = [...new Set(eligible.map(e => e.score))].sort((a, b) => b - a);
+            const top3Scores = distinctScores.slice(0, 3);
+            const tierTitles = ["🥇 Giải Nhất", "🥈 Giải Nhì", "🥉 Giải Ba"];
+            const topCls = ["top-1", "top-2", "top-3"];
+
+            top3Scores.forEach((score, tierIdx) => {
+                const studentsInTier = eligible.filter(e => e.score === score);
+                const isTie = studentsInTier.length > 1;
+
+                studentsInTier.forEach(item => {
+                    const card = document.createElement("div");
+                    card.className = `rank-card ${topCls[tierIdx]}`;
+                    card.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span>${tierTitles[tierIdx]}</span>
+                            ${isTie ? '<span style="font-size:12px; background:#e0f2fe; color:#0284c7; padding:2px 8px; border-radius:6px;">Đồng hạng</span>' : ''}
+                            <span>: ${escapeHTML(item.name)}</span>
+                        </div>
+                        <span>${item.score} điểm</span>
+                    `;
+                    listEl.appendChild(card);
+                });
             });
+
             document.getElementById("endgame-modal").style.display = "flex";
         }
 
@@ -1127,15 +1420,20 @@
         }
 
         /* =========================================================================
-           6. BẮT PHÍM GÕ & KÍCH HOẠT ĐẾM NGƯỢC SAU CHỮ CÁI ĐẦU TIÊN
+           6. BẮT PHÍM GÕ & ĐẾM ĐIỂM SÁT SAO THEO TỪNG MILI GIÂY
            ========================================================================= */
         window.addEventListener("keydown", function (event) {
+            // Khi đang gõ trong ô tìm kiếm hoặc chọn lớp, không bắt phím gõ của bài học
+            if (event.target && (event.target.tagName === "INPUT" || event.target.tagName === "SELECT" || event.target.tagName === "TEXTAREA")) {
+                return;
+            }
+
             if (event.key === "F5" || (event.ctrlKey && event.key.toLowerCase() === "r") || event.key === "Backspace") {
                 event.preventDefault();
                 return;
             }
 
-            if (!isWaitingForKey || !currentStudentName) return;
+            if (!isWaitingForKey || !currentStudent) return;
 
             const keyPressed = event.key.toUpperCase();
             if (!/^[A-Z]$/.test(keyPressed)) return;
@@ -1147,18 +1445,26 @@
                 currentBoxEl.className = "key-box done";
                 currentKeyIndex++;
 
-                // NGAY KHI BẤM ĐÚNG CHỮ CÁI ĐẦU TIÊN -> BẮT ĐẦU ĐẾM NGƯỢC ĐIỂM TỐC ĐỘ!
+                // BẮT ĐẦU ĐẾM ĐIỂM THEO MILI GIÂY NGAY SAU KHI GÕ ĐÚNG CHỮ CÁI ĐẦU TIÊN
                 if (currentKeyIndex === 1) {
                     startSpeedCountdownAfterFirstKey();
                 }
 
                 if (currentKeyIndex === targetKeys.length) {
                     isWaitingForKey = false;
-                    clearInterval(speedTimer);
+                    if (speedAnimFrame) {
+                        cancelAnimationFrame(speedAnimFrame);
+                        speedAnimFrame = null;
+                    }
 
-                    studentScores[currentStudentName] = (studentScores[currentStudentName] || 0) + liveSpeedScore;
-                    if (!playedStudents.includes(currentStudentName)) {
-                        playedStudents.push(currentStudentName);
+                    // Tính điểm tốc độ chính xác đến từng mili giây
+                    const finalElapsedMs = speedStartTime ? (performance.now() - speedStartTime) : 0;
+                    liveSpeedScore = Math.max(0, Math.round(MAX_WORD_SCORE - (finalElapsedMs * (DECAY_PER_SEC / 1000))));
+                    const finalSecStr = (finalElapsedMs / 1000).toFixed(2);
+
+                    studentScores[currentStudent.id] = liveSpeedScore;
+                    if (!playedStudentIds.includes(currentStudent.id)) {
+                        playedStudentIds.push(currentStudent.id);
                     }
 
                     const words = SENTENCES[curSentenceIdx % SENTENCES.length];
@@ -1169,7 +1475,7 @@
                     }
 
                     const overlay = document.getElementById("overlay-msg");
-                    overlay.innerText = `Xuất sắc! +${liveSpeedScore} điểm ✨`;
+                    overlay.innerHTML = `<div>Xuất sắc!</div><div style="font-size:36px; margin-top:8px;">+${liveSpeedScore} điểm (${finalSecStr}s) ✨</div>`;
                     overlay.style.display = "flex";
 
                     saveStateToLocal();
@@ -1177,7 +1483,7 @@
 
                     setTimeout(() => {
                         overlay.style.display = "none";
-                        currentStudentName = "";
+                        currentStudent = null;
                         nextTurn();
                     }, 950);
                 } else {
