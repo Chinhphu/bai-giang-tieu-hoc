@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bài 4: Làm Việc Với Máy Tính (Tiết 1) – Tin Học 3</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
+    <link rel="stylesheet" href="../shared/style.css">
+    <!-- SheetJS để xuất file Excel chuẩn (.xlsx) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Web Components & Tự động đẩy file lên Google Drive qua Google Apps Script -->
+    <script src="../shared/components.js"></script>
 
     <style>
         :root {
@@ -25,9 +25,9 @@
 
         body {
             margin: 0;
-            color: var(--ink);
-            background: #eef4fb;
-            font-family: 'Be Vietnam Pro', sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            font-family: 'Quicksand', sans-serif;
             font-size: 19px;
             overflow-x: hidden;
             min-height: 100vh;
@@ -136,19 +136,19 @@
         }
 
         .btn.primary {
-            background: #2563eb;
+            background: var(--primary);
             color: #fff;
             box-shadow: 0 3px 0 #1d4ed8;
         }
 
         .btn.success {
-            background: #16a34a;
+            background: var(--green);
             color: #fff;
             box-shadow: 0 3px 0 #15803d;
         }
 
         .btn.danger {
-            background: #dc2626;
+            background: var(--red);
             color: #fff;
             box-shadow: 0 3px 0 #b91c1c;
         }
@@ -171,7 +171,7 @@
             font-size: 1.2rem;
             font-weight: 900;
             color: #fff;
-            background: #16a34a;
+            background: var(--green);
             padding: 5px 18px;
             border-radius: 99px;
             margin-bottom: 8px;
@@ -299,7 +299,7 @@
         }
 
         .q-pill.done {
-            background: #16a34a;
+            background: var(--green);
             color: #fff;
             border-color: #22c55e;
         }
@@ -401,7 +401,7 @@
         }
 
         .part-btn.matched {
-            background: #16a34a;
+            background: var(--green);
             color: #fff;
             border-color: #15803d;
         }
@@ -635,7 +635,8 @@
         }
 
         .lesson-clock-led {
-            font-family: 'Orbitron', monospace;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 900;
             font-size: 2.2rem;
             font-weight: 900;
             color: #4ade80;
@@ -770,7 +771,7 @@
         }
 
         .chip.on {
-            background: #2563eb;
+            background: var(--primary);
             color: #fff;
             border-color: #1d4ed8;
         }
@@ -1070,7 +1071,7 @@
                         <div id="finalRankings"
                             style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-bottom:20px;">
                         </div>
-                        <button class="btn success huge" onclick="exportCSV()">📊 Tải Bảng Điểm Lớp (Excel)</button>
+                        <button class="btn success huge" onclick="exportToExcel()">☁️ Xuất Excel & Lưu Google Drive</button>
                     </div>
                 </div>
             </section>
@@ -1329,6 +1330,29 @@
         let curMouseTask = 0;
         const solvedMouseTasks = new Set();
 
+        let lessonLogs = [];
+        const studentActions = {};
+
+        function logLessonAction(team, student, action, result, delta, scoreAfter) {
+            const d = new Date(), pad = n => String(n).padStart(2, '0');
+            const time = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+            lessonLogs.push({
+                time,
+                team: team || 'Chưa rõ',
+                student: student || 'Đại diện tổ',
+                action,
+                result,
+                delta,
+                scoreAfter
+            });
+        }
+
+        function recordStudentAction(stuId, text) {
+            if (!stuId) return;
+            if (!studentActions[stuId]) studentActions[stuId] = [];
+            studentActions[stuId].push(text);
+        }
+
         /* ================= 1. ĐỒNG HỒ 35 PHÚT CẢ TIẾT ================= */
         function startLessonClock() {
             clearInterval(lessonClockInterval);
@@ -1407,6 +1431,8 @@
 
         function answerPostureQ(optIdx, isOk, btnEl) {
             const team = TEAMS[turn];
+            const stuObj = classStudents.find(s => s.id === selectedStudent);
+            const stuName = stuObj ? stuObj.name : 'Đại diện tổ';
             if (isOk) {
                 btnEl.classList.add('correct');
                 $$('#postureQOptions .quiz-opt-btn').forEach(b => b.disabled = true);
@@ -1414,6 +1440,8 @@
                 solvedPostureQ.add(curPostureQ);
                 applyScore(team, 30);
                 toast(`🎉 Chính xác! +30 điểm cho ${team.n}!`, 'ok');
+                logLessonAction(team.n, stuName, `Trả lời đúng Câu ${curPostureQ + 1} (Tư thế ngồi)`, 'Chính xác', '+30', team.score);
+                if (stuObj) recordStudentAction(stuObj.id, `Đúng Câu ${curPostureQ + 1} tư thế (+30đ)`);
                 markCalledStudent();
                 turn = (turn + 1) % numT;
                 renderTeams();
@@ -1424,6 +1452,8 @@
                 btnEl.classList.add('wrong');
                 btnEl.disabled = true;
                 toast(`❌ Chưa đúng! Mời tổ tiếp theo suy nghĩ!`, 'bad');
+                logLessonAction(team.n, stuName, `Trả lời Câu ${curPostureQ + 1} (Tư thế ngồi)`, 'Chưa chính xác', '0', team.score);
+                if (stuObj) recordStudentAction(stuObj.id, `Tham gia trả lời Câu ${curPostureQ + 1}`);
                 turn = (turn + 1) % numT;
                 renderTeams();
                 updateTurnLabels();
@@ -1433,11 +1463,15 @@
         /* ================= 4. HOẠT ĐỘNG 2: GHÉP BỘ PHẬN CHUỘT ================= */
         function checkMousePart(partNum, isRight, btnEl) {
             const team = TEAMS[turn];
+            const stuObj = classStudents.find(s => s.id === selectedStudent);
+            const stuName = stuObj ? stuObj.name : 'Đại diện tổ';
             if (isRight) {
                 btnEl.classList.add('matched');
                 btnEl.parentElement.querySelectorAll('button').forEach(b => b.disabled = true);
                 applyScore(team, 20);
                 toast(`🖱️ Chính xác! Số ${partNum} đã ghép đúng (+20đ cho ${team.n})!`, 'ok');
+                logLessonAction(team.n, stuName, `Ghép đúng bộ phận chuột số ${partNum}`, 'Chính xác', '+20', team.score);
+                if (stuObj) recordStudentAction(stuObj.id, `Ghép đúng bộ phận chuột ${partNum} (+20đ)`);
                 markCalledStudent();
                 turn = (turn + 1) % numT;
                 renderTeams();
@@ -1445,6 +1479,7 @@
             } else {
                 btnEl.style.background = '#fee2e2';
                 toast(`❌ Nhìn kĩ vị trí mũi tên số ${partNum} trên Hình 20 nhé!`, 'bad');
+                logLessonAction(team.n, stuName, `Ghép bộ phận chuột số ${partNum}`, 'Chưa chính xác', '0', team.score);
             }
         }
 
@@ -1574,8 +1609,12 @@
         function completeMouseTask(idx) {
             solvedMouseTasks.add(idx);
             const team = TEAMS[turn];
+            const stuObj = classStudents.find(s => s.id === selectedStudent);
+            const stuName = stuObj ? stuObj.name : 'Đại diện tổ';
             applyScore(team, 30);
             toast(`🎉 Tuyệt vời! Hoàn thành "${MOUSE_TASKS[idx].title}" -> +30đ cho ${team.n}!`, 'ok');
+            logLessonAction(team.n, stuName, `Thực hành: ${MOUSE_TASKS[idx].title}`, 'Hoàn thành tốt', '+30', team.score);
+            if (stuObj) recordStudentAction(stuObj.id, `Hoàn thành thực hành: ${MOUSE_TASKS[idx].title} (+30đ)`);
             markCalledStudent();
             turn = (turn + 1) % numT;
             renderTeams();
@@ -1600,6 +1639,7 @@
             const lost = applyScore(team, -pen);
             renderTeams();
             toast(`🔊 ${team.n} ồn / ngồi sai tư thế: Trừ ${-lost} điểm (−${NOISE_PERCENT}%)!`, 'bad');
+            logLessonAction(team.n, 'Cả tổ', 'Phạt ồn / ngồi sai tư thế', 'Trừ điểm', `${lost}`, team.score);
         }
 
         function rewardBonus(i, ev) {
@@ -1609,6 +1649,7 @@
             applyScore(team, 20);
             renderTeams();
             toast(`🌟 Thưởng nóng ${team.n} ngồi thẳng lưng đẹp +20 điểm!`, 'ok');
+            logLessonAction(team.n, 'Cả tổ', 'Thưởng ngồi thẳng lưng đẹp', 'Thưởng', '+20', team.score);
         }
 
         function setTurnManual(i) {
@@ -1763,23 +1804,112 @@
 
         function changeClass(cid) {
             selectedStudent = null;
+            lessonLogs = [];
             loadClassData(cid);
         }
 
-        function exportCSV() {
-            let csv = "\uFEFFThứ hạng,Tổ,Điểm số\n";
-            const sorted = [...TEAMS].sort((a, b) => b.score - a.score);
-            sorted.forEach((t, i) => {
-                csv += `${i + 1},${t.n},${t.score}\n`;
+        function exportToExcel() {
+            if (typeof XLSX === 'undefined') {
+                if (typeof toast === 'function') toast('⚠️ Chưa nạp xong thư viện Excel SheetJS!', 'bad');
+                else alert('Chưa nạp xong thư viện Excel!');
+                return;
+            }
+
+            const cleanClass = currentClassID.replace(/[^a-zA-Z0-9]/g, '_');
+            const classDisplay = currentClassID.replace('_', '/');
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const dateStr = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+            const timeFileStr = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
+            const fileName = `KetQua_TinHoc3_Tiet07_Lop${cleanClass}_${timeFileStr}.xlsx`;
+
+            // 1. Sheet Bảng Xếp Hạng
+            const sortedTeams = [...TEAMS].sort((a, b) => b.score - a.score);
+            const rankRows = [
+                ['BẢNG XẾP HẠNG TIẾT HỌC - KHỐI 3'],
+                [`Bài: Tin Học 3 - Bài 4: Làm Việc Với Máy Tính (Tiết 1) | Lớp: ${classDisplay} | Thời gian: ${dateStr}`],
+                [''],
+                ['Hạng', 'Tên Tổ', 'Điểm Số', 'Danh Hiệu & Đánh Giá']
+            ];
+            sortedTeams.forEach((t, i) => {
+                let medal = '🎖️ Hoàn thành tốt';
+                if (i === 0) medal = '🥇 Quán quân xuất sắc';
+                else if (i === 1) medal = '🥈 Á quân xuất sắc';
+                else if (i === 2) medal = '🥉 Hạng Ba tích cực';
+                rankRows.push([i + 1, t.n, t.score, medal]);
             });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `KetQua_TinHoc3_Tiet7_Lop${currentClassID}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            const wsRank = XLSX.utils.aoa_to_sheet(rankRows);
+            wsRank['!cols'] = [{ wch: 8 }, { wch: 18 }, { wch: 14 }, { wch: 28 }];
+
+            // 2. Sheet Nhật Ký Chi Tiết
+            const logRows = [
+                ['NHẬT KÝ HOẠT ĐỘNG VÀ ĐIỂM SỐ TIẾT HỌC'],
+                [`Lớp: ${classDisplay} | Tổng số lượt ghi nhận: ${lessonLogs.length}`],
+                [''],
+                ['STT', 'Thời Gian', 'Tổ / Nhóm', 'Học Sinh Đại Diện', 'Nội Dung Hoạt Động', 'Kết Quả', 'Điểm Thay Đổi', 'Điểm Sau Cùng']
+            ];
+            if (lessonLogs.length === 0) {
+                logRows.push([1, `${pad(now.getHours())}:${pad(now.getMinutes())}`, 'Tất cả các tổ', 'Cả lớp', 'Bắt đầu tiết học - Khởi tạo điểm số ban đầu', 'Sẵn sàng', '100đ', '100đ']);
+            } else {
+                lessonLogs.forEach((item, idx) => {
+                    logRows.push([
+                        idx + 1,
+                        item.time,
+                        item.team,
+                        item.student,
+                        item.action,
+                        item.result,
+                        item.delta,
+                        item.scoreAfter
+                    ]);
+                });
+            }
+            const wsLogs = XLSX.utils.aoa_to_sheet(logRows);
+            wsLogs['!cols'] = [{ wch: 6 }, { wch: 12 }, { wch: 16 }, { wch: 24 }, { wch: 42 }, { wch: 16 }, { wch: 16 }, { wch: 16 }];
+
+            // 3. Sheet Danh Sách Học Sinh
+            const calledCount = classStudents.filter(s => calledStudents.has(s.id)).length;
+            const stuRows = [
+                ['DANH SÁCH HỌC SINH VÀ LƯỢT THAM GIA HỌC TẬP'],
+                [`Lớp: ${classDisplay} | Sĩ số: ${classStudents.length} học sinh | Đã tham gia phát biểu: ${calledCount}/${classStudents.length}`],
+                [''],
+                ['STT', 'Mã Học Sinh', 'Họ Và Tên', 'Lớp', 'Trạng Thái Lượt Gọi', 'Chi Tiết Hoạt Động']
+            ];
+            classStudents.forEach((stu, idx) => {
+                const isCalled = calledStudents.has(stu.id);
+                const acts = studentActions[stu.id] || [];
+                const actText = acts.length > 0 ? acts.join('; ') : (isCalled ? 'Đã tham gia phát biểu / thực hành' : 'Chưa có lượt gọi');
+                stuRows.push([
+                    idx + 1,
+                    `HS${String(idx + 1).padStart(3, '0')}`,
+                    stu.name,
+                    classDisplay,
+                    isCalled ? 'Đã tham gia ✓' : 'Chưa gọi',
+                    actText
+                ]);
+            });
+            const wsStudents = XLSX.utils.aoa_to_sheet(stuRows);
+            wsStudents['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 28 }, { wch: 10 }, { wch: 22 }, { wch: 50 }];
+
+            // Tạo workbook
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, wsRank, 'Bảng Xếp Hạng');
+            XLSX.utils.book_append_sheet(wb, wsLogs, 'Nhật Ký Chi Tiết');
+            XLSX.utils.book_append_sheet(wb, wsStudents, 'Danh Sách Học Sinh');
+
+            // Đẩy lên Google Drive qua Google Apps Script Web App
+            if (typeof uploadExcelToDrive === 'function') {
+                uploadExcelToDrive(wb, fileName);
+                return;
+            }
+
+            // Fallback tải file về máy
+            XLSX.writeFile(wb, fileName);
+            toast(`📥 Đã lưu file: ${fileName}`, 'ok');
+        }
+
+        function exportCSV() {
+            exportToExcel();
         }
 
         function toast(msg, cls = '') {
