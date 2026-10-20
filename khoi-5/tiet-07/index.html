@@ -2606,7 +2606,7 @@
         /* Tự động tải từ file questions.json riêng */
         async function loadQuestionsFromJSON() {
             try {
-                const res = await fetch('questions.json');
+                const res = await fetch('quests.json');
                 if (res.ok) {
                     const data = await res.json();
                     if (Array.isArray(data.quests) && data.quests.length > 0) {
@@ -2633,6 +2633,23 @@
         let students = [];
         let nextStudentId = 0;
         let importedExcelStudents = null;
+        let activityLogs = [];
+
+        function logTimelineAction(teamName, studentName, action, result, delta, currentScore) {
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+            activityLogs.push({
+                stt: activityLogs.length + 1,
+                time: timeStr,
+                team: teamName || 'Toàn lớp',
+                student: studentName || 'Đại diện tổ',
+                action: action || 'Hoạt động học tập',
+                result: result || (delta > 0 ? 'Đúng' : (delta < 0 ? 'Phạt' : 'Hoàn thành')),
+                delta: delta > 0 ? `+${delta}` : String(delta),
+                scoreAfter: typeof currentScore !== 'undefined' ? currentScore : '-'
+            });
+        }
 
         // Hàm hiển thị tên học sinh - Xử lý chuẩn xác khi có các em trùng cả họ và tên
         function getStudentDisplayName(st) {
@@ -2922,6 +2939,27 @@
         }
 
         /* ================= SIDEBAR & ĐIỂM SỐ & PHẠT TIẾNG ỒN ================= */
+        function getSelectedStudent(i) {
+            const sel = document.getElementById('sel-' + i);
+            if (sel && sel.value !== '' && students[+sel.value]) {
+                return studentDisplayName(students[+sel.value]);
+            }
+            return 'Đại diện ' + teams[i].name;
+        }
+
+        function randomPickStudent(i) {
+            const unpicked = students.map((s, idx) => ({ s, idx })).filter(item => item.s.team === null);
+            const pool = unpicked.length > 0 ? unpicked : students.map((s, idx) => ({ s, idx }));
+            if (!pool.length) return;
+            const r = pool[Math.floor(Math.random() * pool.length)];
+            const sel = document.getElementById('sel-' + i);
+            if (sel) {
+                sel.value = r.idx;
+                sel.style.background = '#fef08a';
+                setTimeout(() => sel.style.background = '', 800);
+            }
+        }
+
         function renderTeamsSidebar() {
             const teamsContainer = document.getElementById('teams');
             teamsContainer.innerHTML = teams.map((t, i) => `
@@ -2932,9 +2970,12 @@
                         <button class="btn-penalty" onclick="penalizeTeam(${i})" title="Bấm phạt khi tổ ồn (-10%)">🔇 Phạt ồn</button>
                     </div>
                     <div class="tscore" contenteditable="true" spellcheck="false" title="Nhấp vào để nhập tay sửa điểm" onblur="setManualScore(${i}, this.innerText)" onkeydown="if(event.key==='Enter'){this.blur(); event.preventDefault();}">${t.score}</div>
-                    <select id="sel-${i}">
-                        <option value="">-- Chọn học sinh --</option>
-                    </select>
+                    <div style="display:flex; gap:3px; align-items:center; width:100%;">
+                        <select id="sel-${i}" style="flex:1;">
+                            <option value="">-- Chọn học sinh --</option>
+                        </select>
+                        <button type="button" onclick="randomPickStudent(${i})" style="padding:4px 6px; font-size:12px; border-radius:6px; background:var(--yellow); border:none; cursor:pointer;" title="Gọi ngẫu nhiên">🎲</button>
+                    </div>
                     <div class="tquest-badge" id="qb-${i}" 
                          onmouseenter="showQuestTooltip(event, ${i})" 
                          onmouseleave="hideQuestTooltip()">Chưa phát Quest</div>
@@ -3018,6 +3059,7 @@
             }
 
             playPenaltySound();
+            logTimelineAction(teams[i].name, getSelectedStudent(i), 'Bị phạt mất trật tự (-10%)', 'Phạt trừ điểm', -penaltyPts, teams[i].score);
             toast(`🔇 ${teams[i].name} bị phạt trừ 10% (-${penaltyPts} điểm) vì mất trật tự!`, 2500, 'var(--coral)');
         }
 
@@ -3058,6 +3100,7 @@
             const st = students[+sel.value];
             st.team = teamIdx;
             st.actions.push(text);
+            logTimelineAction(teams[teamIdx].name, getStudentDisplayName(st), text, 'Tham gia trả lời', 0, teams[teamIdx].score);
             sel.value = '';
             refreshStudentSelects();
         }
@@ -3065,6 +3108,7 @@
         function addScore(i, pts, reason) {
             teams[i].score += pts;
             renderTeamsSidebar();
+            logTimelineAction(teams[i].name, getSelectedStudent(i), reason || 'Hoàn thành thử thách', 'Cộng điểm', pts, teams[i].score);
             toast(`+${pts} điểm cho ${teams[i].name}! ${reason ? `(${reason})` : ''}`, 2200, teams[i].color);
         }
 
@@ -3840,29 +3884,38 @@
 
         function renderRankings() {
             const rankConfigs = [
-                { themeClass: 'rank-1', medal: '🥇', badge: '👑 QUÁN QUÂN' },
-                { themeClass: 'rank-2', medal: '🥈', badge: '🥈 Á QUÂN' },
-                { themeClass: 'rank-3', medal: '🥉', badge: '🥉 HẠNG BA' },
-                { themeClass: 'rank-4', medal: '🌟', badge: '🌟 KHUYẾN KHÍCH' },
-                { themeClass: 'rank-5', medal: '🎖️', badge: '🎖️ NỖ LỰC' },
-                { themeClass: 'rank-6', medal: '🎗️', badge: '🎗️ GẮN KẾT' }
+                { themeClass: 'rank-1', medal: '🥇', badge: '👑 QUÁN QUÂN', sharedBadge: '👑 ĐỒNG QUÁN QUÂN' },
+                { themeClass: 'rank-2', medal: '🥈', badge: '🥈 Á QUÂN', sharedBadge: '🥈 ĐỒNG Á QUÂN' },
+                { themeClass: 'rank-3', medal: '🥉', badge: '🥉 HẠNG BA', sharedBadge: '🥉 ĐỒNG HẠNG BA' },
+                { themeClass: 'rank-4', medal: '🌟', badge: '🌟 KHUYẾN KHÍCH', sharedBadge: '🌟 KHUYẾN KHÍCH' },
+                { themeClass: 'rank-5', medal: '🎖️', badge: '🎖️ NỖ LỰC', sharedBadge: '🎖️ NỖ LỰC' },
+                { themeClass: 'rank-6', medal: '🎗️', badge: '🎗️ GẮN KẾT', sharedBadge: '🎗️ GẮN KẾT' }
             ];
             const sorted = [...teams].sort((a, b) => b.score - a.score);
+            let currentRankIdx = 0;
             const box = document.getElementById('rankings-box');
-            box.innerHTML = sorted.map((t, idx) => {
-                const conf = rankConfigs[idx] || rankConfigs[rankConfigs.length - 1];
+            box.innerHTML = sorted.map((t, idx, arr) => {
+                // Xử lý bằng điểm -> Đồng hạng
+                if (idx > 0 && t.score === arr[idx - 1].score) {
+                    // Cùng thứ hạng với đội trước
+                } else {
+                    currentRankIdx = idx;
+                }
+                const isShared = arr.filter(item => item.score === t.score).length > 1;
+                const conf = rankConfigs[currentRankIdx] || rankConfigs[rankConfigs.length - 1];
+                const badgeText = (isShared && currentRankIdx < 3) ? conf.sharedBadge : conf.badge;
                 return `
                     <div class="rank-card ${conf.themeClass}">
                         <div class="rank-left">
                             <span class="rank-medal">${conf.medal}</span>
-                            <div class="rank-badge-pill">${conf.badge}</div>
+                            <div class="rank-badge-pill">${badgeText}</div>
                         </div>
                         <div class="rank-mid">
                             <div class="rank-team-name" style="color:${t.color};">
                                 ${escapeHtml(t.name)}
                             </div>
                             <div class="rank-team-sub">
-                                ${t.won ? '🎯 Đã tìm thấy tệp mật bí mật' : '⏳ Đã hoàn thành xuất sắc tiết học'}
+                                ${t.won ? '🎯 Đã tìm thấy tệp mật bí mật' : (isShared ? '🤝 Đồng điểm xếp hạng' : '⏳ Đã hoàn thành xuất sắc tiết học')}
                             </div>
                         </div>
                         <div class="rank-right">
@@ -3990,11 +4043,66 @@
         }
 
         function exportExcel() {
+            // Sheet 1: Bảng Xếp Hạng (xử lý đồng hạng chuẩn)
+            const sortedTeams = [...teams].sort((a, b) => b.score - a.score);
+            let currentR = 0;
+            const rankRows = [
+                ['BẢNG XẾP HẠNG THI ĐUA TIẾT HỌC'],
+                [`Môn: Tin học 5 · Bài 4: Cây thư mục (Tiết 1) | Lớp: ${currentClass.replace('_', '/')}`],
+                [''],
+                ['Thứ Hạng', 'Danh Hiệu', 'Tổ / Đội', 'Tổng Điểm', 'Đồng Hạng', 'Trạng Thái']
+            ];
+            sortedTeams.forEach((t, idx, arr) => {
+                if (idx > 0 && t.score === arr[idx - 1].score) {} else { currentR = idx; }
+                const isShared = arr.filter(item => item.score === t.score).length > 1;
+                const titles = ['QUÁN QUÂN', 'Á QUÂN', 'HẠNG BA', 'KHUYẾN KHÍCH', 'NỖ LỰC', 'GẮN KẾT'];
+                const tName = titles[currentR] || 'KHUYẾN KHÍCH';
+                rankRows.push([
+                    `Hạng ${currentR + 1}`,
+                    isShared && currentR < 3 ? `ĐỒNG ${tName}` : tName,
+                    t.name,
+                    t.score,
+                    isShared ? 'Có (Đồng điểm)' : 'Không',
+                    t.won ? 'Đã tìm thấy tệp mật' : 'Hoàn thành tiết học'
+                ]);
+            });
+            const wsRank = XLSX.utils.aoa_to_sheet(rankRows);
+            wsRank['!cols'] = [{ wch: 12 }, { wch: 22 }, { wch: 18 }, { wch: 14 }, { wch: 16 }, { wch: 24 }];
+
+            // Sheet 2: Nhật Ký Chi Tiết (dòng thời gian sự kiện)
+            const logRows = [
+                ['NHẬT KÝ CHI TIẾT HOẠT ĐỘNG VÀ BIẾN ĐỘNG ĐIỂM SỐ THEO THỜI GIAN'],
+                [`Thời gian xuất: ${new Date().toLocaleString('vi-VN')} | Tổng số sự kiện: ${activityLogs.length}`],
+                [''],
+                ['STT', 'Thời Gian', 'Tổ / Đội', 'Học Sinh Đại Diện', 'Nội Dung Sự Kiện / Thử Thách', 'Kết Quả', 'Biến Động Điểm', 'Điểm Sau Sự Kiện']
+            ];
+            if (activityLogs.length === 0) {
+                logRows.push(['1', '-', 'Toàn lớp', '-', 'Tiết học diễn ra tích cực', 'Hoàn thành', '0', '-']);
+            } else {
+                activityLogs.forEach(entry => {
+                    logRows.push([
+                        entry.stt,
+                        entry.time,
+                        entry.team,
+                        entry.student,
+                        entry.action,
+                        entry.result,
+                        entry.delta,
+                        entry.scoreAfter
+                    ]);
+                });
+            }
+            const wsLogs = XLSX.utils.aoa_to_sheet(logRows);
+            wsLogs['!cols'] = [{ wch: 6 }, { wch: 12 }, { wch: 18 }, { wch: 24 }, { wch: 38 }, { wch: 18 }, { wch: 16 }, { wch: 18 }];
+
+            // Sheet 3: Danh Sách Học Sinh
             const rows = [
+                ['DANH SÁCH HỌC SINH VÀ LỊCH SỬ THAM GIA PHÁT BIỂU'],
+                [`Lớp: ${currentClass.replace('_', '/')} | Tổng số học sinh: ${students.length}`],
+                [''],
                 ['STT', 'Mã Học Sinh', 'Họ Và Tên', 'Lớp', 'Tổ / Nhóm', 'Lịch Sử Hoạt Động & Ghi Điểm']
             ];
             let stt = 1;
-
             [...teams.map(t => t.id), null].forEach(tid => {
                 students.filter(s => s.team === tid).forEach(s => {
                     rows.push([
@@ -4007,24 +4115,20 @@
                     ]);
                 });
             });
-
-            const ws = XLSX.utils.aoa_to_sheet(rows);
-            ws['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 28 }, { wch: 10 }, { wch: 16 }, { wch: 80 }];
-
-            const wsScores = XLSX.utils.aoa_to_sheet([
-                ['Tổ / Đội', 'Tổng Điểm Cuối Tiết'],
-                ...teams.map(t => [t.name, t.score])
-            ]);
-            wsScores['!cols'] = [{ wch: 16 }, { wch: 16 }];
+            const wsStudents = XLSX.utils.aoa_to_sheet(rows);
+            wsStudents['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 28 }, { wch: 10 }, { wch: 16 }, { wch: 80 }];
 
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Danh Sách Học Sinh');
-            XLSX.utils.book_append_sheet(wb, wsScores, 'Bảng Điểm Các Tổ');
+            XLSX.utils.book_append_sheet(wb, wsRank, 'Bảng Xếp Hạng');
+            XLSX.utils.book_append_sheet(wb, wsLogs, 'Nhật Ký Chi Tiết');
+            XLSX.utils.book_append_sheet(wb, wsStudents, 'Danh Sách Học Sinh');
 
             const d = new Date(), pad = n => String(n).padStart(2, '0');
             const timeStr = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
-            XLSX.writeFile(wb, `TinHoc5_Bai4_Tiet1_Lop${currentClass}_${timeStr}.xlsx`);
-            toast('📥 Đã xuất file Excel thành công!', 2500, 'var(--mint)');
+            const cleanClass = currentClass.replace(/[^a-zA-Z0-9]/g, '_');
+            const fileName = `KetQua_TinHoc5_Tiet07_Lop${cleanClass}_${timeStr}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+            toast(`📥 Đã xuất file: ${fileName}`, 3000, 'var(--mint)');
         }
 
         /* ================= TIỆN ÍCH ================= */

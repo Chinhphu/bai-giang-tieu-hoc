@@ -1,380 +1,15 @@
 <!DOCTYPE html>
-<html lang="vi" class="shark-tank-v5">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đại Hội Shark Tank IT - Khối 5</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Tin học 5 – Bài 3: Tìm kiếm thông tin trong giải quyết vấn đề (Shark Tank IT)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link rel="stylesheet" href="../shared/style.css">
     <style>
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            background: var(--bg);
-            color: var(--ink);
-            overflow: hidden;
-        }
-
-        /* ================= SETUP SCREEN ================= */
-        #setup-screen {
-            position: fixed;
-            inset: 0;
-            background: var(--ink);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-
-        .setup-box {
-            background: var(--white);
-            padding: 50px 70px;
-            border-radius: 24px;
-            text-align: center;
-            max-width: 800px;
-            width: 95%;
-            box-shadow: 0 15px 0 rgba(0, 0, 0, 0.3);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .setup-box h2 {
-            color: var(--blue);
-            font-size: 45px;
-            font-weight: 900;
-            margin: 0 0 25px;
-        }
-
-        .setup-config {
-            background: #f4f7fb;
-            padding: 25px;
-            border-radius: 16px;
-            margin-bottom: 25px;
-            border: 4px solid var(--line);
-            font-size: 30px;
-            font-weight: 800;
-        }
-
-        .setup-config select {
-            font-size: 30px;
-            font-weight: 900;
-            color: var(--blue);
-            padding: 10px;
-            border-radius: 12px;
-            border: 4px solid var(--line);
-            outline: none;
-            margin-left: 15px;
-            cursor: pointer;
-        }
-
-        .setup-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            margin: 20px 0;
-        }
-
-        .setup-row span {
-            font-size: 30px;
-            font-weight: 800;
-            width: 120px;
-        }
-
-        .setup-box input[type="text"] {
-            font-size: 30px;
-            font-weight: 900;
-            text-align: center;
-            color: var(--coral);
-            width: 300px;
-            padding: 15px;
-            border: 4px solid var(--line);
-            border-radius: 12px;
-            outline: none;
-        }
-
-        .setup-box input[type="text"]:focus {
-            border-color: var(--mint);
-        }
-
-        .btn-setup {
-            background: var(--mint);
-            color: var(--white);
-            font-size: 35px;
-            font-weight: 900;
-            padding: 20px 50px;
-            border-radius: 15px;
-            box-shadow: 0 8px 0 #087d69;
-            width: 100%;
-            margin-top: 25px;
-        }
-
-        /* ================= GAME LAYOUT ================= */
-        #game-screen {
-            display: none;
-            flex-direction: row;
-            width: 100vw;
-            height: 100vh;
-        }
-
-        /* SIDEBAR HỆ THỐNG */
-        .sidebar {
-            width: var(--sidebar-width);
-            background: var(--ink);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            position: relative;
-        }
-
-        .scoreboard {
-            flex: 1;
-            padding: 10px 8px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            gap: 8px;
-            overflow: hidden;
-        }
-
-        .team-score {
-            flex: 1 1 auto;
-            max-height: 110px;
-            min-height: 60px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 5px;
-            transition: 0.3s;
-        }
-
-        .team-score.teacher {
-            background: rgba(255, 108, 101, 0.15);
-            border-color: rgba(255, 108, 101, 0.4);
-        }
-
-        .team-name {
-            font-weight: 900;
-            font-size: 16px;
-            color: var(--mint);
-            margin-bottom: 2px;
-            text-transform: uppercase;
-            text-align: center;
-        }
-
-        .team-score.teacher .team-name {
-            color: var(--coral);
-        }
-
-        .score-number {
-            font-size: 32px;
-            font-weight: 900;
-            color: var(--yellow);
-            line-height: 1;
-            cursor: text;
-            outline: none;
-            border-bottom: 2px dashed rgba(255, 200, 87, 0.4);
-        }
-
-        .score-number:focus {
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 8px;
-        }
-
-        /* BẢNG ĐIỀU KHIỂN GIÁO VIÊN (LƯỚI 2x2) */
-        .teacher-controls {
-            padding: 12px;
-            background: #0b1322;
-            border-top: 1px solid #1c2a47;
-            position: relative;
-        }
-
-        .tc-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-        }
-
-        .btn-tiny {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.4);
-            padding: 12px 0;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
-        .btn-tiny:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: var(--white);
-        }
-
-        #penalty-modal {
-            position: absolute;
-            bottom: 120px;
-            left: 10px;
-            right: 10px;
-            background: white;
-            border: 4px solid var(--coral);
-            border-radius: 12px;
-            padding: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-            z-index: 1001;
-        }
-
-        .penalty-title {
-            font-weight: 900;
-            color: var(--ink);
-            font-size: 16px;
-            text-align: center;
-            margin-bottom: 4px;
-        }
-
-        .btn-penalize {
-            background: #fff0f0;
-            border: 2px solid var(--coral);
-            color: var(--coral);
-            font-weight: 900;
-            font-size: 15px;
-            padding: 8px;
-            border-radius: 6px;
-            text-align: center;
-        }
-
-        .btn-penalize:hover {
-            background: var(--coral);
-            color: white;
-        }
-
-        /* SÂN KHẤU CHÍNH */
-        .stage {
-            flex: 1;
-            height: 100vh;
-            overflow-y: auto;
-            background: var(--white);
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 0;
-        }
-
-        .stage::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .stage::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-
-        .slide {
-            background: var(--white);
-            width: 100%;
-            min-height: 100vh;
-            padding: 20px 30px 40px;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
-            animation: popIn 0.3s ease-out;
-        }
-
-        .slide.active {
-            display: flex;
-        }
-
-        .slide.fullscreen {
-            justify-content: center;
-        }
-
-        @keyframes popIn {
-            0% {
-                opacity: 0;
-                transform: scale(0.98);
-            }
-
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        /* TYPOGRAPHY */
-        .topic-name {
-            background: var(--blue);
-            color: var(--white);
-            padding: 8px 30px;
-            border-radius: 40px;
-            font-weight: 900;
-            font-size: 22px;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-        }
-
-        h1 {
-            font-size: 65px;
-            color: var(--blue);
-            margin: 0 0 15px 0;
-            font-weight: 900;
-            text-transform: uppercase;
-            line-height: 1.1;
-        }
-
-        h2 {
-            font-size: 45px;
-            color: var(--ink);
-            margin: 0 0 15px 0;
-            font-weight: 900;
-        }
-
-        .notebook {
-            width: 100%;
-            background: #fdfbf7;
-            border: 4px solid var(--ink);
-            border-radius: 16px;
-            padding: 25px 35px;
-            text-align: left;
-            box-shadow: 6px 6px 0 var(--line);
-            margin-bottom: 20px;
-        }
-
-        .slide.fullscreen .notebook {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            padding: 60px;
-        }
-
-        .notebook p,
-        .notebook li {
-            font-size: 30px;
-            line-height: 1.6;
-            margin: 0 0 12px;
-            font-weight: 800;
-            color: var(--ink);
-        }
-
-        .notebook strong {
-            color: var(--coral);
-            font-weight: 900;
-        }
-
-        .situation-box {
+.situation-box {
             background: var(--ink);
             color: var(--white);
             font-size: 30px;
@@ -691,165 +326,84 @@
             pointer-events: none;
         }
 
-        /* BẢNG XẾP HẠNG */
-        .rank-row {
-            display: flex;
-            align-items: center;
-            background: #f4f7fb;
-            padding: 25px 50px;
-            border-radius: 20px;
-            border: 4px solid var(--ink);
-            margin-bottom: 15px;
-            width: 100%;
-            gap: 30px;
-        }
-
-        .rank-medal {
-            font-size: 60px;
-        }
-
-        .rank-name {
-            flex: 1;
-            font-size: 45px;
-            font-weight: 900;
-            color: var(--blue);
-            text-align: left;
-        }
-
-        .rank-score {
-            font-size: 45px;
-            font-weight: 900;
-            color: var(--coral);
-        }
-
-        /* ALERT HỆ THỐNG */
-        .system-alert {
-            position: fixed;
-            top: 30px;
-            left: calc(var(--sidebar-width) + (100vw - var(--sidebar-width)) / 2);
-            transform: translateX(-50%) translateY(-50px);
-            background: var(--coral);
-            color: white;
-            font-size: 28px;
-            font-weight: 900;
-            padding: 15px 35px;
-            border-radius: 16px;
-            border: 4px solid var(--ink);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-            z-index: 9999;
-            opacity: 0;
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            transition: all 0.3s;
-        }
-
-        .system-alert.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .flash-red {
-            animation: flashScreen 1s;
-        }
-
-        @keyframes flashScreen {
-
-            0%,
-            100% {
-                background: var(--white);
-            }
-
-            50% {
-                background: rgba(220, 38, 38, 0.5);
-            }
-        }
-
-        @keyframes superFlash {
-
-            0%,
-            100% {
-                transform: scale(1);
-                border-color: rgba(255, 255, 255, 0.2);
-            }
-
-            20%,
-            60% {
-                transform: scale(1.1) rotate(2deg);
-                background: rgba(239, 68, 68, 0.8);
-                border-color: #ef4444;
-            }
-
-            40%,
-            80% {
-                transform: scale(1.1) rotate(-2deg);
-                background: rgba(239, 68, 68, 0.8);
-                border-color: #ef4444;
-            }
-        }
-
-        .team-score.penalized {
-            animation: superFlash 0.8s ease-in-out;
-            z-index: 99;
-        }
+        
     </style>
 </head>
 
-<body class="shark-tank-v5">
-    <div id="system-alert" class="system-alert">
-        <i id="alert-icon" class="fa-solid fa-triangle-exclamation"></i> <span id="alert-text">HỆ THỐNG ĐÃ TRỪ 10% VỐN!</span>
-    </div>
+<body>
+    <!-- TOOLTIP TO TỰ NỔI KHI HOVER VÀO QUEST -->
+    <div id="floating-quest-tooltip"></div>
 
-    <!-- MÀN HÌNH SETUP -->
+    <!-- ================= MÀN HÌNH SETUP CHUẨN TIẾT 07 ================= -->
     <div id="setup-screen">
         <div class="setup-box">
-            <h2>ĐĂNG KÝ QUỸ ĐẦU TƯ</h2>
-            <div class="setup-config">
-                Số lượng đội:
-                <select id="team-count" onchange="renderTeamInputs()">
-                    <option value="2">2 Đội</option>
-                    <option value="3">3 Đội</option>
-                    <option value="4" selected>4 Đội</option>
-                    <option value="5">5 Đội</option>
-                    <option value="6">6 Đội</option>
+            <h2>🦈 TIN HỌC 5 · BÀI 3</h2>
+            <div style="font-size: 20px; font-weight: 800; color: #64748b; margin-bottom: 12px;">
+                TÌM KIẾM THÔNG TIN TRONG GIẢI QUYẾT VẤN ĐỀ (SHARK TANK IT)
+            </div>
+
+            <div class="setup-row">
+                <span>Chọn lớp học:</span>
+                <select id="s-class">
+                    <option value="5_1">Lớp 5/1</option>
+                    <option value="5_2" selected>Lớp 5/2</option>
+                    <option value="5_3">Lớp 5/3</option>
+                    <option value="5_4">Lớp 5/4</option>
+                    <option value="5_5">Lớp 5/5</option>
+                    <option value="5_6">Lớp 5/6</option>
                 </select>
             </div>
-            <div id="team-inputs-container"></div>
-            <button class="btn-setup" onclick="startGame()">VÀO SHARK TANK IT <i
-                    class="fa-solid fa-arrow-right"></i></button>
+
+            <div class="setup-row">
+                <span>Số lượng Quỹ đầu tư:</span>
+                <select id="s-teams">
+                    <option value="2">2 Quỹ</option>
+                    <option value="3">3 Quỹ</option>
+                    <option value="4" selected>4 Quỹ</option>
+                    <option value="5">5 Quỹ</option>
+                    <option value="6">6 Quỹ</option>
+                </select>
+            </div>
+
+            <div class="setup-row">
+                <span>Vốn khởi điểm mỗi Quỹ:</span>
+                <span style="color: var(--yellow); font-size: 26px; font-weight: 900; background: var(--ink); padding: 4px 16px; border-radius: 10px;">1000 Điểm</span>
+            </div>
+
+            <div class="setup-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 18px;">Dữ liệu học sinh:</span>
+                    <button type="button" class="btn-import-excel" onclick="document.getElementById('excel-file-setup').click()">
+                        📥 Nhập file Excel (.xlsx)
+                    </button>
+                    <input type="file" id="excel-file-setup" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleExcelUpload(event, 'setup')">
+                </div>
+                <div id="setup-excel-status" style="font-size: 14px; color: var(--mint); font-weight: 700; display: none; text-align: left; line-height: 1.3;"></div>
+            </div>
+
+            <button class="btn-setup" onclick="startGame()">VÀO SHARK TANK IT 🚀</button>
         </div>
     </div>
 
-    <!-- GAME SCREEN -->
-    <div id="game-screen">
-
-        <!-- SIDEBAR -->
-        <div class="sidebar">
-            <div class="scoreboard" id="scoreboard"></div>
-
-            <div class="teacher-controls">
-                <div class="tc-buttons">
-                    <button class="btn-tiny" onclick="resetAllScores()" title="Reset Điểm"><i
-                            class="fa-solid fa-rotate-right"></i></button>
-                    <button class="btn-tiny" onclick="togglePenaltyMenu()" title="Phạt tiếng ồn (10%)"><i
-                            class="fa-solid fa-gavel"></i></button>
-                    <button class="btn-tiny" onclick="changeSlide(-1)" title="Trang trước"><i
-                            class="fa-solid fa-chevron-left"></i></button>
-                    <button class="btn-tiny" onclick="changeSlide(1)" title="Trang tiếp"><i
-                            class="fa-solid fa-chevron-right"></i></button>
-                </div>
-                <div id="penalty-modal">
-                    <div class="penalty-title">Phạt 10% đội nào?</div>
-                    <div id="penalty-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
-                </div>
+    <!-- ================= GIAO DIỆN CHÍNH (SIDEBAR TRÁI + SÂN KHẤU PHẢI) ================= -->
+    <div id="app">
+        <!-- SIDEBAR CHUẨN TIẾT 07 -->
+        <aside class="side">
+            <div class="teams" id="teams"></div>
+            <div class="spacer"></div>
+            <div class="tc-buttons">
+                <button class="btn-tiny" onclick="openAddHs()" title="Thêm học sinh mới">➕ Thêm HS</button>
+                <button class="btn-tiny" onclick="openEnd()" title="Tổng kết đánh giá và xuất Excel">📋 Tổng kết</button>
             </div>
-        </div>
+            <div class="nav">
+                <button onclick="goSlide(-1)" title="Trang trước (Phím mũi tên trái)">◀</button>
+                <button onclick="goSlide(1)" title="Trang tiếp (Phím mũi tên phải)">▶</button>
+            </div>
+        </aside>
 
-        <!-- SÂN KHẤU CHÍNH -->
-        <div class="stage" id="main-stage">
-
-            <!-- SLIDE 0: LUẬT CHƠI MỚI CHUẨN XÁC COMBO -->
+        <!-- SÂN KHẤU NỘI DUNG SLIDE -->
+        <main class="stage" id="stage">
+<!-- SLIDE 0: LUẬT CHƠI MỚI CHUẨN XÁC COMBO -->
             <div class="slide active" id="slide-0">
                 <div class="topic-name">CHỦ ĐỀ 3 - BÀI 3</div>
                 <h1>TÌM KIẾM THÔNG TIN TRONG<br>GIẢI QUYẾT VẤN ĐỀ</h1>
@@ -1515,166 +1069,368 @@
                 </div>
             </div>
 
-            <!-- SLIDE 15: BẢNG XẾP HẠNG -->
-            <div class="slide" id="slide-15">
-                <h1 style="font-size: 85px;">TỔNG KẾT TÀI SẢN</h1>
-                <h2 style="color: var(--ink); margin-bottom: 50px; font-size: 55px;">Vinh danh các Quỹ Đầu Tư Đại Tài!
-                </h2>
-                <div id="ranking-board" style="width: 100%; margin-bottom: 50px;"></div>
-                <div class="notebook" style="border-color: var(--mint);">
-                    <h2 style="color: var(--mint); margin-bottom: 25px; font-size: 45px;"><i
-                            class="fa-solid fa-house"></i> NHIỆM VỤ VỀ NHÀ</h2>
-                    <p style="font-size: 38px;">Hãy phân công bạn bè trong nhóm thu thập thông tin về <strong>một khu du
-                            lịch nổi tiếng ở quê hương em</strong> nhé!</p>
-                </div>
-            </div>
+            
+            <!-- SLIDE 15: BẢNG XẾP HẠNG & TỔNG KẾT -->
+            <section class="slide fs" id="slide-15">
+                <div class="tag">Tổng kết tài sản</div>
+                <h1 style="font-size: 56px;">🏆 BẢNG VÀNG SHARK TANK IT</h1>
+                <h2 style="color: var(--ink); margin-bottom: 20px;">Vinh danh các Quỹ Đầu Tư Đại Tài!</h2>
 
-        </div> <!-- End Stage -->
+                <div class="rankings-box" id="rankings-box"></div>
+
+                <div style="margin-top: 15px; margin-bottom: 25px;">
+                    <button style="background:var(--mint); color:#fff; font-size:22px; font-weight:900; padding:12px 32px; border-radius:14px; box-shadow:0 6px 0 #087d69;" onclick="exportExcel()">
+                        📥 Xuất Báo Cáo Tiết Học (Excel)
+                    </button>
+                </div>
+
+                <div class="notebook vo-main" style="max-width: 900px;">
+                    <div class="nb-section" style="color:var(--mint);"><i class="fa-solid fa-house"></i> NHIỆM VỤ VỀ NHÀ</div>
+                    <p>Hãy phân công bạn bè trong nhóm thu thập thông tin về <strong>một khu du lịch nổi tiếng ở quê hương em</strong> nhé!</p>
+                </div>
+            </section>
+        </main>
     </div>
 
+    <!-- ================= MODAL THÊM HỌC SINH ================= -->
+    <div class="modal-overlay" id="hs-modal" onclick="if(event.target===this)closeAddHs()">
+        <div class="modal-box">
+            <h3 style="font-size:28px; color:var(--blue); margin-top:0;">➕ Thêm Học Sinh</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="font-weight: 600; color: #64748b; font-size: 15px;">Dán danh sách hoặc nạp từ file:</div>
+                <button type="button" class="btn-import-excel" style="font-size:13px; padding:6px 14px;" onclick="document.getElementById('excel-file-modal').click()">
+                    📥 Nạp từ Excel (.xlsx)
+                </button>
+                <input type="file" id="excel-file-modal" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleExcelUpload(event, 'modal')">
+            </div>
+            <textarea id="hs-input" placeholder="Nguyễn Văn A&#10;Trần Thị B&#10;Lê Văn C"></textarea>
+            <div>
+                <button class="btn-modal-ok" onclick="saveAddHs()">Thêm vào danh sách</button>
+                <button class="btn-modal-cancel" onclick="closeAddHs()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MÀN HÌNH TỔNG KẾT KANBAN & XUẤT EXCEL ================= -->
+    <div id="end-screen">
+        <div class="ehead">
+            <h1>📋 Quản lí học sinh các quỹ đầu tư (Kéo thả thẻ tên)</h1>
+            <div style="display:flex; gap:10px;">
+                <button style="background:var(--blue); color:#fff; font-weight:900; font-size:18px; padding:8px 18px; border-radius:10px;" onclick="closeEnd()">← Quay lại</button>
+                <button style="background:var(--mint); color:#fff; font-weight:900; font-size:18px; padding:8px 18px; border-radius:10px;" onclick="exportExcel()">📥 Xuất File Excel</button>
+            </div>
+        </div>
+        <div class="kanban" id="kanban"></div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div class="toast" id="toast"></div>
+
     <script>
-        let teams = [];
-        let teacherTeam = { id: 999, name: 'Quỹ Thầy Giáo', score: 1000, bets: null, isTeacher: true };
-        let currentSlide = 0;
+        const STARTING_SCORE = 1000;
+        const TEAM_COLORS = ['#3178f6', '#16b89a', '#ff6c65', '#e0a100', '#8b5cf6', '#ec4899'];
         const totalSlides = 16;
+
+        let currentClass = '5_2';
+        let teams = [];
+        let teacherTeam = { id: 999, name: 'Quỹ Thầy Giáo', score: 1000, bets: null, isTeacher: true, color: '#ec4899' };
+        let students = [];
+        let importedExcelStudents = [];
+        let activityLogs = [];
+        let nextStudentId = 0;
+        let currentSlide = 0;
         let stageState = {};
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-        // ================= CẬP NHẬT NGÀY THÁNG =================
-        const dateDisplay = document.getElementById('currentDateDisplay');
-        const daysOfWeek = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
-        const today = new Date();
-        const dateStr = `${daysOfWeek[today.getDay()]}, ngày ${String(today.getDate()).padStart(2, '0')} tháng ${String(today.getMonth() + 1).padStart(2, '0')} năm ${today.getFullYear()}`;
-        if (dateDisplay) dateDisplay.textContent = dateStr;
+        let gameState = {
+            activeTeam: 0
+        };
 
-        function renderTeamInputs() {
-            const count = parseInt(document.getElementById('team-count').value);
-            let html = '';
-            const labels = ['A', 'B', 'C', 'D', 'E', 'F'];
-            for (let i = 0; i < count; i++) {
-                html += `<div class="setup-row">
-                    <span>Quỹ ${labels[i]}:</span>
-                    <input type="text" id="team-name-${i}" value="Quỹ ${labels[i]}">
-                </div>`;
-            }
-            document.getElementById('team-inputs-container').innerHTML = html;
-        }
-
-        function togglePenaltyMenu() {
-            const menu = document.getElementById('penalty-modal');
-            menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        function renderPenaltyMenu() {
-            const list = document.getElementById('penalty-list');
-            list.innerHTML = '';
-            teams.forEach(team => {
-                list.innerHTML += `<button class="btn-penalize" onclick="applySystemPenalty(${team.id})">${team.name}</button>`;
+        /* ================= LOAD DỮ LIỆU & EXCEL ================= */
+        function logTimelineAction(teamName, studentName, action, result, delta, currentScore) {
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+            activityLogs.push({
+                stt: activityLogs.length + 1,
+                time: timeStr,
+                team: teamName || 'Toàn lớp',
+                student: studentName || 'Chưa chọn',
+                action: action || 'Thương vụ đầu tư',
+                result: result || (delta > 0 ? 'Thành công' : (delta < 0 ? 'Thất bại' : 'Hoàn thành')),
+                delta: delta > 0 ? `+${delta}` : String(delta),
+                scoreAfter: typeof currentScore !== 'undefined' ? currentScore : '-'
             });
         }
 
-        function showSystemAlert(msg, bgColor = 'var(--coral)', icon = 'fa-bell', duration = 3500) {
-            const alertBox = document.getElementById('system-alert');
-            document.getElementById('alert-icon').className = `fa-solid ${icon}`;
-            document.getElementById('alert-text').innerHTML = msg;
-            alertBox.style.background = bgColor;
-            alertBox.classList.add('show');
-            setTimeout(() => { alertBox.classList.remove('show'); }, duration);
+        function getStudentDisplayName(st) {
+            if (!st) return '';
+            const rawName = (st.name || '').trim();
+            const trimmed = rawName.toLowerCase();
+            const sameNameList = students.filter(s => (s.name || '').trim().toLowerCase() === trimmed);
+            if (sameNameList.length <= 1) return rawName;
+            const matchIndex = sameNameList.findIndex(s => s.id === st.id);
+            return `${rawName} (${matchIndex >= 0 ? matchIndex + 1 : 1})`;
         }
 
-        renderTeamInputs();
+        function handleExcelUpload(event, source) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
 
-        function startGame() {
-            const count = parseInt(document.getElementById('team-count').value);
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                    if (!json || json.length === 0) {
+                        toast('⚠️ File Excel không có dữ liệu!', 2500, 'var(--coral)');
+                        return;
+                    }
+
+                    let nameColIdx = -1, hoColIdx = -1, tenColIdx = -1, startRow = 0;
+                    for (let r = 0; r < Math.min(json.length, 10); r++) {
+                        const row = json[r];
+                        if (!Array.isArray(row)) continue;
+                        for (let c = 0; c < row.length; c++) {
+                            const val = String(row[c] || '').trim().toLowerCase();
+                            if (val.includes('họ và tên') || val.includes('họ tên') || val === 'tên học sinh' || val === 'học sinh' || val === 'name') {
+                                nameColIdx = c; startRow = r + 1; break;
+                            }
+                            if (val === 'họ' || val.includes('họ lót')) hoColIdx = c;
+                            if (val === 'tên' || val === 'ten') tenColIdx = c;
+                        }
+                        if (nameColIdx !== -1 || (hoColIdx !== -1 && tenColIdx !== -1)) {
+                            startRow = r + 1; break;
+                        }
+                    }
+
+                    const extractedNames = [];
+                    for (let r = startRow; r < json.length; r++) {
+                        const row = json[r];
+                        if (!Array.isArray(row)) continue;
+                        let fullName = '';
+                        if (nameColIdx !== -1) fullName = String(row[nameColIdx] || '').trim();
+                        else if (hoColIdx !== -1 && tenColIdx !== -1) fullName = (String(row[hoColIdx] || '') + ' ' + String(row[tenColIdx] || '')).trim();
+                        else {
+                            for (let c = 0; c < row.length; c++) {
+                                const str = String(row[c] || '').trim();
+                                if (str.length >= 3 && isNaN(str) && !str.includes('/') && !str.includes('@')) {
+                                    fullName = str; break;
+                                }
+                            }
+                        }
+                        if (fullName && fullName.length >= 2 && !/^(tổng|stt|ghi chú|nam|nữ|lớp)/i.test(fullName)) {
+                            extractedNames.push(fullName);
+                        }
+                    }
+
+                    if (!extractedNames.length) {
+                        toast('⚠️ Không tìm thấy cột Họ và Tên trong file Excel!', 3000, 'var(--coral)');
+                        return;
+                    }
+
+                    if (source === 'setup') {
+                        importedExcelStudents = extractedNames;
+                        const statusEl = document.getElementById('setup-excel-status');
+                        if (statusEl) {
+                            statusEl.style.display = 'block';
+                            statusEl.innerHTML = `✅ Đã nhận <b>${extractedNames.length}</b> học sinh từ file Excel!`;
+                        }
+                        toast(`✅ Đã nạp ${extractedNames.length} học sinh từ file Excel!`, 3000, 'var(--mint)');
+                    } else {
+                        extractedNames.forEach(name => {
+                            students.push({ id: ++nextStudentId, name, team: null, actions: [] });
+                        });
+                        refreshStudentSelects();
+                        closeAddHs();
+                        toast(`✅ Đã thêm ${extractedNames.length} học sinh từ Excel!`, 3000, 'var(--mint)');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    toast('⚠️ Lỗi khi đọc file Excel!', 3000, 'var(--coral)');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+            event.target.value = '';
+        }
+
+        async function loadStudentList(clsKey) {
+            try {
+                const res = await fetch('../../assets/data/students_5_2026_2027.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    const norm = s => String(s).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                    const list = data[clsKey] || data[norm(clsKey)] || [];
+                    if (Array.isArray(list) && list.length) return list;
+                }
+            } catch (err) { }
+            return [
+                'Ngô Phương Anh', 'Nguyễn Quốc Anh', 'Phạm Minh Anh', 'Đào Thiên Ân',
+                'Trương Gia Bảo', 'Nguyễn Trọng Đức', 'Đỗ Hoàng Hiếu', 'Nguyễn Nhật Huy',
+                'Dương Uyển Khanh', 'Trương Ngọc Lâm', 'Lâm Đường Vạn Lý', 'Mạc Kim Ngân',
+                'Chu Dương Bảo Như', 'Phương Phú Quý', 'Bùi Quốc Thành', 'Trần Bảo Vy'
+            ];
+        }
+
+        /* ================= KHỞI ĐỘNG SHARK TANK ================= */
+        async function startGame() {
+            currentClass = document.getElementById('s-class').value;
+            const numTeams = parseInt(document.getElementById('s-teams').value) || 4;
+
+            let rawList = (importedExcelStudents && importedExcelStudents.length > 0) ? importedExcelStudents : await loadStudentList(currentClass);
+
+            students = rawList.map((name, i) => ({
+                id: i + 1,
+                name: typeof name === 'string' ? name : (name.name || 'Học sinh ' + (i + 1)),
+                team: null,
+                actions: []
+            }));
+            nextStudentId = students.length;
+
+            const labels = ['A', 'B', 'C', 'D', 'E', 'F'];
             teams = [];
-            for (let i = 0; i < count; i++) {
+            for (let i = 0; i < numTeams; i++) {
                 teams.push({
                     id: i,
-                    name: document.getElementById(`team-name-${i}`).value || `Quỹ ${i + 1}`,
-                    score: 1000, bets: null, isTeacher: false
+                    name: `Quỹ ${labels[i]}`,
+                    color: TEAM_COLORS[i % TEAM_COLORS.length],
+                    score: STARTING_SCORE,
+                    bets: null,
+                    isTeacher: false
                 });
             }
-            teacherTeam.score = 1000;
-            renderScoreboard();
-            renderPenaltyMenu();
-            renderAllBetTables();
+            teacherTeam.score = STARTING_SCORE;
+
             document.getElementById('setup-screen').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'flex';
+            document.getElementById('app').style.display = 'flex';
+            document.title = `Tin học 5 – Bài 3: Tìm kiếm thông tin trong giải quyết vấn đề (Lớp ${currentClass.replace('_', '/')})`;
+
+            updateDateDisplay();
+            renderTeamsSidebar();
+            renderAllBetTables();
+            goToSlide(0);
         }
 
-        /* ======== SCOREBOARD & PENALTY ======== */
-        function renderScoreboard() {
-            const board = document.getElementById('scoreboard');
-            board.innerHTML = '';
+        function updateDateDisplay() {
+            const daysOfWeek = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
+            const today = new Date();
+            const dateStr = `${daysOfWeek[today.getDay()]}, ngày ${String(today.getDate()).padStart(2, '0')} tháng ${String(today.getMonth() + 1).padStart(2, '0')} năm ${today.getFullYear()}`;
+            document.querySelectorAll('.currentDateDisplay').forEach(el => el.textContent = dateStr);
+        }
+
+        function renderTeamsSidebar() {
+            const teamsContainer = document.getElementById('teams');
             let displayTeams = (currentSlide <= 1) ? [...teams, teacherTeam] : teams;
 
-            displayTeams.forEach(team => {
-                let teacherClass = team.isTeacher ? ' teacher' : '';
-                board.innerHTML += `
-                    <div class="team-score${teacherClass}" id="team-score-box-${team.id}">
-                        <div class="team-name">${team.name}</div>
-                        <div class="score-number" id="score-${team.id}" contenteditable="true" onblur="manualUpdateScore(${team.id}, this.innerText)" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}" title="Click sửa điểm">${team.score}</div>
+            teamsContainer.innerHTML = displayTeams.map((t, i) => `
+                <div class="team ${i === gameState.activeTeam ? 'turn' : ''}" id="team-${t.id}" style="--tc:${t.color}">
+                    <div class="turn-badge">👉 ĐANG TỚI LƯỢT</div>
+                    <div class="trow">
+                        <span class="tname" onclick="switchActiveTeam(${i})" style="cursor:pointer;" title="Bấm để chuyển lượt sang ${t.name}">${t.name}</span>
+                        <button class="btn-penalty" onclick="penalizeTeam(${t.id})" title="Bấm phạt khi tổ ồn (-10%)">🔇 Phạt ồn</button>
                     </div>
-                `;
-            });
+                    <div class="tscore" contenteditable="true" spellcheck="false" title="Nhấp vào để nhập tay sửa điểm" onblur="setManualScore(${t.id}, this.innerText)" onkeydown="if(event.key==='Enter'){this.blur(); event.preventDefault();}">${t.score}</div>
+                    ${!t.isTeacher ? `
+                    <div style="display:flex; gap:3px; align-items:center; width:100%;">
+                        <select id="sel-${t.id}" style="flex:1;">
+                            <option value="">-- Chọn học sinh --</option>
+                        </select>
+                        <button type="button" onclick="randomPickStudent(${t.id})" style="padding:4px 6px; font-size:12px; border-radius:6px; background:var(--yellow); border:none; cursor:pointer;" title="Gọi ngẫu nhiên">🎲</button>
+                    </div>` : ''}
+                </div>
+            `).join('');
+
+            refreshStudentSelects();
             updateBetTablesDisplay();
         }
 
-        function updateScore(teamId, amount) {
-            let t = teams.find(x => x.id === teamId);
-            if (!t && teamId === 999) t = teacherTeam;
-            if (t) t.score += amount;
-            renderScoreboard();
+        function switchActiveTeam(targetIdx) {
+            let displayTeams = (currentSlide <= 1) ? [...teams, teacherTeam] : teams;
+            if (targetIdx === gameState.activeTeam || targetIdx < 0 || targetIdx >= displayTeams.length) return;
+            gameState.activeTeam = targetIdx;
+            renderTeamsSidebar();
+            toast(`👉 Lượt chơi hiện tại: ${displayTeams[targetIdx].name}`, 1500, displayTeams[targetIdx].color);
         }
 
-        function manualUpdateScore(teamId, val) {
-            let newScore = parseInt(val);
-            if (isNaN(newScore)) newScore = 0;
-            let t = teams.find(x => x.id === teamId);
-            if (!t && teamId === 999) t = teacherTeam;
-            if (t) t.score = newScore;
-            renderScoreboard();
+        function setManualScore(teamId, rawText) {
+            const cleaned = rawText.replace(/[^0-9]/g, '');
+            const num = parseInt(cleaned);
+            if (!isNaN(num)) {
+                let t = teams.find(x => x.id === teamId) || (teamId === 999 ? teacherTeam : null);
+                if (t) {
+                    const delta = num - t.score;
+                    t.score = num;
+                    logTimelineAction(t.name, getSelectedStudent(teamId), 'Sửa điểm thủ công', 'Cập nhật', delta, num);
+                    toast(`Đã sửa điểm ${t.name}: ${num} điểm`, 1600, t.color);
+                }
+            }
+            renderTeamsSidebar();
         }
 
-        function resetAllScores() {
-            if (confirm("Reset Phương án Của TẤT CẢ các Quỹ về 1000đ không?")) {
-                teams.forEach(t => t.score = 1000);
-                teacherTeam.score = 1000;
-                renderScoreboard();
-                showSystemAlert("ĐÃ RESET TOÀN BỘ VỐN VỀ 1000Đ!", "var(--blue)", "fa-rotate-right");
+        function penalizeTeam(teamId) {
+            let t = teams.find(x => x.id === teamId) || (teamId === 999 ? teacherTeam : null);
+            if (!t) return;
+            const penaltyPts = Math.max(20, Math.round(t.score * 0.1));
+            t.score = Math.max(0, t.score - penaltyPts);
+            renderTeamsSidebar();
+
+            const el = document.getElementById('team-' + teamId);
+            if (el) {
+                const floatBadge = document.createElement('div');
+                floatBadge.className = 'floatred';
+                floatBadge.textContent = `-${penaltyPts} (10%)`;
+                el.appendChild(floatBadge);
+                el.classList.add('penalty-hit');
+                setTimeout(() => { floatBadge.remove(); el.classList.remove('penalty-hit'); }, 1000);
+            }
+
+            playPenaltySound();
+            logTimelineAction(t.name, getSelectedStudent(teamId), 'Bị phạt mất trật tự (-10%)', 'Phạt trừ điểm', -penaltyPts, t.score);
+            toast(`🔇 ${t.name} bị phạt trừ 10% (-${penaltyPts} điểm)!`, 2500, 'var(--coral)');
+        }
+
+        function refreshStudentSelects() {
+            teams.forEach((t) => {
+                const sel = document.getElementById('sel-' + t.id);
+                if (!sel) return;
+                const curVal = sel.value;
+                sel.innerHTML = '<option value="">-- Chọn học sinh --</option>' +
+                    students.map((st, idx) => `
+                        <option value="${idx}" ${st.team !== null && st.team !== t.id ? 'disabled' : ''}>
+                            ${st.team !== null && st.team !== t.id ? '🔒 ' : ''}${escapeHtml(getStudentDisplayName(st))}
+                        </option>
+                    `).join('');
+                if (curVal !== '' && students[+curVal]) sel.value = curVal;
+            });
+        }
+
+        function getSelectedStudent(teamId) {
+            const sel = document.getElementById('sel-' + teamId);
+            if (sel && sel.value !== '' && students[+sel.value]) {
+                return getStudentDisplayName(students[+sel.value]);
+            }
+            let t = teams.find(x => x.id === teamId) || (teamId === 999 ? teacherTeam : null);
+            return t ? 'Đại diện ' + t.name : 'Đại diện Quỹ';
+        }
+
+        function randomPickStudent(teamId) {
+            const available = students.filter(s => s.team === null || s.team === teamId);
+            if (!available.length) return;
+            const chosen = available[Math.floor(Math.random() * available.length)];
+            const realIdx = students.findIndex(s => s.id === chosen.id);
+            const sel = document.getElementById('sel-' + teamId);
+            if (sel && realIdx !== -1) {
+                sel.value = realIdx;
+                sel.style.background = '#fef08a';
+                setTimeout(() => sel.style.background = '#fff', 800);
+                let t = teams.find(x => x.id === teamId);
+                toast(`🎲 ${t ? t.name : 'Quỹ'} gọi bạn: ${getStudentDisplayName(chosen)}`, 2200, t ? t.color : 'var(--blue)');
             }
         }
 
-        function applySystemPenalty(teamId) {
-            let t = teams.find(x => x.id === teamId) || teacherTeam;
-            let penaltyAmount = Math.floor(t.score * 0.1); // Tính 10% vốn
-            updateScore(teamId, -penaltyAmount);
-            togglePenaltyMenu();
-
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.5);
-            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-
-            document.getElementById('main-stage').classList.add('flash-red');
-            let penalizedBox = document.getElementById(`team-score-box-${teamId}`);
-            if (penalizedBox) penalizedBox.classList.add('penalized');
-
-            showSystemAlert(`HỆ THỐNG TRỪ ${penaltyAmount}Đ (10%) CỦA ${t.name.toUpperCase()} VÌ ỒN!`, 'var(--coral)', 'fa-triangle-exclamation');
-
-            setTimeout(() => {
-                document.getElementById('main-stage').classList.remove('flash-red');
-                if (penalizedBox) penalizedBox.classList.remove('penalized');
-            }, 1000);
-        }
-
-        /* ======== BẢNG RÓT VỐN ======== */
+        /* ================= BẢNG RÓT VỐN & ĐẦU TƯ SHARK TANK ================= */
         function renderAllBetTables() {
             for (let i = 1; i <= 11; i++) {
                 const tbody = document.getElementById(`tbody-${i}`);
@@ -1683,10 +1439,9 @@
                 let renderList = i === 1 ? [...teams, teacherTeam] : teams;
 
                 renderList.forEach(t => {
-                    let nameClass = t.isTeacher ? "team-name-cell team-teacher" : "team-name-cell";
                     tbody.innerHTML += `
                         <tr class="team-bet-row" id="row-${i}-${t.id}">
-                            <td class="${nameClass}">${t.name}</td>
+                            <td class="team-name-cell" style="color:${t.color};">${t.name}</td>
                             <td><input type="number" min="0" value="0" id="bet-${i}-${t.id}-a" onkeyup="validateBet(${i}, ${t.id})" onchange="validateBet(${i}, ${t.id})"></td>
                             <td><input type="number" min="0" value="0" id="bet-${i}-${t.id}-b" onkeyup="validateBet(${i}, ${t.id})" onchange="validateBet(${i}, ${t.id})"></td>
                             <td><input type="number" min="0" value="0" id="bet-${i}-${t.id}-c" onkeyup="validateBet(${i}, ${t.id})" onchange="validateBet(${i}, ${t.id})"></td>
@@ -1724,6 +1479,7 @@
             let bEl = document.getElementById(`bet-${tableIdx}-${teamId}-b`);
             let cEl = document.getElementById(`bet-${tableIdx}-${teamId}-c`);
             let dEl = document.getElementById(`bet-${tableIdx}-${teamId}-d`);
+            if (!aEl || !bEl || !cEl || !dEl) return;
 
             let a = parseInt(aEl.value) || 0; let b = parseInt(bEl.value) || 0;
             let c = parseInt(cEl.value) || 0; let d = parseInt(dEl.value) || 0;
@@ -1738,13 +1494,12 @@
             if (totalBet > avail) {
                 aEl.value = 0; bEl.value = 0; cEl.value = 0; dEl.value = 0;
                 document.getElementById(`rem-${tableIdx}-${teamId}`).innerText = avail;
-                showSystemAlert(`❌ Quỹ ${t.name} không đủ vốn! (Chỉ còn ${avail}đ)`, 'var(--coral)', 'fa-triangle-exclamation');
+                toast(`❌ Quỹ ${t.name} không đủ vốn! (Chỉ còn ${avail}đ)`, 2500, 'var(--coral)');
             } else {
                 document.getElementById(`rem-${tableIdx}-${teamId}`).innerText = avail - totalBet;
             }
         }
 
-        /* ======== LOGIC MỚI: TÍNH LỢI NHUẬN + COMBO + FOMO PENALTY ======== */
         function handleAction(tableIdx, containerId) {
             if (!stageState[tableIdx]) stageState[tableIdx] = 'betting';
             let renderList = tableIdx === 1 ? [...teams, teacherTeam] : teams;
@@ -1756,11 +1511,7 @@
                     let c = parseInt(document.getElementById(`bet-${tableIdx}-${t.id}-c`).value) || 0;
                     let d = parseInt(document.getElementById(`bet-${tableIdx}-${t.id}-d`).value) || 0;
                     t.bets = { A: a, B: b, C: c, D: d };
-
-                    // CHỈ TRỪ VÀ CẬP NHẬT 1 LẦN DUY NHẤT LÚC CHỐT
                     t.score -= (a + b + c + d);
-                    let remEl = document.getElementById(`rem-${tableIdx}-${t.id}`);
-                    if (remEl) remEl.innerText = t.score;
 
                     document.getElementById(`bet-${tableIdx}-${t.id}-a`).disabled = true;
                     document.getElementById(`bet-${tableIdx}-${t.id}-b`).disabled = true;
@@ -1768,13 +1519,10 @@
                     document.getElementById(`bet-${tableIdx}-${t.id}-d`).disabled = true;
                 });
 
-                // Khóa trạng thái bảng TRƯỚC KHI update scoreboard
                 stageState[tableIdx] = 'locked';
+                renderTeamsSidebar();
 
-                renderScoreboard();
-                if (document.getElementById(`rem-${tableIdx}-999`)) document.getElementById(`rem-${tableIdx}-999`).innerText = teacherTeam.score;
-
-                showSystemAlert("ĐÃ CHỐT VỐN! SẴN SÀNG LẬT KẾT QUẢ.", "var(--mint)", "fa-check");
+                toast('🔒 ĐÃ CHỐT VỐN ĐẦU TƯ! SẴN SÀNG LẬT KẾT QUẢ.', 2500, 'var(--mint)');
                 let btn = document.getElementById(`btn-action-${tableIdx}`);
                 btn.innerText = "2. LẬT MỞ KẾT QUẢ"; btn.className = "btn-reveal";
             }
@@ -1791,7 +1539,6 @@
                 renderList.forEach(t => {
                     if (t.bets) {
                         let win = (t.bets.A * multA) + (t.bets.B * multB) + (t.bets.C * multC) + (t.bets.D * multD);
-
                         let goodInvestmentsCount = 0;
                         let missedCorrectCount = 0;
                         
@@ -1810,84 +1557,331 @@
                             comboTeams.push({ name: t.name, count: goodInvestmentsCount, bonus: comboBonus });
                         }
 
-                        // 1. Cộng tiền lãi trước
                         t.score += Math.round(win); 
                         
-                        // 2. Phạt FOMO (Chi phí cơ hội) tính trên tổng tài sản sau khi nhận lãi
                         if (missedCorrectCount > 0) {
                             let fomoPenalty = Math.floor(t.score * 0.1) * missedCorrectCount; 
                             t.score -= fomoPenalty;
                             fomoTeams.push({ name: t.name, missed: missedCorrectCount });
                         }
 
+                        let totalBet = (t.bets.A || 0) + (t.bets.B || 0) + (t.bets.C || 0) + (t.bets.D || 0);
+                        let delta = Math.round(win) - totalBet - (missedCorrectCount > 0 ? (Math.floor(t.score * 0.1) * missedCorrectCount) : 0);
+                        logTimelineAction(t.name, getSelectedStudent(t.id), `Vòng đầu tư ${tableIdx}`, delta >= 0 ? `Thu lợi nhuận (+${Math.round(win)}đ)` : `Lỗ vốn (${delta}đ)`, delta, t.score);
                         t.bets = null;
-                        if (document.getElementById(`rem-${tableIdx}-${t.id}`)) document.getElementById(`rem-${tableIdx}-${t.id}`).innerText = t.score;
                     }
                 });
 
-                renderScoreboard();
+                renderTeamsSidebar();
+                playSuccessSound();
 
                 let btn = document.getElementById(`btn-action-${tableIdx}`);
                 btn.innerText = "ĐÃ HẠCH TOÁN LỢI NHUẬN"; btn.className = "btn-done"; btn.disabled = true;
                 stageState[tableIdx] = 'revealed';
 
-                // Bắn thông báo vinh danh các đội đạt Combo Đa Dạng
                 if (comboTeams.length > 0) {
                     let maxCount = Math.max(...comboTeams.map(tc => tc.count));
                     let maxBonus = comboTeams.find(tc => tc.count === maxCount).bonus;
                     let bestTeams = comboTeams.filter(tc => tc.count === maxCount).map(tc => tc.name).join(', ');
-
                     setTimeout(() => {
-                        showSystemAlert(`🔥 ĐỈNH CAO: ${bestTeams} ĐẠT COMBO ĐA DẠNG (x${maxBonus} LỢI NHUẬN)!`, '#f59e0b', 'fa-fire', 5000);
-                        renderScoreboard();
+                        toast(`🔥 ĐỈNH CAO: ${bestTeams} ĐẠT COMBO ĐA DẠNG (x${maxBonus} LỢI NHUẬN)!`, 4000, '#f59e0b');
                     }, 1000);
                 }
 
-                // Bắn thông báo cảnh báo các đội bị phạt FOMO
                 if (fomoTeams.length > 0) {
                     let fomoNames = fomoTeams.map(tc => tc.name).join(', ');
                     setTimeout(() => {
-                        showSystemAlert(`💸 CHI PHÍ CƠ HỘI: ${fomoNames} bị trừ 10% tài sản vì bỏ lỡ đáp án đúng!`, 'var(--coral)', 'fa-skull', 6000);
-                        renderScoreboard();
-                    }, comboTeams.length > 0 ? 6500 : 1000);
+                        toast(`💸 CHI PHÍ CƠ HỘI: ${fomoNames} bị trừ 10% tài sản vì bỏ lỡ đáp án đúng!`, 4000, 'var(--coral)');
+                    }, comboTeams.length > 0 ? 5500 : 1200);
                 }
             }
         }
 
-        /* ======== NAVIGATION & RANKING ======== */
-        function changeSlide(direction) {
-            document.getElementById(`slide-${currentSlide}`).classList.remove('active');
-            currentSlide += direction;
-            if (currentSlide < 0) currentSlide = 0;
-            if (currentSlide >= totalSlides) currentSlide = totalSlides - 1;
-            document.getElementById(`slide-${currentSlide}`).classList.add('active');
+        /* ================= ĐIỀU HƯỚNG SLIDE ================= */
+        function goToSlide(idx) {
+            if (idx < 0) idx = 0;
+            if (idx >= totalSlides) idx = totalSlides - 1;
+            currentSlide = idx;
 
-            document.getElementById('main-stage').scrollTo(0, 0);
-            renderScoreboard();
-            if (currentSlide === totalSlides - 1) renderRanking();
-        }
-
-        function renderRanking() {
-            let sorted = [...teams].sort((a, b) => b.score - a.score);
-            let html = '';
-            const medals = ['🥇', '🥈', '🥉', '🏅', '🏅', '🎗️'];
-            sorted.forEach((t, index) => {
-                html += `<div class="rank-row">
-                    <span class="rank-medal">${medals[index] || '🎗️'}</span>
-                    <span class="rank-name">${t.name}</span>
-                    <span class="rank-score">${t.score} ĐIỂM</span>
-                </div>`;
-            });
-            document.getElementById('ranking-board').innerHTML = html;
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.target.tagName.toLowerCase() === 'input' || e.target.isContentEditable) return;
-            if (document.getElementById('game-screen').style.display === 'flex') {
-                if (e.key === 'ArrowRight' || e.key === 'PageDown') changeSlide(1);
-                else if (e.key === 'ArrowLeft' || e.key === 'PageUp') changeSlide(-1);
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active', 'on'));
+            const target = document.getElementById(`slide-${currentSlide}`);
+            if (target) {
+                target.classList.add('active', 'on');
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
+
+            renderTeamsSidebar();
+            if (currentSlide === totalSlides - 1) {
+                renderRankings();
+            }
+        }
+
+        function goSlide(delta) {
+            goToSlide(currentSlide + delta);
+        }
+
+        window.addEventListener('keydown', e => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+            if (e.key === 'ArrowRight' || e.key === 'PageDown') goSlide(1);
+            if (e.key === 'ArrowLeft' || e.key === 'PageUp') goSlide(-1);
         });
+
+        /* ================= BẢNG VÀNG VINH DANH ================= */
+        function renderRankings() {
+            const box = document.getElementById('rankings-box');
+            if (!box) return;
+
+            const sorted = [...teams].sort((a, b) => b.score - a.score);
+            let currentR = 0;
+            const medals = ['🥇', '🥈', '🥉', '🌟', '🎖️', '🎗️'];
+            const titles = ['QUÁN QUÂN', 'Á QUÂN', 'HẠNG BA', 'KHUYẾN KHÍCH', 'NỖ LỰC', 'GẮN KẾT'];
+
+            box.innerHTML = sorted.map((t, idx, arr) => {
+                if (idx > 0 && t.score === arr[idx - 1].score) {} else { currentR = idx; }
+                const isShared = arr.filter(item => item.score === t.score).length > 1;
+                const medal = medals[currentR] || '🎗️';
+                const tName = titles[currentR] || 'KHUYẾN KHÍCH';
+                const badgeTitle = isShared && currentR < 3 ? `ĐỒNG ${tName}` : tName;
+                const themeClass = `rank-${Math.min(currentR + 1, 6)}`;
+
+                return `
+                    <div class="rank-card ${themeClass}">
+                        <div class="rank-left">
+                            <span class="rank-medal">${medal}</span>
+                            <span class="rank-badge-pill">${badgeTitle}</span>
+                        </div>
+                        <div class="rank-mid">
+                            <div class="rank-team-name" style="color:${t.color};">${t.name}</div>
+                            <div class="rank-team-sub">${isShared ? '🤝 Đồng hạng điểm số' : 'Đầu tư sinh lời xuất sắc'}</div>
+                        </div>
+                        <div class="rank-right">
+                            <div class="rank-score-val">${t.score}</div>
+                            <div class="rank-score-unit">ĐIỂM</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            triggerConfetti();
+        }
+
+        /* ================= MODAL & KANBAN ================= */
+        function openAddHs() {
+            document.getElementById('hs-modal').style.display = 'flex';
+            document.getElementById('hs-input').value = '';
+            document.getElementById('hs-input').focus();
+        }
+
+        function closeAddHs() {
+            document.getElementById('hs-modal').style.display = 'none';
+        }
+
+        function saveAddHs() {
+            const text = document.getElementById('hs-input').value.trim();
+            if (!text) { closeAddHs(); return; }
+            const lines = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+            lines.forEach(name => {
+                students.push({ id: ++nextStudentId, name, team: null, actions: [] });
+            });
+            refreshStudentSelects();
+            closeAddHs();
+            toast(`✅ Đã thêm ${lines.length} học sinh mới!`, 2500, 'var(--mint)');
+        }
+
+        function openEnd() {
+            document.getElementById('end-screen').style.display = 'flex';
+            renderKanban();
+        }
+
+        function closeEnd() {
+            document.getElementById('end-screen').style.display = 'none';
+        }
+
+        function renderKanban() {
+            const kanbanContainer = document.getElementById('kanban');
+            const cols = [
+                ...teams.map(t => ({ id: t.id, name: t.name, color: t.color })),
+                { id: null, name: 'Chưa xếp Quỹ', color: '#64748b' }
+            ];
+
+            kanbanContainer.style.setProperty('--n', cols.length);
+            kanbanContainer.innerHTML = cols.map(c => {
+                const list = students.filter(s => s.team === c.id);
+                return `
+                    <div class="kan-col" style="--tc:${c.color}">
+                        <h4><span>${c.name}</span> <span>(${list.length})</span></h4>
+                        <div class="kan-drop" data-col="${c.id === null ? 'null' : c.id}">
+                            ${list.map(s => `
+                                <div class="kan-card" draggable="true" data-id="${s.id}">
+                                    <span>${escapeHtml(getStudentDisplayName(s))}</span>
+                                    <span style="font-size:11px; color:#64748b;">${s.actions ? s.actions.length : 0} 🗣️</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            kanbanContainer.querySelectorAll('.kan-card').forEach(card => {
+                card.addEventListener('dragstart', e => {
+                    e.dataTransfer.setData('text/plain', card.dataset.id);
+                    card.classList.add('drag');
+                });
+                card.addEventListener('dragend', () => card.classList.remove('drag'));
+            });
+
+            kanbanContainer.querySelectorAll('.kan-drop').forEach(drop => {
+                drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+                drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+                drop.addEventListener('drop', e => {
+                    e.preventDefault();
+                    drop.classList.remove('over');
+                    const id = parseInt(e.dataTransfer.getData('text/plain'));
+                    const targetCol = drop.dataset.col === 'null' ? null : parseInt(drop.dataset.col);
+                    const st = students.find(s => s.id === id);
+                    if (st) {
+                        st.team = targetCol;
+                        renderKanban();
+                        refreshStudentSelects();
+                    }
+                });
+            });
+        }
+
+        /* ================= XUẤT EXCEL 3 SHEET CHUẨN ================= */
+        function exportExcel() {
+            const sortedTeams = [...teams].sort((a, b) => b.score - a.score);
+            let currentR = 0;
+            const rankRows = [
+                ['BẢNG XẾP HẠNG THI ĐUA SHARK TANK IT'],
+                [`Môn: Tin học 5 · Bài 3: Tìm kiếm thông tin trong giải quyết vấn đề | Lớp: ${currentClass.replace('_', '/')}`],
+                [''],
+                ['Thứ Hạng', 'Danh Hiệu', 'Đội / Quỹ Đầu Tư', 'Tổng Điểm', 'Đồng Hạng', 'Trạng Thái']
+            ];
+            sortedTeams.forEach((t, idx, arr) => {
+                if (idx > 0 && t.score === arr[idx - 1].score) {} else { currentR = idx; }
+                const isShared = arr.filter(item => item.score === t.score).length > 1;
+                const titles = ['QUÁN QUÂN', 'Á QUÂN', 'HẠNG BA', 'KHUYẾN KHÍCH', 'NỖ LỰC', 'GẮN KẾT'];
+                const tName = titles[currentR] || 'KHUYẾN KHÍCH';
+                rankRows.push([
+                    `Hạng ${currentR + 1}`,
+                    isShared && currentR < 3 ? `ĐỒNG ${tName}` : tName,
+                    t.name,
+                    t.score,
+                    isShared ? 'Có (Đồng điểm)' : 'Không',
+                    'Đầu tư xuất sắc'
+                ]);
+            });
+            const wsRank = XLSX.utils.aoa_to_sheet(rankRows);
+            wsRank['!cols'] = [{ wch: 12 }, { wch: 22 }, { wch: 24 }, { wch: 14 }, { wch: 16 }, { wch: 20 }];
+
+            const logRows = [
+                ['NHẬT KÝ CHI TIẾT HOẠT ĐỘNG VÀ BIẾN ĐỘNG ĐIỂM SỐ THEO THỜI GIAN'],
+                [`Thời gian xuất: ${new Date().toLocaleString('vi-VN')} | Tổng số sự kiện: ${activityLogs.length}`],
+                [''],
+                ['STT', 'Thời Gian', 'Đội / Quỹ', 'Học Sinh Đại Diện', 'Nội Dung Sự Kiện / Vòng Đầu Tư', 'Kết Quả', 'Biến Động Điểm', 'Điểm Sau Sự Kiện']
+            ];
+            if (activityLogs.length === 0) {
+                logRows.push(['1', '-', 'Toàn lớp', '-', 'Trận đấu Shark Tank diễn ra tích cực', 'Hoàn thành', '0', '-']);
+            } else {
+                activityLogs.forEach(entry => {
+                    logRows.push([entry.stt, entry.time, entry.team, entry.student, entry.action, entry.result, entry.delta, entry.scoreAfter]);
+                });
+            }
+            const wsLogs = XLSX.utils.aoa_to_sheet(logRows);
+            wsLogs['!cols'] = [{ wch: 6 }, { wch: 12 }, { wch: 22 }, { wch: 24 }, { wch: 38 }, { wch: 18 }, { wch: 16 }, { wch: 18 }];
+
+            const studentRows = [
+                ['DANH SÁCH HỌC SINH VÀ LỊCH SỬ THAM GIA PHÁT BIỂU'],
+                [`Lớp: ${currentClass.replace('_', '/')} | Tổng số học sinh: ${students.length}`],
+                [''],
+                ['STT', 'Mã HS', 'Họ Và Tên', 'Lớp', 'Đội / Quỹ', 'Lịch Sử Chi Tiết']
+            ];
+            let stt = 1;
+            [...teams.map(t => t.id), null].forEach(tid => {
+                students.filter(s => s.team === tid).forEach(s => {
+                    studentRows.push([
+                        stt++,
+                        `HS${String(s.id).padStart(3, '0')}`,
+                        getStudentDisplayName(s),
+                        currentClass.replace('_', '/'),
+                        tid === null ? 'Chưa xếp Quỹ' : teams[tid].name,
+                        s.actions ? s.actions.join('; ') || 'Tham gia thảo luận' : 'Tham gia thảo luận'
+                    ]);
+                });
+            });
+            const wsStudents = XLSX.utils.aoa_to_sheet(studentRows);
+            wsStudents['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 28 }, { wch: 10 }, { wch: 18 }, { wch: 60 }];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, wsRank, 'Bảng Xếp Hạng');
+            XLSX.utils.book_append_sheet(wb, wsLogs, 'Nhật Ký Chi Tiết');
+            XLSX.utils.book_append_sheet(wb, wsStudents, 'Danh Sách Học Sinh');
+
+            const d = new Date(), pad = n => String(n).padStart(2, '0');
+            const timeStr = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
+            const cleanClass = currentClass.replace(/[^a-zA-Z0-9]/g, '_');
+            const fileName = `KetQua_TinHoc5_Tiet05_Lop${cleanClass}_${timeStr}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+            toast(`📥 Đã xuất file: ${fileName}`, 3000, 'var(--mint)');
+        }
+
+        /* ================= ÂM THANH & TIỆN ÍCH ================= */
+        function playPenaltySound() {
+            const AudioContextType = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextType) return;
+            const audio = new AudioContextType(), now = audio.currentTime;
+            const osc = audio.createOscillator(), vol = audio.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(260, now);
+            osc.frequency.exponentialRampToValueAtTime(70, now + .65);
+            vol.gain.setValueAtTime(.0001, now);
+            vol.gain.exponentialRampToValueAtTime(.28, now + .04);
+            vol.gain.setValueAtTime(.28, now + .32);
+            vol.gain.exponentialRampToValueAtTime(.0001, now + .72);
+            osc.connect(vol); vol.connect(audio.destination);
+            osc.start(now); osc.stop(now + .74);
+            osc.onended = () => audio.close();
+        }
+
+        function playSuccessSound() {
+            const AudioContextType = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextType) return;
+            const audio = new AudioContextType();
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, idx) => {
+                const osc = audio.createOscillator(), gain = audio.createGain();
+                const t = audio.currentTime + idx * 0.1;
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, t);
+                gain.gain.setValueAtTime(0.001, t);
+                gain.gain.exponentialRampToValueAtTime(0.24, t + 0.03);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+                osc.connect(gain); gain.connect(audio.destination);
+                osc.start(t); osc.stop(t + 0.34);
+            });
+            setTimeout(() => audio.close(), 1000);
+        }
+
+        let toastTimer;
+        function toast(msg, ms = 2200, bg = 'var(--mint)') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.background = bg;
+            t.style.display = 'block';
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => t.style.display = 'none', ms);
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+            }
+        }
     </script>
 </body>
 

@@ -4,267 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Điệp vụ tìm kiếm và nhận diện trang web</title>
+    <title>Điệp vụ tìm kiếm và nhận diện trang web - Tin học 5</title>
+    <!-- CSS CHUẨN DÙNG CHUNG KHỐI 5 -->
+    <link rel="stylesheet" href="../shared/style.css">
+    <!-- THƯ VIỆN ĐỌC FILE EXCEL & PHÁO HOA -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800;900&display=swap');
-
-        :root {
-            --ink: #17243c;
-            --bg: #eaf5f2;
-            --mint: #16b89a;
-            --blue: #3178f6;
-            --yellow: #ffc857;
-            --coral: #ff6c65;
-            --line: #dce5ef;
-            --shadow: 0 8px 0 rgba(23, 36, 60, .15)
-        }
-
-        * {
-            box-sizing: border-box;
-            font-family: 'Be Vietnam Pro', sans-serif;
-            user-select: none
-        }
-
-        input,
-        textarea,
-        select {
-            user-select: text;
-            font: inherit
-        }
-
-        html,
-        body {
-            margin: 0;
-            min-height: 100%;
-            background: var(--bg);
-            color: var(--ink)
-        }
-
-        button {
-            cursor: pointer;
-            border: 0;
-            transition: .1s ease;
-            font-family: inherit
-        }
-
-        button:active:not(:disabled) {
-            transform: translateY(3px);
-            box-shadow: none !important
-        }
-
-        .hidden {
-            display: none !important
-        }
-
-        /* Setup */
-        #setup-screen {
-            position: fixed;
-            inset: 0;
-            background: var(--ink);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000
-        }
-
-        .setup-box {
-            background: #fff;
-            padding: 40px;
-            border-radius: 24px;
-            text-align: center;
-            max-width: 460px;
-            width: 90%;
-            box-shadow: var(--shadow)
-        }
-
-        .setup-box h2 {
-            color: var(--blue);
-            font-size: 32px;
-            margin-top: 0
-        }
-
-        .setup-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin: 20px 0 10px;
-            font-size: 22px;
-            font-weight: 800
-        }
-
-        .setup-box select {
-            font-size: 24px;
-            font-weight: 900;
-            color: var(--coral);
-            padding: 8px 12px;
-            border: 4px solid var(--line);
-            border-radius: 15px;
-            outline: none
-        }
-
-        .btn-setup {
-            background: var(--mint);
-            color: #fff;
-            font-size: 24px;
-            font-weight: 900;
-            padding: 15px 40px;
-            border-radius: 15px;
-            box-shadow: 0 6px 0 #087d69;
-            width: 100%;
-            margin-top: 14px
-        }
-
-        /* Layout: sidebar + main */
-        #game-screen {
-            display: none;
-            min-height: 100vh
-        }
-
-        .sidebar {
-            width: 170px;
-            flex-shrink: 0;
-            background: var(--ink);
-            color: #fff;
-            padding: 10px 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            overflow-y: auto
-        }
-
-        .teams {
-            display: flex;
-            flex-direction: column;
-            gap: 8px
-        }
-
-        .team {
-            background: rgba(255, 255, 255, .08);
-            border: 3px solid var(--tc);
-            border-radius: 12px;
-            padding: 6px 8px;
-            position: relative
-        }
-
-        .team.penalty-hit {
-            animation: penalty-hit .9s ease-out
-        }
-
-        @keyframes penalty-hit {
-
-            0%,
-            100% {
-                transform: translateX(0);
-                box-shadow: 0 0 0 transparent
-            }
-
-            12%,
-            36%,
-            60% {
-                transform: translateX(-9px);
-                box-shadow: 0 0 20px #ef4444
-            }
-
-            24%,
-            48%,
-            72% {
-                transform: translateX(9px);
-                box-shadow: 0 0 20px #ef4444
-            }
-
-            86% {
-                transform: translateX(-3px);
-                box-shadow: 0 0 8px #ef4444
-            }
-        }
-
-        .trow {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 4px
-        }
-
-        .tname {
-            font-weight: 900;
-            font-size: 14px;
-            color: var(--tc);
-            filter: brightness(1.35)
-        }
-
-        .tscore {
-            font-size: 26px;
-            font-weight: 900;
-            line-height: 1.1;
-            color: var(--yellow);
-            text-align: center;
-            margin: 2px 0 4px
-        }
-
-        .team select {
-            width: 100%;
-            padding: 4px;
-            font-size: 12px;
-            border: 0;
-            border-radius: 6px;
-            font-weight: 700;
-            background: #fff;
-            color: var(--ink)
-        }
-
-        .team select.need {
-            outline: 4px solid #ef4444;
-            background: #fee2e2;
-            animation: shake .5s
-        }
-
-        .btn-penalty {
-            background: rgba(255, 255, 255, .1);
-            color: #fff;
-            border-radius: 6px;
-            padding: 2px 6px;
-            font-size: 13px
-        }
-
-        .btn-penalty:hover {
-            background: #ef4444
-        }
-
-        .spacer {
-            flex: 1
-        }
-
-        .tc-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px
-        }
-
-        .btn-tiny {
-            background: rgba(255, 255, 255, .08);
-            color: #fff;
-            padding: 10px 0;
-            border-radius: 8px;
-            font-size: 18px
-        }
-
-        .btn-tiny:hover {
-            background: rgba(255, 255, 255, .25)
-        }
-
-        .main {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            flex-direction: column
-        }
-
-        /* Thanh trên cùng: Ải + Vòng */
+        /* Tinh chỉnh bổ sung cho Ải 1 và Ải 2 Tiết 06 */
         .topbar {
             display: flex;
             align-items: center;
@@ -409,18 +156,18 @@
             position: relative;
             background: var(--yellow);
             color: var(--ink);
-            font-size: 15px;
-            font-weight: 900;
-            line-height: 1.25;
-            padding: 8px 10px;
-            border-radius: 12px;
+            font-size: 20px !important;
+            font-weight: 900 !important;
+            line-height: 1.3;
+            padding: 10px 14px !important;
+            border-radius: 14px;
             border: 3px solid var(--ink);
             box-shadow: 0 4px 0 var(--ink);
             cursor: grab;
             text-align: center;
             display: flex;
             align-items: center;
-            justify-content: center
+            justify-content: center;
         }
 
         .word.drag {
@@ -449,9 +196,21 @@
         }
 
         .graded .word {
-            cursor: default;
-            animation: reveal .5s both;
-            animation-delay: calc(var(--d)*70ms)
+            position: relative;
+            background: var(--yellow);
+            color: var(--ink);
+            font-size: 20px !important;
+            font-weight: 900 !important;
+            line-height: 1.3;
+            padding: 10px 14px !important;
+            border-radius: 14px;
+            border: 3px solid var(--ink);
+            box-shadow: 0 4px 0 var(--ink);
+            cursor: grab;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .graded .word.answer {
@@ -533,11 +292,11 @@
 
         .team-task {
             min-height: 3em;
-            font-size: 18px;
-            font-weight: 700;
-            line-height: 1.35;
-            color: #475569;
-            overflow-wrap: anywhere
+            font-size: 22px !important;
+            font-weight: 800 !important;
+            line-height: 1.4 !important;
+            color: var(--ink) !important;
+            overflow-wrap: anywhere;
         }
 
         .word.clone {
@@ -545,9 +304,10 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 14px;
-            padding: 7px 10px;
-            z-index: 1
+            font-size: 18px !important;
+            font-weight: 800 !important;
+            padding: 8px 12px !important;
+            z-index: 1;
         }
 
         .word.clone b {
@@ -1061,236 +821,326 @@
         }
 
         /* Kanban */
-        #end-screen {
-            display: none;
-            flex-direction: column;
-            min-height: 100vh
-        }
 
-        .ehead {
-            background: var(--ink);
-            padding: 14px 22px;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap
-        }
-
-        .ehead h1 {
-            margin: 0 auto 0 0;
-            color: var(--yellow);
-            font-size: 25px
-        }
-
-        .ehead button {
-            color: #fff;
-            padding: 11px 20px;
-            border-radius: 12px;
-            font-weight: 800;
-            font-size: 16px
-        }
-
-        .kanban {
-            flex: 1;
-            padding: 18px 22px;
-            display: grid;
-            gap: 14px;
-            grid-template-columns: repeat(var(--n), minmax(170px, 1fr));
-            align-items: start;
-            overflow-x: auto
-        }
-
-        .col {
-            background: #f4f7fb;
-            border: 4px solid var(--tc);
-            border-radius: 20px;
-            min-height: 340px;
-            display: flex;
-            flex-direction: column
-        }
-
-        .col h4 {
-            margin: 0;
-            padding: 12px;
-            background: var(--tc);
-            color: #fff;
-            border-radius: 12px 12px 0 0;
-            display: flex;
-            justify-content: space-between;
-            font-size: 18px
-        }
-
-        .drop {
-            flex: 1;
-            padding: 10px;
+        /* Tinh chỉnh Stage & Tabs cho Tiết 06 */
+        #stage {
+            padding: 0 !important;
             display: flex;
             flex-direction: column;
-            gap: 8px
+            overflow-y: auto;
+            height: 100vh;
         }
 
-        .drop.over {
-            background: rgba(255, 200, 87, .35)
-        }
-
-        .card {
+        .topbar {
             background: #fff;
-            border: 3px solid var(--ink);
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 4px solid var(--ink);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .tab {
+            background: #eef2f7;
+            color: var(--ink);
+            padding: 10px 18px;
             border-radius: 12px;
-            padding: 10px 12px;
             font-weight: 800;
-            cursor: grab;
-            box-shadow: 0 4px 0 var(--line)
+            font-size: 17px;
+            border: 2px solid var(--line);
+            cursor: pointer;
+            transition: .15s ease;
         }
 
-        .card.drag {
-            opacity: .4
+        .tab:hover {
+            background: #e2e8f0;
         }
 
-        @media(max-width:900px) {
-            #game-screen {
-                flex-direction: column
-            }
-
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: static;
-                flex-direction: column
-            }
-
-            .teams {
-                flex-direction: row;
-                flex-wrap: wrap
-            }
-
-            .team {
-                flex: 1 1 150px
-            }
-
-            .spacer {
-                display: none
-            }
-
-            .s-main {
-                grid-template-columns: 1fr
-            }
-
-            .trays {
-                grid-template-columns: repeat(auto-fit, minmax(210px, 1fr))
-            }
-
+        .tab.on {
+            background: var(--yellow);
+            border-color: var(--ink);
+            color: var(--ink);
+            box-shadow: 0 4px 0 var(--ink);
         }
 
-        @media(prefers-reduced-motion:reduce) {
-            * {
-                animation: none !important
-            }
+        .tab.gold {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #b45309;
+        }
+
+        .tab.gold.on {
+            background: #f59e0b;
+            border-color: var(--ink);
+            color: #fff;
+            box-shadow: 0 4px 0 var(--ink);
+        }
+
+        .panel {
+            padding: 24px;
+            flex: 1;
+        }
+
+        /* Nút popup chọn đội ở Ải 2 */
+        .modal-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 18px 0;
+        }
+
+        .modal-btn {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 900;
+            padding: 14px 10px;
+            border-radius: 14px;
+            border: 3px solid var(--ink);
+            box-shadow: 0 4px 0 var(--ink);
+            cursor: pointer;
+            transition: .1s;
+        }
+
+        .modal-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .modal-btn small {
+            font-size: 13px;
+            font-weight: 700;
+            display: block;
+            margin-top: 3px;
+        }
+
+        /* Tooltip dấu hiệu */
+        .trap.broken::after {
+            content: "✓ " attr(data-by);
+            position: absolute;
+            top: -12px;
+            right: -10px;
+            background: var(--mint);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 8px;
+            border: 2px solid var(--ink);
+            box-shadow: 0 2px 0 var(--ink);
+            z-index: 10;
+        }
+
+        .trap.missed::after {
+            content: "✗ " attr(data-by);
+            position: absolute;
+            top: -12px;
+            right: -10px;
+            background: var(--coral);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 8px;
+            border: 2px solid var(--ink);
+            box-shadow: 0 2px 0 var(--ink);
+            z-index: 10;
         }
     </style>
 </head>
 
 <body>
-
+    <!-- ================= MÀN HÌNH SETUP ĐẦU GIỜ ================= -->
     <div id="setup-screen">
         <div class="setup-box">
-            <h2>🕵️ Điệp vụ tìm kiếm và nhận diện trang web</h2>
-            <div class="setup-row">Lớp
+            <h2>🕵️ ĐIỆP VỤ TÌM KIẾM</h2>
+            <div style="font-size: 20px; font-weight: 800; color: #64748b; margin-bottom: 12px;">BÀI 3: TÌM KIẾM THÔNG
+                TIN & NHẬN DIỆN TRANG WEB</div>
+
+            <div class="setup-row">
+                <span>Chọn lớp học:</span>
                 <select id="s-class">
-                    <option>5/1</option>
-                    <option selected>5/2</option>
-                    <option>5/3</option>
-                    <option>5/4</option>
-                    <option>5/5</option>
-                    <option>5/6</option>
+                    <option value="5_1">Lớp 5/1</option>
+                    <option value="5_2" selected>Lớp 5/2</option>
+                    <option value="5_3">Lớp 5/3</option>
+                    <option value="5_4">Lớp 5/4</option>
+                    <option value="5_5">Lớp 5/5</option>
+                    <option value="5_6">Lớp 5/6</option>
                 </select>
             </div>
-            <div class="setup-row">Số đội
+
+            <div class="setup-row">
+                <span>Số lượng đội thi (Tối đa 6):</span>
                 <select id="s-teams">
-                    <option>2</option>
-                    <option>3</option>
-                    <option selected>4</option>
-                    <option>5</option>
-                    <option>6</option>
+                    <option value="2">2 Đội</option>
+                    <option value="3">3 Đội</option>
+                    <option value="4" selected>4 Đội</option>
+                    <option value="5">5 Đội</option>
+                    <option value="6">6 Đội</option>
                 </select>
             </div>
-            <button class="btn-setup" onclick="startGame()">Bắt đầu Game</button>
+
+            <div class="setup-row">
+                <span>Điểm sàn mỗi đội:</span>
+                <span
+                    style="color: var(--yellow); font-size: 26px; font-weight: 900; background: var(--ink); padding: 4px 16px; border-radius: 10px;">1000
+                    Điểm</span>
+            </div>
+
+            <div class="setup-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 18px;">Dữ liệu học sinh:</span>
+                    <button type="button" class="btn-import-excel"
+                        onclick="document.getElementById('excel-file-setup').click()">
+                        📥 Nhập file Excel (.xlsx)
+                    </button>
+                    <input type="file" id="excel-file-setup" accept=".xlsx, .xls, .csv" style="display:none;"
+                        onchange="handleExcelUpload(event, 'setup')">
+                </div>
+                <div id="setup-excel-status"
+                    style="font-size: 14px; color: var(--mint); font-weight: 700; display: none; text-align: left; line-height: 1.3;">
+                </div>
+            </div>
+
+            <button class="btn-setup" onclick="startGame()">VÀO TIẾT HỌC 🚀</button>
         </div>
     </div>
 
-    <div id="game-screen">
-        <aside class="sidebar">
+    <!-- ================= GIAO DIỆN CHÍNH ================= -->
+    <div id="app">
+        <!-- SIDEBAR CHUẨN TIẾT 07 -->
+        <aside class="side">
+            <div style="font-size: 15px; font-weight: 900; color: var(--yellow); text-align: center; padding: 2px 0;">
+                🕵️ ĐIỆP VỤ TÌM KIẾM</div>
             <div class="teams" id="teams"></div>
             <div class="spacer"></div>
             <div class="tc-buttons">
-                <button class="btn-tiny" onclick="openAddHs()" title="Thêm học sinh">➕</button>
-                <button class="btn-tiny" onclick="openEnd()" title="Tổng kết">📋</button>
+                <button class="btn-tiny" onclick="openAddHs()" title="Thêm học sinh mới">➕ Thêm HS</button>
+                <button class="btn-tiny" onclick="openEnd()" title="Tổng kết đánh giá và xuất Excel">📋 Tổng
+                    kết</button>
+            </div>
+            <div style="display: flex; gap: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <button class="btn-tiny" style="flex: 1; background: #f59e0b; color: #fff;" onclick="switchAi(3)"
+                    title="Xem Bảng vàng xếp hạng">🏆 Bảng Vàng</button>
             </div>
         </aside>
 
-        <div class="main">
+        <!-- SÂN KHẤU CHÍNH -->
+        <main class="stage" id="stage">
             <div class="topbar">
                 <button class="tab on" id="tab1" onclick="switchAi(1)">🔎 Ải 1 · Tìm kiếm thông tin</button>
                 <button class="tab" id="tab2" onclick="switchAi(2)">🕵️ Ải 2 · Nhận diện trang web</button>
-                <span class="tb-gap"></span>
+                <button class="tab gold" id="tab3" onclick="switchAi(3)">🏆 Bảng Vàng Vinh Danh</button>
+                <span class="tb-gap" style="flex: 1;"></span>
                 <div class="rounds" id="rounds"></div>
             </div>
 
-            <div class="stage">
-                <section class="panel" id="ai1">
-                    <div class="phead">
-                        <button class="btn-grade" id="a1-grade" onclick="gradeR1()">Chấm điểm vòng này</button>
-                        <button class="btn-next hidden" id="a1-next" onclick="setRound(rd[1]+1)">Vòng tiếp theo
-                            ▶</button>
-                    </div>
-                    <div class="a1-layout">
-                        <div class="trays" id="trays"></div>
-                        <div class="pool" id="word-pool"></div>
-                    </div>
-                </section>
+            <!-- PANEL ẢI 1 -->
+            <section class="panel" id="ai1">
+                <div class="phead">
+                    <button class="btn-grade" id="a1-grade" onclick="gradeR1()">Chấm điểm vòng này</button>
+                    <button class="btn-next hidden" id="a1-next" onclick="setRound(rd[1]+1)">Vòng tiếp theo ▶</button>
+                </div>
+                <div class="a1-layout">
+                    <div class="trays" id="trays"></div>
+                    <div class="pool" id="word-pool"></div>
+                </div>
+            </section>
 
-                <section class="panel hidden" id="ai2">
-                    <div class="phead">
-                        <span class="chip" id="a2-left"></span>
-                        <button class="btn-next hidden" id="a2-next" onclick="setRound(rd[2]+1)">Vòng tiếp theo
-                            ▶</button>
-                    </div>
-                    <div class="site" id="a2-site"></div>
-                </section>
+            <!-- PANEL ẢI 2 -->
+            <section class="panel hidden" id="ai2">
+                <div class="phead">
+                    <span class="chip" id="a2-left"></span>
+                    <button class="btn-next hidden" id="a2-next" onclick="setRound(rd[2]+1)">Vòng tiếp theo ▶</button>
+                </div>
+                <div class="site" id="a2-site"></div>
+            </section>
+
+            <!-- PANEL BẢNG VÀNG VINH DANH CHUẨN TIẾT 07 -->
+            <section class="panel hidden" id="ai3"
+                style="text-align: center; max-width: 960px; margin: 0 auto; width: 100%;">
+                <div class="tag"
+                    style="display: inline-block; background: var(--yellow); color: var(--ink); padding: 6px 20px; border-radius: 20px; font-weight: 900; font-size: 16px; margin-bottom: 12px; border: 2px solid var(--ink);">
+                    KẾT QUẢ THI ĐUA ĐIỆP VỤ</div>
+                <h1 style="font-size: 52px; font-weight: 900; margin: 0 0 20px; color: var(--ink);">🏆 BẢNG VÀNG VINH
+                    DANH</h1>
+                <div class="rankings-box" id="rankings-box"></div>
+                <div style="margin-top: 24px; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+                    <button
+                        style="background: var(--mint); color: #fff; font-size: 22px; font-weight: 900; padding: 14px 32px; border-radius: 14px; box-shadow: 0 6px 0 #087d69;"
+                        onclick="exportExcel()">
+                        📥 Xuất Báo Cáo Tiết Học (Excel)
+                    </button>
+                    <button
+                        style="background: var(--blue); color: #fff; font-size: 22px; font-weight: 900; padding: 14px 28px; border-radius: 14px; box-shadow: 0 6px 0 #1e50a8;"
+                        onclick="fireCelebration()">
+                        🎉 Bắn Pháo Hoa Ăn Mừng
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ================= MODAL CHỌN ĐỘI (ẢI 2) ================= -->
+    <div class="modal-overlay" id="team-modal" onclick="if(event.target===this)closeModal()">
+        <div class="modal-box">
+            <h3 style="font-size: 28px; color: var(--blue); margin-top: 0;">Đội nào phát hiện?</h3>
+            <p style="font-weight: 800; color: var(--coral); margin: 0; font-size: 18px;" id="modal-desc"></p>
+            <div class="modal-grid" id="modal-btns"></div>
+            <button class="btn-modal-cancel" style="width: 100%;" onclick="closeModal()">Hủy bỏ</button>
+        </div>
+    </div>
+
+    <!-- ================= MODAL THÊM HỌC SINH ================= -->
+    <div class="modal-overlay" id="hs-modal" onclick="if(event.target===this)closeHs()">
+        <div class="modal-box">
+            <h3 style="font-size: 28px; color: var(--blue); margin-top: 0;">➕ Thêm Học Sinh</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div style="font-weight: 600; color: #64748b; font-size: 15px;">Dán danh sách hoặc nạp từ file:</div>
+                <button type="button" class="btn-import-excel" style="font-size: 13px; padding: 6px 14px;"
+                    onclick="document.getElementById('excel-file-modal').click()">
+                    📥 Nạp từ Excel (.xlsx)
+                </button>
+                <input type="file" id="excel-file-modal" accept=".xlsx, .xls, .csv" style="display:none;"
+                    onchange="handleExcelUpload(event, 'modal')">
+            </div>
+            <textarea id="hs-text" placeholder="Nguyễn Văn A&#10;Trần Thị B&#10;Lê Văn C"></textarea>
+            <div>
+                <button class="btn-modal-ok" onclick="saveHs()">Thêm vào danh sách</button>
+                <button class="btn-modal-cancel" onclick="closeHs()">Đóng</button>
             </div>
         </div>
     </div>
 
+    <!-- ================= MÀN HÌNH TỔNG KẾT KANBAN & XUẤT EXCEL ================= -->
     <div id="end-screen">
         <div class="ehead">
-            <h1>📋 Tổng kết: kéo thả thẻ tên để sửa đội</h1>
-            <button style="background:var(--blue)" onclick="closeEnd()">← Quay lại game</button>
-            <button style="background:var(--mint)" onclick="exportExcel()">📥 Xuất Excel</button>
+            <h1>📋 Quản lý học sinh các đội (Kéo thả thẻ tên)</h1>
+            <div style="display: flex; gap: 10px;">
+                <button
+                    style="background: var(--blue); color: #fff; font-weight: 900; font-size: 18px; padding: 8px 18px; border-radius: 10px;"
+                    onclick="closeEnd()">← Quay lại</button>
+                <button
+                    style="background: #f59e0b; color: #fff; font-weight: 900; font-size: 18px; padding: 8px 18px; border-radius: 10px;"
+                    onclick="closeEnd(); switchAi(3);">🏆 Xem Bảng Vàng</button>
+                <button
+                    style="background: var(--mint); color: #fff; font-weight: 900; font-size: 18px; padding: 8px 18px; border-radius: 10px;"
+                    onclick="exportExcel()">📥 Xuất File Excel</button>
+            </div>
         </div>
         <div class="kanban" id="kanban"></div>
     </div>
 
-    <div class="modal-overlay" id="team-modal" onclick="if(event.target===this)closeModal()">
-        <div class="modal-box">
-            <h3>Đội nào phát hiện?</h3>
-            <p style="font-weight:bold;color:var(--coral);margin:0" id="modal-desc"></p>
-            <div class="modal-grid" id="modal-btns"></div>
-            <button class="btn-cancel" onclick="closeModal()">Hủy</button>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="hs-modal" onclick="if(event.target===this)closeHs()">
-        <div class="modal-box">
-            <h3>Thêm học sinh</h3>
-            <div style="font-weight:600;color:#5b6b85">Mỗi tên một dòng (hoặc cách nhau bằng dấu phẩy)</div>
-            <textarea id="hs-text" placeholder="Nguyễn Văn A&#10;Trần Thị B"></textarea>
-            <button class="btn-ok" onclick="saveHs()">Thêm</button><button class="btn-cancel"
-                onclick="closeHs()">Đóng</button>
-        </div>
-    </div>
+    <!-- TOAST THÔNG BÁO -->
     <div class="toast" id="toast"></div>
 
     <script>
-        const COLORS = ['#3178f6', '#16b89a', '#ff6c65', '#e0a100', '#8b5cf6', '#ec4899'];
+        const TEAM_COLORS = ['#3178f6', '#16b89a', '#ff6c65', '#e0a100', '#8b5cf6', '#ec4899'];
         const PTS = 100;
         const STARTING_SCORE = 1000;
         const $ = id => document.getElementById(id);
@@ -1298,18 +1148,34 @@
         const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0;[a[i], a[j]] = [a[j], a[i]] } return a };
 
         let A1_DATA = [], A2_DATA = [];
-        let cls = '', teams = [], students = [], nextStudentId = 0, a1State = [], a2State = [], ai = 1, rd = { 1: 0, 2: 0 };
+        let cls = '', teams = [], students = [], nextStudentId = 0, a1State = [], a2State = [], ai = 1, rd = { 1: 0, 2: 0, 3: 0 };
+        let activityLogs = [];
+        let currentTurnIndex = 0;
+
+        /* ---------- Dòng thời gian ghi nhận sự kiện ---------- */
+        function logTimelineAction(teamName, studentName, action, result, delta, currentScore) {
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+            activityLogs.push({
+                stt: activityLogs.length + 1,
+                time: timeStr,
+                team: teamName || 'Toàn lớp',
+                student: studentName || 'Đại diện đội',
+                action: action || 'Hoạt động học tập',
+                result: result || (delta > 0 ? 'Đúng' : (delta < 0 ? 'Phạt' : 'Hoàn thành')),
+                delta: delta > 0 ? `+${delta}` : String(delta),
+                scoreAfter: typeof currentScore !== 'undefined' ? currentScore : '-'
+            });
+        }
+
+        /* Phân biệt học sinh trùng họ tên */
         function studentDisplayName(student) {
             const matches = students.filter(s => s.name === student.name);
             return matches.length > 1 ? `${student.name} (${matches.findIndex(s => s.id === student.id) + 1})` : student.name;
         }
-        function exportFileBase(classId) {
-            const d = new Date(), pad = n => String(n).padStart(2, '0');
-            const timestamp = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
-            return `Tiet06_Lop${classId.replace('_', '-')}_${timestamp}`;
-        }
 
-        /* ---------- Dữ liệu học sinh ---------- */
+        /* Tải danh sách học sinh mặc định theo lớp từ file JSON */
         async function loadStudents(c) {
             try {
                 const r = await fetch('../../assets/data/students_5_2026_2027.json');
@@ -1321,6 +1187,94 @@
                     .map(s => typeof s === 'string' ? s : (s.name || s.hoTen || s.fullName || s.ten || '')).filter(Boolean);
             } catch { return [] }
         }
+
+        /* Xử lý nạp file Excel (.xlsx) */
+        function handleExcelUpload(event, source) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                    let nameColIndex = -1;
+                    let startRowIndex = 0;
+
+                    for (let r = 0; r < Math.min(rows.length, 10); r++) {
+                        const row = rows[r];
+                        if (!row) continue;
+                        for (let c = 0; c < row.length; c++) {
+                            const val = String(row[c] || '').toLowerCase().trim();
+                            if (val.includes('họ và tên') || val.includes('họ tên') || val === 'tên' || val === 'hoten') {
+                                nameColIndex = c;
+                                startRowIndex = r + 1;
+                                break;
+                            }
+                        }
+                        if (nameColIndex !== -1) break;
+                    }
+
+                    if (nameColIndex === -1) {
+                        for (let r = 0; r < Math.min(rows.length, 10); r++) {
+                            const row = rows[r];
+                            if (!row) continue;
+                            for (let c = 0; c < row.length; c++) {
+                                const val = String(row[c] || '').trim();
+                                if (val.split(' ').length >= 2 && !val.match(/[0-9]/)) {
+                                    nameColIndex = c;
+                                    startRowIndex = r;
+                                    break;
+                                }
+                            }
+                            if (nameColIndex !== -1) break;
+                        }
+                    }
+
+                    if (nameColIndex === -1) nameColIndex = 0;
+
+                    const extractedNames = [];
+                    for (let r = startRowIndex; r < rows.length; r++) {
+                        const row = rows[r];
+                        if (!row) continue;
+                        let val = String(row[nameColIndex] || '').trim();
+                        if (val && !val.toLowerCase().includes('họ và tên') && !val.toLowerCase().includes('danh sách') && val.length > 2) {
+                            extractedNames.push(val);
+                        }
+                    }
+
+                    if (extractedNames.length === 0) {
+                        toast('Không tìm thấy cột họ tên trong file Excel!', 3000, 'var(--coral)');
+                        return;
+                    }
+
+                    if (source === 'setup') {
+                        const statusDiv = $('setup-excel-status');
+                        statusDiv.style.display = 'block';
+                        statusDiv.innerHTML = `✅ Đã nạp <b>${extractedNames.length}</b> học sinh từ file: <i>${file.name}</i>`;
+                        window.uploadedStudentList = extractedNames;
+                        toast(`Đã nạp ${extractedNames.length} học sinh từ Excel!`, 2000, 'var(--mint)');
+                    } else if (source === 'modal') {
+                        extractedNames.forEach(name => {
+                            students.push({ id: ++nextStudentId, name, team: null, actions: [] });
+                        });
+                        refreshSelects();
+                        closeHs();
+                        toast(`Đã thêm ${extractedNames.length} học sinh từ Excel!`, 2000, 'var(--mint)');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    toast('Lỗi đọc file Excel. Vui lòng kiểm tra lại định dạng file!', 3000, 'var(--coral)');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        /* Nạp quests.json */
         async function loadQuests() {
             const response = await fetch('./quests.json');
             if (!response.ok) throw new Error(`quests.json trả về trạng thái ${response.status}`);
@@ -1329,7 +1283,6 @@
                 if (!Array.isArray(round.cases) || round.cases.length < 6 || !Array.isArray(round.distractors)) return false;
                 const answers = round.cases.flatMap(task => task.ans || []);
                 const allWords = [...answers, ...round.distractors];
-                // Đã xóa điều kiện kiểm tra new Set(...) ở cuối cùng
                 return round.cases.every(task => typeof task.ctx === 'string' && Array.isArray(task.ans) && task.ans.length >= 1 && task.ans.every(word => typeof word === 'string' && word.trim().length)) &&
                     allWords.every(word => typeof word === 'string' && word.trim().length);
             });
@@ -1345,6 +1298,8 @@
             A1_DATA = data.a1;
             A2_DATA = data.a2;
         }
+
+        /* Bắt đầu bài học */
         async function startGame() {
             try {
                 await loadQuests();
@@ -1353,12 +1308,22 @@
                 toast('Không tải được bộ nhiệm vụ. Hãy kiểm tra file quests.json rồi thử lại.', 4000, 'var(--coral)');
                 return;
             }
-            cls = $('s-class').value; const n = +$('s-teams').value;
-            let list = await loadStudents(cls);
-            if (!list.length) { toast('Chưa có file JSON, dùng danh sách tạm — bấm ➕ để nhập học sinh', 3500, 'var(--coral)'); list = ['Nguyễn Văn A', 'Trần Thị B', 'Lê Văn C', 'Phạm Thị D', 'Hoàng Văn E'] }
+            cls = $('s-class').value;
+            const n = +$('s-teams').value;
+
+            let list = window.uploadedStudentList;
+            if (!list || !list.length) {
+                list = await loadStudents(cls);
+            }
+            if (!list.length) {
+                toast('Chưa có file JSON, dùng danh sách tạm — bấm ➕ để nhập học sinh', 3500, 'var(--coral)');
+                list = ['Nguyễn Văn A', 'Trần Thị B', 'Lê Văn C', 'Phạm Thị D', 'Hoàng Văn E', 'Đỗ Gia Bảo', 'Vũ Minh Anh'];
+            }
+
             students = list.map((name, index) => ({ id: index + 1, name, team: null, actions: [] }));
             nextStudentId = students.length;
-            teams = Array.from({ length: n }, (_, i) => ({ name: `Đội ${i + 1}`, score: STARTING_SCORE, color: COLORS[i] }));
+            teams = Array.from({ length: n }, (_, i) => ({ name: `Đội ${i + 1}`, score: STARTING_SCORE, color: TEAM_COLORS[i % TEAM_COLORS.length] }));
+
             a1State = A1_DATA.map(round => {
                 const cases = shuffle(round.cases).slice(0, n);
                 return {
@@ -1374,76 +1339,211 @@
                 const correct = new Set(shuffle(chosen).slice(0, Math.max(1, Math.floor(chosen.length / 2))));
                 return { broken: {}, chosen, correct };
             });
-            $('setup-screen').classList.add('hidden'); $('game-screen').style.display = 'flex';
-            renderTeams(); switchAi(1);
+
+            $('setup-screen').classList.add('hidden');
+            $('app').style.display = 'flex';
+
+            const dateDisplay = $('currentDateDisplay');
+            const daysOfWeek = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
+            const today = new Date();
+            const dateStr = `${daysOfWeek[today.getDay()]}, ${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}`;
+            if (dateDisplay) dateDisplay.textContent = dateStr;
+
+            renderTeams();
+            switchAi(1);
         }
 
-        /* ---------- Điều hướng ---------- */
+        /* Chuyển ải hoặc xem bảng vàng */
         function switchAi(n) {
             selectedWord = null;
             ai = n;
-            $('tab1').classList.toggle('on', n === 1); $('tab2').classList.toggle('on', n === 2);
-            $('ai1').classList.toggle('hidden', n !== 1); $('ai2').classList.toggle('hidden', n !== 2);
-            n === 1 ? renderAi1() : renderAi2();
+            $('tab1').classList.toggle('on', n === 1);
+            $('tab2').classList.toggle('on', n === 2);
+            $('tab3').classList.toggle('on', n === 3);
+
+            $('ai1').classList.toggle('hidden', n !== 1);
+            $('ai2').classList.toggle('hidden', n !== 2);
+            $('ai3').classList.toggle('hidden', n !== 3);
+
+            if (n === 1) {
+                renderAi1();
+            } else if (n === 2) {
+                renderAi2();
+            } else if (n === 3) {
+                renderRankings();
+            }
         }
-        function setRound(r) { if (r < 0 || r > 4) return; selectedWord = null; rd[ai] = r; ai === 1 ? renderAi1() : renderAi2() }
+
+        function setRound(r) {
+            if (r < 0 || r > 4) return;
+            selectedWord = null;
+            rd[ai] = r;
+            ai === 1 ? renderAi1() : renderAi2();
+        }
+
         function renderRounds() {
+            if (ai === 3) {
+                $('rounds').innerHTML = '';
+                return;
+            }
             $('rounds').innerHTML = [0, 1, 2, 3, 4].map(i => {
-                // Mới (Chỉ cần tìm ra hết các vị trí correct là done):
                 const done = ai === 1 ? a1State[i].graded : [...a2State[i].correct].every(k => a2State[i].broken[k] !== undefined);
                 return `<button class="rd ${rd[ai] === i ? 'on' : ''} ${done ? 'done' : ''}" onclick="setRound(${i})">${i + 1}</button>`
             }).join('');
         }
 
-        /* ---------- Điểm, đội, phạt ồn ---------- */
+        /* Lấy tên học sinh đang chọn */
+        function getSelectedStudent(i) {
+            const sel = $('sel-' + i);
+            if (sel && sel.value !== '' && students[+sel.value]) {
+                return studentDisplayName(students[+sel.value]);
+            }
+            return 'Đại diện ' + teams[i].name;
+        }
+
+        /* Gọi ngẫu nhiên học sinh */
+        function randomPickStudent(i) {
+            const unpicked = students.map((s, idx) => ({ s, idx })).filter(item => item.s.team === null);
+            const pool = unpicked.length > 0 ? unpicked : students.map((s, idx) => ({ s, idx }));
+            if (!pool.length) return;
+            const r = pool[Math.floor(Math.random() * pool.length)];
+            const sel = $('sel-' + i);
+            if (sel) {
+                sel.value = r.idx;
+                sel.style.background = '#fef08a';
+                setTimeout(() => sel.style.background = '', 800);
+            }
+        }
+
+        /* Đặt lượt đội */
+        function setTurn(index) {
+            currentTurnIndex = index;
+            document.querySelectorAll('.team').forEach((el, idx) => {
+                el.classList.toggle('turn', idx === currentTurnIndex);
+            });
+        }
+
+        /* Render danh sách đội ở Sidebar chuẩn Tiết 07 */
         function renderTeams() {
-            $('teams').innerHTML = teams.map((t, i) => `<div class="team" id="team-${i}" style="--tc:${t.color}">
-    <div class="trow"><span class="tname">${t.name}</span>
-      <button class="btn-penalty" onclick="penalty(${i})" title="Phạt ồn -10%">🔇</button></div>
-    <div class="tscore" id="sc-${i}">${t.score}</div>
-    <select id="sel-${i}"></select></div>`).join('');
+            $('teams').innerHTML = teams.map((t, i) => `
+                <div class="team ${i === currentTurnIndex ? 'turn' : ''}" id="team-${i}" style="--tc:${t.color}" onclick="setTurn(${i})">
+                    <div class="turn-badge">👉 ĐANG TỚI LƯỢT</div>
+                    <div class="trow">
+                        <span class="tname">${t.name}</span>
+                        <button class="btn-pen" onclick="event.stopPropagation(); penalty(${i})" title="Phạt ồn -10%">🔇 Phạt</button>
+                    </div>
+                    <div class="tscore" id="sc-${i}" contenteditable="true" spellcheck="false" title="Nhấp vào để sửa điểm trực tiếp">${t.score}</div>
+                    <div class="pick-box" onclick="event.stopPropagation()">
+                        <select class="hs-select" id="sel-${i}"></select>
+                        <button class="btn-dice" type="button" onclick="randomPickStudent(${i})" title="Gọi ngẫu nhiên">🎲</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Gắn lắng nghe sửa điểm trực tiếp bằng tay
+            teams.forEach((t, i) => {
+                const scEl = $('sc-' + i);
+                if (!scEl) return;
+                scEl.addEventListener('blur', () => {
+                    const val = parseInt(scEl.textContent.trim(), 10);
+                    if (!isNaN(val)) {
+                        const old = t.score;
+                        t.score = val;
+                        scEl.textContent = val;
+                        if (old !== val) {
+                            logTimelineAction(t.name, getSelectedStudent(i), 'Giáo viên chỉnh sửa điểm trực tiếp', 'Cập nhật điểm', val - old, val);
+                        }
+                    } else {
+                        scEl.textContent = t.score;
+                    }
+                });
+                scEl.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        scEl.blur();
+                    }
+                });
+            });
+
             refreshSelects();
         }
-        function refreshSelects() { // khóa học sinh đã trả lời ở MỌI dropdown, giữ nguyên lựa chọn đang chọn dở
+
+        /* Cập nhật các dropdown học sinh */
+        function refreshSelects() {
             teams.forEach((_, i) => {
-                const s = $('sel-' + i); if (!s) return;
+                const s = $('sel-' + i);
+                if (!s) return;
                 const v = s.value;
-                s.innerHTML = '<option value="">-- Chọn học sinh --</option>' + students.map((st, k) => `<option value="${k}" ${st.team !== null ? 'disabled' : ''}>${st.team !== null ? '🔒 ' : ''}${esc(studentDisplayName(st))}</option>`).join('');
+                s.innerHTML = '<option value="">-- Chọn học sinh --</option>' + students.map((st, k) => `
+                    <option value="${k}" ${st.team !== null ? 'disabled' : ''}>${st.team !== null ? '🔒 ' : ''}${esc(studentDisplayName(st))}</option>
+                `).join('');
                 if (v !== '' && students[+v] && students[+v].team === null) s.value = v;
             });
         }
+
+        /* Cộng điểm cho đội */
         function addScore(i, pts) {
             teams[i].score += pts;
             $('sc-' + i).textContent = teams[i].score;
+            logTimelineAction(teams[i].name, getSelectedStudent(i), 'Hoàn thành thử thách', 'Cộng điểm', pts, teams[i].score);
             toast(`+${pts} điểm cho ${teams[i].name}!`, 1400, teams[i].color);
         }
-        /* Kiểm tra các đội trong danh sách đã chọn học sinh chưa; thiếu thì nhắc + tô đỏ ô chọn */
+
+        /* Kiểm tra đã chọn học sinh chưa */
         function needStudent(list) {
             const miss = list.filter(i => $('sel-' + i).value === '');
             document.querySelectorAll('.team select.need').forEach(s => s.classList.remove('need'));
             if (!miss.length) return false;
-            miss.forEach(i => { const s = $('sel-' + i); void s.offsetWidth; s.classList.add('need') });
+            miss.forEach(i => {
+                const s = $('sel-' + i);
+                if (s) {
+                    void s.offsetWidth;
+                    s.classList.add('need');
+                }
+            });
             toast('⚠️ Hãy chọn học sinh cho: ' + miss.map(i => teams[i].name).join(', '), 3000, 'var(--coral)');
             return true;
         }
-        document.addEventListener('change', e => { if (e.target.matches('.team select')) e.target.classList.remove('need') });
-        /* Ghi nhận học sinh đang chọn ở đội i vừa trả lời, rồi khóa tên em đó */
+
+        document.addEventListener('change', e => {
+            if (e.target.matches('.team select')) e.target.classList.remove('need');
+        });
+
+        /* Ghi nhận câu trả lời của học sinh */
         function recordAnswer(i, text) {
             const sel = $('sel-' + i);
-            if (sel.value === '') return toast(`${teams[i].name}: chưa chọn học sinh nên không ghi vào Excel`, 2500, 'var(--coral)');
+            if (!sel || sel.value === '') {
+                logTimelineAction(teams[i].name, 'Đại diện tổ', text, 'Hoàn thành', 0, teams[i].score);
+                return;
+            }
             const s = students[+sel.value];
-            s.team = i; s.actions.push(text);
+            s.team = i;
+            s.actions.push(text);
+            logTimelineAction(teams[i].name, studentDisplayName(s), text, 'Tham gia trả lời', 0, teams[i].score);
             sel.value = '';
             refreshSelects();
         }
+
+        /* Phạt ồn -10% */
         function penalty(i) {
             const d = Math.round(teams[i].score * 0.1);
-            teams[i].score -= d; $('sc-' + i).textContent = teams[i].score;
-            const el = $('team-' + i), f = document.createElement('div');
-            f.className = 'floatred'; f.textContent = `-${d}`; el.appendChild(f); el.classList.add('penalty-hit');
+            teams[i].score -= d;
+            $('sc-' + i).textContent = teams[i].score;
+            logTimelineAction(teams[i].name, getSelectedStudent(i), 'Bị phạt mất trật tự (-10%)', 'Phạt trừ điểm', -d, teams[i].score);
+
+            const el = $('team-' + i);
+            const f = document.createElement('div');
+            f.className = 'floatred';
+            f.textContent = `-${d}`;
+            el.appendChild(f);
+            el.classList.add('penalty-hit');
+
             playPenaltySound();
             toast(`🔊 ${teams[i].name} bị trừ ${d} điểm!`, 1800, 'var(--coral)');
-            setTimeout(() => { f.remove(); el.classList.remove('penalty-hit') }, 1000);
+            setTimeout(() => {
+                f.remove();
+                el.classList.remove('penalty-hit');
+            }, 1000);
         }
 
         function playPenaltySound() {
@@ -1458,22 +1558,37 @@
             volume.gain.exponentialRampToValueAtTime(.28, now + .04);
             volume.gain.setValueAtTime(.28, now + .32);
             volume.gain.exponentialRampToValueAtTime(.0001, now + .72);
-            oscillator.connect(volume); volume.connect(audio.destination);
-            oscillator.start(now); oscillator.stop(now + .74);
+            oscillator.connect(volume);
+            volume.connect(audio.destination);
+            oscillator.start(now);
+            oscillator.stop(now + .74);
             oscillator.onended = () => audio.close();
         }
 
-        /* ---------- Thêm học sinh ---------- */
-        function openAddHs() { $('hs-text').value = ''; $('hs-modal').style.display = 'flex'; setTimeout(() => $('hs-text').focus(), 50) }
-        function closeHs() { $('hs-modal').style.display = 'none' }
+        /* Modal thêm học sinh */
+        function openAddHs() {
+            $('hs-text').value = '';
+            $('hs-modal').style.display = 'flex';
+            setTimeout(() => $('hs-text').focus(), 50);
+        }
+        function closeHs() {
+            $('hs-modal').style.display = 'none';
+        }
         function saveHs() {
-            const names = $('hs-text').value.split(/[,\n;]/).map(s => s.trim()).filter(Boolean);
+            const names = $('hs-text').value
+                .split(/[,;\r\n]+/)
+                .map(s => s.trim())
+                .filter(Boolean);
+
             if (!names.length) return closeHs();
+
             names.forEach(name => students.push({ id: ++nextStudentId, name, team: null, actions: [] }));
-            refreshSelects(); closeHs(); toast(`Đã thêm ${names.length} học sinh`, 1500, 'var(--blue)');
+            refreshSelects();
+            closeHs();
+            toast(`Đã thêm ${names.length} học sinh`, 1500, 'var(--blue)');
         }
 
-        /* ---------- Popup chọn đội (Ải 2) ---------- */
+        /* Modal chọn đội (Ải 2) */
         let modalCb = null;
         function openModal(desc, cb, maxSignsPerTeam = null) {
             $('modal-desc').textContent = desc;
@@ -1483,131 +1598,185 @@
                 const full = maxSignsPerTeam !== null && counts[i] >= maxSignsPerTeam;
                 return `<button class="modal-btn" style="background:${t.color}" ${full ? 'disabled title="Đội đã hết lượt trong vòng này"' : ''} onclick="resolveModal(${i})">${t.name}${maxSignsPerTeam !== null ? `<br><small>${counts[i]}/${maxSignsPerTeam} lượt</small>` : ''}</button>`;
             }).join('');
-            modalCb = cb; $('team-modal').style.display = 'flex';
+            modalCb = cb;
+            $('team-modal').style.display = 'flex';
         }
-        function closeModal() { $('team-modal').style.display = 'none'; modalCb = null }
-        function resolveModal(i) { const cb = modalCb; closeModal(); if (cb) cb(i) }
+        function closeModal() {
+            $('team-modal').style.display = 'none';
+            modalCb = null;
+        }
+        function resolveModal(i) {
+            const cb = modalCb;
+            closeModal();
+            if (cb) cb(i);
+        }
 
-        /* ================= ẢI 1 ================= */
+        /* ==================== ẢI 1 ==================== */
         let drag = null, selectedWord = null;
+
         function renderAi1() {
             const r = rd[1], st = a1State[r];
-            $('ai1').classList.toggle('graded', st.graded);
             $('a1-grade').classList.toggle('hidden', st.graded);
             $('a1-next').classList.toggle('hidden', !(st.graded && r < 4));
-            $('word-pool').innerHTML = st.words.map((w, k) => {
-                const isAnswer = st.cases.some(task => task.ans.includes(w));
-                return `<div class="word ${st.graded ? (isAnswer ? 'answer' : 'dim') : ''} ${selectedWord === w ? 'selected' : ''}" style="--d:${k}" draggable="${!st.graded}" data-w="${esc(w)}" data-src="pool">${esc(w)}</div>`
+
+            $('trays').innerHTML = teams.map((t, i) => {
+                const tCase = st.cases[i];
+                const words = st.trays[i];
+                const canAdd = !st.graded && selectedWord && selectedWord.fromPool && words.length < 5;
+                const gain = st.graded && st.gain[i] ? `<span class="tray-gain">+${st.gain[i]}đ</span>` : '';
+                return `
+                    <div class="tray ${st.graded ? 'graded' : ''}" style="--tc:${t.color}" data-team="${i}" ${canAdd ? 'onclick="assignKeyword(' + i + ')" style="cursor:pointer; outline:3px dashed ' + t.color + '"' : ''}>
+                        <div class="tray-title"><span class="badge" style="background:${t.color}">${t.name}</span><span class="ctx">${esc(tCase.ctx)}</span>${gain}</div>
+                        <div class="tray-words">${words.map((w, wi) => {
+                    const isAns = st.graded && tCase.ans.includes(w);
+                    const isWr = st.graded && !tCase.ans.includes(w);
+                    return `<span class="word ${st.graded ? (isAns ? 'answer' : 'wrong') : ''}" ${st.graded ? '' : 'draggable="true" data-team="' + i + '" data-wi="' + wi + '" onclick="returnKeyword(' + i + ',' + wi + ')"'}>${esc(w)}</span>`;
+                }).join('')}</div>
+                    </div>`;
             }).join('');
-            $('trays').innerHTML = teams.map((t, i) => `<div class="tray" data-team="${i}" style="border-color:${t.color}">
-    <div class="tray-head" style="background:${t.color}"><span>${t.name}</span>${st.graded ? `<span class="gain">+${st.gain[i] || 0}</span>` : ''}</div>
-    <div class="tray-body"><div class="team-task">${esc(st.cases[i].ctx)}</div>${st.trays[i].map((w, k) => {
-                const c = st.graded ? (st.cases[i].ans.includes(w) ? 'good' : 'bad') : '';
-                return `<div class="word clone ${c}" style="--d:${k}" draggable="${!st.graded}" data-w="${esc(w)}" data-src="tray" data-team="${i}"><b>${k + 1}.</b><span>${esc(w)}</span></div>`
-            }).join('')}</div></div>`).join('');
+
+            $('word-pool').innerHTML = st.words.map((w, i) => `
+                <span class="word ${selectedWord && selectedWord.fromPool && selectedWord.index === i ? 'selected' : ''}" draggable="true" data-pool="${i}" onclick="selectPoolWord(${i})">${esc(w)}</span>
+            `).join('');
+
+            bindAi1Events();
             renderRounds();
         }
-        const ai1El = $('ai1');
-        function assignKeyword(teamIndex, word) {
+
+        function selectPoolWord(index) {
+            if (a1State[rd[1]].graded) return;
+            if (selectedWord && selectedWord.fromPool && selectedWord.index === index) {
+                selectedWord = null;
+            } else {
+                selectedWord = { fromPool: true, index };
+            }
+            renderAi1();
+        }
+
+        function assignKeyword(teamIndex) {
+            if (!selectedWord || !selectedWord.fromPool) return;
             const st = a1State[rd[1]];
-            if (st.graded) return false;
-
-            // Đã xóa giới hạn số lượng từ ở đây. Thích kéo bao nhiêu thì kéo!
-
-            const wordIndex = st.words.indexOf(word);
-            if (wordIndex < 0) return false;
-            st.words.splice(wordIndex, 1);
+            if (st.trays[teamIndex].length >= 5) {
+                toast('Mỗi đội chỉ được chọn tối đa 5 từ khóa!', 1800, 'var(--coral)');
+                return;
+            }
+            const word = st.words.splice(selectedWord.index, 1)[0];
             st.trays[teamIndex].push(word);
             selectedWord = null;
             renderAi1();
-            return true;
         }
-        function returnKeyword(teamIndex, word) {
+
+        function returnKeyword(teamIndex, wordIndex) {
             const st = a1State[rd[1]];
-            if (st.graded) return false;
-
-            if (!st.trays[teamIndex] || !st.trays[teamIndex].includes(word)) return false;
-            st.trays[teamIndex].splice(st.trays[teamIndex].indexOf(word), 1);
+            if (st.graded) return;
+            const word = st.trays[teamIndex].splice(wordIndex, 1)[0];
             st.words.push(word);
-            selectedWord = null;
             renderAi1();
-            return true;
         }
 
-        ai1El.addEventListener('click', e => {
-            const word = e.target.closest('#word-pool .word[draggable="true"]');
-            if (word) {
-                selectedWord = selectedWord === word.dataset.w ? null : word.dataset.w;
+        function bindAi1Events() {
+            const st = a1State[rd[1]];
+            if (st.graded) return;
+
+            document.querySelectorAll('#word-pool .word').forEach(el => {
+                el.addEventListener('dragstart', e => {
+                    drag = { from: 'pool', idx: +el.dataset.pool, text: el.textContent };
+                    el.classList.add('drag');
+                });
+                el.addEventListener('dragend', () => {
+                    el.classList.remove('drag');
+                    drag = null;
+                });
+            });
+
+            document.querySelectorAll('.tray-words .word').forEach(el => {
+                el.addEventListener('dragstart', e => {
+                    drag = { from: 'tray', team: +el.dataset.team, wi: +el.dataset.wi, text: el.textContent };
+                    el.classList.add('drag');
+                });
+                el.addEventListener('dragend', () => {
+                    el.classList.remove('drag');
+                    drag = null;
+                });
+            });
+
+            document.querySelectorAll('.tray').forEach(tray => {
+                tray.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    tray.classList.add('drag-over');
+                });
+                tray.addEventListener('dragleave', () => tray.classList.remove('drag-over'));
+                tray.addEventListener('drop', e => {
+                    e.preventDefault();
+                    tray.classList.remove('drag-over');
+                    if (!drag) return;
+                    const toTeam = +tray.dataset.team;
+                    if (st.trays[toTeam].length >= 5) {
+                        toast('Đội này đã nhận đủ 5 từ khóa!', 1800, 'var(--coral)');
+                        return;
+                    }
+                    if (drag.from === 'pool') {
+                        const w = st.words.splice(drag.idx, 1)[0];
+                        st.trays[toTeam].push(w);
+                    } else if (drag.from === 'tray' && drag.team !== toTeam) {
+                        const w = st.trays[drag.team].splice(drag.wi, 1)[0];
+                        st.trays[toTeam].push(w);
+                    }
+                    renderAi1();
+                });
+            });
+
+            const poolEl = $('word-pool');
+            poolEl.addEventListener('dragover', e => {
+                e.preventDefault();
+                poolEl.classList.add('drag-over');
+            });
+            poolEl.addEventListener('dragleave', () => poolEl.classList.remove('drag-over'));
+            poolEl.addEventListener('drop', e => {
+                e.preventDefault();
+                poolEl.classList.remove('drag-over');
+                if (!drag || drag.from !== 'tray') return;
+                const w = st.trays[drag.team].splice(drag.wi, 1)[0];
+                st.words.push(w);
                 renderAi1();
-                return;
-            }
-            const tray = e.target.closest('.tray');
-            if (tray && selectedWord !== null) assignKeyword(+tray.dataset.team, selectedWord);
-        });
-        ai1El.addEventListener('dragstart', e => {
-            const c = e.target.closest('.word[draggable="true"]'); if (!c) return;
-            drag = { w: c.dataset.w, src: c.dataset.src, team: +c.dataset.team };
-            c.classList.add('drag'); e.dataTransfer.setData('text/plain', drag.w); e.dataTransfer.effectAllowed = 'move';
-        });
-        ai1El.addEventListener('dragend', () => { drag = null; ai1El.querySelectorAll('.drag,.drag-over').forEach(x => x.classList.remove('drag', 'drag-over')) });
-        ai1El.addEventListener('dragover', e => {
-            if (!drag) return;
-            const z = drag.src === 'pool' ? e.target.closest('.tray') : e.target.closest('#word-pool');
-            if (!z) return;
-            e.preventDefault(); ai1El.querySelectorAll('.drag-over').forEach(x => x !== z && x.classList.remove('drag-over')); z.classList.add('drag-over');
-        });
-        ai1El.addEventListener('drop', e => {
-            if (!drag) return;
-            const z = drag.src === 'pool' ? e.target.closest('.tray') : e.target.closest('#word-pool');
-            if (!z) return;
-            e.preventDefault();
-            const d = drag;
-            drag = null;
-            if (d.src === 'pool') assignKeyword(+z.dataset.team, d.w);
-            else if (d.src === 'tray') returnKeyword(d.team, d.w);
-        });
+            });
+        }
+
         function gradeR1() {
             const r = rd[1], st = a1State[r];
             if (st.graded) return;
+
+            // Kiểm tra xem các đội đã chọn học sinh đại diện chưa
             if (needStudent(teams.map((_, i) => i))) return;
 
             teams.forEach((t, i) => {
-                const tray = st.trays[i], answers = st.cases[i].ans;
+                const tray = st.trays[i];
+                const tCase = st.cases[i];
+                let ok = 0, wrong = 0;
+                tray.forEach(w => {
+                    if (tCase.ans.includes(w)) ok++;
+                    else wrong++;
+                });
 
-                const ok = tray.filter(w => answers.includes(w)).length; // Số từ kéo ĐÚNG
-                const wrong = tray.length - ok; // Số từ kéo SAI (kéo thừa, kéo rác)
-
-                // Quy định mức điểm chuẩn là 300 điểm cho việc tìm đủ từ khóa (dù câu đó có 2, 3 hay 4 từ).
-                const BASE_SCORE = 300;
-                const scorePerWord = BASE_SCORE / answers.length; // Chia đều điểm cho số lượng từ
-
-                // Chỉ đạt Perfect (+100đ thưởng) khi: Đủ từ đúng VÀ không có từ sai nào
-                const perfect = (ok === answers.length && wrong === 0);
-
-                // Tính điểm: (Số từ đúng * điểm mỗi từ) - (từ sai * 50). Không để điểm bị âm.
-                let pts = Math.round(ok * scorePerWord) - (wrong * 50);
-                if (pts < 0) pts = 0;
-
-                // Cộng thêm 100 điểm thưởng Perfect (Sử dụng số 100 thay vì biến PTS cũ)
-                pts += (perfect ? 100 : 0);
-
+                const pts = Math.max(0, ok * PTS - wrong * 50);
                 st.gain[i] = pts;
                 if (pts > 0) addScore(i, pts);
 
-                // Cập nhật câu log xuất ra Excel cho chi tiết
-                recordAnswer(i, `Ải 1 - Vòng ${r + 1}: ${st.cases[i].ctx} Kéo ${tray.length} từ (Đúng ${ok} - Sai ${wrong}) (${tray.join(' · ')}) → +${pts}đ`);
+                recordAnswer(i, `Ải 1 - Vòng ${r + 1}: ${tCase.ctx} (Đúng ${ok} - Sai ${wrong}) [${tray.join(' · ')}] → +${pts}đ`);
             });
 
-            st.graded = true; renderAi1();
+            st.graded = true;
+            renderAi1();
+            toast('Đã chấm điểm xong Vòng ' + (r + 1) + '!', 2000, 'var(--mint)');
         }
 
-        /* ================= ẢI 2 ================= */
+        /* ==================== ẢI 2 ==================== */
         function renderAi2() {
             const r = rd[2], R = A2_DATA[r].signals, T = A2_DATA[r].theme, st = a2State[r];
-            // Chỉ đếm những dấu hiệu fake (correct) chưa bị lật
             const left = [...st.correct].filter(k => st.broken[k] === undefined).length;
-            $('a2-left').textContent = left ? `Còn ${left}/${st.correct.size} dấu hiệu lừa đảo` : 'Đã nhận diện hết! 🎉';
+            $('a2-left').textContent = left ? `Còn ${left}/${st.correct.size} dấu hiệu giả mạo / lừa đảo` : 'Đã nhận diện hết! 🎉';
             $('a2-next').classList.toggle('hidden', !(left === 0 && r < 4));
+
             const item = k => {
                 const it = R[k], c = it.type === 'url' ? 'trap-url' : 'trap-' + it.type;
                 if (!st.chosen.includes(k)) return `<div class="${c} safe">${esc(it.real)}</div>`;
@@ -1617,6 +1786,7 @@
                 }
                 return `<div class="${c} trap" onclick="triggerTrap(${r},${k})">${esc(st.correct.has(k) ? it.fake : it.real)}</div>`;
             };
+
             const group = type => R.map((signal, k) => signal.type === type ? item(k) : '').filter(Boolean).join('');
             const urlKeys = R.map((signal, k) => signal.type === 'url' ? k : -1).filter(k => k >= 0);
             const urlBar = item(urlKeys[0]);
@@ -1626,78 +1796,258 @@
                 : linkResult
                     ? `<div class="trap-link safe trap ${linkResult.correct ? 'broken' : 'missed'}" data-by="${teams[linkResult.team].name}">${esc(linkResult.correct ? linkSignal.fake : linkSignal.real)}</div>`
                     : `<div class="trap-link trap" onclick="triggerTrap(${r},${linkKey})">${esc(st.correct.has(linkKey) ? linkSignal.fake : linkSignal.real)}</div>`;
+
             $('a2-site').className = 'site th' + r;
             $('a2-site').innerHTML = `
-    <div class="fake-bar"><div class="fake-dots"><i></i><i></i><i></i></div><span class="nv">‹ › ⟳</span><div class="urlwrap">${urlBar}</div><span class="nv">⋮</span></div>
-    <div class="s-head"><div class="logo">${T.brand}</div><nav>${T.nav.map(n => `<span>${n}</span>`).join('')}</nav><div class="s-search">🔍 Tìm kiếm...</div></div>
-    <div class="s-hero"><div class="signal-row">${group('banner')}</div><div class="signal-row">${group('timer')}</div><div class="signal-row">${urlLink}</div></div>
-    <div class="s-main">
-      <div><div class="s-cards">${T.cards.map(c => `<div class="s-card"><div>${c[0]}</div><b>${c[1]}</b><span>${c[2]}</span></div>`).join('')}</div>
-      <div class="s-form">${group('text')}${group('input')}${group('btn')}</div></div>
-      <aside>${T.side.map(s => `<div class="widget">${s}</div>`).join('')}</aside>
-    </div>
-    <div class="s-foot">© 2026 ${T.brand.replace(/^\S+\s/, '')} · Điều khoản · Chính sách · Liên hệ</div>`;
+                <div class="fake-bar"><div class="fake-dots"><i></i><i></i><i></i></div><span class="nv">‹ › ⟳</span><div class="urlwrap">${urlBar}</div><span class="nv">⋮</span></div>
+                <div class="s-head"><div class="logo">${T.brand}</div><nav>${T.nav.map(n => `<span>${n}</span>`).join('')}</nav><div class="s-search">🔍 Tìm kiếm...</div></div>
+                <div class="s-hero"><div class="signal-row">${group('banner')}</div><div class="signal-row">${group('timer')}</div><div class="signal-row">${urlLink}</div></div>
+                <div class="s-main">
+                    <div>
+                        <div class="s-cards">${T.cards.map(c => `<div class="s-card"><div>${c[0]}</div><b>${c[1]}</b><span>${c[2]}</span></div>`).join('')}</div>
+                        <div class="s-form">${group('text')}${group('input')}${group('btn')}</div>
+                    </div>
+                    <aside>${T.side.map(s => `<div class="widget">${s}</div>`).join('')}</aside>
+                </div>
+                <div class="s-foot">© 2026 ${T.brand.replace(/^\S+\s/, '')} · Điều khoản bảo mật · Chính sách an toàn · Liên hệ</div>
+            `;
             renderRounds();
         }
+
         function triggerTrap(r, k) {
-            openModal('Đội nào kiểm tra dấu hiệu này?', i => {
-                if (needStudent([i])) return; // đội chưa chọn học sinh: chưa ghi điểm, bẫy vẫn còn
+            openModal('Đội nào phát hiện dấu hiệu này?', i => {
+                if (needStudent([i])) return;
                 const correct = a2State[r].correct.has(k);
                 a2State[r].broken[k] = { team: i, correct };
                 const shownText = correct ? A2_DATA[r].signals[k].fake : A2_DATA[r].signals[k].real;
                 if (correct) {
                     addScore(i, PTS);
-                    recordAnswer(i, `Ải 2 - Vòng ${r + 1}: nhận diện đúng dấu hiệu “${shownText}” → +${PTS}đ`);
+                    recordAnswer(i, `Ải 2 - Vòng ${r + 1}: nhận diện đúng dấu hiệu giả mạo “${shownText}” → +${PTS}đ`);
                 } else {
-                    recordAnswer(i, `Ải 2 - Vòng ${r + 1}: chọn nhầm dấu hiệu “${shownText}” → mất lượt`);
-                    toast(`${teams[i].name} chọn nhầm dấu hiệu — mất lượt, không được cộng điểm.`, 2500, 'var(--coral)');
+                    recordAnswer(i, `Ải 2 - Vòng ${r + 1}: chọn nhầm dấu hiệu an toàn “${shownText}” → mất lượt`);
+                    toast(`${teams[i].name} chọn nhầm dấu hiệu an toàn — mất lượt!`, 2000, 'var(--coral)');
                 }
                 renderAi2();
-            }, 2);
+            }, 3);
         }
 
-        /* ================= KANBAN & EXCEL ================= */
+        /* ==================== BẢNG VÀNG VINH DANH ==================== */
+        function renderRankings() {
+            const sortedTeams = [...teams].map((t, idx) => ({ ...t, originalIndex: idx }))
+                .sort((a, b) => b.score - a.score);
+
+            const titles = ['QUÁN QUÂN', 'Á QUÂN', 'HẠNG BA', 'KHUYẾN KHÍCH', 'CỐ GẮNG', 'GẮN KẾT'];
+
+            let html = '';
+            let currentRank = 0;
+
+            sortedTeams.forEach((team, index) => {
+                if (index > 0 && team.score < sortedTeams[index - 1].score) {
+                    currentRank = index;
+                }
+
+                const rankClass = `rank-${Math.min(currentRank + 1, 6)}`;
+                const isShared = (index > 0 && team.score === sortedTeams[index - 1].score) ||
+                    (index < sortedTeams.length - 1 && team.score === sortedTeams[index + 1].score);
+
+                let badgeTitle = titles[currentRank] || 'KHUYẾN KHÍCH';
+                if (isShared && currentRank < 3) {
+                    badgeTitle = `ĐỒNG ${badgeTitle}`;
+                }
+
+                html += `
+                    <div class="rank-card ${rankClass}">
+                        <div class="rank-left">
+                            <span class="rank-num">${currentRank + 1}</span>
+                            <span class="rank-badge-pill">${badgeTitle}</span>
+                        </div>
+                        <div class="rank-mid">
+                            <div class="rank-team-name" style="color:${team.color}">${team.name}</div>
+                            <div class="rank-team-sub">ĐIỆP VỤ TÌM KIẾM THÔNG TIN & NHẬN DIỆN WEBSITE</div>
+                        </div>
+                        <div class="rank-right">
+                            <span class="rank-score-val">${team.score}</span>
+                            <span class="rank-score-unit">ĐIỂM TỔNG</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            $('rankings-box').innerHTML = html;
+            fireCelebration();
+        }
+
+        function fireCelebration() {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+                setTimeout(() => confetti({ particleCount: 60, angle: 60, spread: 55, origin: { x: 0 } }), 250);
+                setTimeout(() => confetti({ particleCount: 60, angle: 120, spread: 55, origin: { x: 1 } }), 400);
+            }
+        }
+
+        /* ==================== KANBAN TỔNG KẾT ==================== */
         let dragKan = null;
-        function openEnd() { $('game-screen').style.display = 'none'; $('end-screen').style.display = 'flex'; renderKanban() }
-        function closeEnd() { $('end-screen').style.display = 'none'; $('game-screen').style.display = 'flex'; refreshSelects() }
+        function openEnd() {
+            $('app').style.display = 'none';
+            $('end-screen').style.display = 'flex';
+            renderKanban();
+        }
+        function closeEnd() {
+            $('end-screen').style.display = 'none';
+            $('app').style.display = 'flex';
+            refreshSelects();
+        }
         function renderKanban() {
             const cols = [...teams.map((t, i) => ({ key: i, name: t.name, color: t.color })), { key: null, name: 'Tự do', color: '#64748b' }];
-            const k = $('kanban'); k.style.setProperty('--n', cols.length);
+            const k = $('kanban');
+            k.style.setProperty('--n', cols.length);
             k.innerHTML = cols.map(c => {
                 const list = students.map((s, idx) => ({ s, idx })).filter(x => x.s.team === c.key);
-                return `<div class="col" style="--tc:${c.color}"><h4><span>${c.name}</span><span>${list.length}</span></h4>
-    <div class="drop" data-key="${c.key === null ? '' : c.key}">${list.map(x => `<div class="card" draggable="true" data-idx="${x.idx}">${esc(studentDisplayName(x.s))}</div>`).join('')}</div></div>`
+                return `
+                    <div class="col" style="--tc:${c.color}">
+                        <h4><span>${c.name}</span><span>${list.length} HS</span></h4>
+                        <div class="drop" data-key="${c.key === null ? '' : c.key}">
+                            ${list.map(x => `<div class="card" draggable="true" data-idx="${x.idx}">${esc(studentDisplayName(x.s))}</div>`).join('')}
+                        </div>
+                    </div>`;
             }).join('');
+
             k.querySelectorAll('.card').forEach(c => {
-                c.addEventListener('dragstart', e => { dragKan = +c.dataset.idx; c.classList.add('drag'); e.dataTransfer.setData('text/plain', dragKan) });
+                c.addEventListener('dragstart', e => {
+                    dragKan = +c.dataset.idx;
+                    c.classList.add('drag');
+                    e.dataTransfer.setData('text/plain', dragKan);
+                });
                 c.addEventListener('dragend', () => c.classList.remove('drag'));
             });
+
             k.querySelectorAll('.drop').forEach(d => {
                 d.addEventListener('dragover', e => { e.preventDefault(); d.classList.add('over') });
                 d.addEventListener('dragleave', () => d.classList.remove('over'));
                 d.addEventListener('drop', e => {
-                    e.preventDefault(); if (dragKan === null) return;
-                    students[dragKan].team = d.dataset.key === '' ? null : +d.dataset.key; dragKan = null; renderKanban()
+                    e.preventDefault();
+                    if (dragKan === null) return;
+                    students[dragKan].team = d.dataset.key === '' ? null : +d.dataset.key;
+                    dragKan = null;
+                    renderKanban();
                 });
             });
         }
+
+        /* ==================== XUẤT FILE EXCEL 3 SHEET CHUẨN ==================== */
         function exportExcel() {
-            const rows = [['STT', 'Mã học sinh', 'Tên Học Sinh', 'Lớp', 'Đội', 'Cách trả lời']]; let stt = 1;
-            [...teams.map((_, i) => i), null].forEach(tid => students.filter(s => s.team === tid).forEach(s =>
-                rows.push([stt++, `HS${String(s.id).padStart(3, '0')}`, studentDisplayName(s), cls, tid === null ? 'Tự do' : teams[tid].name, s.actions.join('; ') || 'Chưa ghi điểm'])));
-            const ws = XLSX.utils.aoa_to_sheet(rows); ws['!cols'] = [{ wch: 5 }, { wch: 12 }, { wch: 26 }, { wch: 8 }, { wch: 12 }, { wch: 80 }];
-            const ws2 = XLSX.utils.aoa_to_sheet([['Đội', 'Tổng điểm'], ...teams.map(t => [t.name, t.score])]); ws2['!cols'] = [{ wch: 14 }, { wch: 12 }];
+            if (typeof XLSX === 'undefined') {
+                toast('Chưa tải xong thư viện Excel, vui lòng thử lại sau 2 giây!', 2500, 'var(--coral)');
+                return;
+            }
+
+            // Sheet 1: Bảng Xếp Hạng
+            const rankRows = [
+                ['BẢNG TỔNG KẾT THI ĐUA VÀ XẾP HẠNG TIẾT HỌC'],
+                [`Lớp: ${cls} | Thời gian: ${new Date().toLocaleString('vi-VN')} | Môn: Tin học 5 - Tiết 06`],
+                [''],
+                ['Hạng', 'Danh Hiệu', 'Tên Đội / Dãy', 'Điểm Số', 'Đồng Hạng', 'Ghi Chú Đánh Giá']
+            ];
+
+            const sorted = [...teams].sort((a, b) => b.score - a.score);
+            let currentR = 0;
+            const titles = ['QUÁN QUÂN', 'Á QUÂN', 'HẠNG BA', 'KHUYẾN KHÍCH', 'NỖ LỰC', 'GẮN KẾT'];
+
+            sorted.forEach((t, i) => {
+                if (i > 0 && t.score < sorted[i - 1].score) currentR = i;
+                const isShared = (i > 0 && t.score === sorted[i - 1].score) || (i < sorted.length - 1 && t.score === sorted[i + 1].score);
+                const tName = titles[currentR] || 'KHUYẾN KHÍCH';
+                rankRows.push([
+                    `Hạng ${currentR + 1}`,
+                    isShared && currentR < 3 ? `ĐỒNG ${tName}` : tName,
+                    t.name,
+                    t.score,
+                    isShared ? 'Có (Đồng điểm)' : 'Không',
+                    'Hoàn thành xuất sắc nhiệm vụ'
+                ]);
+            });
+            const wsRank = XLSX.utils.aoa_to_sheet(rankRows);
+            wsRank['!cols'] = [{ wch: 12 }, { wch: 22 }, { wch: 18 }, { wch: 14 }, { wch: 16 }, { wch: 28 }];
+
+            // Sheet 2: Nhật Ký Chi Tiết (dòng thời gian)
+            const logRows = [
+                ['NHẬT KÝ CHI TIẾT HOẠT ĐỘNG VÀ BIẾN ĐỘNG ĐIỂM SỐ THEO THỜI GIAN'],
+                [`Thời gian xuất: ${new Date().toLocaleString('vi-VN')} | Tổng số sự kiện ghi nhận: ${activityLogs.length}`],
+                [''],
+                ['STT', 'Thời Gian', 'Đội / Dãy', 'Học Sinh Đại Diện', 'Nội Dung Sự Kiện / Thử Thách', 'Kết Quả', 'Biến Động Điểm', 'Điểm Sau Sự Kiện']
+            ];
+
+            if (activityLogs.length === 0) {
+                logRows.push(['1', '-', 'Toàn lớp', '-', 'Tiết học diễn ra tích cực', 'Hoàn thành', '0', '-']);
+            } else {
+                activityLogs.forEach(entry => {
+                    logRows.push([
+                        entry.stt,
+                        entry.time,
+                        entry.team,
+                        entry.student,
+                        entry.action,
+                        entry.result,
+                        entry.delta,
+                        entry.scoreAfter
+                    ]);
+                });
+            }
+            const wsLogs = XLSX.utils.aoa_to_sheet(logRows);
+            wsLogs['!cols'] = [{ wch: 6 }, { wch: 12 }, { wch: 18 }, { wch: 24 }, { wch: 42 }, { wch: 18 }, { wch: 16 }, { wch: 18 }];
+
+            // Sheet 3: Danh Sách Học Sinh
+            const rows = [
+                ['DANH SÁCH HỌC SINH VÀ LỊCH SỬ THAM GIA PHÁT BIỂU'],
+                [`Lớp: ${cls} | Tổng số học sinh: ${students.length}`],
+                [''],
+                ['STT', 'Mã Học Sinh', 'Tên Học Sinh', 'Lớp', 'Đội / Dãy', 'Lịch Sử Hoạt Động & Ghi Điểm']
+            ];
+            let stt = 1;
+            [...teams.map((_, i) => i), null].forEach(tid => {
+                students.filter(s => s.team === tid).forEach(s => {
+                    rows.push([
+                        stt++,
+                        `HS${String(s.id).padStart(3, '0')}`,
+                        studentDisplayName(s),
+                        cls,
+                        tid === null ? 'Tự do' : teams[tid].name,
+                        s.actions.join('; ') || 'Tham gia học tập tích cực'
+                    ]);
+                });
+            });
+            const wsStudents = XLSX.utils.aoa_to_sheet(rows);
+            wsStudents['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 28 }, { wch: 10 }, { wch: 16 }, { wch: 80 }];
+
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Chi Tiết HS'); XLSX.utils.book_append_sheet(wb, ws2, 'Điểm các đội');
-            XLSX.writeFile(wb, `${exportFileBase(cls)}.xlsx`);
+            XLSX.utils.book_append_sheet(wb, wsRank, 'Bảng Xếp Hạng');
+            XLSX.utils.book_append_sheet(wb, wsLogs, 'Nhật Ký Chi Tiết');
+            XLSX.utils.book_append_sheet(wb, wsStudents, 'Danh Sách Học Sinh');
+
+            const d = new Date(), pad = n => String(n).padStart(2, '0');
+            const timeStr = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
+            const cleanClass = cls.replace(/[^a-zA-Z0-9]/g, '_');
+            const fileName = `KetQua_TinHoc5_Tiet06_Lop${cleanClass}_${timeStr}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+            toast(`📥 Đã xuất file: ${fileName}`, 2500, 'var(--mint)');
         }
 
         let tt;
         function toast(msg, ms = 1800, bg = 'var(--mint)') {
-            const t = $('toast'); t.textContent = msg; t.style.background = bg; t.classList.add('show');
-            clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), ms);
+            const t = $('toast');
+            t.textContent = msg;
+            t.style.background = bg;
+            t.classList.add('show');
+            clearTimeout(tt);
+            tt = setTimeout(() => t.classList.remove('show'), ms);
         }
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeHs() } });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                closeModal();
+                closeHs();
+            }
+        });
     </script>
 </body>
 

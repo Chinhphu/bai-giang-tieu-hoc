@@ -2,811 +2,1667 @@
 <html lang="vi">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tin Học 5 || Bài 2 (Tiết 1)</title>
-  <link rel="stylesheet" href="../shared/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tin học 5 – Bài 2: Tìm kiếm thông tin trên website (Tiết 1)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="../shared/style.css">
+    <style>
+        /* CSS riêng cho game tương tác Tiết 03 */
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 24px;
+            width: 100%;
+            max-width: 1100px;
+            align-items: stretch;
+            margin: 15px auto;
+        }
+
+        .web-container {
+            width: 100%;
+            min-height: 480px;
+            overflow-y: auto;
+            border: 4px solid var(--ink);
+            border-radius: 18px;
+            background: #fff;
+            position: relative;
+            cursor: crosshair;
+            text-align: left;
+            box-shadow: 0 6px 0 var(--line);
+        }
+
+        .v2-container {
+            width: 100%;
+            border: 4px solid var(--ink);
+            border-radius: 18px;
+            background: #f4f7fb;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 6px 0 var(--line);
+        }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .task-box {
+            background: var(--ink);
+            color: var(--white);
+            border-radius: 18px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 3px solid var(--yellow);
+        }
+
+        .task-box h3 {
+            margin: 0 0 10px 0;
+            color: var(--yellow);
+            font-size: 20px;
+            text-transform: uppercase;
+        }
+
+        #v1-instruction {
+            font-size: 26px;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1.4;
+        }
+
+        .custom-alert {
+            background: #dff9f1;
+            border: 4px solid var(--mint);
+            color: #087d69;
+            border-radius: 14px;
+            padding: 12px;
+            font-size: 18px;
+            font-weight: 900;
+            text-align: center;
+            display: none;
+        }
+
+        .custom-alert.show {
+            display: block;
+            animation: popIn 0.3s;
+        }
+
+        .btn-nav-t3 {
+            background: var(--blue);
+            color: var(--white);
+            font-size: 17px;
+            font-weight: 900;
+            padding: 12px 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 0 #1f50b5;
+            cursor: pointer;
+        }
+
+        /* Mockup Web 1, 2, 3 */
+        .tn-header {
+            padding: 14px 18px;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tn-logo {
+            font-size: 24px;
+            font-weight: 900;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
+        .tn-search {
+            background: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .tn-nav {
+            background: #b71c1c;
+            color: #fff;
+            padding: 10px 18px;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .tn-body {
+            padding: 18px;
+        }
+
+        .tn-news-item {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px;
+            background: #fafafa;
+        }
+
+        .tn-news-title {
+            font-size: 20px;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+
+        .tn-news-desc {
+            font-size: 16px;
+            color: #475569;
+            line-height: 1.4;
+        }
+
+        /* Vòng 2 Door Grid */
+        .keyword-box {
+            font-size: 26px;
+            font-weight: 900;
+            background: #fff;
+            border: 3px solid var(--blue);
+            border-radius: 14px;
+            padding: 18px;
+            margin: 12px 0 20px;
+            text-align: center;
+            color: var(--ink);
+            width: 100%;
+        }
+
+        .door-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .door {
+            background: var(--blue);
+            color: #fff;
+            font-size: 20px;
+            font-weight: 900;
+            padding: 18px;
+            border-radius: 14px;
+            box-shadow: 0 5px 0 #1f50b5;
+            cursor: pointer;
+            transition: .15s;
+        }
+
+        .door:hover {
+            transform: translateY(-2px);
+            background: #2563eb;
+        }
+
+        /* Vòng 3 Card */
+        .v3-card-container {
+            width: 100%;
+            border: 4px solid var(--ink);
+            border-radius: 18px;
+            background: #f4f7fb;
+            padding: 26px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .v3-card {
+            font-size: 28px;
+            font-weight: 900;
+            background: #fff;
+            border: 4px solid var(--yellow);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 15px 0 24px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .v3-actions {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .v3-btn {
+            flex: 1;
+            font-size: 22px;
+            font-weight: 900;
+            padding: 18px;
+            border-radius: 14px;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .v3-btn.no {
+            background: var(--coral);
+            box-shadow: 0 6px 0 #cc4640;
+        }
+
+        .v3-btn.yes {
+            background: var(--mint);
+            box-shadow: 0 6px 0 #087d69;
+        }
+
+        /* Vòng 4 Mockup */
+        .v4-mockup {
+            border: 4px solid var(--ink);
+            border-radius: 16px;
+            background: #fff;
+            overflow: hidden;
+            text-align: left;
+        }
+
+        .v4-browser-bar {
+            background: #e2e8f0;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .v4-url {
+            background: #fff;
+            border-radius: 8px;
+            padding: 4px 12px;
+            flex: 1;
+            font-weight: 700;
+            color: #0369a1;
+            font-size: 15px;
+        }
+
+        .v4-header {
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .v4-menu {
+            background: #0284c7;
+            color: #fff;
+            padding: 8px 16px;
+            font-weight: 800;
+            font-size: 15px;
+        }
+
+        .hotspot {
+            cursor: pointer;
+            transition: .15s;
+        }
+
+        .hotspot:hover {
+            outline: 3px dashed var(--yellow);
+        }
+
+        .mission-btn {
+            background: #1e293b;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 800;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            text-align: left;
+            transition: .15s;
+            border: 2px solid transparent;
+        }
+
+        .mission-btn.active {
+            background: var(--yellow);
+            color: var(--ink);
+            border-color: #f59e0b;
+            font-weight: 900;
+        }
+
+        .mission-btn.done {
+            background: #10b981;
+            color: #fff;
+        }
+
+        /* Flash hiệu ứng sân khấu */
+        .flash-green {
+            animation: fgreen .4s;
+        }
+
+        .flash-red {
+            animation: fred .4s;
+        }
+
+        @keyframes fgreen {
+            0%, 100% { background: var(--bg); }
+            50% { background: #bbf7d0; }
+        }
+
+        @keyframes fred {
+            0%, 100% { background: var(--bg); }
+            50% { background: #fecaca; }
+        }
+    </style>
 </head>
 
 <body>
-  <div id="setup-screen">
-    <div class="setup-box">
-      <h2>⚙️ CÀI ĐẶT TRẬN ĐẤU</h2>
-      <p style="font-size: 20px; font-weight: 600;">Lớp muốn chia thành mấy dãy (đội)?</p>
-      <div class="setup-row">
-        <input type="number" id="teamCount" value="3" min="2" max="6" />
-      </div>
-      <button class="btn-setup" onclick="startGame()">TẠO ĐẤU TRƯỜNG</button>
-    </div>
-  </div>
+    <!-- TOOLTIP TO TỰ NỔI KHI HOVER VÀO QUEST -->
+    <div id="floating-quest-tooltip"></div>
 
-  <div id="game-screen">
-    <header class="topbar">
-      <!-- Thêm Nút Gọi Gacha ở đây -->
-      <div style="display: flex; gap: 15px; align-items: center;">
-        <div class="police-badge">👮 BẢNG ĐIỂM TỔNG</div>
-        <button class="nav-btn" style="background: var(--coral); box-shadow: 0 4px 0 #cc4640; font-size: 18px;"
-          onclick="openGacha()">🎁 MỞ TÚI MÙ</button>
-      </div>
-      <div class="scoreboard" id="scoreboard-container"></div>
-    </header>
-
-    <main class="stage" id="mainStage">
-      <div class="slide-nav" id="slide-nav">
-        <button class="nav-btn" type="button" onclick="prevSlide()">◀ Trước</button>
-        <button class="nav-btn" type="button" onclick="nextSlide()">Sau ▶</button>
-      </div>
-
-      <!-- ĐƯA SLIDE CHÉP BÀI LÊN ĐẦU, CHỈNH FULLSCREEN -->
-      <div class="slide fullscreen active" id="slide-0">
-        <div class="topic-name">CHÉP BÀI VÀO TẬP</div>
-        <div class="notebook">
-          <div class="date-line" style="text-align: center;"><span class="today-date">Thứ..., ngày...</span></div>
-          <div class="notebook-head" style="text-align: center;">Môn: Tin học</div>
-          <div class="notebook-head" style="text-align: center; font-size: 28px; color: var(--coral);">Bài 2: Tìm kiếm
-            thông tin trên website</div>
-          <div class="notebook-content" contenteditable="true">
-            1. <b>Website</b> là nơi cung cấp thông tin trên Internet.<br><br>
-            2. Để tìm thông tin nhanh, cần chọn đúng <b>Chủ đề</b> và dùng <b>Nút tìm kiếm</b>.<br><br>
-            3. Có thể dùng <b>USB, Email, Zalo...</b> để gửi tệp (Lưu ý: Điện thoại chỉ truyền được giọng nói, không gửi
-            được tệp).
-          </div>
-        </div>
-        <button class="btn-start" style="margin-top: 30px;" onclick="nextSlide(1)">BẮT ĐẦU TRÒ CHƠI 🎮 ➡️</button>
-      </div>
-
-      <!-- Slide 1 -->
-      <div class="slide" id="slide-1">
-        <div class="topic-name">CHỦ ĐỀ 2. MẠNG MÁY TÍNH VÀ INTERNET</div>
-        <h1>BÀI 2: TÌM KIẾM THÔNG TIN<br>TRÊN WEBSITE (Tiết 1)</h1>
-        <div class="rules-box">
-          <h3 style="color: var(--coral); text-align: center; margin-top: 0;">📜 LUẬT CHƠI CHUNG</h3>
-          <ul>
-            <li>👀 <b>Ban giám sát (2-3 bạn):</b> Ngồi trên bục, ghi tên những bạn mất trật tự. Dãy nào có tên sẽ bị trừ
-              điểm.</li>
-            <li>👆 <b>Người đại diện:</b> Từng bạn sẽ được gọi tên lên bàn giáo viên để dùng chuột vượt qua các Thử
-              thách trang web.</li>
-            <li>🧠 <b>Đồng đội (Ở dưới):</b> Nhìn màn hình và dùng tay ra hiệu gợi ý cho bạn mình. <b>Tuyệt đối không
-                nhắc bài bằng miệng!</b></li>
-            <li>🎁 <b>Thưởng điểm:</b> Trả lời đúng sẽ được bốc <b>Túi mù</b> để nhận điểm nhân phẩm!</li>
-          </ul>
-        </div>
-        <button class="btn-start" onclick="nextSlide(2)">BẮT ĐẦU CHIẾN DỊCH 🚀</button>
-      </div>
-
-      <div class="slide" id="slide-2">
-        <div class="topic-name">VÒNG 1: THỢ SĂN BIỂU TƯỢNG</div>
-        <h2>Nhiệm Vụ Vòng 1</h2>
-        <div class="rules-box">
-          <ul>
-            <li>🖥️ Trên màn hình sẽ xuất hiện một <b>trang web giả định</b>.</li>
-            <li>🎯 Cột bên phải có một <b>LỆNH MÀU CAM</b> (Ví dụ: Yêu cầu tìm Nút tìm kiếm).</li>
-            <li>👉 <b>Nhiệm vụ:</b> Bạn đại diện lên máy tính, cầm chuột và <b>click thẳng vào khu vực đó</b> trên trang
-              web để ghi điểm!</li>
-          </ul>
-        </div>
-        <button class="btn-start" style="background: var(--mint); box-shadow: 0 6px 0 #087d69;"
-          onclick="nextSlide(3)">XEM GỢI Ý ĐỂ TÌM CHO NHANH 💡</button>
-      </div>
-
-      <div class="slide" id="slide-3">
-        <div class="topic-name" style="background: var(--coral);">GỢI Ý QUAN TRỌNG VỀ GIAO DIỆN</div>
-        <div class="rules-box" style="border-color: var(--coral);">
-          <p style="font-size: 24px;">🏠 <b>Nút Trang Chủ:</b> Thường có hình <b>ngôi nhà</b> hoặc Logo web.</p>
-          <p style="font-size: 24px;">🔍 <b>Nút Tìm Kiếm:</b> Thường có hình <b>kính lúp</b> hoặc ô chữ nhật trống.</p>
-          <p style="font-size: 24px;">📋 <b>Các Chủ Đề:</b> Thường xếp thành một hàng chữ ngang ở <b>phần đầu</b>.</p>
-        </div>
-        <button class="btn-nav" onclick="goToSlide('slide-4')">VÀO THỰC HÀNH VÒNG 1 ➡️</button>
-      </div>
-
-      <div class="slide" id="slide-4" style="padding: 30px;">
-        <div class="game-layout">
-          <!-- Web 1: BÁO THIẾU NIÊN -->
-          <div class="web-container v1-web" id="web-1">
-            <div class="tn-header">
-              <div class="tn-logo target-element" data-target="home" style="color: #d32f2f;">BÁO THIẾU NIÊN</div>
-              <div class="tn-search target-element" data-target="search">🔍 Nhập từ khóa tìm kiếm...</div>
+    <!-- ================= MÀN HÌNH SETUP CHUẨN TIẾT 07 ================= -->
+    <div id="setup-screen">
+        <div class="setup-box">
+            <h2>🌐 TIN HỌC 5 · BÀI 2</h2>
+            <div style="font-size: 20px; font-weight: 800; color: #64748b; margin-bottom: 12px;">
+                TÌM KIẾM THÔNG TIN TRÊN WEBSITE (TIẾT 1)
             </div>
-            <div class="tn-nav target-element" data-target="menu" style="background: #b71c1c;">
-              <span>Chuyển động</span> • <span>Học đường</span> • <span>Giải trí</span> • <span>Cẩm nang</span>
+
+            <div class="setup-row">
+                <span>Chọn lớp học:</span>
+                <select id="s-class">
+                    <option value="5_1">Lớp 5/1</option>
+                    <option value="5_2" selected>Lớp 5/2</option>
+                    <option value="5_3">Lớp 5/3</option>
+                    <option value="5_4">Lớp 5/4</option>
+                    <option value="5_5">Lớp 5/5</option>
+                    <option value="5_6">Lớp 5/6</option>
+                </select>
             </div>
-            <div class="tn-body">
-              <div>
-                <div class="tn-news-item">
-                  <div class="tn-news-title" style="color: #111;">Trao đèn Trung thu nâng bước em tới trường</div>
-                  <div class="tn-news-desc">Những món quà Trung thu thiết thực đã được trao tới học sinh vùng sâu vùng
-                    xa...</div>
+
+            <div class="setup-row">
+                <span>Số lượng dãy/tổ:</span>
+                <select id="s-teams">
+                    <option value="2">2 Dãy</option>
+                    <option value="3" selected>3 Dãy</option>
+                    <option value="4">4 Dãy</option>
+                    <option value="5">5 Dãy</option>
+                    <option value="6">6 Dãy</option>
+                </select>
+            </div>
+
+            <div class="setup-row">
+                <span>Điểm sàn mỗi tổ:</span>
+                <span style="color: var(--yellow); font-size: 26px; font-weight: 900; background: var(--ink); padding: 4px 16px; border-radius: 10px;">1000 Điểm</span>
+            </div>
+
+            <div class="setup-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 18px;">Dữ liệu học sinh:</span>
+                    <button type="button" class="btn-import-excel" onclick="document.getElementById('excel-file-setup').click()">
+                        📥 Nhập file Excel (.xlsx)
+                    </button>
+                    <input type="file" id="excel-file-setup" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleExcelUpload(event, 'setup')">
                 </div>
-              </div>
+                <div id="setup-excel-status" style="font-size: 14px; color: var(--mint); font-weight: 700; display: none; text-align: left; line-height: 1.3;"></div>
             </div>
-          </div>
 
-          <!-- Web 2: THƯ VIỆN CỔ TÍCH -->
-          <div class="web-container v1-web" id="web-2" style="display: none;">
-            <div class="tn-header" style="background: #fdf2f8;">
-              <div class="tn-logo target-element" data-target="home" style="color: #c026d3;">🏰 THƯ VIỆN CỔ TÍCH</div>
-            </div>
-            <div class="tn-nav target-element" data-target="menu"
-              style="background: #a21caf; display: flex; justify-content: space-between;">
-              <span>Truyện Cổ Tích • Ngụ Ngôn • Thơ</span>
-              <div class="tn-search target-element" data-target="search" style="background: #fbcfe8; color: #831843;">🔍
-                Tìm truyện...</div>
-            </div>
-            <div class="tn-body" style="grid-template-columns: 1fr;">
-              <div class="tn-news-item" style="border-color: #fbcfe8;">
-                <div class="tn-news-title" style="color: #701a75;">Sự tích Cây Khế</div>
-                <div class="tn-news-desc">Ngày xửa ngày xưa, có hai anh em nhà kia cha mẹ mất sớm. Người anh tham lam...
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Web 3: KHÁM PHÁ VŨ TRỤ -->
-          <div class="web-container v1-web" id="web-3" style="display: none;">
-            <div class="tn-nav target-element" data-target="menu"
-              style="background: #0284c7; display: flex; justify-content: space-between;">
-              <div class="tn-logo target-element" data-target="home" style="background: #bae6fd; color: #0369a1;">🏠
-              </div>
-              <span>Hệ Mặt Trời | Hố Đen | Phi Hành Gia</span>
-            </div>
-            <div style="padding: 20px; background: #e0f2fe; text-align: center;">
-              <div class="tn-search target-element" data-target="search"
-                style="display: inline-block; background: #fff; border: 2px solid #0369a1; color: #0c4a6e;">
-                🔍 Tìm kiếm hành tinh...
-              </div>
-            </div>
-            <div class="tn-body" style="grid-template-columns: 1fr;">
-              <div class="tn-news-item" style="border-color: #bae6fd;">
-                <div class="tn-news-title" style="color: #0c4a6e;">Tàu thám hiểm gửi ảnh mới từ Sao Hỏa</div>
-                <div class="tn-news-desc">Bề mặt hành tinh đỏ hiện ra rõ nét trong loạt ảnh độ phân giải cao vừa được
-                  công bố...</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="side-panel">
-            <div class="task-box">
-              <h3>THỬ THÁCH</h3>
-              <div id="v1-instruction">Click chuột vào<br>NÚT TÌM KIẾM<br><span style='font-size:16px'>(Kính lúp)</span>
-              </div>
-            </div>
-            <div id="custom-alert" class="custom-alert"></div>
-
-            <div style="display: flex; gap: 10px;">
-              <button class="btn-nav" type="button" onclick="nextV1Task()"
-                style="flex: 1; padding: 10px; font-size: 16px;">ĐỔI LỆNH 🔄</button>
-              <button class="btn-nav" type="button" onclick="nextV1Web()"
-                style="flex: 1; padding: 10px; font-size: 16px; background: var(--coral); box-shadow: 0 4px 0 #cc4640;">ĐỔI
-                WEB 🌐</button>
-            </div>
-            <button class="btn-nav" style="margin-top: auto; background: var(--mint); box-shadow: 0 4px 0 #087d69;"
-              onclick="goToSlide('slide-4-summary')">CHỐT VÒNG 1 ➡️</button>
-          </div>
+            <button class="btn-setup" onclick="startGame()">VÀO TIẾT HỌC 🚀</button>
         </div>
-      </div>
-
-      <div class="slide" id="slide-4-summary">
-        <div class="topic-name" style="background: var(--mint);">GHI NHỚ VÒNG 1</div>
-        <h2>Những điểm cần nhớ</h2>
-        <div class="summary-box">
-          <p><b>1.</b> Nút <b>Trang chủ</b> thường nằm ở đầu trang hoặc có biểu tượng ngôi nhà.</p>
-          <p><b>2.</b> Nút <b>Tìm kiếm</b> thường có hình kính lúp và nằm ở góc trên hoặc đầu trang.</p>
-          <p><b>3.</b> Các <b>Chủ đề</b> website thường nằm thành dãy ngang, giúp tìm thông tin nhanh hơn.</p>
-          <p style="color: var(--coral); font-size: 18px;"><i>* Lưu ý: Mỗi trang web sẽ có cách sắp xếp 3 thành phần này
-              ở vị trí khác nhau để trang web đẹp hơn!</i></p>
-        </div>
-        <button class="btn-start" onclick="nextSlide(5)">TIẾP TỤC VÒNG 2 ➡️</button>
-      </div>
-
-      <div class="slide" id="slide-5">
-        <div class="topic-name">VÒNG 2: KẺ SĂN TIN TỐC ĐỘ</div>
-        <h2>Nhiệm Vụ Vòng 2</h2>
-        <div class="rules-box">
-          <ul>
-            <li>🏷️ Màn hình sẽ hiện ra nội dung một <b>BẢN TIN</b>.</li>
-            <li>🚪 Ở dưới có 4 nút tương ứng với 4 CHỦ ĐỀ.</li>
-            <li>👉 <b>Nhiệm vụ:</b> Bạn đại diện quan sát đồng đội giơ ngón tay (1, 2, 3, 4) và click vào Chủ đề phù hợp
-              với Bản tin đó nhất!</li>
-          </ul>
-        </div>
-        <button class="btn-start" style="background: var(--mint); box-shadow: 0 6px 0 #087d69;"
-          onclick="nextSlide(6)">XEM GỢI Ý 💡</button>
-      </div>
-
-      <div class="slide" id="slide-6">
-        <div class="topic-name" style="background: var(--coral);">GỢI Ý VÒNG 2</div>
-        <div class="rules-box" style="text-align: center; border-color: var(--coral);">
-          <p style="font-size: 24px;">Để tìm kiếm thông tin nhanh trên một trang báo, ta nên click thẳng vào <b>CHỦ ĐỀ
-              chứa thông tin đó</b> thay vì tìm lung tung.</p>
-          <p style="font-size: 24px;">Ví dụ: Muốn đọc tin đá bóng ⚽ ➡️ Chọn ngay chủ đề <b>Thể thao</b>.</p>
-        </div>
-        <button class="btn-nav" onclick="goToSlide('slide-7')">VÀO THỰC HÀNH VÒNG 2 ➡️</button>
-      </div>
-
-      <div class="slide" id="slide-7" style="padding: 30px;">
-        <div class="game-layout">
-          <div class="v2-container">
-            <div id="v2-question-number" class="question-number"
-              style="font-weight:900; color:var(--coral); margin-bottom:10px;">CÂU 1 / 6</div>
-            <div id="v2-keyword" class="keyword-box">Tin tức: Sôi nổi giải bơi lội thanh thiếu nhi toàn quốc</div>
-            <div class="door-grid">
-              <button class="door" onclick="checkV2('Chuyển động')">1. CHUYỂN ĐỘNG</button>
-              <button class="door" onclick="checkV2('Học đường')">2. HỌC ĐƯỜNG</button>
-              <button class="door" onclick="checkV2('Giải trí')">3. GIẢI TRÍ</button>
-              <button class="door" onclick="checkV2('Thể thao')">4. THỂ THAO</button>
-            </div>
-          </div>
-          <div class="side-panel">
-            <div class="task-box">
-              <h3>CÂU HỎI VÒNG 2</h3>
-              <div style="font-size: 22px; font-weight: 800; color: var(--coral);">Bản tin này thuộc<br>CHỦ ĐỀ nào?
-              </div>
-            </div>
-            <div id="custom-alert-v2" class="custom-alert"></div>
-            <button class="btn-nav" type="button" onclick="nextV2Question()">CÂU TIẾP THEO ➡️</button>
-            <button class="btn-nav" style="margin-top: auto;" onclick="goToSlide('slide-7-summary')">GHI NHỚ VÒNG 2
-              ➡️</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="slide" id="slide-7-summary">
-        <div class="topic-name" style="background: var(--mint);">GHI NHỚ VÒNG 2</div>
-        <h2>Chủ đề phân loại thông tin</h2>
-        <div class="summary-box">
-          <p><b>1.</b> Trên website, mỗi tin tức đều được xếp vào một chủ đề nhất định (Ví dụ: <b>Thể thao, Học đường,
-              Giải trí...</b>).</p>
-          <p><b>2.</b> Khi vào trang web, nếu bấm đúng vào chủ đề cần tìm thì ta sẽ tiết kiệm được rất nhiều thời gian.
-          </p>
-        </div>
-        <button class="btn-start" onclick="nextSlide(8)">TIẾP TỤC VÒNG 3 ➡️</button>
-      </div>
-
-      <div class="slide" id="slide-8">
-        <div class="topic-name">VÒNG 3: TRẠM KIỂM DỊCH TỆP</div>
-        <h2>Nhiệm Vụ Vòng 3</h2>
-        <div class="rules-box">
-          <ul>
-            <li>📦 Màn hình sẽ lần lượt đưa ra các phương tiện giao tiếp (Email, Điện thoại, Zalo...).</li>
-            <li>🧠 <b>Đồng đội ở dưới:</b> Làm ký hiệu tay chữ <b>O</b> (Nếu cách đó GỬI ĐƯỢC TỆP). Làm ký hiệu chữ
-              <b>X</b> (Nếu KHÔNG gửi được tệp).
-            </li>
-            <li>👉 <b>Người đại diện</b>: Click nút HỦY (X) hoặc DUYỆT (O) dựa theo nhóm của mình.</li>
-          </ul>
-        </div>
-        <button class="btn-start" style="background: var(--mint); box-shadow: 0 6px 0 #087d69;"
-          onclick="nextSlide(9)">XEM GỢI Ý 💡</button>
-      </div>
-
-      <div class="slide" id="slide-9">
-        <div class="topic-name" style="background: var(--coral);">GỢI Ý VÒNG 3</div>
-        <div class="rules-box" style="text-align: center; border-color: var(--coral);">
-          <p style="font-size: 24px;">TỆP ở đây là các tệp tin máy tính (như hình ảnh, văn bản Word, video clip...).</p>
-          <p style="font-size: 24px; color: var(--coral);">⚠️ Cần lưu ý: Nếu chỉ là "gọi điện thoại" hoặc "nói chuyện"
-            thì chỉ truyền được giọng nói, KHÔNG truyền được tệp!</p>
-        </div>
-        <button class="btn-nav" onclick="goToSlide('slide-10')">VÀO THỰC HÀNH VÒNG 3 ➡️</button>
-      </div>
-
-      <div class="slide" id="slide-10" style="padding: 30px;">
-        <div class="game-layout">
-          <div class="v3-card-container">
-            <div id="v3-question-number" class="question-number"
-              style="font-weight:900; color:var(--coral); margin-bottom:10px;">CÂU 1 / 6</div>
-            <div id="v3-card" class="v3-card">Sao chép dữ liệu vào USB</div>
-            <div class="v3-actions">
-              <button class="v3-btn no" onclick="checkV3(false)">❌ HỦY<br><span style="font-size: 16px;">(Không gửi tệp
-                  được)</span></button>
-              <button class="v3-btn yes" onclick="checkV3(true)">✔️ DUYỆT<br><span style="font-size: 16px;">(Gửi tệp
-                  được)</span></button>
-            </div>
-          </div>
-          <div class="side-panel">
-            <div class="task-box">
-              <h3>CÂU HỎI VÒNG 3</h3>
-              <div style="font-size: 22px; font-weight: 800; color: var(--yellow);">Cách này có truyền được<br>TỆP MÁY
-                TÍNH không?</div>
-            </div>
-            <div id="custom-alert-v3" class="custom-alert"></div>
-            <button class="btn-nav" type="button" onclick="nextV3Question()">CÂU TIẾP THEO ➡️</button>
-            <button class="btn-nav" style="margin-top: auto;" onclick="goToSlide('slide-10-summary')">GHI NHỚ VÒNG 3
-              ➡️</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="slide" id="slide-10-summary">
-        <div class="topic-name" style="background: var(--mint);">GHI NHỚ VÒNG 3</div>
-        <h2>Những cách gửi tệp</h2>
-        <div class="summary-box">
-          <p><b>1.</b> Ta có thể sao chép tệp vào USB, hoặc gửi qua mạng như Email, Zalo, Facebook, Google Drive.</p>
-          <p><b>2.</b> Gọi điện thoại hoặc nói chuyện trực tiếp chỉ truyền được âm thanh, không thể gửi tệp tin (hình
-            ảnh, văn bản).</p>
-        </div>
-        <button class="btn-start" onclick="nextSlide(11)">TIẾP TỤC VÒNG 4 ➡️</button>
-      </div>
-
-      <div class="slide" id="slide-11">
-        <div class="topic-name">VÒNG 4: MẮT THẦN WEBSITE (TRÙM CUỐI)</div>
-        <h2>Luật Chơi Của Vòng Cuối</h2>
-        <div class="rules-box">
-          <ul>
-            <li>👉 <b>Bước 1:</b> Chọn 1 nhiệm vụ (từ a đến f) ở bảng bên phải. Yêu cầu sẽ sáng lên màu vàng.</li>
-            <li>👉 <b>Bước 2:</b> Em đại diện lên bảng, tìm và <b>click chuột đúng vào khu vực đó</b> trên trang web.
-            </li>
-            <li>🔥 <b>Phần thưởng:</b> Click trúng sẽ được quyền chọn <b>Túi mù</b> để nhận điểm nhân phẩm!</li>
-          </ul>
-        </div>
-        <button class="btn-start" style="background: var(--mint); box-shadow: 0 6px 0 #087d69;"
-          onclick="nextSlide(12)">XEM GỢI Ý 💡</button>
-      </div>
-
-      <div class="slide" id="slide-12">
-        <div class="topic-name" style="background: var(--coral);">GỢI Ý</div>
-        <div class="rules-box" style="text-align: center; border-color: var(--coral);">
-          <p style="font-size: 24px;"><b>Địa chỉ website:</b> Thường bắt đầu bằng <i>http</i> hoặc <i>https</i>. Nằm ở
-            cái thanh trên cùng của trình duyệt.</p>
-          <p style="font-size: 24px;"><b>Cấu tạo một bài viết:</b> Khi bấm vào một bản tin bất kỳ, nó luôn có 3 phần:
-            <b>Tiêu đề bài viết (chữ to nhất)</b>, <b>Hình ảnh minh họa</b> và <b>Nội dung bài viết (chữ nhỏ, nhiều
-              dòng)</b>.
-          </p>
-        </div>
-        <button class="btn-nav" onclick="goToSlide('slide-13')">VÀO THỰC HÀNH VÒNG 4 ➡️</button>
-      </div>
-
-      <div class="slide" id="slide-13" style="padding: 30px;">
-        <div class="game-layout">
-          <div class="v4-mockup">
-            <div class="v4-browser-bar">
-              <div style="display:flex; gap:5px;">
-                <div style="width:12px; height:12px; border-radius:50%; background:#ff5f56;"></div>
-                <div style="width:12px; height:12px; border-radius:50%; background:#ffbd2e;"></div>
-                <div style="width:12px; height:12px; border-radius:50%; background:#27c93f;"></div>
-              </div>
-              <div class="v4-url hotspot" data-v4="url">🔒 https://hoahoctro.tienphong.vn</div>
-            </div>
-            <div class="v4-header">
-              <h1 style="margin:0; color:#d32f2f; font-size:30px; font-weight:900;">HOA HỌC TRÒ</h1>
-              <div class="v4-search hotspot" data-v4="search">🔍 Tìm kiếm bài viết...</div>
-            </div>
-            <div class="v4-menu hotspot" data-v4="menu">
-              <span>Đời sống</span> | <span>Học đường</span> | <span>Góc khám phá</span> | <span>Giải trí</span>
-            </div>
-            <div style="padding: 20px; background:#f4f7fb;">
-              <h2 class="hotspot" data-v4="title"
-                style="margin: 0 0 15px 0; color: #111; padding: 10px; background: #fff; border-radius: 8px;">
-                CÁCH BẢO VỆ MẮT KHI DÙNG MÁY TÍNH
-              </h2>
-              <div class="hotspot" data-v4="image"
-                style="height: 180px; background: #cce7ff; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: #0056b3; font-weight: bold; font-size: 20px;">
-                🖼️ (Khu vực hiển thị Hình ảnh minh họa)
-              </div>
-              <div class="hotspot" data-v4="content"
-                style="margin-top: 15px; padding: 15px; background: #fff; border-radius: 8px; color: #444; line-height: 1.6; font-size: 16px;">
-                Sử dụng máy tính trong thời gian dài có thể làm mắt mỏi. Các em nên áp dụng quy tắc 20-20-20: Cứ 20 phút
-                nhìn màn hình, hãy nhìn ra xa 20 feet (khoảng 6m) trong vòng 20 giây để mắt được thư giãn...
-              </div>
-            </div>
-          </div>
-          <div class="side-panel">
-            <div class="task-box" style="padding: 15px;">
-              <h3 style="margin-bottom: 5px; color: #fff;">BƯỚC 1: CHỌN NHIỆM VỤ</h3>
-              <p style="margin: 0 0 15px; font-size: 14px; color: var(--yellow);">Em hãy bấm chọn!</p>
-
-              <div class="mission-btn" id="btn-v4-a" onclick="activateV4Task('url', 'a')">a) Địa chỉ website nằm ở đâu?
-              </div>
-              <div class="mission-btn" id="btn-v4-b" onclick="activateV4Task('menu', 'b')">b) Nơi chứa Tên các Chủ đề?
-              </div>
-              <div class="mission-btn" id="btn-v4-c" onclick="activateV4Task('search', 'c')">c) Nút Tìm kiếm ở đâu?
-              </div>
-              <div class="mission-btn" id="btn-v4-d" onclick="activateV4Task('title', 'd')">d) Nhấp vào Tiêu đề bài viết
-              </div>
-              <div class="mission-btn" id="btn-v4-e" onclick="activateV4Task('image', 'e')">e) Nhấp vào Hình ảnh minh
-                họa</div>
-              <div class="mission-btn" id="btn-v4-f" onclick="activateV4Task('content', 'f')">f) Nhấp vào Nội dung bài
-                viết</div>
-            </div>
-            <div id="custom-alert-v4" class="custom-alert" style="padding: 10px; font-size: 16px;"></div>
-            <button class="btn-start" style="margin-top: auto;" onclick="goToSlide('slide-14')">🏆 TỔNG KẾT BÀI
-              HỌC</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="slide" id="slide-14">
-        <div class="topic-name" style="background: var(--mint);">TỔNG KẾT VÒNG 4</div>
-        <h2>Các thành phần trên Website</h2>
-        <div class="summary-box">
-          <p><b>1.</b> <b>Địa chỉ website:</b> Nằm ở thanh trên cùng của trình duyệt, ví dụ:
-            https://hoahoctro.tienphong.vn</p>
-          <p><b>2.</b> <b>Bài viết:</b> Khi click vào xem một tin tức, bài viết đó thường sẽ có Tiêu đề (chữ to), Hình
-            ảnh minh họa, và phần Nội dung chi tiết.</p>
-        </div>
-        <button class="btn-start" onclick="alert('Chúc các em học tốt!')">HOÀN THÀNH BÀI HỌC 🎉</button>
-      </div>
-
-    </main>
-  </div>
-
-  <!-- BẢNG GACHA TÚI MÙ (BỊ ẨN MẶC ĐỊNH) -->
-  <div class="gacha-overlay" id="gacha-overlay">
-    <div class="gacha-modal">
-      <h2>🎁 Bốc Túi Mù 🎁</h2>
-      <p style="font-size: 22px; font-weight: bold; color: var(--ink);">Nhân phẩm sẽ quyết định số điểm của em!</p>
-      <div class="bags-container" id="bags-container">
-        <!-- Javascript sẽ tự sinh ra túi mù ở đây -->
-      </div>
-      <button class="btn-close-gacha" onclick="closeGacha()">ĐÓNG LẠI</button>
     </div>
-  </div>
 
-  <script>
-    let soLuongDoi = 3;
-    let scores = {};
-    let currentSlide = 'slide-0';
-
-    // Cập nhật lại thứ tự slide (slide-0 là chép bài đứng đầu)
-    const slideOrder = [
-      'slide-0', 'slide-1', 'slide-2', 'slide-3', 'slide-4', 'slide-4-summary',
-      'slide-5', 'slide-6', 'slide-7', 'slide-7-summary', 'slide-8',
-      'slide-9', 'slide-10', 'slide-10-summary', 'slide-11', 'slide-12',
-      'slide-13', 'slide-14'
-    ];
-
-    // ==========================================
-    // LOGIC GACHA (TÚI MÙ) - ĐÃ BÓP RATE
-    // ==========================================
-
-    // Tạo "bể bơi" phần thưởng để set tỉ lệ (rate). 
-    // Mốc càng nhỏ xuất hiện càng nhiều -> dễ trúng. Mốc to cực hiếm.
-    const gachaPool = [
-      ...Array(10).fill("+10 ĐIỂM"), // Xuất hiện 10 lần (Tỉ lệ ra cao nhất - dễ trúng nhất)
-      ...Array(6).fill("+20 ĐIỂM"),  // Xuất hiện 6 lần
-      ...Array(3).fill("+30 ĐIỂM"),  // Xuất hiện 3 lần
-      ...Array(2).fill("+50 ĐIỂM"),  // Xuất hiện 2 lần (Hiếm)
-      "+100 ĐIỂM",                   // Xuất hiện 1 lần (Cực hiếm - Jackpot)
-      "x2 ĐIỂM"                      // Xuất hiện 1 lần (Siêu hiếm)
-    ];
-
-    function openGacha() {
-      const container = document.getElementById('bags-container');
-      container.innerHTML = ''; // Xóa túi cũ
-
-      // 4 icon khác nhau cho 4 túi
-      const bagIcons = ['🎁', '🛍️', '📦', '🎒'];
-
-      // Tạo 4 túi mù mới
-      for (let i = 0; i < 4; i++) {
-        const bag = document.createElement('div');
-        bag.className = 'blind-bag';
-        bag.innerHTML = bagIcons[i]; // Gán từng icon vào túi
-        bag.onclick = () => pickBag(bag);
-        container.appendChild(bag);
-      }
-      document.getElementById('gacha-overlay').style.display = 'flex';
-    }
-
-    function pickBag(bagElement) {
-      if (bagElement.classList.contains('opened')) return;
-
-      // Mở túi được chọn và vô hiệu hóa các túi khác
-      document.querySelectorAll('.blind-bag').forEach(b => b.classList.add('opened'));
-
-      // Quay random phần thưởng theo tỉ lệ trong gachaPool
-      const prize = gachaPool[Math.floor(Math.random() * gachaPool.length)];
-
-      // Hiển thị phần thưởng
-      bagElement.innerHTML = `<span style="font-size: 20px; font-weight: 900; text-align: center;">${prize}</span>`;
-
-      // Đổi màu: Nếu trúng giải to (+100 hoặc x2) thì cho màu cam đỏ nổi bật, còn lại màu xanh lá
-      if (prize === '+100 ĐIỂM' || prize === 'x2 ĐIỂM') {
-        bagElement.style.color = 'var(--coral)';
-        bagElement.style.borderColor = 'var(--coral)';
-      } else {
-        bagElement.style.color = '#087d69';
-        bagElement.style.borderColor = 'var(--mint)';
-      }
-    }
-
-    function closeGacha() {
-      document.getElementById('gacha-overlay').style.display = 'none';
-    }
-    // ==========================================
-
-
-    // VÒNG 1
-    const v1_tasks = [
-      { text: "NÚT TÌM KIẾM<br><span style='font-size:16px'>(Kính lúp)</span>", target: "search" },
-      { text: "NÚT TRANG CHỦ<br><span style='font-size:16px'>(Ngôi nhà / Logo)</span>", target: "home" },
-      { text: "VỊ TRÍ CHỦ ĐỀ<br><span style='font-size:16px'>(Thanh ngang)</span>", target: "menu" }
-    ];
-    let v1_currentTask = 0;
-    let v1_currentWeb = 1;
-
-    function nextV1Task() {
-      document.getElementById('custom-alert').classList.remove('show');
-      v1_currentTask = (v1_currentTask + 1) % v1_tasks.length;
-      document.getElementById('v1-instruction').innerHTML = 'Click chuột vào<br>' + v1_tasks[v1_currentTask].text;
-    }
-
-    function nextV1Web() {
-      document.getElementById('custom-alert').classList.remove('show');
-      v1_currentWeb = v1_currentWeb >= 3 ? 1 : v1_currentWeb + 1;
-      document.querySelectorAll('.v1-web').forEach(el => el.style.display = 'none');
-      document.getElementById('web-' + v1_currentWeb).style.display = 'block';
-    }
-
-    // VÒNG 2 & 3
-    const v2_questions = [
-      { text: 'Tin tức: Sôi nổi giải bơi lội thanh thiếu nhi toàn quốc', ans: 'Thể thao' },
-      { text: 'Tin tức: Lịch phát sóng phim hoạt hình Doraemon', ans: 'Giải trí' },
-      { text: 'Sự kiện: Ngày hội Trạng Nguyên nhỏ tuổi năm 2026', ans: 'Học đường' },
-      { text: 'Bản tin: Tình hình kẹt xe tại cổng trường sáng nay', ans: 'Chuyển động' },
-      { text: 'Tin tức: Đội tuyển Việt Nam giành cúp Vô địch', ans: 'Thể thao' },
-      { text: 'Sự kiện: Khai giảng năm học mới tại các trường Tiểu học', ans: 'Học đường' }
-    ];
-    let v2_current = 0;
-
-    const v3_questions = [
-      { text: 'Sao chép dữ liệu vào USB', isFile: true },
-      { text: 'Gọi điện thoại bàn cho bạn', isFile: false },
-      { text: 'Gửi qua Thư điện tử (Email)', isFile: true },
-      { text: 'Nhắn tin qua Zalo / Facebook', isFile: true },
-      { text: 'Nói chuyện trực tiếp trên lớp', isFile: false },
-      { text: 'Chia sẻ qua Google Drive', isFile: true }
-    ];
-    let v3_current = 0;
-
-    function nextV2Question() {
-      document.getElementById('custom-alert-v2').classList.remove('show');
-      v2_current = (v2_current + 1) % v2_questions.length;
-      document.getElementById('v2-keyword').textContent = v2_questions[v2_current].text;
-      document.getElementById('v2-question-number').textContent = `CÂU ${v2_current + 1} / ${v2_questions.length}`;
-    }
-
-    function nextV3Question() {
-      document.getElementById('custom-alert-v3').classList.remove('show');
-      v3_current = (v3_current + 1) % v3_questions.length;
-      document.getElementById('v3-card').textContent = v3_questions[v3_current].text;
-      document.getElementById('v3-question-number').textContent = `CÂU ${v3_current + 1} / ${v3_questions.length}`;
-    }
-
-    // Hàm tạo ngày tháng tiếng Việt chuẩn
-    function formatTodayDate() {
-      const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-      const today = new Date();
-      const dayName = days[today.getDay()];
-      const day = String(today.getDate()).padStart(2, '0');
-      const month = String(today.getMonth() + 1).padStart(2, '0');
-      const year = today.getFullYear();
-
-      const dateString = `${dayName}, ngày ${day} tháng ${month} năm ${year}`;
-
-      document.querySelectorAll('.today-date').forEach((el) => {
-        el.textContent = dateString;
-      });
-    }
-
-    function goToSlide(targetId) {
-      const id = typeof targetId === 'number' ? 'slide-' + targetId : targetId;
-      const target = document.getElementById(id);
-      if (!target) return;
-      document.querySelectorAll('.slide').forEach((slide) => slide.classList.remove('active'));
-      target.classList.add('active');
-      currentSlide = id;
-    }
-
-    function nextSlide(slideIndex) {
-      if (typeof slideIndex === 'number') {
-        goToSlide('slide-' + slideIndex);
-        return;
-      }
-      const index = slideOrder.indexOf(currentSlide);
-      if (index >= 0 && index < slideOrder.length - 1) goToSlide(slideOrder[index + 1]);
-    }
-
-    function prevSlide() {
-      const index = slideOrder.indexOf(currentSlide);
-      if (index > 0) goToSlide(slideOrder[index - 1]);
-    }
-
-    function startGame() {
-      soLuongDoi = Number.parseInt(document.getElementById('teamCount').value, 10) || 3;
-      let boardHTML = '';
-      for (let i = 1; i <= soLuongDoi; i++) {
-        scores[i] = 0;
-        boardHTML += `
-          <div class="team-score">
-            <span class="team-name">DÃY ${i}</span>
-            <div class="score-controls">
-              <button class="score-btn minus" data-team="${i}" data-delta="-10">-</button>
-              <input class="score-input" type="number" min="0" value="0" data-team="${i}" id="score-${i}" />
-              <button class="score-btn plus" data-team="${i}" data-delta="10">+</button>
+    <!-- ================= GIAO DIỆN CHÍNH (SIDEBAR TRÁI + STAGE PHẢI) ================= -->
+    <div id="app">
+        <!-- SIDEBAR CHUẨN TIẾT 07 -->
+        <aside class="side">
+            <div class="teams" id="teams"></div>
+            <button class="btn-tiny" style="background:var(--coral); font-weight:900; width:100%; border-radius:8px; margin-top:4px;" onclick="openGacha()">🎁 Mở Túi Mù</button>
+            <div class="spacer"></div>
+            <div class="tc-buttons">
+                <button class="btn-tiny" onclick="openAddHs()" title="Thêm học sinh mới">➕ Thêm HS</button>
+                <button class="btn-tiny" onclick="openEnd()" title="Tổng kết đánh giá và xuất Excel">📋 Tổng kết</button>
             </div>
-          </div>
-        `;
-      }
-      document.getElementById('scoreboard-container').innerHTML = boardHTML;
-      document.getElementById('setup-screen').style.display = 'none';
-      document.getElementById('game-screen').style.display = 'flex';
-      bindScoreControls();
-      formatTodayDate();
-      goToSlide('slide-0'); // Khởi đầu từ Slide Chép Bài
-    }
+            <div class="nav">
+                <button onclick="goSlide(-1)" title="Trang trước (Phím mũi tên trái)">◀</button>
+                <button onclick="goSlide(1)" title="Trang tiếp (Phím mũi tên phải)">▶</button>
+            </div>
+        </aside>
 
-    function bindScoreControls() {
-      document.querySelectorAll('.score-btn').forEach((button) => {
-        button.addEventListener('click', () => {
-          const team = Number(button.dataset.team);
-          const delta = Number(button.dataset.delta);
-          updateScore(team, delta);
+        <!-- SÂN KHẤU NỘI DUNG SLIDE -->
+        <main class="stage" id="stage">
+
+            <!-- SLIDE 0: TRANG BÌA -->
+            <section class="slide fs on" id="slide-0">
+                <div class="tag">Chủ đề 2 · Mạng máy tính và Internet</div>
+                <h1>BÀI 2: TÌM KIẾM THÔNG TIN<br>TRÊN WEBSITE</h1>
+                <h2 style="color: var(--mint); font-size: 44px;">Tiết 1</h2>
+                <div style="font-size: 28px; font-weight: 800; margin-top: 24px; color: var(--ink);">
+                    Sách giáo khoa Tin học 5 · Kết nối tri thức với cuộc sống
+                </div>
+            </section>
+
+            <!-- SLIDE 1: KHỞI ĐỘNG & LUẬT CHƠI -->
+            <section class="slide fs" id="slide-1">
+                <div class="tag">Khởi động · Luật chơi chung</div>
+                <h2>📜 LUẬT THI ĐUA CỦA LỚP</h2>
+                <div class="rules-box">
+                    <ul style="list-style:none; padding:0; margin:0; font-size:22px; font-weight:700; line-height:1.7;">
+                        <li>👀 <b>Ban giám sát:</b> Theo dõi các dãy, bạn nào mất trật tự bấm nút phạt ồn (-10%).</li>
+                        <li>👆 <b>Người đại diện:</b> Từng bạn được gọi ngẫu nhiên 🎲 lên máy tính vượt qua Thử thách.</li>
+                        <li>🧠 <b>Đồng đội:</b> Ra hiệu tay trợ giúp bạn mình. <b>Tuyệt đối không nhắc bài bằng miệng!</b></li>
+                        <li>🎁 <b>Phần thưởng:</b> Trả lời đúng được bốc <b>Túi Mù</b> nhận điểm may mắn!</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- SLIDE 2: CHÉP BÀI VÀO TẬP (VỞ Ô LY CHỮ TO DỄ NHÌN) -->
+            <section class="slide fs" id="slide-2">
+                <div class="tag vo">✍️ Em chép bài vào vở</div>
+                <div class="notebook vo-main">
+                    <div class="nb-header">
+                        <div class="currentDateDisplay">Thứ ..., ngày ... tháng ... năm ...</div>
+                        <div class="nb-subject">TIN HỌC</div>
+                        <div class="nb-title">Bài 2: Tìm kiếm thông tin trên website (Tiết 1)</div>
+                    </div>
+                    <div class="nb-section">Ghi nhớ cốt lõi</div>
+                    <p>• <b>Website</b> là nơi cung cấp thông tin đa dạng trên mạng Internet.</p>
+                    <p>• Để tìm nhanh thông tin, em chọn đúng <b>Chủ đề</b> hoặc dùng ô <b>Tìm kiếm</b> (Kính lúp 🔍).</p>
+                    <p>• Có thể dùng <b>USB, Email, Zalo...</b> để gửi tệp. <i>(Lưu ý: Điện thoại bàn chỉ truyền giọng nói, không gửi được tệp).</i></p>
+                </div>
+            </section>
+
+            <!-- SLIDE 3: VÒNG 1 INTRO -->
+            <section class="slide fs" id="slide-3">
+                <div class="tag game">🎯 Vòng 1 · Thợ săn biểu tượng</div>
+                <h2>NHIỆM VỤ VÒNG 1</h2>
+                <div class="rules-box">
+                    <p style="font-size:24px; font-weight:700; line-height:1.6; margin:6px 0;">
+                        🖥️ Màn hình xuất hiện một <b>trang web giả định</b>.<br>
+                        🎯 Cột bên phải có một <b>LỆNH MÀU VÀNG</b> (Ví dụ: Tìm nút Tìm kiếm 🔍, nút Trang chủ 🏠, Dãy chủ đề).<br>
+                        👉 <b>Nhiệm vụ:</b> Học sinh đại diện lên dùng chuột <b>click đúng khu vực đó</b> để ghi điểm!
+                    </p>
+                </div>
+            </section>
+
+            <!-- SLIDE 4: VÒNG 1 GỢI Ý -->
+            <section class="slide fs" id="slide-4">
+                <div class="tag" style="background:var(--coral);">💡 Gợi ý nhận diện giao diện</div>
+                <div class="rules-box" style="border-color:var(--coral); text-align:left;">
+                    <p style="font-size: 26px; line-height:1.6; margin:8px 0;">🏠 <b>Nút Trang Chủ:</b> Thường có hình <b>ngôi nhà</b> hoặc Logo của trang web.</p>
+                    <p style="font-size: 26px; line-height:1.6; margin:8px 0;">🔍 <b>Nút Tìm Kiếm:</b> Thường có hình <b>kính lúp</b> hoặc ô chữ nhật trống.</p>
+                    <p style="font-size: 26px; line-height:1.6; margin:8px 0;">📋 <b>Dãy Chủ Đề:</b> Thường xếp thành một hàng chữ ngang ở <b>phần đầu trang</b>.</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 5: VÒNG 1 THỰC HÀNH (MOCKUP WEB) -->
+            <section class="slide" id="slide-5">
+                <div class="tag game">🎮 Vòng 1 · Thực hành săn biểu tượng</div>
+                <div class="game-layout">
+                    <!-- Web 1: BÁO THIẾU NIÊN -->
+                    <div class="web-container v1-web" id="web-1">
+                        <div class="tn-header">
+                            <div class="tn-logo target-element" data-target="home" style="color: #d32f2f;">BÁO THIẾU NIÊN</div>
+                            <div class="tn-search target-element" data-target="search">🔍 Nhập từ khóa tìm kiếm...</div>
+                        </div>
+                        <div class="tn-nav target-element" data-target="menu" style="background: #b71c1c;">
+                            <span>Chuyển động</span> • <span>Học đường</span> • <span>Giải trí</span> • <span>Cẩm nang</span>
+                        </div>
+                        <div class="tn-body">
+                            <div class="tn-news-item">
+                                <div class="tn-news-title" style="color: #111;">Trao đèn Trung thu nâng bước em tới trường</div>
+                                <div class="tn-news-desc">Những món quà Trung thu ý nghĩa đã được trao tận tay các em học sinh vùng cao...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Web 2: THƯ VIỆN CỔ TÍCH -->
+                    <div class="web-container v1-web" id="web-2" style="display: none;">
+                        <div class="tn-header" style="background: #fdf2f8;">
+                            <div class="tn-logo target-element" data-target="home" style="color: #c026d3;">🏰 THƯ VIỆN CỔ TÍCH</div>
+                        </div>
+                        <div class="tn-nav target-element" data-target="menu" style="background: #a21caf; display: flex; justify-content: space-between;">
+                            <span>Truyện Cổ Tích • Ngụ Ngôn • Thơ</span>
+                            <div class="tn-search target-element" data-target="search" style="background: #fbcfe8; color: #831843;">🔍 Tìm truyện...</div>
+                        </div>
+                        <div class="tn-body">
+                            <div class="tn-news-item" style="border-color: #fbcfe8;">
+                                <div class="tn-news-title" style="color: #701a75;">Sự tích Cây Khế</div>
+                                <div class="tn-news-desc">Ngày xửa ngày xưa, có hai anh em nhà kia cha mẹ mất sớm. Người anh tham lam chiếm hết gia tài...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Web 3: KHÁM PHÁ VŨ TRỤ -->
+                    <div class="web-container v1-web" id="web-3" style="display: none;">
+                        <div class="tn-nav target-element" data-target="menu" style="background: #0284c7; display: flex; justify-content: space-between;">
+                            <div class="tn-logo target-element" data-target="home" style="background: #bae6fd; color: #0369a1; border-radius:6px; padding:2px 8px;">🏠 Trang Chủ</div>
+                            <span>Hệ Mặt Trời | Hố Đen | Phi Hành Gia</span>
+                        </div>
+                        <div style="padding: 16px; background: #e0f2fe; text-align: center;">
+                            <div class="tn-search target-element" data-target="search" style="display: inline-block; background: #fff; border: 2px solid #0369a1; color: #0c4a6e;">
+                                🔍 Tìm kiếm hành tinh...
+                            </div>
+                        </div>
+                        <div class="tn-body">
+                            <div class="tn-news-item" style="border-color: #bae6fd;">
+                                <div class="tn-news-title" style="color: #0c4a6e;">Tàu thám hiểm gửi ảnh mới từ Sao Hỏa</div>
+                                <div class="tn-news-desc">Bề mặt hành tinh đỏ hiện ra sắc nét trong loạt ảnh phân giải cao mới nhất...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="side-panel">
+                        <div class="task-box">
+                            <h3>LỆNH THỬ THÁCH</h3>
+                            <div id="v1-instruction">Click chuột vào<br>NÚT TÌM KIẾM 🔍</div>
+                        </div>
+                        <div id="custom-alert" class="custom-alert"></div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-nav-t3" type="button" onclick="nextV1Task()" style="flex: 1;">Đổi Lệnh 🔄</button>
+                            <button class="btn-nav-t3" type="button" onclick="nextV1Web()" style="flex: 1; background: var(--coral); box-shadow: 0 4px 0 #cc4640;">Đổi Web 🌐</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 6: VÒNG 1 GHI NHỚ -->
+            <section class="slide fs" id="slide-6">
+                <div class="tag vo">📌 Ghi nhớ sau Vòng 1</div>
+                <div class="notebook vo-main">
+                    <div class="nb-section">Kết luận vòng 1</div>
+                    <p>1. Nút <b>Trang chủ</b> thường nằm ở góc trên bên trái, hoặc có biểu tượng ngôi nhà 🏠.</p>
+                    <p>2. Nút <b>Tìm kiếm</b> thường nằm ở góc trên bên phải hoặc đầu trang với biểu tượng kính lúp 🔍.</p>
+                    <p>3. Dãy <b>Chủ đề</b> thường nằm ngang ở thanh thực đơn (Menu) đầu trang.</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 7: VÒNG 2 INTRO -->
+            <section class="slide fs" id="slide-7">
+                <div class="tag game">⚡ Vòng 2 · Kẻ săn tin tốc độ</div>
+                <h2>NHIỆM VỤ VÒNG 2</h2>
+                <div class="rules-box">
+                    <p style="font-size:24px; font-weight:700; line-height:1.6; margin:6px 0;">
+                        🏷️ Màn hình hiện ra tiêu đề của một <b>BẢN TIN</b>.<br>
+                        🚪 Bên dưới có 4 nút tương ứng với 4 <b>CHỦ ĐỀ</b>.<br>
+                        👉 <b>Nhiệm vụ:</b> Em hãy xác định bản tin đó thuộc Chủ đề nào để tìm kiếm nhanh nhất!
+                    </p>
+                </div>
+            </section>
+
+            <!-- SLIDE 8: VÒNG 2 GỢI Ý -->
+            <section class="slide fs" id="slide-8">
+                <div class="tag" style="background:var(--coral);">💡 Gợi ý chọn chủ đề</div>
+                <div class="rules-box" style="border-color:var(--coral); text-align:left;">
+                    <p style="font-size: 26px; line-height:1.6; margin:8px 0;">Để tìm thông tin nhanh trên báo điện tử, ta bấm thẳng vào <b>CHỦ ĐỀ chứa thông tin đó</b> thay vì lướt trang chủ.</p>
+                    <p style="font-size: 26px; line-height:1.6; margin:8px 0; color:var(--blue);">Ví dụ: Muốn xem tin đá bóng ⚽ ➡️ Chọn ngay chủ đề <b>Thể thao</b>.</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 9: VÒNG 2 THỰC HÀNH -->
+            <section class="slide" id="slide-9">
+                <div class="tag game">🎮 Vòng 2 · Chọn chủ đề cho tin tức</div>
+                <div class="game-layout">
+                    <div class="v2-container">
+                        <div id="v2-question-number" style="font-size:22px; font-weight:900; color:var(--coral); margin-bottom:8px;">CÂU 1 / 6</div>
+                        <div id="v2-keyword" class="keyword-box">Tin tức: Sôi nổi giải bơi lội thanh thiếu nhi toàn quốc</div>
+                        <div class="door-grid">
+                            <button class="door" onclick="checkV2('Chuyển động')">1. CHUYỂN ĐỘNG</button>
+                            <button class="door" onclick="checkV2('Học đường')">2. HỌC ĐƯỜNG</button>
+                            <button class="door" onclick="checkV2('Giải trí')">3. GIẢI TRÍ</button>
+                            <button class="door" onclick="checkV2('Thể thao')">4. THỂ THAO</button>
+                        </div>
+                    </div>
+                    <div class="side-panel">
+                        <div class="task-box">
+                            <h3>CÂU HỎI</h3>
+                            <div style="font-size: 22px; font-weight: 800; color: var(--yellow);">Bản tin này thuộc<br>CHỦ ĐỀ nào?</div>
+                        </div>
+                        <div id="custom-alert-v2" class="custom-alert"></div>
+                        <button class="btn-nav-t3" type="button" onclick="nextV2Question()">Câu tiếp theo ➡️</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 10: VÒNG 2 GHI NHỚ -->
+            <section class="slide fs" id="slide-10">
+                <div class="tag vo">📌 Ghi nhớ sau Vòng 2</div>
+                <div class="notebook vo-main">
+                    <div class="nb-section">Kết luận vòng 2</div>
+                    <p>• Trên website, mỗi tin bài đều được xếp vào một <b>Chủ đề</b> (Thể thao, Học đường, Giải trí...).</p>
+                    <p>• Bấm đúng Chủ đề giúp em tìm trúng bài viết nhanh gấp nhiều lần so với việc tìm thủ công.</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 11: VÒNG 3 INTRO -->
+            <section class="slide fs" id="slide-11">
+                <div class="tag game">📦 Vòng 3 · Trạm kiểm dịch tệp</div>
+                <h2>NHIỆM VỤ VÒNG 3</h2>
+                <div class="rules-box">
+                    <p style="font-size:24px; font-weight:700; line-height:1.6; margin:6px 0;">
+                        📦 Màn hình đưa ra các <b>phương tiện giao tiếp & truyền tin</b>.<br>
+                        👉 <b>Nhiệm vụ:</b> Xác định phương tiện đó có <b>GỬI ĐƯỢC TỆP MÁY TÍNH</b> (Hình ảnh, Word, Video) hay không?
+                    </p>
+                </div>
+            </section>
+
+            <!-- SLIDE 12: VÒNG 3 GỢI Ý -->
+            <section class="slide fs" id="slide-12">
+                <div class="tag" style="background:var(--coral);">💡 Gợi ý về truyền tệp</div>
+                <div class="rules-box" style="border-color:var(--coral); text-align:left;">
+                    <p style="font-size: 26px; line-height:1.6; margin:8px 0;">TỆP ở đây là các tệp tin lưu trên máy tính (như ảnh .jpg, tài liệu .docx, bài hát .mp3...).</p>
+                    <p style="font-size: 26px; line-height:1.6; margin:8px 0; color:var(--coral);">⚠️ Gọi điện thoại bàn hoặc nói chuyện trực tiếp chỉ truyền được <b>âm thanh</b>, không thể gửi được tệp!</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 13: VÒNG 3 THỰC HÀNH -->
+            <section class="slide" id="slide-13">
+                <div class="tag game">🎮 Vòng 3 · Duyệt phương tiện gửi tệp</div>
+                <div class="game-layout">
+                    <div class="v3-card-container">
+                        <div id="v3-question-number" style="font-size:22px; font-weight:900; color:var(--coral); margin-bottom:8px;">CÂU 1 / 6</div>
+                        <div id="v3-card" class="v3-card">Sao chép dữ liệu vào USB</div>
+                        <div class="v3-actions">
+                            <button class="v3-btn no" onclick="checkV3(false)">❌ HỦY (Không gửi tệp được)</button>
+                            <button class="v3-btn yes" onclick="checkV3(true)">✔️ DUYỆT (Gửi tệp được)</button>
+                        </div>
+                    </div>
+                    <div class="side-panel">
+                        <div class="task-box">
+                            <h3>CÂU HỎI</h3>
+                            <div style="font-size: 22px; font-weight: 800; color: var(--yellow);">Cách này có truyền được<br>TỆP MÁY TÍNH không?</div>
+                        </div>
+                        <div id="custom-alert-v3" class="custom-alert"></div>
+                        <button class="btn-nav-t3" type="button" onclick="nextV3Question()">Câu tiếp theo ➡️</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 14: VÒNG 3 GHI NHỚ -->
+            <section class="slide fs" id="slide-14">
+                <div class="tag vo">📌 Ghi nhớ sau Vòng 3</div>
+                <div class="notebook vo-main">
+                    <div class="nb-section">Kết luận vòng 3</div>
+                    <p>• Để trao đổi tệp máy tính: Em có thể dùng <b>USB, Email, Zalo, Google Drive...</b></p>
+                    <p>• Các phương tiện chỉ truyền tiếng nói (điện thoại bàn, nói trực tiếp) không thể gửi tệp tin.</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 15: VÒNG 4 INTRO -->
+            <section class="slide fs" id="slide-15">
+                <div class="tag game">🔥 Vòng 4 · Mắt thần website</div>
+                <h2>NHIỆM VỤ VÒNG CUỐI</h2>
+                <div class="rules-box">
+                    <p style="font-size:24px; font-weight:700; line-height:1.6; margin:6px 0;">
+                        1. Thầy/Cô bấm chọn 1 nhiệm vụ (từ a đến f) ở cột bên phải.<br>
+                        2. Học sinh đại diện quan sát trang web Hoa Học Trò và <b>click chính xác vào vị trí đó</b>!<br>
+                        3. Click đúng sẽ được cộng điểm và mở Túi Mù!
+                    </p>
+                </div>
+            </section>
+
+            <!-- SLIDE 16: VÒNG 4 GỢI Ý -->
+            <section class="slide fs" id="slide-16">
+                <div class="tag" style="background:var(--coral);">💡 Cấu tạo bài viết trên web</div>
+                <div class="rules-box" style="border-color:var(--coral); text-align:left;">
+                    <p style="font-size: 26px; line-height:1.6; margin:8px 0;"><b>Địa chỉ website:</b> Nằm ở thanh trên cùng của trình duyệt web (bắt đầu bằng http:// hoặc https://).</p>
+                    <p style="font-size: 26px; line-height:1.6; margin:8px 0;"><b>Cấu tạo một bài viết:</b> Gồm <b>Tiêu đề (chữ to nhất)</b>, <b>Hình ảnh minh họa</b> và <b>Nội dung bài viết (chữ nhỏ)</b>.</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 17: VÒNG 4 THỰC HÀNH (HOA HỌC TRÒ) -->
+            <section class="slide" id="slide-17">
+                <div class="tag game">🎮 Vòng 4 · Khám phá trang báo Hoa Học Trò</div>
+                <div class="game-layout">
+                    <div class="v4-mockup">
+                        <div class="v4-browser-bar">
+                            <div style="display:flex; gap:6px;">
+                                <div style="width:12px; height:12px; border-radius:50%; background:#ff5f56;"></div>
+                                <div style="width:12px; height:12px; border-radius:50%; background:#ffbd2e;"></div>
+                                <div style="width:12px; height:12px; border-radius:50%; background:#27c93f;"></div>
+                            </div>
+                            <div class="v4-url hotspot" data-v4="url">🔒 https://hoahoctro.tienphong.vn</div>
+                        </div>
+                        <div class="v4-header">
+                            <h2 style="margin:0; color:#d32f2f; font-size:28px; font-weight:900;">HOA HỌC TRÒ</h2>
+                            <div class="v4-search hotspot" data-v4="search">🔍 Tìm kiếm bài viết...</div>
+                        </div>
+                        <div class="v4-menu hotspot" data-v4="menu">
+                            <span>Đời sống</span> | <span>Học đường</span> | <span>Góc khám phá</span> | <span>Giải trí</span>
+                        </div>
+                        <div style="padding: 16px; background:#f4f7fb;">
+                            <h3 class="hotspot" data-v4="title" style="margin: 0 0 12px 0; color: #111; padding: 10px; background: #fff; border-radius: 8px; font-size:22px; font-weight:900;">
+                                CÁCH BẢO VỆ MẮT KHI DÙNG MÁY TÍNH
+                            </h3>
+                            <div class="hotspot" data-v4="image" style="height: 160px; background: #cce7ff; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: #0056b3; font-weight: 800; font-size: 20px;">
+                                🖼️ (Khu vực hiển thị Hình ảnh minh họa)
+                            </div>
+                            <div class="hotspot" data-v4="content" style="margin-top: 12px; padding: 12px; background: #fff; border-radius: 8px; color: #444; line-height: 1.5; font-size: 16px; font-weight:600;">
+                                Sử dụng máy tính trong thời gian dài có thể làm mắt mỏi. Các em nên áp dụng quy tắc 20-20-20: Cứ 20 phút nhìn màn hình, hãy nhìn ra xa 20 giây để mắt thư giãn...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="side-panel">
+                        <div class="task-box" style="padding: 14px;">
+                            <h3 style="margin-bottom: 6px;">CHỌN NHIỆM VỤ</h3>
+                            <div class="mission-btn" id="btn-v4-a" onclick="activateV4Task('url', 'a')">a) Địa chỉ website nằm ở đâu?</div>
+                            <div class="mission-btn" id="btn-v4-b" onclick="activateV4Task('menu', 'b')">b) Nơi chứa Tên các Chủ đề?</div>
+                            <div class="mission-btn" id="btn-v4-c" onclick="activateV4Task('search', 'c')">c) Nút Tìm kiếm ở đâu?</div>
+                            <div class="mission-btn" id="btn-v4-d" onclick="activateV4Task('title', 'd')">d) Nhấp vào Tiêu đề bài viết</div>
+                            <div class="mission-btn" id="btn-v4-e" onclick="activateV4Task('image', 'e')">e) Nhấp vào Hình ảnh minh họa</div>
+                            <div class="mission-btn" id="btn-v4-f" onclick="activateV4Task('content', 'f')">f) Nhấp vào Nội dung bài viết</div>
+                        </div>
+                        <div id="custom-alert-v4" class="custom-alert"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 18: BẢNG VÀNG TỔNG KẾT & XUẤT EXCEL -->
+            <section class="slide fs" id="slide-18">
+                <div class="tag">Tổng kết tiết học</div>
+                <h1 style="font-size: 56px;">🏆 BẢNG VÀNG VINH DANH</h1>
+                <div class="rankings-box" id="rankings-box"></div>
+                <div style="margin-top: 15px;">
+                    <button style="background:var(--mint); color:#fff; font-size:22px; font-weight:900; padding:12px 32px; border-radius:14px; box-shadow:0 6px 0 #087d69;" onclick="exportExcel()">
+                        📥 Xuất Báo Cáo Tiết Học (Excel)
+                    </button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ================= MODAL THÊM HỌC SINH ================= -->
+    <div class="modal-overlay" id="hs-modal" onclick="if(event.target===this)closeAddHs()">
+        <div class="modal-box">
+            <h3 style="font-size:28px; color:var(--blue); margin-top:0;">➕ Thêm Học Sinh</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="font-weight: 600; color: #64748b; font-size: 15px;">Dán danh sách hoặc nạp từ file:</div>
+                <button type="button" class="btn-import-excel" style="font-size:13px; padding:6px 14px;" onclick="document.getElementById('excel-file-modal').click()">
+                    📥 Nạp từ Excel (.xlsx)
+                </button>
+                <input type="file" id="excel-file-modal" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleExcelUpload(event, 'modal')">
+            </div>
+            <textarea id="hs-input" placeholder="Nguyễn Văn A&#10;Trần Thị B&#10;Lê Văn C"></textarea>
+            <div>
+                <button class="btn-modal-ok" onclick="saveAddHs()">Thêm vào danh sách</button>
+                <button class="btn-modal-cancel" onclick="closeAddHs()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MÀN HÌNH TỔNG KẾT KANBAN & XUẤT EXCEL ================= -->
+    <div id="end-screen">
+        <div class="ehead">
+            <h1>📋 Quản lí học sinh các tổ (Kéo thả thẻ tên)</h1>
+            <div style="display:flex; gap:10px;">
+                <button style="background:var(--blue); color:#fff; font-weight:900; font-size:18px; padding:8px 18px; border-radius:10px;" onclick="closeEnd()">← Quay lại</button>
+                <button style="background:var(--mint); color:#fff; font-weight:900; font-size:18px; padding:8px 18px; border-radius:10px;" onclick="exportExcel()">📥 Xuất File Excel</button>
+            </div>
+        </div>
+        <div class="kanban" id="kanban"></div>
+    </div>
+
+    <!-- ================= BẢNG GACHA TÚI MÙ ================= -->
+    <div class="gacha-overlay" id="gacha-overlay">
+        <div class="gacha-modal">
+            <h2>🎁 Bốc Túi Mù May Mắn 🎁</h2>
+            <p style="font-size: 22px; font-weight: bold; color: var(--ink);">Nhân phẩm sẽ quyết định số điểm thưởng của em!</p>
+            <div class="bags-container" id="bags-container"></div>
+            <button class="btn-setup" style="margin-top:20px; max-width:240px; padding:10px 24px; font-size:18px;" onclick="closeGacha()">ĐÓNG LẠI</button>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const STARTING_SCORE = 1000;
+        const TEAM_COLORS = ['#3178f6', '#16b89a', '#ff6c65', '#e0a100', '#8b5cf6', '#ec4899'];
+
+        let currentClass = '5_2';
+        let teams = [];
+        let students = [];
+        let importedExcelStudents = [];
+        let activityLogs = [];
+        let nextStudentId = 0;
+        let currentSlideIdx = 0;
+
+        let gameState = {
+            activeTeam: 0
+        };
+
+        const SLIDES = [
+            'slide-0', 'slide-1', 'slide-2', 'slide-3', 'slide-4', 'slide-5', 'slide-6',
+            'slide-7', 'slide-8', 'slide-9', 'slide-10', 'slide-11', 'slide-12', 'slide-13',
+            'slide-14', 'slide-15', 'slide-16', 'slide-17', 'slide-18'
+        ];
+
+        /* ================= LOAD DỮ LIỆU & EXCEL ================= */
+        function logTimelineAction(teamName, studentName, action, result, delta, currentScore) {
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+            activityLogs.push({
+                stt: activityLogs.length + 1,
+                time: timeStr,
+                team: teamName || 'Toàn lớp',
+                student: studentName || 'Chưa chọn',
+                action: action || 'Hoạt động học tập',
+                result: result || (delta > 0 ? 'Đúng' : (delta < 0 ? 'Phạt' : 'Hoàn thành')),
+                delta: delta > 0 ? `+${delta}` : String(delta),
+                scoreAfter: typeof currentScore !== 'undefined' ? currentScore : '-'
+            });
+        }
+
+        function getStudentDisplayName(st) {
+            if (!st) return '';
+            const rawName = (st.name || '').trim();
+            const trimmed = rawName.toLowerCase();
+            const sameNameList = students.filter(s => (s.name || '').trim().toLowerCase() === trimmed);
+            if (sameNameList.length <= 1) return rawName;
+            const matchIndex = sameNameList.findIndex(s => s.id === st.id);
+            return `${rawName} (${matchIndex >= 0 ? matchIndex + 1 : 1})`;
+        }
+
+        function handleExcelUpload(event, source) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                    if (!json || json.length === 0) {
+                        toast('⚠️ File Excel không có dữ liệu!', 2500, 'var(--coral)');
+                        return;
+                    }
+
+                    let nameColIdx = -1, hoColIdx = -1, tenColIdx = -1, startRow = 0;
+                    for (let r = 0; r < Math.min(json.length, 10); r++) {
+                        const row = json[r];
+                        if (!Array.isArray(row)) continue;
+                        for (let c = 0; c < row.length; c++) {
+                            const val = String(row[c] || '').trim().toLowerCase();
+                            if (val.includes('họ và tên') || val.includes('họ tên') || val === 'tên học sinh' || val === 'học sinh' || val === 'name') {
+                                nameColIdx = c; startRow = r + 1; break;
+                            }
+                            if (val === 'họ' || val.includes('họ lót')) hoColIdx = c;
+                            if (val === 'tên' || val === 'ten') tenColIdx = c;
+                        }
+                        if (nameColIdx !== -1 || (hoColIdx !== -1 && tenColIdx !== -1)) {
+                            startRow = r + 1; break;
+                        }
+                    }
+
+                    const extractedNames = [];
+                    for (let r = startRow; r < json.length; r++) {
+                        const row = json[r];
+                        if (!Array.isArray(row)) continue;
+                        let fullName = '';
+                        if (nameColIdx !== -1) fullName = String(row[nameColIdx] || '').trim();
+                        else if (hoColIdx !== -1 && tenColIdx !== -1) fullName = (String(row[hoColIdx] || '') + ' ' + String(row[tenColIdx] || '')).trim();
+                        else {
+                            for (let c = 0; c < row.length; c++) {
+                                const str = String(row[c] || '').trim();
+                                if (str.length >= 3 && isNaN(str) && !str.includes('/') && !str.includes('@')) {
+                                    fullName = str; break;
+                                }
+                            }
+                        }
+                        if (fullName && fullName.length >= 2 && !/^(tổng|stt|ghi chú|nam|nữ|lớp)/i.test(fullName)) {
+                            extractedNames.push(fullName);
+                        }
+                    }
+
+                    if (!extractedNames.length) {
+                        toast('⚠️ Không tìm thấy cột Họ và Tên trong file Excel!', 3000, 'var(--coral)');
+                        return;
+                    }
+
+                    if (source === 'setup') {
+                        importedExcelStudents = extractedNames;
+                        const statusEl = document.getElementById('setup-excel-status');
+                        if (statusEl) {
+                            statusEl.style.display = 'block';
+                            statusEl.innerHTML = `✅ Đã nhận <b>${extractedNames.length}</b> học sinh từ file Excel!`;
+                        }
+                        toast(`✅ Đã nạp ${extractedNames.length} học sinh từ file Excel!`, 3000, 'var(--mint)');
+                    } else {
+                        extractedNames.forEach(name => {
+                            students.push({ id: ++nextStudentId, name, team: null, actions: [] });
+                        });
+                        refreshStudentSelects();
+                        closeAddHs();
+                        toast(`✅ Đã thêm ${extractedNames.length} học sinh từ Excel!`, 3000, 'var(--mint)');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    toast('⚠️ Lỗi khi đọc file Excel!', 3000, 'var(--coral)');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+            event.target.value = '';
+        }
+
+        async function loadStudentList(clsKey) {
+            try {
+                const res = await fetch('../../assets/data/students_5_2026_2027.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    const norm = s => String(s).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                    const list = data[clsKey] || data[norm(clsKey)] || [];
+                    if (Array.isArray(list) && list.length) return list;
+                }
+            } catch (err) { }
+            return [
+                'Ngô Phương Anh', 'Nguyễn Quốc Anh', 'Phạm Minh Anh', 'Đào Thiên Ân',
+                'Trương Gia Bảo', 'Nguyễn Trọng Đức', 'Đỗ Hoàng Hiếu', 'Nguyễn Nhật Huy',
+                'Dương Uyển Khanh', 'Trương Ngọc Lâm', 'Lâm Đường Vạn Lý', 'Mạc Kim Ngân',
+                'Chu Dương Bảo Như', 'Phương Phú Quý', 'Bùi Quốc Thành', 'Trần Bảo Vy'
+            ];
+        }
+
+        /* ================= KHỞI ĐỘNG TIẾT HỌC ================= */
+        async function startGame() {
+            currentClass = document.getElementById('s-class').value;
+            const numTeams = parseInt(document.getElementById('s-teams').value) || 3;
+
+            let rawList = (importedExcelStudents && importedExcelStudents.length > 0) ? importedExcelStudents : await loadStudentList(currentClass);
+
+            students = rawList.map((name, i) => ({
+                id: i + 1,
+                name: typeof name === 'string' ? name : (name.name || 'Học sinh ' + (i + 1)),
+                team: null,
+                actions: []
+            }));
+            nextStudentId = students.length;
+
+            teams = [];
+            for (let i = 0; i < numTeams; i++) {
+                teams.push({
+                    id: i,
+                    name: `Dãy ${i + 1}`,
+                    color: TEAM_COLORS[i % TEAM_COLORS.length],
+                    score: STARTING_SCORE
+                });
+            }
+
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('app').style.display = 'flex';
+            document.title = `Tin học 5 – Bài 2: Tìm kiếm thông tin trên website (Lớp ${currentClass.replace('_', '/')})`;
+
+            updateDateDisplay();
+            renderTeamsSidebar();
+            goToSlide(0);
+        }
+
+        function updateDateDisplay() {
+            const daysOfWeek = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
+            const today = new Date();
+            const dateStr = `${daysOfWeek[today.getDay()]}, ngày ${String(today.getDate()).padStart(2, '0')} tháng ${String(today.getMonth() + 1).padStart(2, '0')} năm ${today.getFullYear()}`;
+            document.querySelectorAll('.currentDateDisplay').forEach(el => el.textContent = dateStr);
+        }
+
+        function renderTeamsSidebar() {
+            const teamsContainer = document.getElementById('teams');
+            teamsContainer.innerHTML = teams.map((t, i) => `
+                <div class="team ${i === gameState.activeTeam ? 'turn' : ''}" id="team-${i}" style="--tc:${t.color}">
+                    <div class="turn-badge">👉 ĐANG TỚI LƯỢT</div>
+                    <div class="trow">
+                        <span class="tname" onclick="switchActiveTeam(${i})" style="cursor:pointer;" title="Bấm để chuyển lượt sang ${t.name}">${t.name}</span>
+                        <button class="btn-penalty" onclick="penalizeTeam(${i})" title="Bấm phạt khi tổ ồn (-10%)">🔇 Phạt ồn</button>
+                    </div>
+                    <div class="tscore" contenteditable="true" spellcheck="false" title="Nhấp vào để nhập tay sửa điểm" onblur="setManualScore(${i}, this.innerText)" onkeydown="if(event.key==='Enter'){this.blur(); event.preventDefault();}">${t.score}</div>
+                    <div style="display:flex; gap:3px; align-items:center; width:100%;">
+                        <select id="sel-${i}" style="flex:1;">
+                            <option value="">-- Chọn học sinh --</option>
+                        </select>
+                        <button type="button" onclick="randomPickStudent(${i})" style="padding:4px 6px; font-size:12px; border-radius:6px; background:var(--yellow); border:none; cursor:pointer;" title="Gọi ngẫu nhiên">🎲</button>
+                    </div>
+                </div>
+            `).join('');
+
+            refreshStudentSelects();
+        }
+
+        function switchActiveTeam(targetIdx) {
+            if (targetIdx === gameState.activeTeam || targetIdx < 0 || targetIdx >= teams.length) return;
+            gameState.activeTeam = targetIdx;
+            renderTeamsSidebar();
+            toast(`👉 Lượt chơi hiện tại: ${teams[targetIdx].name}`, 1500, teams[targetIdx].color);
+        }
+
+        function setManualScore(teamIdx, rawText) {
+            const cleaned = rawText.replace(/[^0-9]/g, '');
+            const num = parseInt(cleaned);
+            if (!isNaN(num)) {
+                const delta = num - teams[teamIdx].score;
+                teams[teamIdx].score = num;
+                logTimelineAction(teams[teamIdx].name, getSelectedStudent(teamIdx), 'Sửa điểm thủ công', 'Cập nhật', delta, num);
+                toast(`Đã sửa điểm ${teams[teamIdx].name}: ${num} điểm`, 1600, teams[teamIdx].color);
+            }
+            renderTeamsSidebar();
+        }
+
+        function penalizeTeam(i) {
+            const penaltyPts = Math.max(20, Math.round(teams[i].score * 0.1));
+            teams[i].score = Math.max(0, teams[i].score - penaltyPts);
+            renderTeamsSidebar();
+
+            const el = document.getElementById('team-' + i);
+            if (el) {
+                const floatBadge = document.createElement('div');
+                floatBadge.className = 'floatred';
+                floatBadge.textContent = `-${penaltyPts} (10%)`;
+                el.appendChild(floatBadge);
+                el.classList.add('penalty-hit');
+                setTimeout(() => { floatBadge.remove(); el.classList.remove('penalty-hit'); }, 1000);
+            }
+
+            playPenaltySound();
+            logTimelineAction(teams[i].name, getSelectedStudent(i), 'Bị phạt mất trật tự (-10%)', 'Phạt trừ điểm', -penaltyPts, teams[i].score);
+            toast(`🔇 ${teams[i].name} bị phạt trừ 10% (-${penaltyPts} điểm)!`, 2500, 'var(--coral)');
+        }
+
+        function rewardActiveTeam(pts, reason = 'Hoàn thành thử thách') {
+            const t = teams[gameState.activeTeam];
+            if (!t) return;
+            t.score += pts;
+            renderTeamsSidebar();
+            playCorrectSound();
+            logTimelineAction(t.name, getSelectedStudent(gameState.activeTeam), reason, 'Đúng (+ ' + pts + ')', pts, t.score);
+            toast(`🎉 +${pts} điểm cho ${t.name}!`, 2000, t.color);
+        }
+
+        function refreshStudentSelects() {
+            teams.forEach((_, i) => {
+                const sel = document.getElementById('sel-' + i);
+                if (!sel) return;
+                const curVal = sel.value;
+                sel.innerHTML = '<option value="">-- Chọn học sinh --</option>' +
+                    students.map((st, idx) => `
+                        <option value="${idx}" ${st.team !== null && st.team !== i ? 'disabled' : ''}>
+                            ${st.team !== null && st.team !== i ? '🔒 ' : ''}${escapeHtml(getStudentDisplayName(st))}
+                        </option>
+                    `).join('');
+                if (curVal !== '' && students[+curVal]) sel.value = curVal;
+            });
+        }
+
+        function getSelectedStudent(i) {
+            const sel = document.getElementById('sel-' + i);
+            if (sel && sel.value !== '' && students[+sel.value]) {
+                return getStudentDisplayName(students[+sel.value]);
+            }
+            return 'Đại diện ' + teams[i].name;
+        }
+
+        function randomPickStudent(i) {
+            const available = students.filter(s => s.team === null || s.team === i);
+            if (!available.length) return;
+            const chosen = available[Math.floor(Math.random() * available.length)];
+            const realIdx = students.findIndex(s => s.id === chosen.id);
+            const sel = document.getElementById('sel-' + i);
+            if (sel && realIdx !== -1) {
+                sel.value = realIdx;
+                sel.style.background = '#fef08a';
+                setTimeout(() => sel.style.background = '#fff', 800);
+                toast(`🎲 ${teams[i].name} gọi bạn: ${getStudentDisplayName(chosen)}`, 2200, teams[i].color);
+            }
+        }
+
+        /* ================= ĐIỀU HƯỚNG SLIDE ================= */
+        function goToSlide(idx) {
+            if (typeof idx === 'string') {
+                const found = SLIDES.indexOf(idx);
+                if (found !== -1) idx = found;
+                else idx = 0;
+            }
+            if (idx < 0) idx = 0;
+            if (idx >= SLIDES.length) idx = SLIDES.length - 1;
+            currentSlideIdx = idx;
+
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('on', 'active'));
+            const target = document.getElementById(SLIDES[currentSlideIdx]);
+            if (target) target.classList.add('on', 'active');
+
+            if (SLIDES[currentSlideIdx] === 'slide-18') {
+                renderRankings();
+            }
+        }
+
+        function goSlide(delta) {
+            goToSlide(currentSlideIdx + delta);
+        }
+
+        window.addEventListener('keydown', e => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+            if (e.key === 'ArrowRight' || e.key === 'PageDown') goSlide(1);
+            if (e.key === 'ArrowLeft' || e.key === 'PageUp') goSlide(-1);
         });
-      });
-      document.querySelectorAll('.score-input').forEach((input) => {
-        input.addEventListener('input', () => {
-          const team = Number(input.dataset.team);
-          let value = Number(input.value) || 0;
-          if (value < 0) value = 0;
-          scores[team] = value;
-          input.value = value;
+
+        /* ================= LOGIC GACHA (TÚI MÙ) ================= */
+        const gachaPool = [
+            { text: '+10 ĐIỂM', pts: 10 },
+            { text: '+20 ĐIỂM', pts: 20 },
+            { text: '+30 ĐIỂM', pts: 30 },
+            { text: '+50 ĐIỂM', pts: 50 },
+            { text: '+100 ĐIỂM', pts: 100 },
+            { text: 'x2 ĐIỂM', pts: 'x2' }
+        ];
+
+        function openGacha() {
+            const container = document.getElementById('bags-container');
+            container.innerHTML = '';
+            const bagIcons = ['🎁', '🛍️', '📦', '🎒'];
+            for (let i = 0; i < 4; i++) {
+                const bag = document.createElement('div');
+                bag.className = 'blind-bag';
+                bag.innerHTML = bagIcons[i];
+                bag.onclick = () => pickBag(bag);
+                container.appendChild(bag);
+            }
+            document.getElementById('gacha-overlay').style.display = 'flex';
+        }
+
+        function pickBag(bagElement) {
+            if (bagElement.classList.contains('opened')) return;
+            document.querySelectorAll('.blind-bag').forEach(b => b.classList.add('opened'));
+
+            const weights = [10, 6, 3, 2, 1, 1];
+            const pool = [];
+            gachaPool.forEach((item, idx) => {
+                for (let k = 0; k < weights[idx]; k++) pool.push(item);
+            });
+            const prize = pool[Math.floor(Math.random() * pool.length)];
+
+            bagElement.innerHTML = `<span style="font-size: 20px; font-weight: 900; text-align: center;">${prize.text}</span>`;
+            if (prize.pts === 100 || prize.pts === 'x2') {
+                bagElement.style.color = 'var(--coral)';
+                bagElement.style.borderColor = 'var(--coral)';
+                triggerConfetti();
+            } else {
+                bagElement.style.color = '#087d69';
+                bagElement.style.borderColor = 'var(--mint)';
+            }
+
+            // Thưởng điểm cho đội đang tới lượt
+            const t = teams[gameState.activeTeam];
+            if (t) {
+                if (prize.pts === 'x2') {
+                    const addPts = t.score;
+                    t.score *= 2;
+                    logTimelineAction(t.name, getSelectedStudent(gameState.activeTeam), 'Bốc Túi Mù May Mắn: x2 Điểm', 'Jackpot', addPts, t.score);
+                } else {
+                    t.score += prize.pts;
+                    logTimelineAction(t.name, getSelectedStudent(gameState.activeTeam), `Bốc Túi Mù May Mắn: ${prize.text}`, 'Thưởng điểm', prize.pts, t.score);
+                }
+                renderTeamsSidebar();
+                playSuccessSound();
+                toast(`🎁 ${t.name} nhận được: ${prize.text}!`, 2500, t.color);
+            }
+        }
+
+        function closeGacha() {
+            document.getElementById('gacha-overlay').style.display = 'none';
+        }
+
+        /* ================= LOGIC GAME CÁC VÒNG ================= */
+        // VÒNG 1
+        const v1_tasks = [
+            { text: "NÚT TÌM KIẾM 🔍", target: "search" },
+            { text: "NÚT TRANG CHỦ 🏠 (Ngôi nhà / Logo)", target: "home" },
+            { text: "VỊ TRÍ CÁC CHỦ ĐỀ 📋 (Thanh ngang)", target: "menu" }
+        ];
+        let v1_currentTask = 0;
+        let v1_currentWeb = 1;
+
+        function nextV1Task() {
+            document.getElementById('custom-alert').classList.remove('show');
+            v1_currentTask = (v1_currentTask + 1) % v1_tasks.length;
+            document.getElementById('v1-instruction').innerHTML = 'Click chuột vào<br>' + v1_tasks[v1_currentTask].text;
+        }
+
+        function nextV1Web() {
+            document.getElementById('custom-alert').classList.remove('show');
+            v1_currentWeb = v1_currentWeb >= 3 ? 1 : v1_currentWeb + 1;
+            document.querySelectorAll('.v1-web').forEach(el => el.style.display = 'none');
+            document.getElementById('web-' + v1_currentWeb).style.display = 'block';
+        }
+
+        document.addEventListener('click', function (e) {
+            const v1WebContainer = e.target.closest('.v1-web');
+            if (!v1WebContainer) return;
+
+            const clickedEl = e.target.closest('.target-element');
+            const alertBox = document.getElementById('custom-alert');
+
+            if (!clickedEl) {
+                flashStage(false);
+                alertBox.innerHTML = `🚨 SAI RỒI! <br><span style="font-size: 15px; color: var(--coral)">Em đang nhấn ra ngoài vùng yêu cầu!</span>`;
+                alertBox.style.borderColor = 'var(--coral)';
+                alertBox.style.color = 'var(--coral)';
+                alertBox.classList.add('show');
+                return;
+            }
+
+            if (clickedEl.dataset.target === v1_tasks[v1_currentTask].target) {
+                flashStage(true);
+                alertBox.innerHTML = `🎉 CHÍNH XÁC! <br><span style="font-size: 15px; color: #087d69">Thầy/Cô hãy cho bạn mở TÚI MÙ nhé!</span>`;
+                alertBox.style.borderColor = 'var(--mint)';
+                alertBox.style.color = '#087d69';
+                alertBox.classList.add('show');
+                rewardActiveTeam(50, 'Vòng 1: Tìm đúng ' + v1_tasks[v1_currentTask].text);
+            } else {
+                flashStage(false);
+                alertBox.innerHTML = `🚨 SAI RỒI! <br><span style="font-size: 15px; color: var(--coral)">Hãy nhìn lại thật kỹ nhé!</span>`;
+                alertBox.style.borderColor = 'var(--coral)';
+                alertBox.style.color = 'var(--coral)';
+                alertBox.classList.add('show');
+            }
         });
-      });
-    }
 
-    function updateScore(team, delta) {
-      if (!scores[team]) scores[team] = 0;
-      scores[team] += delta;
-      if (scores[team] < 0) scores[team] = 0;
-      const scoreInput = document.getElementById('score-' + team);
-      if (scoreInput) scoreInput.value = scores[team];
+        // VÒNG 2
+        const v2_questions = [
+            { text: 'Tin tức: Sôi nổi giải bơi lội thanh thiếu nhi toàn quốc', ans: 'Thể thao' },
+            { text: 'Tin tức: Lịch phát sóng phim hoạt hình Doraemon', ans: 'Giải trí' },
+            { text: 'Sự kiện: Ngày hội Trạng Nguyên nhỏ tuổi năm 2026', ans: 'Học đường' },
+            { text: 'Bản tin: Tình hình kẹt xe tại cổng trường sáng nay', ans: 'Chuyển động' },
+            { text: 'Tin tức: Đội tuyển Việt Nam giành cúp Vô địch', ans: 'Thể thao' },
+            { text: 'Sự kiện: Khai giảng năm học mới tại các trường Tiểu học', ans: 'Học đường' }
+        ];
+        let v2_current = 0;
 
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
+        function nextV2Question() {
+            document.getElementById('custom-alert-v2').classList.remove('show');
+            v2_current = (v2_current + 1) % v2_questions.length;
+            document.getElementById('v2-keyword').textContent = v2_questions[v2_current].text;
+            document.getElementById('v2-question-number').textContent = `CÂU ${v2_current + 1} / ${v2_questions.length}`;
+        }
 
-      if (delta > 0) {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
-      } else {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.2);
-      }
-      osc.start();
-      gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.5);
-      osc.stop(audioCtx.currentTime + 0.5);
-    }
+        function checkV2(doorName) {
+            const alertBox = document.getElementById('custom-alert-v2');
+            if (doorName === v2_questions[v2_current].ans) {
+                flashStage(true);
+                alertBox.innerHTML = `🎉 CHÍNH XÁC! <br><span style="font-size: 15px; color: #087d69">Giỏi quá, hãy bốc TÚI MÙ đi nào!</span>`;
+                alertBox.style.borderColor = 'var(--mint)';
+                alertBox.style.color = '#087d69';
+                alertBox.classList.add('show');
+                rewardActiveTeam(50, 'Vòng 2: Chọn đúng chủ đề ' + doorName);
+            } else {
+                flashStage(false);
+                alertBox.innerHTML = `🚨 SAI RỒI! <br><span style="font-size: 15px; color: var(--coral)">Hãy xem lại chủ đề phù hợp nhất.</span>`;
+                alertBox.style.borderColor = 'var(--coral)';
+                alertBox.style.color = 'var(--coral)';
+                alertBox.classList.add('show');
+            }
+        }
 
-    function flashStage(isCorrect) {
-      const stage = document.getElementById('mainStage');
-      stage.className = 'stage ' + (isCorrect ? 'flash-green' : 'flash-red');
-      setTimeout(() => { stage.className = 'stage'; }, 500);
-    }
+        // VÒNG 3
+        const v3_questions = [
+            { text: 'Sao chép dữ liệu vào USB', isFile: true },
+            { text: 'Gọi điện thoại bàn cho bạn', isFile: false },
+            { text: 'Gửi qua Thư điện tử (Email)', isFile: true },
+            { text: 'Nhắn tin qua Zalo / Facebook', isFile: true },
+            { text: 'Nói chuyện trực tiếp trên lớp', isFile: false },
+            { text: 'Chia sẻ qua Google Drive', isFile: true }
+        ];
+        let v3_current = 0;
 
-    // CHECK VÒNG 1
-    document.addEventListener('click', function (e) {
-      const v1WebContainer = e.target.closest('.v1-web');
-      if (!v1WebContainer) return;
+        function nextV3Question() {
+            document.getElementById('custom-alert-v3').classList.remove('show');
+            v3_current = (v3_current + 1) % v3_questions.length;
+            document.getElementById('v3-card').textContent = v3_questions[v3_current].text;
+            document.getElementById('v3-question-number').textContent = `CÂU ${v3_current + 1} / ${v3_questions.length}`;
+        }
 
-      const clickedEl = e.target.closest('.target-element');
-      const alertBox = document.getElementById('custom-alert');
+        function checkV3(studentAnswer) {
+            const alertBox = document.getElementById('custom-alert-v3');
+            if (studentAnswer === v3_questions[v3_current].isFile) {
+                flashStage(true);
+                alertBox.innerHTML = `🎉 CHÍNH XÁC! <br><span style="font-size: 15px; color: #087d69">Thầy/Cô hãy cho đội này bốc TÚI MÙ.</span>`;
+                alertBox.style.borderColor = 'var(--mint)';
+                alertBox.style.color = '#087d69';
+                alertBox.classList.add('show');
+                rewardActiveTeam(50, 'Vòng 3: ' + v3_questions[v3_current].text);
+            } else {
+                flashStage(false);
+                alertBox.innerHTML = `🚨 SAI RỒI! <br><span style="font-size: 15px; color: var(--coral)">Cách này không truyền được tệp đâu nhé!</span>`;
+                alertBox.style.borderColor = 'var(--coral)';
+                alertBox.style.color = 'var(--coral)';
+                alertBox.classList.add('show');
+            }
+        }
 
-      if (!clickedEl) {
-        flashStage(false);
-        alertBox.innerHTML = `🚨 SAI RỒI! <br><span style="font-size: 16px; font-weight: 600; color: var(--coral)">Em đang ấn ra ngoài vị trí rồi!</span>`;
-        alertBox.style.borderColor = 'var(--coral)';
-        alertBox.style.color = 'var(--coral)';
-        alertBox.classList.add('show');
-        return;
-      }
+        // VÒNG 4
+        let v4_currentTask = null;
+        let v4_currentBtnId = null;
 
-      if (clickedEl.dataset.target === v1_tasks[v1_currentTask].target) {
-        flashStage(true);
-        alertBox.innerHTML = `🎉 CHÍNH XÁC! <br><span style="font-size: 16px; font-weight: 600; color: var(--muted)">Thầy/Cô hãy cho bạn bốc TÚI MÙ nhé!</span>`;
-        alertBox.style.borderColor = 'var(--mint)';
-        alertBox.style.color = '#087d69';
-        alertBox.classList.add('show');
-      } else {
-        flashStage(false);
-        alertBox.innerHTML = `🚨 SAI RỒI! <br><span style="font-size: 16px; font-weight: 600; color: var(--coral)">Hãy nhìn lại thật kỹ nhé!</span>`;
-        alertBox.style.borderColor = 'var(--coral)';
-        alertBox.style.color = 'var(--coral)';
-        alertBox.classList.add('show');
-      }
-    });
+        function activateV4Task(taskName, btnId) {
+            document.getElementById('custom-alert-v4').classList.remove('show');
+            document.querySelectorAll('.mission-btn').forEach(btn => btn.classList.remove('active'));
+            const currentBtn = document.getElementById('btn-v4-' + btnId);
+            if (!currentBtn.classList.contains('done')) {
+                currentBtn.classList.add('active');
+                v4_currentTask = taskName;
+                v4_currentBtnId = 'btn-v4-' + btnId;
+            }
+        }
 
-    // CHECK VÒNG 2
-    function checkV2(doorName) {
-      const correctAnswer = v2_questions[v2_current].ans;
-      const alertBox = document.getElementById('custom-alert-v2');
+        document.addEventListener('click', function (e) {
+            const v4Mockup = e.target.closest('.v4-mockup');
+            if (!v4Mockup || SLIDES[currentSlideIdx] !== 'slide-17') return;
 
-      if (doorName === correctAnswer) {
-        flashStage(true);
-        alertBox.innerHTML = `🎉 CHÍNH XÁC! <br><span style="font-size: 16px; font-weight: 600; color: var(--muted)">Giỏi quá, hãy bốc TÚI MÙ đi nào!</span>`;
-        alertBox.style.borderColor = 'var(--mint)';
-        alertBox.style.color = '#087d69';
-        alertBox.classList.add('show');
-      } else {
-        flashStage(false);
-        alertBox.innerHTML = `🚨 SAI RỒI! <br><span style="font-size: 16px; font-weight: 600; color: var(--coral)">Hãy xem lại chủ đề của tin tức.</span>`;
-        alertBox.style.borderColor = 'var(--coral)';
-        alertBox.style.color = 'var(--coral)';
-        alertBox.classList.add('show');
-      }
-    }
+            const alertBox = document.getElementById('custom-alert-v4');
+            if (!v4_currentTask) {
+                toast('⚠️ Thầy/Cô hãy chọn Nhiệm vụ bên phải trước!', 2500, 'var(--coral)');
+                return;
+            }
 
-    // CHECK VÒNG 3
-    function checkV3(studentAnswer) {
-      const correctAnswer = v3_questions[v3_current].isFile;
-      const alertBox = document.getElementById('custom-alert-v3');
+            const clickedHotspot = e.target.closest('.hotspot');
+            if (clickedHotspot && clickedHotspot.dataset.v4 === v4_currentTask) {
+                flashStage(true);
+                document.getElementById(v4_currentBtnId).classList.replace('active', 'done');
+                document.getElementById(v4_currentBtnId).innerHTML += ' ✅';
+                alertBox.innerHTML = `🎉 CHÍNH XÁC! <br><span style="font-size: 15px; color: #087d69">Đã vượt qua thử thách! Mở Túi Mù nào!</span>`;
+                alertBox.style.borderColor = 'var(--mint)';
+                alertBox.style.color = '#087d69';
+                alertBox.classList.add('show');
+                rewardActiveTeam(100, 'Vòng 4: Click đúng ' + v4_currentTask);
+                v4_currentTask = null;
+            } else {
+                flashStage(false);
+                alertBox.innerHTML = `🚨 SAI RỒI! <br><span style="font-size: 15px; color: var(--coral)">Khu vực em vừa click chưa đúng yêu cầu!</span>`;
+                alertBox.style.borderColor = 'var(--coral)';
+                alertBox.style.color = 'var(--coral)';
+                alertBox.classList.add('show');
+            }
+        });
 
-      if (studentAnswer === correctAnswer) {
-        flashStage(true);
-        alertBox.innerHTML = `🎉 CHÍNH XÁC! <br><span style="font-size: 16px; font-weight: 600; color: var(--muted)">Thầy/Cô hãy cho đội này bốc TÚI MÙ.</span>`;
-        alertBox.style.borderColor = 'var(--mint)';
-        alertBox.style.color = '#087d69';
-        alertBox.classList.add('show');
-      } else {
-        flashStage(false);
-        alertBox.innerHTML = `🚨 SAI RỒI!`;
-        alertBox.style.borderColor = 'var(--coral)';
-        alertBox.style.color = 'var(--coral)';
-        alertBox.classList.add('show');
-      }
-    }
+        function flashStage(isCorrect) {
+            const stage = document.getElementById('stage');
+            stage.className = 'stage ' + (isCorrect ? 'flash-green' : 'flash-red');
+            setTimeout(() => { stage.className = 'stage'; }, 400);
+        }
 
-    let v4_currentTask = null;
-    let v4_currentBtnId = null;
+        /* ================= BẢNG VÀNG VINH DANH ================= */
+        function renderRankings() {
+            const box = document.getElementById('rankings-box');
+            if (!box) return;
 
-    function activateV4Task(taskName, btnId) {
-      document.getElementById('custom-alert-v4').classList.remove('show');
-      document.querySelectorAll('.mission-btn').forEach((btn) => btn.classList.remove('active'));
-      const currentBtn = document.getElementById('btn-v4-' + btnId);
-      if (!currentBtn.classList.contains('done')) {
-        currentBtn.classList.add('active');
-        v4_currentTask = taskName;
-        v4_currentBtnId = 'btn-v4-' + btnId;
-      }
-    }
+            const sorted = [...teams].sort((a, b) => b.score - a.score);
+            let currentR = 0;
+            const medals = ['🥇', '🥈', '🥉', '🌟', '🎖️', '🎗️'];
+            const titles = ['QUÁN QUÂN', 'Á QUÂN', 'HẠNG BA', 'KHUYẾN KHÍCH', 'NỖ LỰC', 'GẮN KẾT'];
 
-    // CHECK VÒNG 4
-    document.addEventListener('click', function (e) {
-      const v4Mockup = e.target.closest('.v4-mockup');
-      if (!v4Mockup || !document.getElementById('slide-13').classList.contains('active')) return;
+            box.innerHTML = sorted.map((t, idx, arr) => {
+                if (idx > 0 && t.score === arr[idx - 1].score) {} else { currentR = idx; }
+                const isShared = arr.filter(item => item.score === t.score).length > 1;
+                const medal = medals[currentR] || '🎗️';
+                const tName = titles[currentR] || 'KHUYẾN KHÍCH';
+                const badgeTitle = isShared && currentR < 3 ? `ĐỒNG ${tName}` : tName;
+                const themeClass = `rank-${Math.min(currentR + 1, 6)}`;
 
-      const alertBox = document.getElementById('custom-alert-v4');
-      if (!v4_currentTask) {
-        alert('Giáo viên phải bấm chọn Lệnh (màu vàng) bên cột phải trước, sau đó học sinh mới click trả lời!');
-        return;
-      }
+                return `
+                    <div class="rank-card ${themeClass}">
+                        <div class="rank-left">
+                            <span class="rank-medal">${medal}</span>
+                            <span class="rank-badge-pill">${badgeTitle}</span>
+                        </div>
+                        <div class="rank-mid">
+                            <div class="rank-team-name" style="color:${t.color};">${t.name}</div>
+                            <div class="rank-team-sub">${isShared ? '🤝 Đồng hạng điểm số' : 'Thành tích xuất sắc'}</div>
+                        </div>
+                        <div class="rank-right">
+                            <div class="rank-score-val">${t.score}</div>
+                            <div class="rank-score-unit">ĐIỂM</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
 
-      const clickedHotspot = e.target.closest('.hotspot');
-      if (clickedHotspot && clickedHotspot.dataset.v4 === v4_currentTask) {
-        flashStage(true);
-        document.getElementById(v4_currentBtnId).classList.replace('active', 'done');
-        document.getElementById(v4_currentBtnId).innerHTML += ' ✅';
-        alertBox.innerHTML = `🎉 CHÍNH XÁC! <br><span style="font-size: 16px; font-weight: 600; color: var(--muted)">Hãy nhấn MỞ TÚI MÙ trên thanh điểm!</span>`;
-        alertBox.style.borderColor = 'var(--mint)';
-        alertBox.style.color = '#087d69';
-        alertBox.classList.add('show');
-        v4_currentTask = null;
-      } else {
-        flashStage(false);
-        alertBox.innerHTML = `🚨 SAI RỒI! <br><span style="font-size: 16px; font-weight: 600; color: var(--coral)">Khu vực em vừa click không đúng yêu cầu!</span>`;
-        alertBox.style.borderColor = 'var(--coral)';
-        alertBox.style.color = 'var(--coral)';
-        alertBox.classList.add('show');
-      }
-    });
+            triggerConfetti();
+        }
 
-    // Bắt đầu game sẽ vào ngay slide-0 (Chép bài)
-    document.addEventListener('DOMContentLoaded', function () {
-      goToSlide('slide-0');
-    });
-  </script>
+        /* ================= MODAL & KANBAN ================= */
+        function openAddHs() {
+            document.getElementById('hs-modal').style.display = 'flex';
+            document.getElementById('hs-input').value = '';
+            document.getElementById('hs-input').focus();
+        }
+
+        function closeAddHs() {
+            document.getElementById('hs-modal').style.display = 'none';
+        }
+
+        function saveAddHs() {
+            const text = document.getElementById('hs-input').value.trim();
+            if (!text) { closeAddHs(); return; }
+            const lines = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+            lines.forEach(name => {
+                students.push({ id: ++nextStudentId, name, team: null, actions: [] });
+            });
+            refreshStudentSelects();
+            closeAddHs();
+            toast(`✅ Đã thêm ${lines.length} học sinh mới!`, 2500, 'var(--mint)');
+        }
+
+        function openEnd() {
+            document.getElementById('end-screen').style.display = 'flex';
+            renderKanban();
+        }
+
+        function closeEnd() {
+            document.getElementById('end-screen').style.display = 'none';
+        }
+
+        function renderKanban() {
+            const kanbanContainer = document.getElementById('kanban');
+            const cols = [
+                ...teams.map(t => ({ id: t.id, name: t.name, color: t.color })),
+                { id: null, name: 'Chưa xếp tổ', color: '#64748b' }
+            ];
+
+            kanbanContainer.style.setProperty('--n', cols.length);
+            kanbanContainer.innerHTML = cols.map(c => {
+                const list = students.filter(s => s.team === c.id);
+                return `
+                    <div class="kan-col" style="--tc:${c.color}">
+                        <h4><span>${c.name}</span> <span>(${list.length})</span></h4>
+                        <div class="kan-drop" data-col="${c.id === null ? 'null' : c.id}">
+                            ${list.map(s => `
+                                <div class="kan-card" draggable="true" data-id="${s.id}">
+                                    <span>${escapeHtml(getStudentDisplayName(s))}</span>
+                                    <span style="font-size:11px; color:#64748b;">${s.actions ? s.actions.length : 0} 🗣️</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            kanbanContainer.querySelectorAll('.kan-card').forEach(card => {
+                card.addEventListener('dragstart', e => {
+                    e.dataTransfer.setData('text/plain', card.dataset.id);
+                    card.classList.add('drag');
+                });
+                card.addEventListener('dragend', () => card.classList.remove('drag'));
+            });
+
+            kanbanContainer.querySelectorAll('.kan-drop').forEach(drop => {
+                drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+                drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+                drop.addEventListener('drop', e => {
+                    e.preventDefault();
+                    drop.classList.remove('over');
+                    const id = parseInt(e.dataTransfer.getData('text/plain'));
+                    const targetCol = drop.dataset.col === 'null' ? null : parseInt(drop.dataset.col);
+                    const st = students.find(s => s.id === id);
+                    if (st) {
+                        st.team = targetCol;
+                        renderKanban();
+                        refreshStudentSelects();
+                    }
+                });
+            });
+        }
+
+        /* ================= XUẤT EXCEL THỐNG NHẤT 3 SHEET ================= */
+        function exportExcel() {
+            const sortedTeams = [...teams].sort((a, b) => b.score - a.score);
+            let currentR = 0;
+            const rankRows = [
+                ['BẢNG XẾP HẠNG THI ĐUA TIẾT HỌC'],
+                [`Môn: Tin học 5 · Bài 2: Tìm kiếm thông tin trên website (Tiết 1) | Lớp: ${currentClass.replace('_', '/')}`],
+                [''],
+                ['Thứ Hạng', 'Danh Hiệu', 'Tổ / Dãy', 'Tổng Điểm', 'Đồng Hạng', 'Trạng Thái']
+            ];
+            sortedTeams.forEach((t, idx, arr) => {
+                if (idx > 0 && t.score === arr[idx - 1].score) {} else { currentR = idx; }
+                const isShared = arr.filter(item => item.score === t.score).length > 1;
+                const titles = ['QUÁN QUÂN', 'Á QUÂN', 'HẠNG BA', 'KHUYẾN KHÍCH', 'NỖ LỰC', 'GẮN KẾT'];
+                const tName = titles[currentR] || 'KHUYẾN KHÍCH';
+                rankRows.push([
+                    `Hạng ${currentR + 1}`,
+                    isShared && currentR < 3 ? `ĐỒNG ${tName}` : tName,
+                    t.name,
+                    t.score,
+                    isShared ? 'Có (Đồng điểm)' : 'Không',
+                    'Hoàn thành xuất sắc'
+                ]);
+            });
+            const wsRank = XLSX.utils.aoa_to_sheet(rankRows);
+            wsRank['!cols'] = [{ wch: 12 }, { wch: 22 }, { wch: 18 }, { wch: 14 }, { wch: 16 }, { wch: 24 }];
+
+            const logRows = [
+                ['NHẬT KÝ CHI TIẾT HOẠT ĐỘNG VÀ BIẾN ĐỘNG ĐIỂM SỐ THEO THỜI GIAN'],
+                [`Thời gian xuất: ${new Date().toLocaleString('vi-VN')} | Tổng số sự kiện: ${activityLogs.length}`],
+                [''],
+                ['STT', 'Thời Gian', 'Tổ / Dãy', 'Học Sinh Đại Diện', 'Nội Dung Sự Kiện / Thử Thách', 'Kết Quả', 'Biến Động Điểm', 'Điểm Sau Sự Kiện']
+            ];
+            if (activityLogs.length === 0) {
+                logRows.push(['1', '-', 'Toàn lớp', '-', 'Tiết học diễn ra tích cực', 'Hoàn thành', '0', '-']);
+            } else {
+                activityLogs.forEach(entry => {
+                    logRows.push([
+                        entry.stt, entry.time, entry.team, entry.student,
+                        entry.action, entry.result, entry.delta, entry.scoreAfter
+                    ]);
+                });
+            }
+            const wsLogs = XLSX.utils.aoa_to_sheet(logRows);
+            wsLogs['!cols'] = [{ wch: 6 }, { wch: 12 }, { wch: 18 }, { wch: 24 }, { wch: 38 }, { wch: 18 }, { wch: 16 }, { wch: 18 }];
+
+            const rows = [
+                ['DANH SÁCH HỌC SINH VÀ LỊCH SỬ THAM GIA PHÁT BIỂU'],
+                [`Lớp: ${currentClass.replace('_', '/')} | Tổng số học sinh: ${students.length}`],
+                [''],
+                ['STT', 'Mã Học Sinh', 'Họ Và Tên', 'Lớp', 'Tổ / Nhóm', 'Lịch Sử Hoạt Động & Ghi Điểm']
+            ];
+            let stt = 1;
+            [...teams.map(t => t.id), null].forEach(tid => {
+                students.filter(s => s.team === tid).forEach(s => {
+                    rows.push([
+                        stt++,
+                        `HS${String(s.id).padStart(3, '0')}`,
+                        getStudentDisplayName(s),
+                        currentClass.replace('_', '/'),
+                        tid === null ? 'Chưa xếp tổ' : teams[tid].name,
+                        s.actions ? s.actions.join('; ') || 'Tham gia học tập tích cực' : 'Tham gia học tập tích cực'
+                    ]);
+                });
+            });
+            const wsStudents = XLSX.utils.aoa_to_sheet(rows);
+            wsStudents['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 28 }, { wch: 10 }, { wch: 16 }, { wch: 80 }];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, wsRank, 'Bảng Xếp Hạng');
+            XLSX.utils.book_append_sheet(wb, wsLogs, 'Nhật Ký Chi Tiết');
+            XLSX.utils.book_append_sheet(wb, wsStudents, 'Danh Sách Học Sinh');
+
+            const d = new Date(), pad = n => String(n).padStart(2, '0');
+            const timeStr = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
+            const cleanClass = currentClass.replace(/[^a-zA-Z0-9]/g, '_');
+            const fileName = `KetQua_TinHoc5_Tiet03_Lop${cleanClass}_${timeStr}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+            toast(`📥 Đã xuất file: ${fileName}`, 3000, 'var(--mint)');
+        }
+
+        /* ================= ÂM THANH & TIỆN ÍCH ================= */
+        function playPenaltySound() {
+            const AudioContextType = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextType) return;
+            const audio = new AudioContextType(), now = audio.currentTime;
+            const osc = audio.createOscillator(), vol = audio.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(260, now);
+            osc.frequency.exponentialRampToValueAtTime(70, now + .65);
+            vol.gain.setValueAtTime(.0001, now);
+            vol.gain.exponentialRampToValueAtTime(.28, now + .04);
+            vol.gain.setValueAtTime(.28, now + .32);
+            vol.gain.exponentialRampToValueAtTime(.0001, now + .72);
+            osc.connect(vol); vol.connect(audio.destination);
+            osc.start(now); osc.stop(now + .74);
+            osc.onended = () => audio.close();
+        }
+
+        function playSuccessSound() {
+            const AudioContextType = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextType) return;
+            const audio = new AudioContextType();
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, idx) => {
+                const osc = audio.createOscillator(), gain = audio.createGain();
+                const t = audio.currentTime + idx * 0.1;
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, t);
+                gain.gain.setValueAtTime(0.001, t);
+                gain.gain.exponentialRampToValueAtTime(0.24, t + 0.03);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+                osc.connect(gain); gain.connect(audio.destination);
+                osc.start(t); osc.stop(t + 0.34);
+            });
+            setTimeout(() => audio.close(), 1000);
+        }
+
+        function playCorrectSound() {
+            const AudioContextType = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextType) return;
+            const audio = new AudioContextType(), now = audio.currentTime;
+            const osc = audio.createOscillator(), gain = audio.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, now);
+            osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.exponentialRampToValueAtTime(0.2, now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+            osc.connect(gain); gain.connect(audio.destination);
+            osc.start(now); osc.stop(now + 0.36);
+            setTimeout(() => audio.close(), 500);
+        }
+
+        let toastTimer;
+        function toast(msg, ms = 2200, bg = 'var(--mint)') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.background = bg;
+            t.style.display = 'block';
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => t.style.display = 'none', ms);
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+            }
+        }
+    </script>
 </body>
 
 </html>
