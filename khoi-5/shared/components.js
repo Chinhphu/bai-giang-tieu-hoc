@@ -133,17 +133,9 @@
               <span>${startingScoreLabel}</span>
               <span class="setup-starting-score">1000 Điểm</span>
             </div>
-            <div class="setup-row setup-student-import">
-              <div class="setup-student-import-controls">
-                <span>Dữ liệu học sinh:</span>
-                <button type="button" class="btn-import-excel"
-                  onclick="document.getElementById('excel-file-setup').click()">
-                  📥 Nhập file Excel (.xlsx)
-                </button>
-                <input type="file" id="excel-file-setup" accept=".xlsx, .xls, .csv"
-                  onchange="handleExcelUpload(event, 'setup')">
-              </div>
-              <div id="setup-excel-status"></div>
+            <div class="setup-row">
+              <span>Dữ liệu học sinh:</span>
+              <span class="setup-student-status" style="color:var(--mint);font-weight:700;">✅ Tự động tải từ JSON</span>
             </div>
             <button class="btn-setup" onclick="startGame()">${startLabel}</button>
           </div>
@@ -211,21 +203,8 @@
           <div class="modal-box">
             <h3 class="student-modal-title">➕ Thêm Học Sinh</h3>
             <div class="student-modal-import">
-              <div class="student-modal-hint">Dán danh sách hoặc nạp từ file:</div>
-              <button type="button" class="btn-import-excel student-modal-import-button"
-                onclick="document.getElementById('excel-file-modal').click()">
-                📥 Nạp từ Excel (.xlsx)
-              </button>
-              <input type="file" id="excel-file-modal" accept=".xlsx, .xls, .csv"
-                onchange="handleExcelUpload(event, 'modal')">
+              <div class="student-modal-hint">Dán danh sách học sinh (mỗi em một dòng):</div>
             </div>
-            <textarea id="${textareaId}" placeholder="Nguyễn Văn A&#10;Trần Thị B&#10;Lê Văn C"></textarea>
-            <div>
-              <button class="btn-modal-ok" type="button" onclick="${saveHandler}()">Thêm vào danh sách</button>
-              <button class="btn-modal-cancel" type="button"
-                onclick="${closeHandler}()">${cancelLabel}</button>
-            </div>
-          </div>
         </div>
       `;
     }

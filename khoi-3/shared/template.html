@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tin học 3 - Tiết Mẫu Chuẩn</title>
+    <!-- SheetJS xuất Excel & Đẩy lên Google Drive -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="../shared/style.css">
+    <script src="../shared/components.js"></script>
+</head>
+
+<body class="full">
+    <!-- 1. MÀN HÌNH CÀI ĐẶT ĐẦU GIỜ (Component dùng chung) -->
+    <khoi3-setup
+        heading="🛠️ XƯỞNG RÁP PC 🛠️"
+        description="Điệp vụ lắp ráp máy tính — đội nào gom đủ 4 linh kiện sẽ vô địch!"
+        default-class="3_2"
+        default-teams="4"
+        start-label="Bắt đầu tiết học ➔">
+    </khoi3-setup>
+
+    <!-- 2. KHU VỰC CHÍNH -->
+    <div class="main">
+        <!-- PHASE 1: KHỞI ĐỘNG / PHÁT QUÀ -->
+        <section class="screen" id="s-p1">
+            <div class="bar"><span class="badge">Khởi động</span></div>
+            <h1>🎁 Quà đầu giờ cho các tổ</h1>
+            <div style="text-align:center">
+                <button class="btn red" id="dealBtn" style="font-size:3.5vh" onclick="dealGifts()">🎁 PHÁT QUÀ CHO CÁC TỔ</button>
+            </div>
+            <div class="gift-grid" id="giftGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5vh;margin:2vh 0"></div>
+            <div class="spacer">
+                <span class="badge">Bấm nút ✕ đỏ nếu lớp mất trật tự</span>
+                <button class="btn warn" id="p1Next" onclick="startPhase2()" disabled>Vào phần bài học ➔</button>
+            </div>
+        </section>
+
+        <!-- PHASE 2: NHIỆM VỤ / CÂU HỎI -->
+        <section class="screen" id="s-p2">
+            <div class="bar">
+                <span class="badge" id="p2Badge">🎯 LƯỢT TRẢ LỜI</span>
+                <span class="game-timer" id="gameTimer">⏱️ 00:00</span>
+            </div>
+            <h1 id="turnTitle" style="font-size:5vh;margin:.5vh 0 1.5vh">Lượt của đội</h1>
+            <div style="display:flex;gap:1vw;justify-content:center;align-items:center;flex-wrap:wrap">
+                <span style="font-weight:900">👦 Bạn trả lời:</span>
+                <select id="stuSel" onchange="$('drawBtn').disabled=!this.value"></select>
+                <button class="btn red" id="drawBtn" onclick="drawQuestion()" disabled>🎲 BỐC NHIỆM VỤ</button>
+            </div>
+            <div class="panel" id="qBox" style="display:none;margin-top:2vh"></div>
+            <div class="fb" id="fb" style="text-align:center;font-size:3.5vh;font-weight:900;margin:1.5vh 0"></div>
+            <div style="text-align:center">
+                <button class="btn gray" id="nextTurn" style="display:none" onclick="advanceTurn()">Đội kế tiếp ➔</button>
+            </div>
+            <div class="spacer" style="align-items:flex-end">
+                <div class="turn-core-wrap">
+                    <div class="turn-core-title-bar">
+                        <span>🛠️ TIẾN ĐỘ RÁP PC</span>
+                        <span class="badge" id="turnCoreBadge">0/4</span>
+                    </div>
+                    <div id="bigInv"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. MÀN HÌNH TỔNG KẾT & KANBAN (Component dùng chung) -->
+        <khoi3-summary heading="📊 Tổng kết & Xếp hạng" export-label="📥 Xuất Excel (Bắn lên Google Drive)"></khoi3-summary>
+    </div>
+
+    <!-- 4. SIDEBAR QUẢN LÝ TỔ ĐỘI (Component dùng chung) -->
+    <khoi3-sidebar title="🛠️ Bảng đội"></khoi3-sidebar>
+
+    <!-- 5. MODAL HỌC SINH (Component dùng chung) -->
+    <khoi3-student-modal textarea-id="hs-input" close-handler="closeAddHs" save-handler="saveAddHs"></khoi3-student-modal>
+
+    <!-- Modal Gacha & Thắng -->
+    <div class="modal" id="gacha">
+        <div class="mcard">
+            <h2 id="gTitle" style="color:var(--violet);font-size:4vh;margin:0 0 1vh">🎁 Phần thưởng!</h2>
+            <div id="gBody"></div>
+            <p id="gMsg" style="font-weight:800;font-size:3.4vh;color:var(--muted);margin:1vh 0"></p>
+            <button class="btn green" id="gClose" style="display:none" onclick="closeGacha()">Tuyệt vời! ➔</button>
+        </div>
+    </div>
+
+    <script>
+        const STUDENT_JSON = '../../assets/data/students_3_2026_2027.json';
+        const QUESTION_JSON = './cau-hoi.json';
+        const $ = id => document.getElementById(id);
+        const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+        const G = { students: [], teams: [], turn: 0, phase: 0, log: [], bank: [] };
+
+        async function loadData() {
+            try {
+                let d = await (await fetch(STUDENT_JSON)).json();
+                G.classes = d;
+            } catch (e) {
+                G.classes = { '3_2': ['Nguyễn Văn A', 'Trần Thị B', 'Lê Văn C'] };
+            }
+            try {
+                let q = await (await fetch(QUESTION_JSON)).json();
+                G.bank = (q.questions || q);
+            } catch (e) {
+                G.bank = [];
+            }
+            setupClass();
+        }
+
+        function setupClass() {
+            const cls = $('classSel') ? $('classSel').value : '3_2';
+            const names = (G.classes && G.classes[cls]) || [];
+            if ($('setupMsg')) $('setupMsg').innerText = `✅ Đã nạp ${names.length} học sinh từ JSON (${cls})`;
+        }
+
+        function startPhase1() {
+            const cls = $('classSel').value;
+            const names = (G.classes && G.classes[cls]) || ['Học sinh 1', 'Học sinh 2'];
+            const n = +$('teamCount').value || 4;
+
+            G.cls = cls;
+            G.teams = Array.from({ length: n }, (_, i) => ({
+                name: `TỔ ${i + 1}`,
+                inv: { case: 0, monitor: 0, keyboard: 0, mouse: 0 },
+                fluff: [],
+                correct: 0,
+                total: 0,
+                pen: 0
+            }));
+
+            G.students = names.map((nm, i) => ({ id: i + 1, name: nm, team: null, correct: 0, total: 0 }));
+            G.phase = 1;
+            $('setup-screen').classList.add('hidden');
+            document.body.classList.remove('full');
+            renderSide();
+            show('p1');
+        }
+
+        function renderSide() {
+            const el = $('teamList');
+            if (!el) return;
+            el.innerHTML = G.teams.map((t, i) => `
+                <div class="tcard ${G.phase === 2 && i === G.turn ? 'active' : ''}">
+                    <div class="tcard-top">
+                        <div class="tname-wrap"><div class="tname">${esc(t.name)}</div></div>
+                        <div class="tcard-top-right">
+                            <span class="tstat-pill">👥 ${G.students.filter(s => s.team === i).length}</span>
+                            <button class="btn-punish" onclick="punish(${i})" title="Phạt ồn">🔇</button>
+                        </div>
+                    </div>
+                    <div style="font-weight:800;font-size:2vh;color:var(--primary);margin-top:0.5vh">
+                        Đúng: ${t.correct} câu | Phạt: ${t.pen}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function punish(i) {
+            G.teams[i].pen++;
+            toast(`🔊 ${G.teams[i].name} bị phạt mất trật tự!`, 2500, 'var(--red)');
+            renderSide();
+        }
+
+        function show(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+            const target = $('s-' + id);
+            if (target) target.classList.add('on');
+            document.body.classList.toggle('full', id === 'sum' || id === 'welcome');
+        }
+
+        function showSummary() {
+            show('sum');
+            renderKanban('kanban');
+        }
+
+        function renderKanban(elId) {
+            const el = $(elId);
+            if (!el) return;
+            const cols = [{ id: -1, name: '❓ Chưa có tổ' }, ...G.teams.map((t, i) => ({ id: i, name: t.name }))];
+            el.innerHTML = cols.map(c => {
+                const list = G.students.filter(s => (s.team === null ? -1 : s.team) === c.id);
+                return `
+                    <div class="kcol" data-t="${c.id}">
+                        <h3>${esc(c.name)} (${list.length})</h3>
+                        ${list.map(s => `<div class="kcard" draggable="true" data-id="${s.id}">${esc(s.name)}<small>${s.correct}/${s.total} đúng</small></div>`).join('')}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /* Xuất báo cáo và BẮN THẲNG LÊN GOOGLE DRIVE */
+        function exportExcel() {
+            const lop = G.cls || '3_2';
+            const lopTxt = lop.replace('_', '/');
+            const d = new Date(), pad = n => String(n).padStart(2, '0');
+            const fileName = `KetQua_TinHoc3_Lop${lop.replace('_', '-')}_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.xlsx`;
+
+            const detail = G.log.map((l, i) => ({
+                'STT': i + 1, 'Lớp': lopTxt, 'Giờ': l.time, 'Đội': l.team, 'Học sinh': l.student, 'Câu hỏi': l.question, 'Kết quả': l.result
+            }));
+
+            const stu = G.students.map(s => ({
+                'Lớp': lopTxt, 'Mã HS': `HS${String(s.id).padStart(3, '0')}`, 'Tổ': s.team === null ? 'Chưa có' : G.teams[s.team].name, 'Học sinh': s.name, 'Đúng': s.correct, 'Tổng câu': s.total
+            }));
+
+            const tm = G.teams.map(t => ({
+                'Lớp': lopTxt, 'Đội': t.name, 'Câu đúng': t.correct, 'Phạt ồn': t.pen
+            }));
+
+            if (window.XLSX) {
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(tm), 'Bảng Xếp Hạng');
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(detail), 'Nhật Ký Chi Tiết');
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stu), 'Danh Sách Học Sinh');
+
+                if (typeof uploadExcelToDrive === 'function') {
+                    uploadExcelToDrive(wb, fileName);
+                    return;
+                }
+                XLSX.writeFile(wb, fileName);
+            }
+        }
+
+        loadData();
+    </script>
+</body>
+
+</html>
+

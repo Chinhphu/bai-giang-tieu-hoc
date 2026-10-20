@@ -162,101 +162,12 @@
             } catch { return [] }
         }
 
-        /* Xử lý file Excel tải lên */
-        function handleExcelUpload(event, source) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-                    let nameColIndex = -1;
-                    let startRowIndex = 0;
-
-                    for (let r = 0; r < Math.min(rows.length, 10); r++) {
-                        const row = rows[r];
-                        if (!row) continue;
-                        for (let c = 0; c < row.length; c++) {
-                            const val = String(row[c] || '').toLowerCase().trim();
-                            if (val.includes('họ và tên') || val.includes('họ tên') || val === 'tên' || val === 'hoten') {
-                                nameColIndex = c;
-                                startRowIndex = r + 1;
-                                break;
-                            }
-                        }
-                        if (nameColIndex !== -1) break;
-                    }
-
-                    if (nameColIndex === -1) {
-                        for (let r = 0; r < Math.min(rows.length, 10); r++) {
-                            const row = rows[r];
-                            if (!row) continue;
-                            for (let c = 0; c < row.length; c++) {
-                                const val = String(row[c] || '').trim();
-                                if (val.split(' ').length >= 2 && !val.match(/[0-9]/)) {
-                                    nameColIndex = c;
-                                    startRowIndex = r;
-                                    break;
-                                }
-                            }
-                            if (nameColIndex !== -1) break;
-                        }
-                    }
-
-                    if (nameColIndex === -1) nameColIndex = 0;
-
-                    const extractedNames = [];
-                    for (let r = startRowIndex; r < rows.length; r++) {
-                        const row = rows[r];
-                        if (!row) continue;
-                        let val = String(row[nameColIndex] || '').trim();
-                        if (val && !val.toLowerCase().includes('họ và tên') && !val.toLowerCase().includes('danh sách') && val.length > 2) {
-                            extractedNames.push(val);
-                        }
-                    }
-
-                    if (extractedNames.length === 0) {
-                        toast('Không tìm thấy cột họ tên trong file Excel!', 3000, 'var(--coral)');
-                        return;
-                    }
-
-                    if (source === 'setup') {
-                        const statusDiv = $('setup-excel-status');
-                        statusDiv.style.display = 'block';
-                        statusDiv.innerHTML = `✅ Đã nạp <b>${extractedNames.length}</b> học sinh từ file: <i>${file.name}</i>`;
-                        window.uploadedStudentList = extractedNames;
-                        toast(`Đã nạp ${extractedNames.length} học sinh từ Excel!`, 2000, 'var(--mint)');
-                    } else if (source === 'modal') {
-                        extractedNames.forEach(name => {
-                            students.push({ id: ++nextStudentId, name, team: null, actions: [] });
-                        });
-                        refreshSelects();
-                        closeAddHs();
-                        toast(`Đã thêm ${extractedNames.length} học sinh từ Excel!`, 2000, 'var(--mint)');
-                    }
-                } catch (err) {
-                    console.error(err);
-                    toast('Lỗi đọc file Excel. Vui lòng kiểm tra lại định dạng file!', 3000, 'var(--coral)');
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
         /* Bắt đầu tiết học */
         async function startGame() {
             cls = $('s-class').value;
             const n = +$('s-teams').value;
 
-            let list = window.uploadedStudentList;
-            if (!list || !list.length) {
-                list = await loadStudents(cls);
-            }
+            let list = await loadStudents(cls);
             if (!list.length) {
                 toast('Chưa có file JSON, dùng danh sách tạm — bấm ➕ để nhập học sinh', 3500, 'var(--coral)');
                 list = ['Nguyễn Văn A', 'Trần Thị B', 'Lê Văn C', 'Phạm Thị D', 'Hoàng Văn E', 'Đỗ Gia Bảo', 'Vũ Minh Anh'];

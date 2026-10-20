@@ -31,7 +31,7 @@ Nạp CSS và component script trong `<head>` của trang tiết:
 </khoi5-setup>
 ```
 
-Các thuộc tính tùy chọn: `starting-score-label`, `start-label`. Component giữ nguyên các ID `s-class`, `s-teams`, `excel-file-setup` và `setup-excel-status` để tương thích với logic khởi tạo/import của bài.
+Các thuộc tính tùy chọn: `starting-score-label`, `start-label`. Component giữ nguyên các ID `s-class` và `s-teams` để tương thích với logic khởi tạo của bài (danh sách học sinh nạp trực tiếp tự động từ JSON chuẩn).
 
 Đặt sidebar bên trong `#app`. Sidebar tạo vùng `#teams`, nút thêm học sinh, nút tổng kết và điều hướng slide:
 

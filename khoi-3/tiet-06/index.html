@@ -5,8 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tin học 3 - Xưởng Ráp PC</title>
-    <!-- SheetJS để xuất Excel thật (.xlsx). Nếu mất mạng, game tự xuất CSV mở được bằng Excel -->
+    <!-- SheetJS để xuất Excel thật (.xlsx) & Thư viện dùng chung Khối 3 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="../shared/style.css">
+    <script src="../shared/components.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&display=swap');
 
@@ -1783,10 +1786,16 @@
             const stu = G.students.map(s => ({ 'Lớp': lopTxt, 'Mã học sinh': studentCode(s.id), 'Tổ': tn(s), 'Học sinh': studentDisplayName(s), 'Số câu': s.total, 'Đúng': s.correct, 'Sai': s.total - s.correct }));
             const tm = G.teams.map((t, i) => ({ 'Lớp': lopTxt, 'Đội': t.name, 'Số học sinh': G.students.filter(s => s.team === i).length, 'Câu đúng': t.correct, 'Tổng câu': t.total, 'Linh kiện cốt lõi': coreCount(t) + '/4', 'Đồ phụ': t.fluff.length, 'Lần bị phạt ồn': t.pen }));
             const name = exportFileBase(lop);
+            const fileName = name + '.xlsx';
             if (window.XLSX) {
                 const wb = XLSX.utils.book_new();
                 [['Chi tiết', detail], ['Theo học sinh', stu], ['Theo đội', tm]].forEach(([n, d]) => XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d), n));
-                XLSX.writeFile(wb, name + '.xlsx');
+                if (typeof uploadExcelToDrive === 'function') {
+                    uploadExcelToDrive(wb, fileName);
+                    return;
+                }
+                XLSX.writeFile(wb, fileName);
+                toast(`📥 Đã lưu file: ${fileName}`, 3000, 'var(--green)');
             } else {                                           // Dự phòng khi không tải được SheetJS: CSV (có BOM để Excel đọc tiếng Việt)
                 const rows = d => d.length ? [Object.keys(d[0]).join(','), ...d.map(r => Object.values(r).map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))].join('\n') : '';
                 const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff' + rows(detail)], { type: 'text/csv;charset=utf-8' })); a.download = name + '.csv'; a.click();

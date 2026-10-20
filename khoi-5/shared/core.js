@@ -344,7 +344,6 @@ const Khoi5Scoreboard = (() => {
 const Khoi5Students = (() => {
   let allStudents = [];
   let currentClassKey = '5_1';
-  let importedExcelStudents = [];
 
   const DEFAULT_NAMES = [
     'Ngô Phương Anh', 'Nguyễn Quốc Anh', 'Phạm Minh Anh', 'Đào Thiên Ân',
@@ -398,107 +397,7 @@ const Khoi5Students = (() => {
     return allStudents;
   }
 
-  function handleExcelUpload(inputOrEvent) {
-    return new Promise((resolve, reject) => {
-      let file = null;
-      if (inputOrEvent && inputOrEvent.target && inputOrEvent.target.files) file = inputOrEvent.target.files[0];
-      else if (inputOrEvent instanceof File) file = inputOrEvent;
-      if (!file) { resolve([]); return; }
-
-      if (typeof window.XLSX === 'undefined') {
-        const msg = '⚠️ Thư viện XLSX chưa được tải! Hãy nhúng thư viện xlsx.full.min.js';
-        if (Khoi5Utils.toast) Khoi5Utils.toast(msg, 3000, 'var(--coral)');
-        resolve([]); return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = window.XLSX.read(data, { type: 'array' });
-          const sheet = workbook.Sheets[workbook.SheetNames[0]];
-          const json = window.XLSX.utils.sheet_to_json(sheet, { header: 1 });
-          if (!json || !json.length) {
-            Khoi5Utils.toast('⚠️ File Excel không có dữ liệu!', 2500, 'var(--coral)');
-            resolve([]); return;
-          }
-
-          let nameCol = -1, hoCol = -1, tenCol = -1, startRow = 0;
-          for (let r = 0; r < Math.min(json.length, 10); r++) {
-            const row = json[r]; if (!Array.isArray(row)) continue;
-            for (let c = 0; c < row.length; c++) {
-              const val = String(row[c] || '').trim().toLowerCase();
-              if (val.includes('họ và tên') || val.includes('họ tên') || val === 'tên học sinh' || val === 'học sinh' || val === 'name') {
-                nameCol = c; startRow = r + 1; break;
-              }
-              if (val === 'họ' || val.includes('họ lót') || val.includes('họ đệm')) hoCol = c;
-              if (val === 'tên' || val === 'ten') tenCol = c;
-            }
-            if (nameCol !== -1 || (hoCol !== -1 && tenCol !== -1)) { startRow = r + 1; break; }
-          }
-
-          const extracted = [];
-          for (let r = startRow; r < json.length; r++) {
-            const row = json[r]; if (!Array.isArray(row)) continue;
-            let full = '';
-            if (nameCol !== -1) full = String(row[nameCol] || '').trim();
-            else if (hoCol !== -1 && tenCol !== -1) full = (String(row[hoCol] || '').trim() + ' ' + String(row[tenCol] || '').trim()).trim();
-            else {
-              for (let c = 0; c < row.length; c++) {
-                const s = String(row[c] || '').trim();
-                if (s.length >= 3 && isNaN(s) && !s.includes('/') && !s.includes('@')) { full = s; break; }
-              }
-            }
-            if (full && full.length >= 2 && !/^(stt|họ|tên|lớp|ghi chú)/i.test(full)) extracted.push(full);
-          }
-
-          if (extracted.length) {
-            importedExcelStudents = extracted;
-            allStudents = extracted.map((name, idx) => ({ id: idx + 1, name, team: null, actions: [] }));
-            Khoi5Utils.toast(`✅ Đã nạp thành công ${extracted.length} học sinh từ file Excel!`, 3000, 'var(--mint)');
-            resolve(extracted);
-          } else {
-            Khoi5Utils.toast('⚠️ Không tìm thấy cột Họ tên hợp lệ!', 3000, 'var(--coral)');
-            resolve([]);
-          }
-        } catch (err) {
-          Khoi5Utils.toast('🚨 Lỗi khi đọc file Excel!', 3000, 'var(--coral)');
-          reject(err);
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    });
-  }
-
-  function getStudentDisplayName(st) {
-    if (!st) return '';
-    const name = typeof st === 'string' ? st : (st.name || '');
-    const parts = name.trim().split(/\s+/);
-    if (parts.length <= 2) return name;
-    return `${parts[0]} ${parts[parts.length - 1]}`;
-  }
-
-  function getRandomStudent(teamId = null) {
-    let pool = teamId !== null ? allStudents.filter(s => s.team === teamId) : allStudents;
-    if (!pool.length) pool = allStudents;
-    if (!pool.length) return null;
-    return pool[Math.floor(Math.random() * pool.length)];
-  }
-
-  function recordStudentAnswer(studentId, text) {
-    const st = allStudents.find(s => s.id === studentId);
-    if (st) { st.actions.push(text); return true; }
-    return false;
-  }
-
-  function addStudent(name, teamId = null) {
-    if (!name || !name.trim()) return null;
-    const newSt = { id: allStudents.length + 1, name: name.trim(), team: teamId, actions: [] };
-    allStudents.push(newSt);
-    return newSt;
-  }
-
-  return { loadStudents, handleExcelUpload, getStudentDisplayName, getRandomStudent, recordStudentAnswer, addStudent, getAllStudents: () => [...allStudents] };
+  return { loadStudents, getStudentDisplayName, getRandomStudent, recordStudentAnswer, addStudent, getAllStudents: () => [...allStudents] };
 })();
 
 // ==========================================

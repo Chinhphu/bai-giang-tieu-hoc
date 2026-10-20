@@ -2,14 +2,12 @@
  * KHOI 5 - STUDENTS ENGINE
  * Quản lý danh sách học sinh khối 5:
  * 1. Tự động tải từ JSON (lớp 5/1 -> 5/6)
- * 2. Nhập file Excel thông minh (.xlsx, .xls, .csv) tự nhận diện cột Họ & Tên
  * 3. Quay số / gọi ngẫu nhiên học sinh đại diện
  * 4. Ghi nhận phát biểu và thêm học sinh nhanh
  */
 const Khoi5Students = (() => {
   let allStudents = [];
   let currentClassKey = '5_1';
-  let importedExcelStudents = [];
 
   const DEFAULT_FALLBACK_NAMES = [
     'Ngô Phương Anh', 'Nguyễn Quốc Anh', 'Phạm Minh Anh', 'Đào Thiên Ân',
@@ -21,17 +19,6 @@ const Khoi5Students = (() => {
   /** Tải danh sách học sinh theo mã lớp (ví dụ: '5_1', '5/1', ...) */
   async function loadStudents(classKey = '5_1') {
     currentClassKey = String(classKey).replace(/[^a-z0-9]/gi, '_').toLowerCase();
-
-    // Nếu giáo viên đã upload file Excel, ưu tiên dùng danh sách Excel
-    if (importedExcelStudents && importedExcelStudents.length > 0) {
-      allStudents = importedExcelStudents.map((name, idx) => ({
-        id: idx + 1,
-        name: typeof name === 'string' ? name : (name.name || `Học sinh ${idx + 1}`),
-        team: null,
-        actions: []
-      }));
-      return allStudents;
-    }
 
     try {
       const paths = [
@@ -76,129 +63,6 @@ const Khoi5Students = (() => {
       actions: []
     }));
     return allStudents;
-  }
-
-  /**
-   * Đọc và nhận diện thông minh danh sách học sinh từ file Excel do giáo viên nạp
-   * @param {Event|File} inputOrEvent - Sự kiện onchange của input file hoặc đối tượng File
-   * @returns {Promise<Array<string>>} Danh sách tên học sinh đã trích xuất
-   */
-  function handleExcelUpload(inputOrEvent) {
-    return new Promise((resolve, reject) => {
-      let file = null;
-      if (inputOrEvent && inputOrEvent.target && inputOrEvent.target.files) {
-        file = inputOrEvent.target.files[0];
-      } else if (inputOrEvent instanceof File) {
-        file = inputOrEvent;
-      }
-
-      if (!file) {
-        resolve([]);
-        return;
-      }
-
-      if (typeof window.XLSX === 'undefined') {
-        const msg = '⚠️ Thư viện XLSX chưa được tải! Hãy nhúng thư viện xlsx.full.min.js';
-        if (window.toast) window.toast(msg, 3000, 'var(--coral)');
-        alert(msg);
-        reject(new Error(msg));
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = window.XLSX.read(data, { type: 'array' });
-          const sheetName = workbook.SheetNames[0];
-          const sheet = workbook.Sheets[sheetName];
-          const json = window.XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-          if (!json || json.length === 0) {
-            if (window.toast) window.toast('⚠️ File Excel không có dữ liệu!', 2500, 'var(--coral)');
-            resolve([]);
-            return;
-          }
-
-          let nameColIdx = -1;
-          let hoColIdx = -1;
-          let tenColIdx = -1;
-          let startRow = 0;
-
-          // Quét tối đa 10 dòng đầu để tìm cột họ tên
-          for (let r = 0; r < Math.min(json.length, 10); r++) {
-            const row = json[r];
-            if (!Array.isArray(row)) continue;
-            for (let c = 0; c < row.length; c++) {
-              const val = String(row[c] || '').trim().toLowerCase();
-              if (val.includes('họ và tên') || val.includes('họ tên') || val === 'tên học sinh' || val === 'học sinh' || val === 'name') {
-                nameColIdx = c;
-                startRow = r + 1;
-                break;
-              }
-              if (val === 'họ' || val.includes('họ lót') || val.includes('họ đệm')) {
-                hoColIdx = c;
-              }
-              if (val === 'tên' || val === 'ten') {
-                tenColIdx = c;
-              }
-            }
-            if (nameColIdx !== -1 || (hoColIdx !== -1 && tenColIdx !== -1)) {
-              startRow = r + 1;
-              break;
-            }
-          }
-
-          const extractedNames = [];
-          for (let r = startRow; r < json.length; r++) {
-            const row = json[r];
-            if (!Array.isArray(row)) continue;
-            let fullName = '';
-            if (nameColIdx !== -1) {
-              fullName = String(row[nameColIdx] || '').trim();
-            } else if (hoColIdx !== -1 && tenColIdx !== -1) {
-              const ho = String(row[hoColIdx] || '').trim();
-              const ten = String(row[tenColIdx] || '').trim();
-              fullName = (ho + ' ' + ten).trim();
-            } else {
-              // Tìm cột đầu tiên có chuỗi văn bản hợp lệ
-              for (let c = 0; c < row.length; c++) {
-                const str = String(row[c] || '').trim();
-                if (str.length >= 3 && isNaN(str) && !str.includes('/') && !str.includes('@')) {
-                  fullName = str;
-                  break;
-                }
-              }
-            }
-
-            if (fullName && fullName.length >= 2 && !/^(stt|họ|tên|lớp|ghi chú|ngày sinh|năm sinh)/i.test(fullName)) {
-              extractedNames.push(fullName);
-            }
-          }
-
-          if (extractedNames.length > 0) {
-            importedExcelStudents = extractedNames;
-            allStudents = extractedNames.map((name, idx) => ({
-              id: idx + 1,
-              name,
-              team: null,
-              actions: []
-            }));
-            const msg = `✅ Đã nạp thành công ${extractedNames.length} học sinh từ file Excel!`;
-            if (window.toast) window.toast(msg, 3000, 'var(--mint)');
-            resolve(extractedNames);
-          } else {
-            if (window.toast) window.toast('⚠️ Không tìm thấy cột Họ tên hợp lệ trong file!', 3000, 'var(--coral)');
-            resolve([]);
-          }
-        } catch (err) {
-          console.error('Lỗi đọc Excel:', err);
-          if (window.toast) window.toast('🚨 Lỗi khi xử lý file Excel!', 3000, 'var(--coral)');
-          reject(err);
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    });
   }
 
   /** Lấy tên hiển thị gọn gàng (rút gọn họ nếu cần) */
@@ -248,13 +112,11 @@ const Khoi5Students = (() => {
 
   return {
     loadStudents,
-    handleExcelUpload,
     getStudentDisplayName,
     getRandomStudent,
     recordStudentAnswer,
     addStudent,
     getAllStudents: () => [...allStudents],
-    getImportedExcelStudents: () => [...importedExcelStudents]
   };
 })();
 
@@ -262,6 +124,5 @@ const Khoi5Students = (() => {
 window.Khoi5Students = Khoi5Students;
 window.loadStudents = Khoi5Students.loadStudents;
 window.loadStudentList = Khoi5Students.loadStudents;
-window.handleExcelUpload = Khoi5Students.handleExcelUpload;
 window.getStudentDisplayName = Khoi5Students.getStudentDisplayName;
 window.studentDisplayName = Khoi5Students.getStudentDisplayName;
