@@ -290,7 +290,7 @@
                     <li>3. Quá trình: <strong>Tiếp nhận ➔ Xử lí ➔ Hành động</strong>.</li>
                 </ul>
             </div>
-            <div class="timer-display" id="copyTimer">07:00</div>
+            <div class="timer-display" id="copyTimer">03:00</div>
             <div class="controls copy-controls">
                 <button type="button" class="btn-nav" id="startTimerBtn" style="background-color: var(--accent-green);">Bắt đầu</button>
                 <button type="button" class="btn-nav" id="pauseTimerBtn" style="background-color: var(--lesson-coral);">Tạm dừng</button>
@@ -371,17 +371,41 @@
         </section>
     </div>
 
-    <!-- Scoreboard Bên Phải -->
+    <!-- Scoreboard Bên Phải (Chuẩn Tiết 07) -->
     <aside class="scoreboard">
-        <h3 style="margin-top: 0; text-align: center; color: var(--lesson-navy); font-size: 3.5vh;">Đấu Trường Lớp Học</h3>
         <div class="setup-panel">
-            <input id="teamCountInput" type="number" min="2" max="3" value="3" title="Số lượng dãy" />
-            <button type="button" class="btn-nav" id="generateTeamsBtn" style="padding: 1vh 2vw; font-size: 2vh;">Tạo</button>
+            <span style="font-weight:900; color:var(--primary); font-size:1.05rem;">🏆 ĐIỂM CÁC TỔ</span>
+            <div style="display:flex; gap:6px; align-items:center;">
+                <select id="classSelect" onchange="changeClass(this.value)" title="Chọn lớp">
+                    <option value="3_2">3/2</option>
+                    <option value="3_3">3/3</option>
+                    <option value="3_4">3/4</option>
+                    <option value="3_5">3/5</option>
+                    <option value="3_6">3/6</option>
+                </select>
+                <select id="teamCountInput" onchange="changeTeamCount(this.value)" title="Số tổ">
+                    <option value="2">2 tổ</option>
+                    <option value="3" selected>3 tổ</option>
+                </select>
+            </div>
         </div>
         <div class="teams-list" id="teamsList"></div>
 
-        <div class="score-tools" style="margin-top: auto; padding-top: 2vh;">
-            <button type="button" class="btn-nav warning" id="gachaBtn" style="width: 100%; font-size: 3.2vh; padding: 2vh; background-color: #8b5cf6;">MỜI PHÁT BIỂU 🎤</button>
+        <!-- KHUNG GỌI TÊN HỌC SINH CHUẨN TIẾT 07 -->
+        <details id="students-panel" open style="margin-top: 10px;">
+            <summary id="students-summary">👥 Danh sách học sinh</summary>
+            <div id="students-header">
+                <span id="st-head-title" class="st-head-title">CÒN LƯỢT: --/--</span>
+                <div class="students-search-row">
+                    <input type="text" id="search-student" placeholder="Tìm tên..." onkeyup="filterStudents()">
+                    <button type="button" class="btn-gacha-roll" onclick="randomPickStudent()">🎲 Gacha</button>
+                </div>
+            </div>
+            <div id="students-list"></div>
+        </details>
+
+        <div class="score-tools" style="margin-top: 10px;">
+            <button type="button" class="btn-nav warning" id="gachaBtn" style="width: 100%; font-size: 1rem; padding: 10px; background-color: #8b5cf6;">MỞ HỘP QUÀ 🎁</button>
         </div>
     </aside>
 
@@ -472,24 +496,34 @@
             }, 3500);
         }
 
-        // ================= BẢNG ĐIỀU KHIỂN & CHỨC NĂNG PHẠT =================
+        // ================= BẢNG ĐIỀU KHIỂN & CHỨC NĂNG PHẠT (CHUẨN TIẾT 07) =================
+        let currentClassID = '3_2';
+        let classStudents = [];
+        let calledStudents = new Set();
+        let selectedStudent = null;
+
         function createTeams(count) {
             const list = document.getElementById('teamsList');
             list.innerHTML = '';
             for (let i = 0; i < count; i++) {
+                const color = teamColors[i % teamColors.length];
                 const card = document.createElement('div');
                 card.className = 'team-card';
                 card.innerHTML = `
-                  <div class="team-name" contenteditable="true" style="font-size: 2.5vh; color: var(--lesson-navy); font-weight: bold; text-align: center; margin-bottom: 12px;">Dãy ${i + 1}</div>
-                  <div class="score-controls" style="display: flex; justify-content: center;">
-                    <button class="btn-score penalty">Phạt ồn (Xóa 1 ô)</button>
+                  <div class="team-meta">
+                    <span class="team-name" style="color: ${color};">Tổ ${i + 1} (${teamSymbols[i]})</span>
+                    <div class="team-action-btns">
+                      <button class="noise-btn penalty" style="padding: 4px 8px;" type="button">Phạt ồn 🔇</button>
+                    </div>
                   </div>
+                  <div class="team-score" id="score-tiet04-${i}" style="color:${color};">0</div>
                 `;
                 
                 // LOGIC PHẠT: Tìm và xóa 1 ô của dãy này
-                card.querySelector('.penalty').onclick = () => {
+                card.querySelector('.penalty').onclick = (e) => {
+                    e.stopPropagation();
                     let hasErased = false;
-                    const teamName = card.querySelector('.team-name').textContent.trim();
+                    const teamName = `Tổ ${i + 1}`;
 
                     caroGames.forEach(game => {
                         const ownedIndices = [];
@@ -500,7 +534,6 @@
                         if (ownedIndices.length > 0) {
                             const randomCellIdx = ownedIndices[Math.floor(Math.random() * ownedIndices.length)];
                             const cell = game.cells[randomCellIdx];
-                            
                             cell.classList.add('cell-penalty');
                             hasErased = true;
                             
@@ -514,11 +547,11 @@
                                 if(!game.active && game.state.includes(null)) {
                                     game.active = true; 
                                 }
+                                updateScoresDisplay();
                             }, 600);
                         }
                     });
 
-                    // Gọi Custom Alert
                     if (hasErased) {
                         showCustomAlert(`${teamName} mất trật tự! Đã xóa ngẫu nhiên 1 ô trên bàn cờ.`);
                     } else {
@@ -527,17 +560,108 @@
                 };
                 list.appendChild(card);
             }
+            updateScoresDisplay();
         }
 
-        document.getElementById('generateTeamsBtn').onclick = () => {
-            const countInput = document.getElementById('teamCountInput');
-            const count = Math.max(2, Math.min(3, Number(countInput.value) || 2));
-            countInput.value = count;
+        function updateScoresDisplay() {
+            const count = document.querySelectorAll('#teamsList .team-card').length;
+            for (let i = 0; i < count; i++) {
+                let cellCount = 0;
+                caroGames.forEach(game => {
+                    game.state.forEach(t => { if (t === i) cellCount++; });
+                });
+                const el = document.getElementById(`score-tiet04-${i}`);
+                if (el) el.textContent = cellCount;
+            }
+        }
+
+        function changeTeamCount(val) {
+            const count = Math.max(2, Math.min(3, Number(val) || 2));
             document.querySelectorAll('.caro-team-count').forEach(select => select.value = count);
             createTeams(count);
             caroGames.forEach(game => game.reset());
-        };
+        }
+
+        async function loadClassData(classId) {
+            currentClassID = classId;
+            let studentNames = (window.FALLBACK_STUDENTS_KHOI_3 && window.FALLBACK_STUDENTS_KHOI_3[classId]) || [];
+            try {
+                const res = await fetch('../../assets/data/students_3_2026_2027.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data[classId])) studentNames = data[classId];
+                }
+            } catch (_) {}
+
+            classStudents = studentNames.map((name, i) => ({ id: `hs-${i + 1}`, name }));
+            calledStudents = new Set();
+            selectedStudent = null;
+            renderStudents();
+        }
+
+        function renderStudents() {
+            const listEl = document.getElementById('students-list');
+            const headEl = document.getElementById('st-head-title');
+            const sumEl = document.getElementById('students-summary');
+            const remaining = classStudents.length - calledStudents.size;
+
+            if (headEl) headEl.textContent = `CÒN LƯỢT: ${remaining}/${classStudents.length}`;
+            if (sumEl) sumEl.textContent = `👥 Danh sách học sinh (${remaining} còn lượt)`;
+
+            if (listEl) {
+                listEl.innerHTML = classStudents.map((s, idx) => {
+                    const called = calledStudents.has(s.id);
+                    const sel = selectedStudent === s.id;
+                    return `
+                        <button class="stu-btn ${sel ? 'active' : ''}" type="button"
+                            data-id="${s.id}" data-name="${s.name.toLowerCase()}" ${called ? 'disabled' : ''}
+                            onclick="selectStudent('${s.id}')">
+                            <span>${idx + 1}. ${s.name}</span>
+                            ${called ? '<span style="color:#4ade80;font-weight:900;">✓</span>' : ''}
+                        </button>
+                    `;
+                }).join('');
+            }
+            filterStudents();
+        }
+
+        function selectStudent(id) {
+            if (calledStudents.has(id)) return;
+            selectedStudent = id;
+            renderStudents();
+            const s = classStudents.find(x => x.id === id);
+            if (s && typeof showCustomAlert === 'function') {
+                showCustomAlert(`🎲 Mời bạn ${s.name} lên thực hiện nhiệm vụ!`);
+            }
+        }
+
+        function randomPickStudent() {
+            const avail = classStudents.filter(s => !calledStudents.has(s.id));
+            if (!avail.length) {
+                calledStudents.clear();
+                if (typeof showCustomAlert === 'function') showCustomAlert('🎉 Đã gọi hết 1 vòng cả lớp! Bắt đầu vòng mới!');
+                renderStudents();
+                return;
+            }
+            const pick = avail[Math.floor(Math.random() * avail.length)];
+            selectStudent(pick.id);
+        }
+
+        function filterStudents() {
+            const input = document.getElementById('search-student');
+            const v = input ? input.value.toLowerCase().trim() : '';
+            document.querySelectorAll('#students-list .stu-btn').forEach(btn => {
+                const name = btn.getAttribute('data-name') || '';
+                btn.style.display = name.includes(v) ? 'flex' : 'none';
+            });
+        }
+
+        function changeClass(cid) {
+            loadClassData(cid);
+        }
+
         createTeams(3);
+        loadClassData('3_2');
 
         // ================= CỜ CA RÔ TRẮC NGHIỆM =================
         const teamSymbols = ['X', 'O', '★'];
@@ -791,7 +915,7 @@
         });
 
         // ================= TÍNH NĂNG ĐỒNG HỒ =================
-        let timeRemaining = 420;
+        let timeRemaining = 180;
         let timerInterval;
         let isTimerRunning = false;
 
@@ -839,7 +963,7 @@
         resetTimerBtn.addEventListener('click', function () {
             clearInterval(timerInterval);
             isTimerRunning = false;
-            timeRemaining = 420;
+            timeRemaining = 180;
             updateTimerText();
             startTimerBtn.style.opacity = '1';
             startTimerBtn.textContent = 'Bắt đầu';

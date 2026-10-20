@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bài 1: Thông tin và quyết định (Tiết 2)</title>
     <link rel="stylesheet" href="../shared/style.css">
+    <script src="../shared/components.js"></script>
 </head>
 
 <body class="lesson-quiz">
@@ -38,17 +39,45 @@
         </div>
     </div>
 
-    <!-- ================= BẢNG ĐIỂM BÊN PHẢI ================= -->
-    <div class="scoreboard">
+    <!-- ================= BẢNG ĐIỂM & KHUNG GỌI TÊN BÊN PHẢI (CHUẨN TIẾT 07) ================= -->
+    <aside class="scoreboard">
         <div class="setup-panel">
-            <input type="number" id="teamCountInput" value="3" min="1" max="10" title="Số lượng đội">
-            <button class="btn-nav" style="padding: 10px; font-size: 1rem;" onclick="initGame()">Tạo</button>
-            <button class="btn-nav" style="padding: 10px; font-size: 1rem; background: #2b2d42;" onclick="toggleFullScreen()">⛶ Toàn màn hình</button>
+            <span style="font-weight:900; color:var(--primary); font-size:1.05rem;">🏆 ĐIỂM CÁC TỔ</span>
+            <div style="display:flex; gap:6px; align-items:center;">
+                <select id="classSelect" onchange="changeClass(this.value)" title="Chọn lớp">
+                    <option value="3_2">3/2</option>
+                    <option value="3_3">3/3</option>
+                    <option value="3_4">3/4</option>
+                    <option value="3_5">3/5</option>
+                    <option value="3_6">3/6</option>
+                </select>
+                <select id="teamCountInput" onchange="initGame()" title="Số tổ">
+                    <option value="2">2 tổ</option>
+                    <option value="3" selected>3 tổ</option>
+                    <option value="4">4 tổ</option>
+                    <option value="5">5 tổ</option>
+                    <option value="6">6 tổ</option>
+                </select>
+                <button class="btn-nav" style="padding:4px 8px; font-size:0.8rem; background:#2b2d42;" onclick="toggleFullScreen()" title="Toàn màn hình">⛶</button>
+            </div>
         </div>
         <div class="teams-list" id="teams-list">
             <!-- Danh sách đội render tại đây -->
         </div>
-    </div>
+
+        <!-- KHUNG GỌI TÊN HỌC SINH CHUẨN TIẾT 07 -->
+        <details id="students-panel" open>
+            <summary id="students-summary">👥 Danh sách học sinh</summary>
+            <div id="students-header">
+                <span id="st-head-title" class="st-head-title">CÒN LƯỢT: --/--</span>
+                <div class="students-search-row">
+                    <input type="text" id="search-student" placeholder="Tìm tên..." onkeyup="filterStudents()">
+                    <button type="button" class="btn-gacha-roll" onclick="randomPickStudent()">🎲 Gacha</button>
+                </div>
+            </div>
+            <div id="students-list"></div>
+        </details>
+    </aside>
 
     <!-- ================= JAVASCRIPT ================= -->
     <script>
@@ -171,51 +200,154 @@
             }
         }
 
-        // ================= HỆ THỐNG ĐIỂM SỐ =================
+        // ================= HỆ THỐNG ĐIỂM SỐ & GỌI TÊN CHUẨN TIẾT 07 =================
         let teams = [];
+        let currentClassID = '3_2';
+        let classStudents = [];
+        let calledStudents = new Set();
+        let selectedStudent = null;
+        let activeTurn = 0;
+        const TEAM_COLORS = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
 
         function initGame() {
-            let num = parseInt(document.getElementById('teamCountInput').value);
-            if (isNaN(num) || num < 1) num = 3; 
+            let num = parseInt(document.getElementById('teamCountInput').value) || 3;
+            if (num < 2) num = 2;
+            if (num > 6) num = 6;
 
             let listContainer = document.getElementById('teams-list');
             listContainer.innerHTML = '';
             teams = [];
 
             for (let i = 0; i < num; i++) {
-                teams.push(0); 
+                teams.push(0);
+                const color = TEAM_COLORS[i % TEAM_COLORS.length];
+                const isActive = i === activeTurn;
 
                 let teamDiv = document.createElement('div');
-                teamDiv.className = 'team-card';
+                teamDiv.className = `team-card ${isActive ? 'active' : ''}`;
+                teamDiv.onclick = () => setTurn(i);
                 teamDiv.innerHTML = `
-                    <div class="team-name" contenteditable="true" title="Bấm để sửa tên">Đội ${i + 1} ✎</div>
-                    <div class="team-score" id="score-${i}" contenteditable="true" onblur="manualEditScore(${i}, this)" title="Bấm để sửa điểm">0</div>
-                    <div class="score-controls">
-                        <button class="btn-score add" onclick="updateScore(${i}, 20)">+20</button>
-                        <button class="btn-score steal" onclick="updateScore(${i}, 10)">+10</button>
-                        <button class="btn-score sub" onclick="updateScore(${i}, -15)">-15</button>
+                    <div class="team-meta">
+                        <span class="team-name" style="color:${color};">Tổ ${i + 1} ${isActive ? '🎯' : ''}</span>
+                        <div class="team-action-btns">
+                            <button class="plus-btn" onclick="updateScore(${i}, 20, event)" title="Đúng câu hỏi (+20đ)">+20</button>
+                            <button class="plus-btn" style="background:#e0f2fe;color:#0369a1;border-color:#7dd3fc;" onclick="updateScore(${i}, 10, event)" title="Cướp quyền (+10đ)">+10</button>
+                            <button class="noise-btn" onclick="updateScore(${i}, -15, event)" title="Trừ điểm vi phạm (-15đ)">-15</button>
+                        </div>
                     </div>
+                    <div class="team-score" id="score-${i}" style="color:${color};" title="Điểm số Tổ ${i + 1}">0</div>
                 `;
                 listContainer.appendChild(teamDiv);
             }
         }
 
-        function updateScore(teamIndex, points) {
-            teams[teamIndex] += points;
-            let scoreEl = document.getElementById(`score-${teamIndex}`);
-            scoreEl.innerText = teams[teamIndex];
-            
-            scoreEl.style.transform = 'scale(1.5)';
-            setTimeout(() => { scoreEl.style.transform = 'scale(1)'; }, 200);
+        function setTurn(idx) {
+            activeTurn = idx;
+            document.querySelectorAll('#teams-list .team-card').forEach((el, i) => {
+                el.classList.toggle('active', i === idx);
+                const nameEl = el.querySelector('.team-name');
+                if (nameEl) nameEl.textContent = `Tổ ${i + 1} ${i === idx ? '🎯' : ''}`;
+            });
         }
 
-        function manualEditScore(teamIndex, element) {
-            let newScore = parseInt(element.innerText);
-            if (!isNaN(newScore)) {
-                teams[teamIndex] = newScore;
-            } else {
-                element.innerText = teams[teamIndex];
+        function updateScore(teamIndex, points, ev) {
+            if (ev) ev.stopPropagation();
+            teams[teamIndex] = Math.max(0, teams[teamIndex] + points);
+            let scoreEl = document.getElementById(`score-${teamIndex}`);
+            if (scoreEl) {
+                scoreEl.innerText = teams[teamIndex];
+                scoreEl.style.transform = 'scale(1.25)';
+                setTimeout(() => { scoreEl.style.transform = 'scale(1)'; }, 200);
             }
+            if (typeof toast === 'function') {
+                toast(`Tổ ${teamIndex + 1} ${points >= 0 ? '+' : ''}${points}đ! (Tổng: ${teams[teamIndex]}đ)`);
+            }
+        }
+
+        async function loadClassData(classId) {
+            currentClassID = classId;
+            let studentNames = (window.FALLBACK_STUDENTS_KHOI_3 && window.FALLBACK_STUDENTS_KHOI_3[classId]) || [];
+            try {
+                const res = await fetch('../../assets/data/students_3_2026_2027.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data[classId])) studentNames = data[classId];
+                }
+            } catch (_) {}
+
+            classStudents = studentNames.map((name, i) => ({ id: `hs-${i + 1}`, name }));
+            calledStudents = new Set();
+            selectedStudent = null;
+            renderStudents();
+        }
+
+        function renderStudents() {
+            const listEl = document.getElementById('students-list');
+            const headEl = document.getElementById('st-head-title');
+            const sumEl = document.getElementById('students-summary');
+            const remaining = classStudents.length - calledStudents.size;
+
+            if (headEl) headEl.textContent = `CÒN LƯỢT: ${remaining}/${classStudents.length}`;
+            if (sumEl) sumEl.textContent = `👥 Danh sách học sinh (${remaining} còn lượt)`;
+
+            if (listEl) {
+                listEl.innerHTML = classStudents.map((s, idx) => {
+                    const called = calledStudents.has(s.id);
+                    const sel = selectedStudent === s.id;
+                    return `
+                        <button class="stu-btn ${sel ? 'active' : ''}" type="button"
+                            data-id="${s.id}" data-name="${s.name.toLowerCase()}" ${called ? 'disabled' : ''}
+                            onclick="selectStudent('${s.id}')">
+                            <span>${idx + 1}. ${s.name}</span>
+                            ${called ? '<span style="color:#4ade80;font-weight:900;">✓</span>' : ''}
+                        </button>
+                    `;
+                }).join('');
+            }
+            filterStudents();
+        }
+
+        function selectStudent(id) {
+            if (calledStudents.has(id)) return;
+            selectedStudent = id;
+            renderStudents();
+            const s = classStudents.find(x => x.id === id);
+            if (s && typeof toast === 'function') {
+                toast(`🎲 Mời bạn ${s.name} trả lời cho Tổ ${activeTurn + 1}!`);
+            }
+        }
+
+        function markCalledCurrentStudent() {
+            if (selectedStudent) {
+                calledStudents.add(selectedStudent);
+                selectedStudent = null;
+                renderStudents();
+            }
+        }
+
+        function randomPickStudent() {
+            const avail = classStudents.filter(s => !calledStudents.has(s.id));
+            if (!avail.length) {
+                calledStudents.clear();
+                if (typeof toast === 'function') toast('🎉 Đã gọi hết 1 vòng cả lớp! Bắt đầu vòng mới!');
+                renderStudents();
+                return;
+            }
+            const pick = avail[Math.floor(Math.random() * avail.length)];
+            selectStudent(pick.id);
+        }
+
+        function filterStudents() {
+            const input = document.getElementById('search-student');
+            const v = input ? input.value.toLowerCase().trim() : '';
+            document.querySelectorAll('#students-list .stu-btn').forEach(btn => {
+                const name = btn.getAttribute('data-name') || '';
+                btn.style.display = name.includes(v) ? 'flex' : 'none';
+            });
+        }
+
+        function changeClass(cid) {
+            loadClassData(cid);
         }
 
         function toggleFullScreen() {
@@ -234,7 +366,8 @@
             await loadQuests();
             renderQuestions();
             initGame();
-        };             
+            await loadClassData('3_2');
+        };
     </script>
 </body>
 </html>

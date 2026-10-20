@@ -46,29 +46,31 @@
         body {
             margin: 0;
             width: 100vw;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
             display: flex;
             font-family: 'Quicksand', sans-serif;
             background: var(--bg);
             color: var(--text);
-            font-size: 2.6vh
+            font-size: 2.6vh;
         }
 
         .main {
             flex: 1;
             min-width: 0;
-            height: 100vh;
+            min-height: 100vh;
             overflow-y: auto;
             padding: 2vh 3vw;
-            background: radial-gradient(circle at 10% 5%, #e1f8fa 0, transparent 28%), var(--bg)
+            background: radial-gradient(circle at 10% 5%, #e1f8fa 0, transparent 28%), var(--bg);
         }
 
         .screen {
             display: none;
             flex-direction: column;
-            min-height: 96vh;
-            animation: fade .3s
+            min-height: 90vh;
+            height: auto;
+            animation: fade .3s;
         }
 
         .screen.on {
@@ -622,7 +624,7 @@
             flex-direction: column;
             gap: .8vh;
             font-size: 2.2vh;
-            overflow: hidden; /* Cố định 100%, không cuộn sidebar */
+            overflow-y: auto; /* Cho phép cuộn nếu danh sách dài */
         }
 
         .shead {
@@ -661,7 +663,7 @@
             height: 100%;
             display: grid;
             gap: .8vh .6vw;
-            overflow: hidden; /* Cố định, KHÔNG CUỘN DANH SÁCH TỔ */
+            overflow-y: auto; /* Cho phép cuộn danh sách tổ */
         }
 
         .tcard {
@@ -1399,18 +1401,21 @@
    ================================================================================ */
 .presentation-area {
     flex: 1;
-    height: 100vh;
+    min-height: 100vh;
+    height: auto;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     padding: 2vh 2vw;
     box-sizing: border-box;
+    overflow-y: auto;
 }
 
 .slide-container {
     width: 100%;
     max-width: 1200px;
-    height: 92vh;
+    min-height: 88vh;
+    height: auto;
     background: var(--slide-bg);
     border-radius: var(--border-radius);
     padding: 4vh 4vw;
@@ -1419,6 +1424,8 @@
     flex-direction: column;
     justify-content: center;
     box-sizing: border-box;
+    overflow-y: auto;
+    margin: auto 0;
     animation: slideIn 0.4s ease-out;
 }
 
@@ -1539,19 +1546,23 @@ h1 {
     transform: scale(1.05);
 }
 
-/* ================= BẢNG ĐIỂM (CỘT BÊN PHẢI) ================= */
+/* ================= BẢNG ĐIỂM TỐI ƯU TOÀN BỘ KHỐI 3 ================= */
 .scoreboard {
     width: 360px;
-    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+    position: sticky;
+    top: 0;
     background: #fff;
     box-shadow: -5px 0 20px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 12px;
     box-sizing: border-box;
     border-left: 4px solid var(--primary);
     flex-shrink: 0;
     z-index: 100;
+    overflow-y: auto;
 }
 
 .setup-panel {
@@ -1559,105 +1570,375 @@ h1 {
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
     border-bottom: 2px dashed #e0e4e8;
 }
 
+.setup-panel select,
 .setup-panel input {
-    width: 60px;
-    padding: 10px;
+    padding: 5px 8px;
     border: 2px solid #e0e4e8;
     border-radius: 8px;
     font-family: 'Quicksand', sans-serif;
-    font-weight: bold;
-    font-size: 1.2rem;
+    font-weight: 800;
+    font-size: 0.95rem;
     text-align: center;
+    background: #fff;
 }
 
-.teams-list {
+.teams-list,
+#teamsContainer,
+#teamsList,
+#teams-list {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 8px;
     overflow-y: auto;
-    padding-right: 5px;
+    padding-right: 2px;
 }
 
-.teams-list::-webkit-scrollbar {
+.teams-list::-webkit-scrollbar,
+#teamsContainer::-webkit-scrollbar {
     width: 5px;
 }
 
-.teams-list::-webkit-scrollbar-thumb {
-    background: #ccc;
+.teams-list::-webkit-scrollbar-thumb,
+#teamsContainer::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
     border-radius: 5px;
 }
 
+/* Hàng bảng điểm tối ưu: Gọn gàng, chữ tổ rõ, số điểm RẤT TO, nút bấm mini */
+.team-row,
 .team-card {
-    background: var(--bg-color);
-    padding: 15px;
-    border-radius: 15px;
-    text-align: center;
-    border: 2px solid #e0e4e8;
+    background: #ffffff;
+    padding: 6px 10px;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    border-left: 8px solid var(--primary, #3b82f6);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    transition: all .15s ease;
+    cursor: pointer;
+    box-sizing: border-box;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+}
+
+.team-row:hover,
+.team-card:hover {
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+.team-row.active,
+.team-card.active {
+    background: #eff6ff;
+    border-color: #3b82f6;
+    border-left-color: #1d4ed8;
+}
+
+.team-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
 }
 
 .team-name {
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: var(--primary);
-    outline: none;
-    border-bottom: 1px dashed transparent;
-}
-
-.team-name:hover,
-.team-name:focus {
-    border-bottom: 1px dashed var(--primary);
-}
-
-.team-score {
-    font-size: 2.5rem;
     font-weight: 900;
-    color: var(--secondary);
-    margin: 10px 0;
+    font-size: 1.15rem;
+    color: #1e3a8a;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     outline: none;
-    border-bottom: 2px dashed transparent;
 }
 
-.team-score:hover,
-.team-score:focus {
-    border-bottom: 2px dashed var(--secondary);
-}
-
+.team-action-btns,
 .score-controls {
     display: flex;
-    gap: 8px;
-    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
 }
 
-.btn-score {
-    padding: 8px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    font-family: 'Quicksand', sans-serif;
-    font-size: 1.1rem;
-    flex: 1;
-}
-
-.btn-score.add {
-    background: var(--accent-green);
-    color: white;
-}
-
+.plus-btn,
+.btn-score.add,
 .btn-score.steal {
-    background: var(--secondary);
-    color: white;
+    background: #dcfce7;
+    color: #15803d;
+    border: 1.5px solid #86efac;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 0.78rem;
+    padding: 3px 6px;
+    cursor: pointer;
+    line-height: 1;
+    transition: all .1s;
+    outline: none;
 }
 
+.plus-btn:hover,
+.btn-score.add:hover {
+    background: #bbf7d0;
+}
+
+.noise-btn,
 .btn-score.sub {
-    background: var(--accent-red);
-    color: white;
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1.5px solid #fca5a5;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 0.78rem;
+    padding: 3px 6px;
+    cursor: pointer;
+    line-height: 1;
+    transition: all .1s;
+    outline: none;
+}
+
+.noise-btn:hover,
+.btn-score.sub:hover {
+    background: #fecaca;
+}
+
+/* SỐ ĐIỂM: RẤT TO ĐỂ HỌC SINH BÀN CUỐI NHÌN RÕ RÀNG */
+.team-score {
+    font-size: 2.35rem;
+    font-weight: 900;
+    color: #0f172a;
+    min-width: 60px;
+    text-align: right;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+    outline: none;
+}
+
+/* ================= KHUNG GỌI TÊN HỌC SINH (CHUẨN TIẾT 07 CHO TOÀN BỘ KHỐI 3) ================= */
+#students-panel,
+.students-panel {
+    border: 2px solid #5b8cff;
+    border-radius: 14px;
+    background: #0b1530;
+    color: #fff;
+    margin-top: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(11, 21, 48, 0.2);
+}
+
+#students-summary,
+.students-summary {
+    padding: 8px 12px;
+    background: #16295e;
+    color: #fff;
+    font-weight: 900;
+    font-size: 0.92rem;
+    cursor: pointer;
+    border-radius: 12px;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#students-summary::-webkit-details-marker {
+    display: none;
+}
+
+#students-header,
+.students-header {
+    background: #16295e;
+    padding: 6px 8px;
+    font-weight: 900;
+    text-align: center;
+    border-bottom: 2px solid #5b8cff;
+    color: #7dffd4;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.st-head-title,
+#st-head-title {
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: #7dffd4;
+    letter-spacing: 0.5px;
+}
+
+.students-search-row {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+#search-student,
+.search-student-input {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 8px;
+    border: 1px solid #5b8cff;
+    border-radius: 6px;
+    background: #070e22;
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+#search-student:focus,
+.search-student-input:focus {
+    border-color: #38bdf8;
+}
+
+.btn-gacha-roll {
+    background: #f59e0b;
+    color: #451a03;
+    border: 0;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.82rem;
+    font-weight: 900;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .15s;
+}
+
+.btn-gacha-roll:hover {
+    background: #fbbf24;
+    transform: scale(1.02);
+}
+
+#students-list,
+.students-list {
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stu-btn {
+    background: #112347;
+    border: 1px solid #2f56b3;
+    border-radius: 7px;
+    color: #fff;
+    padding: 5px 8px;
+    text-align: left;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all .12s;
+}
+
+.stu-btn:hover:not(:disabled) {
+    background: #1a366f;
+}
+
+.stu-btn.active {
+    background: #2fa8ff;
+    color: #000;
+    font-weight: 800;
+    border-color: #0284c7;
+}
+
+.stu-btn:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+    background: #081126;
+    border-color: #172a56;
+}
+
+/* ================= ĐỒNG HỒ 3 PHÚT CHÉP BÀI (DÙNG CHUNG KHỐI 3) ================= */
+.copy-timer-card {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border: 3px solid #3b82f6;
+    border-radius: 16px;
+    padding: 10px 16px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+    flex-wrap: wrap;
+}
+
+.copy-timer-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.copy-timer-badge {
+    background: #ef4444;
+    color: #fff;
+    font-weight: 900;
+    font-size: 0.85rem;
+    padding: 4px 10px;
+    border-radius: 99px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.copy-timer-digits {
+    font-family: 'Quicksand', monospace, sans-serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #facc15;
+    letter-spacing: 2px;
+    min-width: 85px;
+    text-align: center;
+    line-height: 1;
+}
+
+.copy-timer-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.btn-timer {
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 0;
+    cursor: pointer;
+    transition: all .15s;
+}
+
+.btn-timer.start {
+    background: #22c55e;
+    color: #fff;
+}
+
+.btn-timer.pause {
+    background: #f59e0b;
+    color: #451a03;
+}
+
+.btn-timer.reset {
+    background: #64748b;
+    color: #fff;
 }
 
 .explanation-box {

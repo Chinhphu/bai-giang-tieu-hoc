@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Tin học 3 - Bài 2: Quá trình xử lí thông tin</title>
 	<link rel="stylesheet" href="../shared/style.css" />
+    <script src="../shared/components.js"></script>
 </head>
 
 <body class="lesson-quiz">
@@ -38,7 +39,7 @@
 				</ul>
 			</div>
 
-			<div class="timer-display" id="copyTimer">07:00</div>
+			<div class="timer-display" id="copyTimer">03:00</div>
 
 			<div class="controls copy-controls">
 				<button type="button" class="btn-nav" id="startTimerBtn"
@@ -466,19 +467,45 @@
 		</section>
 	</div>
 
-	<!-- Scoreboard Bên Phải -->
+	<!-- Scoreboard Bên Phải (Chuẩn Tiết 07) -->
 	<aside class="scoreboard">
-		<h3 style="margin-top: 0; text-align: center; color: var(--lesson-navy); font-size: 3.5vh;">Đấu Trường Điểm Số
-		</h3>
 		<div class="setup-panel">
-			<input id="teamCountInput" type="number" min="1" max="10" value="3" title="Số lượng dãy" />
-			<button type="button" class="btn-nav" id="generateTeamsBtn"
-				style="padding: 1vh 2vw; font-size: 2vh;">Tạo</button>
+			<span style="font-weight:900; color:var(--primary); font-size:1.05rem;">🏆 ĐIỂM CÁC TỔ</span>
+			<div style="display:flex; gap:6px; align-items:center;">
+				<select id="classSelect" onchange="changeClass(this.value)" title="Chọn lớp">
+					<option value="3_2">3/2</option>
+					<option value="3_3">3/3</option>
+					<option value="3_4">3/4</option>
+					<option value="3_5">3/5</option>
+					<option value="3_6">3/6</option>
+				</select>
+				<select id="teamCountInput" onchange="createTeams(Number(this.value))" title="Số tổ">
+					<option value="2">2 tổ</option>
+					<option value="3" selected>3 tổ</option>
+					<option value="4">4 tổ</option>
+					<option value="5">5 tổ</option>
+					<option value="6">6 tổ</option>
+				</select>
+			</div>
 		</div>
 		<div class="teams-list" id="teamsList"></div>
-		<div class="score-tools" style="margin-top: auto; padding-top: 2vh;">
+
+		<!-- KHUNG GỌI TÊN HỌC SINH CHUẨN TIẾT 07 -->
+		<details id="students-panel" open style="margin-top: 10px;">
+			<summary id="students-summary">👥 Danh sách học sinh</summary>
+			<div id="students-header">
+				<span id="st-head-title" class="st-head-title">CÒN LƯỢT: --/--</span>
+				<div class="students-search-row">
+					<input type="text" id="search-student" placeholder="Tìm tên..." onkeyup="filterStudents()">
+					<button type="button" class="btn-gacha-roll" onclick="randomPickStudent()">🎲 Gacha</button>
+				</div>
+			</div>
+			<div id="students-list"></div>
+		</details>
+
+		<div class="score-tools" style="margin-top: 10px;">
 			<button type="button" class="btn-nav warning" id="gachaBtn"
-				style="width: 100%; font-size: 3.5vh; padding: 2vh;">MỞ HỘP QUÀ 🎁</button>
+				style="width: 100%; font-size: 1rem; padding: 10px;">MỞ HỘP QUÀ 🎁</button>
 		</div>
 	</aside>
 
@@ -547,34 +574,142 @@
 		nextButtons.forEach(btn => btn.addEventListener('click', () => showSlide(currentSlide + 1)));
 		document.getElementById('startLessonBtn').addEventListener('click', () => showSlide(1));
 
-		// ================= BẢNG ĐIỂM BÊN PHẢI =================
+		// ================= BẢNG ĐIỂM BÊN PHẢI & GỌI TÊN CHUẨN TIẾT 07 =================
+		const TEAM_COLORS = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
+		let teamScores = [];
+		let currentClassID = '3_2';
+		let classStudents = [];
+		let calledStudents = new Set();
+		let selectedStudent = null;
+
 		function createTeams(count) {
+			count = parseInt(count) || 3;
+			if (count < 2) count = 2;
+			if (count > 6) count = 6;
 			const list = document.getElementById('teamsList');
 			list.innerHTML = '';
+			teamScores = Array(count).fill(0);
+
 			for (let i = 0; i < count; i++) {
+				const color = TEAM_COLORS[i % TEAM_COLORS.length];
 				const card = document.createElement('div');
 				card.className = 'team-card';
 				card.innerHTML = `
-                  <div class="team-name" contenteditable="true">Dãy ${i + 1}</div>
-                  <div class="team-score" contenteditable="true">0</div>
-                  <div class="score-controls">
-                    <button class="btn-score add">+10</button>
-                    <button class="btn-score sub">-5</button>
-                    <button class="btn-score steal">x2</button>
+                  <div class="team-meta">
+                    <span class="team-name" style="color:${color};">Tổ ${i + 1}</span>
+                    <div class="team-action-btns">
+                      <button class="plus-btn" onclick="updateTeamScore(${i}, 10, event)">+10</button>
+                      <button class="plus-btn" style="background:#fef3c7;color:#92400e;border-color:#fde68a;" onclick="updateTeamScore(${i}, 'x2', event)">x2</button>
+                      <button class="noise-btn" onclick="updateTeamScore(${i}, -5, event)">-5</button>
+                    </div>
                   </div>
+                  <div class="team-score" id="score-tiet03-${i}" style="color:${color};">0</div>
                 `;
-				const scoreEl = card.querySelector('.team-score');
-				card.querySelector('.add').onclick = () => scoreEl.textContent = Number(scoreEl.textContent) + 10;
-				card.querySelector('.sub').onclick = () => scoreEl.textContent = Number(scoreEl.textContent) - 5;
-				card.querySelector('.steal').onclick = () => scoreEl.textContent = Number(scoreEl.textContent) * 2;
 				list.appendChild(card);
 			}
 		}
-		document.getElementById('generateTeamsBtn').onclick = () => createTeams(document.getElementById('teamCountInput').value);
+
+		function updateTeamScore(idx, delta, ev) {
+			if (ev) ev.stopPropagation();
+			if (delta === 'x2') {
+				teamScores[idx] = teamScores[idx] * 2;
+			} else {
+				teamScores[idx] = Math.max(0, teamScores[idx] + delta);
+			}
+			const el = document.getElementById(`score-tiet03-${idx}`);
+			if (el) {
+				el.textContent = teamScores[idx];
+				el.style.transform = 'scale(1.25)';
+				setTimeout(() => { el.style.transform = 'scale(1)'; }, 200);
+			}
+			if (typeof toast === 'function') {
+				toast(`Tổ ${idx + 1} điểm: ${teamScores[idx]}đ`);
+			}
+		}
+
+		async function loadClassData(classId) {
+			currentClassID = classId;
+			let studentNames = (window.FALLBACK_STUDENTS_KHOI_3 && window.FALLBACK_STUDENTS_KHOI_3[classId]) || [];
+			try {
+				const res = await fetch('../../assets/data/students_3_2026_2027.json');
+				if (res.ok) {
+					const data = await res.json();
+					if (Array.isArray(data[classId])) studentNames = data[classId];
+				}
+			} catch (_) {}
+
+			classStudents = studentNames.map((name, i) => ({ id: `hs-${i + 1}`, name }));
+			calledStudents = new Set();
+			selectedStudent = null;
+			renderStudents();
+		}
+
+		function renderStudents() {
+			const listEl = document.getElementById('students-list');
+			const headEl = document.getElementById('st-head-title');
+			const sumEl = document.getElementById('students-summary');
+			const remaining = classStudents.length - calledStudents.size;
+
+			if (headEl) headEl.textContent = `CÒN LƯỢT: ${remaining}/${classStudents.length}`;
+			if (sumEl) sumEl.textContent = `👥 Danh sách học sinh (${remaining} còn lượt)`;
+
+			if (listEl) {
+				listEl.innerHTML = classStudents.map((s, idx) => {
+					const called = calledStudents.has(s.id);
+					const sel = selectedStudent === s.id;
+					return `
+						<button class="stu-btn ${sel ? 'active' : ''}" type="button"
+							data-id="${s.id}" data-name="${s.name.toLowerCase()}" ${called ? 'disabled' : ''}
+							onclick="selectStudent('${s.id}')">
+							<span>${idx + 1}. ${s.name}</span>
+							${called ? '<span style="color:#4ade80;font-weight:900;">✓</span>' : ''}
+						</button>
+					`;
+				}).join('');
+			}
+			filterStudents();
+		}
+
+		function selectStudent(id) {
+			if (calledStudents.has(id)) return;
+			selectedStudent = id;
+			renderStudents();
+			const s = classStudents.find(x => x.id === id);
+			if (s && typeof toast === 'function') {
+				toast(`🎲 Mời bạn ${s.name} phát biểu!`);
+			}
+		}
+
+		function randomPickStudent() {
+			const avail = classStudents.filter(s => !calledStudents.has(s.id));
+			if (!avail.length) {
+				calledStudents.clear();
+				if (typeof toast === 'function') toast('🎉 Đã gọi hết 1 vòng cả lớp! Bắt đầu vòng mới!');
+				renderStudents();
+				return;
+			}
+			const pick = avail[Math.floor(Math.random() * avail.length)];
+			selectStudent(pick.id);
+		}
+
+		function filterStudents() {
+			const input = document.getElementById('search-student');
+			const v = input ? input.value.toLowerCase().trim() : '';
+			document.querySelectorAll('#students-list .stu-btn').forEach(btn => {
+				const name = btn.getAttribute('data-name') || '';
+				btn.style.display = name.includes(v) ? 'flex' : 'none';
+			});
+		}
+
+		function changeClass(cid) {
+			loadClassData(cid);
+		}
+
 		createTeams(3);
+		loadClassData('3_2');
 
 		// ================= TÍNH NĂNG ĐỒNG HỒ 7 PHÚT =================
-		let timeRemaining = 420;
+		let timeRemaining = 180;
 		let timerInterval;
 		let isTimerRunning = false;
 
@@ -622,7 +757,7 @@
 		resetTimerBtn.addEventListener('click', function () {
 			clearInterval(timerInterval);
 			isTimerRunning = false;
-			timeRemaining = 420;
+			timeRemaining = 180;
 			updateTimerText();
 			startTimerBtn.style.opacity = '1';
 			startTimerBtn.textContent = 'Bắt đầu';

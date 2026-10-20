@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tin học 3 - Bài 3: Máy Tính Và Em</title>
     <link rel="stylesheet" href="../shared/style.css">
+    <script src="../shared/components.js"></script>
     <style>
         /* CSS riêng cho Chiến trường Tháp Tiết 05 */
         /* Container Tự Động Co Giãn */
@@ -594,6 +595,8 @@
                 </select>
                 <button class="btn-nav" style="padding: 6px 15px; font-size: 2.2vh; border-radius: 10px;"
                     onclick="setupGame()">🔄 Xóa Làm Lại</button>
+                <button class="btn-nav" style="padding: 6px 15px; font-size: 2.2vh; border-radius: 10px; background: #0f172a; color: #7dffd4;"
+                    onclick="openStudentsModal()">👥 Gọi học sinh (Gacha)</button>
             </div>
 
             <!-- BẢN ĐỒ CHIẾN TRƯỜNG TỰ CO GIÃN -->
@@ -663,6 +666,37 @@
             </div>
         </section>
 
+    </div>
+
+    <!-- ================= MODAL GỌI TÊN HỌC SINH (CHUẨN TIẾT 07) ================= -->
+    <div id="studentsModal" class="admin-modal">
+        <div class="admin-card" style="max-width: 500px; width: 92%; padding: 2vh;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="margin:0; font-size:1.4rem; color:var(--primary);">👥 Gọi tên học sinh</h3>
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <select id="classSelectTiet5" onchange="changeClassTiet5(this.value)" style="padding:4px 8px; border-radius:6px; font-weight:800;">
+                        <option value="3_2">Lớp 3/2</option>
+                        <option value="3_3">Lớp 3/3</option>
+                        <option value="3_4">Lớp 3/4</option>
+                        <option value="3_5">Lớp 3/5</option>
+                        <option value="3_6">Lớp 3/6</option>
+                    </select>
+                    <button class="btn-nav" style="padding:4px 8px; font-size:0.9rem;" onclick="closeStudentsModal()">✖ Đóng</button>
+                </div>
+            </div>
+
+            <details id="students-panel" open>
+                <summary id="students-summary">👥 Danh sách học sinh</summary>
+                <div id="students-header">
+                    <span id="st-head-title" class="st-head-title">CÒN LƯỢT: --/--</span>
+                    <div class="students-search-row">
+                        <input type="text" id="search-student" placeholder="Tìm tên..." onkeyup="filterStudentsTiet5()">
+                        <button type="button" class="btn-gacha-roll" onclick="randomPickStudentTiet5()">🎲 Gacha</button>
+                    </div>
+                </div>
+                <div id="students-list"></div>
+            </details>
+        </div>
     </div>
 
     <!-- ================= MODAL QUẢN LÝ ĐIỂM (CÓ TÍNH NĂNG GÕ SỐ) ================= -->
@@ -1097,6 +1131,103 @@
         }
 
         window.onload = () => { setupGame(); };
+
+        // --- 7. QUẢN LÝ GỌI TÊN HỌC SINH CHUẨN TIẾT 07 ---
+        let currentClassIDTiet5 = '3_2';
+        let classStudentsTiet5 = [];
+        let calledStudentsTiet5 = new Set();
+        let selectedStudentTiet5 = null;
+
+        function openStudentsModal() {
+            document.getElementById('studentsModal').classList.add('open');
+            if (classStudentsTiet5.length === 0) loadClassDataTiet5('3_2');
+        }
+
+        function closeStudentsModal() {
+            document.getElementById('studentsModal').classList.remove('open');
+        }
+
+        async function loadClassDataTiet5(classId) {
+            currentClassIDTiet5 = classId;
+            let studentNames = (window.FALLBACK_STUDENTS_KHOI_3 && window.FALLBACK_STUDENTS_KHOI_3[classId]) || [];
+            try {
+                const res = await fetch('../../assets/data/students_3_2026_2027.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data[classId])) studentNames = data[classId];
+                }
+            } catch (_) {}
+
+            classStudentsTiet5 = studentNames.map((name, i) => ({ id: `hs-${i + 1}`, name }));
+            calledStudentsTiet5 = new Set();
+            selectedStudentTiet5 = null;
+            renderStudentsTiet5();
+        }
+
+        function renderStudentsTiet5() {
+            const listEl = document.getElementById('students-list');
+            const headEl = document.getElementById('st-head-title');
+            const sumEl = document.getElementById('students-summary');
+            const remaining = classStudentsTiet5.length - calledStudentsTiet5.size;
+
+            if (headEl) headEl.textContent = `CÒN LƯỢT: ${remaining}/${classStudentsTiet5.length}`;
+            if (sumEl) sumEl.textContent = `👥 Danh sách học sinh (${remaining} còn lượt)`;
+
+            if (listEl) {
+                listEl.innerHTML = classStudentsTiet5.map((s, idx) => {
+                    const called = calledStudentsTiet5.has(s.id);
+                    const sel = selectedStudentTiet5 === s.id;
+                    return `
+                        <button class="stu-btn ${sel ? 'active' : ''}" type="button"
+                            data-id="${s.id}" data-name="${s.name.toLowerCase()}" ${called ? 'disabled' : ''}
+                            onclick="selectStudentTiet5('${s.id}')">
+                            <span>${idx + 1}. ${s.name}</span>
+                            ${called ? '<span style="color:#4ade80;font-weight:900;">✓</span>' : ''}
+                        </button>
+                    `;
+                }).join('');
+            }
+            filterStudentsTiet5();
+        }
+
+        function selectStudentTiet5(id) {
+            if (calledStudentsTiet5.has(id)) return;
+            selectedStudentTiet5 = id;
+            renderStudentsTiet5();
+            const s = classStudentsTiet5.find(x => x.id === id);
+            if (s && typeof showAlert === 'function') {
+                showAlert(`🎲 Mời bạn ${s.name} lên trả lời thử thách!`);
+            }
+        }
+
+        function randomPickStudentTiet5() {
+            const avail = classStudentsTiet5.filter(s => !calledStudentsTiet5.has(s.id));
+            if (!avail.length) {
+                calledStudentsTiet5.clear();
+                if (typeof showAlert === 'function') showAlert('🎉 Đã gọi hết 1 vòng cả lớp! Bắt đầu vòng mới!');
+                renderStudentsTiet5();
+                return;
+            }
+            const pick = avail[Math.floor(Math.random() * avail.length)];
+            selectStudentTiet5(pick.id);
+        }
+
+        function filterStudentsTiet5() {
+            const input = document.getElementById('search-student');
+            const v = input ? input.value.toLowerCase().trim() : '';
+            document.querySelectorAll('#students-list .stu-btn').forEach(btn => {
+                const name = btn.getAttribute('data-name') || '';
+                btn.style.display = name.includes(v) ? 'flex' : 'none';
+            });
+        }
+
+        function changeClassTiet5(cid) {
+            loadClassDataTiet5(cid);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadClassDataTiet5('3_2');
+        });
     </script>
 </body>
 </html>

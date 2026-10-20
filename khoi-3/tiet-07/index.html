@@ -520,6 +520,9 @@
             gap: 10px;
             position: sticky;
             top: 10px;
+            max-height: calc(100vh - 20px);
+            overflow-y: auto;
+            padding-right: 2px;
         }
 
         .scoreboard-panel {
@@ -551,11 +554,15 @@
         }
 
         .team-row {
-            padding: 8px 10px;
+            padding: 6px 10px;
             border-bottom: 2px dashed #e2e8f0;
             border-left: 8px solid transparent;
             transition: all .15s;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
         }
 
         .team-row:last-child {
@@ -567,50 +574,71 @@
             border-left-color: #2563eb;
         }
 
-        .team-top {
+        .team-meta {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 6px;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+            min-width: 0;
         }
 
         .team-name {
             font-weight: 900;
-            font-size: 1.08rem;
-        }
-
-        .team-score {
-            font-size: 1.75rem;
-            font-weight: 900;
-            color: #0f172a;
-            min-width: 48px;
-            text-align: right;
+            font-size: 1.18rem;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .team-action-btns {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
         }
 
         .plus-btn {
             background: #dcfce7;
             color: #166534;
-            border: 2px solid #86efac;
-            border-radius: 7px;
-            font-weight: 900;
-            font-size: .8rem;
-            padding: 4px 8px;
+            border: 1.5px solid #86efac;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: .75rem;
+            padding: 3px 6px;
+            cursor: pointer;
+            transition: all .1s;
+        }
+
+        .plus-btn:hover {
+            background: #bbf7d0;
         }
 
         .noise-btn {
             background: #fee2e2;
             color: #991b1b;
-            border: 2px solid #fca5a5;
-            border-radius: 7px;
+            border: 1.5px solid #fca5a5;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: .75rem;
+            padding: 3px 6px;
+            cursor: pointer;
+            transition: all .1s;
+        }
+
+        .noise-btn:hover {
+            background: #fecaca;
+        }
+
+        /* SỐ ĐIỂM: RẤT TO ĐỂ HỌC SINH NGỒI BÀN CUỐI THẤY RÕ */
+        .team-score {
+            font-size: 2.35rem;
             font-weight: 900;
-            font-size: .8rem;
-            padding: 4px 8px;
+            color: #0f172a;
+            min-width: 60px;
+            text-align: right;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            user-select: none;
         }
 
         .dock-box {
@@ -623,24 +651,81 @@
             flex-shrink: 0;
         }
 
-        .lesson-clock-wrap {
+        /* ĐỒNG HỒ 3 PHÚT CHÉP BÀI */
+        .copy-timer-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border: 3px solid #3b82f6;
+            border-radius: 16px;
+            padding: 10px 16px;
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #000;
-            border: 2px solid #334155;
-            border-radius: 12px;
-            padding: 5px 12px;
-            margin-bottom: 8px;
+            gap: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+            flex-wrap: wrap;
         }
 
-        .lesson-clock-led {
-            font-family: 'Quicksand', sans-serif;
+        .copy-timer-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .copy-timer-badge {
+            background: #ef4444;
+            color: #fff;
             font-weight: 900;
+            font-size: 0.85rem;
+            padding: 4px 10px;
+            border-radius: 99px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .copy-timer-digits {
+            font-family: 'Quicksand', monospace, sans-serif;
             font-size: 2.2rem;
             font-weight: 900;
-            color: #4ade80;
+            color: #facc15;
             letter-spacing: 2px;
+            min-width: 85px;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .copy-timer-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .btn-timer {
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 0.85rem;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 0;
+            cursor: pointer;
+            transition: all .15s;
+        }
+
+        .btn-timer.start {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        .btn-timer.pause {
+            background: #f59e0b;
+            color: #451a03;
+        }
+
+        .btn-timer.reset {
+            background: #64748b;
+            color: #fff;
         }
 
         .mini-ctrl-btn {
@@ -884,6 +969,19 @@
             <!-- SLIDE 2: CHÉP BÀI ĐỢT 1 (TÊN BÀI + MỤC 1 TƯ THẾ NGỒI) -->
             <section id="slide-1" class="slide-screen">
                 <div class="card-panel">
+                    <!-- ĐỒNG HỒ 3 PHÚT CHÉP BÀI ĐỢT 1 -->
+                    <div class="copy-timer-card">
+                        <div class="copy-timer-info">
+                            <span class="copy-timer-badge">⏳ THỜI GIAN CHÉP BÀI</span>
+                            <span class="copy-timer-digits" id="copyTimer1">03:00</span>
+                        </div>
+                        <div class="copy-timer-actions">
+                            <button class="btn-timer start" onclick="startCopyTimer(1)">▶ Bắt đầu</button>
+                            <button class="btn-timer pause" onclick="pauseCopyTimer(1)">⏸ Tạm dừng</button>
+                            <button class="btn-timer reset" onclick="resetCopyTimer(1)">🔄 3 Phút</button>
+                        </div>
+                    </div>
+
                     <span class="note-step">✍️ CHÉP BÀI · Đợt 1/2 (Ngắn gọn)</span>
                     <div class="notebook-box">
                         <div class="notebook-date" id="lessonDate"></div>
@@ -1001,6 +1099,19 @@
             <!-- SLIDE 4: CHÉP BÀI ĐỢT 2 (MỤC 2 CHUỘT MÁY TÍNH) -->
             <section id="slide-3" class="slide-screen">
                 <div class="card-panel">
+                    <!-- ĐỒNG HỒ 3 PHÚT CHÉP BÀI ĐỢT 2 -->
+                    <div class="copy-timer-card">
+                        <div class="copy-timer-info">
+                            <span class="copy-timer-badge">⏳ THỜI GIAN CHÉP BÀI</span>
+                            <span class="copy-timer-digits" id="copyTimer2">03:00</span>
+                        </div>
+                        <div class="copy-timer-actions">
+                            <button class="btn-timer start" onclick="startCopyTimer(2)">▶ Bắt đầu</button>
+                            <button class="btn-timer pause" onclick="pauseCopyTimer(2)">⏸ Tạm dừng</button>
+                            <button class="btn-timer reset" onclick="resetCopyTimer(2)">🔄 3 Phút</button>
+                        </div>
+                    </div>
+
                     <span class="note-step">✍️ CHÉP BÀI · Đợt 2/2 (Hoàn tất)</span>
                     <div class="notebook-box">
                         <div class="notebook-content">
@@ -1105,26 +1216,11 @@
                 <div id="teamsContainer"></div>
             </div>
 
-            <!-- 2. ĐỒNG HỒ 35 PHÚT CẢ TIẾT & NÚT CHUYỂN SLIDE -->
+            <!-- 2. NÚT CHUYỂN SLIDE -->
             <div class="dock-box">
-                <div
-                    style="font-size:0.8rem; font-weight:800; color:#93c5fd; margin-bottom:4px; display:flex; justify-content:space-between;">
-                    <span>⏳ ĐỒNG HỒ TIẾT HỌC (35 PHÚT)</span>
-                    <span id="clockStatusLabel" style="color:#4ade80;">Đang chạy</span>
-                </div>
-                <div class="lesson-clock-wrap">
-                    <div class="lesson-clock-led" id="lessonClockDisplay">35:00</div>
-                    <div style="display:flex; gap:4px;">
-                        <button class="mini-ctrl-btn" onclick="adjustLessonClock(60)">+1p</button>
-                        <button class="mini-ctrl-btn" onclick="adjustLessonClock(-60)">−1p</button>
-                        <button class="mini-ctrl-btn" id="btnPauseClock" onclick="toggleLessonClock()">⏸ Dừng</button>
-                    </div>
-                </div>
-
                 <div class="nav-grid">
                     <button class="btn primary" onclick="prevSlide()">◀ Trước</button>
-                    <span style="font-weight:900; font-size:0.95rem; color:#facc15;" id="slideIndicator">Slide
-                        1/6</span>
+                    <span style="font-weight:900; font-size:0.95rem; color:#facc15;" id="slideIndicator">Slide 1/6</span>
                     <button class="btn primary" onclick="nextSlide()">Tiếp ▶</button>
                 </div>
             </div>
@@ -1150,7 +1246,7 @@
         <div class="start-box">
             <div style="font-size:3.8rem;">🖱️</div>
             <h1 style="margin:4px 0; font-size:2.3rem; color:#1e3a8a;">BÀI 4: LÀM VIỆC VỚI MÁY TÍNH</h1>
-            <p style="color:#475569; font-weight:700;">Tư thế ngồi đúng & Chuột máy tính · Tin học 3 (Tiết 1 - 35 phút)
+            <p style="color:#475569; font-weight:700;">Tư thế ngồi đúng & Chuột máy tính · Tin học 3
             </p>
             <div style="font-size:1.3rem; font-weight:900; margin-top:10px;">Chọn lớp</div>
             <div class="chip-row">
@@ -1168,7 +1264,7 @@
                 <button class="chip" onclick="pickStart('teams',5,this)">5 tổ</button>
                 <button class="chip" onclick="pickStart('teams',6,this)">6 tổ</button>
             </div>
-            <button class="btn success huge" onclick="confirmStart()">▶ Bắt đầu tiết học (35 phút)</button>
+            <button class="btn success huge" onclick="confirmStart()">▶ Bắt đầu tiết học</button>
         </div>
     </div>
 
@@ -1178,14 +1274,85 @@
         const $ = s => document.querySelector(s);
         const $$ = s => document.querySelectorAll(s);
 
-        const LESSON_TOTAL_SECONDS = 35 * 60;
         const START_SCORE = 100;
         const SCORE_FLOOR = 0;
         const NOISE_PERCENT = 10;
 
-        let lessonRemainingSeconds = LESSON_TOTAL_SECONDS;
-        let lessonClockPaused = false;
-        let lessonClockInterval = null;
+        /* ================= QUẢN LÝ ĐỒNG HỒ 3 PHÚT CHÉP BÀI ================= */
+        let copyTimers = {
+            1: { remaining: 180, interval: null, paused: true },
+            2: { remaining: 180, interval: null, paused: true }
+        };
+
+        function updateCopyTimerUI(id) {
+            const ct = copyTimers[id];
+            const el = document.getElementById(`copyTimer${id}`);
+            if (!el) return;
+            const mm = Math.floor(ct.remaining / 60);
+            const ss = ct.remaining % 60;
+            el.textContent = `${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
+            if (ct.remaining <= 30) {
+                el.style.color = '#ef4444';
+            } else {
+                el.style.color = '#facc15';
+            }
+        }
+
+        function startCopyTimer(id) {
+            const ct = copyTimers[id];
+            if (!ct) return;
+            if (ct.remaining <= 0) ct.remaining = 180;
+            clearInterval(ct.interval);
+            ct.paused = false;
+            ct.interval = setInterval(() => {
+                if (!ct.paused && ct.remaining > 0) {
+                    ct.remaining--;
+                    updateCopyTimerUI(id);
+                    if (ct.remaining === 0) {
+                        clearInterval(ct.interval);
+                        playTimerBeep();
+                        toast('⏰ ĐÃ HẾT GIỜ CHÉP BÀI! Các em nhanh tay gác bút nhé!', 'ok');
+                    }
+                }
+            }, 1000);
+            updateCopyTimerUI(id);
+            toast(`⏳ Bắt đầu tính giờ chép bài (3 phút)!`, 'ok');
+        }
+
+        function pauseCopyTimer(id) {
+            const ct = copyTimers[id];
+            if (!ct) return;
+            ct.paused = !ct.paused;
+            toast(ct.paused ? '⏸ Đã tạm dừng đồng hồ chép bài!' : '▶ Tiếp tục đếm giờ chép bài!', 'ok');
+        }
+
+        function resetCopyTimer(id) {
+            const ct = copyTimers[id];
+            if (!ct) return;
+            clearInterval(ct.interval);
+            ct.remaining = 180;
+            ct.paused = true;
+            updateCopyTimerUI(id);
+            toast('🔄 Đã đặt lại đồng hồ chép bài 3 phút!', 'ok');
+        }
+
+        function playTimerBeep() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                [440, 660, 880].forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.18);
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime + idx * 0.18);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + idx * 0.18 + 0.15);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + idx * 0.18);
+                    osc.stop(ctx.currentTime + idx * 0.18 + 0.15);
+                });
+            } catch (_) { }
+        }
 
         /* DỮ LIỆU HỌC SINH 5 LỚP KHỐI 3 */
         const FALLBACK_STUDENTS = {
@@ -1351,35 +1518,6 @@
             if (!stuId) return;
             if (!studentActions[stuId]) studentActions[stuId] = [];
             studentActions[stuId].push(text);
-        }
-
-        /* ================= 1. ĐỒNG HỒ 35 PHÚT CẢ TIẾT ================= */
-        function startLessonClock() {
-            clearInterval(lessonClockInterval);
-            lessonClockInterval = setInterval(() => {
-                if (!lessonClockPaused && lessonRemainingSeconds > 0) {
-                    lessonRemainingSeconds--;
-                    renderLessonClock();
-                }
-            }, 1000);
-            renderLessonClock();
-        }
-
-        function renderLessonClock() {
-            const mm = Math.floor(lessonRemainingSeconds / 60);
-            const ss = lessonRemainingSeconds % 60;
-            $('#lessonClockDisplay').textContent = `${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
-        }
-
-        function adjustLessonClock(delta) {
-            lessonRemainingSeconds = Math.max(0, lessonRemainingSeconds + delta);
-            renderLessonClock();
-        }
-
-        function toggleLessonClock() {
-            lessonClockPaused = !lessonClockPaused;
-            $('#btnPauseClock').textContent = lessonClockPaused ? '▶ Chạy' : '⏸ Dừng';
-            $('#clockStatusLabel').textContent = lessonClockPaused ? 'Tạm dừng' : 'Đang chạy';
         }
 
         /* ================= 2. ĐIỀU HƯỚNG 6 SLIDE ================= */
@@ -1700,14 +1838,14 @@
                 d.className = `team-row ${isActive ? 'active' : ''}`;
                 d.onclick = () => setTurnManual(i);
                 d.innerHTML = `
-                    <div class="team-top">
+                    <div class="team-meta">
                         <span class="team-name" style="color:${t.color}">${t.n} ${isActive ? '🎯' : ''}</span>
                         <div class="team-action-btns">
                             <button class="plus-btn" onclick="rewardBonus(${i}, event)" title="Thưởng ngồi thẳng lưng +20đ">🌟 +20</button>
                             <button class="noise-btn" onclick="penalizeNoise(${i}, event)" title="Phạt ồn hoặc ngồi gù lưng −10%">🔊 −10%</button>
-                            <span class="team-score">${t.score}</span>
                         </div>
                     </div>
+                    <div class="team-score" style="color:${t.color};" title="Điểm số ${t.n}">${t.score}</div>
                 `;
                 container.appendChild(d);
             });
@@ -1934,7 +2072,6 @@
             $('#classSelect').value = startClass;
             if (startClass !== currentClassID) changeClass(startClass);
             $('#startScreen').classList.add('hidden');
-            startLessonClock();
         }
 
         async function loadQuests() {

@@ -267,5 +267,294 @@
   if (!customElements.get('khoi3-summary')) {
     customElements.define('khoi3-summary', Khoi3Summary);
   }
+
+  /* ================= 4. BẢNG ĐIỂM TỐI ƯU & KHUNG GỌI TÊN TIẾT 07 DÙNG CHUNG KHỐI 3 ================= */
+  const FALLBACK_STUDENTS_KHOI_3 = {
+    "3_2": [
+      "Nguyễn Khả Ái", "Nguyễn Đức Anh", "Nguyễn Quốc Anh", "Trịnh Gia Bảo", "Ngô Hoàng Bảo Châu",
+      "Nguyễn Doanh Doanh", "Phạm Đại Dương", "Danh Thành Đạt", "Vũ Nghi Đình", "Võ Đoàn Nhã Hân",
+      "Võ Hứa Chí Hiếu", "Nguyễn Trần Gia Huy", "Đoàn Gia Hưng", "Nguyễn Phúc Hưng", "Đỗ Minh Khang",
+      "Đặng Nguyễn Quốc Khởi", "Đặng Lê Thiên Kim", "Trương Quân Kỳ", "Mai Hoàng Lam", "Lê Trúc Ly",
+      "Vũ Hoàng Ánh Minh", "Vương Lê Bảo Minh", "Đinh Kim Ngân", "Trần Y Như Ngọc", "Chiêm Nguyễn Khôi Nguyên",
+      "Nguyễn Công Gia Phát", "Trần Thiên Phú", "Keo Trần Kim Phúc", "Lê Đức Phúc", "Bùi Mai Phương",
+      "Nguyễn Quốc Quân", "Lê Anh Quốc", "Nguyễn Xuân Quý", "Hình Minh Thanh", "Nguyễn Việt Thanh",
+      "Nguyễn Minh Thành", "Lê Đức Thịnh", "Huỳnh Minh Thuận", "Huỳnh Gia Tiến", "Nguyễn Ngọc Trâm",
+      "Nguyễn Ngọc Bảo Trân", "Nguyễn Thanh Trọng", "Nguyễn Đức Tuấn", "Đoàn Thị Bảo Vy", "Hình Lê Khánh Vy",
+      "Hồ Nhật Vy", "Nguyễn Trần Thảo Vy", "Lê Ngọc Kim Yến"
+    ],
+    "3_3": [
+      "Tống Huỳnh Tâm An", "Bùi Ngọc Tú Anh", "Hồng Hoàng Nhật Anh", "Võ Khuê Anh", "Lê Huỳnh Thiên Bách",
+      "Nguyễn Hoàng Bách", "Nguyễn Phạm Bảo Châu", "Võ Hữu Duy", "Trần Quốc Đạt", "Phạm Thế Hào",
+      "Huỳnh Nhã Hân", "Nguyễn Lê Khả Hân", "Nguyễn Ngọc Gia Hân", "Nguyễn Phạm Gia Hân", "Lê Thị Phương Hoa",
+      "Phan Mạnh Hùng", "Lý Gia Hưng", "Nguyễn Minh Khang", "Phạm Nguyễn Minh Khôi", "Cao Thiên Kim",
+      "Nguyễn Hồ Phương Lam", "Mai Nhật Lan", "Vũ Bảo Long", "Huỳnh Thiên Lộc", "Bùi Diệu Mẫn",
+      "Dương Quang Minh", "Huỳnh Phúc Minh", "Nguyễn Ngọc Tuệ Minh", "Trần Phạm Khánh My", "Nguyễn Ngọc Kim Ngân",
+      "Nguyễn Khởi Nghiệp", "Đào Phúc Nguyên", "Tạ Hoàng Nhân", "Phan An Nhiên", "Trần Lê An Nhiên",
+      "Nguyễn Phúc", "Phạm Thiên Phúc", "Hoàng Bảo Phước", "Cao Lê Nhã Phương", "Trần Quốc Sang",
+      "Từ Tấn Sang", "Nguyễn Minh Tâm", "Phạm Quang Thành", "Nguyễn Phương Thảo", "Nguyễn Quốc Thắng",
+      "Đinh Trung Tín", "Võ Cát Tường", "Hà Mỹ Uyên"
+    ],
+    "3_4": [
+      "Đỗ Mỹ Ái", "Lê Đặng Trâm Anh", "Phạm Quốc Anh", "Trần Ngọc Tú Anh", "Trương Tuyết Anh",
+      "Nguyễn Dương Thiên Ân", "Thạch Thiên Bảo", "Trần Lâm Hữu Duyên", "Nguyễn Lê Hoàng Đăng", "Phạm Minh Đăng",
+      "Huỳnh Bích Hà", "Trần Ngọc Khánh Hà", "Đặng Thị Ngọc Hân", "Lê Nguyễn Quang Hưng", "Thái Minh Khang",
+      "Vũ Duy Khang", "Lê Trịnh Minh Khoa", "Lý Minh Khôi", "Nguyễn Đặng Đăng Khôi", "Phạm Trọng Kiên",
+      "Huỳnh Ngọc Thiên Kim", "Lưu Hoàng Kim", "Lưu Nhựt Lam", "Hà Tuyết Lan", "Nguyễn Tuyết Loan",
+      "Lê Đình Mạnh", "Trần Tuệ Mẫn", "Nguyễn Hoàng Gia Mỹ", "Thái Bảo Ngọc", "Lưu Nguyễn Đan Nguyên",
+      "Nguyễn Thảo Nguyên", "Cao Phương Nhã", "Phan Thị Xuân Nhi", "Trần Tuệ Nhi", "Phạm Hoàng Oanh",
+      "Trang Trường Phát", "Đỗ Hoàng Bảo Quân", "Nguyễn Phương Thảo", "Trương Bùi Phương Thảo", "Nguyễn Ngọc Kim Thiên",
+      "Huỳnh Chí Thiện", "Lương Phúc Thịnh", "Nguyễn Ngọc Thịnh", "Nguyễn Trần Phước Thịnh", "Quách Hoàng Thịnh",
+      "Mai Minh Thư", "Trần Anh Thư", "Đỗ Thị Thu Trang", "Lê Huyền Trâm", "Nguyễn Minh Triết", "Giang Ngọc Cát Tường"
+    ],
+    "3_5": [
+      "Đỗ Nhật Anh", "Phạm Lưu Duy Bách", "Đặng Tuệ Băng", "Thái Thị Kim Chi", "Lê Trần Bảo Di",
+      "Huỳnh Tấn Đạt", "Đặng Minh Đức", "Trần Nhật Thiên Đức", "Trần Ngọc Thiên Hà", "Lâm Ngọc Hân",
+      "Nguyễn Thị Xuân Hiền", "Nguyễn Hoàng An Khang", "Nguyễn Quốc Khánh", "Nguyễn Duy Khiêm", "Võ Thiên Kim",
+      "Nguyễn Gia Kỳ", "Lê Ngọc Kim Ngân", "Nguyễn Thị Bảo Ngọc", "Nguyễn Hồ Kim Nguyên", "Nguyễn Đặng Thành Nhân",
+      "Huỳnh Bảo Nhi", "Đặng Thị Quỳnh Như", "Trần Quỳnh Như", "Nguyễn Hồng Phát", "Nguyễn Lâm Gia Phát",
+      "Đàm Tâm Phúc", "Đặng Thành Hữu Phúc", "Huỳnh Gia Phúc", "Trần Hoàng Quân", "Nguyễn Chí Thiện",
+      "Trần Trường Quân", "Tăng Thế Tài", "Võ Thị Thu Thảo", "Nguyễn Trọng Thắng", "Tăng Ngọc Thi",
+      "Nguyễn Hồng Minh Thư", "Ngô Văn Tiền", "Chu Mạnh Tiến", "Nguyễn Thiên Trường", "Nguyễn Ngọc Thu Tuyền",
+      "Trần Thị Khánh Tuyết"
+    ],
+    "3_6": [
+      "Nguyễn Ngọc Khả Ái", "Trần Khả Ái", "Hoàng Thiên An", "Nguyễn Thiên An", "Nguyễn Ngọc Diệp Anh",
+      "Trần Nguyễn Hải Anh", "Phạm Kiều Thiên Ân", "Từ Quốc Bảo", "Danh Minh Châu", "Dương Hoàng Hải Đăng",
+      "Nguyễn Hoàng Đăng", "Nguyễn Lưu Nhật Hạ", "Trương Minh Hằng", "Cao Ngọc Gia Hân", "Lê Ngọc Khả Hân",
+      "Lại Xuân Khang", "Trương Trọng Nghĩa", "Phạm Ngô Thanh Ngọc", "Danh Nguyễn Yến Nhi", "Nguyễn Ngọc Tuệ Nhi",
+      "Trần Khánh Nhi", "Danh Thị Kiều Oanh", "Nguyễn Kỳ Phương", "Lê Hoàng Đăng Quang", "Phan Huỳnh Phú Quý",
+      "Nguyễn Ngọc Thảo Quyên", "Châu Ngọc Ngân Thanh", "Vi Huỳnh Kim Thanh", "Lâm Huỳnh Phương Thảo", "Trần Quốc Thiện",
+      "Nguyễn Ngọc Tiên", "Lâm Đức Tiến", "Trương Ngọc Toàn", "Mai Võ Thanh Trúc", "Lư Nhã Uyên",
+      "Nguyễn Ngọc Nhã Uyên", "Võ Huỳnh Khánh Vy", "Lê Như Ý", "Nguyễn Phúc Khang Lam", "Huỳnh Hoàng Yến"
+    ]
+  };
+
+  const TEAM_COLORS_KHOI_3 = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
+
+  const Khoi3UnifiedSidebar = {
+    classId: '3_2',
+    teamCount: 4,
+    turn: 0,
+    teams: [],
+    students: [],
+    calledStudents: new Set(),
+    selectedStudent: null,
+    listeners: { onScore: null, onStudent: null, onTurn: null },
+
+    async init(options = {}) {
+      if (options.classId) this.classId = options.classId;
+      if (options.teamCount) this.teamCount = options.teamCount;
+      if (options.onScore) this.listeners.onScore = options.onScore;
+      if (options.onStudent) this.listeners.onStudent = options.onStudent;
+      if (options.onTurn) this.listeners.onTurn = options.onTurn;
+
+      this.initTeams(this.teamCount);
+      await this.loadClassStudents(this.classId);
+    },
+
+    initTeams(count) {
+      this.teamCount = Math.max(2, Math.min(6, count));
+      this.teams = Array.from({ length: this.teamCount }, (_, i) => ({
+        id: i,
+        name: `Tổ ${i + 1}`,
+        score: 100,
+        color: TEAM_COLORS_KHOI_3[i % TEAM_COLORS_KHOI_3.length]
+      }));
+      this.turn = 0;
+      this.renderTeams();
+    },
+
+    async loadClassStudents(cid) {
+      this.classId = cid;
+      this.selectedStudent = null;
+      this.calledStudents = new Set();
+      let names = FALLBACK_STUDENTS_KHOI_3[cid] || FALLBACK_STUDENTS_KHOI_3['3_2'];
+
+      try {
+        const res = await fetch('../../assets/data/students_3_2026_2027.json');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data[cid])) names = data[cid];
+        }
+      } catch (_) {}
+
+      this.students = names.map((name, i) => ({ id: `hs-${i + 1}`, name }));
+      this.renderStudents();
+    },
+
+    setTurn(idx) {
+      this.turn = idx;
+      this.renderTeams();
+      if (typeof this.listeners.onTurn === 'function') this.listeners.onTurn(idx, this.teams[idx]);
+    },
+
+    addScore(idx, delta, ev) {
+      if (ev) ev.stopPropagation();
+      const t = this.teams[idx];
+      if (!t) return;
+      t.score = Math.max(0, t.score + delta);
+      this.renderTeams();
+      if (window.toast) window.toast(`🌟 ${t.name} ${delta >= 0 ? '+' : ''}${delta} điểm! (Tổng: ${t.score}đ)`, 2000, 'var(--primary)');
+      if (typeof this.listeners.onScore === 'function') this.listeners.onScore(idx, t.score, delta);
+    },
+
+    penalizeNoise(idx, ev) {
+      if (ev) ev.stopPropagation();
+      const t = this.teams[idx];
+      if (!t) return;
+      const lost = Math.max(5, Math.round(t.score * 0.1));
+      t.score = Math.max(0, t.score - lost);
+      this.renderTeams();
+      if (window.toast) window.toast(`🔊 Phạt ${t.name} −${lost}đ (10%)! (Còn: ${t.score}đ)`, 2500, 'var(--red)');
+      if (typeof this.listeners.onScore === 'function') this.listeners.onScore(idx, t.score, -lost);
+    },
+
+    selectStudent(id) {
+      if (this.calledStudents.has(id)) return;
+      this.selectedStudent = id;
+      this.renderStudents();
+      const s = this.students.find(x => x.id === id);
+      if (s) {
+        if (window.toast) window.toast(`🎲 Mời bạn ${s.name} đại diện ${this.teams[this.turn].name}!`, 2500, 'var(--primary)');
+        if (typeof this.listeners.onStudent === 'function') this.listeners.onStudent(s, this.teams[this.turn]);
+      }
+    },
+
+    markCalledCurrentStudent() {
+      if (this.selectedStudent) {
+        this.calledStudents.add(this.selectedStudent);
+        this.selectedStudent = null;
+        this.renderStudents();
+      }
+    },
+
+    randomPickStudent() {
+      const avail = this.students.filter(s => !this.calledStudents.has(s.id));
+      if (!avail.length) {
+        this.calledStudents.clear();
+        if (window.toast) window.toast('🎉 Đã gọi hết 1 vòng cả lớp! Bắt đầu vòng mới!', 3000, 'var(--green)');
+        this.renderStudents();
+        return;
+      }
+      const pick = avail[Math.floor(Math.random() * avail.length)];
+      this.selectStudent(pick.id);
+    },
+
+    filterStudents(query = '') {
+      const q = String(query).toLowerCase().trim();
+      document.querySelectorAll('.stu-btn').forEach(btn => {
+        const name = (btn.getAttribute('data-name') || '').toLowerCase();
+        btn.style.display = name.includes(q) ? 'flex' : 'none';
+      });
+    },
+
+    renderTeams() {
+      const container = document.getElementById('teamsContainer') || document.getElementById('teamsList') || document.getElementById('teams-list');
+      if (!container) return;
+      container.innerHTML = this.teams.map((t, i) => {
+        const active = i === this.turn;
+        return `
+          <div class="team-row ${active ? 'active' : ''}" onclick="Khoi3UnifiedSidebar.setTurn(${i})">
+            <div class="team-meta">
+              <span class="team-name" style="color:${t.color};">${t.name} ${active ? '🎯' : ''}</span>
+              <div class="team-action-btns">
+                <button class="plus-btn" type="button" onclick="Khoi3UnifiedSidebar.addScore(${i}, 20, event)" title="Cộng 20 điểm">+20</button>
+                <button class="noise-btn" type="button" onclick="Khoi3UnifiedSidebar.penalizeNoise(${i}, event)" title="Phạt ồn −10%">🔊 −10%</button>
+              </div>
+            </div>
+            <div class="team-score" style="color:${t.color};" title="Điểm số của ${t.name}">${t.score}</div>
+          </div>
+        `;
+      }).join('');
+    },
+
+    renderStudents() {
+      const listEl = document.getElementById('students-list');
+      const headEl = document.getElementById('st-head-title');
+      const sumEl = document.getElementById('students-summary');
+      const remaining = this.students.length - this.calledStudents.size;
+
+      if (headEl) headEl.textContent = `CÒN LƯỢT: ${remaining}/${this.students.length}`;
+      if (sumEl) sumEl.textContent = `👥 Danh sách học sinh (${remaining} còn lượt)`;
+
+      if (listEl) {
+        listEl.innerHTML = this.students.map((s, idx) => {
+          const called = this.calledStudents.has(s.id);
+          const sel = this.selectedStudent === s.id;
+          return `
+            <button class="stu-btn ${sel ? 'active' : ''}" type="button"
+              data-id="${s.id}" data-name="${s.name}" ${called ? 'disabled' : ''}
+              onclick="Khoi3UnifiedSidebar.selectStudent('${s.id}')">
+              <span>${idx + 1}. ${s.name}</span>
+              ${called ? '<span style="color:#4ade80;font-weight:900;">✓</span>' : ''}
+            </button>
+          `;
+        }).join('');
+      }
+    }
+  };
+
+  window.Khoi3UnifiedSidebar = Khoi3UnifiedSidebar;
+  window.FALLBACK_STUDENTS_KHOI_3 = FALLBACK_STUDENTS_KHOI_3;
+
+  /**
+   * <khoi3-unified-sidebar>
+   * Bảng điểm tối ưu & Khung gọi tên học sinh chuẩn Tiết 07 dùng chung toàn bộ Khối 3
+   */
+  class Khoi3UnifiedSidebarComponent extends HTMLElement {
+    async connectedCallback() {
+      if (this.dataset.mounted) return;
+      this.dataset.mounted = 'true';
+
+      const defaultClass = this.getAttribute('default-class') || '3_2';
+      const defaultTeams = parseInt(this.getAttribute('default-teams')) || 4;
+
+      this.innerHTML = `
+        <aside class="scoreboard" style="width:100%; border:0; padding:0; background:transparent;">
+          <div class="scoreboard-panel">
+            <div class="score-head">
+              <span>🏆 ĐIỂM CÁC TỔ</span>
+              <div style="display:flex; gap:6px; align-items:center;">
+                <select id="classSelect" onchange="Khoi3UnifiedSidebar.loadClassStudents(this.value)" title="Chọn lớp Khối 3">
+                  <option value="3_2" ${defaultClass==='3_2'?'selected':''}>Lớp 3/2</option>
+                  <option value="3_3" ${defaultClass==='3_3'?'selected':''}>Lớp 3/3</option>
+                  <option value="3_4" ${defaultClass==='3_4'?'selected':''}>Lớp 3/4</option>
+                  <option value="3_5" ${defaultClass==='3_5'?'selected':''}>Lớp 3/5</option>
+                  <option value="3_6" ${defaultClass==='3_6'?'selected':''}>Lớp 3/6</option>
+                </select>
+                <select id="teamCount" onchange="Khoi3UnifiedSidebar.initTeams(Number(this.value))" title="Số tổ">
+                  <option value="2" ${defaultTeams===2?'selected':''}>2 tổ</option>
+                  <option value="3" ${defaultTeams===3?'selected':''}>3 tổ</option>
+                  <option value="4" ${defaultTeams===4?'selected':''}>4 tổ</option>
+                  <option value="5" ${defaultTeams===5?'selected':''}>5 tổ</option>
+                  <option value="6" ${defaultTeams===6?'selected':''}>6 tổ</option>
+                </select>
+              </div>
+            </div>
+            <div id="teamsContainer"></div>
+          </div>
+
+          <details id="students-panel" open>
+            <summary id="students-summary">👥 Danh sách học sinh</summary>
+            <div id="students-header">
+              <span id="st-head-title" class="st-head-title">CÒN LƯỢT: --/--</span>
+              <div class="students-search-row">
+                <input type="text" id="search-student" placeholder="Tìm tên..."
+                  onkeyup="Khoi3UnifiedSidebar.filterStudents(this.value)">
+                <button type="button" class="btn-gacha-roll" onclick="Khoi3UnifiedSidebar.randomPickStudent()">🎲 Gacha</button>
+              </div>
+            </div>
+            <div id="students-list"></div>
+          </details>
+        </aside>
+      `;
+
+      await Khoi3UnifiedSidebar.init({ classId: defaultClass, teamCount: defaultTeams });
+    }
+  }
+
+  if (!customElements.get('khoi3-unified-sidebar')) {
+    customElements.define('khoi3-unified-sidebar', Khoi3UnifiedSidebarComponent);
+  }
 })();
 
