@@ -1,6 +1,6 @@
 # THƯ MỤC DÙNG CHUNG KHỐI 5 (`khoi-5/shared`)
 
-Thư mục này được đổi tên từ `theme` và nâng cấp toàn diện để gom chung **toàn bộ tài nguyên, giao diện và logic tương tác** của tất cả các bài giảng trong Khối 5.
+Thư mục này được đổi tên từ `theme` và nâng cấp toàn diện để gom chung **toàn bộ tài nguyên, giao diện và logic tương tác** của tất cả các bài giảng từ **Tiết 01 đến Tiết 35** trong Khối 5.
 
 ---
 
@@ -8,69 +8,50 @@ Thư mục này được đổi tên từ `theme` và nâng cấp toàn diện �
 
 ```
 khoi-5/shared/
-├── style.css       # Toàn bộ CSS dùng chung (Design tokens, Slides, Notebook, Scoreboard, Gacha, Modals, Responsive)
-├── core.js         # Gói JavaScript All-in-One (Tổng hợp Audio, Slides, Scoreboard, Students, Gacha, Utils)
+├── style.css       # Toàn bộ CSS dùng chung (Design tokens, Notebook chép bài, Scoreboard, Gacha, Modals, Responsive)
+├── core.js         # Gói JavaScript All-in-One (Tích hợp Audio, Slides, Notebook, Scoreboard, Students, Excel, Gacha, Utils)
 ├── audio.js        # Web Audio API Engine (Âm thanh đúng/sai, còi phạt, tăng giảm điểm, túi mù, click - 100% offline)
-├── slides.js       # Slide Engine (Chuyển slide, phím tắt mũi tên/Space, tự cập nhật ngày tháng tiếng Việt)
+├── slides.js       # Slide & Notebook Engine (Chuyển slide, phím tắt mũi tên/Space, tự cập nhật ngày tháng tiếng Việt)
 ├── scoreboard.js   # Scoreboard Engine (Quản lý điểm số, đội/dãy bàn, phạt mất trật tự, bảng vinh danh xếp hạng)
-├── students.js     # Student Engine (Tải danh sách lớp 5/1 - 5/6 từ JSON, gọi tên ngẫu nhiên, thêm học sinh)
+├── students.js     # Student Engine (Nạp lớp 5/1 -> 5/6 từ JSON, đọc file Excel thông minh, gọi tên ngẫu nhiên)
 ├── gacha.js        # Gacha Engine (Minigame bốc Túi Mù may mắn, tỉ lệ thưởng cân bằng sư phạm)
 ├── utils.js        # Utilities (Toast thông báo nổi, flash chớp viền màn hình, pháo hoa ăn mừng, xuất Excel)
 ├── template.html   # File HTML bài giảng mẫu chuẩn Khối 5 (Chỉ cần sao chép để tạo tiết học mới)
-└── README.md       # Tài liệu hướng dẫn sử dụng này
+└── README.md       # Tài liệu hướng dẫn sử dụng
 ```
 
 ---
 
-## 🚀 Cách Sử Dụng Trong Tiết Học Mới
+## 🌟 Hai Điểm Gom Chung Cốt Lõi Vừa Được Bổ Sung
 
-### 1. Nhúng thư viện vào `<head>` và cuối `<body>`
+### 1. Vở Chép Bài Dùng Chung (Notebook Component)
+- **Tự động hóa ngày tháng**: Hàm `formatTodayDate()` tự động điền `"Thứ..., ngày... tháng... năm..."` theo thời gian thực (hỗ trợ cả `.today-date`, `.currentDateDisplay`, `#lessonDate`).
+- **Giao diện chuẩn**: Tích hợp sẵn CSS đường viền gáy lò xo, tiêu đề môn học, và vùng soạn thảo `contenteditable="true"` để giáo viên có thể chỉnh sửa trực tiếp trên lớp.
+
+### 2. Logic Import Danh Sách Học Sinh Thông Minh (Kép: JSON + Excel)
+- **Nguồn 1 (JSON)**: Nạp tự động từ file trường `assets/data/students_5_2026_2027.json` theo mã lớp (`5_1` đến `5_6`).
+- **Nguồn 2 (File Excel)**: Hàm `Khoi5Students.handleExcelUpload(event)` tự động quét và nhận diện thông minh cột *"Họ và tên"*, *"Họ tên"* hoặc cặp cột *"Họ lót" + "Tên"* trong file `.xlsx`, `.xls`, `.csv` do giáo viên tải lên.
+
+---
+
+## 🚀 Cách Sử Dụng Trong Bài Giảng
+
 ```html
 <head>
   <!-- CSS dùng chung -->
   <link rel="stylesheet" href="../shared/style.css" />
-  <!-- (Tùy chọn) Thư viện pháo hoa khi kết bài -->
+  <!-- (Tùy chọn) Thư viện đọc Excel & Pháo hoa -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-</head>
-<body>
-  ...
-  <!-- JS All-in-One (chỉ cần 1 dòng duy nhất!) -->
+  <!-- JS All-in-One dùng chung Khối 5 -->
   <script src="../shared/core.js"></script>
-</body>
+</head>
 ```
-
-### 2. Các hàm JavaScript có sẵn gọi được ngay
-
-| Nhóm | Tên hàm | Chức năng |
-|---|---|---|
-| **Âm thanh** | `playCorrectSound()` | Tiếng chuông vui tươi khi trả lời đúng |
-| | `playPenaltySound()` | Tiếng còi cảnh báo tụt dốc khi bị trừ điểm / phạt trật tự |
-| | `playSuccessSound()` | Hợp âm Đô trưởng ăn mừng khi chiến thắng / kết bài |
-| | `playScoreSound(delta)` | Tiếng bíp khi tăng/giảm điểm (+ ramp lên, - ramp xuống) |
-| | `playGachaSound()` | Tiếng ting ting khi lật mở túi mù |
-| **Slide** | `goToSlide(targetId)` | Chuyển đến slide theo ID (ví dụ: `'slide-2'`) |
-| | `nextSlide()` | Sang slide kế tiếp (hỗ trợ phím `▶`, `Space`, `PageDown`) |
-| | `prevSlide()` | Lùi về slide trước (hỗ trợ phím `◀`, `PageUp`) |
-| | `formatTodayDate()` | Tự động điền "Thứ..., ngày... tháng... năm..." vào vở chép bài |
-| **Bảng điểm** | `Khoi5Scoreboard.init({ teamCount, layout })` | Khởi tạo bảng điểm (topbar hoặc sidebar) |
-| | `updateScore(teamId, delta)` | Cộng/trừ điểm và tự phát âm thanh |
-| | `penalizeTeam(teamId, amount)` | Phạt mất trật tự (trừ điểm + còi hú + thông báo) |
-| | `renderRankings('rankings-list')` | Tự động tính điểm và vinh danh Quán quân 🥇, Á quân 🥈... |
-| **Học sinh** | `Khoi5Students.loadStudents('5_2')` | Nạp danh sách học sinh từ file JSON theo lớp |
-| | `Khoi5Students.getRandomStudent(teamId)` | Gọi ngẫu nhiên một học sinh đại diện dãy |
-| | `getStudentDisplayName(st)` | Rút gọn họ tên đẹp mắt |
-| **Túi mù** | `openGacha(targetTeamId)` | Mở bảng 4 túi mù cho học sinh bốc thăm may mắn |
-| | `closeGacha()` | Đóng bảng túi mù |
-| **Tiện ích** | `toast('Nội dung', 2500, 'var(--mint)')` | Thông báo nổi trên đầu màn hình |
-| | `flashStage(isCorrect)` | Chớp viền màn hình xanh lá (đúng) hoặc đỏ (sai) |
-| | `triggerConfetti()` | Bắn pháo hoa giấy chúc mừng |
-| | `exportExcel('filename.xlsx', ...)` | Xuất kết quả bài học ra file Excel |
 
 ---
 
-## 💡 Soạn Bài Mới Siêu Nhanh
-Khi cần soạn bài cho các tiết tiếp theo (`tiet-08` đến `tiet-35`):
-1. Copy file `khoi-5/shared/template.html` vào thư mục của tiết cần làm (ví dụ: `khoi-5/tiet-08/index.html`).
-2. Mở file và chỉnh sửa tên bài, nội dung vở ghi bài và các câu hỏi thử thách.
-3. Toàn bộ logic giao diện, bảng điểm, âm thanh, học sinh và túi mù đã hoạt động tự động!
+## 📋 Trạng Thái Áp Dụng Trong Khối 5
 
+- **Tiết 03, 04, 05**: Đã chuyển đổi liên kết sang `../shared/style.css`.
+- **Tiết 06, 07**: Đã kết nối đầy đủ `../shared/style.css` và `../shared/core.js`.
+- **Tiết 08 đến 35**: Khi bắt đầu soạn bài mới, chỉ cần nhân bản file [`template.html`](template.html) vào thư mục tiết tương ứng.

@@ -1,12 +1,15 @@
 /**
- * KHOI 5 - SLIDE ENGINE
- * Điều hướng bài giảng, bàn phím điều khiển, và tự động cập nhật ngày tháng vở chép bài.
+ * KHOI 5 - SLIDE & NOTEBOOK ENGINE
+ * Tiện ích điều hướng slide và cập nhật ngày tháng cho Vở Chép Bài.
+ * CHÚ Ý: Module này KHÔNG tự động can thiệp DOM để tránh xung đột với layout riêng của từng tiết.
+ * Chỉ hoạt động khi bài giảng chủ động gọi hàm.
  */
 const Khoi5Slides = (() => {
   let currentSlideId = '';
   let slideList = [];
+  let keyboardInitialized = false;
 
-  /** Tự động tìm tất cả các slide trong trang */
+  /** Quét danh sách slide khi bài học cần dùng */
   function scanSlides() {
     const slides = document.querySelectorAll('.slide');
     slideList = Array.from(slides).map(s => s.id).filter(Boolean);
@@ -14,7 +17,6 @@ const Khoi5Slides = (() => {
     if (active) currentSlideId = active.id;
     else if (slideList.length > 0) {
       currentSlideId = slideList[0];
-      slides[0].classList.add('active');
     }
     return slideList;
   }
@@ -53,8 +55,11 @@ const Khoi5Slides = (() => {
     }
   }
 
-  /** Định dạng ngày tháng hôm nay chuẩn tiếng Việt cho slide Chép bài vào tập */
-  function formatTodayDate(selector = '.today-date') {
+  /**
+   * Định dạng ngày tháng hôm nay chuẩn tiếng Việt cho Vở Chép Bài
+   * Chỉ cập nhật khi bài học gọi đến hàm này.
+   */
+  function formatTodayDate(customSelector = null) {
     const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
     const today = new Date();
     const dayName = days[today.getDay()];
@@ -63,16 +68,20 @@ const Khoi5Slides = (() => {
     const year = today.getFullYear();
     const dateString = `${dayName}, ngày ${day} tháng ${month} năm ${year}`;
 
-    document.querySelectorAll(selector).forEach(el => {
-      el.textContent = dateString;
+    const selectors = customSelector ? [customSelector] : ['.today-date', '.currentDateDisplay', '#lessonDate'];
+    selectors.forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => {
+        el.textContent = dateString;
+      });
     });
     return dateString;
   }
 
-  /** Khởi tạo lắng nghe phím bấm */
+  /** Bật lắng nghe phím bấm điều hướng (chỉ kích hoạt khi bài học gọi) */
   function initKeyboard() {
+    if (keyboardInitialized) return;
+    keyboardInitialized = true;
     window.addEventListener('keydown', (e) => {
-      // Bỏ qua nếu đang gõ chữ trong input, textarea hoặc contenteditable
       const tag = (e.target.tagName || '').toLowerCase();
       if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
 
@@ -84,19 +93,6 @@ const Khoi5Slides = (() => {
         prevSlide();
       }
     });
-  }
-
-  // Tự động quét slide và cập nhật ngày khi DOM sẵn sàng
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      scanSlides();
-      formatTodayDate();
-      initKeyboard();
-    });
-  } else {
-    scanSlides();
-    formatTodayDate();
-    initKeyboard();
   }
 
   return {
@@ -111,11 +107,5 @@ const Khoi5Slides = (() => {
 })();
 
 // Xuất ra window
-window.goToSlide = Khoi5Slides.goToSlide;
-window.nextSlide = Khoi5Slides.nextSlide;
-window.prevSlide = Khoi5Slides.prevSlide;
-window.changeSlide = (dir) => (dir > 0 ? Khoi5Slides.nextSlide() : Khoi5Slides.prevSlide());
-window.goSlide = window.changeSlide;
+window.Khoi5Slides = Khoi5Slides;
 window.formatTodayDate = Khoi5Slides.formatTodayDate;
-window.updateDateDisplay = Khoi5Slides.formatTodayDate;
-

@@ -1,7 +1,12 @@
 /**
  * KHOI 5 - CORE ALL-IN-ONE ENGINE
- * Gói tổng hợp tất cả các tiện ích dùng chung cho các bài giảng Khối 5:
- * Audio, Slides, Scoreboard, Students, Gacha, và Utils.
+ * Bộ công cụ tiện ích dùng chung cho các bài giảng Khối 5:
+ * Audio, Slides, Scoreboard, Students (JSON & Excel), Gacha, và Utils.
+ * 
+ * NGUYÊN TẮC THIẾT KẾ:
+ * 1. KHÔNG tự động can thiệp DOM hoặc tự gắn phím tắt khi chưa được bài giảng yêu cầu.
+ * 2. KHÔNG ghi đè lên các hàm/biến đã được bài giảng định nghĩa riêng (dùng if (!window.xxx)).
+ * 3. Cho phép mỗi bài giảng giữ nguyên 100% sự tùy biến và bố cục giao diện độc lập.
  */
 
 // ==========================================
@@ -121,21 +126,19 @@ const Khoi5Audio = (() => {
 })();
 
 // ==========================================
-// 2. SLIDE ENGINE
+// 2. SLIDE & NOTEBOOK ENGINE (KHÔNG TỰ ĐỘNG CAN THIỆP DOM)
 // ==========================================
 const Khoi5Slides = (() => {
   let currentSlideId = '';
   let slideList = [];
+  let keyboardInitialized = false;
 
   function scanSlides() {
     const slides = document.querySelectorAll('.slide');
     slideList = Array.from(slides).map(s => s.id).filter(Boolean);
     const active = document.querySelector('.slide.active');
     if (active) currentSlideId = active.id;
-    else if (slideList.length > 0) {
-      currentSlideId = slideList[0];
-      slides[0].classList.add('active');
-    }
+    else if (slideList.length > 0) currentSlideId = slideList[0];
     return slideList;
   }
 
@@ -167,7 +170,7 @@ const Khoi5Slides = (() => {
     if (idx > 0) goToSlide(slideList[idx - 1]);
   }
 
-  function formatTodayDate(selector = '.today-date') {
+  function formatTodayDate(customSelector = null) {
     const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
     const today = new Date();
     const dayName = days[today.getDay()];
@@ -175,11 +178,16 @@ const Khoi5Slides = (() => {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const year = today.getFullYear();
     const dateString = `${dayName}, ngày ${day} tháng ${month} năm ${year}`;
-    document.querySelectorAll(selector).forEach(el => { el.textContent = dateString; });
+    const selectors = customSelector ? [customSelector] : ['.today-date', '.currentDateDisplay', '#lessonDate'];
+    selectors.forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => { el.textContent = dateString; });
+    });
     return dateString;
   }
 
   function initKeyboard() {
+    if (keyboardInitialized) return;
+    keyboardInitialized = true;
     window.addEventListener('keydown', (e) => {
       const tag = (e.target.tagName || '').toLowerCase();
       if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
@@ -189,14 +197,6 @@ const Khoi5Slides = (() => {
         e.preventDefault(); prevSlide();
       }
     });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      scanSlides(); formatTodayDate(); initKeyboard();
-    });
-  } else {
-    scanSlides(); formatTodayDate(); initKeyboard();
   }
 
   return { scanSlides, goToSlide, nextSlide, prevSlide, formatTodayDate, initKeyboard };
@@ -339,10 +339,13 @@ const Khoi5Scoreboard = (() => {
 })();
 
 // ==========================================
-// 4. STUDENTS ENGINE
+// 4. STUDENTS ENGINE (JSON & EXCEL IMPORT)
 // ==========================================
 const Khoi5Students = (() => {
   let allStudents = [];
+  let currentClassKey = '5_1';
+  let importedExcelStudents = [];
+
   const DEFAULT_NAMES = [
     'Ngô Phương Anh', 'Nguyễn Quốc Anh', 'Phạm Minh Anh', 'Đào Thiên Ân',
     'Trương Gia Bảo', 'Nguyễn Trọng Đức', 'Đỗ Hoàng Hiếu', 'Nguyễn Nhật Huy',
@@ -351,7 +354,17 @@ const Khoi5Students = (() => {
   ];
 
   async function loadStudents(classKey = '5_1') {
-    const cleanKey = String(classKey).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    currentClassKey = String(classKey).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    if (importedExcelStudents && importedExcelStudents.length > 0) {
+      allStudents = importedExcelStudents.map((name, idx) => ({
+        id: idx + 1,
+        name: typeof name === 'string' ? name : (name.name || `Học sinh ${idx + 1}`),
+        team: null,
+        actions: []
+      }));
+      return allStudents;
+    }
+
     try {
       const paths = [
         '../../assets/data/students_5_2026_2027.json',
@@ -367,7 +380,7 @@ const Khoi5Students = (() => {
       }
       if (rawData) {
         const norm = s => String(s).replace(/[^a-z0-9]/gi, '_').toLowerCase();
-        let list = rawData[classKey] || rawData[cleanKey] || rawData[norm(classKey)] || [];
+        let list = rawData[classKey] || rawData[currentClassKey] || rawData[norm(classKey)] || [];
         if (Array.isArray(list) && list.length > 0) {
           allStudents = list.map((item, idx) => ({
             id: idx + 1,
@@ -383,6 +396,78 @@ const Khoi5Students = (() => {
     }
     allStudents = DEFAULT_NAMES.map((name, idx) => ({ id: idx + 1, name, team: null, actions: [] }));
     return allStudents;
+  }
+
+  function handleExcelUpload(inputOrEvent) {
+    return new Promise((resolve, reject) => {
+      let file = null;
+      if (inputOrEvent && inputOrEvent.target && inputOrEvent.target.files) file = inputOrEvent.target.files[0];
+      else if (inputOrEvent instanceof File) file = inputOrEvent;
+      if (!file) { resolve([]); return; }
+
+      if (typeof window.XLSX === 'undefined') {
+        const msg = '⚠️ Thư viện XLSX chưa được tải! Hãy nhúng thư viện xlsx.full.min.js';
+        if (Khoi5Utils.toast) Khoi5Utils.toast(msg, 3000, 'var(--coral)');
+        resolve([]); return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = window.XLSX.read(data, { type: 'array' });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const json = window.XLSX.utils.sheet_to_json(sheet, { header: 1 });
+          if (!json || !json.length) {
+            Khoi5Utils.toast('⚠️ File Excel không có dữ liệu!', 2500, 'var(--coral)');
+            resolve([]); return;
+          }
+
+          let nameCol = -1, hoCol = -1, tenCol = -1, startRow = 0;
+          for (let r = 0; r < Math.min(json.length, 10); r++) {
+            const row = json[r]; if (!Array.isArray(row)) continue;
+            for (let c = 0; c < row.length; c++) {
+              const val = String(row[c] || '').trim().toLowerCase();
+              if (val.includes('họ và tên') || val.includes('họ tên') || val === 'tên học sinh' || val === 'học sinh' || val === 'name') {
+                nameCol = c; startRow = r + 1; break;
+              }
+              if (val === 'họ' || val.includes('họ lót') || val.includes('họ đệm')) hoCol = c;
+              if (val === 'tên' || val === 'ten') tenCol = c;
+            }
+            if (nameCol !== -1 || (hoCol !== -1 && tenCol !== -1)) { startRow = r + 1; break; }
+          }
+
+          const extracted = [];
+          for (let r = startRow; r < json.length; r++) {
+            const row = json[r]; if (!Array.isArray(row)) continue;
+            let full = '';
+            if (nameCol !== -1) full = String(row[nameCol] || '').trim();
+            else if (hoCol !== -1 && tenCol !== -1) full = (String(row[hoCol] || '').trim() + ' ' + String(row[tenCol] || '').trim()).trim();
+            else {
+              for (let c = 0; c < row.length; c++) {
+                const s = String(row[c] || '').trim();
+                if (s.length >= 3 && isNaN(s) && !s.includes('/') && !s.includes('@')) { full = s; break; }
+              }
+            }
+            if (full && full.length >= 2 && !/^(stt|họ|tên|lớp|ghi chú)/i.test(full)) extracted.push(full);
+          }
+
+          if (extracted.length) {
+            importedExcelStudents = extracted;
+            allStudents = extracted.map((name, idx) => ({ id: idx + 1, name, team: null, actions: [] }));
+            Khoi5Utils.toast(`✅ Đã nạp thành công ${extracted.length} học sinh từ file Excel!`, 3000, 'var(--mint)');
+            resolve(extracted);
+          } else {
+            Khoi5Utils.toast('⚠️ Không tìm thấy cột Họ tên hợp lệ!', 3000, 'var(--coral)');
+            resolve([]);
+          }
+        } catch (err) {
+          Khoi5Utils.toast('🚨 Lỗi khi đọc file Excel!', 3000, 'var(--coral)');
+          reject(err);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    });
   }
 
   function getStudentDisplayName(st) {
@@ -413,7 +498,7 @@ const Khoi5Students = (() => {
     return newSt;
   }
 
-  return { loadStudents, getStudentDisplayName, getRandomStudent, recordStudentAnswer, addStudent, getAllStudents: () => [...allStudents] };
+  return { loadStudents, handleExcelUpload, getStudentDisplayName, getRandomStudent, recordStudentAnswer, addStudent, getAllStudents: () => [...allStudents] };
 })();
 
 // ==========================================
@@ -550,7 +635,7 @@ const Khoi5Utils = (() => {
 })();
 
 // ==========================================
-// ĐÓNG GÓI NAMESPACE TOÀN CỤC & TƯƠNG THÍCH NGƯỢC
+// ĐÓNG GÓI NAMESPACE AN TOÀN (KHÔNG GHI ĐÈ BÀI HỌC)
 // ==========================================
 window.KHOI5 = {
   Audio: Khoi5Audio,
@@ -561,42 +646,16 @@ window.KHOI5 = {
   Utils: Khoi5Utils
 };
 
-// Map trực tiếp ra window cho các bài học gọi trực tiếp không cần tiền tố
-window.playCorrectSound = Khoi5Audio.playCorrectSound;
-window.playSuccessSound = Khoi5Audio.playSuccessSound;
-window.playPenaltySound = Khoi5Audio.playPenaltySound;
-window.playScoreSound = Khoi5Audio.playScoreSound;
-window.playGachaSound = Khoi5Audio.playGachaSound;
-window.playClickSound = Khoi5Audio.playClickSound;
+// Chỉ gán ra window nếu bài học CHƯA định nghĩa
+if (!window.playCorrectSound) window.playCorrectSound = Khoi5Audio.playCorrectSound;
+if (!window.playSuccessSound) window.playSuccessSound = Khoi5Audio.playSuccessSound;
+if (!window.playPenaltySound) window.playPenaltySound = Khoi5Audio.playPenaltySound;
+if (!window.playScoreSound) window.playScoreSound = Khoi5Audio.playScoreSound;
+if (!window.playGachaSound) window.playGachaSound = Khoi5Audio.playGachaSound;
+if (!window.playClickSound) window.playClickSound = Khoi5Audio.playClickSound;
 
-window.goToSlide = Khoi5Slides.goToSlide;
-window.nextSlide = Khoi5Slides.nextSlide;
-window.prevSlide = Khoi5Slides.prevSlide;
-window.changeSlide = (dir) => (dir > 0 ? Khoi5Slides.nextSlide() : Khoi5Slides.prevSlide());
-window.goSlide = window.changeSlide;
-window.formatTodayDate = Khoi5Slides.formatTodayDate;
-window.updateDateDisplay = Khoi5Slides.formatTodayDate;
-
-window.Khoi5Scoreboard = Khoi5Scoreboard;
-window.updateScore = Khoi5Scoreboard.updateScore;
-window.penalizeTeam = Khoi5Scoreboard.penalizeTeam;
-window.resetAllScores = Khoi5Scoreboard.resetAllScores;
-window.renderRanking = Khoi5Scoreboard.renderRankings;
-window.renderRankings = Khoi5Scoreboard.renderRankings;
-
-window.Khoi5Students = Khoi5Students;
-window.loadStudents = Khoi5Students.loadStudents;
-window.getStudentDisplayName = Khoi5Students.getStudentDisplayName;
-window.studentDisplayName = Khoi5Students.getStudentDisplayName;
-
-window.Khoi5Gacha = Khoi5Gacha;
-window.openGacha = Khoi5Gacha.openGacha;
-window.pickBag = Khoi5Gacha.pickBag;
-window.closeGacha = Khoi5Gacha.closeGacha;
-
-window.Khoi5Utils = Khoi5Utils;
-window.toast = Khoi5Utils.toast;
-window.flashStage = Khoi5Utils.flashStage;
-window.triggerConfetti = Khoi5Utils.triggerConfetti;
-window.exportExcel = Khoi5Utils.exportExcel;
-
+if (!window.formatTodayDate) window.formatTodayDate = Khoi5Slides.formatTodayDate;
+if (!window.Khoi5Students) window.Khoi5Students = Khoi5Students;
+if (!window.Khoi5Scoreboard) window.Khoi5Scoreboard = Khoi5Scoreboard;
+if (!window.Khoi5Gacha) window.Khoi5Gacha = Khoi5Gacha;
+if (!window.Khoi5Utils) window.Khoi5Utils = Khoi5Utils;
