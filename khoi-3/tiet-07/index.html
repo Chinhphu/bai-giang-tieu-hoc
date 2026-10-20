@@ -8,16 +8,9 @@
     <link rel="stylesheet" href="../shared/style.css">
     <!-- SheetJS để xuất file Excel chuẩn (.xlsx) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- Web Components & Tự động đẩy file lên Google Drive qua Google Apps Script -->
     <script src="../shared/components.js"></script>
 
     <style>
-        :root {
-            --ink: #0f172a;
-            --white: #ffffff;
-            --shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
-        }
-
         * {
             box-sizing: border-box;
             user-select: none;
@@ -25,8 +18,8 @@
 
         body {
             margin: 0;
-            color: var(--text);
-            background: var(--bg);
+            color: var(--ink);
+            background: #eef4fb;
             font-family: 'Quicksand', sans-serif;
             font-size: 19px;
             overflow-x: hidden;
@@ -51,7 +44,6 @@
             pointer-events: none;
         }
 
-        /* ===== BỐ CỤC 2 CỘT: TRÁI (SLIDE BÀI GIẢNG) - PHẢI (SIDEBAR ĐIỀU KHIỂN) ===== */
         .layout-container {
             display: grid;
             grid-template-columns: minmax(0, 1fr) 380px;
@@ -84,88 +76,7 @@
             }
         }
 
-        .card-panel {
-            background: var(--white);
-            border: 3px solid #cbd5e1;
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            padding: clamp(16px, 1.8vw, 26px);
-            position: relative;
-        }
-
-        .panel-heading {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 2px dashed #e2e8f0;
-            padding-bottom: 10px;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .panel-heading h2 {
-            font-size: 1.55rem;
-            font-weight: 900;
-            color: #1e3a8a;
-            margin: 0;
-        }
-
-        /* ===== NÚT BẤM ===== */
-        .btn {
-            font-weight: 800;
-            padding: 9px 16px;
-            border-radius: 10px;
-            font-size: 0.98rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: all .15s;
-            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.14);
-        }
-
-        .btn:hover:enabled {
-            transform: translateY(-2px);
-            filter: brightness(1.05);
-        }
-
-        .btn:active:enabled {
-            transform: translateY(1px);
-            box-shadow: none;
-        }
-
-        .btn.primary {
-            background: var(--primary);
-            color: #fff;
-            box-shadow: 0 3px 0 #1d4ed8;
-        }
-
-        .btn.success {
-            background: var(--green);
-            color: #fff;
-            box-shadow: 0 3px 0 #15803d;
-        }
-
-        .btn.danger {
-            background: var(--red);
-            color: #fff;
-            box-shadow: 0 3px 0 #b91c1c;
-        }
-
-        .btn.warning {
-            background: #eab308;
-            color: #422006;
-            box-shadow: 0 3px 0 #ca8a04;
-        }
-
-        .btn.huge {
-            font-size: 1.2rem;
-            padding: 13px 24px;
-            border-radius: 14px;
-        }
-
-        /* ===== VỞ CHÉP BÀI – CHỮ TO, NGẮN GỌN, CANH GIỮA TIÊU ĐỀ ===== */
+        /* VỞ CHÉP BÀI */
         .note-step {
             display: inline-block;
             font-size: 1.2rem;
@@ -190,7 +101,7 @@
             line-height: 1.7em;
             background-image: repeating-linear-gradient(transparent, transparent calc(1.7em - 1px), #bae6fd calc(1.7em - 1px), #bae6fd 1.7em);
             background-size: 100% 1.7em;
-            min-height: 70vh;
+            min-height: 68vh;
         }
 
         .notebook-date {
@@ -232,90 +143,121 @@
             padding-left: 1.2em;
         }
 
-        /* ===== HOẠT ĐỘNG 1: TRẮC NGHIỆM TƯ THẾ NGỒI CHUẨN SGK ===== */
+        /* HOẠT ĐỘNG 1: BẤM ĐIỂM SAI */
         .turn-banner-bar {
-            background: #1e3a8a;
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
             color: #fff;
-            border-radius: 12px;
-            padding: 10px 16px;
+            border-radius: 14px;
+            padding: 10px 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 10px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             font-weight: 800;
+            border: 2px solid #3b82f6;
         }
 
-        .posture-cards-3 {
+        .posture-game-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-            margin-bottom: 14px;
+            grid-template-columns: 1.05fr 1fr;
+            gap: 18px;
+            align-items: stretch;
         }
 
-        .p-card {
-            background: #f8fafc;
-            border: 3px solid #cbd5e1;
-            border-radius: 16px;
-            padding: 14px;
-            text-align: center;
+        .scene-container {
+            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 3px solid #94a3b8;
+            border-radius: 20px;
+            position: relative;
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 12px;
         }
 
-        .p-card.right-posture {
-            border-color: #22c55e;
-            background: #f0fdf4;
+        .hotspot-marker {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            background: #dc2626;
+            color: #fff;
+            border: 3px solid #fef08a;
+            border-radius: 99px;
+            padding: 6px 12px;
+            font-size: 0.92rem;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(220, 38, 38, 0.55);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            animation: pulseSpot 1.4s infinite;
+            z-index: 10;
+            white-space: nowrap;
+            transition: 0.15s;
+        }
+
+        .hotspot-marker:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            background: #b91c1c;
+        }
+
+        .hotspot-marker.selected-spot {
+            background: #eab308;
+            color: #422006;
+            border-color: #0f172a;
+            transform: translate(-50%, -50%) scale(1.12);
+            z-index: 20;
+        }
+
+        .hotspot-marker.solved-spot {
+            background: #16a34a;
+            color: #fff;
+            border-color: #bbf7d0;
+            animation: none;
+            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.4);
+            z-index: 5;
+        }
+
+        @keyframes pulseSpot {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.65);
+            }
+
+            50% {
+                box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+            }
         }
 
         .quiz-box {
             background: #0f172a;
             color: #fff;
-            border-radius: 18px;
-            padding: 18px 22px;
+            border-radius: 20px;
+            padding: 20px 22px;
             border: 3px solid #38bdf8;
-        }
-
-        .quiz-nav-pills {
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 12px;
-        }
-
-        .q-pill {
-            background: #1e293b;
-            color: #cbd5e1;
-            border: 2px solid #475569;
-            padding: 6px 14px;
-            border-radius: 99px;
-            font-weight: 800;
-            font-size: 0.95rem;
-        }
-
-        .q-pill.active {
-            background: #facc15;
-            color: #422006;
-            border-color: #eab308;
-        }
-
-        .q-pill.done {
-            background: var(--green);
-            color: #fff;
-            border-color: #22c55e;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .quiz-question-text {
-            font-size: 1.45rem;
+            font-size: 1.35rem;
             font-weight: 900;
             color: #fef08a;
-            margin-bottom: 14px;
+            margin: 10px 0 14px;
             line-height: 1.4;
         }
 
         .quiz-options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .quiz-opt-btn {
@@ -323,8 +265,8 @@
             color: #fff;
             border: 2px solid #475569;
             border-radius: 12px;
-            padding: 14px 16px;
-            font-size: 1.15rem;
+            padding: 12px 16px;
+            font-size: 1.1rem;
             font-weight: 700;
             text-align: left;
             transition: 0.15s;
@@ -358,69 +300,108 @@
             display: none;
         }
 
-        /* ===== HOẠT ĐỘNG 2: CẤU TẠO CHUỘT HÌNH 20 SGK ===== */
-        .mouse-layout {
-            display: grid;
-            grid-template-columns: 360px 1fr;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .mouse-diagram-card {
+        /* HOẠT ĐỘNG 2: HÌNH CHUỘT SIÊU TO CHÚ THÍCH BẰNG LỜI */
+        .mouse-giant-diagram {
             background: #f8fafc;
             border: 3px solid #cbd5e1;
             border-radius: 20px;
-            padding: 16px;
+            padding: 20px;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 480px;
+            position: relative;
         }
 
-        .part-slot-row {
+        .mouse-label-box {
+            position: absolute;
+            background: #ffffff;
+            border: 3px solid #334155;
+            border-radius: 16px;
+            padding: 10px 18px;
+            font-weight: 900;
+            font-size: 1.3rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        .mouse-label-box.left-btn {
+            left: 40px;
+            top: 120px;
+            border-color: #ef4444;
+            color: #b91c1c;
+        }
+
+        .mouse-label-box.right-btn {
+            right: 40px;
+            top: 120px;
+            border-color: #3b82f6;
+            color: #1d4ed8;
+        }
+
+        .mouse-label-box.scroll-btn {
+            left: 50%;
+            top: 20px;
+            transform: translateX(-50%);
+            border-color: #eab308;
+            color: #a16207;
+        }
+
+        /* THỰC HÀNH CHUỘT: THẦY LÀM MẪU VÀ HỌC SINH LÀM THEO LƯỢT */
+        .mode-switch-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
             background: #f1f5f9;
             border: 2px solid #cbd5e1;
-            border-radius: 12px;
-            padding: 10px 14px;
-            margin-bottom: 10px;
-            font-weight: 800;
+            border-radius: 14px;
+            padding: 8px 14px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        .part-choice-btns {
-            display: flex;
-            gap: 6px;
+        .mode-pill-btn {
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-weight: 900;
+            font-size: 1rem;
+            background: #e2e8f0;
+            color: #475569;
         }
 
-        .part-btn {
-            background: #fff;
-            border: 2px solid #94a3b8;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-weight: 800;
-            font-size: 0.95rem;
-        }
-
-        .part-btn.matched {
-            background: var(--green);
+        .mode-pill-btn.active-mode {
+            background: #2563eb;
             color: #fff;
-            border-color: #15803d;
+            box-shadow: 0 3px 0 #1d4ed8;
         }
 
-        /* ===== SLIDE 5: SÂN TẬP 5 THAO TÁC CHUỘT THỰC CHIẾN ===== */
+        .mode-pill-btn.active-contest {
+            background: #16a34a;
+            color: #fff;
+            box-shadow: 0 3px 0 #15803d;
+        }
+
         .practice-tabs {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .prac-tab {
             background: #e2e8f0;
             color: #1e293b;
-            padding: 10px 8px;
+            padding: 9px 8px;
             border-radius: 12px;
             font-weight: 900;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             text-align: center;
             border: 3px solid transparent;
         }
@@ -438,21 +419,21 @@
         }
 
         .virtual-desktop {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            background: linear-gradient(135deg, #0c4a6e 0%, #1e3a8a 100%);
             border: 4px solid #334155;
             border-radius: 20px;
-            height: 430px;
+            height: 410px;
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 18px;
+            padding: 16px;
             color: #fff;
         }
 
         .vd-instruction-banner {
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.88);
             border: 2px solid #38bdf8;
             border-radius: 14px;
             padding: 10px 18px;
@@ -460,6 +441,7 @@
             justify-content: space-between;
             align-items: center;
             z-index: 10;
+            gap: 12px;
         }
 
         .vd-stage {
@@ -472,48 +454,114 @@
         }
 
         .desktop-icon-item {
-            width: 150px;
-            height: 150px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            width: 155px;
+            height: 155px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 3px solid rgba(255, 255, 255, 0.35);
             border-radius: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             cursor: pointer;
             transition: transform 0.15s, background 0.15s;
             text-align: center;
             padding: 10px;
             font-weight: 800;
+            position: relative;
         }
 
         .desktop-icon-item:hover {
-            background: rgba(255, 255, 255, 0.24);
-            transform: scale(1.06);
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+
+        .desktop-icon-item.selected-icon {
+            background: rgba(59, 130, 246, 0.45);
+            border-color: #93c5fd;
+            box-shadow: 0 0 18px rgba(59, 130, 246, 0.7);
         }
 
         .desktop-icon-item.done-item {
-            background: rgba(34, 197, 94, 0.35);
+            background: rgba(34, 197, 94, 0.4);
             border-color: #4ade80;
         }
 
+        /* Menu chuột phải & Word Window */
+        .fake-context-menu {
+            background: #ffffff;
+            color: #0f172a;
+            border: 2px solid #64748b;
+            border-radius: 10px;
+            width: 190px;
+            padding: 6px 0;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .fake-context-menu div {
+            padding: 7px 14px;
+            cursor: pointer;
+        }
+
+        .fake-context-menu div:hover {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .fake-word-window {
+            background: #ffffff;
+            color: #0f172a;
+            border: 4px solid #2563eb;
+            border-radius: 14px;
+            width: 460px;
+            height: 220px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        .fake-word-titlebar {
+            background: #2563eb;
+            color: #fff;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 900;
+        }
+
+        .fake-close-btn {
+            background: #ef4444;
+            color: #fff;
+            border: 2px solid #fff;
+            border-radius: 6px;
+            padding: 4px 12px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
         .drop-zone-bin {
-            width: 170px;
-            height: 170px;
-            background: rgba(239, 68, 68, 0.2);
-            border: 4px dashed #f87171;
+            width: 175px;
+            height: 165px;
+            background: rgba(250, 204, 21, 0.16);
+            border: 4px dashed #facc15;
             border-radius: 22px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             font-weight: 900;
-            color: #fecaca;
+            color: #fef08a;
+            text-align: center;
+            padding: 10px;
         }
 
-        /* ===== SIDEBAR ALL-IN-ONE BÊN PHẢI ===== */
+        /* ===== SIDEBAR BÊN PHẢI (CHƠI THEO LƯỢT CỐ ĐỊNH) ===== */
         .sidebar {
             display: flex;
             flex-direction: column;
@@ -558,7 +606,6 @@
             border-bottom: 2px dashed #e2e8f0;
             border-left: 8px solid transparent;
             transition: all .15s;
-            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -584,11 +631,8 @@
 
         .team-name {
             font-weight: 900;
-            font-size: 1.18rem;
+            font-size: 1.15rem;
             line-height: 1.2;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .team-action-btns {
@@ -606,11 +650,6 @@
             font-size: .75rem;
             padding: 3px 6px;
             cursor: pointer;
-            transition: all .1s;
-        }
-
-        .plus-btn:hover {
-            background: #bbf7d0;
         }
 
         .noise-btn {
@@ -622,23 +661,16 @@
             font-size: .75rem;
             padding: 3px 6px;
             cursor: pointer;
-            transition: all .1s;
         }
 
-        .noise-btn:hover {
-            background: #fecaca;
-        }
-
-        /* SỐ ĐIỂM: RẤT TO ĐỂ HỌC SINH NGỒI BÀN CUỐI THẤY RÕ */
         .team-score {
-            font-size: 2.35rem;
+            font-size: 2.3rem;
             font-weight: 900;
             color: #0f172a;
             min-width: 60px;
             text-align: right;
             line-height: 1;
             font-variant-numeric: tabular-nums;
-            user-select: none;
         }
 
         .dock-box {
@@ -651,7 +683,6 @@
             flex-shrink: 0;
         }
 
-        /* ĐỒNG HỒ 3 PHÚT CHÉP BÀI */
         .copy-timer-card {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             border: 3px solid #3b82f6;
@@ -663,7 +694,6 @@
             justify-content: space-between;
             gap: 12px;
             margin-bottom: 12px;
-            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
             flex-wrap: wrap;
         }
 
@@ -680,9 +710,6 @@
             font-size: 0.85rem;
             padding: 4px 10px;
             border-radius: 99px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
         }
 
         .copy-timer-digits {
@@ -693,24 +720,18 @@
             letter-spacing: 2px;
             min-width: 85px;
             text-align: center;
-            line-height: 1;
         }
 
         .copy-timer-actions {
             display: flex;
             gap: 6px;
-            align-items: center;
         }
 
         .btn-timer {
-            font-family: inherit;
             font-weight: 800;
             font-size: 0.85rem;
             padding: 6px 12px;
             border-radius: 8px;
-            border: 0;
-            cursor: pointer;
-            transition: all .15s;
         }
 
         .btn-timer.start {
@@ -726,16 +747,6 @@
         .btn-timer.reset {
             background: #64748b;
             color: #fff;
-        }
-
-        .mini-ctrl-btn {
-            background: #1e293b;
-            color: #e2e8f0;
-            border: 1px solid #475569;
-            border-radius: 6px;
-            padding: 4px 8px;
-            font-size: 0.78rem;
-            font-weight: 800;
         }
 
         .nav-grid {
@@ -903,6 +914,10 @@
                 grid-template-columns: 1fr;
             }
 
+            .posture-game-grid {
+                grid-template-columns: 1fr;
+            }
+
             .sidebar {
                 position: static;
             }
@@ -914,62 +929,98 @@
     <div id="toasts"></div>
 
     <div class="layout-container">
-        <!-- ==================== CỘT TRÁI: 6 SLIDE BÀI GIẢNG CHUẨN SGK ==================== -->
+        <!-- ==================== CỘT TRÁI: 6 SLIDE BÀI GIẢNG ==================== -->
         <main>
-            <!-- SLIDE 1: HOẠT ĐỘNG 1 - TƯ THẾ NGỒI KHI SỬ DỤNG MÁY TÍNH -->
+            <!-- SLIDE 1: HOẠT ĐỘNG 1 - TÌM LỖI TƯ THẾ NGỒI -->
             <section id="slide-0" class="slide-screen active">
                 <div class="card-panel">
                     <div class="panel-heading">
-                        <h2>🧘 HOẠT ĐỘNG 1: TƯ THẾ NGỒI KHI SỬ DỤNG MÁY TÍNH (SGK TRANG 18 - 19)</h2>
+                        <h2>🕵️‍♂️ HOẠT ĐỘNG 1: BÁC SĨ SOI DÁNG NGỒI SAI & SỬA LẠI CHO ĐÚNG</h2>
+                        <span
+                            style="background:#dcfce7; color:#166534; font-weight:900; padding:4px 12px; border-radius:99px;"
+                            id="spotProgressBadge">Đã sửa: 0 / 12 lỗi</span>
                     </div>
 
                     <div class="turn-banner-bar">
                         <div>
-                            🎯 LƯỢT TRẢ LỜI CỦA: <span id="turnLabel1" style="color:#facc15; font-size:1.3rem;">TỔ
-                                1</span>
+                            🎯 ĐANG ĐẾN LƯỢT CỦA (Tự động): <span id="turnLabel1"
+                                style="color:#facc15; font-size:1.35rem;">TỔ 1</span>
                             <span id="stuLabel1" style="color:#93c5fd; margin-left:10px;"></span>
                         </div>
                         <div style="font-size:0.95rem; color:#bbf7d0;">
-                            💡 Trả lời đúng mỗi câu nhận <strong>+30 điểm</strong>!
+                            👉 Hãy bấm vào <strong>1 dấu hiệu sai (❗)</strong> trên hình và trả lời câu hỏi (+30đ/lỗi)!
                         </div>
                     </div>
 
-                    <!-- 3 HÌNH a, b, c TRONG SGK -->
-                    <div class="posture-cards-3">
-                        <div class="p-card">
-                            <div style="font-size:2.4rem;">🪑⬆️🙅‍♂️</div>
-                            <div style="font-weight:900; color:#dc2626; margin:4px 0;">Hình a) Chưa đúng</div>
-                            <div style="font-size:0.95rem; color:#475569;">Ghế ngồi quá thấp, bạn nam phải rướn người và
-                                với tay lên cao.</div>
-                        </div>
-                        <div class="p-card">
-                            <div style="font-size:2.4rem;">👀🖥️🙇‍♀️</div>
-                            <div style="font-weight:900; color:#dc2626; margin:4px 0;">Hình b) Chưa đúng</div>
-                            <div style="font-size:0.95rem; color:#475569;">Bạn nữ cúi gập cong lưng và dí mắt quá sát
-                                màn hình máy tính.</div>
-                        </div>
-                        <div class="p-card right-posture">
-                            <div style="font-size:2.4rem;">🧑‍💻📏✅</div>
-                            <div style="font-weight:900; color:#16a34a; margin:4px 0;">Hình c) Ngồi ĐÚNG</div>
-                            <div style="font-size:0.95rem; color:#14532d;">Lưng thẳng, vai thả lỏng, mắt cách 50–80 cm,
-                                tay ngang bàn phím, chân đặt trên sàn.</div>
-                        </div>
-                    </div>
+                    <div class="posture-game-grid">
+                        <!-- BỨC TRANH CÓ NHIỀU ĐIỂM BẤM TƯƠNG TÁC (TỐI ĐA 12 ĐIỂM DỰA VÀO SỐ TỔ) -->
+                        <div class="scene-container" id="postureScene">
+                            <svg width="100%" height="400" viewBox="0 0 500 380" fill="none">
+                                <!-- Nắng, Cửa sổ, Phòng tối -->
+                                <rect x="350" y="15" width="130" height="95" rx="10" fill="#fef08a" stroke="#eab308"
+                                    stroke-width="4" />
+                                <line x1="365" y1="60" x2="290" y2="145" stroke="#f59e0b" stroke-width="4"
+                                    stroke-dasharray="6 6" />
+                                <line x1="400" y1="75" x2="310" y2="165" stroke="#f59e0b" stroke-width="4"
+                                    stroke-dasharray="6 6" />
 
-                    <!-- BỘ 6 CÂU HỎI TƯƠNG TÁC NHANH THEO SGK -->
-                    <div class="quiz-box">
-                        <div class="quiz-nav-pills" id="postureQuizPills"></div>
-                        <div class="quiz-question-text" id="postureQText">...</div>
-                        <div class="quiz-options-grid" id="postureQOptions"></div>
-                        <div class="quiz-explain" id="postureQExplain"></div>
+                                <!-- Đồng hồ -->
+                                <circle cx="90" cy="65" r="42" fill="#fee2e2" stroke="#dc2626" stroke-width="4" />
+                                <text x="90" y="72" font-size="16" font-weight="900" fill="#991b1b"
+                                    text-anchor="middle">2 GIỜ!</text>
+
+                                <!-- Mặt bàn & Máy tính -->
+                                <rect x="240" y="210" width="220" height="14" rx="4" fill="#64748b" />
+                                <rect x="295" y="105" width="110" height="82" rx="8" fill="#0f172a" />
+                                <rect x="303" y="113" width="94" height="66" rx="4" fill="#38bdf8" />
+
+                                <!-- Ly nước nguy hiểm & Dây điện -->
+                                <rect x="420" y="160" width="20" height="50" fill="#bae6fd" stroke="#0ea5e9"
+                                    stroke-width="2" />
+                                <path d="M430 350 Q450 330 460 360 T490 350" stroke="#0f172a" stroke-width="4"
+                                    fill="none" />
+
+                                <!-- Ghế thấp & Người ngồi sai -->
+                                <rect x="115" y="265" width="95" height="14" rx="4" fill="#f97316" />
+                                <path d="M145 260 Q115 175 215 135" stroke="#ef4444" stroke-width="26"
+                                    stroke-linecap="round" fill="none" />
+                                <circle cx="235" cy="120" r="28" fill="#fed7aa" stroke="#ea580c" stroke-width="3" />
+                                <circle cx="248" cy="118" r="4" fill="#0f172a" />
+                                <line x1="262" y1="120" x2="295" y2="132" stroke="#dc2626" stroke-width="4"
+                                    stroke-dasharray="4 4" />
+                                <path d="M185 165 L220 225 L275 208" stroke="#ea580c" stroke-width="12"
+                                    stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                                <path d="M150 260 L200 240 L185 295" stroke="#1d4ed8" stroke-width="14"
+                                    stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                            </svg>
+
+                            <!-- CÁC NÚT HOTSPOT SẼ ĐƯỢC RENDER BẰNG JS ĐÈ LÊN ĐÚNG VỊ TRÍ -->
+                            <div id="hotspotsLayer"></div>
+                        </div>
+
+                        <!-- CỘT PHẢI: CÂU HỎI TRẮC NGHIỆM -->
+                        <div class="quiz-box">
+                            <div>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span
+                                        style="background:#38bdf8; color:#0f172a; font-weight:900; padding:4px 12px; border-radius:99px; font-size:0.9rem;"
+                                        id="activeSpotBadge">
+                                        🔍 Đang chờ...
+                                    </span>
+                                </div>
+                                <div class="quiz-question-text" id="postureQText">Hãy bấm vào một dấu hiệu ngồi sai (❗)
+                                    trên bức tranh để mở câu hỏi!</div>
+                                <div class="quiz-options-grid" id="postureQOptions"></div>
+                            </div>
+                            <div class="quiz-explain" id="postureQExplain"></div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- SLIDE 2: CHÉP BÀI ĐỢT 1 (TÊN BÀI + MỤC 1 TƯ THẾ NGỒI) -->
+            <!-- SLIDE 2: CHÉP BÀI ĐỢT 1 -->
             <section id="slide-1" class="slide-screen">
                 <div class="card-panel">
-                    <!-- ĐỒNG HỒ 3 PHÚT CHÉP BÀI ĐỢT 1 -->
                     <div class="copy-timer-card">
                         <div class="copy-timer-info">
                             <span class="copy-timer-badge">⏳ THỜI GIAN CHÉP BÀI</span>
@@ -995,111 +1046,72 @@
                 </div>
             </section>
 
-            <!-- SLIDE 3: HOẠT ĐỘNG 2 - TÌM HIỂU CHUỘT MÁY TÍNH (HÌNH 20 & 21 SGK) -->
+            <!-- SLIDE 3: HOẠT ĐỘNG 2 - HÌNH CHUỘT SIÊU TO CHÚ THÍCH BẰNG LỜI (KHÔNG TRẮC NGHIỆM) -->
             <section id="slide-2" class="slide-screen">
                 <div class="card-panel">
                     <div class="panel-heading">
-                        <h2>🖱️ HOẠT ĐỘNG 2: TÌM HIỂU VỀ CHUỘT MÁY TÍNH (SGK TRANG 19 - 20)</h2>
+                        <h2>🖱️ HOẠT ĐỘNG 2: CẤU TẠO CỦA CHUỘT MÁY TÍNH (SGK TRANG 19 - 20)</h2>
                     </div>
 
-                    <div class="mouse-layout">
-                        <!-- SƠ ĐỒ HÌNH 20 SGK: ĐÁNH SỐ 1, 2, 3 -->
-                        <div class="mouse-diagram-card">
-                            <svg width="240" height="230" viewBox="0 0 240 230" fill="none">
-                                <!-- Dây chuột -->
-                                <path d="M120 10 C120 25, 120 35, 120 45" stroke="#475569" stroke-width="5"
-                                    stroke-linecap="round" />
-                                <!-- Thân chuột -->
-                                <rect x="55" y="40" width="130" height="175" rx="65" fill="#e2e8f0" stroke="#1e293b"
-                                    stroke-width="5" />
-                                <!-- Nút trái (1) -->
-                                <path d="M58 105 L58 95 C58 55, 118 43, 118 43 L118 105 Z" fill="#fca5a5"
-                                    stroke="#1e293b" stroke-width="3" />
-                                <!-- Nút phải (2) -->
-                                <path d="M182 105 L182 95 C182 55, 122 43, 122 43 L122 105 Z" fill="#93c5fd"
-                                    stroke="#1e293b" stroke-width="3" />
-                                <!-- Nút cuộn (3) -->
-                                <rect x="111" y="62" width="18" height="36" rx="9" fill="#fde047" stroke="#1e293b"
-                                    stroke-width="3" />
-                                <!-- Nhãn số 1, 2, 3 đúng chuẩn Hình 20 SGK -->
-                                <rect x="8" y="48" width="34" height="34" rx="6" fill="#ef4444" />
-                                <text x="25" y="72" fill="#fff" font-size="22" font-weight="900"
-                                    text-anchor="middle">1</text>
-                                <line x1="42" y1="65" x2="82" y2="75" stroke="#ef4444" stroke-width="4" />
+                    <div
+                        style="font-size:1.15rem; color:#334155; font-weight:700; margin-bottom:12px; text-align:center;">
+                        Cả lớp cùng quan sát lên hình và nghe thầy giới thiệu 3 bộ phận của chuột và cách đặt ngón tay
+                        nhé!
+                    </div>
 
-                                <rect x="198" y="48" width="34" height="34" rx="6" fill="#2563eb" />
-                                <text x="215" y="72" fill="#fff" font-size="22" font-weight="900"
-                                    text-anchor="middle">2</text>
-                                <line x1="198" y1="65" x2="155" y2="75" stroke="#2563eb" stroke-width="4" />
+                    <div class="mouse-giant-diagram">
+                        <svg width="320" height="420" viewBox="0 0 240 320" fill="none">
+                            <!-- Dây chuột -->
+                            <path d="M120 10 C120 40, 120 50, 120 70" stroke="#475569" stroke-width="8"
+                                stroke-linecap="round" />
+                            <!-- Thân chuột -->
+                            <rect x="40" y="60" width="160" height="240" rx="80" fill="#e2e8f0" stroke="#1e293b"
+                                stroke-width="6" />
+                            <!-- Nút trái -->
+                            <path d="M43 140 L43 125 C43 70, 117 63, 117 63 L117 140 Z" fill="#fca5a5" stroke="#1e293b"
+                                stroke-width="4" />
+                            <!-- Nút phải -->
+                            <path d="M197 140 L197 125 C197 70, 123 63, 123 63 L123 140 Z" fill="#93c5fd"
+                                stroke="#1e293b" stroke-width="4" />
+                            <!-- Nút cuộn -->
+                            <rect x="108" y="90" width="24" height="48" rx="12" fill="#fde047" stroke="#1e293b"
+                                stroke-width="4" />
 
-                                <rect x="8" y="96" width="34" height="34" rx="6" fill="#eab308" />
-                                <text x="25" y="120" fill="#0f172a" font-size="22" font-weight="900"
-                                    text-anchor="middle">3</text>
-                                <line x1="42" y1="113" x2="115" y2="85" stroke="#eab308" stroke-width="4" />
-                            </svg>
-                            <div style="font-weight:900; color:#1e3a8a;">Hình 20. Chuột máy tính</div>
-                            <div style="font-size:0.92rem; color:#475569; margin-top:4px;">
-                                🖐️ <strong>Cách cầm chuột (Tay phải):</strong><br />
-                                • <strong>Ngón trỏ</strong> đặt lên <strong>Nút trái (1)</strong><br />
-                                • <strong>Ngón giữa</strong> đặt lên <strong>Nút phải (2)</strong>
-                            </div>
-                        </div>
+                            <!-- Đường chỉ nối ra label -->
+                            <line x1="80" y1="100" x2="-20" y2="60" stroke="#ef4444" stroke-width="4"
+                                stroke-dasharray="6 6" />
+                            <line x1="160" y1="100" x2="260" y2="60" stroke="#3b82f6" stroke-width="4"
+                                stroke-dasharray="6 6" />
+                            <line x1="120" y1="90" x2="120" y2="20" stroke="#eab308" stroke-width="4"
+                                stroke-dasharray="6 6" />
+                        </svg>
 
-                        <!-- BÀI TẬP GHÉP SỐ 1, 2, 3 VÀ 5 THAO TÁC CHUỘT -->
-                        <div>
-                            <h3 style="margin:0 0 10px; color:#1e3a8a;">1. Ghép các số 1, 2, 3 trên Hình 20 với tên bộ
-                                phận đúng (+20đ/câu):</h3>
+                        <!-- Label nổi -->
+                        <div class="mouse-label-box left-btn">🔴 NÚT TRÁI (Đặt Ngón trỏ)</div>
+                        <div class="mouse-label-box right-btn">🔵 NÚT PHẢI (Đặt Ngón giữa)</div>
+                        <div class="mouse-label-box scroll-btn">🟡 NÚT CUỘN (Bánh lăn)</div>
+                    </div>
 
-                            <div class="part-slot-row">
-                                <span>🔴 <strong>Bộ phận số 1</strong> (Bên trái, đặt ngón trỏ) là:</span>
-                                <div class="part-choice-btns">
-                                    <button class="part-btn" onclick="checkMousePart(1, true, this)">Nút trái</button>
-                                    <button class="part-btn" onclick="checkMousePart(1, false, this)">Nút phải</button>
-                                    <button class="part-btn" onclick="checkMousePart(1, false, this)">Nút cuộn</button>
-                                </div>
-                            </div>
-
-                            <div class="part-slot-row">
-                                <span>🔵 <strong>Bộ phận số 2</strong> (Bên phải, đặt ngón giữa) là:</span>
-                                <div class="part-choice-btns">
-                                    <button class="part-btn" onclick="checkMousePart(2, false, this)">Nút trái</button>
-                                    <button class="part-btn" onclick="checkMousePart(2, true, this)">Nút phải</button>
-                                    <button class="part-btn" onclick="checkMousePart(2, false, this)">Nút cuộn</button>
-                                </div>
-                            </div>
-
-                            <div class="part-slot-row">
-                                <span>🟡 <strong>Bộ phận số 3</strong> (Bánh lăn ở giữa) là:</span>
-                                <div class="part-choice-btns">
-                                    <button class="part-btn" onclick="checkMousePart(3, false, this)">Nút trái</button>
-                                    <button class="part-btn" onclick="checkMousePart(3, false, this)">Nút phải</button>
-                                    <button class="part-btn" onclick="checkMousePart(3, true, this)">Nút cuộn</button>
-                                </div>
-                            </div>
-
-                            <div
-                                style="background:#eff6ff; border:2px solid #93c5fd; border-radius:14px; padding:12px 16px; margin-top:14px;">
-                                <div style="font-weight:900; color:#1e3a8a; margin-bottom:6px;">⚡ 5 Thao tác sử dụng
-                                    chuột cơ bản (SGK trang 20):</div>
-                                <div
-                                    style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; font-size:0.98rem; font-weight:700;">
-                                    <div>1️⃣ <strong>Di chuyển chuột</strong> (Trượt trên mặt phẳng)</div>
-                                    <div>2️⃣ <strong>Nháy chuột</strong> (Nhấn nút trái 1 lần)</div>
-                                    <div>3️⃣ <strong>Nháy nút phải chuột</strong> (Nhấn nút phải)</div>
-                                    <div>4️⃣ <strong>Nháy đúp chuột</strong> (Nhấn nút trái 2 lần nhanh)</div>
-                                    <div style="grid-column: 1 / -1;">5️⃣ <strong>Kéo thả chuột</strong> (Nhấn giữ nút
-                                        trái, di chuyển đến chỗ mới rồi thả ra)</div>
-                                </div>
-                            </div>
+                    <div
+                        style="background:#eff6ff; border:2px solid #93c5fd; border-radius:14px; padding:12px 16px; margin-top:16px;">
+                        <div
+                            style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; font-size:1.1rem; font-weight:700; color:#1e3a8a;">
+                            <div style="grid-column: 1 / -1; margin-bottom:6px; font-weight:900;">⚡ 5 Thao tác cơ bản
+                                với chuột:</div>
+                            <div>1️⃣ <strong>Di chuyển chuột</strong></div>
+                            <div>2️⃣ <strong>Nháy chuột</strong> (Trái 1 lần)</div>
+                            <div>3️⃣ <strong>Nháy nút phải chuột</strong></div>
+                            <div>4️⃣ <strong>Nháy đúp chuột</strong> (Trái 2 lần nhanh)</div>
+                            <div style="grid-column: 1 / -1;">5️⃣ <strong>Kéo thả chuột</strong> (Nhấn giữ nút trái &
+                                kéo)</div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- SLIDE 4: CHÉP BÀI ĐỢT 2 (MỤC 2 CHUỘT MÁY TÍNH) -->
+            <!-- SLIDE 4: CHÉP BÀI ĐỢT 2 -->
             <section id="slide-3" class="slide-screen">
                 <div class="card-panel">
-                    <!-- ĐỒNG HỒ 3 PHÚT CHÉP BÀI ĐỢT 2 -->
                     <div class="copy-timer-card">
                         <div class="copy-timer-info">
                             <span class="copy-timer-badge">⏳ THỜI GIAN CHÉP BÀI</span>
@@ -1126,16 +1138,29 @@
                 </div>
             </section>
 
-            <!-- SLIDE 5: THỰC HÀNH CẦM CHUỘT THẬT - 5 THAO TÁC CHUỘT -->
+            <!-- SLIDE 5: THẦY DEMO CHUỘT & MỖI TỔ 2 EM THỰC HÀNH -->
             <section id="slide-4" class="slide-screen">
                 <div class="card-panel">
-                    <div class="panel-heading">
-                        <h2>🎮 PHÒNG THỰC HÀNH: THỬ THÁCH 5 THAO TÁC CHUỘT (+30Đ/LƯỢT)</h2>
-                        <button class="btn warning" onclick="resetCurrentMouseTask()">🔄 Làm lại thử thách này (Cho bạn
-                            tiếp theo)</button>
+                    <!-- THANH CHUYỂN CHẾ ĐỘ -->
+                    <div class="mode-switch-bar" id="practiceModeBar">
+                        <div>
+                            <div style="font-weight:900; font-size:1.2rem; color:#0f172a;" id="practiceModeTitle">
+                                👨‍🏫 BƯỚC 1: THẦY DEMO 5 THAO TÁC
+                            </div>
+                            <div style="font-size:0.95rem; color:#334155; font-weight:700;" id="practiceModeSub">
+                                Thầy làm mẫu 5 thao tác. Xong bấm nút bên phải để bắt đầu phần thi đấu của các tổ!
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <button class="btn primary" id="btnTogglePracticeMode"
+                                onclick="toggleStudentPracticeMode()">
+                                🚀 Gọi Học Sinh Thực Hành (Mỗi tổ 2 bạn)
+                            </button>
+                            <button class="btn warning" onclick="resetCurrentMouseTask()">🔄 Làm mới màn hình</button>
+                        </div>
                     </div>
 
-                    <!-- 5 TAB TƯƠNG ỨNG 5 THAO TÁC CHUỘT TRONG SGK -->
+                    <!-- 5 TAB THAO TÁC CHUỘT -->
                     <div class="practice-tabs" id="practiceTabs">
                         <button class="prac-tab active" onclick="loadMouseTask(0)">1. Di chuyển chuột</button>
                         <button class="prac-tab" onclick="loadMouseTask(1)">2. Nháy chuột</button>
@@ -1144,32 +1169,35 @@
                         <button class="prac-tab" onclick="loadMouseTask(4)">5. Kéo thả chuột</button>
                     </div>
 
-                    <!-- MÀN HÌNH MÁY TÍNH MÔ PHỎNG ĐỂ HỌC SINH CẦM CHUỘT THẬT THỰC HIỆN -->
+                    <!-- MÀN HÌNH ẢO -->
                     <div class="virtual-desktop" oncontextmenu="return false;">
                         <div class="vd-instruction-banner">
                             <div>
-                                <span style="color:#facc15; font-weight:900; font-size:1.25rem;" id="pracTaskTitle">Thử
-                                    thách 1: Di chuyển chuột</span>
-                                <div style="font-size:1rem; color:#e2e8f0; margin-top:2px;" id="pracTaskDesc">Hãy cầm
-                                    chuột di chuyển con trỏ chạm vào cả 3 Ngôi Sao!</div>
+                                <span style="color:#facc15; font-weight:900; font-size:1.22rem;" id="pracTaskTitle">Thao
+                                    tác 1: Di chuyển chuột</span>
+                                <div style="font-size:0.98rem; color:#e2e8f0; margin-top:2px;" id="pracTaskDesc">...
+                                </div>
                             </div>
-                            <div style="text-align:right;">
-                                <div style="font-weight:900; color:#4ade80;" id="pracTurnBadge">Lượt: Tổ 1</div>
-                                <div style="font-size:0.9rem; color:#93c5fd;" id="pracStuBadge"></div>
+                            <div style="text-align:right; min-width:230px;">
+                                <div style="font-weight:900; font-size:1.15rem; color:#4ade80;" id="pracTurnBadge">👨‍🏫
+                                    Thầy đang làm mẫu</div>
+                                <div style="font-size:0.9rem; color:#93c5fd; font-weight:800;" id="pracQuotaBadge">Chưa
+                                    tính lượt tổ</div>
                             </div>
                         </div>
 
                         <div class="vd-stage" id="vdStage"></div>
 
-                        <div style="text-align:center; font-size:0.95rem; color:#cbd5e1; font-weight:700;">
-                            🖐️ Nhắc nhở: Ngồi thẳng lưng và cầm chuột bằng tay phải (Ngón trỏ đặt nút trái, ngón giữa
-                            đặt nút phải)!
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; font-size:0.9rem; color:#cbd5e1; font-weight:700;">
+                            <span>🪟 Màn hình nền Desktop</span>
+                            <span>🖐️ Ngón trỏ đặt Nút trái · Ngón giữa đặt Nút phải</span>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- SLIDE 6: TỔNG KẾT & VINH DANH -->
+            <!-- SLIDE 6: TỔNG KẾT -->
             <section id="slide-5" class="slide-screen">
                 <div class="card-panel" style="text-align:center;">
                     <div class="panel-heading">
@@ -1182,20 +1210,20 @@
                         <div id="finalRankings"
                             style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-bottom:20px;">
                         </div>
-                        <button class="btn success huge" onclick="exportToExcel()">☁️ Xuất Excel & Lưu Google Drive</button>
+                        <button class="btn success huge" onclick="exportToExcel()">☁️ Xuất Excel & Lưu Google
+                            Drive</button>
                     </div>
                 </div>
             </section>
         </main>
 
-        <!-- ==================== CỘT PHẢI: SIDEBAR ĐIỀU KHIỂN CỐ ĐỊNH ==================== -->
+        <!-- ==================== CỘT PHẢI: SIDEBAR ĐIỀU KHIỂN ==================== -->
         <aside class="sidebar">
-            <!-- 1. BẢNG ĐIỂM CÁC TỔ (2 ĐẾN 6 TỔ, CÓ NÚT +20 & PHẠT ỒN/NGỒI SAI -10%) -->
             <div class="scoreboard-panel">
                 <div class="score-head">
-                    <span>🏆 ĐIỂM CÁC TỔ</span>
+                    <span>🏆 ĐIỂM CÁC TỔ (TỰ ĐỘNG CHUYỂN LƯỢT)</span>
                     <div style="display:flex; gap:6px; align-items:center;">
-                        <select id="classSelect" onchange="changeClass(this.value)" title="Chọn lớp Khối 3">
+                        <select id="classSelect" onchange="changeClass(this.value)" title="Chọn lớp">
                             <option value="3_2">Lớp 3/2</option>
                             <option value="3_3">Lớp 3/3</option>
                             <option value="3_4">Lớp 3/4</option>
@@ -1216,16 +1244,15 @@
                 <div id="teamsContainer"></div>
             </div>
 
-            <!-- 2. NÚT CHUYỂN SLIDE -->
             <div class="dock-box">
                 <div class="nav-grid">
                     <button class="btn primary" onclick="prevSlide()">◀ Trước</button>
-                    <span style="font-weight:900; font-size:0.95rem; color:#facc15;" id="slideIndicator">Slide 1/6</span>
+                    <span style="font-weight:900; font-size:0.95rem; color:#facc15;" id="slideIndicator">Slide
+                        1/6</span>
                     <button class="btn primary" onclick="nextSlide()">Tiếp ▶</button>
                 </div>
             </div>
 
-            <!-- 3. DANH SÁCH HỌC SINH & NÚT GACHA -->
             <details id="students-panel" open>
                 <summary id="students-summary">👥 Danh sách học sinh</summary>
                 <div id="students-header">
@@ -1241,13 +1268,11 @@
         </aside>
     </div>
 
-    <!-- MÀN HÌNH KHỞI ĐẦU -->
     <div class="start-screen" id="startScreen">
         <div class="start-box">
             <div style="font-size:3.8rem;">🖱️</div>
             <h1 style="margin:4px 0; font-size:2.3rem; color:#1e3a8a;">BÀI 4: LÀM VIỆC VỚI MÁY TÍNH</h1>
-            <p style="color:#475569; font-weight:700;">Tư thế ngồi đúng & Chuột máy tính · Tin học 3
-            </p>
+            <p style="color:#475569; font-weight:700;">Tư thế ngồi đúng & Chuột máy tính · Tin học 3</p>
             <div style="font-size:1.3rem; font-weight:900; margin-top:10px;">Chọn lớp</div>
             <div class="chip-row">
                 <button class="chip on" onclick="pickStart('class','3_2',this)">3/2</button>
@@ -1277,6 +1302,7 @@
         const START_SCORE = 100;
         const SCORE_FLOOR = 0;
         const NOISE_PERCENT = 10;
+        const STUDENTS_PER_TEAM_MOUSE = 2; // Mỗi tổ 2 bạn thực hành chuột
 
         /* ================= QUẢN LÝ ĐỒNG HỒ 3 PHÚT CHÉP BÀI ================= */
         let copyTimers = {
@@ -1291,11 +1317,7 @@
             const mm = Math.floor(ct.remaining / 60);
             const ss = ct.remaining % 60;
             el.textContent = `${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
-            if (ct.remaining <= 30) {
-                el.style.color = '#ef4444';
-            } else {
-                el.style.color = '#facc15';
-            }
+            el.style.color = ct.remaining <= 30 ? '#ef4444' : '#facc15';
         }
 
         function startCopyTimer(id) {
@@ -1316,14 +1338,14 @@
                 }
             }, 1000);
             updateCopyTimerUI(id);
-            toast(`⏳ Bắt đầu tính giờ chép bài (3 phút)!`, 'ok');
+            toast(`⏳ Bắt đầu đếm ngược 3 phút chép bài!`, 'ok');
         }
 
         function pauseCopyTimer(id) {
             const ct = copyTimers[id];
             if (!ct) return;
             ct.paused = !ct.paused;
-            toast(ct.paused ? '⏸ Đã tạm dừng đồng hồ chép bài!' : '▶ Tiếp tục đếm giờ chép bài!', 'ok');
+            toast(ct.paused ? '⏸ Đã tạm dừng đồng hồ!' : '▶ Tiếp tục đếm giờ!', 'ok');
         }
 
         function resetCopyTimer(id) {
@@ -1333,7 +1355,6 @@
             ct.remaining = 180;
             ct.paused = true;
             updateCopyTimerUI(id);
-            toast('🔄 Đã đặt lại đồng hồ chép bài 3 phút!', 'ok');
         }
 
         function playTimerBeep() {
@@ -1351,131 +1372,128 @@
                     osc.start(ctx.currentTime + idx * 0.18);
                     osc.stop(ctx.currentTime + idx * 0.18 + 0.15);
                 });
-            } catch (_) { }
+            } catch (error) {
+                console.error('Không thể phát âm báo hết giờ:', error);
+            }
         }
 
-        /* DỮ LIỆU HỌC SINH 5 LỚP KHỐI 3 */
         const FALLBACK_STUDENTS = {
-            "3_2": [
-                "Nguyễn Khả Ái", "Nguyễn Đức Anh", "Nguyễn Quốc Anh", "Trịnh Gia Bảo", "Ngô Hoàng Bảo Châu",
-                "Nguyễn Doanh Doanh", "Phạm Đại Dương", "Danh Thành Đạt", "Vũ Nghi Đình", "Võ Đoàn Nhã Hân",
-                "Võ Hứa Chí Hiếu", "Nguyễn Trần Gia Huy", "Đoàn Gia Hưng", "Nguyễn Phúc Hưng", "Đỗ Minh Khang",
-                "Đặng Nguyễn Quốc Khởi", "Đặng Lê Thiên Kim", "Trương Quân Kỳ", "Mai Hoàng Lam", "Lê Trúc Ly",
-                "Vũ Hoàng Ánh Minh", "Vương Lê Bảo Minh", "Đinh Kim Ngân", "Trần Y Như Ngọc", "Chiêm Nguyễn Khôi Nguyên",
-                "Nguyễn Công Gia Phát", "Trần Thiên Phú", "Keo Trần Kim Phúc", "Lê Đức Phúc", "Bùi Mai Phương",
-                "Nguyễn Quốc Quân", "Lê Anh Quốc", "Nguyễn Xuân Quý", "Hình Minh Thanh", "Nguyễn Việt Thanh",
-                "Nguyễn Minh Thành", "Lê Đức Thịnh", "Huỳnh Minh Thuận", "Huỳnh Gia Tiến", "Nguyễn Ngọc Trâm",
-                "Nguyễn Ngọc Bảo Trân", "Nguyễn Thanh Trọng", "Nguyễn Đức Tuấn", "Đoàn Thị Bảo Vy", "Hình Lê Khánh Vy",
-                "Hồ Nhật Vy", "Nguyễn Trần Thảo Vy", "Lê Ngọc Kim Yến"
-            ],
-            "3_3": [
-                "Tống Huỳnh Tâm An", "Bùi Ngọc Tú Anh", "Hồng Hoàng Nhật Anh", "Võ Khuê Anh", "Lê Huỳnh Thiên Bách",
-                "Nguyễn Hoàng Bách", "Nguyễn Phạm Bảo Châu", "Võ Hữu Duy", "Trần Quốc Đạt", "Phạm Thế Hào",
-                "Huỳnh Nhã Hân", "Nguyễn Lê Khả Hân", "Nguyễn Ngọc Gia Hân", "Nguyễn Phạm Gia Hân", "Lê Thị Phương Hoa",
-                "Phan Mạnh Hùng", "Lý Gia Hưng", "Nguyễn Minh Khang", "Phạm Nguyễn Minh Khôi", "Cao Thiên Kim",
-                "Nguyễn Hồ Phương Lam", "Mai Nhật Lan", "Vũ Bảo Long", "Huỳnh Thiên Lộc", "Bùi Diệu Mẫn",
-                "Dương Quang Minh", "Huỳnh Phúc Minh", "Nguyễn Ngọc Tuệ Minh", "Trần Phạm Khánh My", "Nguyễn Ngọc Kim Ngân",
-                "Nguyễn Khởi Nghiệp", "Đào Phúc Nguyên", "Tạ Hoàng Nhân", "Phan An Nhiên", "Trần Lê An Nhiên",
-                "Nguyễn Phúc", "Phạm Thiên Phúc", "Hoàng Bảo Phước", "Cao Lê Nhã Phương", "Trần Quốc Sang",
-                "Từ Tấn Sang", "Nguyễn Minh Tâm", "Phạm Quang Thành", "Nguyễn Phương Thảo", "Nguyễn Quốc Thắng",
-                "Đinh Trung Tín", "Võ Cát Tường", "Hà Mỹ Uyên"
-            ],
-            "3_4": [
-                "Đỗ Mỹ Ái", "Lê Đặng Trâm Anh", "Phạm Quốc Anh", "Trần Ngọc Tú Anh", "Trương Tuyết Anh",
-                "Nguyễn Dương Thiên Ân", "Thạch Thiên Bảo", "Trần Lâm Hữu Duyên", "Nguyễn Lê Hoàng Đăng", "Phạm Minh Đăng",
-                "Huỳnh Bích Hà", "Trần Ngọc Khánh Hà", "Đặng Thị Ngọc Hân", "Lê Nguyễn Quang Hưng", "Thái Minh Khang",
-                "Vũ Duy Khang", "Lê Trịnh Minh Khoa", "Lý Minh Khôi", "Nguyễn Đặng Đăng Khôi", "Phạm Trọng Kiên",
-                "Huỳnh Ngọc Thiên Kim", "Lưu Hoàng Kim", "Lưu Nhựt Lam", "Hà Tuyết Lan", "Nguyễn Tuyết Loan",
-                "Lê Đình Mạnh", "Trần Tuệ Mẫn", "Nguyễn Hoàng Gia Mỹ", "Thái Bảo Ngọc", "Lưu Nguyễn Đan Nguyên",
-                "Nguyễn Thảo Nguyên", "Cao Phương Nhã", "Phan Thị Xuân Nhi", "Trần Tuệ Nhi", "Phạm Hoàng Oanh",
-                "Trang Trường Phát", "Đỗ Hoàng Bảo Quân", "Nguyễn Phương Thảo", "Trương Bùi Phương Thảo", "Nguyễn Ngọc Kim Thiên",
-                "Huỳnh Chí Thiện", "Lương Phúc Thịnh", "Nguyễn Ngọc Thịnh", "Nguyễn Trần Phước Thịnh", "Quách Hoàng Thịnh",
-                "Mai Minh Thư", "Trần Anh Thư", "Đỗ Thị Thu Trang", "Lê Huyền Trâm", "Nguyễn Minh Triết", "Giang Ngọc Cát Tường"
-            ],
-            "3_5": [
-                "Đỗ Nhật Anh", "Phạm Lưu Duy Bách", "Đặng Tuệ Băng", "Thái Thị Kim Chi", "Lê Trần Bảo Di",
-                "Huỳnh Tấn Đạt", "Đặng Minh Đức", "Trần Nhật Thiên Đức", "Trần Ngọc Thiên Hà", "Lâm Ngọc Hân",
-                "Nguyễn Thị Xuân Hiền", "Nguyễn Hoàng An Khang", "Nguyễn Quốc Khánh", "Nguyễn Duy Khiêm", "Võ Thiên Kim",
-                "Nguyễn Gia Kỳ", "Lê Ngọc Kim Ngân", "Nguyễn Thị Bảo Ngọc", "Nguyễn Hồ Kim Nguyên", "Nguyễn Đặng Thành Nhân",
-                "Huỳnh Bảo Nhi", "Đặng Thị Quỳnh Như", "Trần Quỳnh Như", "Nguyễn Hồng Phát", "Nguyễn Lâm Gia Phát",
-                "Đàm Tâm Phúc", "Đặng Thành Hữu Phúc", "Huỳnh Gia Phúc", "Trần Hoàng Quân", "Nguyễn Chí Thiện",
-                "Trần Trường Quân", "Tăng Thế Tài", "Võ Thị Thu Thảo", "Nguyễn Trọng Thắng", "Tăng Ngọc Thi",
-                "Nguyễn Hồng Minh Thư", "Ngô Văn Tiền", "Chu Mạnh Tiến", "Nguyễn Thiên Trường", "Nguyễn Ngọc Thu Tuyền",
-                "Trần Thị Khánh Tuyết"
-            ],
-            "3_6": [
-                "Nguyễn Ngọc Khả Ái", "Trần Khả Ái", "Hoàng Thiên An", "Nguyễn Thiên An", "Nguyễn Ngọc Diệp Anh",
-                "Trần Nguyễn Hải Anh", "Phạm Kiều Thiên Ân", "Từ Quốc Bảo", "Danh Minh Châu", "Dương Hoàng Hải Đăng",
-                "Nguyễn Hoàng Đăng", "Nguyễn Lưu Nhật Hạ", "Trương Minh Hằng", "Cao Ngọc Gia Hân", "Lê Ngọc Khả Hân",
-                "Lại Xuân Khang", "Trương Trọng Nghĩa", "Phạm Ngô Thanh Ngọc", "Danh Nguyễn Yến Nhi", "Nguyễn Ngọc Tuệ Nhi",
-                "Trần Khánh Nhi", "Danh Thị Kiều Oanh", "Nguyễn Kỳ Phương", "Lê Hoàng Đăng Quang", "Phan Huỳnh Phú Quý",
-                "Nguyễn Ngọc Thảo Quyên", "Châu Ngọc Ngân Thanh", "Vi Huỳnh Kim Thanh", "Lâm Huỳnh Phương Thảo", "Trần Quốc Thiện",
-                "Nguyễn Ngọc Tiên", "Lâm Đức Tiến", "Trương Ngọc Toàn", "Mai Võ Thanh Trúc", "Lư Nhã Uyên",
-                "Nguyễn Ngọc Nhã Uyên", "Võ Huỳnh Khánh Vy", "Lê Như Ý", "Nguyễn Phúc Khang Lam", "Huỳnh Hoàng Yến"
-            ]
+            "3_2": ["Nguyễn Khả Ái", "Nguyễn Đức Anh", "Nguyễn Quốc Anh", "Trịnh Gia Bảo", "Ngô Hoàng Bảo Châu", "Nguyễn Doanh Doanh", "Phạm Đại Dương", "Danh Thành Đạt", "Vũ Nghi Đình", "Võ Đoàn Nhã Hân", "Võ Hứa Chí Hiếu", "Nguyễn Trần Gia Huy", "Đoàn Gia Hưng", "Nguyễn Phúc Hưng", "Đỗ Minh Khang", "Đặng Nguyễn Quốc Khởi", "Đặng Lê Thiên Kim", "Trương Quân Kỳ", "Mai Hoàng Lam", "Lê Trúc Ly", "Vũ Hoàng Ánh Minh", "Vương Lê Bảo Minh", "Đinh Kim Ngân", "Trần Y Như Ngọc", "Chiêm Nguyễn Khôi Nguyên", "Nguyễn Công Gia Phát", "Trần Thiên Phú", "Keo Trần Kim Phúc", "Lê Đức Phúc", "Bùi Mai Phương", "Nguyễn Quốc Quân", "Lê Anh Quốc", "Nguyễn Xuân Quý", "Hình Minh Thanh", "Nguyễn Việt Thanh", "Nguyễn Minh Thành", "Lê Đức Thịnh", "Huỳnh Minh Thuận", "Huỳnh Gia Tiến", "Nguyễn Ngọc Trâm", "Nguyễn Ngọc Bảo Trân", "Nguyễn Thanh Trọng", "Nguyễn Đức Tuấn", "Đoàn Thị Bảo Vy", "Hình Lê Khánh Vy", "Hồ Nhật Vy", "Nguyễn Trần Thảo Vy", "Lê Ngọc Kim Yến"],
+            "3_3": ["Tống Huỳnh Tâm An", "Bùi Ngọc Tú Anh", "Hồng Hoàng Nhật Anh", "Võ Khuê Anh", "Lê Huỳnh Thiên Bách", "Nguyễn Hoàng Bách", "Nguyễn Phạm Bảo Châu", "Võ Hữu Duy", "Trần Quốc Đạt", "Phạm Thế Hào", "Huỳnh Nhã Hân", "Nguyễn Lê Khả Hân", "Nguyễn Ngọc Gia Hân", "Nguyễn Phạm Gia Hân", "Lê Thị Phương Hoa", "Phan Mạnh Hùng", "Lý Gia Hưng", "Nguyễn Minh Khang", "Phạm Nguyễn Minh Khôi", "Cao Thiên Kim", "Nguyễn Hồ Phương Lam", "Mai Nhật Lan", "Vũ Bảo Long", "Huỳnh Thiên Lộc", "Bùi Diệu Mẫn", "Dương Quang Minh", "Huỳnh Phúc Minh", "Nguyễn Ngọc Tuệ Minh", "Trần Phạm Khánh My", "Nguyễn Ngọc Kim Ngân", "Nguyễn Khởi Nghiệp", "Đào Phúc Nguyên", "Tạ Hoàng Nhân", "Phan An Nhiên", "Trần Lê An Nhiên", "Nguyễn Phúc", "Phạm Thiên Phúc", "Hoàng Bảo Phước", "Cao Lê Nhã Phương", "Trần Quốc Sang", "Từ Tấn Sang", "Nguyễn Minh Tâm", "Phạm Quang Thành", "Nguyễn Phương Thảo", "Nguyễn Quốc Thắng", "Đinh Trung Tín", "Võ Cát Tường", "Hà Mỹ Uyên"],
+            "3_4": ["Đỗ Mỹ Ái", "Lê Đặng Trâm Anh", "Phạm Quốc Anh", "Trần Ngọc Tú Anh", "Trương Tuyết Anh", "Nguyễn Dương Thiên Ân", "Thạch Thiên Bảo", "Trần Lâm Hữu Duyên", "Nguyễn Lê Hoàng Đăng", "Phạm Minh Đăng", "Huỳnh Bích Hà", "Trần Ngọc Khánh Hà", "Đặng Thị Ngọc Hân", "Lê Nguyễn Quang Hưng", "Thái Minh Khang", "Vũ Duy Khang", "Lê Trịnh Minh Khoa", "Lý Minh Khôi", "Nguyễn Đặng Đăng Khôi", "Phạm Trọng Kiên", "Huỳnh Ngọc Thiên Kim", "Lưu Hoàng Kim", "Lưu Nhựt Lam", "Hà Tuyết Lan", "Nguyễn Tuyết Loan", "Lê Đình Mạnh", "Trần Tuệ Mẫn", "Nguyễn Hoàng Gia Mỹ", "Thái Bảo Ngọc", "Lưu Nguyễn Đan Nguyên", "Nguyễn Thảo Nguyên", "Cao Phương Nhã", "Phan Thị Xuân Nhi", "Trần Tuệ Nhi", "Phạm Hoàng Oanh", "Trang Trường Phát", "Đỗ Hoàng Bảo Quân", "Nguyễn Phương Thảo", "Trương Bùi Phương Thảo", "Nguyễn Ngọc Kim Thiên", "Huỳnh Chí Thiện", "Lương Phúc Thịnh", "Nguyễn Ngọc Thịnh", "Nguyễn Trần Phước Thịnh", "Quách Hoàng Thịnh", "Mai Minh Thư", "Trần Anh Thư", "Đỗ Thị Thu Trang", "Lê Huyền Trâm", "Nguyễn Minh Triết", "Giang Ngọc Cát Tường"],
+            "3_5": ["Đỗ Nhật Anh", "Phạm Lưu Duy Bách", "Đặng Tuệ Băng", "Thái Thị Kim Chi", "Lê Trần Bảo Di", "Huỳnh Tấn Đạt", "Đặng Minh Đức", "Trần Nhật Thiên Đức", "Trần Ngọc Thiên Hà", "Lâm Ngọc Hân", "Nguyễn Thị Xuân Hiền", "Nguyễn Hoàng An Khang", "Nguyễn Quốc Khánh", "Nguyễn Duy Khiêm", "Võ Thiên Kim", "Nguyễn Gia Kỳ", "Lê Ngọc Kim Ngân", "Nguyễn Thị Bảo Ngọc", "Nguyễn Hồ Kim Nguyên", "Nguyễn Đặng Thành Nhân", "Huỳnh Bảo Nhi", "Đặng Thị Quỳnh Như", "Trần Quỳnh Như", "Nguyễn Hồng Phát", "Nguyễn Lâm Gia Phát", "Đàm Tâm Phúc", "Đặng Thành Hữu Phúc", "Huỳnh Gia Phúc", "Trần Hoàng Quân", "Nguyễn Chí Thiện", "Trần Trường Quân", "Tăng Thế Tài", "Võ Thị Thu Thảo", "Nguyễn Trọng Thắng", "Tăng Ngọc Thi", "Nguyễn Hồng Minh Thư", "Ngô Văn Tiền", "Chu Mạnh Tiến", "Nguyễn Thiên Trường", "Nguyễn Ngọc Thu Tuyền", "Trần Thị Khánh Tuyết"],
+            "3_6": ["Nguyễn Ngọc Khả Ái", "Trần Khả Ái", "Hoàng Thiên An", "Nguyễn Thiên An", "Nguyễn Ngọc Diệp Anh", "Trần Nguyễn Hải Anh", "Phạm Kiều Thiên Ân", "Từ Quốc Bảo", "Danh Minh Châu", "Dương Hoàng Hải Đăng", "Nguyễn Hoàng Đăng", "Nguyễn Lưu Nhật Hạ", "Trương Minh Hằng", "Cao Ngọc Gia Hân", "Lê Ngọc Khả Hân", "Lại Xuân Khang", "Trương Trọng Nghĩa", "Phạm Ngô Thanh Ngọc", "Danh Nguyễn Yến Nhi", "Nguyễn Ngọc Tuệ Nhi", "Trần Khánh Nhi", "Danh Thị Kiều Oanh", "Nguyễn Kỳ Phương", "Lê Hoàng Đăng Quang", "Phan Huỳnh Phú Quý", "Nguyễn Ngọc Thảo Quyên", "Châu Ngọc Ngân Thanh", "Vi Huỳnh Kim Thanh", "Lâm Huỳnh Phương Thảo", "Trần Quốc Thiện", "Nguyễn Ngọc Tiên", "Lâm Đức Tiến", "Trương Ngọc Toàn", "Mai Võ Thanh Trúc", "Lư Nhã Uyên", "Nguyễn Ngọc Nhã Uyên", "Võ Huỳnh Khánh Vy", "Lê Như Ý", "Nguyễn Phúc Khang Lam", "Huỳnh Hoàng Yến"]
         };
 
-        /* 6 CÂU HỎI TƯ THẾ NGỒI CHUẨN SGK TRANG 18 - 19 */
-        let POSTURE_QUIZZES = [
+        /* 12 ĐIỂM SAI TƯ THẾ TỰ ĐỘNG CHIA ĐỀU CHO SỐ TỔ */
+        let POSTURE_SPOTS = [
             {
-                q: "Câu 1 (Hoạt động 1 SGK): Quan sát 3 hình a, b, c ở trên, bạn nào ngồi ĐÚNG tư thế khi sử dụng máy tính?",
-                opts: [
-                    { t: "A. Bạn ở Hình a (Ghế thấp, với tay lên cao)", ok: false },
-                    { t: "B. Bạn ở Hình b (Cúi sát màn hình, cong lưng)", ok: false },
-                    { t: "C. Bạn ở Hình c (Ngồi thẳng lưng, mắt ngang màn hình)", ok: true },
-                    { t: "D. Cả 3 bạn đều ngồi đúng", ok: false }
-                ],
-                exp: "✅ Đáp án C: Hình c đúng vì lưng thẳng, vai thả lỏng, tay đặt ngang bàn phím và chân đặt trên sàn!"
-            },
-            {
-                q: "Câu 2 (Hình 19 SGK): Khi ngồi làm việc với máy tính, khoảng cách từ mắt đến màn hình bao nhiêu là đúng chuẩn?",
+                id: 1, spotName: "👀 Mắt dí quá sát màn hình", x: 54, y: 24,
+                q: "Dấu hiệu 1: Bạn nhỏ đang dí mắt quá sát màn hình! Khoảng cách chuẩn từ mắt đến màn hình là bao nhiêu?",
                 opts: [
                     { t: "A. Từ 10 cm đến 20 cm (Càng sát càng rõ)", ok: false },
-                    { t: "B. Từ 50 cm đến 80 cm (Khoảng một cánh tay)", ok: true },
-                    { t: "C. Xa hơn 3 mét", ok: false },
-                    { t: "D. Dán sát mắt vào màn hình", ok: false }
+                    { t: "B. Từ 50 cm đến 80 cm (Khoảng một cánh tay)", ok: true }
                 ],
-                exp: "✅ Đáp án B: Giữ khoảng cách từ mắt đến màn hình từ 50 cm đến 80 cm để bảo vệ mắt!"
+                exp: "✅ Mắt cần hướng ngang tầm màn hình và cách màn hình từ 50 cm đến 80 cm."
             },
             {
-                q: "Câu 3 (Câu hỏi 1 SGK trang 19): Ngồi đúng tư thế khi sử dụng máy tính giúp em tránh nguy cơ mắc những bệnh nào?",
+                id: 2, spotName: "🙇 Lưng cúi gập cong vòng", x: 35, y: 46,
+                q: "Dấu hiệu 2: Ngồi cong lưng sẽ làm cột sống bị tổn thương. Ngồi đúng tư thế giúp em tránh nguy cơ mắc bệnh nào?",
                 opts: [
                     { t: "A. Bệnh Vẹo cột sống và Cận thị", ok: true },
-                    { t: "B. Bệnh Đau tai và Đau răng", ok: false },
-                    { t: "C. Bệnh Đau chân và Đau bụng", ok: false },
-                    { t: "D. Bệnh Sổ mũi", ok: false }
+                    { t: "B. Bệnh Đau chân và Đau răng", ok: false }
                 ],
-                exp: "✅ Đáp án A: Ngồi đúng tư thế giúp em tránh nguy cơ mắc bệnh Vẹo cột sống và Cận thị!"
+                exp: "✅ Ngồi thẳng lưng, vai thả lỏng giúp tránh bệnh Vẹo cột sống và Cận thị."
             },
             {
-                q: "Câu 4 (SGK trang 18): Em không nên dùng máy tính liên tục quá lâu, nên dừng lại nghỉ ngơi sau khoảng bao nhiêu phút?",
+                id: 3, spotName: "🪑 Ghế thấp, tay rướn cao", x: 48, y: 58,
+                q: "Dấu hiệu 3: Ghế quá thấp khiến bạn nhỏ phải rướn tay mỏi nhừ! Tư thế đặt tay đúng khi dùng máy tính là gì?",
                 opts: [
-                    { t: "A. Chơi liên tục 5 tiếng mới nghỉ", ok: false },
-                    { t: "B. Không cần nghỉ giải lao", ok: false },
-                    { t: "C. Dừng lại nghỉ ngơi và thư giãn sau khoảng 30 phút", ok: true },
-                    { t: "D. Sau 3 giờ liên tục", ok: false }
+                    { t: "A. Giơ hai tay cao lên khỏi đầu", ok: false },
+                    { t: "B. Tay đặt ngang tầm với bàn phím, vai thả lỏng", ok: true }
                 ],
-                exp: "✅ Đáp án C: Nên dừng lại, nghỉ ngơi và thư giãn mắt sau khoảng 30 phút sử dụng máy tính!"
+                exp: "✅ Cần chỉnh ghế vừa tầm để tay đặt ngang tầm với bàn phím."
             },
             {
-                q: "Câu 5 (SGK trang 18): Chúng ta cần đặt máy tính ở vị trí như thế nào đối với ánh sáng?",
+                id: 4, spotName: "🦶 Hai chân co lơ lửng", x: 38, y: 82,
+                q: "Dấu hiệu 4: Bạn nhỏ đang co chân lơ lửng không chạm đất! Hai bàn chân cần để ở đâu?",
                 opts: [
-                    { t: "A. Để nắng chiếu chói thẳng vào màn hình", ok: false },
-                    { t: "B. Đặt ở nơi ánh sáng không chiếu trực tiếp vào màn hình hoặc mắt", ok: true },
-                    { t: "C. Tắt hết đèn tối om khi dùng máy", ok: false },
-                    { t: "D. Chiếu đèn pin thẳng vào mắt", ok: false }
+                    { t: "A. Hai bàn chân đặt bằng phẳng, ngay ngắn trên mặt sàn", ok: true },
+                    { t: "B. Gác cả hai chân lên mặt bàn", ok: false }
                 ],
-                exp: "✅ Đáp án B: Đặt máy tính sao cho ánh sáng không chiếu trực tiếp vào màn hình hoặc mắt để tránh chói lóa!"
+                exp: "✅ Hai bàn chân chạm sàn giúp cơ thể giữ thăng bằng và thoải mái."
             },
             {
-                q: "Câu 6 (Tình huống SGK): Bạn Minh chơi máy tính liên tục 2 giờ, ngồi sát màn hình và không nghỉ giải lao. Em khuyên Minh thế nào?",
+                id: 5, spotName: "☀️ Ánh nắng chói lóa", x: 78, y: 18,
+                q: "Dấu hiệu 5: Ánh nắng đang chiếu chói thẳng vào màn hình làm lóa mắt! Cần đặt máy tính ở vị trí như thế nào?",
                 opts: [
-                    { t: "A. Khen Minh làm đúng và rủ chơi thêm 2 giờ nữa", ok: false },
-                    { t: "B. Khuyên Minh ngồi thẳng lưng, lùi xa 50–80 cm và nghỉ giải lao sau mỗi 30 phút", ok: true },
-                    { t: "C. Khuyên Minh nằm dài ra bàn để chơi", ok: false },
-                    { t: "D. Khuyên Minh tắt đèn chơi trong bóng tối", ok: false }
+                    { t: "A. Để nắng chiếu thẳng vào màn hình cho sáng", ok: false },
+                    { t: "B. Nơi ánh sáng không chiếu trực tiếp vào màn hình hoặc mắt", ok: true }
                 ],
-                exp: "✅ Đáp án B: Minh làm sai vì dễ bị cận thị và vẹo cột sống; cần ngồi cách 50–80 cm và nghỉ sau 30 phút!"
+                exp: "✅ Tránh ánh sáng chiếu trực tiếp vào màn hình để không bị lóa."
+            },
+            {
+                id: 6, spotName: "⏰ Ngồi suốt 2 giờ liền", x: 18, y: 20,
+                q: "Dấu hiệu 6: Bạn nhỏ ngồi dán mắt vào máy tính suốt 2 tiếng! Theo SGK, em nên dừng lại nghỉ ngơi sau bao lâu?",
+                opts: [
+                    { t: "A. Dừng lại nghỉ ngơi và thư giãn sau mỗi 30 phút", ok: true },
+                    { t: "B. Ngồi chơi liên tục 5 tiếng mới được nghỉ", ok: false }
+                ],
+                exp: "✅ Phải cho mắt và cơ thể nghỉ ngơi sau mỗi 30 phút sử dụng máy tính."
+            },
+            {
+                id: 7, spotName: "🥤 Để ly nước sát bàn phím", x: 62, y: 68,
+                q: "Dấu hiệu 7: Bạn nhỏ để ly nước ngay cạnh bàn phím! Điều gì sẽ xảy ra nếu vô tình làm đổ nước?",
+                opts: [
+                    { t: "A. Máy tính sẽ bị chập điện, hư hỏng và rất nguy hiểm", ok: true },
+                    { t: "B. Bàn phím sẽ được tắm mát và sạch sẽ hơn", ok: false }
+                ],
+                exp: "✅ Tuyệt đối không để đồ ăn, thức uống gần thiết bị điện tử."
+            },
+            {
+                id: 8, spotName: "🔌 Dây điện vướng dưới chân", x: 65, y: 88,
+                q: "Dấu hiệu 8: Dây điện đang nằm lộn xộn ngay dưới chân bạn nhỏ! Cần làm gì để đảm bảo an toàn?",
+                opts: [
+                    { t: "A. Cứ để vậy, thỉnh thoảng lấy chân đá qua đá lại", ok: false },
+                    { t: "B. Sắp xếp dây điện gọn gàng, tránh xa khu vực để chân", ok: true }
+                ],
+                exp: "✅ Dây điện lộn xộn có thể gây vấp ngã hoặc rò rỉ điện nguy hiểm."
+            },
+            {
+                id: 9, spotName: "🌃 Tắt hết đèn (Phòng tối)", x: 45, y: 10,
+                q: "Dấu hiệu 9: Căn phòng tối om nhưng màn hình lại sáng rực! Môi trường ánh sáng thế nào là tốt cho mắt?",
+                opts: [
+                    { t: "A. Phòng phải có đủ ánh sáng, không dùng máy tính trong bóng tối", ok: true },
+                    { t: "B. Tắt hết đèn đi để tập trung vào màn hình", ok: false }
+                ],
+                exp: "✅ Dùng máy tính trong bóng tối sẽ làm mắt bị điều tiết quá mức gây cận thị."
+            },
+            {
+                id: 10, spotName: "🖱️ Để chuột quá xa tay", x: 68, y: 55,
+                q: "Dấu hiệu 10: Chuột máy tính để tít ngoài xa khiến tay phải với rất mỏi! Vị trí để chuột đúng là ở đâu?",
+                opts: [
+                    { t: "A. Để ngay bên cạnh bàn phím, vừa tầm tay với", ok: true },
+                    { t: "B. Để dưới gầm bàn", ok: false }
+                ],
+                exp: "✅ Bàn phím và chuột phải nằm ngang nhau và vừa tầm tay."
+            },
+            {
+                id: 11, spotName: "🤕 Một tay chống cằm", x: 42, y: 36,
+                q: "Dấu hiệu 11: Bạn nhỏ đang dùng một tay chống cằm khiến cổ bị vẹo! Ngồi như vậy có sao không?",
+                opts: [
+                    { t: "A. Rất tốt vì đỡ mỏi cổ", ok: false },
+                    { t: "B. Không tốt, sẽ làm vẹo đốt sống cổ và cột sống lưng", ok: true }
+                ],
+                exp: "✅ Phải ngồi ngay ngắn, hai vai cân bằng, không chống cằm hay nghiêng người."
+            },
+            {
+                id: 12, spotName: "🖐️ Bàn tay gập cong", x: 58, y: 58,
+                q: "Dấu hiệu 12: Cổ tay bạn nhỏ đang bị bẻ gập cong lên mặt bàn rất đau! Cổ tay cần đặt như thế nào?",
+                opts: [
+                    { t: "A. Giữ cổ tay thẳng tự nhiên, ngang bằng với bàn phím", ok: true },
+                    { t: "B. Đè chặt cổ tay xuống cạnh bàn", ok: false }
+                ],
+                exp: "✅ Giữ cổ tay thẳng tự nhiên giúp em không bị đau mỏi khi thao tác lâu."
             }
         ];
 
@@ -1492,42 +1510,59 @@
         let currentSlide = 0;
         const TOTAL_SLIDES = 6;
 
-        let curPostureQ = 0;
-        const solvedPostureQ = new Set();
+        let activeSpotIdx = 0;
+        const solvedSpotIds = new Set();
+        let maxPostureTurns = 12;
+
         let curMouseTask = 0;
+        let isStudentPracticeMode = false;
         const solvedMouseTasks = new Set();
+        let teamMouseTurnsDone = [];
+        let contestTurnIndex = 0;
+        let mouseTaskCompletedForTurn = false;
+        let mouseTaskAdvanceTimer = null;
 
         let lessonLogs = [];
         const studentActions = {};
+        const classSessions = {};
 
         function logLessonAction(team, student, action, result, delta, scoreAfter) {
             const d = new Date(), pad = n => String(n).padStart(2, '0');
             const time = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
             lessonLogs.push({
-                time,
-                team: team || 'Chưa rõ',
-                student: student || 'Đại diện tổ',
-                action,
-                result,
-                delta,
-                scoreAfter
+                time, team: team || 'Chưa rõ', student: student || 'Đại diện tổ',
+                action, result, delta, scoreAfter
             });
         }
 
         function recordStudentAction(stuId, text) {
             if (!stuId) return;
-            if (!studentActions[stuId]) studentActions[stuId] = [];
-            studentActions[stuId].push(text);
+            const studentKey = `${currentClassID}:${stuId}`;
+            if (!studentActions[studentKey]) studentActions[studentKey] = [];
+            studentActions[studentKey].push(text);
         }
 
-        /* ================= 2. ĐIỀU HƯỚNG 6 SLIDE ================= */
+        function saveClassSession() {
+            classSessions[currentClassID] = {
+                teamCount: numT,
+                teamScores: TEAMS.map(team => team.score),
+                lessonLogs: [...lessonLogs],
+                solvedSpotIds: [...solvedSpotIds],
+                activeSpotIdx,
+                teamMouseTurnsDone: [...teamMouseTurnsDone],
+                contestTurnIndex,
+                curMouseTask,
+                turn
+            };
+        }
+
+        /* ================= 2. ĐIỀU HƯỚNG SLIDE ================= */
         function showSlide(idx) {
             currentSlide = Math.max(0, Math.min(TOTAL_SLIDES - 1, idx));
             $$('.slide-screen').forEach((el, i) => el.classList.toggle('active', i === currentSlide));
             $('#slideIndicator').textContent = `Slide ${currentSlide + 1}/${TOTAL_SLIDES}`;
             updateTurnLabels();
         }
-
         function nextSlide() { showSlide(currentSlide + 1); }
         function prevSlide() { showSlide(currentSlide - 1); }
 
@@ -1538,130 +1573,192 @@
             if (e.key === 'ArrowLeft') prevSlide();
         });
 
-        /* ================= 3. HOẠT ĐỘNG 1: TRẮC NGHIỆM TƯ THẾ NGỒI ================= */
-        function renderPostureQuiz() {
-            const pills = $('#postureQuizPills');
-            pills.innerHTML = POSTURE_QUIZZES.map((_, i) => `
-                <button class="q-pill ${i === curPostureQ ? 'active' : ''} ${solvedPostureQ.has(i) ? 'done' : ''}" onclick="selectPostureQ(${i})">
-                    Câu ${i + 1} ${solvedPostureQ.has(i) ? '✓' : ''}
-                </button>
-            `).join('');
+        /* ================= 3. HOẠT ĐỘNG 1: BẤM ĐIỂM SAI TƯ THẾ (CHIA ĐỀU CHO CÁC TỔ) ================= */
+        function renderPostureHotspots() {
+            const layer = $('#hotspotsLayer');
+            refreshPostureTurnLimit();
+            const activeSpots = POSTURE_SPOTS.slice(0, maxPostureTurns);
+            if (activeSpotIdx >= activeSpots.length) activeSpotIdx = 0;
 
-            const qObj = POSTURE_QUIZZES[curPostureQ];
-            $('#postureQText').textContent = qObj.q;
+            layer.innerHTML = activeSpots.map((sp, i) => {
+                const isSolved = solvedSpotIds.has(sp.id);
+                const isSel = i === activeSpotIdx;
+                return `
+                    <button type="button"
+                        class="hotspot-marker ${isSolved ? 'solved-spot' : (isSel ? 'selected-spot' : '')}"
+                        style="left:${sp.x}%; top:${sp.y}%;"
+                        ${isSolved ? 'disabled' : ''}
+                        onclick="openPostureSpot(${i})">
+                        <span>${isSolved ? '✅' : '❗'}</span>
+                        <span>${isSolved ? 'Đã sửa đúng' : 'Lỗi sai'}</span>
+                    </button>
+                `;
+            }).join('');
+
+            $('#spotProgressBadge').textContent = `Đã sửa: ${solvedSpotIds.size} / ${maxPostureTurns} lỗi`;
+            renderSelectedSpotQuestion();
+        }
+
+        function refreshPostureTurnLimit() {
+            const maxFairTurns = Math.floor(12 / numT) * numT;
+            const availableFairTurns = Math.floor(POSTURE_SPOTS.length / numT) * numT;
+            maxPostureTurns = Math.min(maxFairTurns, availableFairTurns);
+        }
+
+        function openPostureSpot(idx) {
+            const spot = POSTURE_SPOTS.slice(0, maxPostureTurns)[idx];
+            if (!Number.isInteger(idx) || !spot || solvedSpotIds.has(spot.id)) return;
+            activeSpotIdx = idx;
+            renderPostureHotspots();
+        }
+
+        function renderSelectedSpotQuestion() {
+            if (maxPostureTurns === 0) {
+                $('#activeSpotBadge').textContent = '⚠️ CHƯA CÓ ĐỦ NHIỆM VỤ';
+                $('#postureQText').textContent = 'Cần có ít nhất một lỗi tư thế cho mỗi tổ để bắt đầu hoạt động.';
+                $('#postureQOptions').innerHTML = '';
+                $('#postureQExplain').style.display = 'none';
+                return;
+            }
+
+            if (solvedSpotIds.size >= maxPostureTurns) {
+                $('#activeSpotBadge').textContent = `🎉 HOÀN THÀNH HOẠT ĐỘNG 1`;
+                $('#postureQText').textContent = "Tất cả các tổ đều đã hoàn thành số lượt sửa lỗi bằng nhau! Mời cả lớp chuyển sang phần chép bài.";
+                $('#postureQOptions').innerHTML = '';
+                $('#postureQExplain').style.display = 'none';
+                return;
+            }
+
+            const sp = POSTURE_SPOTS[activeSpotIdx];
+            if (!sp) return;
+            const isSolved = solvedSpotIds.has(sp.id);
+
+            $('#activeSpotBadge').textContent = `🔍 Đang kiểm tra: ${sp.spotName}`;
+            $('#postureQText').textContent = sp.q;
 
             const opts = $('#postureQOptions');
-            opts.innerHTML = qObj.opts.map((o, idx) => `
-                <button class="quiz-opt-btn" onclick="answerPostureQ(${idx}, ${o.ok}, this)">
+            opts.innerHTML = sp.opts.map((o, idx) => `
+                <button class="quiz-opt-btn ${isSolved && o.ok ? 'correct' : ''}"
+                    ${isSolved ? 'disabled' : ''}
+                    onclick="answerPostureSpot(${idx}, ${o.ok}, this)">
                     ${o.t}
                 </button>
             `).join('');
 
             const exp = $('#postureQExplain');
-            exp.style.display = 'none';
-            exp.textContent = qObj.exp;
+            exp.textContent = sp.exp;
+            exp.style.display = isSolved ? 'block' : 'none';
         }
 
-        function selectPostureQ(idx) {
-            curPostureQ = idx;
-            renderPostureQuiz();
-        }
-
-        function answerPostureQ(optIdx, isOk, btnEl) {
+        function answerPostureSpot(optIdx, isOk, btnEl) {
+            const sp = POSTURE_SPOTS[activeSpotIdx];
             const team = TEAMS[turn];
+            if (!sp || !team || solvedSpotIds.has(sp.id) || !sp.opts[optIdx]) return;
             const stuObj = classStudents.find(s => s.id === selectedStudent);
             const stuName = stuObj ? stuObj.name : 'Đại diện tổ';
+
             if (isOk) {
                 btnEl.classList.add('correct');
                 $$('#postureQOptions .quiz-opt-btn').forEach(b => b.disabled = true);
-                $('#postureQExplain').style.display = 'block';
-                solvedPostureQ.add(curPostureQ);
+                solvedSpotIds.add(sp.id);
                 applyScore(team, 30);
-                toast(`🎉 Chính xác! +30 điểm cho ${team.n}!`, 'ok');
-                logLessonAction(team.n, stuName, `Trả lời đúng Câu ${curPostureQ + 1} (Tư thế ngồi)`, 'Chính xác', '+30', team.score);
-                if (stuObj) recordStudentAction(stuObj.id, `Đúng Câu ${curPostureQ + 1} tư thế (+30đ)`);
+                toast(`🎉 Chính xác! Đã sửa lỗi "${sp.spotName}" -> +30đ cho ${team.n}!`, 'ok');
+                logLessonAction(team.n, stuName, `Phát hiện & sửa lỗi: ${sp.spotName}`, 'Chính xác', '+30', team.score);
+                if (stuObj) recordStudentAction(stuObj.id, `Sửa đúng lỗi tư thế: ${sp.spotName} (+30đ)`);
                 markCalledStudent();
-                turn = (turn + 1) % numT;
+
+                if (solvedSpotIds.size >= maxPostureTurns) {
+                    toast(`🏆 Các tổ đều đã hoàn thành số lượt bằng nhau!`, 'ok');
+                } else {
+                    turn = (turn + 1) % numT;
+                }
                 renderTeams();
                 updateTurnLabels();
-                renderPostureQuiz();
-                $('#postureQExplain').style.display = 'block';
+                renderPostureHotspots();
             } else {
                 btnEl.classList.add('wrong');
                 btnEl.disabled = true;
-                toast(`❌ Chưa đúng! Mời tổ tiếp theo suy nghĩ!`, 'bad');
-                logLessonAction(team.n, stuName, `Trả lời Câu ${curPostureQ + 1} (Tư thế ngồi)`, 'Chưa chính xác', '0', team.score);
-                if (stuObj) recordStudentAction(stuObj.id, `Tham gia trả lời Câu ${curPostureQ + 1}`);
-                turn = (turn + 1) % numT;
-                renderTeams();
-                updateTurnLabels();
-            }
-        }
-
-        /* ================= 4. HOẠT ĐỘNG 2: GHÉP BỘ PHẬN CHUỘT ================= */
-        function checkMousePart(partNum, isRight, btnEl) {
-            const team = TEAMS[turn];
-            const stuObj = classStudents.find(s => s.id === selectedStudent);
-            const stuName = stuObj ? stuObj.name : 'Đại diện tổ';
-            if (isRight) {
-                btnEl.classList.add('matched');
-                btnEl.parentElement.querySelectorAll('button').forEach(b => b.disabled = true);
-                applyScore(team, 20);
-                toast(`🖱️ Chính xác! Số ${partNum} đã ghép đúng (+20đ cho ${team.n})!`, 'ok');
-                logLessonAction(team.n, stuName, `Ghép đúng bộ phận chuột số ${partNum}`, 'Chính xác', '+20', team.score);
-                if (stuObj) recordStudentAction(stuObj.id, `Ghép đúng bộ phận chuột ${partNum} (+20đ)`);
+                toast(`❌ Chưa chính xác! Lượt chuyển sang tổ tiếp theo!`, 'bad');
+                logLessonAction(team.n, stuName, `Trả lời lỗi: ${sp.spotName}`, 'Chưa đúng', '0', team.score);
                 markCalledStudent();
+
                 turn = (turn + 1) % numT;
                 renderTeams();
                 updateTurnLabels();
-            } else {
-                btnEl.style.background = '#fee2e2';
-                toast(`❌ Nhìn kĩ vị trí mũi tên số ${partNum} trên Hình 20 nhé!`, 'bad');
-                logLessonAction(team.n, stuName, `Ghép bộ phận chuột số ${partNum}`, 'Chưa chính xác', '0', team.score);
             }
         }
 
-        /* ================= 5. SLIDE 5: THỰC HÀNH 5 THAO TÁC CHUỘT ================= */
+        /* ================= 5. SLIDE 5: THẦY DEMO CHUỘT & MỖI TỔ 2 EM THỰC HÀNH ================= */
         let MOUSE_TASKS = [
-            {
-                title: "Thao tác 1: Di chuyển chuột (Move)",
-                desc: "Cầm chuột trượt nhẹ để di chuyển con trỏ chuột chạm sáng cả 3 Ngôi Sao trên màn hình!"
-            },
-            {
-                title: "Thao tác 2: Nháy chuột (Click nút trái 1 lần)",
-                desc: "Dùng ngón trỏ nhấn nút trái chuột 1 lần vào biểu tượng 'Máy tính (This PC)' để chọn!"
-            },
-            {
-                title: "Thao tác 3: Nháy nút phải chuột (Right-click)",
-                desc: "Dùng ngón giữa nhấn NÚT PHẢI CHUỘT vào 'Hộp Quà Bí Ẩn' để mở bảng chọn!"
-            },
-            {
-                title: "Thao tác 4: Nháy đúp chuột (Double-click)",
-                desc: "Nhấn nhanh nút trái chuột 2 LẦN LIÊN TIẾP vào 'Thư Mục Trò Chơi' để mở ra!"
-            },
-            {
-                title: "Thao tác 5: Kéo thả chuột (Drag & Drop)",
-                desc: "Nhấn giữ nút trái chuột vào 'Tệp Rác', kéo sang thả vào 'Thùng Rác' bên phải!"
-            }
+            { title: "Thao tác 1: Di chuyển chuột", desc: "Cầm chuột trượt nhẹ trên bàn để di chuyển con trỏ chạm sáng cả 3 Ngôi Sao!" },
+            { title: "Thao tác 2: Nháy chuột (Hình 26a)", desc: "Dùng NGÓN TRỎ nhấn nút trái chuột 1 lần vào biểu tượng 'This PC' để chọn!" },
+            { title: "Thao tác 3: Nháy nút phải chuột (Hình 26b)", desc: "Dùng NGÓN GIỮA nhấn nút phải chuột 1 lần vào biểu tượng để mở bảng chọn (Menu)!" },
+            { title: "Thao tác 4: Nháy đúp chuột (Hình 28)", desc: "Dùng NGÓN TRỎ nhấn nút trái chuột nhanh 2 LẦN LIÊN TIẾP vào biểu tượng Word để mở phần mềm!" },
+            { title: "Thao tác 5: Kéo thả chuột (Hình 27)", desc: "Nhấn giữ nút trái chuột vào biểu tượng 'Tệp Rác', kéo sang vị trí 'Thùng Rác' bên phải rồi thả tay!" }
         ];
 
         let starTouchedCount = 0;
 
-        function loadMouseTask(idx) {
+        function toggleStudentPracticeMode() {
+            if (!isStudentPracticeMode && contestTurnIndex >= numT * STUDENTS_PER_TEAM_MOUSE) {
+                toast('🏁 Các tổ đã hoàn thành đủ lượt thực hành chuột.', 'ok');
+                return;
+            }
+            if (!isStudentPracticeMode && !selectedStudent) randomPickStudent();
+            if (!isStudentPracticeMode && !selectedStudent) return;
+
+            isStudentPracticeMode = !isStudentPracticeMode;
+            const bar = $('#practiceModeBar');
+            const title = $('#practiceModeTitle');
+            const sub = $('#practiceModeSub');
+            const btn = $('#btnTogglePracticeMode');
+
+            if (isStudentPracticeMode) {
+                bar.classList.add('student-mode');
+                title.textContent = `🎮 BƯỚC 2: HỌC SINH THỰC HÀNH THEO LƯỢT (MỖI TỔ ${STUDENTS_PER_TEAM_MOUSE} BẠN)`;
+                sub.textContent = `Hệ thống tự động gọi xoay vòng từng tổ. Mỗi bạn hoàn thành thao tác mang về +40 điểm cho tổ!`;
+                btn.textContent = `👨‍🏫 Quay lại chế độ Thầy Làm Mẫu`;
+                btn.className = 'btn warning';
+                clearTimeout(mouseTaskAdvanceTimer);
+                mouseTaskAdvanceTimer = null;
+                mouseTaskCompletedForTurn = false;
+                turn = contestTurnIndex % numT;
+                loadMouseTask(curMouseTask);
+                renderTeams();
+                toast(`🚀 Tiếp tục phần thực hành chuột. Mời đại diện của ${TEAMS[turn].n}!`, 'ok');
+            } else {
+                clearTimeout(mouseTaskAdvanceTimer);
+                mouseTaskAdvanceTimer = null;
+                bar.classList.remove('student-mode');
+                title.textContent = `👨‍🏫 BƯỚC 1: CHẾ ĐỘ THẦY GIÁO LÀM MẪU (DEMO 5 THAO TÁC CHUỘT)`;
+                sub.textContent = `Thầy làm mẫu 5 thao tác. Xong bấm nút bên phải để bắt đầu phần thi đấu của các tổ!`;
+                btn.textContent = `🚀 Gọi Học Sinh Thực Hành (Mỗi tổ 2 bạn)`;
+                btn.className = 'btn primary';
+                mouseTaskCompletedForTurn = false;
+                loadMouseTask(curMouseTask);
+                toast(`👨‍🏫 Đang ở chế độ Thầy giáo làm mẫu (Không tính điểm/Không đổi lượt)!`, 'ok');
+            }
+            updateTurnLabels();
+        }
+
+        function loadMouseTask(idx, advancePracticeTurn = false) {
+            if (!Number.isInteger(idx) || idx < 0 || idx >= MOUSE_TASKS.length) return;
+            if (isStudentPracticeMode && idx !== curMouseTask && !advancePracticeTurn) return;
+
             curMouseTask = idx;
-            const task = MOUSE_TASKS[idx];
+            const task = MOUSE_TASKS[curMouseTask];
             $('#pracTaskTitle').textContent = task.title;
             $('#pracTaskDesc').textContent = task.desc;
 
             $$('#practiceTabs .prac-tab').forEach((b, i) => {
-                b.className = `prac-tab ${i === idx ? 'active' : ''} ${solvedMouseTasks.has(i) ? 'done' : ''}`;
+                b.className = `prac-tab ${i === curMouseTask ? 'active' : ''} ${solvedMouseTasks.has(i) ? 'done' : ''}`;
+                b.disabled = isStudentPracticeMode;
             });
 
             const stage = $('#vdStage');
             stage.innerHTML = '';
 
-            if (idx === 0) {
-                // Thao tác 1: Di chuyển chuột chạm 3 ngôi sao
+            if (curMouseTask === 0) {
                 starTouchedCount = 0;
                 for (let s = 1; s <= 3; s++) {
                     const item = document.createElement('div');
@@ -1676,93 +1773,150 @@
                     };
                     stage.appendChild(item);
                 }
-            } else if (idx === 1) {
-                // Thao tác 2: Nháy chuột trái 1 lần
+            } else if (curMouseTask === 1) {
                 const item = document.createElement('div');
                 item.className = 'desktop-icon-item';
-                item.innerHTML = `<div style="font-size:3.8rem;">💻</div><div>Máy tính (This PC)<br/><small style="color:#fde047;">(Nháy nút trái 1 lần)</small></div>`;
+                item.innerHTML = `<div style="font-size:3.8rem;">💻</div><div>This PC<br/><small style="color:#fde047;">(Nháy nút trái 1 lần)</small></div>`;
                 item.onclick = function () {
-                    this.classList.add('done-item');
+                    this.classList.add('selected-icon', 'done-item');
+                    this.innerHTML = `<div style="font-size:3.8rem;">✅</div><div>Đã chọn biểu tượng!</div>`;
                     completeMouseTask(1);
                 };
                 stage.appendChild(item);
-            } else if (idx === 2) {
-                // Thao tác 3: Nháy nút phải chuột
+            } else if (curMouseTask === 2) {
                 const item = document.createElement('div');
                 item.className = 'desktop-icon-item';
-                item.innerHTML = `<div style="font-size:3.8rem;">🎁</div><div>Hộp Quà Bí Ẩn<br/><small style="color:#fde047;">(Nháy nút PHẢI chuột)</small></div>`;
+                item.innerHTML = `<div style="font-size:3.8rem;">🗑️</div><div>Recycle Bin<br/><small style="color:#fde047;">(Nháy nút PHẢI chuột)</small></div>`;
+                const menuHolder = document.createElement('div');
+                menuHolder.style.display = 'none';
+                menuHolder.innerHTML = `
+                    <div class="fake-context-menu">
+                        <div style="color:#64748b; font-size:0.8rem; padding:4px 8px; border-bottom:1px solid #e2e8f0;">Bảng chọn đã mở!</div>
+                        <div onclick="completeMouseTask(2)">📂 Open (Nháy chuột trái để chọn)</div>
+                        <div onclick="completeMouseTask(2)">🧹 Empty Recycle Bin</div>
+                        <div onclick="completeMouseTask(2)">ℹ️ Properties</div>
+                    </div>
+                `;
                 item.oncontextmenu = function (e) {
-                    e.preventDefault();
-                    this.classList.add('done-item');
-                    this.innerHTML = `<div style="font-size:3.8rem;">🎉</div><div>Đã mở Menu!</div>`;
-                    completeMouseTask(2);
+                    e.preventDefault(); e.stopPropagation();
+                    item.classList.add('selected-icon');
+                    menuHolder.style.display = 'block';
+                    toast('📋 Đã mở bảng chọn! Hãy nháy chuột trái vào 1 dòng để hoàn thành!', 'ok');
                 };
-                item.onclick = function () {
-                    toast('⚠️ Hãy nhấn NÚT PHẢI CHUỘT (bằng ngón giữa) nhé!', 'bad');
-                };
+                item.onclick = () => toast('⚠️ Hãy dùng NGÓN GIỮA nhấn NÚT PHẢI CHUỘT nhé!', 'bad');
                 stage.appendChild(item);
-            } else if (idx === 3) {
-                // Thao tác 4: Nháy đúp chuột (Double-click)
+                stage.appendChild(menuHolder);
+            } else if (curMouseTask === 3) {
                 const item = document.createElement('div');
                 item.className = 'desktop-icon-item';
-                item.innerHTML = `<div style="font-size:3.8rem;">📁</div><div>Thư Mục Trò Chơi<br/><small style="color:#fde047;">(Nháy đúp 2 lần nhanh)</small></div>`;
+                item.innerHTML = `<div style="font-size:3.8rem;">📘</div><div>Microsoft Word<br/><small style="color:#fde047;">(Nháy đúp 2 lần nhanh)</small></div>`;
+                const wordWin = document.createElement('div');
+                wordWin.className = 'fake-word-window';
+                wordWin.style.display = 'none';
+                wordWin.innerHTML = `
+                    <div class="fake-word-titlebar">
+                        <span>📘 Document1 - Microsoft Word</span>
+                        <button class="fake-close-btn" onclick="completeMouseTask(3)">✖ Đóng</button>
+                    </div>
+                    <div style="padding:20px; font-weight:800; font-size:1.15rem; color:#1e293b;">
+                        🎉 Cửa sổ phần mềm Word đã mở ra!<br/><br/>
+                        👉 Hãy <strong>nháy chuột vào nút ✖ Đóng</strong> ở góc trên bên phải để hoàn thành!
+                    </div>
+                `;
                 item.ondblclick = function () {
-                    this.classList.add('done-item');
-                    this.innerHTML = `<div style="font-size:3.8rem;">📂</div><div>Đã mở Thư mục!</div>`;
-                    completeMouseTask(3);
+                    item.style.display = 'none';
+                    wordWin.style.display = 'flex';
+                    toast('📂 Đã nháy đúp mở Word! Giờ hãy nháy chuột vào nút ✖ ở góc trên bên phải để đóng!', 'ok');
                 };
                 stage.appendChild(item);
-            } else if (idx === 4) {
-                // Thao tác 5: Kéo thả chuột (Drag & Drop)
+                stage.appendChild(wordWin);
+            } else if (curMouseTask === 4) {
                 const dragItem = document.createElement('div');
                 dragItem.className = 'desktop-icon-item';
                 dragItem.draggable = true;
-                dragItem.id = 'trashDragItem';
-                dragItem.innerHTML = `<div style="font-size:3.6rem;">🍌</div><div>Vỏ Chuối Rác<br/><small style="color:#fde047;">(Nhấn giữ & Kéo đi)</small></div>`;
+                dragItem.innerHTML = `<div style="font-size:3.6rem;">📄</div><div>Tệp Rác<br/><small style="color:#fde047;">(Nhấn giữ & Kéo đi)</small></div>`;
                 dragItem.ondragstart = e => e.dataTransfer.setData('text/plain', 'trash');
 
                 const bin = document.createElement('div');
                 bin.className = 'drop-zone-bin';
-                bin.innerHTML = `<div style="font-size:3.8rem;">🗑️</div><div>THÙNG RÁC</div><small>(Thả vào đây)</small>`;
+                bin.innerHTML = `<div style="font-size:3.8rem;">🎯</div><div>VỊ TRÍ MỚI</div><small>(Thả biểu tượng vào đây)</small>`;
                 bin.ondragover = e => e.preventDefault();
                 bin.ondrop = e => {
                     e.preventDefault();
                     dragItem.style.display = 'none';
                     bin.style.background = 'rgba(34, 197, 94, 0.35)';
                     bin.style.borderColor = '#4ade80';
-                    bin.innerHTML = `<div style="font-size:3.8rem;">✅</div><div>Sạch sẽ!</div>`;
+                    bin.innerHTML = `<div style="font-size:3.8rem;">✅</div><div>Đã kéo thả xong!</div>`;
                     completeMouseTask(4);
                 };
-
                 stage.appendChild(dragItem);
                 stage.appendChild(bin);
             }
         }
 
         function resetCurrentMouseTask() {
+            if (isStudentPracticeMode && mouseTaskCompletedForTurn) return;
             loadMouseTask(curMouseTask);
-            toast('🔄 Đã làm mới thử thách cho bạn tiếp theo thực hành!', 'ok');
         }
 
         function completeMouseTask(idx) {
-            solvedMouseTasks.add(idx);
+            if (!Number.isInteger(idx) || !MOUSE_TASKS[idx]) return;
+            if (isStudentPracticeMode && idx !== curMouseTask) return;
+
+            if (!isStudentPracticeMode) {
+                solvedMouseTasks.add(idx);
+                toast(`👨‍🏫 Thầy đã làm mẫu xong "${MOUSE_TASKS[idx].title}"!`, 'ok');
+                $$('#practiceTabs .prac-tab').forEach((b, i) => {
+                    b.className = `prac-tab ${i === curMouseTask ? 'active' : ''} ${solvedMouseTasks.has(i) ? 'done' : ''}`;
+                });
+                return;
+            }
+
+            const totalContestTurns = numT * STUDENTS_PER_TEAM_MOUSE;
+            if (contestTurnIndex >= totalContestTurns || mouseTaskCompletedForTurn) return;
+            if (!selectedStudent || calledStudents.has(selectedStudent)) {
+                toast('⚠️ Hãy chọn học sinh đại diện trước khi hoàn thành lượt này.', 'bad');
+                loadMouseTask(curMouseTask);
+                return;
+            }
+
             const team = TEAMS[turn];
+            if (!team || teamMouseTurnsDone[turn] >= STUDENTS_PER_TEAM_MOUSE) return;
+
+            mouseTaskCompletedForTurn = true;
             const stuObj = classStudents.find(s => s.id === selectedStudent);
-            const stuName = stuObj ? stuObj.name : 'Đại diện tổ';
-            applyScore(team, 30);
-            toast(`🎉 Tuyệt vời! Hoàn thành "${MOUSE_TASKS[idx].title}" -> +30đ cho ${team.n}!`, 'ok');
-            logLessonAction(team.n, stuName, `Thực hành: ${MOUSE_TASKS[idx].title}`, 'Hoàn thành tốt', '+30', team.score);
-            if (stuObj) recordStudentAction(stuObj.id, `Hoàn thành thực hành: ${MOUSE_TASKS[idx].title} (+30đ)`);
+            const stuName = stuObj ? stuObj.name : `Đại diện ${team.n}`;
+
+            applyScore(team, 40);
+            teamMouseTurnsDone[turn] = (teamMouseTurnsDone[turn] || 0) + 1;
+
+            toast(`🎉 Xuất sắc! ${stuName} (${team.n}) hoàn thành thao tác chuột -> +40 điểm!`, 'ok');
+            logLessonAction(team.n, stuName, `Thực hành chuột: ${MOUSE_TASKS[idx].title}`, 'Hoàn thành tốt', '+40', team.score);
+            if (stuObj) recordStudentAction(stuObj.id, `Thực hành đúng: ${MOUSE_TASKS[idx].title} (+40đ)`);
             markCalledStudent();
-            turn = (turn + 1) % numT;
+            contestTurnIndex++;
+
+            if (contestTurnIndex >= totalContestTurns) {
+                renderTeams();
+                updateTurnLabels();
+                toast(`🏆 Cả ${numT} tổ (mỗi tổ 2 bạn) đã hoàn thành đủ lượt thực hành chuột!`, 'ok');
+                return;
+            }
+
+            turn = contestTurnIndex % numT;
             renderTeams();
             updateTurnLabels();
-            $$('#practiceTabs .prac-tab').forEach((b, i) => {
-                b.className = `prac-tab ${i === curMouseTask ? 'active' : ''} ${solvedMouseTasks.has(i) ? 'done' : ''}`;
-            });
+            randomPickStudent();
+            clearTimeout(mouseTaskAdvanceTimer);
+            mouseTaskAdvanceTimer = setTimeout(() => {
+                mouseTaskAdvanceTimer = null;
+                if (!isStudentPracticeMode) return;
+                mouseTaskCompletedForTurn = false;
+                loadMouseTask((curMouseTask + 1) % MOUSE_TASKS.length, true);
+            }, 900);
         }
 
-        /* ================= 6. QUẢN LÝ TỔ & HỌC SINH ================= */
+        /* ================= 6. QUẢN LÝ TỔ (THEO LƯỢT CỐ ĐỊNH) ================= */
         function applyScore(team, delta) {
             const before = team.score;
             team.score = Math.max(SCORE_FLOOR, before + delta);
@@ -1790,12 +1944,6 @@
             logLessonAction(team.n, 'Cả tổ', 'Thưởng ngồi thẳng lưng đẹp', 'Thưởng', '+20', team.score);
         }
 
-        function setTurnManual(i) {
-            turn = i;
-            renderTeams();
-            updateTurnLabels();
-        }
-
         function updateTurnLabels() {
             const activeTeam = TEAMS[turn];
             const stuObj = classStudents.find(s => s.id === selectedStudent);
@@ -1804,27 +1952,51 @@
 
             if ($('#turnLabel1')) $('#turnLabel1').textContent = tName;
             if ($('#stuLabel1')) $('#stuLabel1').textContent = sName;
-            if ($('#pracTurnBadge')) $('#pracTurnBadge').textContent = `Lượt thực hành: ${tName}`;
-            if ($('#pracStuBadge')) $('#pracStuBadge').textContent = sName;
+
+            const practiceBadge = $('#pracTurnBadge');
+            const quotaBadge = $('#pracQuotaBadge');
+            if (practiceBadge && quotaBadge) {
+                if (!isStudentPracticeMode) {
+                    practiceBadge.textContent = `👨‍🏫 CHẾ ĐỘ THẦY DEMO MẪU`;
+                    quotaBadge.textContent = `Học sinh quan sát thầy làm mẫu trước khi thi đấu`;
+                } else {
+                    const totalTurns = numT * STUDENTS_PER_TEAM_MOUSE;
+                    const studentNumOfTeam = Math.floor(contestTurnIndex / numT) + 1;
+                    practiceBadge.textContent = `🎯 Lượt của: ${tName} ${sName}`;
+                    quotaBadge.textContent = `Lượt ${Math.min(contestTurnIndex + 1, totalTurns)}/${totalTurns} (Bạn thứ ${Math.min(studentNumOfTeam, STUDENTS_PER_TEAM_MOUSE)}/${STUDENTS_PER_TEAM_MOUSE} của ${tName})`;
+                }
+            }
         }
 
         function initTeams() {
-            $('#scoreRules').textContent = `Vốn: ${START_SCORE}đ · Thưởng ngồi đẹp: +20đ · Ồn/Ngồi sai: −${NOISE_PERCENT}%`;
+            $('#scoreRules').textContent = `Lượt tự động xoay vòng · Thưởng: +20đ · Ồn/Ngồi sai: −${NOISE_PERCENT}%`;
             TEAMS = Array.from({ length: numT }, (_, i) => TEAMS[i] || ({
-                id: i,
-                n: `Tổ ${i + 1}`,
-                color: TEAM_COLORS[i % TEAM_COLORS.length],
-                score: START_SCORE
+                id: i, n: `Tổ ${i + 1}`, color: TEAM_COLORS[i % TEAM_COLORS.length], score: START_SCORE
             }));
+            refreshPostureTurnLimit();
+            teamMouseTurnsDone = Array(numT).fill(0);
+            contestTurnIndex = 0;
+            mouseTaskCompletedForTurn = false;
             turn %= numT;
             renderTeams();
             updateTurnLabels();
+            renderPostureHotspots();
         }
 
         function changeTeamCount(val) {
             const c = Number(val);
-            if (!Number.isInteger(c) || c < 2 || c > 6) return;
+            if (!Number.isInteger(c) || c < 2 || c > 6) {
+                $('#teamCount').value = String(numT);
+                return;
+            }
+            if (isStudentPracticeMode) {
+                $('#teamCount').value = String(numT);
+                toast('⏸ Hãy kết thúc hoặc tạm dừng lượt thực hành trước khi đổi số tổ.', 'bad');
+                return;
+            }
             numT = c;
+            solvedSpotIds.clear();
+            activeSpotIdx = 0;
             initTeams();
         }
 
@@ -1836,16 +2008,21 @@
                 const isActive = i === turn;
                 const d = document.createElement('div');
                 d.className = `team-row ${isActive ? 'active' : ''}`;
-                d.onclick = () => setTurnManual(i);
+
+                // Hiển thị tiến độ học sinh lên làm chuột (chỉ hiện khi ở chế độ học sinh làm)
+                const mouseProgress = isStudentPracticeMode
+                    ? `<span style="font-size:0.75rem; color:#475569; font-weight:800;">(Thực hành chuột: ${teamMouseTurnsDone[i] || 0}/${STUDENTS_PER_TEAM_MOUSE} bạn)</span>`
+                    : '';
+
                 d.innerHTML = `
                     <div class="team-meta">
-                        <span class="team-name" style="color:${t.color}">${t.n} ${isActive ? '🎯' : ''}</span>
+                        <span class="team-name" style="color:${t.color}">${t.n} ${isActive ? '🎯 (Đang tới lượt)' : ''} ${mouseProgress}</span>
                         <div class="team-action-btns">
                             <button class="plus-btn" onclick="rewardBonus(${i}, event)" title="Thưởng ngồi thẳng lưng +20đ">🌟 +20</button>
                             <button class="noise-btn" onclick="penalizeNoise(${i}, event)" title="Phạt ồn hoặc ngồi gù lưng −10%">🔊 −10%</button>
                         </div>
                     </div>
-                    <div class="team-score" style="color:${t.color};" title="Điểm số ${t.n}">${t.score}</div>
+                    <div class="team-score" style="color:${t.color};">${t.score}</div>
                 `;
                 container.appendChild(d);
             });
@@ -1873,12 +2050,22 @@
                 const res = await fetch('../../assets/data/students_3_2026_2027.json');
                 if (res.ok) {
                     const data = await res.json();
-                    if (Array.isArray(data[classId])) studentNames = data[classId];
+                    if (Array.isArray(data[classId]) && data[classId].length > 0 && data[classId].every(name => typeof name === 'string')) {
+                        studentNames = data[classId];
+                    } else {
+                        console.warn(`Không có danh sách học sinh hợp lệ cho lớp ${classId}; dùng dữ liệu dự phòng.`);
+                    }
+                } else {
+                    console.warn(`Không tải được danh sách học sinh (HTTP ${res.status}); dùng dữ liệu dự phòng.`);
                 }
-            } catch (e) { }
+            } catch (error) {
+                console.warn('Không tải được danh sách học sinh; dùng dữ liệu dự phòng.', error);
+            }
 
             classStudents = studentNames.map((name, i) => ({ id: `hs-${i + 1}`, name }));
             calledStudents = calledStudentsByClass[classId] || new Set();
+            const validStudentIds = new Set(classStudents.map(student => student.id));
+            calledStudents = new Set([...calledStudents].filter(id => validStudentIds.has(id)));
             calledStudentsByClass[classId] = calledStudents;
 
             renderStudents();
@@ -1886,26 +2073,30 @@
         }
 
         function renderStudents() {
-            const remaining = classStudents.length - calledStudents.size;
+            const remaining = classStudents.filter(student => !calledStudents.has(student.id)).length;
             $('#st-head-title').textContent = `CÒN LƯỢT: ${remaining}/${classStudents.length}`;
             $('#students-summary').textContent = `👥 Học sinh (${remaining} còn lượt)`;
 
-            $('#students-list').innerHTML = classStudents.map((stu, idx) => {
+            const list = $('#students-list');
+            list.replaceChildren();
+            classStudents.forEach((stu, idx) => {
                 const called = calledStudents.has(stu.id);
                 const sel = selectedStudent === stu.id;
-                return `<button class="stu-btn ${sel ? 'active' : ''}" data-id="${stu.id}" data-name="${stu.name.toLowerCase()}" ${called ? 'disabled' : ''}>
-                    ${idx + 1}. ${stu.name}${called ? ' ✓' : ''}
-                </button>`;
-            }).join('');
-
-            $$('.stu-btn').forEach(b => {
-                b.onclick = () => selectStudent(b.dataset.id);
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `stu-btn ${sel ? 'active' : ''}`;
+                button.dataset.id = stu.id;
+                button.dataset.name = stu.name.toLowerCase();
+                button.disabled = called;
+                button.textContent = `${idx + 1}. ${stu.name}${called ? ' ✓' : ''}`;
+                button.addEventListener('click', () => selectStudent(stu.id));
+                list.appendChild(button);
             });
             filterStudents();
         }
 
         function selectStudent(id) {
-            if (calledStudents.has(id)) return;
+            if (calledStudents.has(id) || !classStudents.some(student => student.id === id)) return;
             selectedStudent = id;
             renderStudents();
             updateTurnLabels();
@@ -1919,9 +2110,15 @@
                 calledStudents.clear();
                 toast('Đã gọi hết 1 vòng cả lớp! Bắt đầu vòng mới!', 'ok');
                 renderStudents();
+            }
+            const availableStudents = classStudents.filter(s => !calledStudents.has(s.id));
+            if (!availableStudents.length) {
+                selectedStudent = null;
+                updateTurnLabels();
+                toast('⚠️ Chưa có danh sách học sinh để gọi tên.', 'bad');
                 return;
             }
-            const pick = avail[Math.floor(Math.random() * avail.length)];
+            const pick = availableStudents[Math.floor(Math.random() * availableStudents.length)];
             selectStudent(pick.id);
         }
 
@@ -1930,6 +2127,7 @@
                 calledStudents.add(selectedStudent);
                 selectedStudent = null;
                 renderStudents();
+                updateTurnLabels();
             }
         }
 
@@ -1941,15 +2139,62 @@
         }
 
         function changeClass(cid) {
+            if (!Object.prototype.hasOwnProperty.call(FALLBACK_STUDENTS, cid)) {
+                $('#classSelect').value = currentClassID;
+                toast('⚠️ Lớp được chọn không hợp lệ.', 'bad');
+                return;
+            }
+            if (cid === currentClassID) return;
+            if (isStudentPracticeMode) toggleStudentPracticeMode();
+
+            saveClassSession();
+            const classSession = classSessions[cid];
+            if (classSession && classSession.teamCount >= 2 && classSession.teamCount <= 6) {
+                numT = classSession.teamCount;
+            }
+            $('#teamCount').value = String(numT);
             selectedStudent = null;
-            lessonLogs = [];
+            lessonLogs = classSession ? [...classSession.lessonLogs] : [];
+            solvedSpotIds.clear();
+            if (classSession) {
+                const validSpotIds = new Set(POSTURE_SPOTS.map(spot => spot.id));
+                classSession.solvedSpotIds.forEach(id => {
+                    if (validSpotIds.has(id)) solvedSpotIds.add(id);
+                });
+            }
+            activeSpotIdx = classSession ? classSession.activeSpotIdx : 0;
+            const savedMouseTurns = classSession ? classSession.teamMouseTurnsDone : [];
+            const restoredMouseTurns = Array.from({ length: numT }, (_, i) =>
+                Math.min(STUDENTS_PER_TEAM_MOUSE, Math.max(0, savedMouseTurns[i] || 0))
+            );
+            const restoredContestTurnIndex = restoredMouseTurns.reduce((total, count) => total + count, 0);
+            curMouseTask = classSession ? Math.min(classSession.curMouseTask, MOUSE_TASKS.length - 1) : 0;
+            const restoredTurn = restoredContestTurnIndex < numT * STUDENTS_PER_TEAM_MOUSE
+                ? (restoredContestTurnIndex ? restoredContestTurnIndex % numT : (classSession ? classSession.turn % numT : 0))
+                : (classSession ? classSession.turn % numT : 0);
+            turn = restoredTurn;
+
+            const classScores = classSession ? classSession.teamScores : [];
+            TEAMS = Array.from({ length: numT }, (_, i) => ({
+                id: i,
+                n: `Tổ ${i + 1}`,
+                color: TEAM_COLORS[i % TEAM_COLORS.length],
+                score: Number.isFinite(classScores[i]) ? classScores[i] : START_SCORE
+            }));
+            initTeams();
+            teamMouseTurnsDone = restoredMouseTurns;
+            contestTurnIndex = restoredContestTurnIndex;
+            turn = restoredTurn;
+            renderTeams();
+            updateTurnLabels();
+            renderPostureHotspots();
+            loadMouseTask(curMouseTask);
             loadClassData(cid);
         }
 
         function exportToExcel() {
             if (typeof XLSX === 'undefined') {
-                if (typeof toast === 'function') toast('⚠️ Chưa nạp xong thư viện Excel SheetJS!', 'bad');
-                else alert('Chưa nạp xong thư viện Excel!');
+                toast('⚠️ Chưa nạp xong thư viện Excel SheetJS!', 'bad');
                 return;
             }
 
@@ -1961,7 +2206,6 @@
             const timeFileStr = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
             const fileName = `KetQua_TinHoc3_Tiet07_Lop${cleanClass}_${timeFileStr}.xlsx`;
 
-            // 1. Sheet Bảng Xếp Hạng
             const sortedTeams = [...TEAMS].sort((a, b) => b.score - a.score);
             const rankRows = [
                 ['BẢNG XẾP HẠNG TIẾT HỌC - KHỐI 3'],
@@ -1979,7 +2223,6 @@
             const wsRank = XLSX.utils.aoa_to_sheet(rankRows);
             wsRank['!cols'] = [{ wch: 8 }, { wch: 18 }, { wch: 14 }, { wch: 28 }];
 
-            // 2. Sheet Nhật Ký Chi Tiết
             const logRows = [
                 ['NHẬT KÝ HOẠT ĐỘNG VÀ ĐIỂM SỐ TIẾT HỌC'],
                 [`Lớp: ${classDisplay} | Tổng số lượt ghi nhận: ${lessonLogs.length}`],
@@ -1987,67 +2230,42 @@
                 ['STT', 'Thời Gian', 'Tổ / Nhóm', 'Học Sinh Đại Diện', 'Nội Dung Hoạt Động', 'Kết Quả', 'Điểm Thay Đổi', 'Điểm Sau Cùng']
             ];
             if (lessonLogs.length === 0) {
-                logRows.push([1, `${pad(now.getHours())}:${pad(now.getMinutes())}`, 'Tất cả các tổ', 'Cả lớp', 'Bắt đầu tiết học - Khởi tạo điểm số ban đầu', 'Sẵn sàng', '100đ', '100đ']);
+                logRows.push([1, `${pad(now.getHours())}:${pad(now.getMinutes())}`, 'Tất cả các tổ', 'Cả lớp', 'Bắt đầu tiết học', 'Sẵn sàng', '100đ', '100đ']);
             } else {
                 lessonLogs.forEach((item, idx) => {
-                    logRows.push([
-                        idx + 1,
-                        item.time,
-                        item.team,
-                        item.student,
-                        item.action,
-                        item.result,
-                        item.delta,
-                        item.scoreAfter
-                    ]);
+                    logRows.push([idx + 1, item.time, item.team, item.student, item.action, item.result, item.delta, item.scoreAfter]);
                 });
             }
             const wsLogs = XLSX.utils.aoa_to_sheet(logRows);
             wsLogs['!cols'] = [{ wch: 6 }, { wch: 12 }, { wch: 16 }, { wch: 24 }, { wch: 42 }, { wch: 16 }, { wch: 16 }, { wch: 16 }];
 
-            // 3. Sheet Danh Sách Học Sinh
             const calledCount = classStudents.filter(s => calledStudents.has(s.id)).length;
             const stuRows = [
                 ['DANH SÁCH HỌC SINH VÀ LƯỢT THAM GIA HỌC TẬP'],
-                [`Lớp: ${classDisplay} | Sĩ số: ${classStudents.length} học sinh | Đã tham gia phát biểu: ${calledCount}/${classStudents.length}`],
+                [`Lớp: ${classDisplay} | Sĩ số: ${classStudents.length} học sinh | Đã tham gia: ${calledCount}/${classStudents.length}`],
                 [''],
                 ['STT', 'Mã Học Sinh', 'Họ Và Tên', 'Lớp', 'Trạng Thái Lượt Gọi', 'Chi Tiết Hoạt Động']
             ];
             classStudents.forEach((stu, idx) => {
                 const isCalled = calledStudents.has(stu.id);
-                const acts = studentActions[stu.id] || [];
+                const acts = studentActions[`${currentClassID}:${stu.id}`] || [];
                 const actText = acts.length > 0 ? acts.join('; ') : (isCalled ? 'Đã tham gia phát biểu / thực hành' : 'Chưa có lượt gọi');
-                stuRows.push([
-                    idx + 1,
-                    `HS${String(idx + 1).padStart(3, '0')}`,
-                    stu.name,
-                    classDisplay,
-                    isCalled ? 'Đã tham gia ✓' : 'Chưa gọi',
-                    actText
-                ]);
+                stuRows.push([idx + 1, `HS${String(idx + 1).padStart(3, '0')}`, stu.name, classDisplay, isCalled ? 'Đã tham gia ✓' : 'Chưa gọi', actText]);
             });
             const wsStudents = XLSX.utils.aoa_to_sheet(stuRows);
             wsStudents['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 28 }, { wch: 10 }, { wch: 22 }, { wch: 50 }];
 
-            // Tạo workbook
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, wsRank, 'Bảng Xếp Hạng');
             XLSX.utils.book_append_sheet(wb, wsLogs, 'Nhật Ký Chi Tiết');
             XLSX.utils.book_append_sheet(wb, wsStudents, 'Danh Sách Học Sinh');
 
-            // Đẩy lên Google Drive qua Google Apps Script Web App
             if (typeof uploadExcelToDrive === 'function') {
                 uploadExcelToDrive(wb, fileName);
                 return;
             }
-
-            // Fallback tải file về máy
             XLSX.writeFile(wb, fileName);
             toast(`📥 Đã lưu file: ${fileName}`, 'ok');
-        }
-
-        function exportCSV() {
-            exportToExcel();
         }
 
         function toast(msg, cls = '') {
@@ -2077,13 +2295,37 @@
         async function loadQuests() {
             try {
                 const res = await fetch('./quests.json');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (Array.isArray(data.postureQuizzes)) POSTURE_QUIZZES = data.postureQuizzes;
-                    if (Array.isArray(data.mouseTasks)) MOUSE_TASKS = data.mouseTasks;
+                if (!res.ok) {
+                    console.warn(`Không tải được nội dung nhiệm vụ (HTTP ${res.status}); dùng dữ liệu mặc định.`);
+                    return;
                 }
-            } catch (e) {
-                console.warn('Dùng dữ liệu câu hỏi mặc định do không fetch được ./quests.json', e);
+                const data = await res.json();
+                const validPostureSpots = Array.isArray(data.postureSpots) && data.postureSpots.length > 0 &&
+                    new Set(data.postureSpots.map(spot => spot && spot.id)).size === data.postureSpots.length &&
+                    data.postureSpots.every(spot =>
+                        spot && Number.isFinite(spot.id) &&
+                        Number.isFinite(spot.x) && spot.x >= 0 && spot.x <= 100 &&
+                        Number.isFinite(spot.y) && spot.y >= 0 && spot.y <= 100 &&
+                        typeof spot.spotName === 'string' && typeof spot.q === 'string' && typeof spot.exp === 'string' &&
+                        Array.isArray(spot.opts) && spot.opts.length > 0 &&
+                        spot.opts.every(option => option && typeof option.t === 'string' && typeof option.ok === 'boolean') &&
+                        spot.opts.filter(option => option.ok).length === 1
+                    );
+                if (validPostureSpots) {
+                    POSTURE_SPOTS = data.postureSpots;
+                } else {
+                    console.warn('Dữ liệu lỗi tư thế không hợp lệ; dùng bộ câu hỏi mặc định.');
+                }
+                if (Array.isArray(data.mouseTasks) && data.mouseTasks.length > 0 && data.mouseTasks.every(task =>
+                    task && typeof task.title === 'string' && typeof task.desc === 'string'
+                )) {
+                    MOUSE_TASKS = data.mouseTasks;
+                } else {
+                    console.warn('Dữ liệu thao tác chuột không hợp lệ; dùng bộ nhiệm vụ mặc định.');
+                }
+                refreshPostureTurnLimit();
+            } catch (error) {
+                console.warn('Không tải được nội dung nhiệm vụ; dùng dữ liệu mặc định.', error);
             }
         }
 
@@ -2094,7 +2336,7 @@
             initTeams();
             await loadClassData("3_2");
             await loadQuests();
-            renderPostureQuiz();
+            renderPostureHotspots();
             loadMouseTask(0);
             showSlide(0);
         });
