@@ -644,7 +644,8 @@
 		});
 
 		// Thử thách 3: Tự động tạo câu hỏi Đúng/Sai
-		const tfQuestionsData = [
+		const QUEST_JSON = './quests.json';
+		let tfQuestionsData = [
 			{ q: "Đôi mắt là nơi tạo ra quyết định và điều khiển hành động.", ans: false },
 			{ q: "Khi em nghe tiếng chuông báo thức, thông tin thu nhận là âm thanh.", ans: true },
 			{ q: "Bộ não chỉ xử lí thông tin mà không điều khiển hành động.", ans: false },
@@ -699,6 +700,22 @@
 		}
 		document.getElementById('generateTfBtn').addEventListener('click', renderTFQuestions);
 		renderTFQuestions();
+
+		async function loadQuests() {
+			try {
+				const res = await fetch(QUEST_JSON);
+				if (res.ok) {
+					const data = await res.json();
+					if (data.challenges && data.challenges.challenge3 && data.challenges.challenge3.questions) {
+						tfQuestionsData = data.challenges.challenge3.questions;
+						renderTFQuestions();
+					}
+				}
+			} catch (e) {
+				console.warn('Dùng dữ liệu mặc định do không fetch được ' + QUEST_JSON, e);
+			}
+		}
+		loadQuests();
 
 		// Kéo thả Đa Màn (Thử thách 2 & Thử thách 4)
 		const dragItems = document.querySelectorAll('.drag-item');

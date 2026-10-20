@@ -1279,7 +1279,7 @@
            A. DỮ LIỆU CẤU HÌNH - THẦY CÔ CHỈNH Ở ĐÂY
            ===================================================================== */
         const STUDENT_JSON = '../../assets/data/students_3_2026_2027.json';   // dạng { "3_2": ["Tên", ...], "3_3": [...] }
-        const QUESTION_JSON = './cau-hoi-bai-3.json';   // ngân hàng câu hỏi nằm CẠNH file HTML này
+        const QUESTION_JSON = './quests.json';   // ngân hàng câu hỏi nằm CẠNH file HTML này (quests.json hoặc cau-hoi-bai-3.json)
         // Quà đầu giờ (Phase 1): mỗi tổ nhận GIFT_MIN..GIFT_MAX món; mỗi món có GIFT_CORE_RATE khả năng là Core (tối đa 2 Core/tổ)
         const GIFT_MIN = 3, GIFT_MAX = 4, GIFT_CORE_RATE = 0.25;
         const GACHA_BOXES = 6;   // số thùng hàng (đánh số) học sinh được chọn sau khi trả lời đúng; tỉ lệ rớt vẫn theo DROP_RATE
@@ -1346,7 +1346,13 @@
                 for (const [k, v] of Object.entries(d)) G.classes[k] = (Array.isArray(v) ? v : []).map(x => typeof x === 'string' ? x : (x.name || x.hoTen || x.ten || '')).filter(Boolean);
             } catch (e) { errs.push('danh sách học sinh'); G.classes = { 'Lớp mẫu': Array.from({ length: 20 }, (_, i) => 'Học sinh ' + (i + 1)) }; }
             try {
-                const q = await (await fetch(QUESTION_JSON)).json(); G.bank = (q.questions || q).slice().sort((a, b) => a.lv - b.lv);
+                let q;
+                try {
+                    q = await (await fetch(QUESTION_JSON)).json();
+                } catch {
+                    q = await (await fetch('./cau-hoi-bai-3.json')).json();
+                }
+                G.bank = (q.questions || q).slice().sort((a, b) => a.lv - b.lv);
             } catch (e) { errs.push('ngân hàng câu hỏi'); G.bank = []; }
             $('classSel').innerHTML = Object.keys(G.classes).map(k => `<option value="${esc(k)}">Lớp ${esc(k.replace('_', '/'))}</option>`).join('');
             setupClass();

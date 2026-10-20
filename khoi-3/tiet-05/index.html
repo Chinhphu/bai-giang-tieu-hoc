@@ -1131,7 +1131,8 @@
         updateTimerDisplays();
 
         // --- 4. NGÂN HÀNG CÂU HỎI BÀI 3 (CẬP NHẬT GẤP 3 LẦN THEO SGK) ---
-        const banks = {
+        const QUEST_JSON = './quests.json';
+        let banks = {
             1: [ // Trận 1: Khởi động (Mục 1: Các bộ phận cơ bản)
                 { q: 'Máy tính để bàn gồm mấy bộ phận cơ bản?', a: ['4 bộ phận', '2 bộ phận', '3 bộ phận', '5 bộ phận'] },
                 { q: 'Thân máy tính để bàn là nơi chứa bộ phận quan trọng nào?', a: ['Bộ xử lí (bộ não)', 'Con chuột', 'Loa phát nhạc', 'Bàn phím'] },
@@ -1203,6 +1204,21 @@
                 { q: 'Màn hình của điện thoại thông minh có hiển thị kết quả làm việc giống máy tính để bàn không?', a: ['Có hiển thị hình ảnh và chữ', 'Không, chỉ để cảm ứng', 'Không, chỉ để nghe gọi', 'Không hiển thị gì'] }
             ]
         };
+
+        async function loadQuests() {
+            try {
+                const res = await fetch(QUEST_JSON);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.banks) {
+                        banks = data.banks;
+                    }
+                }
+            } catch (e) {
+                console.warn('Dùng ngân hàng câu hỏi mặc định do không nạp được ' + QUEST_JSON, e);
+            }
+        }
+        loadQuests();
 
         let masterQuestionBank = [];
         let loadedLevels = [];

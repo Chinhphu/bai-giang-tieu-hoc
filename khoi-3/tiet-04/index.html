@@ -542,7 +542,8 @@
         // ================= CỜ CA RÔ TRẮC NGHIỆM =================
         const teamSymbols = ['X', 'O', '★'];
         const teamColors = ['#e63946', '#2878c8', '#9b59b6'];
-        const questionBanks = {
+        const QUEST_JSON = './quests.json';
+        let questionBanks = {
             review: [
                 { text: 'Bộ phận nào của con người làm nhiệm vụ xử lí thông tin?', answers: ['Tim', 'Phổi', 'Tay', 'Não'], correct: 3 },
                 { text: 'Con người nhận thông tin chủ yếu qua đâu?', answers: ['Chỉ qua mắt', 'Chỉ qua tai', 'Các giác quan', 'Chỉ qua tay'], correct: 2 },
@@ -579,6 +580,21 @@
                 { text: 'Theo ví dụ trong bài, bếp từ đưa ra quyết định tăng nhiệt độ sau khi nhận được thông tin gì từ người dùng?', answers: ['Yêu cầu hẹn giờ', 'Nhấn nút tắt nguồn', 'Nhấn vào nút dấu cộng (+)', 'Nhấn vào nút dấu trừ (-)'], correct: 2 }
             ]
         };
+
+        async function loadQuests() {
+            try {
+                const res = await fetch(QUEST_JSON);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.questionBanks) {
+                        questionBanks = data.questionBanks;
+                    }
+                }
+            } catch (e) {
+                console.warn('Dùng ngân hàng câu hỏi mặc định do không nạp được ' + QUEST_JSON, e);
+            }
+        }
+        loadQuests();
 
         const caroModal = document.getElementById('caroModal');
         const caroModalTitle = document.getElementById('caroModalTitle');

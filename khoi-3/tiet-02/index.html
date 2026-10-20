@@ -52,7 +52,8 @@
 
     <!-- ================= JAVASCRIPT ================= -->
     <script>
-        const questions = [
+        const QUEST_JSON = './quests.json';
+        let questions = [
             { round: 'Vòng 1: Cú lừa logic', text: 'Đang ngủ ngon, em nghe tiếng chuông báo thức reo. Nhưng em chợt nhớ ra hôm nay là Chủ Nhật, nên em quyết định tắt chuông và ngủ tiếp. Thông tin nào đã khiến em thay đổi thói quen bật dậy đi học?', answers: ['Tiếng chuông báo thức reo.', 'Em thấy rất buồn ngủ.', 'Thông tin "Hôm nay là Chủ Nhật".'], correct: 2, explain: 'Chuông là thông tin gọi dậy, nhưng thông tin "Chủ nhật" mới là dữ liệu quyết định để em chọn ngủ tiếp.' },
             { round: 'Vòng 1: Cú lừa logic', text: 'Em đang chơi game trên điện thoại, bỗng màn hình hiện dòng chữ "Pin yếu 10%", em liền chạy đi lấy cục sạc. Trong tình huống này, ĐÂU LÀ THÔNG TIN?', answers: ['Em đang chơi game.', 'Màn hình báo "Pin yếu 10%".', 'Em chạy đi lấy cục sạc.'], correct: 1, explain: 'Điện thoại gửi thông tin cho con người để con người ra quyết định sạc pin.' },
             { round: 'Vòng 1: Cú lừa logic', text: 'Minh định đi đường tắt qua ngõ nhỏ cho nhanh. Vừa tới đầu ngõ, Minh thấy tấm biển "Nhà có chó dữ, cẩn thận!", Minh lập tức quay xe đi đường vòng. Đâu là QUYẾT ĐỊNH của Minh?', answers: ['Đọc tấm biển "Nhà có chó dữ".', 'Đi đường tắt cho nhanh.', 'Quay xe đi đường vòng.'], correct: 2, explain: 'Quyết định là hành động cuối cùng được thực hiện sau khi xử lý thông tin về chó dữ.' },
@@ -76,7 +77,23 @@
         ];
 
         let currentSlideIndex = 1;
-        const totalSlides = questions.length + 4;
+        async function loadQuests() {
+            try {
+                const res = await fetch(QUEST_JSON);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data)) {
+                        questions = data;
+                    } else if (Array.isArray(data.questions)) {
+                        questions = data.questions;
+                    }
+                }
+            } catch (e) {
+                console.warn('Dùng danh sách câu hỏi mặc định do không nạp được ' + QUEST_JSON, e);
+            }
+        }
+
+        let totalSlides = questions.length + 4;
 
         function appendMemorySlide(presentation, slideNumber, title, content) {
             const slide = document.createElement('div');
@@ -94,6 +111,7 @@
         }
 
         function renderQuestions() {
+            totalSlides = questions.length + 4;
             const presentation = document.getElementById('presentation-area');
             let slideNumber = 3;
             questions.forEach((question, questionIndex) => {
@@ -212,7 +230,11 @@
             }
         }
 
-        window.onload = () => { renderQuestions(); initGame(); };             
+        window.onload = async () => {
+            await loadQuests();
+            renderQuestions();
+            initGame();
+        };             
     </script>
 </body>
 </html>

@@ -1248,7 +1248,7 @@
         };
 
         /* 6 CÂU HỎI TƯ THẾ NGỒI CHUẨN SGK TRANG 18 - 19 */
-        const POSTURE_QUIZZES = [
+        let POSTURE_QUIZZES = [
             {
                 q: "Câu 1 (Hoạt động 1 SGK): Quan sát 3 hình a, b, c ở trên, bạn nào ngồi ĐÚNG tư thế khi sử dụng máy tính?",
                 opts: [
@@ -1449,7 +1449,7 @@
         }
 
         /* ================= 5. SLIDE 5: THỰC HÀNH 5 THAO TÁC CHUỘT ================= */
-        const MOUSE_TASKS = [
+        let MOUSE_TASKS = [
             {
                 title: "Thao tác 1: Di chuyển chuột (Move)",
                 desc: "Cầm chuột trượt nhẹ để di chuyển con trỏ chuột chạm sáng cả 3 Ngôi Sao trên màn hình!"
@@ -1807,12 +1807,26 @@
             startLessonClock();
         }
 
+        async function loadQuests() {
+            try {
+                const res = await fetch('./quests.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data.postureQuizzes)) POSTURE_QUIZZES = data.postureQuizzes;
+                    if (Array.isArray(data.mouseTasks)) MOUSE_TASKS = data.mouseTasks;
+                }
+            } catch (e) {
+                console.warn('Dùng dữ liệu câu hỏi mặc định do không fetch được ./quests.json', e);
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', async () => {
             const now = new Date();
             const weekdays = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
             $('#lessonDate').textContent = `${weekdays[now.getDay()]}, ngày ${now.getDate()} tháng ${now.getMonth() + 1} năm ${now.getFullYear()}`;
             initTeams();
             await loadClassData("3_2");
+            await loadQuests();
             renderPostureQuiz();
             loadMouseTask(0);
             showSlide(0);
