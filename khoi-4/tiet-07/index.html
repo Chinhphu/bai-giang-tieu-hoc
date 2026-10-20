@@ -1081,7 +1081,7 @@
 
                         <div class="current-turn-indicator">
                             <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
-                                <span>✂️ LƯỢT CẮT DÂY: </span><b id="indicatorTeamName">TỔ 1</b>
+                                <span id="indicatorTurnLabel">✂️ LƯỢT CẮT DÂY: </span><b id="indicatorTeamName">TỔ 1</b>
                                 <span id="indicatorCutProgress"
                                     style="background:#2563eb; color:#fff; padding:3px 10px; border-radius:8px; font-size:0.95rem; font-weight:800;">Lượt
                                     1/2</span>
@@ -1229,15 +1229,13 @@
                 </div>
             </div>
 
-            <!-- 3. PANEL CHỌN HỌC SINH & GACHA -->
+            <!-- 3. PANEL DANH SÁCH HỌC SINH -->
             <details id="students-panel" open>
                 <summary id="students-summary">👥 Danh sách học sinh</summary>
                 <div id="students-header">
                     <span id="st-head-title" style="font-size:0.8rem;">CÒN LƯỢT</span>
-                    <div style="display:flex; gap:5px;">
-                        <input type="text" id="search-student" placeholder="Tìm tên..." onkeyup="filterStudents()">
-                        <button class="btn primary" style="padding:4px 10px; font-size:0.82rem;"
-                            onclick="randomPickStudent()">🎲 Gacha</button>
+                    <div style="display:flex; gap:5px; width:100%;">
+                        <input type="text" id="search-student" placeholder="Tìm tên hoặc STT..." onkeyup="filterStudents()" style="width:100%;">
                     </div>
                 </div>
                 <div id="students-list"></div>
@@ -1836,6 +1834,7 @@
             $('#gameProgress').textContent = `Bom ${i + 1} / ${activeBombLimit}`;
 
             renderWireCards();
+            renderTeams();
             updateTurnIndicator();
             renderAnswerBanner(r);
         }
@@ -1941,7 +1940,7 @@
             const doneCuts = (r && r.teamCuts) ? (r.teamCuts[turn] || 0) : 0;
 
             $('#modalTeamLabel').textContent = `✂️ LƯỢT CỦA ${activeTeam.n.toUpperCase()} (Lượt ${doneCuts + 1}/${wiresPerTeam})`;
-            $('#modalStudentLabel').textContent = studentObj ? `Học sinh cầm kéo: ${studentObj.name}` : '(Chưa chọn học sinh cụ thể)';
+            $('#modalStudentLabel').textContent = studentObj ? `Học sinh cầm kéo: [STT ${studentObj.index}] ${studentObj.name}` : '(Chưa chọn học sinh cụ thể - Cả tổ)';
             $('#modalGoal').textContent = `🎯 Yêu cầu: ${curQ.goal}`;
             $('#modalWordTarget').textContent = `Dây số ${idx + 1}: "${card.text}"`;
             $('#actionModal').classList.add('show');
@@ -1967,7 +1966,9 @@
             closeActionModal();
 
             const studentObj = classStudents.find(s => s.id === selectedStudent);
+            const currentStudentId = selectedStudent;
             const studentName = studentObj ? studentObj.name : 'Cả tổ';
+            const studentIndex = studentObj ? studentObj.index : null;
 
             if (selectedStudent) {
                 calledStudents.add(selectedStudent);
@@ -1987,7 +1988,7 @@
                     else cardStates[i].status = 'cut';
                 });
 
-                logAction(team.n, studentName, `Cắt nhầm từ khoá "${card.text}"`, 'NỔ BOM');
+                logAction(team.n, currentStudentId, studentName, studentIndex, `Cắt nhầm từ khoá "${card.text}"`, 'NỔ BOM');
                 toast(`💥 BÙM! ${team.n} cắt nhầm Từ khoá chính "${card.text}"! Đã mở đáp án!`, 'bad');
 
                 turn = (turn + 1) % numT;
@@ -2006,7 +2007,7 @@
 
             const gained = applyScore(team, CUT_RIGHT_POINTS);
             const teamDoneCuts = r.teamCuts[turn];
-            logAction(team.n, studentName, `Cắt dây thừa "${card.text}" (${teamDoneCuts}/${wiresPerTeam})`, 'ĐÚNG');
+            logAction(team.n, currentStudentId, studentName, studentIndex, `Cắt dây thừa "${card.text}" (${teamDoneCuts}/${wiresPerTeam})`, 'ĐÚNG');
             toast(`✂️ ${team.n} cắt đúng dây thừa (${teamDoneCuts}/${wiresPerTeam})! +${gained} điểm`, 'ok');
 
             const target = getTargetCutsForRound(activeRound);
@@ -2019,6 +2020,8 @@
                     else cardStates[i].status = 'cut';
                 });
                 toast(`🎉 Cả ${numT} tổ đã cắt đủ ${target} dây! Quả bom được gỡ thành công!`, 'ok');
+                // Chuyển lượt sang tổ tiếp theo sau khi đã hoàn thành quest:
+                turn = (turn + 1) % numT;
             } else {
                 let nextTurn = (turn + 1) % numT;
                 let checked = 0;
@@ -2048,7 +2051,10 @@
                     if (c.type === 'K' || c.critical) cardStates[i].status = 'safe-key';
                     else cardStates[i].status = 'cut';
                 });
+                turn = (turn + 1) % numT;
                 renderWireCards();
+                renderTeams();
+                updateTurnIndicator();
                 renderAnswerBanner(r);
                 toast('🎉 Gỡ bom thành công!', 'ok');
             } else {
@@ -2062,11 +2068,30 @@
             const r = activeRound !== null ? rounds[activeRound] : null;
             const doneCuts = (r && r.teamCuts) ? (r.teamCuts[turn] || 0) : 0;
             const indProgress = $('#indicatorCutProgress');
-            if (indProgress) {
-                indProgress.textContent = `Lượt ${doneCuts + 1}/${wiresPerTeam}`;
+            const turnLabel = $('#indicatorTurnLabel');
+
+            if (r && r.status === 'done') {
+                if (turnLabel) turnLabel.textContent = '👉 LƯỢT KẾ TIẾP: ';
+                if (indProgress) {
+                    indProgress.textContent = 'Đã gỡ xong!';
+                    indProgress.style.background = '#16a34a';
+                }
+            } else if (r && r.status === 'boom') {
+                if (turnLabel) turnLabel.textContent = '👉 LƯỢT KẾ TIẾP: ';
+                if (indProgress) {
+                    indProgress.textContent = 'Bom đã nổ!';
+                    indProgress.style.background = '#dc2626';
+                }
+            } else {
+                if (turnLabel) turnLabel.textContent = '✂️ LƯỢT CẮT DÂY: ';
+                if (indProgress) {
+                    indProgress.textContent = `Lượt ${doneCuts + 1}/${wiresPerTeam}`;
+                    indProgress.style.background = '#2563eb';
+                }
             }
+
             const studentObj = classStudents.find(s => s.id === selectedStudent);
-            $('#indicatorStudentName').textContent = studentObj ? `(Học sinh: ${studentObj.name})` : '';
+            $('#indicatorStudentName').textContent = studentObj ? `(Đại diện: [STT ${studentObj.index}] ${studentObj.name})` : '';
         }
 
         /* ================= 4. QUẢN LÝ 2 - 6 TỔ (NÚT CỘNG +20 & PHẠT ỒN -10%) ================= */
@@ -2192,7 +2217,21 @@
                 studentNames = FALLBACK_STUDENTS[classId] || FALLBACK_STUDENTS["4_1"];
             }
 
-            classStudents = studentNames.map((name, i) => ({ id: `hs-${i + 1}`, name }));
+            classStudents = studentNames.map((name, i) => ({
+                id: `hs-${i + 1}`,
+                index: i + 1,
+                name: (name || '').trim()
+            }));
+
+            // Đánh dấu nhận biết học sinh trùng cả họ và tên trong lớp
+            const nameCounts = {};
+            classStudents.forEach(s => {
+                nameCounts[s.name] = (nameCounts[s.name] || 0) + 1;
+            });
+            classStudents.forEach(s => {
+                s.isDuplicateName = (nameCounts[s.name] > 1);
+            });
+
             calledStudents = calledStudentsByClass[classId] || new Set();
             calledStudentsByClass[classId] = calledStudents;
 
@@ -2205,11 +2244,12 @@
             $('#st-head-title').textContent = `CÒN LƯỢT: ${remaining}/${classStudents.length}`;
             $('#students-summary').textContent = `👥 Học sinh (${remaining} còn lượt)`;
 
-            const html = classStudents.map((stu, idx) => {
+            const html = classStudents.map((stu) => {
                 const alreadyCalled = calledStudents.has(stu.id);
                 const isSelected = selectedStudent === stu.id;
-                return `<button class="stu-btn ${isSelected ? 'active' : ''}" data-id="${stu.id}" data-name="${stu.name.toLowerCase()}" ${alreadyCalled ? 'disabled' : ''}>
-                    ${idx + 1}. ${stu.name}${alreadyCalled ? ' ✓' : ''}
+                const dupBadge = stu.isDuplicateName ? ` <span style="font-size:0.75rem; color:#f59e0b; font-weight:800;">[STT ${stu.index}]</span>` : '';
+                return `<button class="stu-btn ${isSelected ? 'active' : ''}" data-id="${stu.id}" data-stt="${stu.index}" data-name="${stu.name.toLowerCase()}" ${alreadyCalled ? 'disabled' : ''}>
+                    ${stu.index}. ${stu.name}${dupBadge}${alreadyCalled ? ' ✓' : ''}
                 </button>`;
             }).join('');
 
@@ -2220,31 +2260,31 @@
             filterStudents();
         }
 
-        function randomPickStudent() {
-            const avail = classStudents.filter(s => !calledStudents.has(s.id));
-            if (!avail.length) {
-                toast('Tất cả học sinh trong lớp đều đã được gọi!', 'bad');
-                return;
-            }
-            const pick = avail[Math.floor(Math.random() * avail.length)];
-            selectStudent(pick.id);
-        }
-
         function filterStudents() {
-            const v = $('#search-student').value.toLowerCase();
+            const v = ($('#search-student').value || '').toLowerCase().trim();
             document.querySelectorAll('.stu-btn').forEach(btn => {
-                const name = btn.getAttribute('data-name');
-                btn.style.display = name.includes(v) ? 'block' : 'none';
+                const name = btn.getAttribute('data-name') || '';
+                const stt = btn.getAttribute('data-stt') || '';
+                const match = !v || name.includes(v) || stt === v;
+                btn.style.display = match ? 'block' : 'none';
             });
         }
 
         function selectStudent(id) {
             if (calledStudents.has(id)) return;
+            // Bấm lại vào học sinh đang chọn để huỷ chọn
+            if (selectedStudent === id) {
+                selectedStudent = null;
+                renderStudents();
+                updateTurnIndicator();
+                toast('Đã bỏ chọn học sinh.', 'ok');
+                return;
+            }
             selectedStudent = id;
             renderStudents();
             updateTurnIndicator();
             const s = classStudents.find(x => x.id === id);
-            if (s) toast(`🎲 Mời ${s.name} đại diện ${TEAMS[turn].n}!`, 'ok');
+            if (s) toast(`Mời [STT ${s.index}] ${s.name} đại diện ${TEAMS[turn].n}!`, 'ok');
         }
 
         function changeClass(cid) {
@@ -2252,13 +2292,14 @@
             loadClassData(cid);
         }
 
-        function logAction(team, student, action, result) {
+        function logAction(team, studentId, student, studentIndex, action, result) {
             gameLog.push({
                 time: new Date().toLocaleTimeString('vi-VN'),
                 classID: currentClassID,
-                studentId: selectedStudent,
-                team: team,
+                studentId: studentId || null,
+                studentIndex: studentIndex || null,
                 student: student,
+                team: team,
                 action: action,
                 result: result,
                 goal: curQ ? curQ.goal : ''
@@ -2274,7 +2315,14 @@
             });
 
             gameLog.filter(row => row.classID === currentClassID).forEach(row => {
-                const stu = classStudents.find(s => s.name === row.student);
+                // Khớp chuẩn xác theo ID duy nhất hoặc STT duy nhất, không phụ thuộc vào tên bị trùng
+                let stu = null;
+                if (row.studentId) {
+                    stu = classStudents.find(s => s.id === row.studentId);
+                } else if (row.studentIndex) {
+                    stu = classStudents.find(s => s.index === row.studentIndex);
+                }
+
                 if (stu && stats.has(stu.id)) {
                     const st = stats.get(stu.id);
                     st.team = row.team;
@@ -2284,13 +2332,12 @@
                 }
             });
 
-            let idx = 1;
-            stats.forEach((s, sid) => {
-                const stu = classStudents.find(x => x.id === sid);
-                const code = `HS${String(idx).padStart(3, '0')}`;
+            classStudents.forEach(stu => {
+                const s = stats.get(stu.id) || { team: '—', correct: 0, wrong: 0, details: [] };
+                const code = `HS${String(stu.index).padStart(3, '0')}`;
                 const esc = val => `"${String(val).replace(/"/g, '""')}"`;
                 const detailStr = s.details.length ? s.details.join(' | ') : 'Chưa phát biểu';
-                csv += `${idx++},${code},${esc(stu.name)},${esc(s.team)},${s.correct},${s.wrong},${esc(detailStr)}\n`;
+                csv += `${stu.index},${code},${esc(stu.name)},${esc(s.team)},${s.correct},${s.wrong},${esc(detailStr)}\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
