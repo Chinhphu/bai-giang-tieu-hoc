@@ -876,12 +876,15 @@ const Khoi5Tracker = (() => {
     window.XLSX.utils.book_append_sheet(wb, wsStudents, 'Danh Sách Học Sinh');
 
     const fileName = customData.fileName || getStandardFileName();
-    window.XLSX.writeFile(wb, fileName);
-
-    if (window.toast) {
-      window.toast(`📥 Đã xuất file: ${fileName}`, 3000, 'var(--mint)');
+    if (typeof window.uploadExcelToDrive === 'function') {
+      window.uploadExcelToDrive(wb, fileName);
     } else {
-      alert(`Đã xuất file báo cáo chi tiết: ${fileName}`);
+      window.XLSX.writeFile(wb, fileName);
+      if (window.toast) {
+        window.toast(`📥 Đã xuất file: ${fileName}`, 3000, 'var(--mint)');
+      } else {
+        alert(`Đã xuất file báo cáo chi tiết: ${fileName}`);
+      }
     }
   }
 

@@ -35,6 +35,58 @@
     }, duration);
   };
 
+  const GAS_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbywqn9mgeON9fTqp3xmnGbuqWW-eChABhvaotV4qHezosaqlYuWpF0c4vnB7APkuXBSRw/exec';
+  window.GAS_UPLOAD_URL = GAS_UPLOAD_URL;
+
+  window.uploadExcelToDrive = async function uploadExcelToDrive(wb, fileName) {
+    if (!wb || typeof window.XLSX === 'undefined') {
+      window.toast && window.toast('⚠️ Chưa nạp xong thư viện Excel!', 2500, 'var(--coral)');
+      return;
+    }
+
+    if (window.toast) {
+      window.toast('☁️ Đang đồng bộ nhật ký lên Google Drive...', 4500, 'var(--primary)');
+    }
+
+    try {
+      const base64Data = window.XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+      const payload = {
+        fileName: fileName,
+        fileData: base64Data,
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      };
+
+      const response = await fetch(GAS_UPLOAD_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      if (result && result.status === 'success') {
+        if (window.toast) {
+          window.toast('✅ Đã lưu vào Drive (Thư mục Log tiết học)!', 4000, 'var(--mint)');
+        } else {
+          alert('Đã lưu thành công vào Google Drive: ' + fileName);
+        }
+        return result;
+      } else {
+        throw new Error((result && result.message) || 'Lỗi không xác định từ máy chủ');
+      }
+    } catch (err) {
+      console.warn('Không thể gửi lên Google Drive, chuyển sang tải file trực tiếp:', err);
+      // Fallback an toàn: Tự động tải file về máy để giáo viên không bị mất dữ liệu
+      window.XLSX.writeFile(wb, fileName);
+      if (window.toast) {
+        window.toast('⚠️ Không kết nối được Drive. Đã tự động lưu file về máy!', 4500, 'var(--coral)');
+      } else {
+        alert('Không thể kết nối đến Google Drive. File đã được lưu về máy: ' + fileName);
+      }
+    }
+  };
+
   class Khoi5Setup extends HTMLElement {
     connectedCallback() {
       if (this.dataset.mounted) return;
