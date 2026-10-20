@@ -7,6 +7,7 @@
     <title>Tin học 5 – Bài 2: Tìm kiếm thông tin trên website (Tiết 2 - Shark Tank IT)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="../shared/components.js"></script>
     <link rel="stylesheet" href="../shared/style.css">
     <style>
 .situation-box {
@@ -338,72 +339,20 @@
     <!-- TOOLTIP TO TỰ NỔI KHI HOVER VÀO QUEST -->
     <div id="floating-quest-tooltip"></div>
 
-    <!-- ================= MÀN HÌNH SETUP CHUẨN TIẾT 07 ================= -->
-    <div id="setup-screen">
-        <div class="setup-box">
-            <h2>🦈 TIN HỌC 5 · BÀI 2</h2>
-            <div style="font-size: 20px; font-weight: 800; color: #64748b; margin-bottom: 12px;">
-                TÌM KIẾM THÔNG TIN TRÊN WEBSITE (TIẾT 2 - SHARK TANK IT)
-            </div>
-
-            <div class="setup-row">
-                <span>Chọn lớp học:</span>
-                <select id="s-class">
-                    <option value="5_1">Lớp 5/1</option>
-                    <option value="5_2" selected>Lớp 5/2</option>
-                    <option value="5_3">Lớp 5/3</option>
-                    <option value="5_4">Lớp 5/4</option>
-                    <option value="5_5">Lớp 5/5</option>
-                    <option value="5_6">Lớp 5/6</option>
-                </select>
-            </div>
-
-            <div class="setup-row">
-                <span>Số lượng Quỹ đầu tư:</span>
-                <select id="s-teams">
-                    <option value="2">2 Quỹ</option>
-                    <option value="3" selected>3 Quỹ</option>
-                    <option value="4">4 Quỹ</option>
-                    <option value="5">5 Quỹ</option>
-                    <option value="6">6 Quỹ</option>
-                </select>
-            </div>
-
-            <div class="setup-row">
-                <span>Vốn khởi điểm mỗi Quỹ:</span>
-                <span style="color: var(--yellow); font-size: 26px; font-weight: 900; background: var(--ink); padding: 4px 16px; border-radius: 10px;">1000 Điểm</span>
-            </div>
-
-            <div class="setup-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 18px;">Dữ liệu học sinh:</span>
-                    <button type="button" class="btn-import-excel" onclick="document.getElementById('excel-file-setup').click()">
-                        📥 Nhập file Excel (.xlsx)
-                    </button>
-                    <input type="file" id="excel-file-setup" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleExcelUpload(event, 'setup')">
-                </div>
-                <div id="setup-excel-status" style="font-size: 14px; color: var(--mint); font-weight: 700; display: none; text-align: left; line-height: 1.3;"></div>
-            </div>
-
-            <button class="btn-setup" onclick="startGame()">VÀO SHARK TANK IT 🚀</button>
-        </div>
-    </div>
+    <khoi5-setup
+        heading="🦈 TIN HỌC 5 · BÀI 2"
+        description="TÌM KIẾM THÔNG TIN TRÊN WEBSITE (TIẾT 2 - SHARK TANK IT)"
+        team-label="Số lượng Quỹ đầu tư:"
+        team-unit="Quỹ"
+        starting-score-label="Vốn khởi điểm mỗi Quỹ:"
+        start-label="VÀO SHARK TANK IT 🚀"
+        default-class="5_2"
+        default-teams="3">
+    </khoi5-setup>
 
     <!-- ================= GIAO DIỆN CHÍNH (SIDEBAR TRÁI + SÂN KHẤU PHẢI) ================= -->
     <div id="app">
-        <!-- SIDEBAR CHUẨN TIẾT 07 -->
-        <aside class="side">
-            <div class="teams" id="teams"></div>
-            <div class="spacer"></div>
-            <div class="tc-buttons">
-                <button class="btn-tiny" onclick="openAddHs()" title="Thêm học sinh mới">➕ Thêm HS</button>
-                <button class="btn-tiny" onclick="openEnd()" title="Tổng kết đánh giá và xuất Excel">📋 Tổng kết</button>
-            </div>
-            <div class="nav">
-                <button onclick="goSlide(-1)" title="Trang trước (Phím mũi tên trái)">◀</button>
-                <button onclick="goSlide(1)" title="Trang tiếp (Phím mũi tên phải)">▶</button>
-            </div>
-        </aside>
+        <khoi5-sidebar></khoi5-sidebar>
 
         <!-- SÂN KHẤU NỘI DUNG SLIDE -->
         <main class="stage" id="stage">
@@ -1034,35 +983,10 @@
     </div>
 
     <!-- ================= MODAL THÊM HỌC SINH ================= -->
-    <div class="modal-overlay" id="hs-modal" onclick="if(event.target===this)closeAddHs()">
-        <div class="modal-box">
-            <h3 style="font-size:28px; color:var(--blue); margin-top:0;">➕ Thêm Học Sinh</h3>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <div style="font-weight: 600; color: #64748b; font-size: 15px;">Dán danh sách hoặc nạp từ file:</div>
-                <button type="button" class="btn-import-excel" style="font-size:13px; padding:6px 14px;" onclick="document.getElementById('excel-file-modal').click()">
-                    📥 Nạp từ Excel (.xlsx)
-                </button>
-                <input type="file" id="excel-file-modal" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleExcelUpload(event, 'modal')">
-            </div>
-            <textarea id="hs-input" placeholder="Nguyễn Văn A&#10;Trần Thị B&#10;Lê Văn C"></textarea>
-            <div>
-                <button class="btn-modal-ok" onclick="saveAddHs()">Thêm vào danh sách</button>
-                <button class="btn-modal-cancel" onclick="closeAddHs()">Hủy</button>
-            </div>
-        </div>
-    </div>
+    <khoi5-student-modal textarea-id="hs-input" close-handler="closeAddHs" save-handler="saveAddHs"></khoi5-student-modal>
 
     <!-- ================= MÀN HÌNH TỔNG KẾT KANBAN & XUẤT EXCEL ================= -->
-    <div id="end-screen">
-        <div class="ehead">
-            <h1>📋 Quản lí học sinh các quỹ đầu tư (Kéo thả thẻ tên)</h1>
-            <div style="display:flex; gap:10px;">
-                <button style="background:var(--blue); color:#fff; font-weight:900; font-size:18px; padding:8px 18px; border-radius:10px;" onclick="closeEnd()">← Quay lại</button>
-                <button style="background:var(--mint); color:#fff; font-weight:900; font-size:18px; padding:8px 18px; border-radius:10px;" onclick="exportExcel()">📥 Xuất File Excel</button>
-            </div>
-        </div>
-        <div class="kanban" id="kanban"></div>
-    </div>
+    <khoi5-summary heading="📋 Quản lí học sinh các quỹ đầu tư (Kéo thả thẻ tên)"></khoi5-summary>
 
     <!-- TOAST NOTIFICATION -->
     <div class="toast" id="toast"></div>
@@ -1731,16 +1655,6 @@
                 osc.start(t); osc.stop(t + 0.34);
             });
             setTimeout(() => audio.close(), 1000);
-        }
-
-        let toastTimer;
-        function toast(msg, ms = 2200, bg = 'var(--mint)') {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.style.background = bg;
-            t.style.display = 'block';
-            clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => t.style.display = 'none', ms);
         }
 
         function escapeHtml(str) {

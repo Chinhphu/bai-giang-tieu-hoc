@@ -1,57 +1,61 @@
-# THƯ MỤC DÙNG CHUNG KHỐI 5 (`khoi-5/shared`)
+# Tài nguyên dùng chung Khối 5
 
-Thư mục này được đổi tên từ `theme` và nâng cấp toàn diện để gom chung **toàn bộ tài nguyên, giao diện và logic tương tác** của tất cả các bài giảng từ **Tiết 01 đến Tiết 35** trong Khối 5.
+Các bài giảng có cùng khung lớp học theo chuẩn Tiết 07. Nội dung slide và hoạt động riêng của từng tiết vẫn nằm trong `tiet-XX/index.html`; những phần khung lặp lại được cung cấp từ thư mục này.
 
----
+## Thành phần hiện có
 
-## 📁 Cấu Trúc Thư Mục
+- `style.css`: giao diện cơ sở và kiểu cho khung cài đặt, sidebar, slide, bảng điểm, modal và màn hình tổng kết.
+- `components.js`: Web Components dùng cho cài đặt (`<khoi5-setup>`), sidebar (`<khoi5-sidebar>`), modal danh sách học sinh (`<khoi5-student-modal>`) và màn hình tổng kết (`<khoi5-summary>`); đồng thời cung cấp `toast(message, duration, background)` dùng chung.
+- `audio.js`, `slides.js`, `scoreboard.js`, `students.js`, `gacha.js`, `utils.js`, `tracker.js`: các module chức năng độc lập. Chỉ sử dụng module khi trang nạp trực tiếp tệp đó và tích hợp đúng API của module; `core.js` hiện là bundle độc lập, không tự được các trang nạp.
+- `template.html`: khung tạo tiết mới; thay thông tin bài học và nội dung slide, không sao chép lại markup cài đặt/sidebar.
 
-```
-khoi-5/shared/
-├── style.css       # Toàn bộ CSS dùng chung (Design tokens, Notebook chép bài, Scoreboard, Gacha, Modals, Responsive)
-├── core.js         # Gói JavaScript All-in-One (Tích hợp Audio, Slides, Notebook, Scoreboard, Students, Excel, Gacha, Utils)
-├── audio.js        # Web Audio API Engine (Âm thanh đúng/sai, còi phạt, tăng giảm điểm, túi mù, click - 100% offline)
-├── slides.js       # Slide & Notebook Engine (Chuyển slide, phím tắt mũi tên/Space, tự cập nhật ngày tháng tiếng Việt)
-├── scoreboard.js   # Scoreboard Engine (Quản lý điểm số, đội/dãy bàn, phạt mất trật tự, bảng vinh danh xếp hạng)
-├── students.js     # Student Engine (Nạp lớp 5/1 -> 5/6 từ JSON, đọc file Excel thông minh, gọi tên ngẫu nhiên)
-├── gacha.js        # Gacha Engine (Minigame bốc Túi Mù may mắn, tỉ lệ thưởng cân bằng sư phạm)
-├── utils.js        # Utilities (Toast thông báo nổi, flash chớp viền màn hình, pháo hoa ăn mừng, xuất Excel)
-├── template.html   # File HTML bài giảng mẫu chuẩn Khối 5 (Chỉ cần sao chép để tạo tiết học mới)
-└── README.md       # Tài liệu hướng dẫn sử dụng
-```
+## Cách dùng component
 
----
-
-## 🌟 Hai Điểm Gom Chung Cốt Lõi Vừa Được Bổ Sung
-
-### 1. Vở Chép Bài Dùng Chung (Notebook Component)
-- **Tự động hóa ngày tháng**: Hàm `formatTodayDate()` tự động điền `"Thứ..., ngày... tháng... năm..."` theo thời gian thực (hỗ trợ cả `.today-date`, `.currentDateDisplay`, `#lessonDate`).
-- **Giao diện chuẩn**: Tích hợp sẵn CSS đường viền gáy lò xo, tiêu đề môn học, và vùng soạn thảo `contenteditable="true"` để giáo viên có thể chỉnh sửa trực tiếp trên lớp.
-
-### 2. Logic Import Danh Sách Học Sinh Thông Minh (Kép: JSON + Excel)
-- **Nguồn 1 (JSON)**: Nạp tự động từ file trường `assets/data/students_5_2026_2027.json` theo mã lớp (`5_1` đến `5_6`).
-- **Nguồn 2 (File Excel)**: Hàm `Khoi5Students.handleExcelUpload(event)` tự động quét và nhận diện thông minh cột *"Họ và tên"*, *"Họ tên"* hoặc cặp cột *"Họ lót" + "Tên"* trong file `.xlsx`, `.xls`, `.csv` do giáo viên tải lên.
-
----
-
-## 🚀 Cách Sử Dụng Trong Bài Giảng
+Nạp CSS và component script trong `<head>` của trang tiết:
 
 ```html
-<head>
-  <!-- CSS dùng chung -->
-  <link rel="stylesheet" href="../shared/style.css" />
-  <!-- (Tùy chọn) Thư viện đọc Excel & Pháo hoa -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <!-- JS All-in-One dùng chung Khối 5 -->
-  <script src="../shared/core.js"></script>
-</head>
+<link rel="stylesheet" href="../shared/style.css">
+<script src="../shared/components.js"></script>
 ```
 
----
+Đặt component cài đặt trong `<body>`. Thuộc tính nội dung cho phép cấu hình nhãn và lựa chọn mặc định theo từng tiết:
 
-## 📋 Trạng Thái Áp Dụng Trong Khối 5
+```html
+<khoi5-setup
+  heading="TIN HỌC 5 · BÀI ..."
+  description="TÊN BÀI HỌC (TIẾT ...)"
+  team-label="Số lượng tổ (Tối đa 6):"
+  team-unit="Tổ"
+  default-class="5_2"
+  default-teams="4">
+</khoi5-setup>
+```
 
-- **Tiết 03, 04, 05**: Đã chuyển đổi liên kết sang `../shared/style.css`.
-- **Tiết 06, 07**: Đã kết nối đầy đủ `../shared/style.css` và `../shared/core.js`.
-- **Tiết 08 đến 35**: Khi bắt đầu soạn bài mới, chỉ cần nhân bản file [`template.html`](template.html) vào thư mục tiết tương ứng.
+Các thuộc tính tùy chọn: `starting-score-label`, `start-label`. Component giữ nguyên các ID `s-class`, `s-teams`, `excel-file-setup` và `setup-excel-status` để tương thích với logic khởi tạo/import của bài.
+
+Đặt sidebar bên trong `#app`. Sidebar tạo vùng `#teams`, nút thêm học sinh, nút tổng kết và điều hướng slide:
+
+```html
+<khoi5-sidebar></khoi5-sidebar>
+```
+
+Các thuộc tính tùy chọn: `title`, `quick-action="gacha"`, `gold-board`, `navigation="false"`, `page-indicator`. Nút chỉ được thêm khi thuộc tính tương ứng được khai báo.
+
+Modal và màn hình tổng kết cũng cấu hình qua thuộc tính để giữ lại các hàm/ID riêng của từng bài:
+
+```html
+<khoi5-student-modal
+  textarea-id="hs-input"
+  close-handler="closeAddHs"
+  save-handler="saveAddHs">
+</khoi5-student-modal>
+<khoi5-summary heading="📋 Quản lí học sinh các tổ"></khoi5-summary>
+```
+
+Modal chấp nhận `cancel-label`; summary chấp nhận `export-label` và `gold-board` cho nút xem bảng vàng.
+
+## Trạng thái áp dụng
+
+- Tiết 03–07 dùng chung component cài đặt, sidebar, modal học sinh, màn hình tổng kết và thông báo toast; mỗi trang vẫn giữ nguyên hoạt động và nội dung slide đặc thù.
+- Tiết 07 là trang tham chiếu về bố cục và cách tổ chức bài; template cũng dùng các component này.
+- Các tiết chưa có nội dung vẫn để trống. Khi tạo bài mới, sao chép template vào thư mục tiết, đổi thông tin cấu hình và bổ sung nội dung bài học.
