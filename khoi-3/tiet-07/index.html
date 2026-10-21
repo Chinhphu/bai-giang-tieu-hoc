@@ -2130,12 +2130,9 @@
         let starTouchedCount = 0;
 
         function toggleStudentPracticeMode() {
-            if (!isStudentPracticeMode && contestTurnIndex >= numT * STUDENTS_PER_TEAM_MOUSE) {
-                toast('🏁 Các tổ đã hoàn thành đủ lượt thực hành chuột.', 'ok');
-                return;
-            }
-            if (!isStudentPracticeMode && !selectedStudent) randomPickStudent();
-            if (!isStudentPracticeMode && !selectedStudent) return;
+            clearTimeout(mouseTaskAdvanceTimer);
+            mouseTaskAdvanceTimer = null;
+            mouseTaskCompletedForTurn = false;
 
             isStudentPracticeMode = !isStudentPracticeMode;
             const bar = $('#practiceModeBar');
@@ -2144,48 +2141,62 @@
             const btn = $('#btnTogglePracticeMode');
 
             if (isStudentPracticeMode) {
-                bar.classList.add('student-mode');
-                title.textContent = `🎮 BƯỚC 2: HỌC SINH THỰC HÀNH THEO LƯỢT (MỖI TỔ ${STUDENTS_PER_TEAM_MOUSE} BẠN)`;
-                sub.textContent = `Hệ thống tự động gọi xoay vòng từng tổ. Mỗi bạn hoàn thành thao tác mang về +40 điểm cho tổ!`;
-                btn.textContent = `↩ Về demo`;
-                btn.className = 'btn warning';
-                clearTimeout(mouseTaskAdvanceTimer);
-                mouseTaskAdvanceTimer = null;
-                mouseTaskCompletedForTurn = false;
+                // Nếu trước đó đã hoàn thành đủ lượt, bắt đầu vòng thực hành mới
+                if (contestTurnIndex >= numT * STUDENTS_PER_TEAM_MOUSE) {
+                    contestTurnIndex = 0;
+                    teamMouseTurnsDone = Array(numT).fill(0);
+                }
+
+                if (bar) bar.classList.add('student-mode');
+                if (title) title.textContent = `🎮 BƯỚC 2: HỌC SINH THỰC HÀNH THEO LƯỢT (MỖI TỔ ${STUDENTS_PER_TEAM_MOUSE} BẠN)`;
+                if (sub) sub.textContent = `Hệ thống tự động gọi xoay vòng từng tổ. Bấm vào bất kỳ tab nào để chọn bài, hoặc làm xong hệ thống tự chuyển!`;
+                if (btn) {
+                    btn.textContent = `↩ Về demo mẫu`;
+                    btn.className = 'btn warning';
+                }
+
+                // Xóa trạng thái hoàn thành demo cũ để học sinh thực hành mới
+                solvedMouseTasks.clear();
+
                 turn = contestTurnIndex % numT;
+                if (!selectedStudent || calledStudents.has(selectedStudent)) {
+                    randomPickStudent();
+                }
                 loadMouseTask(curMouseTask);
                 renderTeams();
-                toast(`🚀 Tiếp tục phần thực hành chuột. Mời đại diện của ${TEAMS[turn].n}!`, 'ok');
+                toast(`🚀 Bắt đầu phần thực hành chuột! Mời đại diện của ${TEAMS[turn]?.n || 'Tổ 1'}!`, 'ok');
             } else {
-                clearTimeout(mouseTaskAdvanceTimer);
-                mouseTaskAdvanceTimer = null;
-                bar.classList.remove('student-mode');
-                title.textContent = `👨‍🏫 BƯỚC 1: CHẾ ĐỘ THẦY GIÁO LÀM MẪU (DEMO 5 THAO TÁC CHUỘT)`;
-                sub.textContent = `Thầy làm mẫu 5 thao tác. Xong bấm nút bên phải để bắt đầu phần thi đấu của các tổ!`;
-                btn.textContent = `▶ Bắt đầu thi đấu`;
-                btn.className = 'btn primary';
-                mouseTaskCompletedForTurn = false;
+                if (bar) bar.classList.remove('student-mode');
+                if (title) title.textContent = `👨‍🏫 BƯỚC 1: CHẾ ĐỘ THẦY GIÁO LÀM MẪU (DEMO 5 THAO TÁC CHUỘT)`;
+                if (sub) sub.textContent = `Thầy làm mẫu 5 thao tác. Xong bấm nút bên phải để bắt đầu phần thi đấu của các tổ!`;
+                if (btn) {
+                    btn.textContent = `▶ Bắt đầu thi đấu`;
+                    btn.className = 'btn primary';
+                }
                 loadMouseTask(curMouseTask);
                 toast(`👨‍🏫 Đang ở chế độ Thầy giáo làm mẫu (Không tính điểm/Không đổi lượt)!`, 'ok');
             }
             updateTurnLabels();
         }
 
-        function loadMouseTask(idx, advancePracticeTurn = false) {
+        function loadMouseTask(idx) {
             if (!Number.isInteger(idx) || idx < 0 || idx >= MOUSE_TASKS.length) return;
-            if (isStudentPracticeMode && idx !== curMouseTask && !advancePracticeTurn) return;
 
             curMouseTask = idx;
+            mouseTaskCompletedForTurn = false;
             const task = MOUSE_TASKS[curMouseTask];
-            $('#pracTaskTitle').textContent = task.title;
-            $('#pracTaskDesc').textContent = task.desc;
+            const titleEl = $('#pracTaskTitle');
+            const descEl = $('#pracTaskDesc');
+            if (titleEl) titleEl.textContent = task.title;
+            if (descEl) descEl.textContent = task.desc;
 
             $$('#practiceTabs .prac-tab').forEach((b, i) => {
                 b.className = `prac-tab ${i === curMouseTask ? 'active' : ''} ${solvedMouseTasks.has(i) ? 'done' : ''}`;
-                b.disabled = isStudentPracticeMode;
+                b.disabled = false; // Không khóa tab để giáo viên và học sinh luôn bấm chọn được tự do
             });
 
             const stage = $('#vdStage');
+            if (!stage) return;
             stage.innerHTML = '';
 
             if (curMouseTask === 0) {
@@ -2194,13 +2205,15 @@
                     const item = document.createElement('div');
                     item.className = 'desktop-icon-item';
                     item.innerHTML = `<div style="font-size:3.5rem;">⭐</div><div>Ngôi sao ${s}</div>`;
-                    item.onmouseenter = function () {
+                    const touchHandler = function () {
                         if (this.classList.contains('done-item')) return;
                         this.classList.add('done-item');
                         this.innerHTML = `<div style="font-size:3.5rem;">🌟</div><div>Đã chạm!</div>`;
                         starTouchedCount++;
                         if (starTouchedCount === 3) completeMouseTask(0);
                     };
+                    item.onmouseenter = touchHandler;
+                    item.ontouchstart = touchHandler;
                     stage.appendChild(item);
                 }
             } else if (curMouseTask === 1) {
@@ -2208,6 +2221,7 @@
                 item.className = 'desktop-icon-item';
                 item.innerHTML = `<div style="font-size:3.8rem;">💻</div><div>This PC<br/><small style="color:#fde047;">(Nháy nút trái 1 lần)</small></div>`;
                 item.onclick = function () {
+                    if (this.classList.contains('done-item')) return;
                     this.classList.add('selected-icon', 'done-item');
                     this.innerHTML = `<div style="font-size:3.8rem;">✅</div><div>Đã chọn biểu tượng!</div>`;
                     completeMouseTask(1);
@@ -2227,13 +2241,17 @@
                         <div onclick="completeMouseTask(2)">ℹ️ Properties</div>
                     </div>
                 `;
-                item.oncontextmenu = function (e) {
-                    e.preventDefault(); e.stopPropagation();
+                const openMenu = function (e) {
+                    if (e) { e.preventDefault(); e.stopPropagation(); }
                     item.classList.add('selected-icon');
                     menuHolder.style.display = 'block';
                     toast('📋 Đã mở bảng chọn! Hãy nháy chuột trái vào 1 dòng để hoàn thành!', 'ok');
                 };
+                item.oncontextmenu = openMenu;
                 item.onclick = () => toast('⚠️ Hãy dùng NGÓN GIỮA nhấn NÚT PHẢI CHUỘT nhé!', 'bad');
+                let touchTimer = null;
+                item.ontouchstart = () => { touchTimer = setTimeout(openMenu, 500); };
+                item.ontouchend = () => { clearTimeout(touchTimer); };
                 stage.appendChild(item);
                 stage.appendChild(menuHolder);
             } else if (curMouseTask === 3) {
@@ -2279,60 +2297,101 @@
                     bin.innerHTML = `<div style="font-size:3.8rem;">✅</div><div>Đã kéo thả xong!</div>`;
                     completeMouseTask(4);
                 };
+
+                // Hỗ trợ chạm/nháy để gắp và thả trên màn hình cảm ứng / tivi tương tác
+                let isPickedUp = false;
+                dragItem.onclick = function () {
+                    if (dragItem.style.display === 'none') return;
+                    isPickedUp = !isPickedUp;
+                    if (isPickedUp) {
+                        dragItem.classList.add('selected-icon');
+                        toast('✋ Đã giữ Tệp Rác! Giờ hãy nháy vào Thùng Rác để thả vào!', 'ok');
+                    } else {
+                        dragItem.classList.remove('selected-icon');
+                    }
+                };
+                bin.onclick = function () {
+                    if (isPickedUp && dragItem.style.display !== 'none') {
+                        dragItem.style.display = 'none';
+                        bin.style.background = 'rgba(34, 197, 94, 0.35)';
+                        bin.style.borderColor = '#4ade80';
+                        bin.innerHTML = `<div style="font-size:3.8rem;">✅</div><div>Đã kéo thả xong!</div>`;
+                        completeMouseTask(4);
+                    }
+                };
+
                 stage.appendChild(dragItem);
                 stage.appendChild(bin);
             }
         }
 
         function resetCurrentMouseTask() {
-            if (isStudentPracticeMode && mouseTaskCompletedForTurn) return;
+            clearTimeout(mouseTaskAdvanceTimer);
+            mouseTaskAdvanceTimer = null;
+            mouseTaskCompletedForTurn = false;
             loadMouseTask(curMouseTask);
+            toast('🔄 Đã đặt lại thao tác chuột!', 'ok');
         }
 
         function completeMouseTask(idx) {
             if (!Number.isInteger(idx) || !MOUSE_TASKS[idx]) return;
-            if (isStudentPracticeMode && idx !== curMouseTask) return;
 
+            // Chế độ giáo viên làm mẫu
             if (!isStudentPracticeMode) {
                 solvedMouseTasks.add(idx);
-                toast(`👨‍🏫 Thầy đã làm mẫu xong "${MOUSE_TASKS[idx].title}"!`, 'ok');
+                toast(`👨‍🏫 Thầy đã làm mẫu xong "${MOUSE_TASKS[idx].title}"! Bấm "Đặt lại" để làm lại hoặc bấm "Bắt đầu thi đấu" cho học sinh.`, 'ok');
                 $$('#practiceTabs .prac-tab').forEach((b, i) => {
                     b.className = `prac-tab ${i === curMouseTask ? 'active' : ''} ${solvedMouseTasks.has(i) ? 'done' : ''}`;
+                    b.disabled = false;
                 });
                 return;
             }
 
-            const totalContestTurns = numT * STUDENTS_PER_TEAM_MOUSE;
-            if (contestTurnIndex >= totalContestTurns || mouseTaskCompletedForTurn) return;
-            if (!selectedStudent || calledStudents.has(selectedStudent)) {
-                toast('⚠️ Hãy chọn học sinh đại diện trước khi hoàn thành lượt này.', 'bad');
-                loadMouseTask(curMouseTask);
-                return;
-            }
-
-            const team = TEAMS[turn];
-            if (!team || teamMouseTurnsDone[turn] >= STUDENTS_PER_TEAM_MOUSE) return;
-
+            // Chế độ học sinh thi đấu thực hành
+            if (mouseTaskCompletedForTurn) return;
             mouseTaskCompletedForTurn = true;
-            const stuObj = classStudents.find(s => s.id === selectedStudent);
+
+            const totalContestTurns = numT * STUDENTS_PER_TEAM_MOUSE;
+            const team = TEAMS[turn] || TEAMS[0];
+
+            let stuObj = classStudents.find(s => s.id === selectedStudent);
+            if (!stuObj || calledStudents.has(selectedStudent)) {
+                randomPickStudent();
+                stuObj = classStudents.find(s => s.id === selectedStudent);
+            }
             const stuName = stuObj ? stuObj.name : `Đại diện ${team.n}`;
 
             applyScore(team, 40);
             teamMouseTurnsDone[turn] = (teamMouseTurnsDone[turn] || 0) + 1;
+            solvedMouseTasks.add(idx);
 
-            toast(`🎉 Xuất sắc! ${stuName} (${team.n}) hoàn thành thao tác chuột -> +40 điểm!`, 'ok');
+            toast(`🎉 Xuất sắc! ${stuName} (${team.n}) hoàn thành "${MOUSE_TASKS[idx].title}" -> +40 điểm!`, 'ok');
             logLessonAction(team.n, stuName, `Thực hành chuột: ${MOUSE_TASKS[idx].title}`, 'Hoàn thành tốt', '+40', team.score);
             if (stuObj) recordStudentAction(stuObj.id, `Thực hành đúng: ${MOUSE_TASKS[idx].title} (+40đ)`);
             markCalledStudent();
             contestTurnIndex++;
 
+            $$('#practiceTabs .prac-tab').forEach((b, i) => {
+                b.className = `prac-tab ${i === curMouseTask ? 'active' : ''} ${solvedMouseTasks.has(i) ? 'done' : ''}`;
+                b.disabled = false;
+            });
+
+            // Khi các tổ đã hoàn thành đủ số lượt quy định
             if (contestTurnIndex >= totalContestTurns) {
                 renderTeams();
                 updateTurnLabels();
-                toast(`🏆 Cả ${numT} tổ (mỗi tổ 2 bạn) đã hoàn thành đủ lượt thực hành chuột!`, 'ok');
+                toast(`🏆 Cả ${numT} tổ đã hoàn thành các lượt thi thực hành chuột! Có thể bấm tab để tiếp tục luyện tập tự do!`, 'ok');
+                clearTimeout(mouseTaskAdvanceTimer);
+                mouseTaskAdvanceTimer = setTimeout(() => {
+                    mouseTaskAdvanceTimer = null;
+                    if (!isStudentPracticeMode) return;
+                    mouseTaskCompletedForTurn = false;
+                    loadMouseTask((curMouseTask + 1) % MOUSE_TASKS.length);
+                }, 1200);
                 return;
             }
 
+            // Chuyển lượt sang tổ tiếp theo
             turn = contestTurnIndex % numT;
             renderTeams();
             updateTurnLabels();
@@ -2342,8 +2401,8 @@
                 mouseTaskAdvanceTimer = null;
                 if (!isStudentPracticeMode) return;
                 mouseTaskCompletedForTurn = false;
-                loadMouseTask((curMouseTask + 1) % MOUSE_TASKS.length, true);
-            }, 900);
+                loadMouseTask((curMouseTask + 1) % MOUSE_TASKS.length);
+            }, 1000);
         }
 
         /* ================= 6. QUẢN LÝ TỔ (THEO LƯỢT CỐ ĐỊNH) ================= */
