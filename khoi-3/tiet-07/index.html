@@ -1545,6 +1545,12 @@
                                 onclick="toggleStudentPracticeMode()">
                                 ▶ Bắt đầu thi đấu
                             </button>
+                            <button class="btn" id="btnNextTeamPractice"
+                                onclick="nextTeamPracticeManual()"
+                                style="background:#0284c7; color:#fff; display:none; font-weight:800; padding:8px 14px;"
+                                title="Chủ động chuyển sang tổ tiếp theo để thực hiện đủ 5 thao tác">
+                                ⏭ Đổi tổ
+                            </button>
                             <button class="btn warning" onclick="resetCurrentMouseTask()">↻ Đặt lại</button>
                         </div>
                     </div>
@@ -1900,7 +1906,8 @@
 
         let curMouseTask = 0;
         let isStudentPracticeMode = false;
-        const solvedMouseTasks = new Set();
+        const teacherSolvedMouseTasks = new Set();
+        let teamSolvedMouseTasks = [];
         let teamMouseTurnsDone = [];
         let contestTurnIndex = 0;
         let mouseTaskCompletedForTurn = false;
@@ -1933,6 +1940,7 @@
                 lessonLogs: [...lessonLogs],
                 solvedSpotIds: [...solvedSpotIds],
                 activeSpotIdx,
+                teamSolvedMouseTasks: teamSolvedMouseTasks.map(s => Array.from(s || [])),
                 teamMouseTurnsDone: [...teamMouseTurnsDone],
                 contestTurnIndex,
                 curMouseTask,
@@ -2129,6 +2137,14 @@
 
         let starTouchedCount = 0;
 
+        function getNextUnfinishedTask(teamIdx) {
+            const solved = teamSolvedMouseTasks[teamIdx] || new Set();
+            for (let i = 0; i < MOUSE_TASKS.length; i++) {
+                if (!solved.has(i)) return i;
+            }
+            return 0;
+        }
+
         function toggleStudentPracticeMode() {
             clearTimeout(mouseTaskAdvanceTimer);
             mouseTaskAdvanceTimer = null;
@@ -2139,32 +2155,33 @@
             const title = $('#practiceModeTitle');
             const sub = $('#practiceModeSub');
             const btn = $('#btnTogglePracticeMode');
+            const nextBtn = $('#btnNextTeamPractice');
 
             if (isStudentPracticeMode) {
-                // Nếu trước đó đã hoàn thành đủ lượt, bắt đầu vòng thực hành mới
-                if (contestTurnIndex >= numT * STUDENTS_PER_TEAM_MOUSE) {
-                    contestTurnIndex = 0;
-                    teamMouseTurnsDone = Array(numT).fill(0);
+                // Đảm bảo teamSolvedMouseTasks đã được khởi tạo cho từng tổ
+                if (!Array.isArray(teamSolvedMouseTasks) || teamSolvedMouseTasks.length < numT) {
+                    teamSolvedMouseTasks = Array.from({ length: numT }, (_, i) => teamSolvedMouseTasks[i] || new Set());
                 }
 
                 if (bar) bar.classList.add('student-mode');
-                if (title) title.textContent = `🎮 BƯỚC 2: HỌC SINH THỰC HÀNH THEO LƯỢT (MỖI TỔ ${STUDENTS_PER_TEAM_MOUSE} BẠN)`;
-                if (sub) sub.textContent = `Hệ thống tự động gọi xoay vòng từng tổ. Bấm vào bất kỳ tab nào để chọn bài, hoặc làm xong hệ thống tự chuyển!`;
+                if (title) title.textContent = `🎮 BƯỚC 2: HỌC SINH THỰC HÀNH THEO TỔ (MỖI TỔ LÀM ĐỦ 5 THAO TÁC)`;
+                if (sub) sub.textContent = `Mỗi tổ làm 5 thao tác chuột. Hệ thống tự động ghi nhớ tiến độ của từng tổ khi đổi lượt.`;
                 if (btn) {
                     btn.textContent = `↩ Về demo mẫu`;
                     btn.className = 'btn warning';
                 }
+                if (nextBtn) nextBtn.style.display = 'inline-flex';
 
-                // Xóa trạng thái hoàn thành demo cũ để học sinh thực hành mới
-                solvedMouseTasks.clear();
-
-                turn = contestTurnIndex % numT;
+                turn %= numT;
                 if (!selectedStudent || calledStudents.has(selectedStudent)) {
                     randomPickStudent();
                 }
-                loadMouseTask(curMouseTask);
+
+                // Tải thao tác tiếp theo mà tổ này chưa làm
+                const targetTask = getNextUnfinishedTask(turn);
+                loadMouseTask(targetTask);
                 renderTeams();
-                toast(`🚀 Bắt đầu phần thực hành chuột! Mời đại diện của ${TEAMS[turn]?.n || 'Tổ 1'}!`, 'ok');
+                toast(`🚀 Bắt đầu phần thi thực hành chuột! Lượt của ${TEAMS[turn]?.n || 'Tổ 1'}!`, 'ok');
             } else {
                 if (bar) bar.classList.remove('student-mode');
                 if (title) title.textContent = `👨‍🏫 BƯỚC 1: CHẾ ĐỘ THẦY GIÁO LÀM MẪU (DEMO 5 THAO TÁC CHUỘT)`;
@@ -2173,6 +2190,7 @@
                     btn.textContent = `▶ Bắt đầu thi đấu`;
                     btn.className = 'btn primary';
                 }
+                if (nextBtn) nextBtn.style.display = 'none';
                 loadMouseTask(curMouseTask);
                 toast(`👨‍🏫 Đang ở chế độ Thầy giáo làm mẫu (Không tính điểm/Không đổi lượt)!`, 'ok');
             }
@@ -2190,10 +2208,17 @@
             if (titleEl) titleEl.textContent = task.title;
             if (descEl) descEl.textContent = task.desc;
 
+            const currentSolved = isStudentPracticeMode
+                ? (teamSolvedMouseTasks[turn] || new Set())
+                : teacherSolvedMouseTasks;
+
             $$('#practiceTabs .prac-tab').forEach((b, i) => {
-                b.className = `prac-tab ${i === curMouseTask ? 'active' : ''} ${solvedMouseTasks.has(i) ? 'done' : ''}`;
+                b.className = `prac-tab ${i === curMouseTask ? 'active' : ''} ${currentSolved.has(i) ? 'done' : ''}`;
                 b.disabled = false; // Không khóa tab để giáo viên và học sinh luôn bấm chọn được tự do
             });
+
+            updateTurnLabels();
+            renderTeams();
 
             const stage = $('#vdStage');
             if (!stage) return;
@@ -2235,27 +2260,33 @@
                 menuHolder.style.display = 'none';
                 menuHolder.innerHTML = `
                     <div class="fake-context-menu">
-                        <div style="color:#64748b; font-size:0.8rem; padding:4px 8px; border-bottom:1px solid #e2e8f0;">Bảng chọn đã mở!</div>
-                        <div onclick="completeMouseTask(2)">📂 Open (Nháy chuột trái để chọn)</div>
-                        <div onclick="completeMouseTask(2)">🧹 Empty Recycle Bin</div>
-                        <div onclick="completeMouseTask(2)">ℹ️ Properties</div>
+                        <div style="color:#16a34a; font-weight:800; font-size:0.85rem; padding:4px 8px; border-bottom:1px solid #e2e8f0;">✅ Bảng chọn đã mở!</div>
+                        <div>📂 Open</div>
+                        <div>🧹 Empty Recycle Bin</div>
+                        <div>ℹ️ Properties</div>
                     </div>
                 `;
-                const openMenu = function (e) {
+                const triggerRightClick = function (e) {
                     if (e) { e.preventDefault(); e.stopPropagation(); }
-                    item.classList.add('selected-icon');
+                    if (item.classList.contains('done-item')) return;
+                    item.classList.add('selected-icon', 'done-item');
                     menuHolder.style.display = 'block';
-                    toast('📋 Đã mở bảng chọn! Hãy nháy chuột trái vào 1 dòng để hoàn thành!', 'ok');
+                    completeMouseTask(2);
                 };
-                item.oncontextmenu = openMenu;
-                item.onclick = () => toast('⚠️ Hãy dùng NGÓN GIỮA nhấn NÚT PHẢI CHUỘT nhé!', 'bad');
+                item.oncontextmenu = triggerRightClick;
+                item.onclick = () => {
+                    if (!item.classList.contains('done-item')) {
+                        toast('⚠️ Hãy dùng NGÓN GIỮA nhấn NÚT PHẢI CHUỘT nhé!', 'bad');
+                    }
+                };
                 let touchTimer = null;
-                item.ontouchstart = () => { touchTimer = setTimeout(openMenu, 500); };
+                item.ontouchstart = () => { touchTimer = setTimeout(triggerRightClick, 500); };
                 item.ontouchend = () => { clearTimeout(touchTimer); };
                 stage.appendChild(item);
                 stage.appendChild(menuHolder);
             } else if (curMouseTask === 3) {
                 const item = document.createElement('div');
+                item.id = 'wordIconItem';
                 item.className = 'desktop-icon-item';
                 item.innerHTML = `<div style="font-size:3.8rem;">📘</div><div>Microsoft Word<br/><small style="color:#fde047;">(Nháy đúp 2 lần nhanh)</small></div>`;
                 const wordWin = document.createElement('div');
@@ -2264,18 +2295,47 @@
                 wordWin.innerHTML = `
                     <div class="fake-word-titlebar">
                         <span>📘 Document1 - Microsoft Word</span>
-                        <button class="fake-close-btn" onclick="completeMouseTask(3)">✖ Đóng</button>
+                        <button class="fake-close-btn" onclick="this.closest('.fake-word-window').style.display='none'; const wi = document.getElementById('wordIconItem'); if (wi) wi.style.display='flex';">✖ Đóng</button>
                     </div>
-                    <div style="padding:20px; font-weight:800; font-size:1.15rem; color:#1e293b;">
+                    <div style="padding:24px 20px; font-weight:800; font-size:1.15rem; color:#1e293b; text-align:center;">
                         🎉 Cửa sổ phần mềm Word đã mở ra!<br/><br/>
-                        👉 Hãy <strong>nháy chuột vào nút ✖ Đóng</strong> ở góc trên bên phải để hoàn thành!
+                        <span style="color:#16a34a; font-size:1.25rem;">✅ Em đã hoàn thành xuất sắc thao tác Nháy đúp chuột!</span>
                     </div>
                 `;
-                item.ondblclick = function () {
+                let singleClickTimer = null;
+                const triggerDblClick = function (e) {
+                    if (e) { e.preventDefault(); e.stopPropagation(); }
+                    clearTimeout(singleClickTimer);
+                    if (item.classList.contains('done-item')) return;
+                    item.classList.add('done-item');
                     item.style.display = 'none';
                     wordWin.style.display = 'flex';
-                    toast('📂 Đã nháy đúp mở Word! Giờ hãy nháy chuột vào nút ✖ ở góc trên bên phải để đóng!', 'ok');
+                    completeMouseTask(3);
                 };
+                item.ondblclick = triggerDblClick;
+                item.onclick = function () {
+                    if (item.classList.contains('done-item')) return;
+                    item.classList.add('selected-icon');
+                    clearTimeout(singleClickTimer);
+                    singleClickTimer = setTimeout(() => {
+                        if (!item.classList.contains('done-item') && document.body.contains(item)) {
+                            toast('💡 Mẹo: Nháy đúp là nhấn nút trái 2 LẦN LIÊN TIẾP thật nhanh nhé!', 'bad');
+                        }
+                    }, 400);
+                };
+
+                // Hỗ trợ màn hình cảm ứng / tivi tương tác (chạm 2 lần nhanh)
+                let lastTap = 0;
+                item.ontouchend = function (e) {
+                    const currentTime = new Date().getTime();
+                    const tapLength = currentTime - lastTap;
+                    if (tapLength < 350 && tapLength > 0) {
+                        e.preventDefault();
+                        triggerDblClick(e);
+                    }
+                    lastTap = currentTime;
+                };
+
                 stage.appendChild(item);
                 stage.appendChild(wordWin);
             } else if (curMouseTask === 4) {
@@ -2338,10 +2398,10 @@
 
             // Chế độ giáo viên làm mẫu
             if (!isStudentPracticeMode) {
-                solvedMouseTasks.add(idx);
+                teacherSolvedMouseTasks.add(idx);
                 toast(`👨‍🏫 Thầy đã làm mẫu xong "${MOUSE_TASKS[idx].title}"! Bấm "Đặt lại" để làm lại hoặc bấm "Bắt đầu thi đấu" cho học sinh.`, 'ok');
                 $$('#practiceTabs .prac-tab').forEach((b, i) => {
-                    b.className = `prac-tab ${i === curMouseTask ? 'active' : ''} ${solvedMouseTasks.has(i) ? 'done' : ''}`;
+                    b.className = `prac-tab ${i === curMouseTask ? 'active' : ''} ${teacherSolvedMouseTasks.has(i) ? 'done' : ''}`;
                     b.disabled = false;
                 });
                 return;
@@ -2351,8 +2411,9 @@
             if (mouseTaskCompletedForTurn) return;
             mouseTaskCompletedForTurn = true;
 
-            const totalContestTurns = numT * STUDENTS_PER_TEAM_MOUSE;
             const team = TEAMS[turn] || TEAMS[0];
+            if (!teamSolvedMouseTasks[turn]) teamSolvedMouseTasks[turn] = new Set();
+            const teamSolved = teamSolvedMouseTasks[turn];
 
             let stuObj = classStudents.find(s => s.id === selectedStudent);
             if (!stuObj || calledStudents.has(selectedStudent)) {
@@ -2361,48 +2422,136 @@
             }
             const stuName = stuObj ? stuObj.name : `Đại diện ${team.n}`;
 
-            applyScore(team, 40);
-            teamMouseTurnsDone[turn] = (teamMouseTurnsDone[turn] || 0) + 1;
-            solvedMouseTasks.add(idx);
+            // Ghi nhận hoàn thành và chỉ cộng điểm lần đầu tiên tổ này làm đúng thao tác này
+            const isFirstTime = !teamSolved.has(idx);
+            if (isFirstTime) {
+                applyScore(team, 40);
+                teamSolved.add(idx);
+            }
 
-            toast(`🎉 Xuất sắc! ${stuName} (${team.n}) hoàn thành "${MOUSE_TASKS[idx].title}" -> +40 điểm!`, 'ok');
             logLessonAction(team.n, stuName, `Thực hành chuột: ${MOUSE_TASKS[idx].title}`, 'Hoàn thành tốt', '+40', team.score);
             if (stuObj) recordStudentAction(stuObj.id, `Thực hành đúng: ${MOUSE_TASKS[idx].title} (+40đ)`);
-            markCalledStudent();
-            contestTurnIndex++;
 
             $$('#practiceTabs .prac-tab').forEach((b, i) => {
-                b.className = `prac-tab ${i === curMouseTask ? 'active' : ''} ${solvedMouseTasks.has(i) ? 'done' : ''}`;
+                b.className = `prac-tab ${i === curMouseTask ? 'active' : ''} ${teamSolved.has(i) ? 'done' : ''}`;
                 b.disabled = false;
             });
 
-            // Khi các tổ đã hoàn thành đủ số lượt quy định
-            if (contestTurnIndex >= totalContestTurns) {
-                renderTeams();
-                updateTurnLabels();
-                toast(`🏆 Cả ${numT} tổ đã hoàn thành các lượt thi thực hành chuột! Có thể bấm tab để tiếp tục luyện tập tự do!`, 'ok');
+            const completedCount = teamSolved.size;
+            renderTeams();
+            updateTurnLabels();
+
+            // TRƯỜNG HỢP 1: Tổ hiện tại CHƯA hoàn thành đủ 5 thao tác
+            if (completedCount < MOUSE_TASKS.length) {
+                toast(`🎉 Xuất sắc! ${stuName} (${team.n}) hoàn thành "${MOUSE_TASKS[idx].title}" -> +40 điểm! (${team.n} đã xong ${completedCount}/5 thao tác)`, 'ok');
+
+                // Tìm thao tác tiếp theo mà tổ này CHƯA làm
+                let nextIdx = (curMouseTask + 1) % MOUSE_TASKS.length;
+                if (teamSolved.has(nextIdx)) {
+                    for (let i = 0; i < MOUSE_TASKS.length; i++) {
+                        if (!teamSolved.has(i)) {
+                            nextIdx = i;
+                            break;
+                        }
+                    }
+                }
+
                 clearTimeout(mouseTaskAdvanceTimer);
                 mouseTaskAdvanceTimer = setTimeout(() => {
                     mouseTaskAdvanceTimer = null;
                     if (!isStudentPracticeMode) return;
                     mouseTaskCompletedForTurn = false;
-                    loadMouseTask((curMouseTask + 1) % MOUSE_TASKS.length);
-                }, 1200);
+                    loadMouseTask(nextIdx);
+                }, 1000);
                 return;
             }
 
-            // Chuyển lượt sang tổ tiếp theo
-            turn = contestTurnIndex % numT;
+            // TRƯỜNG HỢP 2: TỔ HIỆN TẠI ĐÃ HOÀN THÀNH ĐỦ 5/5 THAO TÁC!
+            markCalledStudent();
+            teamMouseTurnsDone[turn] = 1;
+            contestTurnIndex++;
+
+            toast(`🏆 XUẤT SẮC! ${stuName} (${team.n}) đã hoàn thành TRỌN BỘ 5 THAO TÁC CHUỘT! 🌟`, 'ok');
+            logLessonAction(team.n, stuName, 'Thực hành chuột', 'Hoàn thành trọn bộ 5 thao tác chuột', '+40', team.score);
+
+            // Kiểm tra xem tất cả các tổ đã hoàn thành đủ 5 thao tác chưa
+            const allTeamsDone = TEAMS.every((t, i) => teamSolvedMouseTasks[i] && teamSolvedMouseTasks[i].size >= MOUSE_TASKS.length);
+            if (allTeamsDone) {
+                renderTeams();
+                updateTurnLabels();
+                toast(`🏆 TẤT CẢ ${numT} TỔ ĐỀU ĐÃ HOÀN THÀNH ĐỦ 5 THAO TÁC CHUỘT! Chúc mừng cả lớp! 🎉`, 'ok');
+            }
+
+            // Tự động tìm tổ tiếp theo CHƯA hoàn thành đủ 5 thao tác (nếu có)
+            let nextTeamTurn = (turn + 1) % numT;
+            for (let offset = 1; offset < numT; offset++) {
+                const candidate = (turn + offset) % numT;
+                if (!teamSolvedMouseTasks[candidate] || teamSolvedMouseTasks[candidate].size < MOUSE_TASKS.length) {
+                    nextTeamTurn = candidate;
+                    break;
+                }
+            }
+
+            turn = nextTeamTurn;
+            randomPickStudent();
             renderTeams();
             updateTurnLabels();
-            randomPickStudent();
+
             clearTimeout(mouseTaskAdvanceTimer);
             mouseTaskAdvanceTimer = setTimeout(() => {
                 mouseTaskAdvanceTimer = null;
                 if (!isStudentPracticeMode) return;
                 mouseTaskCompletedForTurn = false;
-                loadMouseTask((curMouseTask + 1) % MOUSE_TASKS.length);
-            }, 1000);
+
+                // Tải thao tác mà tổ mới CHƯA làm
+                const targetTask = getNextUnfinishedTask(turn);
+                loadMouseTask(targetTask);
+
+                const nextTeam = TEAMS[turn];
+                const nextStuObj = classStudents.find(s => s.id === selectedStudent);
+                const nextStuName = nextStuObj ? nextStuObj.name : 'đại diện';
+                const nextTeamSolved = teamSolvedMouseTasks[turn] || new Set();
+                const nextDone = nextTeamSolved.size;
+
+                if (nextDone >= MOUSE_TASKS.length) {
+                    toast(`🚀 Đến lượt ${nextTeam.n}! Tổ đã xong cả 5/5 thao tác! Có thể bấm tab để luyện tập tự do.`, 'ok');
+                } else {
+                    toast(`🚀 Đến lượt ${nextTeam.n}! Mời bạn ${nextStuName} (Tổ đã xong ${nextDone}/5 thao tác, tiếp tục thao tác ${targetTask + 1})!`, 'ok');
+                }
+            }, 1400);
+        }
+
+        function nextTeamPracticeManual() {
+            clearTimeout(mouseTaskAdvanceTimer);
+            mouseTaskAdvanceTimer = null;
+            mouseTaskCompletedForTurn = false;
+
+            if (!isStudentPracticeMode) {
+                toggleStudentPracticeMode();
+                return;
+            }
+
+            // Chuyển sang tổ tiếp theo
+            turn = (turn + 1) % numT;
+            randomPickStudent();
+            renderTeams();
+            updateTurnLabels();
+
+            // Tiếp tục đúng thao tác mà tổ này chưa làm
+            const targetTask = getNextUnfinishedTask(turn);
+            loadMouseTask(targetTask);
+
+            const activeTeam = TEAMS[turn];
+            const stuObj = classStudents.find(s => s.id === selectedStudent);
+            const stuName = stuObj ? stuObj.name : 'đại diện';
+            const teamSolved = teamSolvedMouseTasks[turn] || new Set();
+            const doneCount = teamSolved.size;
+
+            if (doneCount >= MOUSE_TASKS.length) {
+                toast(`👉 Đã chuyển lượt sang ${activeTeam.n} (Mời bạn ${stuName})! Tổ đã hoàn thành đủ 5/5 thao tác.`, 'ok');
+            } else {
+                toast(`👉 Đã chuyển lượt sang ${activeTeam.n} (Mời bạn ${stuName})! Tổ đã xong ${doneCount}/5, tiếp tục từ Thao tác ${targetTask + 1}.`, 'ok');
+            }
         }
 
         /* ================= 6. QUẢN LÝ TỔ (THEO LƯỢT CỐ ĐỊNH) ================= */
@@ -2449,10 +2598,11 @@
                     practiceBadge.textContent = `👨‍🏫 CHẾ ĐỘ THẦY DEMO MẪU`;
                     quotaBadge.textContent = `Học sinh quan sát thầy làm mẫu trước khi thi đấu`;
                 } else {
-                    const totalTurns = numT * STUDENTS_PER_TEAM_MOUSE;
-                    const studentNumOfTeam = Math.floor(contestTurnIndex / numT) + 1;
-                    practiceBadge.textContent = `🎯 Lượt của: ${tName} ${sName}`;
-                    quotaBadge.textContent = `Lượt ${Math.min(contestTurnIndex + 1, totalTurns)}/${totalTurns} (Bạn thứ ${Math.min(studentNumOfTeam, STUDENTS_PER_TEAM_MOUSE)}/${STUDENTS_PER_TEAM_MOUSE} của ${tName})`;
+                    const currentSolved = teamSolvedMouseTasks[turn] || new Set();
+                    const doneCount = currentSolved.size;
+                    const isAllDone = doneCount >= MOUSE_TASKS.length;
+                    practiceBadge.textContent = `🎯 Lượt của: ${tName} ${sName} · ${isAllDone ? 'Đã xong đủ 5/5 thao tác ✅' : `Đang làm Thao tác ${curMouseTask + 1}/5 (Đã xong ${doneCount}/5)`}`;
+                    quotaBadge.textContent = `Tiến độ của ${tName}: ${doneCount}/5 thao tác chuột`;
                 }
             }
         }
@@ -2464,6 +2614,7 @@
             }));
             refreshPostureTurnLimit();
             teamMouseTurnsDone = Array(numT).fill(0);
+            teamSolvedMouseTasks = Array.from({ length: numT }, (_, i) => teamSolvedMouseTasks[i] || new Set());
             contestTurnIndex = 0;
             mouseTaskCompletedForTurn = false;
             turn %= numT;
@@ -2484,6 +2635,7 @@
                 return;
             }
             numT = c;
+            teamSolvedMouseTasks = Array.from({ length: numT }, (_, i) => teamSolvedMouseTasks[i] || new Set());
             solvedSpotIds.clear();
             activeSpotIdx = 0;
             initTeams();
@@ -2498,9 +2650,14 @@
                 const d = document.createElement('div');
                 d.className = `team-row ${isActive ? 'active' : ''}`;
 
-                // Hiển thị tiến độ học sinh lên làm chuột (chỉ hiện khi ở chế độ học sinh làm)
+                // Hiển thị tiến độ của từng tổ (nhớ chính xác tổ đó đã làm tới đâu)
+                const teamSolved = teamSolvedMouseTasks[i] || new Set();
+                const solvedCount = teamSolved.size;
+                const isAllDone = solvedCount >= MOUSE_TASKS.length;
                 const mouseProgress = isStudentPracticeMode
-                    ? `<span style="font-size:0.75rem; color:#475569; font-weight:800;">(Thực hành chuột: ${teamMouseTurnsDone[i] || 0}/${STUDENTS_PER_TEAM_MOUSE} bạn)</span>`
+                    ? (isAllDone
+                        ? `<span style="font-size:0.75rem; color:#16a34a; font-weight:800;">(✅ Đã xong 5/5 thao tác)</span>`
+                        : `<span style="font-size:0.75rem; color:#475569; font-weight:800;">(Chuột: ${solvedCount}/5 thao tác)</span>`)
                     : '';
 
                 d.innerHTML = `
@@ -2680,6 +2837,11 @@
                 score: Number.isFinite(classScores[i]) ? classScores[i] : START_SCORE
             }));
             initTeams();
+            if (classSession && Array.isArray(classSession.teamSolvedMouseTasks)) {
+                teamSolvedMouseTasks = classSession.teamSolvedMouseTasks.map(arr => new Set(Array.isArray(arr) ? arr : []));
+            } else {
+                teamSolvedMouseTasks = Array.from({ length: numT }, () => new Set());
+            }
             teamMouseTurnsDone = restoredMouseTurns;
             contestTurnIndex = restoredContestTurnIndex;
             turn = restoredTurn;
