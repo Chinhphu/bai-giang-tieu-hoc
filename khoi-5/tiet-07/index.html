@@ -2685,6 +2685,7 @@
                     score: STARTING_SCORE,
                     quest: null,
                     won: false,
+                    finishRank: null,
                     savedPath: ['Local Disk (D:)']
                 });
             }
@@ -2803,7 +2804,7 @@
                         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid rgba(255,255,255,0.2); padding-bottom:6px; margin-bottom:8px;">
                             <span style="color:${t.color}; font-size:19px; font-weight:900;">🎯 NHIỆM VỤ: ${t.name}</span>
                             <span style="font-size:12px; font-weight:900; background:${t.won ? '#10b981' : '#f59e0b'}; color:#fff; padding:2px 8px; border-radius:12px;">
-                                ${t.won ? '✅ ĐÃ TÌM THẤY' : '⏳ ĐANG TÌM'}
+                                ${t.won ? (t.finishRank ? `✅ ĐÃ TÌM THẤY (HẠNG ${t.finishRank})` : '✅ ĐÃ TÌM THẤY') : '⏳ ĐANG TÌM'}
                             </span>
                         </div>
                         <div style="font-size:20px; color:#38bdf8; font-weight:900; margin-bottom:8px;">
@@ -2900,11 +2901,13 @@
             refreshStudentSelects();
         }
 
-        function addScore(i, pts, reason) {
+        function addScore(i, pts, reason, silent = false) {
             teams[i].score += pts;
             renderTeamsSidebar();
             logTimelineAction(teams[i].name, getSelectedStudent(i), reason || 'Hoàn thành thử thách', 'Cộng điểm', pts, teams[i].score);
-            toast(`+${pts} điểm cho ${teams[i].name}! ${reason ? `(${reason})` : ''}`, 2200, teams[i].color);
+            if (!silent) {
+                toast(`+${pts} điểm cho ${teams[i].name}! ${reason ? `(${reason})` : ''}`, 2200, teams[i].color);
+            }
         }
 
         function updateQuestBadges() {
@@ -2915,7 +2918,7 @@
                     el.textContent = 'Chưa có Mật lệnh';
                     el.className = 'tquest-badge';
                 } else if (t.won) {
-                    el.textContent = `🎯 ĐÃ TÌM: ${t.quest.file}`;
+                    el.textContent = t.finishRank ? `🎯 ĐÃ TÌM (Hạng ${t.finishRank}): ${t.quest.file}` : `🎯 ĐÃ TÌM: ${t.quest.file}`;
                     el.className = 'tquest-badge found';
                 } else {
                     el.textContent = `🔍 Cần: ${t.quest.file}`;
@@ -2931,7 +2934,11 @@
             gameState.unlocked = new Set(['root']);
             gameState.questsAssigned = false;
             askedChallengeIds.clear();
-            teams.forEach(t => t.savedPath = ['Local Disk (D:)']);
+            teams.forEach(t => {
+                t.won = false;
+                t.finishRank = null;
+                t.savedPath = ['Local Disk (D:)'];
+            });
         }
 
         /* SLIDE 5: PHÁT MẬT LỆNH CHO CÁC TỔ */
@@ -3030,6 +3037,7 @@
             teams.forEach((team, index) => {
                 team.quest = shuffled[index];
                 team.won = false;
+                team.finishRank = null;
             });
             gameState.questsAssigned = true;
             updateQuestBadges();
@@ -3154,7 +3162,7 @@
 
                     <div class="we-statusbar">
                         <span>Path: ${gameState.searchQuery ? 'Search: "' + escapeHtml(gameState.searchQuery) + '"' : 'D:\\' + gameState.currentPath.slice(1).join('\\')}</span>
-                        <span>Tier 1 correct (+100 pts) · Tier 2 correct (+200 pts) · Collect file (+300 pts)</span>
+                        <span>🏆 Đua tìm tệp: Hạng 1 (+500đ) · Hạng 2 (+400đ) · Hạng 3 (+300đ) · Hạng 4 (+200đ) · Hạng 5 (+100đ)...</span>
                     </div>
                 </div>
 
@@ -3259,23 +3267,22 @@
                     </div>
                 ` + matches.map(file => {
                     const isMyTarget = currentTeam.quest && file.name === currentTeam.quest.file;
-                    const isOtherQuestFile = QUEST_LIST.some(q => q.file === file.name && q.file !== currentTeam.quest?.file);
-                    const isOtherQuestNotWon = teams.some(t => t.quest?.file === file.name && !t.won);
+                    const currentFinishRank = teams.filter(t => t.won).length + 1;
+                    const nextPts = getPointsForRank(currentFinishRank);
+                    const nextRankTitle = getRankTitle(currentFinishRank);
 
                     return `
                         <div class="item-icon-box ${isMyTarget ? 'target-glow' : ''}">
                             <div class="big-icon">${file.icon || '📄'}</div>
                             <div class="item-name" style="${isMyTarget ? 'color:#15803d; font-weight:900;' : ''}">${escapeHtml(file.name)}</div>
                             <div style="font-size:11px; color:#64748b;">📁 Thư mục: ${escapeHtml(file.parentFolder)}</div>
-                            ${isMyTarget ? `
-                                <button style="margin-top:5px; background:#10b981; color:#fff; font-size:12px; font-weight:900; padding:4px 8px; border-radius:6px;" onclick="collectTargetFile('${escapeHtml(file.name)}')">
-                                    🎯 THU THẬP (+300đ)
+                            ${isMyTarget && !currentTeam.won ? `
+                                <button style="margin-top:6px; background:#10b981; color:#fff; font-size:13px; font-weight:900; padding:6px 12px; border-radius:8px; border:2px solid #065f46; cursor:pointer; box-shadow:0 3px 0 #065f46;" onclick="collectTargetFile('${escapeHtml(file.name)}')">
+                                    🎯 THU THẬP (+${nextPts}đ · ${nextRankTitle})
                                 </button>
                             ` : ''}
-                            ${!isMyTarget && isOtherQuestFile && isOtherQuestNotWon && !currentTeam.won ? `
-                                <button class="btn-steal-quest" onclick="stealQuest('${escapeHtml(file.name)}')">
-                                    🔄 Đổi Quest (-30đ)
-                                </button>
+                            ${isMyTarget && currentTeam.won ? `
+                                <div style="margin-top:6px; font-size:12px; font-weight:900; color:#10b981;">✅ ĐÃ THU THẬP</div>
                             ` : ''}
                         </div>
                     `;
@@ -3311,23 +3318,22 @@
             if (isUnlocked && node.files) {
                 node.files.forEach(file => {
                     const isMyTarget = currentTeam.quest && file.name === currentTeam.quest.file;
-                    const isOtherQuestFile = QUEST_LIST.some(q => q.file === file.name && q.file !== currentTeam.quest?.file);
-                    const isOtherQuestNotWon = teams.some(t => t.quest?.file === file.name && !t.won);
+                    const currentFinishRank = teams.filter(t => t.won).length + 1;
+                    const nextPts = getPointsForRank(currentFinishRank);
+                    const nextRankTitle = getRankTitle(currentFinishRank);
 
                     items.push(`
                         <div class="item-icon-box ${isMyTarget ? 'target-glow' : ''}">
                             <div class="big-icon">${file.icon || '📄'}</div>
                             <div class="item-name" style="${isMyTarget ? 'color:#15803d; font-weight:900;' : ''}">${escapeHtml(file.name)}</div>
                             <div style="font-size:11px; color:#64748b;">${file.type || 'File'}</div>
-                            ${isMyTarget ? `
-                                <button style="margin-top:5px; background:#10b981; color:#fff; font-size:12px; font-weight:900; padding:4px 8px; border-radius:6px;" onclick="collectTargetFile('${escapeHtml(file.name)}')">
-                                    🎯 THU THẬP (+300đ)
+                            ${isMyTarget && !currentTeam.won ? `
+                                <button style="margin-top:6px; background:#10b981; color:#fff; font-size:13px; font-weight:900; padding:6px 12px; border-radius:8px; border:2px solid #065f46; cursor:pointer; box-shadow:0 3px 0 #065f46;" onclick="collectTargetFile('${escapeHtml(file.name)}')">
+                                    🎯 THU THẬP (+${nextPts}đ · ${nextRankTitle})
                                 </button>
                             ` : ''}
-                            ${!isMyTarget && isOtherQuestFile && isOtherQuestNotWon && !currentTeam.won ? `
-                                <button class="btn-steal-quest" onclick="stealQuest('${escapeHtml(file.name)}')">
-                                    🔄 Đổi Quest (-30đ)
-                                </button>
+                            ${isMyTarget && currentTeam.won ? `
+                                <div style="margin-top:6px; font-size:12px; font-weight:900; color:#10b981;">✅ ĐÃ THU THẬP</div>
                             ` : ''}
                         </div>
                     `);
@@ -3341,26 +3347,22 @@
             return items.join('');
         }
 
-        /* QUYỀN CỨU TRỢ: ĐỔI QUEST (-30 ĐIỂM) ĐỂ LỤM LUÔN FILE */
-        function stealQuest(fileName) {
-            const currentTeam = teams[gameState.activeTeam];
-            const targetQuest = QUEST_LIST.find(q => q.file === fileName);
-            if (!targetQuest) return;
+        /* ================= TÍNH ĐIỂM THEO THỨ TỰ VỀ ĐÍCH ================= */
+        const RANK_POINTS = [500, 400, 300, 200, 100, 50];
+        const RANK_TITLES = ['QUÁN QUÂN (Hạng 1 🥇)', 'Á QUÂN (Hạng 2 🥈)', 'HẠNG BA (🥉)', 'HẠNG TƯ (🌟)', 'HẠNG NĂM (🎖️)', 'HẠNG SÁU (🎗️)'];
 
-            if (confirm(`${currentTeam.name} muốn dùng QUYỀN ĐỔI QUEST tốn 30 điểm sàn để đổi sang tìm tệp "${fileName}" và thu thập luôn (+300đ)?`)) {
-                currentTeam.score = Math.max(0, currentTeam.score - 30);
-                currentTeam.quest = targetQuest;
-                currentTeam.won = true;
-                addScore(currentTeam.id, 300, 'Thu thập tệp Quest đã đổi');
-                playSuccessSound();
-                triggerConfetti();
-                toast(`🔄 ${currentTeam.name} đổi Quest thành công và thu thập tệp ${fileName}! (+270đ)`, 3500, 'var(--mint)');
-                updateQuestBadges();
-                setTimeout(() => nextTeamTurn(), 2000);
+        function getPointsForRank(rank) {
+            if (rank >= 1 && rank <= RANK_POINTS.length) {
+                return RANK_POINTS[rank - 1];
             }
+            return 50;
         }
 
-        /* Thu thập đúng File Quest của tổ mình (+300đ) */
+        function getRankTitle(rank) {
+            return RANK_TITLES[rank - 1] || `HẠNG ${rank}`;
+        }
+
+        /* Thu thập đúng File Quest của tổ mình: Đội tìm thấy trước nhận nhiều điểm nhất */
         function collectTargetFile(fileName) {
             const currentTeam = teams[gameState.activeTeam];
             if (currentTeam.won) {
@@ -3368,11 +3370,17 @@
                 return;
             }
 
+            const currentFinishRank = teams.filter(t => t.won).length + 1;
+            const pts = getPointsForRank(currentFinishRank);
+            const rankTitle = getRankTitle(currentFinishRank);
+
             currentTeam.won = true;
-            addScore(currentTeam.id, 300, 'XUẤT SẮC TÌM THẤY TỆP MẬT');
+            currentTeam.finishRank = currentFinishRank;
+            addScore(currentTeam.id, pts, `Tìm thấy tệp mật về ${rankTitle}`, true);
+
             playSuccessSound();
             triggerConfetti();
-            toast(`🎉🎯 CHÚC MỪNG ${currentTeam.name} ĐÃ TÌM THẤY ${fileName}! (+300đ)`, 4000, 'var(--mint)');
+            toast(`🎉🎯 CHÚC MỪNG ${currentTeam.name} XUẤT SẮC TÌM THẤY TỆP VỀ ${rankTitle}! (+${pts}đ)`, 4500, 'var(--mint)');
             updateQuestBadges();
             setTimeout(() => nextTeamTurn(), 2200);
         }
@@ -3495,8 +3503,8 @@
                         teams[gameState.activeTeam].savedPath = [...gameState.currentPath];
                     }
 
-                    // TÍNH ĐIỂM KHOẢNG CÁCH TUẦN 7
-                    calculateDistanceScore(folder, team);
+                    // Phản hồi định hướng khi mở khóa thư mục (không cộng điểm lắt nhắt)
+                    showFolderFeedback(folder, team);
 
                     renderGameScreen();
                 }, 600);
@@ -3514,27 +3522,28 @@
             }
         }
 
-        /* TÍNH ĐIỂM KHOẢNG CÁCH CHUẨN TUẦN 7 */
-        function calculateDistanceScore(folder, team) {
+        /* PHẢN HỒI ĐỊNH HƯỚNG KHI MỞ KHÓA THƯ MỤC (KHÔNG CỘNG ĐIỂM LẮT NHẮT) */
+        function showFolderFeedback(folder, team) {
             const quest = team.quest;
-            if (!quest) return;
+            if (!quest) {
+                toast(`🔓 Mở khóa thành công thư mục ${folder.name}!`, 2000, 'var(--mint)');
+                return;
+            }
 
             if (folder.tier === 1) {
                 if (folder.name === quest.tier1) {
-                    addScore(team.id, 100, 'Đúng thư mục Tầng 1');
-                    toast(`🔥 ĐÚNG HƯỚNG! Mở trúng nhánh Tầng 1 chứa tệp (+100đ)!`, 2500, 'var(--mint)');
+                    toast(`🔓 Mở khóa thành công! 🔥 ĐÚNG HƯỚNG: Nhánh Tầng 1 chứa tệp mật!`, 2500, 'var(--mint)');
                 } else {
-                    addScore(team.id, 50, 'Mở trật nhánh Tầng 1');
-                    toast(`❄️ LỆCH NHÁNH! Mở trật nhánh Tầng 1 (+50đ).`, 2500, '#3b82f6');
+                    toast(`🔓 Mở khóa thành công! ❄️ LỆCH NHÁNH: Tệp cần tìm không nằm ở nhánh này.`, 2500, '#3b82f6');
                 }
             } else if (folder.tier === 2) {
                 if (folder.name === quest.tier2) {
-                    addScore(team.id, 200, 'Đúng thư mục con Tầng 2');
-                    toast(`🔥🔥 RẤT NÓNG! Mở trúng thư mục Tầng 2 chứa tệp (+200đ)! Hãy bấm thu thập tệp!`, 3000, 'var(--coral)');
+                    toast(`🔓 Mở khóa thành công! 🔥🔥 RẤT NÓNG: Đúng thư mục chứa tệp mật! Hãy bấm thu thập tệp ngay!`, 3000, 'var(--coral)');
                 } else {
-                    addScore(team.id, 50, 'Mở trật thư mục con Tầng 2');
-                    toast(`❄️ LỆCH HƯỚNG! Mở trật thư mục con (+50đ).`, 2500, '#3b82f6');
+                    toast(`🔓 Mở khóa thành công! ❄️ LỆCH HƯỚNG: Tệp cần tìm không nằm trong thư mục này.`, 2500, '#3b82f6');
                 }
+            } else {
+                toast(`🔓 Mở khóa thành công thư mục ${folder.name}!`, 2000, 'var(--mint)');
             }
         }
 
@@ -3710,7 +3719,7 @@
                                 ${escapeHtml(t.name)}
                             </div>
                             <div class="rank-team-sub">
-                                ${t.won ? '🎯 Đã tìm thấy tệp mật bí mật' : (isShared ? '🤝 Đồng điểm xếp hạng' : '⏳ Đã hoàn thành xuất sắc tiết học')}
+                                ${t.won ? (t.finishRank ? `🎯 Tìm thấy tệp mật về Hạng ${t.finishRank}` : '🎯 Đã tìm thấy tệp mật') : (isShared ? '🤝 Đồng điểm xếp hạng' : '⏳ Hoàn thành xuất sắc tiết học')}
                             </div>
                         </div>
                         <div class="rank-right">
@@ -3858,7 +3867,7 @@
                     t.name,
                     t.score,
                     isShared ? 'Có (Đồng điểm)' : 'Không',
-                    t.won ? 'Đã tìm thấy tệp mật' : 'Hoàn thành tiết học'
+                    t.won ? (t.finishRank ? `Đã tìm thấy tệp mật (Về Hạng ${t.finishRank})` : 'Đã tìm thấy tệp mật') : 'Hoàn thành tiết học'
                 ]);
             });
             const wsRank = XLSX.utils.aoa_to_sheet(rankRows);
