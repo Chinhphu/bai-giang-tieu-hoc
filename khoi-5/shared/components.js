@@ -205,6 +205,13 @@
             <div class="student-modal-import">
               <div class="student-modal-hint">Dán danh sách học sinh (mỗi em một dòng):</div>
             </div>
+            <textarea id="${textareaId}" placeholder="Nguyễn Văn A&#10;Trần Thị B&#10;Lê Văn C"></textarea>
+            <div>
+              <button class="btn-modal-ok" type="button" onclick="${saveHandler}()">Thêm vào danh sách</button>
+              <button class="btn-modal-cancel" type="button"
+                onclick="${closeHandler}()">${cancelLabel}</button>
+            </div>
+          </div>
         </div>
       `;
     }
