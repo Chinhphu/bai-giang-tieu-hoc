@@ -1,2068 +1,2704 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🖱️ OSU! CHUỘT – Tiết 08 – Tin Học 3</title>
-  <link rel="stylesheet" href="../shared/style.css">
-  <!-- SheetJS xuất Excel & Bắn lên Google Drive -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="../shared/components.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; user-select: none; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🖱️ OSU! CHUỘT (BẤM GIỜ MS) – Tiết 08 – Tin Học 3</title>
+    <link rel="stylesheet" href="../shared/style.css">
+    <!-- SheetJS xuất Excel & Bắn lên Google Drive -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="../shared/components.js"></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            user-select: none;
+        }
 
-    body {
-      margin: 0;
-      width: 100vw;
-      min-height: 100vh;
-      overflow: hidden;
-      font-family: 'Quicksand', sans-serif;
-      background: #0a0e1a;
-      color: #fff;
-      display: block;
-      font-size: 16px;
-    }
+        body {
+            margin: 0;
+            width: 100vw;
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: 'Quicksand', sans-serif;
+            background: #0a0e1a;
+            color: #fff;
+            display: block;
+            font-size: 16px;
+        }
 
-    /* ── SETUP SCREEN (Ẩn chọn tổ vì thi đua cá nhân) ── */
-    #setup-screen {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background: radial-gradient(ellipse at 60% 40%, #1a237e 0%, #0a0e1a 70%);
-    }
+        /* ── SETUP SCREEN ── */
+        #setup-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: radial-gradient(ellipse at 60% 40%, #1a237e 0%, #0a0e1a 70%);
+        }
 
-    /* Ẩn triệt để hàng chọn số tổ của component dùng chung */
-    #teamCount, .setup-row:has(#teamCount) {
-      display: none !important;
-    }
+        #teamCount,
+        .setup-row:has(#teamCount) {
+            display: none !important;
+        }
 
-    /* ── GAME LAYOUT ── */
-    #game-screen {
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      flex-direction: row;
-      overflow: hidden;
-    }
+        /* ── GAME LAYOUT ── */
+        #game-screen {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: row;
+            overflow: hidden;
+        }
 
-    .game-area {
-      position: relative;
-      flex: 1 1 auto;
-      overflow: hidden;
-      background: #0a0e1a;
-      cursor: none;
-    }
+        .game-area {
+            position: relative;
+            flex: 1 1 auto;
+            overflow: hidden;
+            background: #0a0e1a;
+            cursor: none;
+        }
 
-    #gameCanvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
 
-    /* Custom glowing crosshair cursor */
-    #cursor-dot {
-      position: absolute;
-      width: 32px;
-      height: 32px;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      z-index: 200;
-      left: -100px;
-      top: -100px;
-      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.9));
-    }
+        /* Custom glowing crosshair cursor */
+        #cursor-dot {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 200;
+            left: -100px;
+            top: -100px;
+            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.9));
+        }
 
-    /* ── FINGER HINT ── */
-    #finger-hint {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background: rgba(10, 14, 26, 0.92);
-      border: 2px solid rgba(255, 255, 255, 0.15);
-      border-radius: 16px;
-      padding: 10px 14px;
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      min-width: 110px;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
-    }
-    #finger-hint-label { font-size: 11px; font-weight: 900; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
-    #finger-hint-icon { font-size: 32px; line-height: 1; transition: transform 0.15s; }
-    #finger-hint-icon.pulse { animation: fingerPulse 0.4s ease; }
-    @keyframes fingerPulse { 0%{transform:scale(1)} 40%{transform:scale(1.4)} 100%{transform:scale(1)} }
-    #note-type-label { font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 99px; background: rgba(255,255,255,0.1); color: #facc15; text-align: center; }
+        /* ── FINGER HINT & STEP TRACKER (Góc trên trái) ── */
+        #finger-hint {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(10, 14, 26, 0.92);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 10px 14px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            min-width: 135px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+        }
 
-    /* ── TOP PLAYER & NEXT BANNER ── */
-    #top-banner-bar {
-      position: absolute;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      z-index: 100;
-      background: rgba(15, 23, 42, 0.92);
-      border: 2px solid rgba(67, 97, 238, 0.55);
-      border-radius: 99px;
-      padding: 6px 20px;
-      box-shadow: 0 4px 25px rgba(67, 97, 238, 0.35);
-      backdrop-filter: blur(8px);
-    }
-    .current-player-pill {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #fff;
-      font-size: 16px;
-      font-weight: 900;
-    }
-    .current-player-pill .name-tag {
-      background: linear-gradient(135deg, #4361ee, #7209b7);
-      color: #fff;
-      padding: 5px 14px;
-      border-radius: 99px;
-      box-shadow: 0 2px 10px rgba(67, 97, 238, 0.5);
-    }
-    .next-player-pill {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 14px;
-      font-weight: 800;
-      color: #cbd5e1;
-      padding-left: 12px;
-      border-left: 2px solid rgba(255, 255, 255, 0.15);
-    }
-    .next-player-pill .name-tag-next {
-      color: #facc15;
-      font-weight: 900;
-    }
+        #finger-hint-label {
+            font-size: 11px;
+            font-weight: 900;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-    /* ── SCORE DISPLAY ── */
-    #score-display {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: rgba(10, 14, 26, 0.92);
-      border: 2px solid rgba(255, 183, 3, 0.45);
-      border-radius: 14px;
-      padding: 8px 18px;
-      z-index: 100;
-      text-align: right;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
-    }
-    #score-display .score-sub { font-size: 11px; color: #94a3b8; font-weight: 800; }
-    #score-display .score-val { font-size: 32px; font-weight: 900; color: #ffb703; line-height: 1; }
+        #finger-hint-icon {
+            font-size: 32px;
+            line-height: 1;
+            transition: transform 0.15s;
+        }
 
-    /* ── POSTURE OVERLAY ── */
-    #posture-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(10, 14, 26, 0.94);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 150;
-      gap: 16px;
-    }
-    #posture-overlay.hidden { display: none; }
-    .posture-icon { font-size: 72px; animation: floatAnim 2s ease-in-out infinite; }
-    @keyframes floatAnim { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-    .posture-heading { font-size: 20px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
-    .student-name-big { font-size: clamp(32px, 5vw, 56px); font-weight: 900; color: #ffb703; text-shadow: 0 0 35px rgba(255, 183, 3, 0.65); text-align: center; }
-    .student-next-hint {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1.5px solid rgba(255, 255, 255, 0.15);
-      border-radius: 99px;
-      padding: 8px 24px;
-      font-size: 18px;
-      font-weight: 800;
-      color: #93c5fd;
-    }
-    .student-next-hint strong { color: #facc15; }
-    #posture-overlay h2 { font-size: clamp(22px, 3.2vw, 36px); font-weight: 900; color: #fff; text-align: center; margin: 0; }
-    .space-hint { font-size: 20px; color: #4ade80; font-weight: 800; animation: blinkAnim 1.2s ease-in-out infinite; }
-    @keyframes blinkAnim { 0%,100%{opacity:1} 50%{opacity:0.35} }
+        #finger-hint-icon.pulse {
+            animation: fingerPulse 0.4s ease;
+        }
 
-    /* ── SWITCH BANNER ── */
-    #switch-banner {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 160;
-      background: rgba(10, 14, 26, 0.92);
-      pointer-events: none;
-    }
-    #switch-banner.hidden { display: none; }
-    .switch-inner { text-align: center; animation: switchInAnim 0.5s cubic-bezier(.34,1.56,.64,1); }
-    @keyframes switchInAnim { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
-    .switch-title { font-size: clamp(34px, 6vw, 68px); font-weight: 900; color: #fff; text-shadow: 0 0 40px rgba(255, 183, 3, 0.7); }
-    .switch-cur { font-size: clamp(24px, 4vw, 44px); color: #ffb703; font-weight: 900; margin-top: 10px; }
-    .switch-next { font-size: clamp(16px, 2.5vw, 26px); color: #93c5fd; font-weight: 800; margin-top: 8px; }
+        @keyframes fingerPulse {
+            0% {
+                transform: scale(1)
+            }
 
-    /* ── BOSS WAVE OVERLAY ── */
-    #boss-wave-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, rgba(10, 14, 26, 0.95), rgba(40, 5, 60, 0.95));
-      z-index: 155;
-      gap: 20px;
-      pointer-events: none;
-    }
-    #boss-wave-overlay.hidden { display: none; }
-    .boss-title { font-size: clamp(26px, 4.5vw, 52px); font-weight: 900; color: #e63946; animation: bossGlow 1.5s ease-in-out infinite alternate; }
-    @keyframes bossGlow { from{text-shadow:0 0 20px rgba(230,57,70,0.4)} to{text-shadow:0 0 60px rgba(230,57,70,0.9),0 0 100px rgba(230,57,70,0.3)} }
-    .boss-instruction { font-size: 18px; color: #94a3b8; font-weight: 700; text-align: center; }
-    .boss-steps { display: flex; gap: 24px; align-items: center; }
-    .boss-step-item { text-align: center; opacity: 0.35; transition: all 0.4s; }
-    .boss-step-item.active { opacity: 1; transform: scale(1.18); }
-    .boss-step-item.done { opacity: 0.55; filter: saturate(0.3); }
-    .boss-step-num { font-size: 48px; }
-    .boss-step-label { font-size: 14px; font-weight: 800; color: #fff; margin-top: 4px; }
-    .boss-arrow { font-size: 26px; color: #4361ee; opacity: 0.5; }
+            40% {
+                transform: scale(1.4)
+            }
 
-    /* ── CELEBRATION ── */
-    #celebration-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 180;
-      pointer-events: none;
-    }
-    #celebration-overlay.hidden { display: none; }
-    .celebration-text { font-size: clamp(44px, 7.5vw, 96px); font-weight: 900; color: #ffb703; text-shadow: 0 0 60px rgba(255, 183, 3, 0.75); animation: celebPop 0.5s cubic-bezier(.34,1.56,.64,1) both; }
-    @keyframes celebPop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+            100% {
+                transform: scale(1)
+            }
+        }
 
-    /* ── SIDEBAR CONTAINER (360px) ── */
-    .game-sidebar {
-      width: clamp(330px, 24vw, 380px);
-      flex-shrink: 0;
-      height: 100vh;
-      overflow: hidden;
-      background: #0d1426;
-      border-left: 2px solid rgba(255, 255, 255, 0.08);
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      box-shadow: -4px 0 25px rgba(0, 0, 0, 0.4);
-    }
+        #note-type-label {
+            font-size: 12px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 99px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #facc15;
+            text-align: center;
+        }
 
-    /* ── 1. QUEUE / CURRENT PLAYER PANEL ── */
-    .queue-panel {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1.5px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 12px 14px;
-      flex-shrink: 0;
-    }
-    .queue-panel-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-    .queue-panel-head h3 {
-      margin: 0;
-      font-size: 12px;
-      font-weight: 900;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-    }
-    .gacha-badge {
-      font-size: 11px;
-      font-weight: 800;
-      background: rgba(168, 85, 247, 0.2);
-      color: #c084fc;
-      border: 1px solid rgba(168, 85, 247, 0.4);
-      padding: 2px 8px;
-      border-radius: 99px;
-    }
-    .queue-current {
-      background: linear-gradient(135deg, rgba(67, 97, 238, 0.25), rgba(114, 9, 183, 0.25));
-      border: 2px solid rgba(67, 97, 238, 0.5);
-      border-radius: 12px;
-      padding: 10px 14px;
-      margin-bottom: 8px;
-      text-align: center;
-    }
-    .queue-label { font-size: 11px; color: #a78bfa; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
-    .queue-current-name { font-size: 17px; font-weight: 900; color: #fff; }
-    
-    .queue-next-box {
-      background: rgba(255, 255, 255, 0.04);
-      border-radius: 10px;
-      padding: 8px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .queue-next-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 13px;
-      color: #cbd5e1;
-      font-weight: 700;
-    }
-    .queue-next-row .q-tag { font-size: 11px; font-weight: 900; color: #38bdf8; }
-    .queue-next-row .q-val { color: #facc15; font-weight: 900; }
-    .queue-next-row.sub { font-size: 12px; color: #94a3b8; }
+        .step-pips {
+            display: flex;
+            gap: 4px;
+            margin-top: 2px;
+        }
 
-    .notes-progress { display: flex; gap: 6px; justify-content: center; margin-top: 10px; }
-    .note-pip {
-      width: 28px; height: 28px; border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.18);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; transition: all 0.3s;
-      background: rgba(255, 255, 255, 0.05);
-    }
-    .note-pip.done { background: #22c55e; border-color: #22c55e; color: #fff; font-weight: 900; }
-    .note-pip.miss { background: #e63946; border-color: #e63946; color: #fff; font-weight: 900; }
-    .note-pip.active { animation: pipPulse 0.8s ease-in-out infinite; }
-    @keyframes pipPulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,183,3,0.7); border-color:#ffb703;} 50%{box-shadow:0 0 0 7px rgba(255,183,3,0); border-color:#fff;} }
+        .step-pip {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            background: rgba(255, 255, 255, 0.04);
+        }
 
-    .btn-ctrl {
-      width: 100%;
-      margin-top: 8px;
-      padding: 10px;
-      border: 0;
-      border-radius: 10px;
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 900;
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-    }
-    .btn-ctrl:hover { opacity: 0.88; transform: translateY(-1px); }
-    .btn-ctrl:active { transform: translateY(0); }
-    .btn-next { background: linear-gradient(135deg, #4361ee, #7209b7); color: #fff; }
-    .btn-boss { background: linear-gradient(135deg, #e63946, #991b1b); color: #fff; margin-top: 4px; }
+        .step-pip.done {
+            background: #22c55e;
+            border-color: #22c55e;
+            color: #fff;
+            font-weight: 900;
+        }
 
-    /* ── 2. NOISE PENALTY PANEL (CỘNG GIÂY BẢO VỆ) ── */
-    .noise-penalty-panel {
-      background: rgba(230, 57, 70, 0.06);
-      border: 1.5px solid rgba(230, 57, 70, 0.28);
-      border-radius: 16px;
-      padding: 10px 14px;
-      flex-shrink: 0;
-    }
-    .npp-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 6px;
-    }
-    .npp-title {
-      font-size: 12px;
-      font-weight: 900;
-      color: #f87171;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .npp-badge {
-      font-size: 11px;
-      font-weight: 900;
-      background: rgba(230, 57, 70, 0.25);
-      color: #fca5a5;
-      padding: 2px 7px;
-      border-radius: 99px;
-    }
-    .npp-desc {
-      font-size: 11px;
-      color: #94a3b8;
-      font-weight: 600;
-      margin-bottom: 8px;
-      line-height: 1.35;
-    }
-    .npp-btns {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1.1fr;
-      gap: 6px;
-    }
-    .btn-noise {
-      padding: 8px 4px;
-      border: 0;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 12px;
-      font-weight: 900;
-      cursor: pointer;
-      transition: all 0.15s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-    }
-    .btn-noise.plus5 {
-      background: linear-gradient(135deg, #d97706, #b45309);
-      color: #fff;
-    }
-    .btn-noise.plus10 {
-      background: linear-gradient(135deg, #ea580c, #c2410c);
-      color: #fff;
-    }
-    .btn-noise.alert {
-      background: linear-gradient(135deg, #dc2626, #991b1b);
-      color: #fff;
-    }
-    .btn-noise:hover { opacity: 0.9; transform: translateY(-1px); }
-    .btn-noise:active { transform: translateY(0); }
+        .step-pip.active {
+            border-color: #facc15;
+            box-shadow: 0 0 8px rgba(250, 204, 21, 0.7);
+            transform: scale(1.12);
+        }
 
-    /* ── 3. LIVE RANK PANEL (XẾP HẠNG THỰC TẾ) ── */
-    .live-rank-panel {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1.5px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      flex: 1 1 0;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      min-height: 140px;
-    }
-    .lrp-header {
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      background: rgba(255, 255, 255, 0.02);
-      flex-shrink: 0;
-    }
-    .lrp-title {
-      font-size: 12px;
-      font-weight: 900;
-      color: #facc15;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .lrp-stats {
-      font-size: 11px;
-      font-weight: 800;
-      color: #94a3b8;
-    }
-    .lrp-search {
-      padding: 6px 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      flex-shrink: 0;
-    }
-    .lrp-search input {
-      width: 100%;
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      padding: 5px 10px;
-      color: #fff;
-      font-family: inherit;
-      font-size: 12px;
-      outline: none;
-    }
-    .lrp-search input:focus { border-color: #38bdf8; }
-    .lrp-list {
-      flex: 1 1 0;
-      overflow-y: auto;
-      padding: 6px;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .lrp-list::-webkit-scrollbar { width: 5px; }
-    .lrp-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 3px; }
+        /* ── TOP PLAYER BANNER ── */
+        #top-banner-bar {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.92);
+            border: 2px solid rgba(67, 97, 238, 0.55);
+            border-radius: 99px;
+            padding: 6px 20px;
+            box-shadow: 0 4px 25px rgba(67, 97, 238, 0.35);
+            backdrop-filter: blur(8px);
+            white-space: nowrap;
+        }
 
-    .lrp-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 10px;
-      border-radius: 9px;
-      font-size: 13px;
-      font-weight: 700;
-      background: rgba(255, 255, 255, 0.02);
-      border-left: 3px solid transparent;
-      transition: all 0.2s;
-    }
-    .lrp-row.is-playing {
-      background: linear-gradient(90deg, rgba(234, 179, 8, 0.2), rgba(67, 97, 238, 0.15));
-      border-left-color: #facc15;
-      color: #fff;
-      font-weight: 900;
-      box-shadow: 0 0 12px rgba(250, 204, 21, 0.2);
-    }
-    .lrp-row.rank-1 { border-left-color: #facc15; background: rgba(250, 204, 21, 0.08); }
-    .lrp-row.rank-2 { border-left-color: #94a3b8; background: rgba(148, 163, 184, 0.06); }
-    .lrp-row.rank-3 { border-left-color: #cd7f32; background: rgba(205, 127, 50, 0.06); }
-    .lrp-row.is-waiting { opacity: 0.45; }
+        .current-player-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 900;
+        }
 
-    .lrp-rank-badge {
-      font-size: 12px;
-      font-weight: 900;
-      min-width: 24px;
-      text-align: center;
-    }
-    .lrp-name {
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .playing-tag {
-      font-size: 9px;
-      font-weight: 900;
-      background: #facc15;
-      color: #0f172a;
-      padding: 1px 5px;
-      border-radius: 4px;
-      animation: pulse 1s infinite alternate;
-    }
-    .hit-tag {
-      font-size: 10px;
-      color: #22c55e;
-      font-weight: 800;
-    }
-    .lrp-score {
-      font-size: 14px;
-      font-weight: 900;
-      color: #facc15;
-      min-width: 42px;
-      text-align: right;
-    }
-    .lrp-status-wait {
-      font-size: 11px;
-      color: #64748b;
-      font-style: italic;
-    }
+        .current-player-pill .name-tag {
+            background: linear-gradient(135deg, #4361ee, #7209b7);
+            color: #fff;
+            padding: 4px 14px;
+            border-radius: 99px;
+            box-shadow: 0 2px 10px rgba(67, 97, 238, 0.5);
+        }
 
-    /* ── FLOATING SCORE POPUP ── */
-    .score-popup {
-      position: absolute;
-      pointer-events: none;
-      font-size: 22px;
-      font-weight: 900;
-      z-index: 120;
-      animation: popUpAnim 1.2s forwards;
-      white-space: nowrap;
-    }
-    @keyframes popUpAnim { 0%{opacity:1;transform:translateY(0) scale(1)} 60%{opacity:1;transform:translateY(-48px) scale(1.15)} 100%{opacity:0;transform:translateY(-75px) scale(0.85)} }
-    .score-popup.hit { color: #22c55e; text-shadow: 0 0 16px rgba(34,197,94,0.6); }
-    .score-popup.miss { color: #e63946; text-shadow: 0 0 16px rgba(230,57,70,0.6); }
-    .score-popup.bonus { color: #ffb703; text-shadow: 0 0 18px rgba(255,183,3,0.7); }
-    .score-popup.penalty {
-      color: #f87171;
-      font-size: 26px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 2px solid #ef4444;
-      border-radius: 99px;
-      padding: 6px 20px;
-      box-shadow: 0 0 25px rgba(239, 68, 68, 0.5);
-    }
+        .next-player-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #cbd5e1;
+            padding-left: 12px;
+            border-left: 2px solid rgba(255, 255, 255, 0.15);
+        }
 
-    /* ── CONFETTI ── */
-    .confetti-piece {
-      position: absolute;
-      pointer-events: none;
-      border-radius: 2px;
-      z-index: 190;
-    }
+        .next-player-pill .name-tag-next {
+            color: #facc15;
+            font-weight: 900;
+        }
 
-    /* ── SUMMARY SCREEN ── */
-    #summary-screen {
-      display: none;
-      min-height: 100vh;
-      background: radial-gradient(ellipse at 40% 30%, #1a237e 0%, #0a0e1a 70%);
-      padding: 36px 28px;
-      overflow-y: auto;
-    }
-    .summary-header { text-align: center; margin-bottom: 30px; }
-    .summary-header h1 { font-size: clamp(28px, 4.5vw, 54px); font-weight: 900; color: #ffb703; text-shadow: 0 0 36px rgba(255,183,3,0.45); margin: 0 0 6px; }
-    .summary-header p { color: #94a3b8; font-size: 16px; margin: 0; }
-    .podium-row { display: flex; justify-content: center; align-items: flex-end; gap: 16px; margin-bottom: 36px; flex-wrap: wrap; }
-    .podium-card { text-align: center; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 20px 16px 16px; min-width: 160px; }
-    .podium-card.p1 { transform: translateY(-18px); background: linear-gradient(135deg,rgba(255,183,3,0.16),rgba(255,183,3,0.04)); border-color: rgba(255,183,3,0.45); box-shadow: 0 8px 36px rgba(255,183,3,0.25); }
-    .podium-card.p2 { background: linear-gradient(135deg,rgba(148,163,184,0.16),rgba(148,163,184,0.04)); border-color: rgba(148,163,184,0.4); }
-    .podium-card.p3 { background: linear-gradient(135deg,rgba(205,127,50,0.16),rgba(205,127,50,0.04)); border-color: rgba(205,127,50,0.4); }
-    .podium-medal { font-size: 46px; margin-bottom: 6px; }
-    .podium-name { font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 5px; }
-    .podium-score { font-size: 28px; font-weight: 900; color: #ffb703; }
-    .podium-sub { font-size: 12px; color: #94a3b8; margin-top: 3px; font-weight: 700; }
-    .summary-table-wrap { max-width: 920px; margin: 0 auto 28px; background: rgba(255,255,255,0.03); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 18px; overflow: hidden; }
-    .summary-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    .summary-table th { background: rgba(67,97,238,0.22); padding: 12px 14px; text-align: left; font-weight: 900; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .summary-table td { padding: 10px 14px; border-top: 1px solid rgba(255,255,255,0.05); color: #e2e8f0; font-weight: 700; }
-    .summary-table tr:hover td { background: rgba(255,255,255,0.03); }
-    .rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; font-size: 12px; font-weight: 900; background: rgba(255,255,255,0.08); }
-    .rank-badge.r1 { background: #ffb703; color: #0a0e1a; }
-    .rank-badge.r2 { background: #94a3b8; color: #0a0e1a; }
-    .rank-badge.r3 { background: #cd7f32; color: #fff; }
-    .summary-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 20px; padding-bottom: 24px; }
-    .btn-sum { padding: 12px 24px; border: 0; border-radius: 11px; font-family: inherit; font-size: 15px; font-weight: 900; cursor: pointer; transition: transform 0.12s, opacity 0.15s; }
-    .btn-sum:hover { transform: translateY(-2px); opacity: 0.88; }
-    .btn-sum.green { background: linear-gradient(135deg,#2a9d8f,#16a34a); color: #fff; }
-    .btn-sum.blue { background: linear-gradient(135deg,#4361ee,#7209b7); color: #fff; }
-  </style>
+        /* ── STOPWATCH DISPLAY (Góc trên phải) ── */
+        #timer-display {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(10, 14, 26, 0.92);
+            border: 2px solid rgba(56, 189, 248, 0.5);
+            border-radius: 14px;
+            padding: 8px 16px;
+            z-index: 100;
+            text-align: right;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+            min-width: 155px;
+        }
+
+        #timer-display .timer-sub {
+            font-size: 10px;
+            color: #94a3b8;
+            font-weight: 900;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+
+        #timer-display .timer-val {
+            font-size: 28px;
+            font-weight: 900;
+            color: #38bdf8;
+            line-height: 1.1;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
+        }
+
+        #timer-display .timer-pen {
+            font-size: 11px;
+            font-weight: 800;
+            color: #f87171;
+            margin-top: 2px;
+        }
+
+        /* ── POSTURE OVERLAY ── */
+        #posture-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 14, 26, 0.94);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 150;
+            gap: 14px;
+        }
+
+        #posture-overlay.hidden {
+            display: none;
+        }
+
+        .posture-icon {
+            font-size: 68px;
+            animation: floatAnim 2s ease-in-out infinite;
+        }
+
+        @keyframes floatAnim {
+
+            0%,
+            100% {
+                transform: translateY(0)
+            }
+
+            50% {
+                transform: translateY(-10px)
+            }
+        }
+
+        .posture-heading {
+            font-size: 18px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .student-name-big {
+            font-size: clamp(32px, 5vw, 54px);
+            font-weight: 900;
+            color: #ffb703;
+            text-shadow: 0 0 35px rgba(255, 183, 3, 0.65);
+            text-align: center;
+        }
+
+        .student-next-hint {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            border-radius: 99px;
+            padding: 7px 22px;
+            font-size: 16px;
+            font-weight: 800;
+            color: #93c5fd;
+        }
+
+        .student-next-hint strong {
+            color: #facc15;
+        }
+
+        #posture-overlay h2 {
+            font-size: clamp(20px, 2.8vw, 30px);
+            font-weight: 900;
+            color: #fff;
+            text-align: center;
+            margin: 0;
+        }
+
+        .space-hint {
+            font-size: 18px;
+            color: #4ade80;
+            font-weight: 900;
+            background: rgba(34, 197, 94, 0.12);
+            border: 2px solid rgba(34, 197, 94, 0.4);
+            padding: 10px 24px;
+            border-radius: 99px;
+            cursor: pointer;
+            animation: blinkAnim 1.2s ease-in-out infinite;
+        }
+
+        @keyframes blinkAnim {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.45
+            }
+        }
+
+        /* ── SWITCH BANNER ── */
+        #switch-banner {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 160;
+            background: rgba(10, 14, 26, 0.92);
+            pointer-events: none;
+        }
+
+        #switch-banner.hidden {
+            display: none;
+        }
+
+        .switch-inner {
+            text-align: center;
+            animation: switchInAnim 0.45s cubic-bezier(.34, 1.56, .64, 1);
+        }
+
+        @keyframes switchInAnim {
+            from {
+                transform: scale(0.5);
+                opacity: 0
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1
+            }
+        }
+
+        .switch-title {
+            font-size: clamp(30px, 5vw, 56px);
+            font-weight: 900;
+            color: #4ade80;
+            text-shadow: 0 0 35px rgba(74, 222, 128, 0.6);
+        }
+
+        .switch-cur {
+            font-size: clamp(22px, 3.5vw, 40px);
+            color: #ffb703;
+            font-weight: 900;
+            margin-top: 10px;
+        }
+
+        .switch-next {
+            font-size: clamp(16px, 2.2vw, 24px);
+            color: #93c5fd;
+            font-weight: 800;
+            margin-top: 8px;
+        }
+
+        /* ── SHUTDOWN MINI BANNER (Bước 6 của mỗi học sinh) ── */
+        #shutdown-hud {
+            position: absolute;
+            top: 76px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.94);
+            border: 2px solid #ef4444;
+            border-radius: 16px;
+            padding: 10px 22px;
+            z-index: 110;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            pointer-events: none;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.35);
+        }
+
+        #shutdown-hud.hidden {
+            display: none;
+        }
+
+        .sh-title {
+            font-size: 15px;
+            font-weight: 900;
+            color: #f87171;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .sh-steps {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .sh-step {
+            opacity: 0.35;
+            padding: 3px 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.25s;
+        }
+
+        .sh-step.active {
+            opacity: 1;
+            background: rgba(239, 68, 68, 0.25);
+            color: #fca5a5;
+            border: 1px solid #ef4444;
+            transform: scale(1.08);
+        }
+
+        .sh-step.done {
+            opacity: 0.7;
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+
+        /* ── SIDEBAR GỌN GÀNG (CHỈ DANH SÁCH + NÚT CỘNG GIÂY TỪNG BẠN) ── */
+        .game-sidebar {
+            width: clamp(350px, 26vw, 410px);
+            flex-shrink: 0;
+            height: 100vh;
+            overflow: hidden;
+            background: #0d1426;
+            border-left: 2px solid rgba(255, 255, 255, 0.08);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: -4px 0 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .sidebar-top-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .btn-side {
+            padding: 9px 10px;
+            border: 0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .btn-side:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-side:active {
+            transform: translateY(0);
+        }
+
+        .btn-side.next {
+            background: linear-gradient(135deg, #4361ee, #3b82f6);
+            color: #fff;
+        }
+
+        .btn-side.skip-step {
+            background: rgba(255, 255, 255, 0.08);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+        }
+
+        .btn-side.end-game {
+            grid-column: span 2;
+            background: linear-gradient(135deg, #f59e0b, #ea580c);
+            color: #fff;
+            font-size: 13px;
+            padding: 10px;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+        }
+
+        /* ── STUDENT LIST PANEL ── */
+        .student-list-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            flex: 1 1 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .slp-header {
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.02);
+            flex-shrink: 0;
+        }
+
+        .slp-title {
+            font-size: 12px;
+            font-weight: 900;
+            color: #38bdf8;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .slp-stats {
+            font-size: 11px;
+            font-weight: 800;
+            color: #94a3b8;
+        }
+
+        .slp-search {
+            padding: 6px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            flex-shrink: 0;
+        }
+
+        .slp-search input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.28);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            padding: 6px 10px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .slp-search input:focus {
+            border-color: #38bdf8;
+        }
+
+        .slp-list {
+            flex: 1 1 0;
+            overflow-y: auto;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .slp-list::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .slp-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.14);
+            border-radius: 3px;
+        }
+
+        .student-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 8px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.025);
+            border-left: 3px solid transparent;
+            transition: background 0.15s;
+        }
+
+        .student-row:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .student-row.is-playing {
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.2), rgba(67, 97, 238, 0.12));
+            border-left-color: #38bdf8;
+            color: #fff;
+            font-weight: 900;
+        }
+
+        .student-row.is-done {
+            border-left-color: #22c55e;
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .sr-stt {
+            font-size: 11px;
+            font-weight: 900;
+            color: #64748b;
+            min-width: 22px;
+            text-align: center;
+        }
+
+        .sr-info {
+            flex: 1;
+            min-width: 0;
+            cursor: pointer;
+        }
+
+        .sr-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .sr-time {
+            font-size: 12px;
+            font-weight: 900;
+            color: #facc15;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+            min-width: 58px;
+            text-align: right;
+        }
+
+        .sr-time.wait {
+            color: #475569;
+            font-weight: 700;
+        }
+
+        .pen-tag {
+            font-size: 10px;
+            font-weight: 900;
+            background: rgba(239, 68, 68, 0.22);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            padding: 0 5px;
+            border-radius: 4px;
+        }
+
+        /* Nút cộng giây phạt cho từng cá nhân */
+        .sr-pen-btns {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+
+        .btn-row-pen {
+            border: 0;
+            border-radius: 6px;
+            padding: 3px 6px;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.15s;
+        }
+
+        .btn-row-pen:hover {
+            opacity: 0.9;
+            transform: scale(1.06);
+        }
+
+        .btn-row-pen:active {
+            transform: scale(0.96);
+        }
+
+        .btn-row-pen.p2 {
+            background: rgba(245, 158, 11, 0.22);
+            color: #fcd34d;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-row-pen.p5 {
+            background: rgba(239, 68, 68, 0.25);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.45);
+        }
+
+        .btn-row-pen.m2 {
+            background: rgba(148, 163, 184, 0.15);
+            color: #cbd5e1;
+            padding: 3px 5px;
+        }
+
+        /* ── FLOATING POPUP ── */
+        .score-popup {
+            position: absolute;
+            pointer-events: none;
+            font-size: 20px;
+            font-weight: 900;
+            z-index: 120;
+            animation: popUpAnim 1.15s forwards;
+            white-space: nowrap;
+            transform: translateX(-50%);
+        }
+
+        @keyframes popUpAnim {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, 0) scale(1)
+            }
+
+            60% {
+                opacity: 1;
+                transform: translate(-50%, -42px) scale(1.1)
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -68px) scale(0.85)
+            }
+        }
+
+        .score-popup.hit {
+            color: #4ade80;
+            text-shadow: 0 0 14px rgba(74, 222, 128, 0.6);
+        }
+
+        .score-popup.miss {
+            color: #f87171;
+            text-shadow: 0 0 14px rgba(248, 113, 113, 0.6);
+        }
+
+        .score-popup.penalty {
+            color: #fca5a5;
+            font-size: 22px;
+            background: rgba(15, 23, 42, 0.92);
+            border: 2px solid #ef4444;
+            border-radius: 99px;
+            padding: 6px 18px;
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.5);
+        }
+
+        /* ── SUMMARY SCREEN & HIỆU ỨNG TOP 1 ĐẶC BIỆT ── */
+        #summary-screen {
+            display: none;
+            position: relative;
+            height: 100vh;
+            background: radial-gradient(ellipse at 50% 20%, #1e1b4b 0%, #0a0e1a 75%);
+            padding: 28px 24px 60px;
+            overflow-y: auto;
+        }
+
+        #fireworksCanvas {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .summary-content {
+            position: relative;
+            z-index: 5;
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+
+        .summary-header {
+            text-align: center;
+            margin-bottom: 22px;
+        }
+
+        .summary-header h1 {
+            font-size: clamp(26px, 4vw, 46px);
+            font-weight: 900;
+            color: #ffb703;
+            text-shadow: 0 0 36px rgba(255, 183, 3, 0.5);
+            margin: 0 0 6px;
+        }
+
+        .summary-header p {
+            color: #94a3b8;
+            font-size: 15px;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        /* ── TOP 1 GRAND CHAMPION SPOTLIGHT ── */
+        .top1-spotlight {
+            position: relative;
+            max-width: 680px;
+            margin: 0 auto 30px;
+            padding: 26px 28px 22px;
+            border-radius: 26px;
+            background: linear-gradient(135deg, rgba(250, 204, 21, 0.22) 0%, rgba(234, 88, 12, 0.16) 50%, rgba(15, 23, 42, 0.92) 100%);
+            border: 3px solid #facc15;
+            box-shadow: 0 0 60px rgba(250, 204, 21, 0.45), inset 0 0 35px rgba(250, 204, 21, 0.2);
+            text-align: center;
+            overflow: hidden;
+            animation: championEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes championEntrance {
+            0% {
+                transform: scale(0.6) translateY(40px);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .top1-spotlight::before {
+            content: '';
+            position: absolute;
+            inset: -120%;
+            background: conic-gradient(from 0deg, transparent 0deg, rgba(250, 204, 21, 0.22) 60deg, transparent 120deg, rgba(250, 204, 21, 0.22) 240deg, transparent 300deg);
+            animation: rotateRays 9s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rotateRays {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .top1-inner {
+            position: relative;
+            z-index: 2;
+        }
+
+        .top1-crown {
+            font-size: 64px;
+            line-height: 1;
+            filter: drop-shadow(0 0 22px rgba(250, 204, 21, 0.95));
+            animation: crownBounce 1.6s ease-in-out infinite;
+        }
+
+        @keyframes crownBounce {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1) rotate(-3deg);
+            }
+
+            50% {
+                transform: translateY(-10px) scale(1.1) rotate(3deg);
+            }
+        }
+
+        .top1-badge {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 4px 16px;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #facc15, #f97316, #facc15);
+            background-size: 200% auto;
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            animation: shineBadge 2.5s linear infinite;
+        }
+
+        @keyframes shineBadge {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        .top1-name {
+            font-size: clamp(28px, 4.5vw, 48px);
+            font-weight: 900;
+            color: #fff;
+            margin: 8px 0 4px;
+            text-shadow: 0 0 28px rgba(250, 204, 21, 0.9);
+        }
+
+        .top1-time {
+            font-size: clamp(32px, 5vw, 54px);
+            font-weight: 900;
+            color: #facc15;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 30px rgba(250, 204, 21, 0.75);
+        }
+
+        .top1-breakdown {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .top1-chip {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(250, 204, 21, 0.4);
+            padding: 5px 12px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #fef08a;
+        }
+
+        /* Hạng 2 & Hạng 3 */
+        .runners-up-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .runner-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.14);
+            border-radius: 18px;
+            padding: 16px 24px;
+            min-width: 240px;
+            text-align: center;
+        }
+
+        .runner-card.r2 {
+            border-color: rgba(148, 163, 184, 0.55);
+            box-shadow: 0 4px 25px rgba(148, 163, 184, 0.15);
+        }
+
+        .runner-card.r3 {
+            border-color: rgba(205, 127, 50, 0.55);
+            box-shadow: 0 4px 25px rgba(205, 127, 50, 0.15);
+        }
+
+        .runner-medal {
+            font-size: 38px;
+        }
+
+        .runner-name {
+            font-size: 18px;
+            font-weight: 900;
+            color: #fff;
+            margin: 4px 0;
+        }
+
+        .runner-time {
+            font-size: 24px;
+            font-weight: 900;
+            color: #38bdf8;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Bảng chi tiết từng thao tác */
+        .summary-table-wrap {
+            background: rgba(15, 23, 42, 0.88);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            overflow-x: auto;
+            margin-bottom: 24px;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .summary-table th {
+            background: rgba(67, 97, 238, 0.25);
+            padding: 11px 10px;
+            text-align: left;
+            font-weight: 900;
+            color: #cbd5e1;
+            font-size: 11px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .summary-table td {
+            padding: 9px 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            color: #e2e8f0;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .summary-table tr:hover td {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 900;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .rank-badge.r1 {
+            background: #ffb703;
+            color: #0a0e1a;
+            box-shadow: 0 0 12px #ffb703;
+        }
+
+        .rank-badge.r2 {
+            background: #94a3b8;
+            color: #0a0e1a;
+        }
+
+        .rank-badge.r3 {
+            background: #cd7f32;
+            color: #fff;
+        }
+
+        .summary-actions {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .btn-sum {
+            padding: 13px 26px;
+            border: 0;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform 0.12s, opacity 0.15s;
+        }
+
+        .btn-sum:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .btn-sum.green {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35);
+        }
+
+        .btn-sum.blue {
+            background: linear-gradient(135deg, #4361ee, #7209b7);
+            color: #fff;
+        }
+    </style>
 </head>
+
 <body>
 
-<!-- ══════════ SETUP SCREEN ══════════ -->
-<khoi3-setup
-  heading="🖱️ OSU! CHUỘT – LUYỆN 5 THAO TÁC"
-  description="Rèn luyện Mắt nhìn màn hình – Tay điều khiển chuột. Thi đua cá nhân, gacha bốc thăm toàn lớp!"
-  start-label="🎮 Bắt đầu thử thách ➔"
-  default-class="3_2"
-></khoi3-setup>
+    <!-- ══════════ SETUP SCREEN ══════════ -->
+    <khoi3-setup heading="🖱️ OSU! CHUỘT – ĐUA TỐC ĐỘ MILI-GIÂY"
+        description="Hoàn thành 5 thao tác chuột + Tắt máy tính đúng cách với đồng hồ bấm giờ chính xác tới từng ms!"
+        start-label="⏱️ Bắt đầu bấm giờ ➔" default-class="3_2"></khoi3-setup>
 
-<!-- ══════════ GAME SCREEN ══════════ -->
-<div id="game-screen" style="display:none">
-  <!-- Khu vực vẽ Canvas -->
-  <div class="game-area" id="game-area">
-    <canvas id="gameCanvas"></canvas>
+    <!-- ══════════ GAME SCREEN ══════════ -->
+    <div id="game-screen" style="display:none">
+        <!-- Khu vực vẽ Canvas -->
+        <div class="game-area" id="game-area">
+            <canvas id="gameCanvas"></canvas>
 
-    <!-- Custom Cursor -->
-    <svg id="cursor-dot" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="16" cy="16" r="14" stroke="#38bdf8" stroke-width="2"/>
-      <circle cx="16" cy="16" r="3" fill="#ffffff"/>
-      <line x1="16" y1="0" x2="16" y2="8" stroke="#38bdf8" stroke-width="2"/>
-      <line x1="16" y1="24" x2="16" y2="32" stroke="#38bdf8" stroke-width="2"/>
-      <line x1="0" y1="16" x2="8" y2="16" stroke="#38bdf8" stroke-width="2"/>
-      <line x1="24" y1="16" x2="32" y2="16" stroke="#38bdf8" stroke-width="2"/>
-    </svg>
+            <!-- Custom Cursor -->
+            <svg id="cursor-dot" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="14" stroke="#38bdf8" stroke-width="2" />
+                <circle cx="16" cy="16" r="3" fill="#ffffff" />
+                <line x1="16" y1="0" x2="16" y2="8" stroke="#38bdf8" stroke-width="2" />
+                <line x1="16" y1="24" x2="16" y2="32" stroke="#38bdf8" stroke-width="2" />
+                <line x1="0" y1="16" x2="8" y2="16" stroke="#38bdf8" stroke-width="2" />
+                <line x1="24" y1="16" x2="32" y2="16" stroke="#38bdf8" stroke-width="2" />
+            </svg>
 
-    <!-- Finger Hint góc trên trái -->
-    <div id="finger-hint">
-      <div id="finger-hint-label">THAO TÁC</div>
-      <div id="finger-hint-icon">🖱️</div>
-      <div id="note-type-label">Chờ...</div>
-    </div>
+            <!-- Finger Hint & Tiến độ 6 bước góc trên trái -->
+            <div id="finger-hint">
+                <div id="finger-hint-label">THAO TÁC (6 BƯỚC)</div>
+                <div id="finger-hint-icon">🖱️</div>
+                <div id="note-type-label">Chờ...</div>
+                <div class="step-pips" id="step-pips"></div>
+            </div>
 
-    <!-- Banner Người Chơi & Chuẩn Bị (Top Center) -->
-    <div id="top-banner-bar">
-      <div class="current-player-pill">
-        <span>🎮 ĐANG CHƠI:</span>
-        <span class="name-tag" id="top-current-name">—</span>
-      </div>
-      <div class="next-player-pill">
-        <span>👉 CHUẨN BỊ:</span>
-        <span class="name-tag-next" id="top-next-name">—</span>
-      </div>
-    </div>
+            <!-- Banner Người Chơi & Chuẩn Bị (Top Center) -->
+            <div id="top-banner-bar">
+                <div class="current-player-pill">
+                    <span>🎮 ĐANG THI:</span>
+                    <span class="name-tag" id="top-current-name">—</span>
+                </div>
+                <div class="next-player-pill">
+                    <span>👉 CHUẨN BỊ:</span>
+                    <span class="name-tag-next" id="top-next-name">—</span>
+                </div>
+            </div>
 
-    <!-- Score Display góc trên phải -->
-    <div id="score-display">
-      <div class="score-sub">ĐIỂM CÁ NHÂN</div>
-      <div class="score-val" id="score-val">0</div>
-    </div>
+            <!-- Đồng hồ bấm giờ ms (Góc trên phải) -->
+            <div id="timer-display">
+                <div class="timer-sub">⏱️ ĐỒNG HỒ BẤM GIỜ</div>
+                <div class="timer-val" id="timer-val">00.000s</div>
+                <div class="timer-pen" id="timer-pen"></div>
+            </div>
 
-    <!-- Posture Check Overlay (Xác nhận tư thế) -->
-    <div id="posture-overlay" class="hidden">
-      <div class="posture-icon">🪑</div>
-      <div class="posture-heading">LƯỢT THỬ THÁCH TIẾP THEO</div>
-      <div class="student-name-big" id="posture-name">...</div>
-      <div class="student-next-hint">👉 Bạn chuẩn bị tiếp theo: <strong id="posture-next-name">...</strong></div>
-      <h2>✅ Ngồi thẳng lưng & Cầm chuột đúng tư thế?</h2>
-      <div class="space-hint">⌨️ Thầy/Cô hoặc Bạn bấm SPACE để bắt đầu! (+10đ thưởng)</div>
-    </div>
+            <!-- HUD hướng dẫn Tắt máy tính (Bước 6 của mỗi bạn) -->
+            <div id="shutdown-hud" class="hidden">
+                <div class="sh-title">⏻ BƯỚC CUỐI: TẮT MÁY TÍNH ĐÚNG CÁCH!</div>
+                <div class="sh-steps">
+                    <div class="sh-step" id="sh-step-0">1. Nháy nút Start 🪟</div>
+                    <span>➔</span>
+                    <div class="sh-step" id="sh-step-1">2. Nháy nút Power ⏻</div>
+                    <span>➔</span>
+                    <div class="sh-step" id="sh-step-2">3. Nháy Shut down 🔴</div>
+                </div>
+            </div>
 
-    <!-- Switch Banner (Thông báo đổi người) -->
-    <div id="switch-banner" class="hidden">
-      <div class="switch-inner">
-        <div class="switch-title" id="switch-title">🔄 ĐỔI NGƯỜI!</div>
-        <div class="switch-cur" id="switch-cur"></div>
-        <div class="switch-next" id="switch-next"></div>
-      </div>
-    </div>
+            <!-- Posture Check Overlay (Bấm Space để bắt đầu đếm giờ) -->
+            <div id="posture-overlay" class="hidden">
+                <div class="posture-icon">🪑</div>
+                <div class="posture-heading">LƯỢT BẤM GIỜ TIẾP THEO</div>
+                <div class="student-name-big" id="posture-name">...</div>
+                <div class="student-next-hint">👉 Bạn chuẩn bị tiếp theo: <strong id="posture-next-name">...</strong>
+                </div>
+                <h2>✅ Ngồi thẳng lưng & Đặt đúng ngón tay lên chuột</h2>
+                <div class="space-hint" onclick="confirmPosture()">⌨️ Bấm phím SPACE (hoặc nháy vào đây) để BẮT ĐẦU ĐẾM
+                    GIỜ!</div>
+            </div>
 
-    <!-- Boss Wave Overlay -->
-    <div id="boss-wave-overlay" class="hidden">
-      <div class="boss-title">⚠️ BOSS WAVE – TẮT MÁY TÍNH!</div>
-      <div class="boss-instruction">Nhấn chuột TRÁI lần lượt theo đúng 3 bước Start ➔ Power ➔ Shut down để hoàn thành bài học!</div>
-      <div class="boss-steps">
-        <div class="boss-step-item" id="boss-step-0">
-          <div class="boss-step-num">🪟</div>
-          <div class="boss-step-label">1. Nút Start</div>
+            <!-- Switch Banner (Thông báo hoàn thành lượt) -->
+            <div id="switch-banner" class="hidden">
+                <div class="switch-inner">
+                    <div class="switch-title" id="switch-title">⏱️ HOÀN THÀNH!</div>
+                    <div class="switch-cur" id="switch-cur"></div>
+                    <div class="switch-next" id="switch-next"></div>
+                </div>
+            </div>
         </div>
-        <div class="boss-arrow">▶</div>
-        <div class="boss-step-item" id="boss-step-1">
-          <div class="boss-step-num">⏻</div>
-          <div class="boss-step-label">2. Nút Power</div>
+
+        <!-- Sidebar Tối Giản: Điều khiển nhanh + Danh sách lớp kèm nút cộng giây từng bạn -->
+        <aside class="game-sidebar">
+            <div class="sidebar-top-actions">
+                <button class="btn-side skip-step" onclick="skipCurrentStep()" title="Bỏ qua thao tác đang kẹt (+5s)">⏩
+                    Qua bước này (+5s)</button>
+                <button class="btn-side next" onclick="manualNext()" title="Chuyển sang học sinh tiếp theo">⏭ Đổi bạn kế
+                    tiếp</button>
+                <button class="btn-side end-game" onclick="endGameAndRank()">🏆 KẾT THÚC & VINH DANH TOP</button>
+            </div>
+
+            <div class="student-list-panel">
+                <div class="slp-header">
+                    <div class="slp-title">📋 DANH SÁCH LỚP & PHẠT GIÂY</div>
+                    <div class="slp-stats" id="slpStats">0/0 Đã xong</div>
+                </div>
+                <div class="slp-search">
+                    <input type="text" id="slpSearch" placeholder="🔍 Tìm tên học sinh (nháy tên để gọi lên)..."
+                        oninput="renderStudentList(this.value)">
+                </div>
+                <div class="slp-list" id="studentListContainer"></div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- ══════════ SUMMARY SCREEN (VINH DANH CUỐI TIẾT) ══════════ -->
+    <div id="summary-screen">
+        <canvas id="fireworksCanvas"></canvas>
+        <div class="summary-content">
+            <div class="summary-header">
+                <h1>🏆 BẢNG VINH DANH TỐC ĐỘ CHUỘT</h1>
+                <p>Tiết 08 – Bài 4: Làm việc với máy tính (Đo chính xác tới từng mili-giây)</p>
+            </div>
+
+            <!-- Spotlight Đặc Biệt Cho Top 1 -->
+            <div id="top1-container"></div>
+
+            <!-- Hạng 2 & Hạng 3 -->
+            <div class="runners-up-row" id="runners-up-row"></div>
+
+            <!-- Bảng kết quả chi tiết từng thao tác -->
+            <div class="summary-table-wrap">
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Hạng</th>
+                            <th>Họ và tên</th>
+                            <th>⭐ Di chuyển</th>
+                            <th>👆 Nháy trái</th>
+                            <th>🖕 Nháy phải</th>
+                            <th>✌️ Nháy đúp</th>
+                            <th>🤏 Kéo thả</th>
+                            <th>⏻ Tắt máy</th>
+                            <th>🔊 Phạt ồn</th>
+                            <th>⏱️ Tổng TG</th>
+                            <th>Đánh giá & Nhận xét kỹ năng</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summary-tbody"></tbody>
+                </table>
+            </div>
+
+            <div class="summary-actions">
+                <button class="btn-sum blue" onclick="restartGame()">🔄 Chơi lại</button>
+                <button class="btn-sum green" onclick="exportExcel()">📥 Xuất Excel Siêu Chi Tiết (2 Sheet)</button>
+            </div>
         </div>
-        <div class="boss-arrow">▶</div>
-        <div class="boss-step-item" id="boss-step-2">
-          <div class="boss-step-num">🔴</div>
-          <div class="boss-step-label">3. Shut down</div>
+    </div>
+
+    <script>
+        'use strict';
+        /* ═══════════════════════════════════════════════════════════════════════
+           OSU! CHUỘT — BẤM GIỜ MILI-GIÂY (SPEEDRUN EDITION)
+           - Đo chính xác ms từng thao tác (5 thao tác chuột + 3 bước Tắt máy tính)
+           - Cộng giây phạt trực tiếp từng học sinh ngay trên danh sách
+           - Không xếp hạng trực tiếp khi đang thi; Vinh danh Top 1 hiệu ứng đặc biệt cuối giờ
+           ═══════════════════════════════════════════════════════════════════════ */
+
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        /* ── 1. ÂM THANH WEB AUDIO API ─────────────────────── */
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let _audioCtx = null;
+        function ensureAudio() {
+            if (!_audioCtx) {
+                try { _audioCtx = new AudioCtx(); } catch (e) { }
+            }
+            if (_audioCtx && _audioCtx.state === 'suspended') {
+                _audioCtx.resume().catch(() => { });
+            }
+        }
+
+        function playTone(freq, dur, type = 'sine', vol = 0.3) {
+            try {
+                ensureAudio();
+                if (!_audioCtx) return;
+                const o = _audioCtx.createOscillator();
+                const g = _audioCtx.createGain();
+                o.connect(g); g.connect(_audioCtx.destination);
+                o.type = type; o.frequency.setValueAtTime(freq, _audioCtx.currentTime);
+                o.frequency.exponentialRampToValueAtTime(freq * 1.22, _audioCtx.currentTime + dur * 0.45);
+                g.gain.setValueAtTime(vol, _audioCtx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, _audioCtx.currentTime + dur);
+                o.start(); o.stop(_audioCtx.currentTime + dur);
+            } catch (e) { }
+        }
+
+        function playHitSound(type) {
+            const freqMap = { HOVER: 660, LEFT_CLICK: 784, RIGHT_CLICK: 880, DOUBLE_CLICK: 1047, DRAG: 698 };
+            playTone(freqMap[type] || 784, 0.13, 'sine', 0.32);
+        }
+        function playErrorSound() { playTone(180, 0.22, 'sawtooth', 0.22); }
+        function playStartBeep() { playTone(880, 0.15, 'triangle', 0.3); }
+        function playShutdownStepSound(step) { playTone(587 + step * 190, 0.16, 'sine', 0.32); }
+        function playFinishFanfare() {
+            [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => playTone(f, 0.22, 'triangle', 0.3), i * 95));
+        }
+        function playChampionFanfare() {
+            const notes = [
+                { f: 523, t: 0, d: 0.18 }, { f: 659, t: 150, d: 0.18 }, { f: 784, t: 300, d: 0.18 },
+                { f: 1047, t: 450, d: 0.35 }, { f: 784, t: 720, d: 0.18 }, { f: 1047, t: 900, d: 0.55 }
+            ];
+            notes.forEach(n => setTimeout(() => playTone(n.f, n.d, 'triangle', 0.35), n.t));
+        }
+
+        /* ── 2. CẤU HÌNH 5 THAO TÁC CHUỘT + BƯỚC 6 TẮT MÁY ── */
+        const NOTE_DEFS = {
+            HOVER: { label: 'Di chuyển chuột', icon: '⭐', color: '#facc15', gradEnd: '#fbbf24', hint: '⭐', hintLabel: '1. Di chuyển chạm sao' },
+            LEFT_CLICK: { label: 'Nháy chuột trái', icon: '👆', color: '#3b82f6', gradEnd: '#60a5fa', hint: '👆', hintLabel: '2. Nháy nút TRÁI (ngón trỏ)' },
+            RIGHT_CLICK: { label: 'Nháy nút phải', icon: '🖕', color: '#f97316', gradEnd: '#fb923c', hint: '🖕', hintLabel: '3. Nháy nút PHẢI (ngón giữa)' },
+            DOUBLE_CLICK: { label: 'Nháy đúp chuột', icon: '✌️', color: '#a855f7', gradEnd: '#c084fc', hint: '✌️', hintLabel: '4. Nháy đúp TRÁI 2 lần nhanh' },
+            DRAG: { label: 'Kéo thả chuột', icon: '🤏', color: '#10b981', gradEnd: '#34d399', hint: '🤏', hintLabel: '5. Nhấn giữ A kéo sang B' },
+        };
+        const TYPE_KEYS = Object.keys(NOTE_DEFS);
+
+        const NOTE_R = 54;
+        const APPROACH_START_R = NOTE_R * 2.4;
+        const DBL_CLICK_MS = 650; // Khoảng nhận diện nháy đúp rộng rãi cho HS lớp 3
+
+        /* ── 3. STATE TOÀN CỤC ─────────────────────────────── */
+        const G = {
+            running: false,
+            classId: '3_2',
+            students: [], // [{name, stt}] theo đúng danh sách lớp
+            queue: [], // Hàng đợi ngẫu nhiên để gọi lên bảng
+            currentQueueIdx: -1,
+            currentStudent: null,
+            studentData: {}, // Lưu toàn bộ dữ liệu ms chi tiết của từng em
+            searchFilter: '',
+
+            // Đồng hồ bấm giờ của học sinh đang thi
+            turnRunning: false,
+            turnStartMs: 0,
+            stepStartMs: 0,
+
+            // 5 thao tác đầu
+            noteSeq: [],
+            noteIdx: 0,
+            activeNote: null,
+
+            // Bước 6: Tắt máy tính (Start -> Power -> Shut down) cho MỖI học sinh
+            inShutdownStep: false,
+            shutdownSubStep: 0, // 0: Start, 1: Power, 2: Shut down
+            shutdownSubStartMs: 0,
+            shutdownTargets: [],
+
+            // Chuột & Kéo thả
+            mx: -999, my: -999,
+            trail: [],
+            drag: null,
+            dblLast: 0,
+            dblNote: null,
+
+            waitSpace: true,
+            raf: null,
+            fwRaf: null,
+            switchTO: null,
+        };
+
+        function createEmptyStudentRecord(name, stt) {
+            return {
+                stt,
+                name,
+                played: false,
+                // Thời gian từng thao tác (ms)
+                skillMs: {
+                    HOVER: 0,
+                    LEFT_CLICK: 0,
+                    RIGHT_CLICK: 0,
+                    DOUBLE_CLICK: 0,
+                    DRAG: 0,
+                    SHUTDOWN: 0,
+                },
+                // Chi tiết 3 bước tắt máy (ms)
+                shutdownDetailMs: {
+                    startBtn: 0,
+                    powerBtn: 0,
+                    shutdownBtn: 0,
+                },
+                // Số lỗi chi tiết để giáo viên nhận xét
+                wrongLeftRightClicks: 0,
+                missedOutsideClicks: 0,
+                dblClickRetries: 0,
+                dragDrops: 0,
+                skippedSteps: 0,
+                // Thời gian phạt ồn cá nhân
+                penaltySec: 0,
+                penaltyCount: 0,
+                // Tổng thời gian thực tế làm bài (ms)
+                rawTotalMs: 0,
+            };
+        }
+
+        function getFinalTotalMs(rec) {
+            return rec.rawTotalMs + (rec.penaltySec * 1000);
+        }
+
+        function fmtSec(ms) {
+            return (ms / 1000).toFixed(3) + 's';
+        }
+        function fmtShortSec(ms) {
+            return (ms / 1000).toFixed(2) + 's';
+        }
+
+        /* ── 4. CANVAS & SỰ KIỆN CHUỘT ─────────────────────── */
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameArea = document.getElementById('game-area');
+        const cursorSvg = document.getElementById('cursor-dot');
+
+        function resizeCanvas() {
+            canvas.width = gameArea.clientWidth;
+            canvas.height = gameArea.clientHeight;
+            if (G.inShutdownStep) buildShutdownTargets();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        gameArea.addEventListener('mousemove', e => {
+            const r = canvas.getBoundingClientRect();
+            G.mx = e.clientX - r.left;
+            G.my = e.clientY - r.top;
+            cursorSvg.style.left = e.clientX + 'px';
+            cursorSvg.style.top = e.clientY + 'px';
+
+            const now = performance.now();
+            G.trail.push({ x: G.mx, y: G.my, t: now });
+            if (G.trail.length > 28) G.trail.shift();
+
+            if (!G.running || G.waitSpace || !G.turnRunning || G.inShutdownStep) return;
+            if (!G.activeNote || !G.activeNote.alive) return;
+
+            const n = G.activeNote;
+
+            // 1. HOVER: Di chuyển chạm vào mục tiêu
+            if (n.type === 'HOVER' && hit(G.mx, G.my, n)) {
+                completeCurrentNote();
+                return;
+            }
+
+            // 2. DRAG: Kéo vật thể về đích B
+            if (G.drag && G.drag.dragging) {
+                G.drag.curX = G.mx;
+                G.drag.curY = G.my;
+                const distToB = Math.hypot(G.mx - n.bx, G.my - n.by);
+                if (distToB < NOTE_R * 0.95) {
+                    completeCurrentNote();
+                }
+            }
+        });
+
+        gameArea.addEventListener('mousedown', e => {
+            ensureAudio();
+            const r = canvas.getBoundingClientRect();
+            const mx = e.clientX - r.left;
+            const my = e.clientY - r.top;
+
+            if (!G.running || G.waitSpace || !G.turnRunning) return;
+            const rec = G.studentData[G.currentStudent.name];
+
+            // Nếu đang ở Bước 6: Tắt máy tính
+            if (G.inShutdownStep) {
+                if (e.button === 0) {
+                    handleShutdownClick(mx, my);
+                } else {
+                    rec.wrongLeftRightClicks++;
+                    playErrorSound();
+                    popupAt(mx, my - 30, 'Dùng chuột TRÁI để tắt máy nhé!', 'miss');
+                }
+                return;
+            }
+
+            if (!G.activeNote || !G.activeNote.alive) return;
+            const n = G.activeNote;
+            const isInside = hit(mx, my, n);
+
+            if (!isInside) {
+                rec.missedOutsideClicks++;
+                return;
+            }
+
+            // Kiểm tra đúng nút chuột
+            if (e.button === 0) {
+                if (n.type === 'LEFT_CLICK') {
+                    completeCurrentNote();
+                } else if (n.type === 'DOUBLE_CLICK') {
+                    handleDblClick(mx, my, n, rec);
+                } else if (n.type === 'DRAG') {
+                    startDrag(mx, my, n);
+                } else if (n.type === 'RIGHT_CLICK') {
+                    rec.wrongLeftRightClicks++;
+                    playErrorSound();
+                    popupAt(n.x, n.y - 40, 'Nhầm rồi! Bấm nút PHẢI (ngón giữa) 🖕', 'miss');
+                }
+            } else if (e.button === 2) {
+                if (n.type === 'RIGHT_CLICK') {
+                    completeCurrentNote();
+                } else {
+                    rec.wrongLeftRightClicks++;
+                    playErrorSound();
+                    popupAt(n.x, n.y - 40, 'Nhầm rồi! Bấm nút TRÁI (ngón trỏ) 👆', 'miss');
+                }
+            }
+        });
+
+        gameArea.addEventListener('mouseup', () => {
+            if (G.drag && G.drag.dragging) {
+                const n = G.drag.note;
+                const rec = G.currentStudent ? G.studentData[G.currentStudent.name] : null;
+                if (n && n.alive) {
+                    const distToB = Math.hypot(G.drag.curX - n.bx, G.drag.curY - n.by);
+                    if (distToB < NOTE_R * 1.1) {
+                        completeCurrentNote();
+                    } else {
+                        if (rec) rec.dragDrops++;
+                        playErrorSound();
+                        popupAt(G.drag.curX, G.drag.curY - 30, 'Tuột tay rồi! Kéo tới đích B nhé 🎯', 'miss');
+                        G.drag = null;
+                    }
+                } else {
+                    G.drag = null;
+                }
+            }
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (G.waitSpace && G.running) confirmPosture();
+            }
+        });
+
+        function hit(mx, my, obj) {
+            const r = obj.r || NOTE_R;
+            const dx = mx - obj.x, dy = my - obj.y;
+            return dx * dx + dy * dy < r * r;
+        }
+        function rnd(lo, hi) { return Math.random() * (hi - lo) + lo; }
+        function rndInt(lo, hi) { return Math.floor(rnd(lo, hi)); }
+        function shuffle(a) {
+            const b = [...a];
+            for (let i = b.length - 1; i > 0; i--) {
+                const j = rndInt(0, i + 1);
+                [b[i], b[j]] = [b[j], b[i]];
+            }
+            return b;
+        }
+        function safePos() {
+            const m = NOTE_R + 90;
+            return {
+                x: rnd(m, Math.max(m + 40, canvas.width - m)),
+                y: rnd(m + 20, Math.max(m + 60, canvas.height - m)),
+            };
+        }
+
+        /* ── 5. KHỞI ĐỘNG & NẠP DANH SÁCH LỚP ──────────────── */
+        async function startPhase1() {
+            ensureAudio();
+            const cs = document.getElementById('classSel');
+            G.classId = cs ? cs.value : '3_2';
+
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+
+            setTimeout(async () => {
+                resizeCanvas();
+                await loadClassStudents();
+                G.running = true;
+                requestAnimationFrame(gameLoop);
+            }, 350);
+        }
+        window.startPhase1 = startPhase1;
+
+        async function loadClassStudents() {
+            let names = [];
+            try {
+                const res = await fetch('../../assets/data/students_3_2026_2027.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data[G.classId]) && data[G.classId].length > 0) {
+                        names = data[G.classId];
+                    }
+                }
+            } catch (err) {
+                console.warn('Dùng danh sách fallback:', err);
+            }
+
+            if (!names.length && window.FALLBACK_STUDENTS_KHOI_3 && window.FALLBACK_STUDENTS_KHOI_3[G.classId]) {
+                names = [...window.FALLBACK_STUDENTS_KHOI_3[G.classId]];
+            }
+            if (!names.length) {
+                names = ['Đoàn Gia Hưng', 'Lê Đức Phúc', 'Nguyễn Khả Ái', 'Nguyễn Đức Anh', 'Trịnh Gia Bảo', 'Võ Đoàn Nhã Hân'];
+            }
+
+            G.students = names.map((name, i) => ({ name, stt: i + 1 }));
+            G.queue = shuffle(G.students);
+            G.studentData = {};
+            G.students.forEach(s => {
+                G.studentData[s.name] = createEmptyStudentRecord(s.name, s.stt);
+            });
+
+            G.currentQueueIdx = -1;
+            renderStudentList();
+            advanceStudent();
+        }
+
+        /* ── 6. QUẢN LÝ LƯỢT THI CỦA TỪNG HỌC SINH ─────────── */
+        function advanceStudent(forcedStudent = null) {
+            if (G.switchTO) { clearTimeout(G.switchTO); G.switchTO = null; }
+            document.getElementById('switch-banner').classList.add('hidden');
+            document.getElementById('shutdown-hud').classList.add('hidden');
+
+            if (forcedStudent) {
+                G.currentStudent = forcedStudent;
+            } else {
+                // Tìm bạn tiếp theo trong hàng đợi chưa chơi
+                let found = null;
+                while (G.currentQueueIdx + 1 < G.queue.length) {
+                    G.currentQueueIdx++;
+                    const cand = G.queue[G.currentQueueIdx];
+                    if (!G.studentData[cand.name].played) {
+                        found = cand;
+                        break;
+                    }
+                }
+                if (!found) {
+                    // Tất cả học sinh đã hoàn thành -> Mở màn hình Vinh danh!
+                    endGameAndRank();
+                    return;
+                }
+                G.currentStudent = found;
+            }
+
+            // Reset trạng thái lượt chơi cho bạn hiện tại
+            const rec = G.studentData[G.currentStudent.name];
+            rec.skillMs = { HOVER: 0, LEFT_CLICK: 0, RIGHT_CLICK: 0, DOUBLE_CLICK: 0, DRAG: 0, SHUTDOWN: 0 };
+            rec.shutdownDetailMs = { startBtn: 0, powerBtn: 0, shutdownBtn: 0 };
+            rec.rawTotalMs = 0;
+
+            G.noteSeq = shuffle(TYPE_KEYS);
+            G.noteIdx = 0;
+            G.activeNote = null;
+            G.drag = null;
+            G.inShutdownStep = false;
+            G.turnRunning = false;
+            G.waitSpace = true;
+
+            updateTopBanner();
+            renderStepPips();
+            renderStudentList(G.searchFilter);
+            updateTimerUI(0);
+            showPostureModal();
+        }
+
+        function selectStudentFromList(name) {
+            ensureAudio();
+            const s = G.students.find(item => item.name === name);
+            if (!s) return;
+            advanceStudent(s);
+        }
+        window.selectStudentFromList = selectStudentFromList;
+
+        function getNextUnplayedName() {
+            for (let i = G.currentQueueIdx + 1; i < G.queue.length; i++) {
+                const cand = G.queue[i];
+                if (!G.studentData[cand.name].played && (!G.currentStudent || cand.name !== G.currentStudent.name)) {
+                    return cand.name;
+                }
+            }
+            return 'Hoàn tất cả lớp!';
+        }
+
+        function updateTopBanner() {
+            const cur = G.currentStudent ? G.currentStudent.name : '—';
+            const next = getNextUnplayedName();
+            document.getElementById('top-current-name').textContent = cur;
+            document.getElementById('top-next-name').textContent = next;
+        }
+
+        function showPostureModal() {
+            const cur = G.currentStudent ? G.currentStudent.name : '—';
+            const next = getNextUnplayedName();
+            document.getElementById('posture-name').textContent = cur;
+            document.getElementById('posture-next-name').textContent = next;
+            document.getElementById('posture-overlay').classList.remove('hidden');
+        }
+
+        function confirmPosture() {
+            ensureAudio();
+            if (!G.waitSpace) return;
+            G.waitSpace = false;
+            G.turnRunning = true;
+            G.turnStartMs = performance.now();
+            document.getElementById('posture-overlay').classList.add('hidden');
+            playStartBeep();
+            spawnNextNote();
+        }
+        window.confirmPosture = confirmPosture;
+
+        /* ── 7. 5 THAO TÁC CHUỘT CƠ BẢN (ĐO CHÍNH XÁC MS) ─── */
+        function spawnNextNote() {
+            if (G.noteIdx >= G.noteSeq.length) {
+                startShutdownSequence();
+                return;
+            }
+            const type = G.noteSeq[G.noteIdx];
+            const pos = safePos();
+            const note = {
+                type,
+                x: pos.x,
+                y: pos.y,
+                r: NOTE_R,
+                spawnT: performance.now(),
+                alive: true,
+                cracked: false,
+            };
+
+            if (type === 'DRAG') {
+                const ang = rnd(0, Math.PI * 2);
+                const dist = rnd(190, 260);
+                const m = NOTE_R + 90;
+                note.bx = Math.max(m, Math.min(canvas.width - m, pos.x + Math.cos(ang) * dist));
+                note.by = Math.max(m + 20, Math.min(canvas.height - m, pos.y + Math.sin(ang) * dist));
+            }
+
+            G.activeNote = note;
+            G.stepStartMs = performance.now();
+            G.drag = null;
+            setFingerHint(type);
+            renderStepPips();
+        }
+
+        function completeCurrentNote(isSkipped = false) {
+            if (!G.activeNote || !G.activeNote.alive) return;
+            const note = G.activeNote;
+            note.alive = false;
+            G.activeNote = null;
+            G.drag = null;
+
+            const now = performance.now();
+            const stepElapsedMs = Math.round(now - G.stepStartMs) + (isSkipped ? 5000 : 0);
+            const rec = G.studentData[G.currentStudent.name];
+            rec.skillMs[note.type] = stepElapsedMs;
+
+            const hitX = (note.type === 'DRAG' && note.bx) ? note.bx : note.x;
+            const hitY = (note.type === 'DRAG' && note.by) ? note.by : note.y;
+            const def = NOTE_DEFS[note.type];
+
+            popupAt(hitX, hitY - 42, `⏱️ ${fmtSec(stepElapsedMs)}`, isSkipped ? 'miss' : 'hit');
+            if (!isSkipped) {
+                playHitSound(note.type);
+                burst(hitX, hitY, def.color);
+            } else {
+                playErrorSound();
+            }
+
+            G.noteIdx++;
+            renderStepPips();
+            setTimeout(spawnNextNote, 260);
+        }
+
+        function handleDblClick(mx, my, note, rec) {
+            const now = performance.now();
+            if (!note.cracked) {
+                note.cracked = true;
+                G.dblLast = now;
+                G.dblNote = note;
+                playTone(620, 0.07, 'square', 0.22);
+                popupAt(note.x, note.y - 32, 'Nháy thêm 1 lần liền tay!', 'hit');
+            } else {
+                if (now - G.dblLast <= DBL_CLICK_MS && G.dblNote === note) {
+                    completeCurrentNote();
+                } else {
+                    // Nháy lần 2 quá chậm -> tính 1 lần trễ nhịp đúp và cho bấm lại liền
+                    rec.dblClickRetries++;
+                    G.dblLast = now;
+                    playTone(420, 0.09, 'sawtooth', 0.2);
+                    popupAt(note.x, note.y - 32, 'Nháy nhanh 2 lần liên tiếp nhé! ✌️', 'miss');
+                }
+            }
+        }
+
+        function startDrag(mx, my, note) {
+            G.drag = {
+                dragging: true,
+                startX: note.x,
+                startY: note.y,
+                curX: mx,
+                curY: my,
+                note: note
+            };
+            playTone(540, 0.09, 'sine', 0.25);
+        }
+
+        /* ── 8. BƯỚC 6: TẮT MÁY TÍNH CHO MỖI HỌC SINH ──────── */
+        function startShutdownSequence() {
+            G.inShutdownStep = true;
+            G.shutdownSubStep = 0;
+            G.stepStartMs = performance.now();
+            G.shutdownSubStartMs = performance.now();
+
+            buildShutdownTargets();
+            document.getElementById('shutdown-hud').classList.remove('hidden');
+            updateShutdownHud();
+
+            document.getElementById('finger-hint-icon').textContent = '⏻';
+            document.getElementById('note-type-label').textContent = '6. Start ➔ Power ➔ Shut down';
+            renderStepPips();
+        }
+
+        function buildShutdownTargets() {
+            // Mô phỏng đúng vị trí góc dưới bên trái màn hình nền Windows
+            const startX = Math.max(95, canvas.width * 0.14);
+            const startY = Math.min(canvas.height - 80, canvas.height * 0.84);
+            G.shutdownTargets = [
+                { x: startX, y: startY, r: 48, color: '#3b82f6', icon: '🪟', label: '1. Start' },
+                { x: startX + 30, y: startY - 125, r: 48, color: '#f59e0b', icon: '⏻', label: '2. Power' },
+                { x: startX + 60, y: startY - 250, r: 52, color: '#ef4444', icon: '🔴', label: '3. Shut down' },
+            ];
+        }
+
+        function updateShutdownHud() {
+            for (let i = 0; i < 3; i++) {
+                const el = document.getElementById(`sh-step-${i}`);
+                if (!el) continue;
+                el.classList.remove('active', 'done');
+                if (i < G.shutdownSubStep) el.classList.add('done');
+                else if (i === G.shutdownSubStep) el.classList.add('active');
+            }
+        }
+
+        function handleShutdownClick(mx, my) {
+            const target = G.shutdownTargets[G.shutdownSubStep];
+            if (!target) return;
+            const rec = G.studentData[G.currentStudent.name];
+
+            if (hit(mx, my, target)) {
+                const now = performance.now();
+                const subMs = Math.round(now - G.shutdownSubStartMs);
+                if (G.shutdownSubStep === 0) rec.shutdownDetailMs.startBtn = subMs;
+                else if (G.shutdownSubStep === 1) rec.shutdownDetailMs.powerBtn = subMs;
+                else if (G.shutdownSubStep === 2) rec.shutdownDetailMs.shutdownBtn = subMs;
+
+                playShutdownStepSound(G.shutdownSubStep);
+                burst(target.x, target.y, target.color);
+                popupAt(target.x, target.y - 40, `✓ ${target.label} (${fmtSec(subMs)})`, 'hit');
+
+                G.shutdownSubStep++;
+                G.shutdownSubStartMs = now;
+                updateShutdownHud();
+
+                if (G.shutdownSubStep >= 3) {
+                    rec.skillMs.SHUTDOWN = rec.shutdownDetailMs.startBtn + rec.shutdownDetailMs.powerBtn + rec.shutdownDetailMs.shutdownBtn;
+                    finishStudentTurn();
+                }
+            } else {
+                rec.missedOutsideClicks++;
+                playErrorSound();
+                popupAt(mx, my - 25, `Hãy nháy vào nút ${target.label}!`, 'miss');
+            }
+        }
+
+        function finishStudentTurn() {
+            G.turnRunning = false;
+            G.inShutdownStep = false;
+            document.getElementById('shutdown-hud').classList.add('hidden');
+
+            const rec = G.studentData[G.currentStudent.name];
+            rec.rawTotalMs = Object.values(rec.skillMs).reduce((a, b) => a + b, 0);
+            rec.played = true;
+
+            const finalMs = getFinalTotalMs(rec);
+            updateTimerUI(rec.rawTotalMs);
+            renderStepPips();
+            renderStudentList(G.searchFilter);
+            playFinishFanfare();
+
+            const nextName = getNextUnplayedName();
+            document.getElementById('switch-title').textContent = `🎉 ĐÃ TẮT MÁY AN TOÀN!`;
+            document.getElementById('switch-cur').textContent = `${rec.name}: ${fmtSec(finalMs)}` + (rec.penaltySec > 0 ? ` (Gồm +${rec.penaltySec}s phạt)` : '');
+            document.getElementById('switch-next').textContent = `👉 Tiếp theo: ${nextName}`;
+            document.getElementById('switch-banner').classList.remove('hidden');
+
+            G.switchTO = setTimeout(() => {
+                document.getElementById('switch-banner').classList.add('hidden');
+                advanceStudent();
+            }, 2400);
+        }
+
+        /* ── 9. BỎ QUA BƯỚC KẸT & ĐỔI NGƯỜI THỦ CÔNG ──────── */
+        function skipCurrentStep() {
+            ensureAudio();
+            if (!G.running || G.waitSpace || !G.turnRunning || !G.currentStudent) return;
+            const rec = G.studentData[G.currentStudent.name];
+            rec.skippedSteps++;
+
+            if (!G.inShutdownStep && G.activeNote) {
+                completeCurrentNote(true);
+            } else if (G.inShutdownStep) {
+                const now = performance.now();
+                const subMs = Math.round(now - G.shutdownSubStartMs) + 5000;
+                if (G.shutdownSubStep === 0) rec.shutdownDetailMs.startBtn = subMs;
+                else if (G.shutdownSubStep === 1) rec.shutdownDetailMs.powerBtn = subMs;
+                else if (G.shutdownSubStep === 2) rec.shutdownDetailMs.shutdownBtn = subMs;
+                rec.skillMs.SHUTDOWN = rec.shutdownDetailMs.startBtn + rec.shutdownDetailMs.powerBtn + rec.shutdownDetailMs.shutdownBtn;
+                finishStudentTurn();
+            }
+        }
+        window.skipCurrentStep = skipCurrentStep;
+
+        function manualNext() {
+            ensureAudio();
+            G.turnRunning = false;
+            G.inShutdownStep = false;
+            advanceStudent();
+        }
+        window.manualNext = manualNext;
+
+        /* ── 10. CỘNG GIÂY PHẠT TRỰC TIẾP TỪNG BẠN TRONG DANH SÁCH ── */
+        function addStudentPenalty(name, sec, evt) {
+            if (evt) evt.stopPropagation();
+            ensureAudio();
+            const rec = G.studentData[name];
+            if (!rec) return;
+
+            if (sec < 0 && rec.penaltySec <= 0) return;
+            rec.penaltySec = Math.max(0, rec.penaltySec + sec);
+            if (sec > 0) rec.penaltyCount++;
+
+            if (sec > 0) {
+                playTone(260, 0.2, 'sawtooth', 0.28);
+                popupAt(canvas.width / 2, canvas.height * 0.25, `🔊 ${name}: +${sec}.000s phạt ồn!`, 'penalty');
+            } else {
+                playTone(520, 0.12, 'sine', 0.2);
+            }
+
+            if (G.currentStudent && G.currentStudent.name === name) {
+                updateTimerPenaltyBadge();
+            }
+            renderStudentList(G.searchFilter);
+        }
+        window.addStudentPenalty = addStudentPenalty;
+
+        function renderStudentList(filterVal = '') {
+            G.searchFilter = filterVal;
+            const container = document.getElementById('studentListContainer');
+            if (!container) return;
+
+            const all = G.students.map(s => G.studentData[s.name]);
+            const doneCount = all.filter(r => r.played).length;
+            document.getElementById('slpStats').textContent = `${doneCount}/${all.length} Đã xong`;
+
+            const q = filterVal.toLowerCase().trim();
+            const list = q ? all.filter(r => r.name.toLowerCase().includes(q)) : all;
+
+            // KHÔNG sắp xếp theo hạng trực tiếp khi đang chơi — giữ nguyên thứ tự danh sách lớp
+            container.innerHTML = list.map(r => {
+                const isPlaying = G.currentStudent && G.currentStudent.name === r.name;
+                const rowCls = isPlaying ? 'is-playing' : (r.played ? 'is-done' : '');
+                const statusIcon = isPlaying ? '🎯' : (r.played ? '✅' : `${r.stt}.`);
+                const totalMs = getFinalTotalMs(r);
+                const timeText = r.played ? fmtShortSec(totalMs) : (isPlaying ? 'Đang thi...' : '—');
+                const safeName = r.name.replace(/'/g, "\\'");
+
+                return `
+      <div class="student-row ${rowCls}">
+        <span class="sr-stt">${statusIcon}</span>
+        <div class="sr-info" onclick="selectStudentFromList('${safeName}')" title="Nháy vào tên để gọi ${r.name} lên bảng">
+          <div class="sr-name">
+            <span>${r.name}</span>
+            ${r.penaltySec > 0 ? `<span class="pen-tag">+${r.penaltySec}s</span>` : ''}
+          </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Celebration Effect -->
-    <div id="celebration-overlay" class="hidden">
-      <div class="celebration-text" id="celebration-text">🎉</div>
-    </div>
-  </div>
-
-  <!-- Sidebar Cá Nhân 100% (Queue + Phạt Ồn + Bảng Xếp Hạng Trực Tiếp) -->
-  <aside class="game-sidebar" id="game-sidebar">
-    
-    <!-- 1. HÀNG CHỜ LƯỢT CHƠI -->
-    <div class="queue-panel">
-      <div class="queue-panel-head">
-        <h3>📋 Lượt Chơi Tiếp Sức</h3>
-        <span class="gacha-badge">🎲 Gacha Ngẫu Nhiên</span>
-      </div>
-      <div class="queue-current">
-        <div class="queue-label">🎮 Đang Trên Bảng</div>
-        <div class="queue-current-name" id="queue-current-name">—</div>
-      </div>
-      <div class="queue-next-box">
-        <div class="queue-next-row">
-          <span class="q-tag">👉 Chuẩn bị:</span>
-          <span class="q-val" id="queue-next-name">—</span>
+        <span class="sr-time ${r.played ? '' : 'wait'}">${timeText}</span>
+        <div class="sr-pen-btns">
+          <button class="btn-row-pen p2" onclick="addStudentPenalty('${safeName}', 2, event)" title="Cộng 2 giây phạt ồn cho ${r.name}">+2s</button>
+          <button class="btn-row-pen p5" onclick="addStudentPenalty('${safeName}', 5, event)" title="Cộng 5 giây phạt ồn cho ${r.name}">+5s</button>
+          ${r.penaltySec > 0 ? `<button class="btn-row-pen m2" onclick="addStudentPenalty('${safeName}', -2, event)" title="Giảm 2 giây phạt">-2s</button>` : ''}
         </div>
-        <div class="queue-next-row sub">
-          <span>⏳ Kế tiếp:</span>
-          <span id="queue-third-name">—</span>
-        </div>
-      </div>
-      <div class="notes-progress" id="notes-progress"></div>
-      <button class="btn-ctrl btn-next" onclick="manualNext()">⏭ Đổi người (Bốc bạn kế)</button>
-      <button class="btn-ctrl btn-boss" onclick="startBossWave()">💀 Boss Wave – Tắt máy!</button>
-    </div>
-
-    <!-- 2. CỤM PHẠT ỒN + CỘNG GIÂY (Cho bạn trên bảng) -->
-    <div class="noise-penalty-panel">
-      <div class="npp-header">
-        <span class="npp-title">🔊 LỚP ỒN → CỘNG GIÂY</span>
-        <span class="npp-badge" id="noiseCountBadge">0 lần ồn</span>
-      </div>
-      <div class="npp-desc">Dưới lớp ồn ào gây phân tâm? Bấm để nới thêm thời gian cho bạn trên bảng!</div>
-      <div class="npp-btns">
-        <button class="btn-noise plus5" onclick="addNoisePenalty(5)" title="Cộng thêm 5 giây cho note hiện tại">⏱️ +5s Cho Bạn</button>
-        <button class="btn-noise plus10" onclick="addNoisePenalty(10)" title="Cộng thêm 10 giây cho note hiện tại">⏱️ +10s Cho Bạn</button>
-        <button class="btn-noise alert" onclick="playNoiseWarning()" title="Phát âm thanh cảnh cáo">📢 Cảnh Cáo 🔇</button>
-      </div>
-    </div>
-
-    <!-- 3. BẢNG XẾP HẠNG THỰC TẾ CẢ LỚP -->
-    <div class="live-rank-panel">
-      <div class="lrp-header">
-        <div class="lrp-title">🏆 XẾP HẠNG TRỰC TIẾP</div>
-        <div class="lrp-stats" id="lrpStats">0/0 Đã chơi</div>
-      </div>
-      <div class="lrp-search">
-        <input type="text" id="lrpSearch" placeholder="🔍 Tìm tên bạn..." oninput="filterLiveRank(this.value)">
-      </div>
-      <div class="lrp-list" id="liveRankList"></div>
-    </div>
-
-  </aside>
-</div>
-
-<!-- ══════════ SUMMARY SCREEN (BẢNG XẾP HẠNG CUỐI TIẾT) ══════════ -->
-<div id="summary-screen">
-  <div class="summary-header">
-    <h1>🏆 Bảng Xếp Hạng Cuối Tiết</h1>
-    <p>Tiết 08 – Bài 4: Sử dụng chuột máy tính (Thi đua cá nhân)</p>
-  </div>
-  <div class="podium-row" id="podium-row"></div>
-  <div class="summary-table-wrap">
-    <table class="summary-table">
-      <thead>
-        <tr>
-          <th>Hạng</th>
-          <th>Học sinh</th>
-          <th>Điểm số</th>
-          <th>Nốt trúng</th>
-          <th>Nốt miss</th>
-          <th>Thời gian</th>
-          <th>Đánh giá kỹ năng chuột</th>
-        </tr>
-      </thead>
-      <tbody id="summary-tbody"></tbody>
-    </table>
-  </div>
-  <div class="summary-actions">
-    <button class="btn-sum blue" onclick="restartGame()">🔄 Chơi lại</button>
-    <button class="btn-sum green" onclick="exportExcel()">📥 Xuất Excel (Bắn lên Google Drive)</button>
-  </div>
-</div>
-
-<script>
-'use strict';
-/* ═══════════════════════════════════════════════════════
-   OSU! CHUỘT — Full Game Logic (Thi đấu cá nhân)
-   Tiết 08 | Tin Học 3 | Bài 4: Sử dụng chuột máy tính
-   ═══════════════════════════════════════════════════════ */
-
-// Chặn triệt để menu chuột phải trên toàn màn hình
-document.addEventListener('contextmenu', e => e.preventDefault());
-
-/* ── 1. ÂM THANH WEB AUDIO API ─────────────────────── */
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let _audioCtx = null;
-function ensureAudio() {
-  if (!_audioCtx) {
-    try { _audioCtx = new AudioCtx(); } catch(e) {}
-  }
-  if (_audioCtx && _audioCtx.state === 'suspended') {
-    _audioCtx.resume().catch(()=>{});
-  }
-}
-
-function playTone(freq, dur, type='sine', vol=0.3) {
-  try {
-    ensureAudio();
-    if (!_audioCtx) return;
-    const o = _audioCtx.createOscillator();
-    const g = _audioCtx.createGain();
-    o.connect(g); g.connect(_audioCtx.destination);
-    o.type = type; o.frequency.setValueAtTime(freq, _audioCtx.currentTime);
-    o.frequency.exponentialRampToValueAtTime(freq * 1.25, _audioCtx.currentTime + dur * 0.4);
-    g.gain.setValueAtTime(vol, _audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, _audioCtx.currentTime + dur);
-    o.start(); o.stop(_audioCtx.currentTime + dur);
-  } catch(e){}
-}
-
-function playHit(noteType) {
-  const freqMap = { HOVER:660, LEFT_CLICK:770, RIGHT_CLICK:880, DOUBLE_CLICK:1047, DRAG:620 };
-  playTone(freqMap[noteType] || 770, 0.14, 'sine', 0.32);
-}
-
-function playMiss() { playTone(150, 0.28, 'sawtooth', 0.2); }
-function playPostureBonus() { playTone(660, 0.12, 'triangle', 0.28); setTimeout(()=>playTone(880,0.14,'triangle',0.28), 110); }
-function playSwitch() { playTone(440, 0.12, 'sine', 0.22); setTimeout(()=>playTone(587,0.14,'sine',0.22), 130); }
-function playFanfare() {
-  [523, 659, 784, 1047].forEach((f, i) => {
-    setTimeout(() => playTone(f, 0.25, 'triangle', 0.28), i * 110);
-  });
-}
-function playBossHit(step) { playTone(660 + step * 220, 0.2, 'sine', 0.3); }
-
-/* ── 2. CẤU HÌNH 5 LOẠI NOTE CHUỘT ────────────────── */
-const NOTE_DEFS = {
-  HOVER:        { label: '⭐ Di chuyển',  icon: '⭐', color: '#facc15', gradEnd: '#fbbf24', hint: '⭐', hintLabel: 'Di chuyển chuột', pts: 10 },
-  LEFT_CLICK:   { label: '👆 Nháy trái',  icon: '👆', color: '#3b82f6', gradEnd: '#60a5fa', hint: '👆', hintLabel: 'Nháy chuột trái', pts: 15 },
-  RIGHT_CLICK:  { label: '🖱️ Nháy phải', icon: '🖕', color: '#f97316', gradEnd: '#fb923c', hint: '🖕', hintLabel: 'Nháy chuột phải', pts: 15 },
-  DOUBLE_CLICK: { label: '✌️ Nháy đúp',  icon: '✌️', color: '#a855f7', gradEnd: '#c084fc', hint: '✌️', hintLabel: 'Nháy đúp 2 lần', pts: 20 },
-  DRAG:         { label: '🤏 Kéo thả',   icon: '🤏', color: '#10b981', gradEnd: '#34d399', hint: '🤏', hintLabel: 'Nhấn giữ & kéo A➔B', pts: 20 },
-};
-const TYPE_KEYS = Object.keys(NOTE_DEFS);
-
-const NOTE_LIFETIME    = 6000;   // 6 giây (chậm rãi cho học sinh lớp 3)
-const SPEED_BONUS_MS   = 3000;   // Dưới 3s được thưởng tốc độ +5đ
-const NOTE_R           = 54;     // Bán kính mục tiêu to rõ
-const APPROACH_START_R = NOTE_R * 2.65;
-const DBL_CLICK_MS     = 650;    // Khoảng thời gian nháy đúp rộng rãi
-
-/* ── 3. STATE TOÀN CỤC CỦA GAME ───────────────────── */
-const G = {
-  running:        false,
-  classId:        '3_2',
-  students:       [],        // Toàn bộ học sinh trong lớp [{name, idx}]
-  queue:          [],        // Danh sách gacha xáo trộn
-  currentIdx:     -1,
-  currentStudent: null,
-  studentData:    {},        // name -> {name, score, notesHit, notesMissed, time, played}
-  noiseCount:     0,         // Số lần lớp bị cảnh cáo ồn ào
-
-  // Lượt nốt hiện tại
-  noteSeq:        [],
-  noteIdx:        0,
-  activeNote:     null,
-  noteStartMs:    0,
-
-  // Toạ độ chuột & vệt sáng
-  mx: -999, my: -999,
-  trail: [],
-
-  // Kéo thả
-  drag: null,                // {dragging: bool, startX, startY, curX, curY, note}
-
-  // Nháy đúp
-  dblLast:    0,
-  dblNote:    null,
-
-  // Boss wave & posture
-  bossPhase:  false,
-  bossStep:   0,
-  bossNotes:  [],
-  waitSpace:  true,
-
-  // Animation frame
-  raf:        null,
-  switchTO:   null,
-};
-
-/* ── 4. CANVAS & HIỆU ỨNG CHUỘT ───────────────────── */
-const canvas    = document.getElementById('gameCanvas');
-const ctx       = canvas.getContext('2d');
-const gameArea  = document.getElementById('game-area');
-const cursorSvg = document.getElementById('cursor-dot');
-
-function resizeCanvas() {
-  canvas.width  = gameArea.clientWidth;
-  canvas.height = gameArea.clientHeight;
-}
-window.addEventListener('resize', resizeCanvas);
-
-// Cập nhật vị trí chuột & vệt sáng
-gameArea.addEventListener('mousemove', e => {
-  const r = canvas.getBoundingClientRect();
-  G.mx = e.clientX - r.left;
-  G.my = e.clientY - r.top;
-  cursorSvg.style.left = e.clientX + 'px';
-  cursorSvg.style.top  = e.clientY + 'px';
-
-  const now = performance.now();
-  G.trail.push({x: G.mx, y: G.my, t: now});
-  if (G.trail.length > 28) G.trail.shift();
-
-  if (!G.running || G.waitSpace || G.bossPhase) return;
-  if (!G.activeNote || !G.activeNote.alive) return;
-
-  const n = G.activeNote;
-
-  // 1. Thao tác HOVER: Lướt chuột vào là nổ
-  if (n.type === 'HOVER' && hit(G.mx, G.my, n)) {
-    registerHit(n);
-    return;
-  }
-
-  // 2. Thao tác DRAG: Vật dính chặt theo con trỏ chuột
-  if (G.drag && G.drag.dragging) {
-    G.drag.curX = G.mx;
-    G.drag.curY = G.my;
-
-    // Kiểm tra xem đã kéo chạm vào đích B chưa
-    const dx = G.mx - n.bx;
-    const dy = G.my - n.by;
-    const distToTarget = Math.sqrt(dx * dx + dy * dy);
-    if (distToTarget < NOTE_R * 0.95) {
-      registerHit(n);
-    }
-  }
-});
-
-gameArea.addEventListener('mousedown', e => {
-  ensureAudio();
-  const r = canvas.getBoundingClientRect();
-  const mx = e.clientX - r.left;
-  const my = e.clientY - r.top;
-
-  if (G.bossPhase) {
-    if (e.button === 0) handleBossClick(mx, my);
-    return;
-  }
-  if (!G.running || G.waitSpace) return;
-  if (!G.activeNote || !G.activeNote.alive) return;
-
-  const n = G.activeNote;
-  if (e.button === 0) {
-    // Chuột trái
-    if (n.type === 'LEFT_CLICK' && hit(mx, my, n)) {
-      registerHit(n);
-    } else if (n.type === 'DOUBLE_CLICK' && hit(mx, my, n)) {
-      handleDblClick(mx, my, n);
-    } else if (n.type === 'DRAG' && hit(mx, my, n)) {
-      startDrag(mx, my, n);
-    }
-  } else if (e.button === 2) {
-    // Chuột phải
-    if (n.type === 'RIGHT_CLICK' && hit(mx, my, n)) {
-      registerHit(n);
-    }
-  }
-});
-
-gameArea.addEventListener('mouseup', () => {
-  if (G.drag && G.drag.dragging) {
-    const n = G.drag.note;
-    if (n && n.alive) {
-      const dx = G.drag.curX - n.bx;
-      const dy = G.drag.curY - n.by;
-      if (Math.hypot(dx, dy) < NOTE_R * 1.1) {
-        registerHit(n);
-      } else {
-        // Buông tay giữa chừng mà chưa tới B -> Nảy về A
-        playTone(280, 0.15, 'triangle', 0.2);
-        popupAt(G.drag.curX, G.drag.curY - 30, 'Kéo chạm đích B nha! 🎯', 'miss');
-        G.drag = null;
-      }
-    } else {
-      G.drag = null;
-    }
-  }
-});
-
-// Phím Space xác nhận tư thế
-document.addEventListener('keydown', e => {
-  if (e.code === 'Space') {
-    e.preventDefault();
-    if (G.waitSpace) confirmPosture();
-  }
-});
-
-function hit(mx, my, obj) {
-  const r = obj.r || NOTE_R;
-  const dx = mx - obj.x, dy = my - obj.y;
-  return dx*dx + dy*dy < r*r;
-}
-
-function rnd(lo, hi) { return Math.random() * (hi - lo) + lo; }
-function rndInt(lo, hi) { return Math.floor(rnd(lo, hi)); }
-function shuffle(a) {
-  const b = [...a];
-  for (let i = b.length - 1; i > 0; i--) {
-    const j = rndInt(0, i + 1);
-    [b[i], b[j]] = [b[j], b[i]];
-  }
-  return b;
-}
-
-function safePos() {
-  const m = NOTE_R + 85;
-  return {
-    x: rnd(m, canvas.width - m),
-    y: rnd(m, canvas.height - m),
-  };
-}
-
-/* ── 5. BẮT ĐẦU GAME & NẠP HỌC SINH TỪ JSON ────────── */
-async function startPhase1() {
-  ensureAudio();
-  const cs = document.getElementById('classSel');
-  G.classId = cs ? cs.value : '3_2';
-
-  document.getElementById('setup-screen').style.display = 'none';
-  const gs = document.getElementById('game-screen');
-  gs.style.display = 'flex';
-
-  setTimeout(async () => {
-    resizeCanvas();
-    await loadClassStudents();
-    G.running = true;
-    requestAnimationFrame(gameLoop);
-  }, 400);
-}
-window.startPhase1 = startPhase1;
-
-async function loadClassStudents() {
-  let names = [];
-
-  // Thử nạp từ file JSON gốc
-  try {
-    const res = await fetch('../../assets/data/students_3_2026_2027.json');
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data[G.classId]) && data[G.classId].length > 0) {
-        names = data[G.classId];
-      }
-    }
-  } catch (err) {
-    console.warn('Lỗi nạp file JSON, dùng danh sách fallback:', err);
-  }
-
-  // Fallback nếu không có mạng
-  if (!names.length && window.FALLBACK_STUDENTS_KHOI_3 && window.FALLBACK_STUDENTS_KHOI_3[G.classId]) {
-    names = [...window.FALLBACK_STUDENTS_KHOI_3[G.classId]];
-  }
-  if (!names.length) {
-    names = ['Nguyễn Khả Ái', 'Nguyễn Đức Anh', 'Trịnh Gia Bảo', 'Võ Đoàn Nhã Hân', 'Lê Trúc Ly', 'Nguyễn Minh Thành'];
-  }
-
-  G.students = names.map((name, i) => ({ name, idx: i }));
-  G.queue = shuffle(G.students);
-  G.studentData = {};
-  G.students.forEach(s => {
-    G.studentData[s.name] = {
-      name: s.name,
-      score: 0,
-      notesHit: 0,
-      notesMissed: 0,
-      time: 0,
-      played: false
-    };
-  });
-
-  G.currentIdx = -1;
-  updateLiveRank();
-  advanceStudent();
-}
-
-/* ── 6. CHUYỂN LƯỢT HỌC SINH ─────────────────────── */
-function advanceStudent() {
-  G.currentIdx++;
-  if (G.currentIdx >= G.queue.length) {
-    startBossWave();
-    return;
-  }
-
-  G.currentStudent = G.queue[G.currentIdx];
-  G.noteSeq   = shuffle(TYPE_KEYS); // Đủ 5 loại note
-  G.noteIdx   = 0;
-  G.activeNote = null;
-  G.drag      = null;
-  G.waitSpace = true;
-
-  updateQueueUI();
-  updateLiveRank();
-  showPostureModal();
-  renderPips();
-  setSv(G.studentData[G.currentStudent.name].score);
-}
-
-function updateQueueUI() {
-  const cur  = G.currentStudent ? G.currentStudent.name : '—';
-  const next = G.queue[G.currentIdx + 1] ? G.queue[G.currentIdx + 1].name : (G.currentIdx >= G.queue.length - 1 ? '💀 Boss Wave' : '—');
-  const third = G.queue[G.currentIdx + 2] ? G.queue[G.currentIdx + 2].name : '—';
-
-  // Top banner
-  document.getElementById('top-current-name').textContent = cur;
-  document.getElementById('top-next-name').textContent    = next;
-
-  // Sidebar queue box
-  document.getElementById('queue-current-name').textContent = cur;
-  document.getElementById('queue-next-name').textContent    = next;
-  document.getElementById('queue-third-name').textContent   = third;
-}
-
-function showPostureModal() {
-  const cur  = G.currentStudent ? G.currentStudent.name : '—';
-  const next = G.queue[G.currentIdx + 1] ? G.queue[G.currentIdx + 1].name : 'Hoàn thành lượt!';
-  document.getElementById('posture-name').textContent      = cur;
-  document.getElementById('posture-next-name').textContent = next;
-  document.getElementById('posture-overlay').classList.remove('hidden');
-}
-
-function confirmPosture() {
-  G.waitSpace = false;
-  document.getElementById('posture-overlay').classList.add('hidden');
-  popupAt(canvas.width / 2, canvas.height / 2 - 70, '+10 ✅ Tư thế chuẩn!', 'bonus');
-  addScore(G.currentStudent.name, 10);
-  playPostureBonus();
-  setTimeout(spawnNext, 500);
-}
-
-/* ── 7. SPAWN NOTE & XỬ LÝ ĐÁNH TRÚNG / TRƯỢT ─────── */
-function spawnNext() {
-  if (G.noteIdx >= G.noteSeq.length) {
-    studentDone();
-    return;
-  }
-  const type = G.noteSeq[G.noteIdx];
-  const def  = NOTE_DEFS[type];
-  const pos  = safePos();
-  const note = {
-    type,
-    x: pos.x,
-    y: pos.y,
-    r: NOTE_R,
-    spawnT: performance.now(),
-    alive: true,
-    cracked: false,
-  };
-
-  // Nếu là nốt DRAG: tạo đích đến B ở vị trí thích hợp
-  if (type === 'DRAG') {
-    const ang  = rnd(0, Math.PI * 2);
-    const dist = rnd(200, 280);
-    const m    = NOTE_R + 85;
-    note.bx = Math.max(m, Math.min(canvas.width - m, pos.x + Math.cos(ang) * dist));
-    note.by = Math.max(m, Math.min(canvas.height - m, pos.y + Math.sin(ang) * dist));
-  }
-
-  G.activeNote  = note;
-  G.noteStartMs = performance.now();
-  G.drag        = null;
-  setFingerHint(type);
-  renderPips();
-  playTone(440, 0.08, 'sine', 0.18);
-}
-
-function registerHit(note) {
-  if (!note || !note.alive) return;
-  note.alive = false;
-  G.activeNote = null;
-  G.drag = null;
-
-  const elapsed = performance.now() - G.noteStartMs;
-  const def     = NOTE_DEFS[note.type];
-  const bonus   = elapsed < SPEED_BONUS_MS ? 5 : 0;
-  const pts     = def.pts + bonus;
-
-  const hitX = (note.type === 'DRAG' && note.bx) ? note.bx : note.x;
-  const hitY = (note.type === 'DRAG' && note.by) ? note.by : note.y;
-
-  popupAt(hitX, hitY - 44, bonus ? `+${def.pts} ⚡+5s` : `+${def.pts}`, 'hit');
-  addScore(G.currentStudent.name, pts);
-  G.studentData[G.currentStudent.name].notesHit++;
-  G.studentData[G.currentStudent.name].time += elapsed / 1000;
-
-  playHit(note.type);
-  burst(hitX, hitY, def.color);
-  G.noteIdx++;
-  renderPips();
-  setTimeout(spawnNext, 480);
-}
-
-function registerMiss(note) {
-  if (!note || !note.alive) return;
-  note.alive = false;
-  G.activeNote = null;
-  G.drag = null;
-
-  popupAt(note.x, note.y - 34, 'MISS! -5', 'miss');
-  addScore(G.currentStudent.name, -5);
-  G.studentData[G.currentStudent.name].notesMissed++;
-  playMiss();
-  G.noteIdx++;
-  renderPips();
-  setTimeout(spawnNext, 680);
-}
-
-function studentDone() {
-  G.activeNote = null;
-  G.drag = null;
-  G.waitSpace = true;
-  G.studentData[G.currentStudent.name].played = true;
-
-  playFanfare();
-  celebrate(`🎉 Xuất sắc, ${G.currentStudent.name}!`);
-  updateLiveRank();
-
-  setTimeout(() => {
-    uncelebrate();
-    showSwitchBanner();
-  }, 1400);
-}
-
-function showSwitchBanner() {
-  const next = G.queue[G.currentIdx + 1];
-  const nextName = next ? next.name : 'Đến lượt Boss Wave!';
-  const afterNext = G.queue[G.currentIdx + 2] ? G.queue[G.currentIdx + 2].name : '—';
-
-  document.getElementById('switch-title').textContent = '🔄 ĐỔI NGƯỜI!';
-  document.getElementById('switch-cur').textContent   = `🎮 Lên bảng: ${nextName}`;
-  document.getElementById('switch-next').textContent  = next ? `👉 Chuẩn bị tiếp theo: ${afterNext}` : '';
-  document.getElementById('switch-banner').classList.remove('hidden');
-  playSwitch();
-
-  G.switchTO = setTimeout(() => {
-    document.getElementById('switch-banner').classList.add('hidden');
-    advanceStudent();
-  }, 2600);
-}
-
-function manualNext() {
-  ensureAudio();
-  if (G.switchTO) { clearTimeout(G.switchTO); G.switchTO = null; }
-  document.getElementById('switch-banner').classList.add('hidden');
-  document.getElementById('posture-overlay').classList.add('hidden');
-
-  if (G.activeNote && G.activeNote.alive) registerMiss(G.activeNote);
-  G.activeNote = null; G.drag = null; G.waitSpace = false;
-  advanceStudent();
-}
-window.manualNext = manualNext;
-
-/* ── 8. THAO TÁC DOUBLE CLICK & DRAG & DROP ĐỈNH CAO ── */
-function handleDblClick(mx, my, note) {
-  const now = performance.now();
-  if (!note.cracked) {
-    note.cracked = true;
-    G.dblLast = now;
-    G.dblNote = note;
-    playTone(600, 0.08, 'square', 0.22);
-    popupAt(note.x, note.y - 30, 'Bấm thêm 1 lần nữa!', 'bonus');
-  } else {
-    if (now - G.dblLast < DBL_CLICK_MS && G.dblNote === note) {
-      registerHit(note);
-    } else {
-      note.cracked = false;
-      G.dblNote = null;
-    }
-  }
-}
-
-function startDrag(mx, my, note) {
-  G.drag = {
-    dragging: true,
-    startX: note.x,
-    startY: note.y,
-    curX: mx,
-    curY: my,
-    note: note
-  };
-  playTone(520, 0.1, 'sine', 0.25);
-}
-
-/* ── 9. NÚT PHẠT ỒN → CỘNG GIÂY CHO BẠN TRÊN BẢNG ─── */
-function addNoisePenalty(sec) {
-  ensureAudio();
-  G.noiseCount++;
-  document.getElementById('noiseCountBadge').textContent = `${G.noiseCount} lần ồn`;
-
-  // Cộng thời gian cho note hiện tại
-  if (G.activeNote && G.activeNote.alive) {
-    G.activeNote.spawnT += (sec * 1000); // Lùi thời điểm sinh -> Kéo dài thời gian còn lại
-  }
-
-  // Tặng điểm động viên cho bạn đang chơi
-  if (G.currentStudent) {
-    addScore(G.currentStudent.name, 5);
-  }
-
-  // Hiệu ứng âm thanh cảnh báo & Popup
-  playTone(320, 0.2, 'sawtooth', 0.28);
-  setTimeout(() => playTone(480, 0.25, 'triangle', 0.3), 180);
-
-  popupAt(canvas.width / 2, canvas.height * 0.35, `📢 LỚP ỒN! BẠN ĐƯỢC +${sec} GIÂY ⏱️`, 'penalty');
-  if (window.toast) {
-    window.toast(`🔇 Lớp mất trật tự! Thưởng bạn ${G.currentStudent ? G.currentStudent.name : ''} +${sec}s và +5 điểm!`, 2500, 'var(--red)');
-  }
-}
-window.addNoisePenalty = addNoisePenalty;
-
-function playNoiseWarning() {
-  ensureAudio();
-  G.noiseCount++;
-  document.getElementById('noiseCountBadge').textContent = `${G.noiseCount} lần ồn`;
-  playTone(250, 0.35, 'sawtooth', 0.35);
-  popupAt(canvas.width / 2, canvas.height * 0.35, '🔇 TRẬT TỰ NÀO CẢ LỚP! 🔇', 'penalty');
-}
-window.playNoiseWarning = playNoiseWarning;
-
-/* ── 10. BẢNG XẾP HẠNG TRỰC TIẾP (LIVE LEADERBOARD) ─ */
-function updateLiveRank(filterText = '') {
-  const container = document.getElementById('liveRankList');
-  if (!container) return;
-
-  const all = Object.values(G.studentData);
-  const playedCount = all.filter(s => s.played).length;
-  document.getElementById('lrpStats').textContent = `${playedCount}/${all.length} Đã chơi`;
-
-  // Sắp xếp: Học sinh có điểm cao hơn xếp trên; nếu bằng điểm thì bạn nào đã chơi xếp trên
-  const sorted = [...all].sort((a, b) => {
-    if (b.score !== a.score) return b.score - a.score;
-    if (a.played && !b.played) return -1;
-    if (!a.played && b.played) return 1;
-    return b.notesHit - a.notesHit;
-  });
-
-  // Gán thứ hạng thực tế
-  sorted.forEach((s, i) => { s.rank = i + 1; });
-
-  const query = filterText.toLowerCase().trim();
-  const displayList = query ? sorted.filter(s => s.name.toLowerCase().includes(query)) : sorted;
-
-  container.innerHTML = displayList.map(s => {
-    const isPlaying = G.currentStudent && G.currentStudent.name === s.name;
-    const isTop1 = s.rank === 1 && s.played;
-    const isTop2 = s.rank === 2 && s.played;
-    const isTop3 = s.rank === 3 && s.played;
-
-    let rankIcon = `#${s.rank}`;
-    if (isTop1) rankIcon = '🥇';
-    else if (isTop2) rankIcon = '🥈';
-    else if (isTop3) rankIcon = '🥉';
-
-    const rankClass = isPlaying ? 'is-playing' : (isTop1 ? 'rank-1' : (isTop2 ? 'rank-2' : (isTop3 ? 'rank-3' : (!s.played ? 'is-waiting' : ''))));
-
-    return `
-      <div class="lrp-row ${rankClass}">
-        <span class="lrp-rank-badge">${isPlaying ? '🎯' : rankIcon}</span>
-        <span class="lrp-name">
-          ${s.name}
-          ${isPlaying ? '<span class="playing-tag">ĐANG CHƠI</span>' : ''}
-          ${s.played ? `<span class="hit-tag">(${s.notesHit}/5 ⭐)</span>` : ''}
-        </span>
-        <span class="lrp-score">${s.score}đ</span>
       </div>
     `;
-  }).join('');
-}
+            }).join('');
+        }
+        window.renderStudentList = renderStudentList;
 
-function filterLiveRank(val) {
-  updateLiveRank(val);
-}
-window.filterLiveRank = filterLiveRank;
+        /* ── 11. GAME LOOP & VẼ CANVAS ─────────────────────── */
+        function gameLoop(now) {
+            if (!G.running) return;
+            G.raf = requestAnimationFrame(gameLoop);
 
-function addScore(name, delta) {
-  if (!G.studentData[name]) return;
-  G.studentData[name].score += delta;
-  if (G.currentStudent && G.currentStudent.name === name) {
-    setSv(G.studentData[name].score);
-  }
-  updateLiveRank();
-}
+            if (G.turnRunning && G.currentStudent) {
+                const liveElapsed = now - G.turnStartMs;
+                updateTimerUI(liveElapsed);
+            }
 
-/* ── 11. BOSS WAVE (TẮT MÁY TÍNH) ─────────────────── */
-function startBossWave() {
-  ensureAudio();
-  G.bossPhase = true;
-  G.bossStep  = 0;
-  G.waitSpace = false;
-  G.activeNote = null;
-  G.drag = null;
-  document.getElementById('posture-overlay').classList.add('hidden');
-  document.getElementById('switch-banner').classList.add('hidden');
+            drawScene(now);
+        }
 
-  G.bossNotes = [
-    { x: canvas.width * 0.22, y: canvas.height * 0.72, r: NOTE_R + 10, color: '#3b82f6', label: '🪟 Nút Start', step: 0, alive: true },
-    { x: canvas.width * 0.50, y: canvas.height * 0.55, r: NOTE_R + 10, color: '#22c55e', label: '⏻ Nút Power', step: 1, alive: false },
-    { x: canvas.width * 0.76, y: canvas.height * 0.42, r: NOTE_R + 10, color: '#e63946', label: '🔴 Shut down', step: 2, alive: false },
-  ];
+        function updateTimerUI(rawMs) {
+            const el = document.getElementById('timer-val');
+            if (!el) return;
+            const rec = G.currentStudent ? G.studentData[G.currentStudent.name] : null;
+            const penMs = rec ? rec.penaltySec * 1000 : 0;
+            el.textContent = fmtSec(rawMs + penMs);
+            updateTimerPenaltyBadge();
+        }
 
-  document.getElementById('boss-wave-overlay').classList.remove('hidden');
-  updateBossUI();
-  document.getElementById('top-current-name').textContent = '💀 BOSS WAVE';
-  document.getElementById('top-next-name').textContent    = 'TẮT MÁY TÍNH';
-  playTone(220, 0.6, 'sawtooth', 0.22);
-}
-window.startBossWave = startBossWave;
+        function updateTimerPenaltyBadge() {
+            const penEl = document.getElementById('timer-pen');
+            if (!penEl) return;
+            const rec = G.currentStudent ? G.studentData[G.currentStudent.name] : null;
+            if (rec && rec.penaltySec > 0) {
+                penEl.textContent = `🔊 Đã cộng +${rec.penaltySec}.000s phạt ồn`;
+            } else {
+                penEl.textContent = '';
+            }
+        }
 
-function handleBossClick(mx, my) {
-  const bn = G.bossNotes[G.bossStep];
-  if (!bn || !bn.alive) return;
-  const dx = mx - bn.x, dy = my - bn.y;
-  if (dx*dx + dy*dy < bn.r * bn.r) {
-    bn.alive = false;
-    burst(bn.x, bn.y, bn.color);
-    popupAt(bn.x, bn.y - 46, '+50 🎯', 'bonus');
-    playBossHit(G.bossStep);
-    G.bossStep++;
-    updateBossUI();
+        function drawScene(now) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (G.bossStep < G.bossNotes.length) {
-      G.bossNotes[G.bossStep].alive = true;
-    } else {
-      bossDone();
-    }
-  }
-}
+            const bg = ctx.createRadialGradient(
+                canvas.width * 0.5, canvas.height * 0.45, 0,
+                canvas.width * 0.5, canvas.height * 0.5, Math.max(canvas.width, canvas.height)
+            );
+            bg.addColorStop(0, '#111827');
+            bg.addColorStop(1, '#0a0e1a');
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-function updateBossUI() {
-  for (let i = 0; i < 3; i++) {
-    const el = document.getElementById(`boss-step-${i}`);
-    if (!el) continue;
-    el.classList.remove('active', 'done');
-    if (i < G.bossStep) el.classList.add('done');
-    else if (i === G.bossStep) el.classList.add('active');
-  }
-}
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.025)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 64) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 64) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
 
-function bossDone() {
-  playFanfare();
-  celebrate('🖥️ ĐÃ TẮT MÁY AN TOÀN! 🎊');
-  setTimeout(() => {
-    uncelebrate();
-    document.getElementById('boss-wave-overlay').classList.add('hidden');
-    G.bossPhase = false;
-    showSummary();
-  }, 2600);
-}
+            drawTrail(now);
 
-/* ── 12. GAME LOOP & VẼ ĐỒ HOẠ CANVAS ─────────────── */
-function gameLoop(now) {
-  G.raf = requestAnimationFrame(gameLoop);
-  drawScene(now);
-}
+            if (G.inShutdownStep) {
+                drawShutdownStep(now);
+            } else if (G.activeNote && G.activeNote.alive && !G.waitSpace) {
+                const elapsed = now - G.activeNote.spawnT;
+                drawNote(G.activeNote, elapsed, now);
+            }
+        }
 
-function drawScene(now) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function drawTrail(now) {
+            const pts = G.trail.filter(p => now - p.t < 500);
+            pts.forEach((p, i) => {
+                const age = now - p.t;
+                const alpha = (1 - age / 500) * 0.7;
+                const rad = Math.max(2, 8 * (1 - i / pts.length));
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, rad, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(56, 189, 248, ${alpha})`;
+                ctx.fill();
+            });
+        }
 
-  // Nền vũ trụ gradient sâu thẳm
-  const bg = ctx.createRadialGradient(
-    canvas.width * 0.5, canvas.height * 0.45, 0,
-    canvas.width * 0.5, canvas.height * 0.5, Math.max(canvas.width, canvas.height)
-  );
-  bg.addColorStop(0, '#111827');
-  bg.addColorStop(1, '#0a0e1a');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+        function drawNote(note, elapsed, now) {
+            const def = NOTE_DEFS[note.type];
+            const { x, y } = note;
 
-  // Lưới công nghệ mờ
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.025)';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < canvas.width; x += 64) {
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-  }
-  for (let y = 0; y < canvas.height; y += 64) {
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-  }
+            // Vòng nhịp Osu! co giãn liên tục hướng dẫn mắt nhìn
+            const cycle = (elapsed % 2200) / 2200;
+            const appR = APPROACH_START_R + (NOTE_R - APPROACH_START_R) * cycle;
+            ctx.beginPath();
+            ctx.arc(x, y, Math.max(NOTE_R + 2, appR), 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${0.55 - cycle * 0.35})`;
+            ctx.lineWidth = 3;
+            ctx.stroke();
 
-  // Vẽ vệt sáng con trỏ (Cursor Trail)
-  drawTrail(now);
+            const urgency = elapsed > 5000 ? (Math.sin(now / 80) * 0.5 + 0.5) : 0;
 
-  if (G.bossPhase) {
-    drawBossNotes(now);
-  } else if (G.activeNote && G.activeNote.alive && !G.waitSpace) {
-    const elapsed = now - G.activeNote.spawnT;
-    if (elapsed >= NOTE_LIFETIME) {
-      registerMiss(G.activeNote);
-    } else {
-      drawNote(G.activeNote, elapsed, now);
-    }
-  }
-}
+            ctx.save();
+            switch (note.type) {
+                case 'HOVER':
+                    drawStar(x, y, NOTE_R, def.color, now);
+                    break;
+                case 'DOUBLE_CLICK':
+                    drawHex(x, y, NOTE_R, def.color, note.cracked);
+                    break;
+                case 'DRAG':
+                    drawDragNote(note, def.color, urgency, now);
+                    break;
+                default:
+                    drawCircle(x, y, NOTE_R, def.color, def.gradEnd, urgency);
+            }
+            ctx.restore();
 
-function drawTrail(now) {
-  const pts = G.trail.filter(p => now - p.t < 550);
-  pts.forEach((p, i) => {
-    const age   = now - p.t;
-    const alpha = (1 - age / 550) * 0.7;
-    const rad   = Math.max(2, 8 * (1 - i / pts.length));
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, rad, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(56, 189, 248, ${alpha})`;
-    ctx.fill();
-  });
-}
+            if (note.type !== 'DRAG' || !G.drag || !G.drag.dragging) {
+                ctx.save();
+                ctx.font = `bold ${Math.round(NOTE_R * 0.62)}px serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(def.icon, x, y);
+                ctx.restore();
+            }
 
-/* ── 13. VẼ CÁC LOẠI NOTE ─────────────────────────── */
-function drawNote(note, elapsed, now) {
-  const prog = Math.min(1, elapsed / NOTE_LIFETIME);
-  const def  = NOTE_DEFS[note.type];
-  const { x, y } = note;
+            if (note.type === 'DOUBLE_CLICK') {
+                ctx.save();
+                ctx.font = 'bold 14px Quicksand,sans-serif';
+                ctx.fillStyle = '#fef08a';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('×2 LIÊN TIẾP', x, y + NOTE_R + 18);
+                ctx.restore();
+            }
 
-  // Approach Ring thu hẹp từ ngoài vào tâm
-  const appR = APPROACH_START_R + (NOTE_R - APPROACH_START_R) * prog;
-  ctx.beginPath();
-  ctx.arc(x, y, Math.max(NOTE_R + 1, appR), 0, Math.PI * 2);
-  ctx.strokeStyle = `rgba(255, 255, 255, ${0.55 - prog * 0.4})`;
-  ctx.lineWidth   = 3;
-  ctx.stroke();
+            // Hiển thị đồng hồ ms ngay dưới nốt đang làm
+            ctx.save();
+            ctx.font = 'bold 13px Quicksand,sans-serif';
+            ctx.fillStyle = '#38bdf8';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${(elapsed / 1000).toFixed(2)}s`, x, y - NOTE_R - 14);
+            ctx.restore();
+        }
 
-  const remaining = NOTE_LIFETIME - elapsed;
-  const urgency   = remaining < 1600 ? (Math.sin(now / 75) * 0.5 + 0.5) : 0;
+        function drawCircle(x, y, r, col, colEnd, urgency) {
+            const grd = ctx.createRadialGradient(x, y, 0, x, y, r);
+            grd.addColorStop(0, '#ffffff');
+            grd.addColorStop(0.35, col);
+            grd.addColorStop(1, colEnd + '66');
+            ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fillStyle = grd; ctx.fill();
+            ctx.strokeStyle = urgency > 0 ? `rgba(250, 204, 21, ${urgency})` : 'rgba(255, 255, 255, 0.6)';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
 
-  ctx.save();
-  switch(note.type) {
-    case 'HOVER':
-      drawStar(x, y, NOTE_R, def.color, urgency, now);
-      break;
-    case 'DOUBLE_CLICK':
-      drawHex(x, y, NOTE_R, def.color, urgency, note.cracked);
-      break;
-    case 'DRAG':
-      drawDragNote(note, def.color, urgency, now);
-      break;
-    default:
-      drawCircle(x, y, NOTE_R, def.color, def.gradEnd, urgency);
-  }
-  ctx.restore();
+        function drawStar(x, y, r, col, now) {
+            const t = now / 360;
+            const scl = 1 + Math.sin(t) * 0.08;
+            const pts = 5, inner = r * 0.42;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scl, scl);
+            ctx.rotate(Math.sin(t * 0.5) * 0.12);
+            ctx.beginPath();
+            for (let i = 0; i < pts * 2; i++) {
+                const a = (i * Math.PI / pts) - Math.PI / 2;
+                const rad = i % 2 === 0 ? r : inner;
+                i === 0 ? ctx.moveTo(Math.cos(a) * rad, Math.sin(a) * rad)
+                    : ctx.lineTo(Math.cos(a) * rad, Math.sin(a) * rad);
+            }
+            ctx.closePath();
+            const grd = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
+            grd.addColorStop(0, '#fffde4'); grd.addColorStop(0.5, col); grd.addColorStop(1, col + '44');
+            ctx.fillStyle = grd; ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'; ctx.lineWidth = 2.5; ctx.stroke();
+            ctx.restore();
+        }
 
-  // Vẽ icon ở tâm note (trừ trường hợp nốt drag đang được kéo)
-  if (note.type !== 'DRAG' || !G.drag || !G.drag.dragging) {
-    ctx.save();
-    ctx.font = `bold ${Math.round(NOTE_R * 0.62)}px serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(def.icon, x, y);
-    ctx.restore();
-  }
+        function drawHex(x, y, r, col, cracked) {
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                const a = i * (Math.PI / 3) - Math.PI / 6;
+                const px = x + r * Math.cos(a), py = y + r * Math.sin(a);
+                i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            const grd = ctx.createRadialGradient(x, y, 0, x, y, r);
+            grd.addColorStop(0, '#f3e8ff'); grd.addColorStop(0.5, col); grd.addColorStop(1, col + '44');
+            ctx.fillStyle = grd; ctx.fill();
+            ctx.strokeStyle = cracked ? '#facc15' : 'rgba(255, 255, 255, 0.55)';
+            ctx.lineWidth = cracked ? 4 : 2.5;
+            ctx.stroke();
 
-  // Nhãn ×2 cho nháy đúp
-  if (note.type === 'DOUBLE_CLICK') {
-    ctx.save();
-    ctx.font = 'bold 14px Quicksand,sans-serif';
-    ctx.fillStyle = '#fef08a';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('×2', x, y + NOTE_R * 0.78);
-    ctx.restore();
-  }
+            if (cracked) {
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.moveTo(-8, -r * 0.4); ctx.lineTo(4, 0); ctx.lineTo(-5, r * 0.35);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
 
-  // Thanh thời gian đếm ngược (Timer bar)
-  const bw = NOTE_R * 2, bh = 6;
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
-  roundRect(ctx, x - bw / 2, y + NOTE_R + 10, bw, bh, 3);
-  ctx.fill();
+        function drawDragNote(note, col, urgency, now) {
+            const { x, y, bx, by } = note;
+            const isDragging = G.drag && G.drag.dragging && G.drag.note === note;
+            const distToB = isDragging ? Math.hypot(G.drag.curX - bx, G.drag.curY - by) : 999;
+            const isNearB = distToB < NOTE_R * 1.5;
 
-  const frac = Math.max(0, 1 - prog);
-  ctx.fillStyle = remaining < 1600 ? '#ef4444' : remaining < 3200 ? '#facc15' : '#22c55e';
-  roundRect(ctx, x - bw / 2, y + NOTE_R + 10, bw * frac, bh, 3);
-  ctx.fill();
-}
+            ctx.save();
+            const bPulse = isNearB ? (Math.sin(now / 120) * 0.2 + 1.1) : (Math.sin(now / 400) * 0.08 + 1);
+            const targetR = NOTE_R * 0.85 * bPulse;
 
-function roundRect(c, x, y, w, h, r) {
-  c.beginPath();
-  c.moveTo(x + r, y);
-  c.lineTo(x + w - r, y); c.quadraticCurveTo(x + w, y, x + w, y + r);
-  c.lineTo(x + w, y + h - r); c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  c.lineTo(x + r, y + h); c.quadraticCurveTo(x, y + h, x, y + h - r);
-  c.lineTo(x, y + r); c.quadraticCurveTo(x, y, x + r, y);
-  c.closePath();
-}
+            if (isNearB) {
+                ctx.beginPath();
+                ctx.arc(bx, by, targetR + 16, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(34, 197, 94, 0.25)';
+                ctx.fill();
+            }
 
-function drawCircle(x, y, r, col, colEnd, urgency) {
-  const grd = ctx.createRadialGradient(x, y, 0, x, y, r);
-  grd.addColorStop(0, '#ffffff');
-  grd.addColorStop(0.35, col);
-  grd.addColorStop(1, colEnd + '66');
-  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.fillStyle = grd; ctx.fill();
-  ctx.strokeStyle = urgency > 0 ? `rgba(239, 68, 68, ${urgency})` : 'rgba(255, 255, 255, 0.55)';
-  ctx.lineWidth   = urgency > 0 ? 3.5 : 2.5;
-  if (urgency > 0) { ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 18 * urgency; }
-  ctx.stroke();
-  ctx.shadowBlur = 0;
-}
+            ctx.beginPath();
+            ctx.arc(bx, by, targetR, 0, Math.PI * 2);
+            ctx.strokeStyle = isNearB ? '#22c55e' : 'rgba(16, 185, 129, 0.7)';
+            ctx.lineWidth = isNearB ? 4 : 2.5;
+            ctx.setLineDash([8, 8]);
+            ctx.stroke();
+            ctx.setLineDash([]);
 
-function drawStar(x, y, r, col, urgency, now) {
-  const t   = now / 380;
-  const scl = 1 + Math.sin(t) * 0.08;
-  const pts = 5, inner = r * 0.42;
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(scl, scl);
-  ctx.rotate(Math.sin(t * 0.5) * 0.12);
-  ctx.beginPath();
-  for (let i = 0; i < pts * 2; i++) {
-    const a   = (i * Math.PI / pts) - Math.PI / 2;
-    const rad = i % 2 === 0 ? r : inner;
-    i === 0 ? ctx.moveTo(Math.cos(a) * rad, Math.sin(a) * rad)
-            : ctx.lineTo(Math.cos(a) * rad, Math.sin(a) * rad);
-  }
-  ctx.closePath();
-  const grd = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
-  grd.addColorStop(0, '#fffde4'); grd.addColorStop(0.5, col); grd.addColorStop(1, col + '44');
-  ctx.fillStyle = grd; ctx.fill();
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'; ctx.lineWidth = 2.5; ctx.stroke();
-  ctx.restore();
-}
+            ctx.font = 'bold 24px serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🎯', bx, by - 4);
+            ctx.font = 'bold 12px Quicksand,sans-serif';
+            ctx.fillStyle = isNearB ? '#4ade80' : '#a7f3d0';
+            ctx.fillText(isNearB ? 'THẢ TAY ĐÂY!' : 'ĐÍCH B', bx, by + targetR + 14);
+            ctx.restore();
 
-function drawHex(x, y, r, col, urgency, cracked) {
-  ctx.beginPath();
-  for (let i = 0; i < 6; i++) {
-    const a = i * (Math.PI / 3) - Math.PI / 6;
-    const px = x + r * Math.cos(a), py = y + r * Math.sin(a);
-    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
-  }
-  ctx.closePath();
-  const grd = ctx.createRadialGradient(x, y, 0, x, y, r);
-  grd.addColorStop(0, '#f3e8ff'); grd.addColorStop(0.5, col); grd.addColorStop(1, col + '44');
-  ctx.fillStyle = grd; ctx.fill();
-  ctx.strokeStyle = cracked ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.5)';
-  ctx.lineWidth   = cracked ? 3.5 : 2.5;
-  ctx.stroke();
+            ctx.save();
+            ctx.setLineDash([10, 10]);
+            ctx.lineDashOffset = -(now / 25) % 20;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(bx, by); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.restore();
 
-  if (cracked) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(-8, -r * 0.4); ctx.lineTo(4, 0); ctx.lineTo(-5, r * 0.35);
-    ctx.stroke();
-    ctx.restore();
-  }
-}
+            if (isDragging) {
+                const curX = G.drag.curX, curY = G.drag.curY;
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(x, y, NOTE_R * 0.65, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+                ctx.setLineDash([6, 6]);
+                ctx.stroke();
+                ctx.restore();
 
-/* ── 14. VẼ ANIMATION KÉO THẢ (DRAG & DROP ĐÍCH THỰC) ── */
-function drawDragNote(note, col, urgency, now) {
-  const {x, y, bx, by} = note;
-  const isDragging = G.drag && G.drag.dragging && G.drag.note === note;
+                ctx.save();
+                ctx.strokeStyle = '#34d399';
+                ctx.lineWidth = 3.5;
+                ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(curX, curY); ctx.stroke();
 
-  // 1. Đích B đón nhận (Target B)
-  const distToB = isDragging ? Math.hypot(G.drag.curX - bx, G.drag.curY - by) : 999;
-  const isNearB = distToB < NOTE_R * 1.5;
+                const dragR = NOTE_R * 1.12;
+                const dragGrd = ctx.createRadialGradient(curX, curY, 0, curX, curY, dragR);
+                dragGrd.addColorStop(0, '#ecfdf5');
+                dragGrd.addColorStop(0.4, '#10b981');
+                dragGrd.addColorStop(1, '#047857');
+                ctx.beginPath(); ctx.arc(curX, curY, dragR, 0, Math.PI * 2);
+                ctx.fillStyle = dragGrd; ctx.fill();
+                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3; ctx.stroke();
 
-  ctx.save();
-  const bPulse = isNearB ? (Math.sin(now / 120) * 0.2 + 1.1) : (Math.sin(now / 400) * 0.08 + 1);
-  const targetR = NOTE_R * 0.85 * bPulse;
+                ctx.font = 'bold 32px serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText('🤏', curX, curY);
+                ctx.restore();
+            } else {
+                drawCircle(x, y, NOTE_R, col, col, urgency);
+            }
+        }
 
-  // Hào quang hút từ tính nếu đang kéo lại gần B
-  if (isNearB) {
-    ctx.beginPath();
-    ctx.arc(bx, by, targetR + 16, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(34, 197, 94, 0.25)';
-    ctx.fill();
-  }
+        /* ── 12. VẼ MENU START -> POWER -> SHUT DOWN ───────── */
+        function drawShutdownStep(now) {
+            // Vẽ thanh Taskbar giả lập ở đáy màn hình
+            ctx.save();
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+            ctx.fillRect(0, canvas.height - 46, canvas.width, 46);
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
+            ctx.beginPath(); ctx.moveTo(0, canvas.height - 46); ctx.lineTo(canvas.width, canvas.height - 46); ctx.stroke();
+            ctx.restore();
 
-  ctx.beginPath();
-  ctx.arc(bx, by, targetR, 0, Math.PI * 2);
-  ctx.strokeStyle = isNearB ? '#22c55e' : 'rgba(16, 185, 129, 0.7)';
-  ctx.lineWidth = isNearB ? 4 : 2.5;
-  ctx.setLineDash([8, 8]);
-  ctx.stroke();
-  ctx.setLineDash([]);
+            // Đường nối giữa các bước Start -> Power -> Shut down
+            if (G.shutdownSubStep > 0) {
+                ctx.save();
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.28)';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([6, 6]);
+                ctx.beginPath();
+                for (let i = 0; i <= G.shutdownSubStep && i < G.shutdownTargets.length; i++) {
+                    const t = G.shutdownTargets[i];
+                    if (i === 0) ctx.moveTo(t.x, t.y);
+                    else ctx.lineTo(t.x, t.y);
+                }
+                ctx.stroke();
+                ctx.restore();
+            }
 
-  // Icon đích B
-  ctx.font = 'bold 24px serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('🎯', bx, by - 6);
+            G.shutdownTargets.forEach((t, i) => {
+                if (i > G.shutdownSubStep) return; // Chỉ hiện nút tiếp theo sau khi đã bấm nút trước (đúng chuẩn menu mở dần)
+                const isActive = i === G.shutdownSubStep;
+                ctx.save();
+                ctx.globalAlpha = isActive ? 1 : 0.35;
 
-  ctx.font = 'bold 12px Quicksand,sans-serif';
-  ctx.fillStyle = isNearB ? '#4ade80' : 'rgba(255, 255, 255, 0.7)';
-  ctx.fillText(isNearB ? 'THẢ TAY ĐÂY!' : 'ĐÍCH B', bx, by + targetR + 14);
-  ctx.restore();
+                if (isActive) {
+                    const pulse = Math.sin(now / 180) * 0.25 + 0.85;
+                    ctx.beginPath();
+                    ctx.arc(t.x, t.y, t.r + 18 * pulse, 0, Math.PI * 2);
+                    ctx.strokeStyle = t.color;
+                    ctx.lineWidth = 3.5;
+                    ctx.stroke();
+                }
 
-  // 2. Đường ray hướng dẫn A ➔ B (Dotted rail with flow offset)
-  ctx.save();
-  ctx.setLineDash([10, 10]);
-  ctx.lineDashOffset = -(now / 25) % 20;
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
-  ctx.lineWidth = 2.5;
-  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(bx, by); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.restore();
+                const grd = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, t.r);
+                grd.addColorStop(0, '#ffffff');
+                grd.addColorStop(0.35, t.color);
+                grd.addColorStop(1, t.color + '55');
+                ctx.beginPath();
+                ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
+                ctx.fillStyle = grd;
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
 
-  // 3. Vị trí A & Vật thể đang kéo
-  if (isDragging) {
-    const curX = G.drag.curX;
-    const curY = G.drag.curY;
+                ctx.font = 'bold 26px serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(t.icon, t.x, t.y);
 
-    // A: Để lại bệ xuất phát mờ mờ (Ghost Socket)
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(x, y, NOTE_R * 0.7, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([6, 6]);
-    ctx.stroke();
-    ctx.font = 'bold 14px Quicksand,sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('Gốc A', x, y);
-    ctx.restore();
+                ctx.font = 'bold 14px Quicksand,sans-serif';
+                ctx.fillStyle = '#fff';
+                ctx.fillText(t.label, t.x + t.r + 55, t.y);
+                ctx.restore();
+            });
+        }
 
-    // Sợi dây năng lượng đàn hồi nối từ A đến vị trí tay chuột
-    ctx.save();
-    const gradLine = ctx.createLinearGradient(x, y, curX, curY);
-    gradLine.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
-    gradLine.addColorStop(1, '#34d399');
-    ctx.strokeStyle = gradLine;
-    ctx.lineWidth = 3.5;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(curX, curY);
-    ctx.stroke();
-    ctx.restore();
-
-    // VẬT THỂ DI CHUYỂN DÍNH CHẶT THEO CON TRỎ CHUỘT
-    ctx.save();
-    const dragScale = 1.15;
-    const dragR = NOTE_R * dragScale;
-
-    // Vầng hào quang sáng lóa khi đang gắp
-    ctx.shadowColor = '#10b981';
-    ctx.shadowBlur = 28;
-
-    const dragGrd = ctx.createRadialGradient(curX, curY, 0, curX, curY, dragR);
-    dragGrd.addColorStop(0, '#ecfdf5');
-    dragGrd.addColorStop(0.4, '#10b981');
-    dragGrd.addColorStop(1, '#047857');
-    ctx.beginPath();
-    ctx.arc(curX, curY, dragR, 0, Math.PI * 2);
-    ctx.fillStyle = dragGrd;
-    ctx.fill();
-
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-
-    // Icon bàn tay gắp
-    ctx.font = 'bold 34px serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('🤏', curX, curY);
-
-    // Nhãn hướng dẫn dưới vật thể đang kéo
-    ctx.font = 'bold 12px Quicksand,sans-serif';
-    ctx.fillStyle = '#a7f3d0';
-    ctx.fillText('Kéo thả vào B ➔', curX, curY + dragR + 14);
-    ctx.restore();
-
-  } else {
-    // CHƯA KÉO: Vẽ nốt tròn bình thường tại điểm A
-    drawCircle(x, y, NOTE_R, col, col, urgency);
-    ctx.save();
-    ctx.font = 'bold 11px Quicksand,sans-serif';
-    ctx.fillStyle = '#ffffff';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('KÉO ĐI', x, y + NOTE_R * 0.72);
-    ctx.restore();
-  }
-}
-
-/* ── 15. VẼ CÁC MỤC TIÊU CỦA BOSS WAVE ─────────────── */
-function drawBossNotes(now) {
-  G.bossNotes.forEach((bn, i) => {
-    const r   = bn.r;
-    const alp = bn.alive ? 1 : 0.22;
-    ctx.globalAlpha = alp;
-
-    if (bn.alive) {
-      const pulse = Math.sin(now / 290) * 0.35 + 0.65;
-      ctx.beginPath(); ctx.arc(bn.x, bn.y, r + 22 * pulse, 0, Math.PI * 2);
-      ctx.strokeStyle = bn.color; ctx.lineWidth = 3;
-      ctx.globalAlpha = pulse * 0.38; ctx.stroke();
-      ctx.globalAlpha = alp;
-    }
-
-    const grd = ctx.createRadialGradient(bn.x, bn.y, 0, bn.x, bn.y, r);
-    grd.addColorStop(0, bn.color + 'ff');
-    grd.addColorStop(1, bn.color + '44');
-    ctx.beginPath(); ctx.arc(bn.x, bn.y, r, 0, Math.PI * 2);
-    ctx.fillStyle = grd; ctx.fill();
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'; ctx.lineWidth = 2.5; ctx.stroke();
-
-    ctx.font = 'bold 22px Quicksand,sans-serif';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#fff';
-    ctx.fillText(String(i + 1), bn.x, bn.y - 7);
-    ctx.font = 'bold 13px Quicksand,sans-serif';
-    ctx.fillText(bn.label, bn.x, bn.y + r + 16);
-    ctx.globalAlpha = 1;
-  });
-}
-
-/* ── 16. HIỆU ỨNG HẠT PHÁO SÁNG (BURST PARTICLES) ─── */
-function burst(cx, cy, color) {
-  const area = document.getElementById('game-area');
-  for (let i = 0; i < 14; i++) {
-    const el = document.createElement('div');
-    const ang  = (i / 14) * Math.PI * 2;
-    const dist = rnd(40, 100);
-    const tx   = Math.cos(ang) * dist;
-    const ty   = Math.sin(ang) * dist;
-    const dur  = rnd(0.5, 0.85);
-    el.style.cssText = `
-      position:absolute; width:9px; height:9px; border-radius:50%;
+        /* ── 13. HIỆU ỨNG HẠT & UI PHỤ TRỢ ─────────────────── */
+        function burst(cx, cy, color) {
+            for (let i = 0; i < 12; i++) {
+                const el = document.createElement('div');
+                const ang = (i / 12) * Math.PI * 2;
+                const dist = rnd(35, 90);
+                const tx = Math.cos(ang) * dist;
+                const ty = Math.sin(ang) * dist;
+                const dur = rnd(0.45, 0.75);
+                el.style.cssText = `
+      position:absolute; width:8px; height:8px; border-radius:50%;
       background:${color}; left:${cx}px; top:${cy}px;
       pointer-events:none; z-index:125;
       transform:translate(-50%,-50%);
       box-shadow:0 0 10px ${color};
       transition: transform ${dur}s ease-out, opacity ${dur}s ease-out;
     `;
-    area.appendChild(el);
-    requestAnimationFrame(() => {
-      el.style.transform = `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0.1)`;
-      el.style.opacity   = '0';
-    });
-    setTimeout(() => el.remove(), dur * 1000 + 50);
-  }
-}
+                gameArea.appendChild(el);
+                requestAnimationFrame(() => {
+                    el.style.transform = `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0.1)`;
+                    el.style.opacity = '0';
+                });
+                setTimeout(() => el.remove(), dur * 1000 + 50);
+            }
+        }
 
-/* ── 17. CẬP NHẬT GIAO DIỆN PHỤ ───────────────────── */
-function setSv(n) { document.getElementById('score-val').textContent = n; }
+        function setFingerHint(type) {
+            const def = NOTE_DEFS[type];
+            document.getElementById('finger-hint-icon').textContent = def.hint;
+            document.getElementById('note-type-label').textContent = def.hintLabel;
+            const icon = document.getElementById('finger-hint-icon');
+            icon.classList.remove('pulse'); void icon.offsetWidth; icon.classList.add('pulse');
+        }
 
-function setFingerHint(type) {
-  const def = NOTE_DEFS[type];
-  document.getElementById('finger-hint-icon').textContent  = def.hint;
-  document.getElementById('note-type-label').textContent   = def.hintLabel;
-  const icon = document.getElementById('finger-hint-icon');
-  icon.classList.remove('pulse'); void icon.offsetWidth; icon.classList.add('pulse');
-}
+        function renderStepPips() {
+            const c = document.getElementById('step-pips');
+            if (!c) return;
+            c.innerHTML = '';
+            // 5 bước chuột + Bước 6 Tắt máy
+            const allSteps = [...G.noteSeq.map(k => NOTE_DEFS[k].icon), '⏻'];
+            const currentStep = G.inShutdownStep ? 5 : G.noteIdx;
 
-function popupAt(x, y, txt, cls) {
-  const el = document.createElement('div');
-  el.className = `score-popup ${cls}`;
-  el.textContent = txt;
-  el.style.left = x + 'px';
-  el.style.top  = y + 'px';
-  gameArea.appendChild(el);
-  setTimeout(() => el.remove(), 1200);
-}
+            allSteps.forEach((ic, idx) => {
+                const d = document.createElement('div');
+                d.className = 'step-pip';
+                if (idx < currentStep || (G.currentStudent && G.studentData[G.currentStudent.name].played)) {
+                    d.classList.add('done');
+                    d.textContent = '✓';
+                } else if (idx === currentStep) {
+                    d.classList.add('active');
+                    d.textContent = ic;
+                } else {
+                    d.textContent = ic;
+                    d.style.opacity = '0.35';
+                }
+                c.appendChild(d);
+            });
+        }
 
-function celebrate(txt) {
-  document.getElementById('celebration-text').textContent = txt;
-  document.getElementById('celebration-overlay').classList.remove('hidden');
-  confetti();
-}
-function uncelebrate() { document.getElementById('celebration-overlay').classList.add('hidden'); }
+        function popupAt(x, y, txt, cls) {
+            const el = document.createElement('div');
+            el.className = `score-popup ${cls}`;
+            el.textContent = txt;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            gameArea.appendChild(el);
+            setTimeout(() => el.remove(), 1150);
+        }
 
-function confetti() {
-  const cols = ['#ffb703', '#4361ee', '#e63946', '#22c55e', '#a855f7', '#f97316', '#38bdf8'];
-  for (let i = 0; i < 48; i++) {
-    const el = document.createElement('div');
-    el.className = 'confetti-piece';
-    const col = cols[rndInt(0, cols.length)];
-    const w   = rndInt(8, 14), h = rndInt(8, 14);
-    const dur = rnd(1.2, 2.4), delay = rnd(0, 0.45);
-    el.style.cssText = `
-      left:${rnd(5, 95)}%; top:0;
-      width:${w}px; height:${h}px;
-      background:${col};
-      animation: confettiFall ${dur}s ${delay}s linear forwards;
+        /* ── 14. TỔNG KẾT & HIỆU ỨNG VINH DANH TOP 1 ĐẶC BIỆT ─ */
+        function getRankedStudents() {
+            const all = Object.values(G.studentData);
+            const played = all.filter(s => s.played).sort((a, b) => getFinalTotalMs(a) - getFinalTotalMs(b));
+            const unplayed = all.filter(s => !s.played).sort((a, b) => a.stt - b.stt);
+            played.forEach((s, idx) => { s.rank = idx + 1; });
+            unplayed.forEach(s => { s.rank = null; });
+            return { played, unplayed, combined: [...played, ...unplayed] };
+        }
+
+        function generateDetailedEvaluation(rec) {
+            if (!rec.played) {
+                return { level: 'Chưa thực hiện', comment: 'Học sinh chưa thực hiện lượt bấm giờ trên bảng.' };
+            }
+            const skillEntries = [
+                { key: 'HOVER', name: 'Di chuyển chuột', ms: rec.skillMs.HOVER },
+                { key: 'LEFT_CLICK', name: 'Nháy chuột trái', ms: rec.skillMs.LEFT_CLICK },
+                { key: 'RIGHT_CLICK', name: 'Nháy nút phải chuột', ms: rec.skillMs.RIGHT_CLICK },
+                { key: 'DOUBLE_CLICK', name: 'Nháy đúp chuột', ms: rec.skillMs.DOUBLE_CLICK },
+                { key: 'DRAG', name: 'Kéo thả chuột', ms: rec.skillMs.DRAG },
+                { key: 'SHUTDOWN', name: 'Tắt máy (Start➔Power➔Shut down)', ms: rec.skillMs.SHUTDOWN },
+            ].sort((a, b) => a.ms - b.ms);
+
+            const fastest = skillEntries[0];
+            const slowest = skillEntries[skillEntries.length - 1];
+            const totalSec = getFinalTotalMs(rec) / 1000;
+
+            let level = 'Hoàn thành tốt';
+            if (totalSec > 28 || rec.skippedSteps > 0) level = 'Hoàn thành';
+
+            const notes = [];
+            notes.push(`Hoàn thành 6 thao tác trong ${fmtSec(rec.rawTotalMs)}.`);
+            notes.push(`Thao tác nhạy nhất: ${fastest.name} (${fmtSec(fastest.ms)}); thao tác cần rèn thêm: ${slowest.name} (${fmtSec(slowest.ms)}).`);
+
+            if (rec.wrongLeftRightClicks > 0) {
+                notes.push(`Cần lưu ý phân biệt ngón trỏ (nút trái) và ngón giữa (nút phải) (nhầm ${rec.wrongLeftRightClicks} lần).`);
+            }
+            if (rec.dblClickRetries > 0) {
+                notes.push(`Nháy đúp chuột còn ngắt nhịp (${rec.dblClickRetries} lần bấm đúp chậm).`);
+            }
+            if (rec.dragDrops > 0) {
+                notes.push(`Khi kéo thả cần giữ chặt nút trái chuột đến đích B mới thả tay (tuột tay ${rec.dragDrops} lần).`);
+            }
+            if (rec.penaltySec > 0) {
+                notes.push(`Bị nhắc nhở giữ trật tự ${rec.penaltyCount} lần (+${rec.penaltySec}s).`);
+            }
+            if (rec.wrongLeftRightClicks === 0 && rec.dblClickRetries === 0 && rec.dragDrops === 0) {
+                notes.push(`Phối hợp tay cầm chuột và mắt nhìn màn hình rất chuẩn xác, không mắc lỗi thao tác nào.`);
+            }
+
+            return {
+                level,
+                fastestStr: `${fastest.name} (${fmtSec(fastest.ms)})`,
+                slowestStr: `${slowest.name} (${fmtSec(slowest.ms)})`,
+                comment: notes.join(' ')
+            };
+        }
+
+        function endGameAndRank() {
+            ensureAudio();
+            if (G.switchTO) { clearTimeout(G.switchTO); G.switchTO = null; }
+            if (G.raf) { cancelAnimationFrame(G.raf); G.raf = null; }
+            G.running = false;
+            G.turnRunning = false;
+
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('summary-screen').style.display = 'block';
+
+            playChampionFanfare();
+            startFireworksShow();
+
+            const { played, combined } = getRankedStudents();
+
+            // 1. Render Spotlight Đặc Biệt Cho Top 1
+            const top1Box = document.getElementById('top1-container');
+            if (played.length > 0) {
+                const champ = played[0];
+                const totalMs = getFinalTotalMs(champ);
+                top1Box.innerHTML = `
+      <div class="top1-spotlight">
+        <div class="top1-inner">
+          <div class="top1-crown">👑</div>
+          <div class="top1-badge">⚡ QUÁN QUÂN TỐC ĐỘ CHUỘT – TOP 1 ⚡</div>
+          <div class="top1-name">${champ.name}</div>
+          <div class="top1-time">⏱️ ${fmtSec(totalMs)}</div>
+          <div class="top1-breakdown">
+            <span class="top1-chip">⭐ Di chuyển: ${fmtSec(champ.skillMs.HOVER)}</span>
+            <span class="top1-chip">👆 Nháy trái: ${fmtSec(champ.skillMs.LEFT_CLICK)}</span>
+            <span class="top1-chip">🖕 Nháy phải: ${fmtSec(champ.skillMs.RIGHT_CLICK)}</span>
+            <span class="top1-chip">✌️ Nháy đúp: ${fmtSec(champ.skillMs.DOUBLE_CLICK)}</span>
+            <span class="top1-chip">🤏 Kéo thả: ${fmtSec(champ.skillMs.DRAG)}</span>
+            <span class="top1-chip">⏻ Tắt máy: ${fmtSec(champ.skillMs.SHUTDOWN)}</span>
+          </div>
+        </div>
+      </div>
     `;
-    gameArea.appendChild(el);
-    setTimeout(() => el.remove(), (dur + delay + 0.1) * 1000);
-  }
-}
+            } else {
+                top1Box.innerHTML = `<p style="text-align:center;color:#94a3b8;">Chưa có học sinh nào hoàn thành bài thi.</p>`;
+            }
 
-(function injectConfettiAnim() {
-  const st = document.createElement('style');
-  st.textContent = `
-    @keyframes confettiFall {
-      0%   { transform: translateY(-20px) rotate(0deg);   opacity:1; }
-      100% { transform: translateY(92vh)  rotate(720deg); opacity:0; }
-    }
-  `;
-  document.head.appendChild(st);
-})();
-
-function renderPips() {
-  const c = document.getElementById('notes-progress');
-  c.innerHTML = '';
-  G.noteSeq.forEach((type, i) => {
-    const def = NOTE_DEFS[type];
-    const pip = document.createElement('div');
-    pip.className = 'note-pip';
-    pip.title = def.label;
-    if (i < G.noteIdx) {
-      pip.classList.add('done');
-      pip.textContent = '✓';
-    } else if (i === G.noteIdx) {
-      pip.classList.add('active');
-      pip.textContent = def.icon;
-    } else {
-      pip.textContent = def.icon;
-      pip.style.opacity = '0.35';
-    }
-    c.appendChild(pip);
-  });
-}
-
-/* ── 18. TỔNG KẾT & XUẤT EXCEL CÁ NHÂN ────────────── */
-function showSummary() {
-  if (G.raf) { cancelAnimationFrame(G.raf); G.raf = null; }
-  G.running = false;
-  document.getElementById('game-screen').style.display    = 'none';
-  document.getElementById('summary-screen').style.display = 'block';
-
-  const all = Object.values(G.studentData).sort((a, b) => b.score - a.score);
-  all.forEach((s, i) => { s.rank = i + 1; });
-
-  // 1. Top 3 Podium
-  const pr = document.getElementById('podium-row');
-  pr.innerHTML = '';
-  const medals = ['🥇', '🥈', '🥉'], cls = ['p1', 'p2', 'p3'];
-  const order  = [1, 0, 2]; // Thứ tự hiển thị: Hạng nhì bên trái, Hạng nhất ở giữa cao nhất, Hạng ba bên phải
-  order.forEach(oi => {
-    const s = all[oi]; if (!s) return;
-    const c = document.createElement('div');
-    c.className = `podium-card ${cls[oi]}`;
-    c.innerHTML = `
-      <div class="podium-medal">${medals[oi]}</div>
-      <div class="podium-name">${s.name}</div>
-      <div class="podium-score">${s.score} đ</div>
-      <div class="podium-sub">${s.notesHit} trúng · ${s.notesMissed} miss</div>
+            // 2. Render Hạng 2 & Hạng 3
+            const runnersBox = document.getElementById('runners-up-row');
+            runnersBox.innerHTML = '';
+            [1, 2].forEach(idx => {
+                const s = played[idx];
+                if (!s) return;
+                const medal = idx === 1 ? '🥈 HẠNG NHÌ' : '🥉 HẠNG BA';
+                const cls = idx === 1 ? 'r2' : 'r3';
+                const card = document.createElement('div');
+                card.className = `runner-card ${cls}`;
+                card.innerHTML = `
+      <div class="runner-medal">${medal}</div>
+      <div class="runner-name">${s.name}</div>
+      <div class="runner-time">${fmtSec(getFinalTotalMs(s))}</div>
     `;
-    pr.appendChild(c);
-  });
+                runnersBox.appendChild(card);
+            });
 
-  // 2. Bảng xếp hạng chi tiết (KHÔNG CÒN CỘT TỔ)
-  const tb = document.getElementById('summary-tbody');
-  tb.innerHTML = '';
-  all.forEach(s => {
-    const rc = s.rank <= 3 ? `r${s.rank}` : '';
-    let rating = '⭐ Hoàn thành';
-    if (s.score >= 70) rating = '🌟 Xuất sắc (Rất khéo tay)';
-    else if (s.score >= 50) rating = '👍 Đạt chuẩn (Thao tác tốt)';
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><span class="rank-badge ${rc}">${s.rank}</span></td>
+            // 3. Bảng chi tiết toàn lớp
+            const tb = document.getElementById('summary-tbody');
+            tb.innerHTML = '';
+            combined.forEach(s => {
+                const ev = generateDetailedEvaluation(s);
+                const rc = s.rank && s.rank <= 3 ? `r${s.rank}` : '';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+      <td>${s.rank ? `<span class="rank-badge ${rc}">${s.rank}</span>` : '—'}</td>
       <td><strong>${s.name}</strong></td>
-      <td style="color:#ffb703;font-weight:900;font-size:16px;">${s.score}đ</td>
-      <td style="color:#22c55e;">${s.notesHit} nốt</td>
-      <td style="color:#e63946;">${s.notesMissed} nốt</td>
-      <td style="color:#94a3b8;">${s.time > 0 ? s.time.toFixed(1) + 's' : '—'}</td>
-      <td style="color:#a7f3d0;font-weight:800;">${rating}</td>
+      <td>${s.played ? fmtSec(s.skillMs.HOVER) : '—'}</td>
+      <td>${s.played ? fmtSec(s.skillMs.LEFT_CLICK) : '—'}</td>
+      <td>${s.played ? fmtSec(s.skillMs.RIGHT_CLICK) : '—'}</td>
+      <td>${s.played ? fmtSec(s.skillMs.DOUBLE_CLICK) : '—'}</td>
+      <td>${s.played ? fmtSec(s.skillMs.DRAG) : '—'}</td>
+      <td>${s.played ? fmtSec(s.skillMs.SHUTDOWN) : '—'}</td>
+      <td style="color:#f87171;">${s.penaltySec > 0 ? `+${s.penaltySec}.000s (${s.penaltyCount} lần)` : '0s'}</td>
+      <td style="color:#facc15;font-weight:900;font-size:15px;">${s.played ? fmtSec(getFinalTotalMs(s)) : 'Chưa thi'}</td>
+      <td style="color:#a7f3d0;max-width:340px;line-height:1.35;"><strong>[${ev.level}]</strong> ${ev.comment}</td>
     `;
-    tb.appendChild(tr);
-  });
-}
-window.showSummary = showSummary;
+                tb.appendChild(tr);
+            });
+        }
+        window.endGameAndRank = endGameAndRank;
 
-function exportExcel() {
-  if (typeof XLSX === 'undefined') {
-    alert('Chưa tải thư viện Excel!');
-    return;
-  }
-  const all = Object.values(G.studentData).sort((a, b) => b.score - a.score);
-  all.forEach((s, i) => { s.rank = i + 1; });
+        /* ── 15. HIỆU ỨNG PHÁO HOA CANVAS VINH DANH TOP 1 ───── */
+        function startFireworksShow() {
+            const fwCanvas = document.getElementById('fireworksCanvas');
+            if (!fwCanvas) return;
+            const fctx = fwCanvas.getContext('2d');
+            fwCanvas.width = window.innerWidth;
+            fwCanvas.height = window.innerHeight;
 
-  const rows = all.map(s => {
-    let rating = 'Hoàn thành';
-    if (s.score >= 70) rating = 'Xuất sắc';
-    else if (s.score >= 50) rating = 'Đạt chuẩn';
+            const particles = [];
+            const colors = ['#facc15', '#38bdf8', '#4ade80', '#f472b6', '#a855f7', '#fb923c'];
 
-    return {
-      'Hạng': s.rank,
-      'Họ và tên học sinh': s.name,
-      'Lớp': G.classId.replace('_', '/'),
-      'Điểm tổng': s.score,
-      'Số nốt trúng': s.notesHit,
-      'Số nốt trượt': s.notesMissed,
-      'Thời gian thực hiện (giây)': s.time > 0 ? Number(s.time.toFixed(1)) : 0,
-      'Đánh giá kỹ năng chuột': rating,
-      'Số lần lớp bị nhắc nhở ồn ào': G.noiseCount
-    };
-  });
+            function spawnFirework() {
+                const cx = rnd(fwCanvas.width * 0.15, fwCanvas.width * 0.85);
+                const cy = rnd(fwCanvas.height * 0.1, fwCanvas.height * 0.45);
+                const col = colors[rndInt(0, colors.length)];
+                for (let i = 0; i < 36; i++) {
+                    const ang = (i / 36) * Math.PI * 2 + rnd(-0.1, 0.1);
+                    const spd = rnd(1.5, 5.5);
+                    particles.push({
+                        x: cx, y: cy,
+                        vx: Math.cos(ang) * spd,
+                        vy: Math.sin(ang) * spd,
+                        alpha: 1,
+                        color: col,
+                        size: rnd(2, 4.5)
+                    });
+                }
+            }
 
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Bảng Xếp Hạng Cá Nhân');
+            spawnFirework();
+            setTimeout(spawnFirework, 400);
+            const fwInterval = setInterval(() => {
+                if (document.getElementById('summary-screen').style.display === 'none') {
+                    clearInterval(fwInterval);
+                    return;
+                }
+                spawnFirework();
+            }, 1300);
 
-  const fn = `KetQua_TinHoc3_Tiet08_Lop${G.classId}_${new Date().toISOString().slice(0, 10)}.xlsx`;
-  
-  if (typeof window.uploadExcelToDrive === 'function') {
-    window.uploadExcelToDrive(wb, fn);
-  } else {
-    XLSX.writeFile(wb, fn);
-  }
-}
-window.exportExcel = exportExcel;
+            function loopFw() {
+                if (document.getElementById('summary-screen').style.display === 'none') return;
+                G.fwRaf = requestAnimationFrame(loopFw);
+                fctx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.04; // Trọng lực nhẹ
+                    p.alpha -= 0.014;
+                    if (p.alpha <= 0) {
+                        particles.splice(i, 1);
+                        continue;
+                    }
+                    fctx.beginPath();
+                    fctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    fctx.fillStyle = p.color;
+                    fctx.globalAlpha = p.alpha;
+                    fctx.fill();
+                }
+                fctx.globalAlpha = 1;
+            }
+            loopFw();
+        }
 
-function restartGame() {
-  document.getElementById('summary-screen').style.display = 'none';
-  document.getElementById('setup-screen').style.display   = '';
-}
-window.restartGame = restartGame;
+        /* ── 16. XUẤT EXCEL SIÊU CHI TIẾT (2 SHEET ĐÁNH GIÁ) ── */
+        function exportExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert('Chưa tải thư viện Excel!');
+                return;
+            }
+            const { played, combined } = getRankedStudents();
 
-function setupClass() {
-  // Ẩn tổ nếu component setup render lại
-  const tc = document.getElementById('teamCount');
-  if (tc && tc.closest('.setup-row')) tc.closest('.setup-row').style.display = 'none';
-}
-window.setupClass = setupClass;
+            // SHEET 1: Chi tiết từng học sinh đến từng ms và số lỗi thao tác
+            const detailRows = combined.map(s => {
+                const ev = generateDetailedEvaluation(s);
+                const finalMs = s.played ? getFinalTotalMs(s) : 0;
+                return {
+                    'Hạng tốc độ': s.rank || 'Chưa thi',
+                    'STT Danh sách': s.stt,
+                    'Họ và tên học sinh': s.name,
+                    'Lớp': G.classId.replace('_', '/'),
+                    'Trạng thái': s.played ? 'Đã hoàn thành' : 'Chưa thực hiện',
+                    '1. Di chuyển chuột (giây)': s.played ? Number((s.skillMs.HOVER / 1000).toFixed(3)) : '',
+                    '1. Di chuyển chuột (ms)': s.played ? s.skillMs.HOVER : '',
+                    '2. Nháy chuột trái (giây)': s.played ? Number((s.skillMs.LEFT_CLICK / 1000).toFixed(3)) : '',
+                    '2. Nháy chuột trái (ms)': s.played ? s.skillMs.LEFT_CLICK : '',
+                    '3. Nháy nút phải chuột (giây)': s.played ? Number((s.skillMs.RIGHT_CLICK / 1000).toFixed(3)) : '',
+                    '3. Nháy nút phải chuột (ms)': s.played ? s.skillMs.RIGHT_CLICK : '',
+                    '4. Nháy đúp chuột (giây)': s.played ? Number((s.skillMs.DOUBLE_CLICK / 1000).toFixed(3)) : '',
+                    '4. Nháy đúp chuột (ms)': s.played ? s.skillMs.DOUBLE_CLICK : '',
+                    'Số lần nháy đúp bị chậm nhịp': s.played ? s.dblClickRetries : '',
+                    '5. Kéo thả chuột (giây)': s.played ? Number((s.skillMs.DRAG / 1000).toFixed(3)) : '',
+                    '5. Kéo thả chuột (ms)': s.played ? s.skillMs.DRAG : '',
+                    'Số lần tuột tay khi kéo thả': s.played ? s.dragDrops : '',
+                    '6a. Bấm nút Start (ms)': s.played ? s.shutdownDetailMs.startBtn : '',
+                    '6b. Bấm nút Power (ms)': s.played ? s.shutdownDetailMs.powerBtn : '',
+                    '6c. Bấm nút Shut down (ms)': s.played ? s.shutdownDetailMs.shutdownBtn : '',
+                    '6. Tổng Tắt máy tính (giây)': s.played ? Number((s.skillMs.SHUTDOWN / 1000).toFixed(3)) : '',
+                    '6. Tổng Tắt máy tính (ms)': s.played ? s.skillMs.SHUTDOWN : '',
+                    'Số lần bấm nhầm nút Trái/Phải': s.played ? s.wrongLeftRightClicks : '',
+                    'Số lần nháy trượt ra ngoài mục tiêu': s.played ? s.missedOutsideClicks : '',
+                    'Thời gian thực làm 6 thao tác (giây)': s.played ? Number((s.rawTotalMs / 1000).toFixed(3)) : '',
+                    'Thời gian thực làm 6 thao tác (ms)': s.played ? s.rawTotalMs : '',
+                    'Số lần bị nhắc trật tự': s.penaltyCount,
+                    'Thời gian phạt cộng thêm (giây)': s.penaltySec,
+                    'TỔNG THỜI GIAN CHUNG CUỘC (giây)': s.played ? Number((finalMs / 1000).toFixed(3)) : '',
+                    'TỔNG THỜI GIAN CHUNG CUỘC (ms)': s.played ? finalMs : '',
+                    'Thao tác nhanh nhất': s.played ? ev.fastestStr : '',
+                    'Thao tác cần rèn thêm': s.played ? ev.slowestStr : '',
+                    'Mức đánh giá (TT27)': ev.level,
+                    'Nhận xét chi tiết từng cá nhân (Căn cứ đánh giá)': ev.comment
+                };
+            });
 
-// Tự động kiểm tra và ẩn chọn tổ khi tải xong trang
-document.addEventListener('DOMContentLoaded', () => {
-  setupClass();
-});
-</script>
+            // SHEET 2: Thống kê trung bình từng kỹ năng của cả lớp
+            const avgMs = key => played.length ? Math.round(played.reduce((sum, r) => sum + r.skillMs[key], 0) / played.length) : 0;
+            const summarySheetRows = [
+                { 'Chỉ số thống kê lớp': 'Tổng sĩ số lớp', 'Giá trị': G.students.length },
+                { 'Chỉ số thống kê lớp': 'Số học sinh đã hoàn thành', 'Giá trị': played.length },
+                { 'Chỉ số thống kê lớp': 'Học sinh nhanh nhất (Top 1)', 'Giá trị': played[0] ? `${played[0].name} (${fmtSec(getFinalTotalMs(played[0]))})` : '—' },
+                { 'Chỉ số thống kê lớp': 'Thời gian TB 1. Di chuyển chuột', 'Giá trị': fmtSec(avgMs('HOVER')) },
+                { 'Chỉ số thống kê lớp': 'Thời gian TB 2. Nháy chuột trái', 'Giá trị': fmtSec(avgMs('LEFT_CLICK')) },
+                { 'Chỉ số thống kê lớp': 'Thời gian TB 3. Nháy nút phải chuột', 'Giá trị': fmtSec(avgMs('RIGHT_CLICK')) },
+                { 'Chỉ số thống kê lớp': 'Thời gian TB 4. Nháy đúp chuột', 'Giá trị': fmtSec(avgMs('DOUBLE_CLICK')) },
+                { 'Chỉ số thống kê lớp': 'Thời gian TB 5. Kéo thả chuột', 'Giá trị': fmtSec(avgMs('DRAG')) },
+                { 'Chỉ số thống kê lớp': 'Thời gian TB 6. Tắt máy tính (Start➔Power➔Shut down)', 'Giá trị': fmtSec(avgMs('SHUTDOWN')) },
+            ];
+
+            const wb = XLSX.utils.book_new();
+            const ws1 = XLSX.utils.json_to_sheet(detailRows);
+            const ws2 = XLSX.utils.json_to_sheet(summarySheetRows);
+            XLSX.utils.book_append_sheet(wb, ws1, 'Chi Tiết Từng Học Sinh (ms)');
+            XLSX.utils.book_append_sheet(wb, ws2, 'Thống Kê Chung Cả Lớp');
+
+            const fn = `KetQuaChiTiet_TinHoc3_Tiet08_Lop${G.classId}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            if (typeof window.uploadExcelToDrive === 'function') {
+                window.uploadExcelToDrive(wb, fn);
+            } else {
+                XLSX.writeFile(wb, fn);
+            }
+        }
+        window.exportExcel = exportExcel;
+
+        function restartGame() {
+            if (G.fwRaf) { cancelAnimationFrame(G.fwRaf); G.fwRaf = null; }
+            document.getElementById('summary-screen').style.display = 'none';
+            document.getElementById('setup-screen').style.display = '';
+        }
+        window.restartGame = restartGame;
+
+        function setupClass() {
+            const tc = document.getElementById('teamCount');
+            if (tc && tc.closest('.setup-row')) tc.closest('.setup-row').style.display = 'none';
+        }
+        window.setupClass = setupClass;
+
+        document.addEventListener('DOMContentLoaded', setupClass);
+    </script>
 </body>
+
 </html>
