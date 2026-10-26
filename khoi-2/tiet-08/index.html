@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 5: Kết hợp các hàng phím với phím Shift - Tin học Lớp 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../theme/style.css">
+
+    <style>
+        /* Hiệu ứng pháo hoa giấy Canvas */
+        #confettiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 10000;
+        }
+
+        /* Thẻ thiết bị mở đầu (Slide 3) */
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 1060px;
+            margin: 15px auto;
+        }
+
+        .device-card {
+            background: #ffffff;
+            border: 3px solid var(--border-color);
+            border-radius: 20px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+            min-height: 195px;
+        }
+
+        .device-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .device-icon {
+            font-size: 4.5rem;
+            margin-bottom: 12px;
+            line-height: 1;
+        }
+
+        .device-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-sub);
+            background: #e2e8f0;
+            padding: 6px 24px;
+            border-radius: 14px;
+            transition: all 0.2s;
+        }
+
+        .device-card.revealed {
+            border-color: var(--primary);
+            background: #f0f9ff;
+        }
+
+        .device-card.revealed .device-name {
+            background: var(--primary);
+            color: white;
+        }
+
+        .device-card.revealed.highlight-kb {
+            border-color: var(--accent);
+            background: #fffbeb;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.25);
+        }
+
+        .device-card.revealed.highlight-kb .device-name {
+            background: var(--accent-dark);
+            color: white;
+        }
+
+        /* Bảng luyện tập Slide 6 */
+        .practice-table {
+            width: 100%;
+            max-width: 1020px;
+            border-collapse: collapse;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 3px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+            margin: 15px auto;
+            background: white;
+        }
+
+        .practice-table th {
+            background: var(--primary);
+            color: white;
+            font-size: 1.9rem;
+            font-weight: 900;
+            padding: 15px 26px;
+            text-align: left;
+        }
+
+        .practice-table th:last-child {
+            text-align: center;
+            width: 280px;
+        }
+
+        .practice-table td {
+            padding: 14px 26px;
+            font-size: 1.85rem;
+            font-weight: 800;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .practice-table td:last-child {
+            text-align: center;
+        }
+
+        .inline-key {
+            display: inline-block;
+            background: #f1f5f9;
+            border: 2px solid #94a3b8;
+            border-bottom-width: 4px;
+            padding: 2px 14px;
+            border-radius: 10px;
+            font-weight: 900;
+            margin: 0 4px;
+            color: var(--text-main);
+        }
+
+        .inline-key.shift {
+            background: #fef08a;
+            border-color: #ca8a04;
+            color: #991b1b;
+        }
+
+        .reveal-btn {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border: 3px solid var(--primary);
+            border-radius: 14px;
+            font-size: 1.9rem;
+            font-weight: 900;
+            min-width: 130px;
+            padding: 6px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+
+        .reveal-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .reveal-btn.opened {
+            background: var(--success-light);
+            border-color: var(--success);
+            color: var(--success);
+            font-size: 2.3rem;
+            transform: none;
+        }
+
+        .action-btn {
+            background: #ffffff;
+            color: var(--text-main);
+            border: 3px solid var(--border-color);
+            padding: 10px 24px;
+            border-radius: 14px;
+            font-size: 1.35rem;
+            font-weight: 800;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.15s;
+            white-space: nowrap !important;
+        }
+
+        .action-btn:hover {
+            background: #f1f5f9;
+            border-color: var(--primary);
+        }
+
+        /* Thẻ đánh giá Slide 8 */
+        .eval-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            border: 3px solid var(--border-color);
+            border-radius: 18px;
+            padding: 16px 24px;
+            margin-bottom: 14px;
+            font-size: 1.75rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .eval-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .eval-num {
+            background: var(--accent);
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            margin-right: 18px;
+            flex-shrink: 0;
+            font-size: 1.5rem;
+        }
+
+        .eval-circle {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: 3px solid #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: transparent;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .eval-item.checked {
+            border-color: var(--success);
+            background: #f0fdf4;
+        }
+
+        .eval-item.checked .eval-circle {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        /* =========================================================
+           SLIDE 7: TRÒ CHƠI THỰC HÀNH - RANDOM NGẪU NHIÊN PHÍM (CHỈ PHÍM & BÀN PHÍM)
+           ========================================================= */
+        .game-clean-container {
+            width: 100%;
+            max-width: 1180px;
+            margin: 8px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+        }
+
+        /* Bảng hiển thị PHÍM CẦN GÕ siêu to ở giữa */
+        .target-card-center {
+            background: white;
+            border: 3px solid var(--border-color);
+            border-radius: 24px;
+            padding: 16px 36px;
+            box-shadow: var(--shadow-md);
+            width: 100%;
+            max-width: 960px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .target-badge-label {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #b45309;
+            background: #fef3c7;
+            border: 2px solid #fde68a;
+            padding: 4px 20px;
+            border-radius: 999px;
+            text-transform: uppercase;
+        }
+
+        .target-flex-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+            width: 100%;
+        }
+
+        /* Khối ký tự khổng lồ */
+        .target-giant-box {
+            min-width: 125px;
+            height: 125px;
+            background: #fffef8;
+            border: 4px solid #f87171;
+            border-radius: 22px;
+            box-shadow: 0 7px 0 #ef4444;
+            color: #dc2626;
+            font-size: 6.8rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        /* Hướng dẫn tay gõ */
+        .target-instructions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            text-align: left;
+        }
+
+        .target-combo-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.85rem;
+            font-weight: 900;
+        }
+
+        .tag-pill {
+            padding: 7px 22px;
+            border-radius: 14px;
+            border: 2px solid;
+            font-weight: 900;
+            font-size: 1.7rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tag-pill.shift {
+            background: #fef08a;
+            border-color: #ca8a04;
+            color: #991b1b;
+        }
+
+        .tag-pill.key {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+            color: #0f172a;
+        }
+
+        /* Thông báo trạng thái khi gõ */
+        .game-status-box {
+            width: 100%;
+            min-height: 46px;
+            border-radius: 14px;
+            padding: 8px 18px;
+            font-size: 1.55rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .game-status-box.idle {
+            background: #f1f5f9;
+            color: #475569;
+            border: 2px dashed #94a3b8;
+        }
+
+        .game-status-box.correct {
+            background: #dcfce7;
+            color: #15803d;
+            border: 2px solid #16a34a;
+            animation: bounceIn 0.3s ease;
+        }
+
+        .game-status-box.wrong {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 2px solid #ef4444;
+            animation: shake 0.35s ease;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.9); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        /* Bàn phím Windows đầy đủ trong Game */
+        .game-kb-container {
+            width: 100%;
+            max-width: 1160px;
+            margin: 4px auto 0 auto;
+        }
+
+        /* Nút chuyển câu tiếp theo & chơi lại */
+        .game-btn-bar {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 6px;
+        }
+
+        .btn-advance-mission {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-size: 1.45rem;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #059669;
+            transition: all 0.15s;
+            font-family: inherit;
+            white-space: nowrap !important;
+        }
+
+        .btn-advance-mission:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-advance-mission:active {
+            transform: translateY(3px);
+            box-shadow: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Canvas pháo hoa giấy chúc mừng khi hoàn thành thử thách -->
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 1: TRANG BÌA & MỤC TIÊU BÀI HỌC -->
+    <!-- ========================================== -->
+    <section class="slide active" id="slide-1">
+        <div class="section-badge">Chủ đề 1: Trở lại với máy tính</div>
+        <h1 class="slide-title" style="font-size: 3.6rem; margin-top: 10px;">
+            BÀI 5: KẾT HỢP CÁC HÀNG PHÍM<br>VỚI PHÍM SHIFT
+        </h1>
+        <h2 class="slide-subtitle" style="font-size: 2.2rem; margin-bottom: 20px;">
+            Môn: Tin học • Lớp 2
+        </h2>
+
+        <div style="background: white; border: 3px solid var(--border-color); border-radius: 22px; padding: 30px 45px; max-width: 950px; width: 95%; box-shadow: var(--shadow-md);">
+            <div style="font-size: 2.1rem; font-weight: 900; color: var(--accent-dark); margin-bottom: 16px; text-align: left; display: flex; align-items: center; gap: 10px;">
+                <span>🎯</span> Mục tiêu bài học:
+            </div>
+            <ul style="font-size: 1.95rem; font-weight: 800; line-height: 1.7; padding-left: 32px; color: var(--text-main); text-align: left;">
+                <li style="margin-bottom: 12px;">Nhận biết được vị trí của <b style="color: #dc2626;">phím Shift</b> và biết kết hợp phím <b>Shift</b> với các hàng phím.</li>
+                <li>Tích cực, hứng thú khám phá chức năng và cách sử dụng phím <b>Shift</b> để gõ chữ in hoa và ký tự bên trên.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 2: VIẾT BÀI VÀO VỞ (TỰ ĐỘNG THỨ NGÀY) -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-2">
+        <div class="section-badge">Viết bài vào vở</div>
+        <h1 class="slide-title" style="margin-bottom: 15px;">Các em lấy vở và bút ra ghi bài nhé! ✍️</h1>
+        
+        <div class="notebook-paper">
+            <div class="nb-date" id="current-date-line">Đang lấy thứ ngày tháng...</div>
+            <div class="nb-subject">Tin học</div>
+            <div class="nb-lesson">Bài 5: Kết hợp các hàng phím với phím Shift</div>
+        </div>
+
+        <div class="instruction small" style="margin-top: 20px;">
+            💡 Thầy/Cô và các em cùng kiểm tra xem mình đã ghi đúng thứ, ngày và tên bài chưa nào!
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 3: KHỞI ĐỘNG - TRÒ CHƠI "AI NHANH HƠN" -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-3">
+        <div class="section-badge">Hoạt động mở đầu</div>
+        <h1 class="slide-title">Trò chơi: Ai nhanh hơn 🔍</h1>
+        <div class="instruction small">
+            Các em hãy gọi tên thật nhanh các bộ phận của máy tính (Bấm vào từng ô để mở đáp án):
+        </div>
+
+        <div class="device-grid">
+            <div class="device-card" onclick="revealDevice(this)">
+                <div class="device-icon">🖥️</div>
+                <div class="device-name" data-label="Màn hình">?</div>
+            </div>
+            <div class="device-card" onclick="revealDevice(this)">
+                <div class="device-icon">🗄️</div>
+                <div class="device-name" data-label="Thân máy (CPU)">?</div>
+            </div>
+            <div class="device-card highlight-kb" onclick="revealDevice(this)">
+                <div class="device-icon">⌨️</div>
+                <div class="device-name" data-label="Bàn phím máy tính">?</div>
+            </div>
+            <div class="device-card" onclick="revealDevice(this)">
+                <div class="device-icon">🖱️</div>
+                <div class="device-name" data-label="Chuột máy tính">?</div>
+            </div>
+            <div class="device-card" onclick="revealDevice(this)">
+                <div class="device-icon">🔊</div>
+                <div class="device-name" data-label="Loa">?</div>
+            </div>
+            <div class="device-card" onclick="revealDevice(this)">
+                <div class="device-icon">🖨️</div>
+                <div class="device-name" data-label="Máy in">?</div>
+            </div>
+        </div>
+
+        <div class="instruction" style="background: #fef3c7; border-color: #fde68a; color: #92400e; font-size: 1.7rem;">
+            👉 Hôm nay chúng ta sẽ tiếp tục khám phá một phím vô cùng đặc biệt trên <b>Bàn phím</b> nhé!
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 4: KHÁM PHÁ 1 - VỊ TRÍ PHÍM SHIFT (WINDOWS LAYOUT CHUẨN) -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-4">
+        <div class="section-badge">Khám phá kiến thức mới</div>
+        <h1 class="slide-title">1. Vị trí của phím Shift trên bàn phím</h1>
+        
+        <div class="instruction">
+            Trên khu vực chính của bàn phím có <b style="color: #dc2626;">2 phím Shift</b> nằm ở hai đầu của <b style="color: #1e3a8a;">Hàng phím dưới</b>:
+        </div>
+
+        <!-- Bàn phím Windows Layout chuẩn ANSI 60 cột - Canh lề đều 2 bên, phím so le chính xác -->
+        <div class="windows-keyboard">
+            <!-- HÀNG 1: HÀNG PHÍM SỐ (Tổng 60 cột) -->
+            <div class="kb-row">
+                <div class="key span-4 dual"><span class="top">~</span><span class="bot">`</span></div>
+                <div class="key span-4 dual"><span class="top">!</span><span class="bot">1</span></div>
+                <div class="key span-4 dual"><span class="top">@</span><span class="bot">2</span></div>
+                <div class="key span-4 dual"><span class="top">#</span><span class="bot">3</span></div>
+                <div class="key span-4 dual"><span class="top">$</span><span class="bot">4</span></div>
+                <div class="key span-4 dual"><span class="top">%</span><span class="bot">5</span></div>
+                <div class="key span-4 dual"><span class="top">^</span><span class="bot">6</span></div>
+                <div class="key span-4 dual"><span class="top">&</span><span class="bot">7</span></div>
+                <div class="key span-4 dual"><span class="top">*</span><span class="bot">8</span></div>
+                <div class="key span-4 dual"><span class="top">(</span><span class="bot">9</span></div>
+                <div class="key span-4 dual"><span class="top">)</span><span class="bot">0</span></div>
+                <div class="key span-4 dual"><span class="top">_</span><span class="bot">-</span></div>
+                <div class="key span-4 dual"><span class="top">+</span><span class="bot">=</span></div>
+                <div class="key span-8 key-func">Backspace ⌫</div>
+            </div>
+
+            <!-- HÀNG 2: HÀNG PHÍM TRÊN (Tổng 60 cột - Q thụt vào nửa phím so với số 1) -->
+            <div class="kb-row">
+                <div class="key span-6 key-func">Tab ⇥</div>
+                <div class="key span-4">Q</div>
+                <div class="key span-4">W</div>
+                <div class="key span-4">E</div>
+                <div class="key span-4">R</div>
+                <div class="key span-4">T</div>
+                <div class="key span-4">Y</div>
+                <div class="key span-4">U</div>
+                <div class="key span-4">I</div>
+                <div class="key span-4">O</div>
+                <div class="key span-4">P</div>
+                <div class="key span-4 dual"><span class="top">{</span><span class="bot">[</span></div>
+                <div class="key span-4 dual"><span class="top">}</span><span class="bot">]</span></div>
+                <div class="key span-6 dual"><span class="top">|</span><span class="bot">\</span></div>
+            </div>
+
+            <!-- HÀNG 3: HÀNG PHÍM CƠ SỞ (Tổng 60 cột - A thụt vào so với Q) -->
+            <div class="kb-row">
+                <div class="key span-7 key-func">Caps Lock</div>
+                <div class="key span-4">A</div>
+                <div class="key span-4">S</div>
+                <div class="key span-4">D</div>
+                <div class="key span-4 bump">F</div>
+                <div class="key span-4">G</div>
+                <div class="key span-4">H</div>
+                <div class="key span-4 bump">J</div>
+                <div class="key span-4">K</div>
+                <div class="key span-4">L</div>
+                <div class="key span-4 dual"><span class="top">:</span><span class="bot">;</span></div>
+                <div class="key span-4 dual"><span class="top">"</span><span class="bot">'</span></div>
+                <div class="key span-9 key-enter">Enter ↵</div>
+            </div>
+
+            <!-- HÀNG 4: HÀNG PHÍM DƯỚI (Tổng 60 cột - Chứa 2 phím Shift ở 2 đầu) -->
+            <div class="kb-row">
+                <div class="key span-9 key-shift highlight" id="demo-shift-left" onclick="testShiftKey('Trái')">
+                    Shift ⇧
+                </div>
+                <div class="key span-4">Z</div>
+                <div class="key span-4">X</div>
+                <div class="key span-4">C</div>
+                <div class="key span-4">V</div>
+                <div class="key span-4">B</div>
+                <div class="key span-4">N</div>
+                <div class="key span-4">M</div>
+                <div class="key span-4 dual"><span class="top">&lt;</span><span class="bot">,</span></div>
+                <div class="key span-4 dual"><span class="top">&gt;</span><span class="bot">.</span></div>
+                <div class="key span-4 dual"><span class="top">?</span><span class="bot">/</span></div>
+                <div class="key span-11 key-shift highlight" id="demo-shift-right" onclick="testShiftKey('Phải')">
+                    Shift ⇧
+                </div>
+            </div>
+
+            <!-- HÀNG 5: HÀNG PHÍM CHỨA PHÍM CÁCH (Tổng 60 cột) -->
+            <div class="kb-row">
+                <div class="key span-5 key-func">Ctrl</div>
+                <div class="key span-5 key-func">⊞ Win</div>
+                <div class="key span-5 key-func">Alt</div>
+                <div class="key span-25 key-space">Space (Phím Cách)</div>
+                <div class="key span-5 key-func">Alt</div>
+                <div class="key span-5 key-func">⊞ Win</div>
+                <div class="key span-5 key-func">☰ Menu</div>
+                <div class="key span-5 key-func">Ctrl</div>
+            </div>
+        </div>
+
+        <div id="shift-feedback" class="instruction" style="color: #1e3a8a; border-color: #facc15; background: #fefce8; font-size: 1.85rem;">
+            👆 Các em hãy bấm chuột hoặc nhấn phím <b>Shift màu vàng</b> trên bàn phím để kiểm tra nhé!
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 5: KHÁM PHÁ 2 - GIẢI THÍCH CHỮ HOA / CHỮ THƯỜNG TRÊN BÀN PHÍM -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-5">
+        <div class="section-badge">Khám phá kiến thức mới</div>
+        <h1 class="slide-title">2. Chữ hoa và chữ thường trên bàn phím</h1>
+
+        <div class="instruction" style="background: #fffbeb; border-color: #f59e0b; color: #92400e; font-size: 1.85rem;">
+            ❓ <b>Em có thắc mắc:</b> "Tại sao trên bàn phím in chữ <b>IN HOA</b>, nhưng khi gõ bình thường lại ra chữ <b>thường</b>?"
+        </div>
+
+        <!-- Bảng so sánh 2 cột trực quan -->
+        <div class="two-col-grid" style="margin-top: 15px;">
+            <!-- Cột 1: Gõ bình thường -->
+            <div class="info-card" style="border-top: 6px solid #64748b;">
+                <div style="text-align: center; margin-bottom: 12px;">
+                    <h3 style="color: #334155; font-size: 2.1rem;">1. Gõ bình thường (Không giữ Shift)</h3>
+                    <p style="font-size: 1.55rem; color: #64748b; margin-bottom: 14px;">Mặc định bàn phím sẽ tạo ra <b>chữ thường</b> và <b>kí tự bên dưới</b>:</p>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div class="combo-demo" style="justify-content: space-between; padding: 10px 24px;">
+                        <span style="font-size: 1.55rem; color: #475569;">Gõ phím chữ:</span>
+                        <span class="k-cap">A</span>
+                        <span>➔</span>
+                        <span class="k-result" style="background: #f1f5f9; border-color: #94a3b8; color: #1e293b; font-size: 2.3rem;">a</span>
+                    </div>
+                    <div class="combo-demo" style="justify-content: space-between; padding: 10px 24px;">
+                        <span style="font-size: 1.55rem; color: #475569;">Gõ phím chữ:</span>
+                        <span class="k-cap">M</span>
+                        <span>➔</span>
+                        <span class="k-result" style="background: #f1f5f9; border-color: #94a3b8; color: #1e293b; font-size: 2.3rem;">m</span>
+                    </div>
+                    <div class="combo-demo" style="justify-content: space-between; padding: 10px 24px;">
+                        <span style="font-size: 1.55rem; color: #475569;">Gõ phím 2 kí tự:</span>
+                        <span class="k-cap"><sup style="color: #dc2626;">$</sup> 4</span>
+                        <span>➔</span>
+                        <span class="k-result" style="background: #f1f5f9; border-color: #94a3b8; color: #1e293b; font-size: 2.3rem;">4</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cột 2: Nhấn giữ phím Shift -->
+            <div class="info-card" style="border-top: 6px solid #16a34a; background: #f0fdf4;">
+                <div style="text-align: center; margin-bottom: 12px;">
+                    <h3 style="color: #15803d; font-size: 2.1rem;">2. Nhấn giữ phím Shift + Gõ phím</h3>
+                    <p style="font-size: 1.55rem; color: #166534; margin-bottom: 14px;">Sẽ tạo ra <b>chữ in hoa</b> và <b>kí tự bên trên</b>:</p>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div class="combo-demo" style="justify-content: space-between; padding: 10px 24px; background: white;">
+                        <span class="k-cap shift">Shift ⇧</span>
+                        <span>+</span>
+                        <span class="k-cap">A</span>
+                        <span>➔</span>
+                        <span class="k-result">A</span>
+                    </div>
+                    <div class="combo-demo" style="justify-content: space-between; padding: 10px 24px; background: white;">
+                        <span class="k-cap shift">Shift ⇧</span>
+                        <span>+</span>
+                        <span class="k-cap">M</span>
+                        <span>➔</span>
+                        <span class="k-result">M</span>
+                    </div>
+                    <div class="combo-demo" style="justify-content: space-between; padding: 10px 24px; background: white;">
+                        <span class="k-cap shift">Shift ⇧</span>
+                        <span>+</span>
+                        <span class="k-cap"><sup style="color: #dc2626;">$</sup> 4</span>
+                        <span>➔</span>
+                        <span class="k-result">$</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="note-banner" style="margin-top: 16px;">
+            💡 <b>Bí mật của phím Shift:</b> Muốn gõ <b>chữ in hoa</b> hoặc <b>kí tự bên trên</b>, em hãy <b>nhấn giữ phím Shift</b> rồi mới gõ phím đó nhé!
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 6: HOẠT ĐỘNG LUYỆN TẬP -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-6">
+        <div class="section-badge">Hoạt động luyện tập</div>
+        <h1 class="slide-title">Viết kết quả nhận được khi thực hiện thao tác</h1>
+        <div class="instruction small">
+            Các em hãy đoán xem khi thực hiện từng thao tác bên dưới, màn hình sẽ hiện chữ gì nhé:
+        </div>
+
+        <table class="practice-table">
+            <thead>
+                <tr>
+                    <th>Thao tác nhấn phím</th>
+                    <th>Kết quả trên màn hình</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Nhấn giữ phím <span class="inline-key shift">Shift</span> và phím <span class="inline-key">Q</span></td>
+                    <td><b style="font-size: 2.3rem; color: #1e3a8a;">Q</b> (Mẫu)</td>
+                </tr>
+                <tr>
+                    <td>Nhấn phím <span class="inline-key">M</span> (Không nhấn Shift)</td>
+                    <td><button class="reveal-btn" data-ans="m" onclick="toggleAnswer(this)">?</button></td>
+                </tr>
+                <tr>
+                    <td>Nhấn giữ phím <span class="inline-key shift">Shift</span> và phím <span class="inline-key">P</span></td>
+                    <td><button class="reveal-btn" data-ans="P" onclick="toggleAnswer(this)">?</button></td>
+                </tr>
+                <tr>
+                    <td>Nhấn phím <span class="inline-key"><sup style="color:var(--danger); font-size: 1.1rem;">$</sup> 4</span> (Không nhấn Shift)</td>
+                    <td><button class="reveal-btn" data-ans="4" onclick="toggleAnswer(this)">?</button></td>
+                </tr>
+                <tr>
+                    <td>Nhấn giữ phím <span class="inline-key shift">Shift</span> và phím <span class="inline-key"><sup style="color:var(--danger); font-size: 1.1rem;">$</sup> 4</span></td>
+                    <td><button class="reveal-btn" data-ans="$" onclick="toggleAnswer(this)">?</button></td>
+                </tr>
+                <tr>
+                    <td>Nhấn giữ phím <span class="inline-key shift">Shift</span> và phím <span class="inline-key"><sup style="color:var(--danger); font-size: 1.1rem;">?</sup> /</span></td>
+                    <td><button class="reveal-btn" data-ans="?" onclick="toggleAnswer(this)">?</button></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="display: flex; gap: 16px; justify-content: center; margin-top: 10px;">
+            <button class="action-btn" onclick="revealAllPractice(true)">📖 Mở tất cả đáp án</button>
+            <button class="action-btn" onclick="revealAllPractice(false)">🔒 Ẩn tất cả</button>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 7: TRÒ CHƠI THỰC HÀNH - RANDOM NGẪU NHIÊN PHÍM (CHỈ PHÍM & BÀN PHÍM) -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-7">
+        <div class="section-badge" style="background: #fef3c7; color: #b45309; border-color: #fde68a;">
+            🎮 Hoạt động thực hành
+        </div>
+        <h1 class="slide-title" style="margin-bottom: 4px;">
+            THỬ THÁCH GÕ NHANH CÙNG PHÍM SHIFT
+        </h1>
+        <div class="instruction small" style="margin-bottom: 8px;">
+            Mời các em xung phong lên máy tính của Thầy/Cô để thực hiện thao tác gõ phím ngẫu nhiên nhé!
+        </div>
+
+        <div class="game-clean-container">
+            <!-- Thanh trạng thái số lượt & nút đổi phím random -->
+            <div style="display: flex; gap: 16px; align-items: center; justify-content: center; flex-wrap: wrap;">
+                <div style="background: white; border: 3px solid #38bdf8; padding: 8px 24px; border-radius: 50px; font-size: 1.55rem; font-weight: 900; color: #0369a1; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 8px;">
+                    <span>⭐ Số lượt hoàn thành:</span>
+                    <span id="completedCountBadge" style="background: #e0f2fe; color: #0284c7; padding: 2px 14px; border-radius: 99px; font-size: 1.7rem;">0</span>
+                </div>
+
+                <button class="action-btn" style="background: #fffbeb; border-color: #f59e0b; color: #b45309; font-size: 1.35rem; font-weight: 900; padding: 8px 22px; border-radius: 50px;" onclick="pickRandomMission()">
+                    🎲 Đổi phím ngẫu nhiên khác
+                </button>
+            </div>
+
+            <!-- Bảng hiển thị PHÍM CẦN GÕ siêu to ở giữa -->
+            <div class="target-card-center">
+                <div class="target-badge-label" id="targetTypeBadge">
+                    THỬ THÁCH GÕ CHỮ IN HOA
+                </div>
+
+                <div class="target-flex-row">
+                    <!-- Ký tự khổng lồ cần gõ -->
+                    <div class="target-giant-box" id="targetBigChar">A</div>
+
+                    <!-- Gợi ý thao tác ngắn gọn -->
+                    <div class="target-instructions">
+                        <div class="target-combo-row">
+                            <span class="tag-pill shift">🖐️ Giữ phím Shift</span>
+                            <span style="font-size: 2rem; color: #dc2626;">+</span>
+                            <span class="tag-pill key" id="targetKeyHint">👉 Gõ phím A</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dòng phản hồi trạng thái khi học sinh gõ trên máy -->
+                <div id="gameStatusAlert" class="game-status-box idle">
+                    ⌨️ Mời em nhấn giữ phím Shift và gõ phím trên máy tính của Thầy/Cô...
+                </div>
+            </div>
+
+            <!-- BÀN PHÍM WINDOWS ĐẦY ĐỦ (60 CỘT) ĐẶT NGAY BÊN DƯỚI -->
+            <div class="game-kb-container">
+                <div class="windows-keyboard" style="margin: 0 auto; padding: 14px 18px;">
+                    <!-- Hàng 1 -->
+                    <div class="kb-row">
+                        <div class="key span-4 dual"><span class="top">~</span><span class="bot">`</span></div>
+                        <div class="key span-4 dual" id="gkey-1"><span class="top">!</span><span class="bot">1</span></div>
+                        <div class="key span-4 dual" id="gkey-2"><span class="top">@</span><span class="bot">2</span></div>
+                        <div class="key span-4 dual" id="gkey-3"><span class="top">#</span><span class="bot">3</span></div>
+                        <div class="key span-4 dual" id="gkey-4"><span class="top">$</span><span class="bot">4</span></div>
+                        <div class="key span-4 dual" id="gkey-5"><span class="top">%</span><span class="bot">5</span></div>
+                        <div class="key span-4 dual" id="gkey-6"><span class="top">^</span><span class="bot">6</span></div>
+                        <div class="key span-4 dual" id="gkey-7"><span class="top">&</span><span class="bot">7</span></div>
+                        <div class="key span-4 dual" id="gkey-8"><span class="top">*</span><span class="bot">8</span></div>
+                        <div class="key span-4 dual" id="gkey-9"><span class="top">(</span><span class="bot">9</span></div>
+                        <div class="key span-4 dual" id="gkey-0"><span class="top">)</span><span class="bot">0</span></div>
+                        <div class="key span-4 dual" id="gkey-Minus"><span class="top">_</span><span class="bot">-</span></div>
+                        <div class="key span-4 dual" id="gkey-Equal"><span class="top">+</span><span class="bot">=</span></div>
+                        <div class="key span-8 key-func">Backspace ⌫</div>
+                    </div>
+                    <!-- Hàng 2 -->
+                    <div class="kb-row">
+                        <div class="key span-6 key-func">Tab ⇥</div>
+                        <div class="key span-4" id="gkey-Q">Q</div>
+                        <div class="key span-4" id="gkey-W">W</div>
+                        <div class="key span-4" id="gkey-E">E</div>
+                        <div class="key span-4" id="gkey-R">R</div>
+                        <div class="key span-4" id="gkey-T">T</div>
+                        <div class="key span-4" id="gkey-Y">Y</div>
+                        <div class="key span-4" id="gkey-U">U</div>
+                        <div class="key span-4" id="gkey-I">I</div>
+                        <div class="key span-4" id="gkey-O">O</div>
+                        <div class="key span-4" id="gkey-P">P</div>
+                        <div class="key span-4 dual"><span class="top">{</span><span class="bot">[</span></div>
+                        <div class="key span-4 dual"><span class="top">}</span><span class="bot">]</span></div>
+                        <div class="key span-6 dual"><span class="top">|</span><span class="bot">\</span></div>
+                    </div>
+                    <!-- Hàng 3 -->
+                    <div class="kb-row">
+                        <div class="key span-7 key-func">Caps Lock</div>
+                        <div class="key span-4" id="gkey-A">A</div>
+                        <div class="key span-4" id="gkey-S">S</div>
+                        <div class="key span-4" id="gkey-D">D</div>
+                        <div class="key span-4 bump" id="gkey-F">F</div>
+                        <div class="key span-4" id="gkey-G">G</div>
+                        <div class="key span-4" id="gkey-H">H</div>
+                        <div class="key span-4 bump" id="gkey-J">J</div>
+                        <div class="key span-4" id="gkey-K">K</div>
+                        <div class="key span-4" id="gkey-L">L</div>
+                        <div class="key span-4 dual" id="gkey-Semicolon"><span class="top">:</span><span class="bot">;</span></div>
+                        <div class="key span-4 dual" id="gkey-Quote"><span class="top">"</span><span class="bot">'</span></div>
+                        <div class="key span-9 key-enter">Enter ↵</div>
+                    </div>
+                    <!-- Hàng 4 -->
+                    <div class="kb-row">
+                        <div class="key span-9 key-shift highlight" id="gkey-ShiftL">Shift ⇧</div>
+                        <div class="key span-4" id="gkey-Z">Z</div>
+                        <div class="key span-4" id="gkey-X">X</div>
+                        <div class="key span-4" id="gkey-C">C</div>
+                        <div class="key span-4" id="gkey-V">V</div>
+                        <div class="key span-4" id="gkey-B">B</div>
+                        <div class="key span-4" id="gkey-N">N</div>
+                        <div class="key span-4" id="gkey-M">M</div>
+                        <div class="key span-4 dual" id="gkey-Comma"><span class="top">&lt;</span><span class="bot">,</span></div>
+                        <div class="key span-4 dual" id="gkey-Period"><span class="top">&gt;</span><span class="bot">.</span></div>
+                        <div class="key span-4 dual" id="gkey-Slash"><span class="top">?</span><span class="bot">/</span></div>
+                        <div class="key span-11 key-shift highlight" id="gkey-ShiftR">Shift ⇧</div>
+                    </div>
+                    <!-- Hàng 5 -->
+                    <div class="kb-row">
+                        <div class="key span-5 key-func">Ctrl</div>
+                        <div class="key span-5 key-func">⊞ Win</div>
+                        <div class="key span-5 key-func">Alt</div>
+                        <div class="key span-25 key-space">Space (Phím Cách)</div>
+                        <div class="key span-5 key-func">Alt</div>
+                        <div class="key span-5 key-func">⊞ Win</div>
+                        <div class="key span-5 key-func">☰ Menu</div>
+                        <div class="key span-5 key-func">Ctrl</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thanh nút chuyển câu tiếp theo & làm lại -->
+            <div class="game-btn-bar">
+                <button id="btnAdvanceMission" class="btn-advance-mission" onclick="pickRandomMission()">
+                    Phím tiếp theo ❯
+                </button>
+                <button class="action-btn" onclick="resetGameCounter()">
+                    🔄 Đặt lại lượt (0)
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 8: TỔNG KẾT BÀI HỌC & GIAO VIỆC CUULONGEDU -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-8">
+        <div class="section-badge">Ghi nhớ & Hướng dẫn về nhà</div>
+        <h1 class="slide-title">Tổng kết bài học & Giao việc</h1>
+
+        <div class="two-col-grid" style="align-items: stretch;">
+            <!-- Cột 1: Sau bài học em biết -->
+            <div class="info-card" style="justify-content: flex-start;">
+                <h3>Sau bài học này, em đã biết:</h3>
+                <p style="font-size: 1.55rem; color: var(--text-sub); margin-bottom: 16px;">
+                    Các em cùng đọc to và tích chọn những nội dung mình đã nắm vững nhé:
+                </p>
+
+                <div class="eval-item checked" onclick="toggleEval(this)">
+                    <div style="display: flex; align-items: center;">
+                        <div class="eval-num">1</div>
+                        <span>Vị trí của <b>2 phím Shift</b> ở hai đầu hàng phím dưới.</span>
+                    </div>
+                    <div class="eval-circle">✓</div>
+                </div>
+
+                <div class="eval-item checked" onclick="toggleEval(this)">
+                    <div style="display: flex; align-items: center;">
+                        <div class="eval-num">2</div>
+                        <span>Nhấn giữ <b>Shift + phím chữ</b> để gõ chữ in hoa.</span>
+                    </div>
+                    <div class="eval-circle">✓</div>
+                </div>
+
+                <div class="eval-item checked" onclick="toggleEval(this)">
+                    <div style="display: flex; align-items: center;">
+                        <div class="eval-num">3</div>
+                        <span>Nhấn giữ <b>Shift + phím 2 kí tự</b> để gõ kí tự bên trên.</span>
+                    </div>
+                    <div class="eval-circle">✓</div>
+                </div>
+            </div>
+
+            <!-- Cột 2: Giao việc CuuLongedu -->
+            <div class="info-card" style="justify-content: flex-start;">
+                <h3>Thực hành trên phần mềm CuuLongedu</h3>
+                <p style="font-size: 1.55rem; color: var(--text-sub); margin-bottom: 16px;">
+                    Các em về nhà hoặc trong giờ thực hành máy tính mở phần mềm và hoàn thành:
+                </p>
+
+                <div style="background: #f0f9ff; border: 2px solid #7dd3fc; border-radius: 16px; padding: 18px; margin-bottom: 14px; font-size: 1.65rem; font-weight: 800; text-align: left;">
+                    🎯 <b>Bài số 7</b> của chủ đề:<br>
+                    <span style="color: #0369a1;">“Bàn phím máy tính – Luyện tập gõ bàn phím”</span>
+                </div>
+
+                <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 16px; padding: 18px; font-size: 1.65rem; font-weight: 800; text-align: left;">
+                    ⭐ <b>Bài số 9</b> của chủ đề:<br>
+                    <span style="color: #15803d;">“Bàn phím máy tính – Luyện tập phím chữ hoa”</span>
+                </div>
+
+                <div style="margin-top: 18px; font-size: 1.5rem; font-weight: 800; color: #b45309; text-align: center;">
+                    🎉 Chúc các em học tập thật tốt và gõ phím ngày càng điêu luyện!
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- THANH ĐIỀU HƯỚNG CHÂN TRANG CỐ ĐỊNH CHUẨN KHỐI 2 (KHÔNG BỊ XUỐNG HÀNG) -->
+    <!-- ========================================== -->
+    <div class="bottom-nav-bar">
+        <button class="nav-control-btn prev-btn" id="prevBtn" onclick="changeSlide(-1)">❮&nbsp;Trước</button>
+        <div class="slide-pills" id="slidePills">
+            <!-- Render danh sách 8 trang -->
+        </div>
+        <button class="nav-control-btn next-btn" id="nextBtn" onclick="changeSlide(1)">Tiếp&nbsp;❯</button>
+        <button class="nav-control-btn fs-btn" onclick="toggleFullScreen()" title="Toàn màn hình">⛶</button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TOÀN BỘ JAVASCRIPT ĐIỀU KHIỂN BÀI GIẢNG -->
+    <!-- ========================================== -->
+    <script>
+        // 1. TỰ ĐỘNG CẬP NHẬT THỨ NGÀY THÁNG TIẾNG VIỆT
+        function updateVietnameseDate() {
+            const now = new Date();
+            const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+            const dayName = days[now.getDay()];
+            const date = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+
+            const dateEl = document.getElementById('current-date-line');
+            if (dateEl) {
+                dateEl.innerText = `${dayName}, ngày ${date} tháng ${month} năm ${year}`;
+            }
+        }
+        updateVietnameseDate();
+
+        // 2. BỘ ĐIỀU KHIỂN SLIDE VÀ PILLS ĐIỀU HƯỚNG
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const pillsContainer = document.getElementById('slidePills');
+
+        function initSlidePills() {
+            pillsContainer.innerHTML = '';
+            slides.forEach((_, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'pill-btn' + (idx === currentSlideIndex ? ' active' : '');
+                btn.innerText = idx + 1;
+                btn.title = `Chuyển tới trang ${idx + 1}`;
+                btn.onclick = () => goToSlide(idx);
+                pillsContainer.appendChild(btn);
+            });
+        }
+
+        function updateSlideView() {
+            slides.forEach((s, idx) => {
+                s.classList.toggle('active', idx === currentSlideIndex);
+            });
+
+            const pillButtons = pillsContainer.querySelectorAll('.pill-btn');
+            pillButtons.forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === currentSlideIndex);
+            });
+
+            document.getElementById('prevBtn').disabled = (currentSlideIndex === 0);
+            document.getElementById('nextBtn').disabled = (currentSlideIndex === slides.length - 1);
+
+            // Cuộn trang lên đỉnh khi chuyển slide
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeSlide(dir) {
+            currentSlideIndex = Math.max(0, Math.min(slides.length - 1, currentSlideIndex + dir));
+            updateSlideView();
+        }
+
+        function goToSlide(idx) {
+            currentSlideIndex = idx;
+            updateSlideView();
+        }
+
+        // Bắt phím tắt bàn phím chuyển slide (Mũi tên, PageUp/Down)
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            // Nếu đang ở Slide 7 (Game thực hành) thì nhường sự kiện bàn phím cho Game xử lý
+            if (currentSlideIndex === 6 && (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'PageUp' && e.key !== 'PageDown')) {
+                return;
+            }
+
+            if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                changeSlide(-1);
+            }
+        });
+
+        initSlidePills();
+        updateSlideView();
+
+        // 3. TƯƠNG TÁC SLIDE 3: TRÒ CHƠI AI NHANH HƠN
+        function revealDevice(card) {
+            card.classList.toggle('revealed');
+            const nameEl = card.querySelector('.device-name');
+            if (card.classList.contains('revealed')) {
+                nameEl.innerText = nameEl.getAttribute('data-label');
+                playAudioTone('ding');
+            } else {
+                nameEl.innerText = '?';
+            }
+        }
+
+        // 4. TƯƠNG TÁC SLIDE 4: THỬ PHÍM SHIFT
+        function testShiftKey(side) {
+            playAudioTone('ding');
+            const feedback = document.getElementById('shift-feedback');
+            feedback.innerHTML = `🎉 Chính xác! Đây là <b style="color: #dc2626;">phím Shift bên ${side}</b> nằm ở hàng phím dưới.`;
+            feedback.style.borderColor = "#16a34a";
+            feedback.style.background = "#f0fdf4";
+        }
+
+        // 5. TƯƠNG TÁC SLIDE 6: BẢNG LUYỆN TẬP
+        function toggleAnswer(btn) {
+            const isOpened = btn.classList.toggle('opened');
+            btn.innerText = isOpened ? btn.getAttribute('data-ans') : '?';
+            if (isOpened) playAudioTone('ding');
+        }
+
+        function revealAllPractice(open) {
+            document.querySelectorAll('.reveal-btn').forEach(btn => {
+                btn.classList.toggle('opened', open);
+                btn.innerText = open ? btn.getAttribute('data-ans') : '?';
+            });
+            playAudioTone('ding');
+        }
+
+        // 6. TƯƠNG TÁC SLIDE 8: ĐÁNH GIÁ CUỐI BÀI
+        function toggleEval(item) {
+            item.classList.toggle('checked');
+            if (item.classList.contains('checked')) playAudioTone('ding');
+        }
+
+        // 7. TOÀN MÀN HÌNH
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => { });
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+
+        // ==========================================
+        // 8. LOGIC GAME SLIDE 7: RANDOM NGẪU NHIÊN PHÍM (KHÔNG GIỚI HẠN)
+        // ==========================================
+        const randomPool = [
+            // Nhóm chữ in hoa (Giữ Shift + gõ chữ)
+            { type: "Chữ in hoa", char: "A", keyHint: "👉 Gõ phím A", targetKey: "a", kbId: "gkey-A" },
+            { type: "Chữ in hoa", char: "B", keyHint: "👉 Gõ phím B", targetKey: "b", kbId: "gkey-B" },
+            { type: "Chữ in hoa", char: "C", keyHint: "👉 Gõ phím C", targetKey: "c", kbId: "gkey-C" },
+            { type: "Chữ in hoa", char: "D", keyHint: "👉 Gõ phím D", targetKey: "d", kbId: "gkey-D" },
+            { type: "Chữ in hoa", char: "E", keyHint: "👉 Gõ phím E", targetKey: "e", kbId: "gkey-E" },
+            { type: "Chữ in hoa", char: "G", keyHint: "👉 Gõ phím G", targetKey: "g", kbId: "gkey-G" },
+            { type: "Chữ in hoa", char: "H", keyHint: "👉 Gõ phím H", targetKey: "h", kbId: "gkey-H" },
+            { type: "Chữ in hoa", char: "K", keyHint: "👉 Gõ phím K", targetKey: "k", kbId: "gkey-K" },
+            { type: "Chữ in hoa", char: "L", keyHint: "👉 Gõ phím L", targetKey: "l", kbId: "gkey-L" },
+            { type: "Chữ in hoa", char: "M", keyHint: "👉 Gõ phím M", targetKey: "m", kbId: "gkey-M" },
+            { type: "Chữ in hoa", char: "N", keyHint: "👉 Gõ phím N", targetKey: "n", kbId: "gkey-N" },
+            { type: "Chữ in hoa", char: "P", keyHint: "👉 Gõ phím P", targetKey: "p", kbId: "gkey-P" },
+            { type: "Chữ in hoa", char: "Q", keyHint: "👉 Gõ phím Q", targetKey: "q", kbId: "gkey-Q" },
+            { type: "Chữ in hoa", char: "R", keyHint: "👉 Gõ phím R", targetKey: "r", kbId: "gkey-R" },
+            { type: "Chữ in hoa", char: "S", keyHint: "👉 Gõ phím S", targetKey: "s", kbId: "gkey-S" },
+            { type: "Chữ in hoa", char: "T", keyHint: "👉 Gõ phím T", targetKey: "t", kbId: "gkey-T" },
+            { type: "Chữ in hoa", char: "U", keyHint: "👉 Gõ phím U", targetKey: "u", kbId: "gkey-U" },
+            { type: "Chữ in hoa", char: "V", keyHint: "👉 Gõ phím V", targetKey: "v", kbId: "gkey-V" },
+            { type: "Chữ in hoa", char: "X", keyHint: "👉 Gõ phím X", targetKey: "x", kbId: "gkey-X" },
+            { type: "Chữ in hoa", char: "Y", keyHint: "👉 Gõ phím Y", targetKey: "y", kbId: "gkey-Y" },
+
+            // Nhóm ký tự bên trên (Giữ Shift + gõ phím 2 ký tự)
+            { type: "Kí tự bên trên", char: "!", keyHint: "👉 Gõ phím số 1", targetKey: "1", kbId: "gkey-1" },
+            { type: "Kí tự bên trên", char: "@", keyHint: "👉 Gõ phím số 2", targetKey: "2", kbId: "gkey-2" },
+            { type: "Kí tự bên trên", char: "#", keyHint: "👉 Gõ phím số 3", targetKey: "3", kbId: "gkey-3" },
+            { type: "Kí tự bên trên", char: "$", keyHint: "👉 Gõ phím số 4", targetKey: "4", kbId: "gkey-4" },
+            { type: "Kí tự bên trên", char: "%", keyHint: "👉 Gõ phím số 5", targetKey: "5", kbId: "gkey-5" },
+            { type: "Kí tự bên trên", char: "^", keyHint: "👉 Gõ phím số 6", targetKey: "6", kbId: "gkey-6" },
+            { type: "Kí tự bên trên", char: "&", keyHint: "👉 Gõ phím số 7", targetKey: "7", kbId: "gkey-7" },
+            { type: "Kí tự bên trên", char: "*", keyHint: "👉 Gõ phím số 8", targetKey: "8", kbId: "gkey-8" },
+            { type: "Kí tự bên trên", char: "(", keyHint: "👉 Gõ phím số 9", targetKey: "9", kbId: "gkey-9" },
+            { type: "Kí tự bên trên", char: ")", keyHint: "👉 Gõ phím số 0", targetKey: "0", kbId: "gkey-0" },
+            { type: "Kí tự bên trên", char: "?", keyHint: "👉 Gõ phím / (dưới phím L)", targetKey: "/", kbId: "gkey-Slash" },
+            { type: "Kí tự bên trên", char: "+", keyHint: "👉 Gõ phím = (cạnh Backspace)", targetKey: "=", kbId: "gkey-Equal" },
+            { type: "Kí tự bên trên", char: "_", keyHint: "👉 Gõ phím - (cạnh số 0)", targetKey: "-", kbId: "gkey-Minus" },
+            { type: "Kí tự bên trên", char: ":", keyHint: "👉 Gõ phím ; (cạnh phím L)", targetKey: ";", kbId: "gkey-Semicolon" },
+            { type: "Kí tự bên trên", char: '"', keyHint: "👉 Gõ phím ' (cạnh Enter)", targetKey: "'", kbId: "gkey-Quote" },
+            { type: "Kí tự bên trên", char: ">", keyHint: "👉 Gõ phím . (dấu chấm)", targetKey: ".", kbId: "gkey-Period" },
+            { type: "Kí tự bên trên", char: "<", keyHint: "👉 Gõ phím , (dấu phẩy)", targetKey: ",", kbId: "gkey-Comma" }
+        ];
+
+        let currentMission = null;
+        let isMissionPassed = false;
+        let completedCount = 0;
+
+        function pickRandomMission() {
+            isMissionPassed = false;
+            let nextMission;
+            do {
+                const randIndex = Math.floor(Math.random() * randomPool.length);
+                nextMission = randomPool[randIndex];
+            } while (currentMission && nextMission.char === currentMission.char && randomPool.length > 1);
+
+            currentMission = nextMission;
+
+            document.getElementById('targetTypeBadge').innerText = `THỬ THÁCH GÕ: ${currentMission.type.toUpperCase()}`;
+            document.getElementById('targetBigChar').innerText = currentMission.char;
+            document.getElementById('targetKeyHint').innerText = currentMission.keyHint;
+
+            const alertEl = document.getElementById('gameStatusAlert');
+            alertEl.className = 'game-status-box idle';
+            alertEl.innerHTML = `⌨️ Mời em nhấn giữ phím <b>Shift</b> và gõ phím trên máy tính của Thầy/Cô...`;
+
+            // Highlight phím mục tiêu và phím Shift trên bàn phím minh họa
+            clearGameKbHighlights();
+            const targetEl = document.getElementById(currentMission.kbId);
+            if (targetEl) {
+                targetEl.classList.add('correct');
+            }
+            const shiftL = document.getElementById('gkey-ShiftL');
+            const shiftR = document.getElementById('gkey-ShiftR');
+            if (shiftL) shiftL.classList.add('highlight');
+            if (shiftR) shiftR.classList.add('highlight');
+        }
+
+        function clearGameKbHighlights() {
+            document.querySelectorAll('.game-kb-container .key').forEach(k => {
+                k.classList.remove('correct', 'wrong');
+            });
+        }
+
+        function resetGameCounter() {
+            completedCount = 0;
+            document.getElementById('completedCountBadge').innerText = '0';
+            pickRandomMission();
+        }
+
+        // BẮT SỰ KIỆN GÕ PHÍM THẬT TỪ BÀN PHÍM GIÁO VIÊN
+        window.addEventListener('keydown', (e) => {
+            // Chỉ kiểm tra khi đang ở Slide 7 (index = 6)
+            if (currentSlideIndex !== 6) return;
+            if (isMissionPassed || !currentMission) return;
+
+            const alertEl = document.getElementById('gameStatusAlert');
+
+            // Khi học sinh đang nhấn giữ phím Shift
+            if (e.key === 'Shift') {
+                alertEl.className = 'game-status-box idle';
+                alertEl.innerHTML = `👍 Rất tốt! Em đang giữ phím Shift rồi, giờ hãy gõ tiếp <b>${currentMission.keyHint}</b> nhé!`;
+                return;
+            }
+
+            // Kiểm tra xem ký tự gõ ra có khớp với mục tiêu không
+            if (e.key === currentMission.char) {
+                // CHÍNH XÁC!
+                isMissionPassed = true;
+                completedCount++;
+                document.getElementById('completedCountBadge').innerText = completedCount;
+
+                alertEl.className = 'game-status-box correct';
+                alertEl.innerHTML = `🎉 CHÍNH XÁC! Em đã gõ đúng ký tự <b>${currentMission.char}</b>! (+1 lượt ⭐⭐⭐)`;
+
+                playAudioTone('correct');
+                launchConfetti(1500);
+
+                // Tự động chuyển phím ngẫu nhiên tiếp theo sau 1.2 giây
+                setTimeout(() => {
+                    pickRandomMission();
+                }, 1200);
+            } else {
+                // GÕ CHƯA ĐÚNG
+                playAudioTone('wrong');
+                alertEl.className = 'game-status-box wrong';
+
+                if (!e.shiftKey) {
+                    alertEl.innerHTML = `⚠️ Em quên nhấn giữ <b>phím Shift</b> rồi! Hãy dùng một tay giữ chặt Shift, tay kia gõ phím nhé!`;
+                } else {
+                    alertEl.innerHTML = `🤔 Em gõ nhầm phím "<b>${e.key}</b>" rồi! Phím cần gõ là "<b>${currentMission.char}</b>". Hãy thử lại nhé!`;
+                }
+            }
+        });
+
+        // Khởi tạo phím đầu tiên cho Game Slide 7
+        pickRandomMission();
+
+        // ==========================================
+        // 9. BỘ TẠO ÂM THANH WEB AUDIO SYNTHESIZER
+        // ==========================================
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        let audioCtxInstance = null;
+
+        function getAudioContext() {
+            if (!audioCtxInstance && AudioContextClass) {
+                audioCtxInstance = new AudioContextClass();
+            }
+            if (audioCtxInstance && audioCtxInstance.state === 'suspended') {
+                audioCtxInstance.resume();
+            }
+            return audioCtxInstance;
+        }
+
+        function playAudioTone(type) {
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+
+                if (type === 'ding') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+                    osc.frequency.setValueAtTime(880, ctx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.3);
+                } else if (type === 'correct') {
+                    [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.08);
+                        gain.gain.setValueAtTime(0.2, ctx.currentTime + idx * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.08 + 0.3);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(ctx.currentTime + idx * 0.08);
+                        osc.stop(ctx.currentTime + idx * 0.08 + 0.3);
+                    });
+                } else if (type === 'wrong') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(240, ctx.currentTime);
+                    osc.frequency.setValueAtTime(180, ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.25);
+                }
+            } catch (err) { }
+        }
+
+        // ==========================================
+        // 10. HIỆU ỨNG PHÁO HOA GIẤY (CANVAS CONFETTI)
+        // ==========================================
+        const confettiCanvas = document.getElementById('confettiCanvas');
+        const cCtx = confettiCanvas.getContext('2d');
+        let confettiParticles = [];
+        let confettiAnimationId = null;
+
+        function resizeConfetti() {
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeConfetti);
+        resizeConfetti();
+
+        function launchConfetti(durationMs = 2000) {
+            const colors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#facc15'];
+            confettiParticles = [];
+
+            for (let i = 0; i < 90; i++) {
+                confettiParticles.push({
+                    x: Math.random() * confettiCanvas.width,
+                    y: -20 - Math.random() * 50,
+                    size: 8 + Math.random() * 8,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    vx: -3 + Math.random() * 6,
+                    vy: 3 + Math.random() * 6,
+                    rot: Math.random() * 360,
+                    vrot: -4 + Math.random() * 8
+                });
+            }
+
+            if (!confettiAnimationId) {
+                renderConfetti();
+            }
+
+            setTimeout(() => {
+                confettiParticles = [];
+            }, durationMs);
+        }
+
+        function renderConfetti() {
+            cCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+            confettiParticles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.rot += p.vrot;
+
+                cCtx.save();
+                cCtx.translate(p.x, p.y);
+                cCtx.rotate((p.rot * Math.PI) / 180);
+                cCtx.fillStyle = p.color;
+                cCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                cCtx.restore();
+            });
+
+            confettiParticles = confettiParticles.filter(p => p.y < confettiCanvas.height + 30);
+
+            if (confettiParticles.length > 0) {
+                confettiAnimationId = requestAnimationFrame(renderConfetti);
+            } else {
+                confettiAnimationId = null;
+                cCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            }
+        }
+    </script>
+</body>
+
+</html>
+
+</html>
