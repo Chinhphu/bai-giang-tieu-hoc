@@ -11,6 +11,7 @@
 
     <!-- THƯ VIỆN XUẤT EXCEL THẬT (.XLSX) THEO CHUẨN ĐÁNH GIÁ NĂNG LỰC HỌC SINH -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="../shared/components.js"></script>
 
     <style>
         /* ================= TÙY BIẾN GIAO DIỆN THỰC HÀNH KHỐI 4 ================= */
@@ -737,10 +738,13 @@
 
                         <!-- CÁC NÚT HÀNH ĐỘNG -->
                         <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:20px;">
-                            <button class="btn green" style="font-size:1.15rem; padding:14px 28px;" onclick="exportDetailedExcel()">
-                                📊 Xuất File Excel Đánh Giá Năng Lực Từng Em (.xlsx)
+                            <button class="btn green" style="font-size:1.15rem; padding:14px 28px;" onclick="exportDetailedExcel(true)">
+                                ☁️ Xuất Excel & Lưu Lên Google Drive (.xlsx)
                             </button>
-                            <button class="btn teal" style="font-size:1.15rem; padding:14px 28px;" onclick="switchScreen(2)">
+                            <button class="btn blue" style="font-size:1.15rem; padding:14px 24px;" onclick="exportDetailedExcel(false)">
+                                📥 Tải File Về Máy (.xlsx)
+                            </button>
+                            <button class="btn teal" style="font-size:1.15rem; padding:14px 24px;" onclick="switchScreen(2)">
                                 🔄 Quay lại Đấu trường
                             </button>
                         </div>
@@ -1543,8 +1547,55 @@
             document.getElementById('statGoodRate').textContent = `${pct}%`;
         }
 
+        /* ================= KẾT NỐI GOOGLE DRIVE (GOOGLE APPS SCRIPT) ================= */
+        const GAS_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbywqn9mgeON9fTqp3xmnGbuqWW-eChABhvaotV4qHezosaqlYuWpF0c4vnB7APkuXBSRw/exec';
+        window.GAS_UPLOAD_URL = GAS_UPLOAD_URL;
+
+        window.uploadExcelToDrive = async function uploadExcelToDrive(wb, fileName) {
+            if (!wb || typeof window.XLSX === 'undefined') {
+                showToast('⚠️ Chưa nạp xong thư viện Excel!', 'bad');
+                return;
+            }
+
+            if (!fileName.endsWith('.xlsx')) {
+                fileName += '.xlsx';
+            }
+
+            showToast('☁️ Đang đồng bộ nhật ký lên Google Drive...', 'ok');
+
+            try {
+                const base64Data = window.XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+                const payload = {
+                    fileName: fileName,
+                    fileData: base64Data,
+                    mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                };
+
+                const response = await fetch(GAS_UPLOAD_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                if (result && result.status === 'success') {
+                    showToast('✅ Đã lưu vào Drive (Thư mục Log tiết học)!', 'ok');
+                    return result;
+                } else {
+                    throw new Error((result && result.message) || 'Lỗi từ máy chủ Google Apps Script');
+                }
+            } catch (err) {
+                console.warn('Không thể gửi lên Google Drive, chuyển sang tải file trực tiếp:', err);
+                // Fallback an toàn: Tự động tải file về máy để giáo viên không bị mất dữ liệu
+                window.XLSX.writeFile(wb, fileName);
+                showToast('⚠️ Không kết nối được Drive. Đã tự động lưu file về máy!', 'warn');
+            }
+        };
+
         /* 11. XUẤT FILE EXCEL TRACKING ĐÁNH GIÁ NĂNG LỰC TỪNG HỌC SINH (YÊU CẦU TRỌNG TÂM) */
-        function exportDetailedExcel() {
+        async function exportDetailedExcel(sendToDrive = true) {
             if (typeof XLSX === 'undefined') {
                 alert('Chưa tải được thư viện SheetJS. Đang chuyển sang xuất file CSV dự phòng...');
                 exportCSVFallback();
@@ -1667,9 +1718,13 @@
             ];
             XLSX.utils.book_append_sheet(wb, wsLogs, 'Nhat_Ky_Chi_Tiet');
 
-            // Xuất file
-            XLSX.writeFile(wb, fileName);
-            showToast(`📥 Đã xuất file Excel: ${fileName}`, 'ok');
+            // Xuất file: Gửi Google Drive hoặc Tải về máy
+            if (sendToDrive) {
+                await window.uploadExcelToDrive(wb, fileName);
+            } else {
+                XLSX.writeFile(wb, fileName);
+                showToast(`📥 Đã tải file Excel về máy: ${fileName}`, 'ok');
+            }
         }
 
         /* Fallback xuất CSV nếu SheetJS không load được */
@@ -1758,7 +1813,5 @@
         window.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
-
-</html>
 
 </html>
