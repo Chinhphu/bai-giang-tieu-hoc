@@ -1,0 +1,3223 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 4: Tìm Kiếm Thông Tin Trên Internet (Tiết 2: Thực Hành) – Đấu Trường Bảng Con (Tin Học 4)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --ink: #0f172a;
+            --white: #ffffff;
+            --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #f59e0b;
+            --purple: #9333ea;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: #eef4fb;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            font-size: 19px;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            border: 0;
+            touch-action: manipulation;
+        }
+
+        button:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ===== BỐ CỤC 2 CỘT: TRÁI (SLIDE/ĐẤU TRƯỜNG) - PHẢI (SIDEBAR CỐ ĐỊNH) ===== */
+        .layout-container {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 390px;
+            gap: 16px;
+            max-width: 1920px;
+            margin: 0 auto;
+            padding: 12px 16px;
+            min-height: 100vh;
+            align-items: start;
+        }
+
+        .slide-screen {
+            display: none;
+            animation: slideIn .25s ease forwards;
+        }
+
+        .slide-screen.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-panel {
+            background: var(--white);
+            border: 3px solid #cbd5e1;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: clamp(16px, 1.8vw, 26px);
+            position: relative;
+        }
+
+        .panel-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px dashed #e2e8f0;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .panel-heading h2 {
+            font-size: 1.55rem;
+            font-weight: 900;
+            color: #1e3a8a;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ===== NÚT BẤM CHUẨN ===== */
+        .btn {
+            font-weight: 800;
+            padding: 9px 16px;
+            border-radius: 12px;
+            font-size: 0.98rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: all .15s;
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.14);
+            text-decoration: none;
+        }
+
+        .btn:hover:enabled {
+            transform: translateY(-2px);
+            filter: brightness(1.05);
+        }
+
+        .btn:active:enabled {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+
+        .btn.primary {
+            background: #2563eb;
+            color: #fff;
+            box-shadow: 0 3px 0 #1d4ed8;
+        }
+
+        .btn.success {
+            background: #16a34a;
+            color: #fff;
+            box-shadow: 0 3px 0 #15803d;
+        }
+
+        .btn.danger {
+            background: #dc2626;
+            color: #fff;
+            box-shadow: 0 3px 0 #b91c1c;
+        }
+
+        .btn.warning {
+            background: #f59e0b;
+            color: #451a03;
+            box-shadow: 0 3px 0 #d97706;
+        }
+
+        .btn.purple {
+            background: #9333ea;
+            color: #fff;
+            box-shadow: 0 3px 0 #7e22ce;
+        }
+
+        .btn.cyan {
+            background: #0284c7;
+            color: #fff;
+            box-shadow: 0 3px 0 #0369a1;
+        }
+
+        .btn.gray {
+            background: #64748b;
+            color: #fff;
+            box-shadow: 0 3px 0 #475569;
+        }
+
+        .btn.huge {
+            font-size: 1.15rem;
+            padding: 12px 22px;
+            border-radius: 14px;
+        }
+
+        /* ===== TRANG VỞ GHI BÀI THỰC HÀNH ===== */
+        .note-step {
+            display: inline-block;
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: #fff;
+            background: #16a34a;
+            padding: 5px 16px;
+            border-radius: 99px;
+            margin-bottom: 8px;
+        }
+
+        .notebook-box {
+            background-color: #ffffff;
+            border: 3px solid #94a3b8;
+            border-left: 16px solid #ef4444;
+            border-radius: 16px;
+            padding: 10px 32px;
+            margin: 6px 0;
+            box-shadow: 4px 6px 0 rgba(100, 116, 139, 0.12);
+            text-align: left;
+            font-size: clamp(1.4rem, 2.1vw, 2.3rem);
+            line-height: 1.75em;
+            background-image: repeating-linear-gradient(transparent, transparent calc(1.75em - 1px), #bae6fd calc(1.75em - 1px), #bae6fd 1.75em);
+            background-size: 100% 1.75em;
+            min-height: 68vh;
+        }
+
+        .notebook-date {
+            text-align: center;
+            color: #475569;
+            font-size: 0.65em;
+            font-style: italic;
+            font-weight: 800;
+            margin: 0;
+            line-height: 1.75em;
+        }
+
+        .notebook-subject {
+            text-align: center;
+            color: #2563eb;
+            font-size: 0.8em;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 1.75em;
+        }
+
+        .notebook-lesson-title {
+            text-align: center;
+            color: #b91c1c;
+            font-size: 0.95em;
+            font-weight: 900;
+            margin: 0 0 0.4em 0;
+            line-height: 1.75em;
+        }
+
+        .notebook-content {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .notebook-content ul,
+        .notebook-content ol {
+            margin: 0;
+            padding-left: 1.3em;
+        }
+
+        /* ===== ĐẤU TRƯỜNG BẢNG CON: SÂN KHẤU CHÍNH ===== */
+        .arena-stage {
+            background: linear-gradient(180deg, #090e1a 0%, #152238 100%);
+            border: 4px solid #1e293b;
+            border-radius: 22px;
+            color: #fff;
+            padding: 16px 20px;
+            box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.7);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* BANNER HỒ SƠ BÍ MẬT */
+        .quest-banner {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 16px;
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .quest-topic-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #3b82f6;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 900;
+            padding: 4px 12px;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .quest-topic-tag.game {
+            background: #ec4899;
+        }
+
+        .quest-topic-tag.comic {
+            background: #f59e0b;
+            color: #3f1900;
+        }
+
+        .quest-topic-tag.sgk {
+            background: #10b981;
+        }
+
+        .quest-question-text {
+            font-size: clamp(1.25rem, 1.8vw, 1.7rem);
+            font-weight: 900;
+            color: #f8fafc;
+            line-height: 1.45;
+            margin-top: 6px;
+        }
+
+        .quest-question-text mark {
+            background: #facc15;
+            color: #0f172a;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        /* BỘ STEPPER 3 NHỊP */
+        .rhythm-stepper {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .rhythm-step-btn {
+            background: #0f172a;
+            border: 2px solid #334155;
+            color: #94a3b8;
+            border-radius: 12px;
+            padding: 10px 12px;
+            text-align: center;
+            font-weight: 900;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .rhythm-step-btn.active {
+            background: #1e3a8a;
+            border-color: #60a5fa;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+            transform: scale(1.02);
+        }
+
+        .rhythm-step-btn.done {
+            background: #064e3b;
+            border-color: #10b981;
+            color: #a7f3d0;
+        }
+
+        /* ===== KHỐI HIỂN THỊ CỦA TỪNG NHỊP ===== */
+        .rhythm-container {
+            display: none;
+            background: #0d1527;
+            border: 2px solid #24355a;
+            border-radius: 18px;
+            padding: 16px;
+            position: relative;
+        }
+
+        .rhythm-container.active {
+            display: block;
+            animation: slideIn .2s ease forwards;
+        }
+
+        /* --- NHỊP 1: ĐẤU THẦU TỪ KHÓA --- */
+        .timer-hero-box {
+            background: #000000;
+            border: 3px solid #38bdf8;
+            border-radius: 20px;
+            padding: 12px 20px;
+            text-align: center;
+            margin-bottom: 14px;
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .timer-hero-led {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(2.4rem, 4.5vw, 4rem);
+            font-weight: 900;
+            color: #38bdf8;
+            text-shadow: 0 0 16px #38bdf8;
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+
+        .timer-hero-led.urgent {
+            color: #ef4444;
+            text-shadow: 0 0 20px #ef4444;
+            animation: pulseFast .4s infinite alternate;
+        }
+
+        @keyframes pulseFast {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.04);
+            }
+        }
+
+        .rhythm-progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #1e293b;
+            border-radius: 99px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .rhythm-progress-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #10b981, #facc15, #ef4444);
+            transition: width 1s linear;
+        }
+
+        /* LƯỚI BẢNG CON CỦA CÁC TỔ */
+        .teams-board-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .team-board-card {
+            background: #1e293b;
+            border: 3px solid var(--t-color, #3b82f6);
+            border-radius: 14px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: transform .15s;
+        }
+
+        .team-board-card:focus-within {
+            box-shadow: 0 0 16px var(--t-color, #3b82f6);
+            transform: translateY(-2px);
+        }
+
+        .t-board-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .t-board-name {
+            font-weight: 900;
+            font-size: 1.15rem;
+            color: var(--t-color, #3b82f6);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .t-board-input-wrap {
+            position: relative;
+        }
+
+        .t-board-input {
+            width: 100%;
+            background: #090f1d;
+            border: 2px solid #334155;
+            border-radius: 10px;
+            color: #f8fafc;
+            padding: 8px 12px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            outline: none;
+            transition: border .15s;
+        }
+
+        .t-board-input:focus {
+            border-color: #38bdf8;
+            background: #0c162d;
+        }
+
+        .t-board-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .word-badge {
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 900;
+            font-size: 0.82rem;
+        }
+
+        .word-badge.ok {
+            background: #065f46;
+            color: #6ee7b7;
+        }
+
+        .word-badge.warn {
+            background: #78350f;
+            color: #fde68a;
+        }
+
+        /* --- NHỊP 2: LINK HUNTER (CHỌN SIÊU LIÊN KẾT) --- */
+        .tab-selector-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #24355a;
+        }
+
+        .tab-btn {
+            background: #1e293b;
+            color: #94a3b8;
+            border: 2px solid #334155;
+            border-radius: 10px 10px 0 0;
+            padding: 8px 16px;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all .15s;
+        }
+
+        .tab-btn.active {
+            background: #0284c7;
+            color: #fff;
+            border-color: #38bdf8;
+            border-bottom: 2px solid #0284c7;
+            margin-bottom: -2px;
+        }
+
+        .google-sim-box {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px 20px;
+            color: #1f2937;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        }
+
+        .google-bar-mock {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: 30px;
+            padding: 8px 18px;
+            margin-bottom: 14px;
+        }
+
+        .google-logo-mini {
+            font-weight: 900;
+            font-size: 1.25rem;
+            letter-spacing: -0.5px;
+        }
+
+        .google-query-view {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #0f172a;
+            flex: 1;
+        }
+
+        .search-links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .search-link-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            background: #ffffff;
+            transition: all .15s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .search-link-card:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            transform: translateX(4px);
+        }
+
+        .link-url-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #475569;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .link-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #1d4ed8;
+            text-decoration: underline;
+            margin-bottom: 4px;
+        }
+
+        .link-snippet {
+            font-size: 0.98rem;
+            color: #334155;
+            line-height: 1.45;
+        }
+
+        .link-badge-tag {
+            display: inline-block;
+            font-size: 0.78rem;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-top: 6px;
+        }
+
+        .link-badge-tag.trust {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+
+        .link-badge-tag.ad {
+            background: #fef3c7;
+            color: #b45309;
+            border: 1px solid #fde68a;
+        }
+
+        .link-badge-tag.trash {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+        }
+
+        /* --- NHỊP 3: SPEEDRUN ĐỌC LƯỚT 30 GIÂY --- */
+        .speedrun-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .speedrun-timer-hud {
+            background: #000000;
+            border: 3px solid #f59e0b;
+            border-radius: 18px;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
+        }
+
+        .speedrun-led {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(2.2rem, 4vw, 3.8rem);
+            font-weight: 900;
+            color: #f59e0b;
+            text-shadow: 0 0 15px #f59e0b;
+            line-height: 1;
+        }
+
+        .speedrun-led.critical {
+            color: #ef4444;
+            text-shadow: 0 0 20px #ef4444;
+            animation: pulseFast .35s infinite alternate;
+        }
+
+        .article-mock-screen {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px 24px;
+            color: #0f172a;
+            border: 3px solid #94a3b8;
+            max-height: 48vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .article-mock-header {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 700;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .article-mock-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #1e3a8a;
+            margin: 0 0 10px 0;
+            line-height: 1.35;
+        }
+
+        .article-mock-body {
+            font-size: 1.25rem;
+            line-height: 1.7;
+            color: #1e293b;
+        }
+
+        .article-mock-body p {
+            margin: 0 0 12px 0;
+        }
+
+        .highlight-answer {
+            background: #fef08a;
+            color: #991b1b;
+            font-weight: 900;
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 2px dashed #dc2626;
+            animation: pulseGlow 1s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            from {
+                box-shadow: 0 0 4px #facc15;
+            }
+
+            to {
+                box-shadow: 0 0 16px #facc15;
+            }
+        }
+
+        .teacher-action-bar {
+            background: #111c33;
+            border: 2px solid #2f56b3;
+            border-radius: 16px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* BANNER GIẢI ĐÁP BÍ MẬT & BÀI HỌC */
+        .secret-reveal-banner {
+            display: none;
+            background: #064e3b;
+            border: 2px solid #10b981;
+            border-radius: 14px;
+            padding: 14px 18px;
+            color: #ecfdf5;
+            margin-top: 12px;
+            animation: slideIn .2s ease;
+        }
+
+        .secret-reveal-banner.show {
+            display: block;
+        }
+
+        /* ===== SIDEBAR ĐIỀU KHIỂN ALL-IN-ONE ===== */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: sticky;
+            top: 12px;
+        }
+
+        .scoreboard-panel {
+            background: #ffffff;
+            border: 3px solid #3b82f6;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .score-head {
+            background: linear-gradient(90deg, #1e3a8a, #2563eb);
+            color: #fff;
+            padding: 10px 14px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 1.05rem;
+        }
+
+        .score-head select {
+            background: #ffffff;
+            color: #1e3a8a;
+            border: 0;
+            border-radius: 8px;
+            font-weight: 900;
+            font-size: 0.88rem;
+            padding: 3px 8px;
+            outline: none;
+        }
+
+        .teams-list-wrap {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 290px;
+            overflow-y: auto;
+        }
+
+        .team-score-row {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-left: 8px solid var(--team-color, #3b82f6);
+            border-radius: 12px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all .15s;
+        }
+
+        .team-score-row.highlight {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            transform: scale(1.02);
+        }
+
+        .t-row-title {
+            font-weight: 900;
+            font-size: 1.05rem;
+            color: var(--team-color, #1e293b);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .t-score-box {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.35rem;
+            color: #0f172a;
+            min-width: 60px;
+            text-align: right;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .t-score-box:hover {
+            background: #e2e8f0;
+        }
+
+        .t-ctrl-btns {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .t-mini-btn {
+            font-weight: 900;
+            font-size: 0.78rem;
+            padding: 4px 7px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            transition: all .12s;
+        }
+
+        .t-mini-btn.plus {
+            color: #15803d;
+            background: #f0fdf4;
+            border-color: #86efac;
+        }
+
+        .t-mini-btn.noise {
+            color: #b91c1c;
+            background: #fef2f2;
+            border-color: #fca5a5;
+        }
+
+        .t-mini-btn.win {
+            color: #1e3a8a;
+            background: #eff6ff;
+            border-color: #93c5fd;
+        }
+
+        /* DOCK ĐIỀU KHIỂN & ĐỒNG HỒ 35 PHÚT */
+        .dock-box {
+            background: #111c33;
+            border: 2px solid #2f56b3;
+            border-radius: 16px;
+            padding: 12px 14px;
+            color: #fff;
+        }
+
+        .lesson-clock-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #090e1a;
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 8px 12px;
+            margin: 6px 0 10px;
+        }
+
+        .lesson-clock-led {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.85rem;
+            font-weight: 900;
+            color: #4ade80;
+            text-shadow: 0 0 10px #4ade80;
+        }
+
+        .mini-ctrl-btn {
+            background: #1e293b;
+            color: #f8fafc;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            padding: 5px 8px;
+        }
+
+        .mini-ctrl-btn:hover {
+            background: #334155;
+            color: #fff;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 8px;
+            align-items: center;
+            text-align: center;
+            margin-top: 6px;
+        }
+
+        /* PANEL HỌC SINH */
+        #students-panel {
+            border: 2px solid #5b8cff;
+            border-radius: 14px;
+            background: #0b1530;
+            overflow: hidden;
+        }
+
+        #students-summary {
+            padding: 8px 12px;
+            background: #16295e;
+            color: #fff;
+            font-weight: 900;
+            font-size: 0.92rem;
+            cursor: pointer;
+            outline: none;
+        }
+
+        #students-header {
+            background: #16295e;
+            padding: 6px 10px;
+            border-bottom: 2px solid #5b8cff;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        #search-student {
+            width: 100%;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid #5b8cff;
+            background: #0d1a3a;
+            color: #fff;
+            outline: none;
+            font-size: 0.88rem;
+        }
+
+        #students-list {
+            max-height: 180px;
+            overflow-y: auto;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stu-btn {
+            background: #112347;
+            border: 1px solid #2f56b3;
+            border-radius: 7px;
+            color: #fff;
+            padding: 5px 8px;
+            text-align: left;
+            font-size: .85rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .stu-btn.called {
+            opacity: 0.45;
+            text-decoration: line-through;
+        }
+
+        /* MÀN HÌNH KHỞI ĐẦU */
+        .start-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            background: linear-gradient(180deg, #090e1a 0%, #152238 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .start-screen.hidden {
+            display: none;
+        }
+
+        .start-box {
+            background: #fff;
+            border: 4px solid #1e293b;
+            border-radius: 28px;
+            padding: 28px 36px;
+            max-width: 840px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .chip-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 8px 0 16px;
+        }
+
+        .chip {
+            background: #e2e8f0;
+            color: #0f172a;
+            font-weight: 900;
+            font-size: 1.25rem;
+            padding: 8px 20px;
+            border-radius: 12px;
+            border: 3px solid #cbd5e1;
+        }
+
+        .chip.on {
+            background: #2563eb;
+            color: #fff;
+            border-color: #1d4ed8;
+        }
+
+        /* MODAL CƯỚP LƯỢT KHI CHÁY MÁY */
+        .steal-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 15, 30, 0.88);
+            backdrop-filter: blur(5px);
+            z-index: 250;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .steal-modal.show {
+            display: flex;
+        }
+
+        .steal-box {
+            background: #ffffff;
+            border: 5px solid #dc2626;
+            border-radius: 24px;
+            padding: 24px 30px;
+            max-width: 720px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(220, 38, 38, 0.6);
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(0); }
+            25% { transform: translate(-8px, 4px); }
+            75% { transform: translate(8px, -4px); }
+        }
+
+        /* TOAST */
+        #toasts {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+            pointer-events: none;
+            max-width: 85vw;
+        }
+
+        .toast-item {
+            background: #111c33;
+            color: #ffffff;
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 10px 22px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            animation: slideIn .2s ease;
+        }
+
+        .toast-item.bad {
+            background: #7f1d1d;
+            border-color: #ef4444;
+            color: #fecaca;
+        }
+
+        .toast-item.ok {
+            background: #064e3b;
+            border-color: #10b981;
+            color: #a7f3d0;
+        }
+
+        /* CANVAS CONFETTI */
+        #confettiCanvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 500;
+        }
+
+        @media(max-width: 1120px) {
+            .layout-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="confettiCanvas"></canvas>
+    <div id="toasts"></div>
+
+    <div class="layout-container">
+        <!-- ==================== CỘT TRÁI: SLIDE BÀI GIẢNG & SÂN KHẤU ĐẤU TRƯỜNG ==================== -->
+        <main>
+            <!-- SLIDE 1: GIỚI THIỆU & KHỞI ĐỘNG ĐẤU TRƯỜNG -->
+            <section id="slide-intro" class="slide-screen active">
+                <div class="card-panel">
+                    <div class="panel-heading">
+                        <h2>🎯 TIN HỌC 4 · BÀI 4: TÌM KIẾM THÔNG TIN TRÊN INTERNET (TIẾT 2: THỰC HÀNH)</h2>
+                        <span style="background:#dbeafe; color:#1e40af; font-weight:900; padding:4px 12px; border-radius:99px; font-size:0.9rem;">
+                            Thời lượng: 35 phút
+                        </span>
+                    </div>
+
+                    <div style="background: linear-gradient(135deg, #1e3a8a, #0f172a); border-radius:20px; padding:24px; color:#fff; text-align:center; box-shadow:0 10px 30px rgba(30, 58, 138, 0.35);">
+                        <div style="font-size:3rem; margin-bottom:4px;">⚡ 🔍 🏆</div>
+                        <h1 style="margin:0 0 10px 0; font-size:clamp(1.8rem, 2.8vw, 2.6rem); color:#facc15; text-shadow:0 0 20px rgba(250, 204, 21, 0.4);">
+                            ĐẤU TRƯỜNG BẢNG CON – SPEEDRUN TRUY TÌM LIÊN KẾT
+                        </h1>
+                        <p style="font-size:1.2rem; color:#cbd5e1; max-width:850px; margin:0 auto 18px; line-height:1.6;">
+                            Không còn ngồi khoanh trắc nghiệm thụ động! Cả tổ cùng hợp lực, viết từ khóa cực chất lên Bảng con, săn siêu liên kết uy tín và quét mắt thần tốc tìm dữ kiện!
+                        </p>
+
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; text-align:left; margin-top:14px;">
+                            <div style="background:rgba(255,255,255,0.08); border:2px solid #3b82f6; border-radius:14px; padding:14px;">
+                                <div style="font-size:1.15rem; font-weight:900; color:#60a5fa; margin-bottom:4px;">1️⃣ Đấu thầu Từ khóa (45s)</div>
+                                <div style="font-size:0.95rem; color:#e2e8f0;">Bàn bạc, viết đúng <strong>1 cụm từ khóa (tối đa 4 - 5 chữ)</strong> lên bảng con. 3-2-1 LẬT BẢNG!</div>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.08); border:2px solid #10b981; border-radius:14px; padding:14px;">
+                                <div style="font-size:1.15rem; font-weight:900; color:#34d399; margin-bottom:4px;">2️⃣ Chọn Siêu liên kết (Link Hunter)</div>
+                                <div style="font-size:0.95rem; color:#e2e8f0;">Quan sát tab Google của tổ mình, phân biệt trang uy tín vs trang rác/quảng cáo để chọn mở link!</div>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.08); border:2px solid #f59e0b; border-radius:14px; padding:14px;">
+                                <div style="font-size:1.15rem; font-weight:900; color:#fbbf24; margin-bottom:4px;">3️⃣ Quét mắt 30s (Speedrun)</div>
+                                <div style="font-size:0.95rem; color:#e2e8f0;">Lia mắt đọc lướt trên TV tìm con số / dữ kiện đáp án, hô to ăn trọn <strong>100 điểm</strong>!</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:22px; display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+                            <button class="btn warning huge" onclick="goToSlide(2)">
+                                ✍️ Xem Vở Thực Hành & Ghi Nhớ
+                            </button>
+                            <button class="btn success huge" onclick="goToSlide(3)">
+                                🚀 BƯỚC VÀO ĐẤU TRƯỜNG NGAY!
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3 GÓI THỬ THÁCH BẤT TỬ -->
+                    <div style="margin-top:18px;">
+                        <div style="font-size:1.2rem; font-weight:900; color:#1e3a8a; margin-bottom:10px;">
+                            📦 3 Gói Thử Thách "Công Thức Bất Tử" (100% có trang web uy tín, không bao giờ bể show):
+                        </div>
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px;">
+                            <div style="background:#fdf2f8; border:2px solid #f472b6; border-radius:14px; padding:12px 14px;">
+                                <strong style="color:#db2777;">🎮 Gói 1: Chủ đề Game Hot</strong>
+                                <p style="margin:4px 0 0 0; font-size:0.95rem; color:#475569;">Chế tạo Rìu Kim Cương trong <em>Minecraft</em> & Năm phát hành trò chơi <em>Roblox</em>.</p>
+                            </div>
+                            <div style="background:#fffbeb; border:2px solid #fcd34d; border-radius:14px; padding:12px 14px;">
+                                <strong style="color:#b45309;">🎬 Gói 2: Hoạt hình & Truyện tranh</strong>
+                                <p style="margin:4px 0 0 0; font-size:0.95rem; color:#475569;">Tên thật và ước mơ của <em>Chaien</em> & Người cha dũng cảm của <em>Simba</em>.</p>
+                            </div>
+                            <div style="background:#f0fdf4; border:2px solid #86efac; border-radius:14px; padding:12px 14px;">
+                                <strong style="color:#15803d;">🏛️ Gói 3: Sát sườn SGK Lịch sử & Địa phương</strong>
+                                <p style="margin:4px 0 0 0; font-size:0.95rem; color:#475569;">Số đời vua Hùng dựng nước & Đền thờ anh hùng Nguyễn Trung Trực tại Rạch Giá.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 2: VỞ THỰC HÀNH & NGUYÊN TẮC VÀNG TÌM KIẾM -->
+            <section id="slide-note" class="slide-screen">
+                <div class="card-panel">
+                    <span class="note-step">✍️ VỞ THỰC HÀNH · BÀI HỌC CỐT LÕI</span>
+                    <div class="notebook-box">
+                        <div class="notebook-date" id="lessonDate"></div>
+                        <div class="notebook-subject">Môn: Tin học · Khối 4</div>
+                        <h2 class="notebook-lesson-title">Bài 4: Tìm kiếm thông tin trên Internet (Tiết 2: Thực hành)</h2>
+                        <div class="notebook-content">
+                            <strong>Quy tắc vàng của Link Hunter (Thợ săn liên kết):</strong>
+                            <ol>
+                                <li><strong>Từ khoá đắt giá:</strong> Chọn cụm từ ngắn gọn (chỉ 3 đến 5 chữ), bỏ hết các từ râu ria xưng hô <em>(nhờ bạn chỉ giúp, làm thế nào...)</em>.</li>
+                                <li><strong>Siêu liên kết (Hyperlink):</strong> Là đoạn chữ hoặc hình ảnh khi nhấp chuột vào sẽ mở ra trang web khác. Luôn chọn trang báo, bách khoa uy tín; bỏ qua link quảng cáo.</li>
+                                <li><strong>Đọc lướt (Speedrun):</strong> Lia mắt tìm nhanh các con số, mốc năm, tên riêng để bắt trúng đáp án!</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div style="margin-top:14px; display:flex; justify-content:flex-end;">
+                        <button class="btn success huge" onclick="goToSlide(3)">
+                            ▶ Tiến Vào Bàn Đấu Trường ➔
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 3: BÀN ĐẤU TRƯỜNG SPEEDRUN TRUY TÌM LIÊN KẾT (TRỌNG TÂM TIẾT HỌC) -->
+            <section id="slide-arena" class="slide-screen">
+                <div class="card-panel" style="padding:14px;">
+                    <div class="arena-stage">
+                        <!-- BANNER HỒ SƠ BÍ MẬT (CÂU HỎI THÁCH ĐỐ) -->
+                        <div class="quest-banner">
+                            <div style="flex:1; min-width:300px;">
+                                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                    <span class="quest-topic-tag" id="questTopicTag">🎮 Game Minecraft</span>
+                                    <span style="color:#94a3b8; font-size:0.9rem; font-weight:800;" id="questIndexLabel">Nhiệm vụ 1 / 8</span>
+                                </div>
+                                <div class="quest-question-text" id="questQuestionText">
+                                    Trong game <em>Minecraft</em>, để chế tạo ra một chiếc <strong>Rìu Kim Cương</strong>, người chơi cần chính xác <strong>bao nhiêu viên kim cương</strong> và <strong>mấy cây gậy gỗ</strong>?
+                                </div>
+                            </div>
+
+                            <!-- BỘ NÚT CHUYỂN QUEST NHANH -->
+                            <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+                                <div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">
+                                    <button class="mini-ctrl-btn" onclick="prevQuest()" title="Nhiệm vụ trước">◀ Nhiệm vụ trước</button>
+                                    <button class="mini-ctrl-btn" onclick="nextQuest()" title="Nhiệm vụ kế">Nhiệm vụ kế ▶</button>
+                                    <button class="mini-ctrl-btn" onclick="randomQuest()" title="Quay ngẫu nhiên" style="background:#7c3aed; border-color:#a78bfa;">🎲 Random</button>
+                                </div>
+                                <span style="font-size:0.85rem; color:#facc15; font-weight:800;" id="questSummaryBadge">
+                                    Chủ đề: Game & Giải trí
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- THANH ĐIỀU HƯỚNG 3 NHỊP CỦA LƯỢT ĐẤU -->
+                        <div class="rhythm-stepper">
+                            <button class="rhythm-step-btn active" id="stepBtn1" onclick="switchRhythm(1)">
+                                <span>1️⃣</span> Đấu Thầu Từ Khóa (45s)
+                            </button>
+                            <button class="rhythm-step-btn" id="stepBtn2" onclick="switchRhythm(2)">
+                                <span>2️⃣</span> Chọn Siêu Liên Kết (Link Hunter)
+                            </button>
+                            <button class="rhythm-step-btn" id="stepBtn3" onclick="switchRhythm(3)">
+                                <span>3️⃣</span> Quét Mắt 30s (Speedrun)
+                            </button>
+                        </div>
+
+                        <!-- ==================== NHỊP 1: ĐẤU THẦU TỪ KHÓA (45 GIÂY) ==================== -->
+                        <div class="rhythm-container active" id="rhythmContainer1">
+                            <div class="timer-hero-box">
+                                <div style="text-align:left;">
+                                    <div style="font-size:1.05rem; font-weight:900; color:#93c5fd; display:flex; align-items:center; gap:6px;">
+                                        ⏱️ ĐỒNG HỒ ĐẤU THẦU TỪ KHÓA BẢNG CON
+                                        <span style="font-size:0.85rem; background:#1e3a8a; padding:2px 8px; border-radius:6px; color:#fff;" id="timerStatusLabel">Sẵn sàng</span>
+                                    </div>
+                                    <div style="color:#cbd5e1; font-size:0.92rem; font-weight:700;">Hạn mức: <strong>Tối đa 4 - 5 chữ</strong> · Viết to rõ lên bảng con!</div>
+                                </div>
+
+                                <div class="timer-hero-led" id="bidTimerDisplay">45s</div>
+
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                    <button class="btn success" id="btnStartBidTimer" onclick="toggleBidTimer()">
+                                        ▶ Bắt Đầu 45s
+                                    </button>
+                                    <button class="btn gray" onclick="resetBidTimer()">
+                                        🔄 45s
+                                    </button>
+                                    <button class="btn danger" onclick="forceBoardFlip()">
+                                        🚨 3 - 2 - 1 LẬT BẢNG!
+                                    </button>
+                                </div>
+
+                                <div class="rhythm-progress-bar">
+                                    <div class="rhythm-progress-fill" id="bidProgressFill"></div>
+                                </div>
+                            </div>
+
+                            <!-- LƯỚI GÕ TỪ KHÓA CỦA CÁC TỔ -->
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:8px;">
+                                <div style="font-weight:900; font-size:1.1rem; color:#facc15;">
+                                    📝 Thầy/cô gõ từ khóa của các tổ vào ô bên dưới (theo Bảng con vừa lật):
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <button class="btn cyan" onclick="fillSuggestedKeywords()" title="Điền nhanh các từ khóa mẫu chuẩn và từ khóa lan man để thử nghiệm">
+                                        ⚡ Tự Điền Mẫu Gợi Ý
+                                    </button>
+                                    <button class="btn primary" onclick="openAllGoogleTabs()" title="Mở đồng thời các tab Google thật trên trình duyệt">
+                                        🚀 Mở Các Tab Google ↗
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="teams-board-grid" id="teamsBoardGrid"></div>
+
+                            <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:#111c33; padding:10px 16px; border-radius:12px; border:1px solid #334155;">
+                                <div style="font-size:0.95rem; color:#93c5fd;">
+                                    💡 <em>Mẹo sư phạm:</em> Cho cả lớp nhận xét nhanh xem tổ nào viết dưới 5 chữ trước khi chuyển sang Nhịp 2!
+                                </div>
+                                <button class="btn success huge" onclick="switchRhythm(2)">
+                                    Chuyển Sang Nhịp 2: Link Hunter ➔
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- ==================== NHỊP 2: CHỌN SIÊU LIÊN KẾT (LINK HUNTER) ==================== -->
+                        <div class="rhythm-container" id="rhythmContainer2">
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                                <div style="font-size:1.15rem; font-weight:900; color:#38bdf8;">
+                                    🎯 ĐẠI DIỆN TỔ CHỌN LIÊN KẾT: <span id="linkHunterCurrentTeamText" style="color:#facc15;">TỔ 1</span>
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <button class="btn gray" onclick="switchRhythm(1)">
+                                        ◀ Về Nhịp 1 Sửa Từ Khóa
+                                    </button>
+                                    <button class="btn primary" onclick="openActiveTeamGoogleReal()" id="btnOpenRealGoogleTab">
+                                        🌐 Mở Google Thật Trên Tab Mới ↗
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- THANH TAB CỦA CÁC TỔ -->
+                            <div class="tab-selector-bar" id="teamTabSelectorBar"></div>
+
+                            <!-- MÔ PHỎNG GOOGLE SEARCH CỦA TỔ ĐƯỢC CHỌN -->
+                            <div class="google-sim-box">
+                                <div class="google-bar-mock">
+                                    <span class="google-logo-mini">
+                                        <span style="color:#4285F4">G</span><span style="color:#EA4335">o</span><span style="color:#FBBC05">o</span><span style="color:#4285F4">g</span><span style="color:#34A853">l</span><span style="color:#EA4335">e</span>
+                                    </span>
+                                    <span class="google-query-view" id="mockGoogleQuery">...</span>
+                                    <span style="font-size:1.2rem;">🔍</span>
+                                </div>
+
+                                <div style="font-size:0.95rem; font-weight:800; color:#475569; margin-bottom:10px; display:flex; justify-content:space-between;">
+                                    <span>KẾT QUẢ TÌM KIẾM CỦA GOOGLE (BẤM VÀO LIÊN KẾT ĐỂ MỞ BÀI):</span>
+                                    <span id="mockResultsStat" style="color:#2563eb;">Khoảng 124.000 kết quả (0,28 giây)</span>
+                                </div>
+
+                                <div class="search-links-list" id="mockSearchLinksList"></div>
+                            </div>
+                        </div>
+
+                        <!-- ==================== NHỊP 3: SPEEDRUN ĐỌC LƯỚT (30 GIÂY) ==================== -->
+                        <div class="rhythm-container" id="rhythmContainer3">
+                            <div class="speedrun-wrap">
+                                <div class="speedrun-timer-hud">
+                                    <div>
+                                        <div style="font-size:1rem; font-weight:900; color:#fde68a;">
+                                            ⚡ TỐC HÀNH ĐỌC LƯỚT (SPEEDRUN): <span id="speedrunActiveTeamBadge" style="color:#ffffff; background:#2563eb; padding:2px 8px; border-radius:6px;">TỔ 1</span>
+                                        </div>
+                                        <div style="font-size:0.88rem; color:#cbd5e1; font-weight:700;">
+                                            Quét mắt tìm con số/dữ kiện đáp án và hô to!
+                                        </div>
+                                    </div>
+
+                                    <div class="speedrun-led" id="speedrunTimerDisplay">30s</div>
+
+                                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                        <button class="btn warning" id="btnStartSpeedrun" onclick="toggleSpeedrunTimer()">
+                                            ▶ Chạy 30s
+                                        </button>
+                                        <button class="btn gray" onclick="resetSpeedrunTimer()">
+                                            🔄 30s
+                                        </button>
+                                        <button class="btn danger" onclick="triggerAlarmFire()">
+                                            🔥 HÔ "CHÁY MÁY!"
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- KHUNG MÔ PHỎNG NỘI DUNG TRANG WEB LIÊN KẾT -->
+                                <div class="article-mock-screen">
+                                    <div class="article-mock-header">
+                                        <span id="articleDomainBadge">🌐 https://vi.wikipedia.org</span>
+                                        <span id="articleReadingSpeedNotice">👁️ Cả tổ quét mắt tìm thông tin!</span>
+                                    </div>
+                                    <h3 class="article-mock-title" id="articleMockTitle">Tiêu đề bài viết</h3>
+                                    <div class="article-mock-body" id="articleMockBody">
+                                        Nội dung trang web đang được tải...
+                                    </div>
+                                </div>
+
+                                <!-- THANH HÀNH ĐỘNG CỦA GIÁO VIÊN -->
+                                <div class="teacher-action-bar">
+                                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                        <button class="btn success huge" onclick="handleTeamCorrectAnswer()">
+                                            🎉 ĐÚNG RỒI! (+100 ĐIỂM)
+                                        </button>
+                                        <button class="btn danger huge" onclick="openStealModal()">
+                                            🔥 CHÁY MÁY! (TỔ KHÁC CƯỚP LƯỢT)
+                                        </button>
+                                    </div>
+
+                                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                        <button class="btn purple" onclick="toggleSecretAnswer()">
+                                            💡 Mở Đáp Án & Bí Kíp
+                                        </button>
+                                        <button class="btn cyan" onclick="nextQuest()">
+                                            ⏭ Sang Nhiệm Vụ Tiếp Theo
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- BANNER GIẢI MÃ ĐÁP ÁN BÍ MẬT -->
+                                <div class="secret-reveal-banner" id="secretRevealBanner">
+                                    <div style="font-size:1.25rem; font-weight:900; color:#facc15; margin-bottom:6px;" id="secretAnswerHeading">
+                                        🏆 ĐÁP ÁN CHÍNH XÁC:
+                                    </div>
+                                    <div style="font-size:1.15rem; line-height:1.6;" id="secretAnswerDetail"></div>
+                                    <div style="margin-top:8px; font-size:1rem; color:#a7f3d0; border-top:1px dashed #059669; padding-top:6px;" id="secretKeywordAnalysis"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 4: BÍ KÍP CAO THỦ INTERNET (TỔNG KẾT THỰC HÀNH) -->
+            <section id="slide-tips" class="slide-screen">
+                <div class="card-panel">
+                    <div class="panel-heading">
+                        <h2>🌟 3 BÍ KÍP VÀNG TRỞ THÀNH "CAO THỦ LINK HUNTER"</h2>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
+                        <div style="background:#eff6ff; border:3px solid #3b82f6; border-radius:18px; padding:18px;">
+                            <div style="font-size:2.4rem; margin-bottom:6px;">🗝️</div>
+                            <h3 style="margin:0 0 8px 0; color:#1d4ed8; font-size:1.3rem;">1. Càng Ngắn Càng Trúng!</h3>
+                            <p style="font-size:1.05rem; line-height:1.6; color:#1e293b; margin:0;">
+                                Chỉ giữ lại <strong>Từ khoá cốt lõi</strong> (danh từ riêng, con số, đối tượng). Tuyệt đối không gõ cả câu kể dài dòng hay văn xưng hô vào máy tìm kiếm!
+                            </p>
+                        </div>
+
+                        <div style="background:#f0fdf4; border:3px solid #10b981; border-radius:18px; padding:18px;">
+                            <div style="font-size:2.4rem; margin-bottom:6px;">🛡️</div>
+                            <h3 style="margin:0 0 8px 0; color:#15803d; font-size:1.3rem;">2. Bắt Mạch Siêu Liên Kết</h3>
+                            <p style="font-size:1.05rem; line-height:1.6; color:#1e293b; margin:0;">
+                                Đọc kỹ <strong>Tiêu đề</strong> và <strong>Địa chỉ trang web</strong> (URL) trước khi nhấp chuột. Ưu tiên Bách khoa toàn thư, báo chí thiếu nhi uy tín; bỏ qua các link quảng cáo tài trợ (Sponsored).
+                            </p>
+                        </div>
+
+                        <div style="background:#fffbeb; border:3px solid #f59e0b; border-radius:18px; padding:18px;">
+                            <div style="font-size:2.4rem; margin-bottom:6px;">⚡</div>
+                            <h3 style="margin:0 0 8px 0; color:#b45309; font-size:1.3rem;">3. Speedrun Quét Mắt</h3>
+                            <p style="font-size:1.05rem; line-height:1.6; color:#1e293b; margin:0;">
+                                Khi trang web mở ra, đừng đọc từ từ từng chữ! Hãy lia mắt quét nhanh tìm <strong>các con số, chữ in hoa, bảng số liệu</strong> để chộp ngay đáp án!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:20px; text-align:center;">
+                        <button class="btn success huge" onclick="goToSlide(5)">
+                            🏆 Xem Bảng Xếp Hạng & Vinh Danh Chung Cuộc ➔
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 5: TỔNG KẾT & VINH DANH NHÀ VÔ ĐỊCH -->
+            <section id="slide-final" class="slide-screen">
+                <div class="card-panel" style="text-align:center;">
+                    <div class="panel-heading">
+                        <h2>🏆 TỔNG KẾT TIẾT HỌC & LỄ VINH DANH CÁC TỔ</h2>
+                    </div>
+
+                    <div style="background: radial-gradient(circle at center, #1e3a8a, #090e1a); color:#fff; border-radius:24px; padding:28px 20px; margin-top:10px; box-shadow:0 12px 36px rgba(0,0,0,0.4);">
+                        <div style="font-size:3.5rem;">👑 🏅 🎉</div>
+                        <h2 style="font-size:2.2rem; color:#facc15; margin:6px 0 16px;">BẢNG VÀNG ĐẤU TRƯỜNG SPEEDRUN</h2>
+
+                        <div id="finalPodiumContainer" style="display:flex; justify-content:center; align-items:flex-end; gap:16px; flex-wrap:wrap; margin:24px 0 30px;"></div>
+
+                        <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+                            <button class="btn success huge" onclick="exportCSV()">
+                                📊 Tải Bảng Điểm & Lịch Sử (Excel / CSV)
+                            </button>
+                            <button class="btn primary huge" onclick="launchVictoryConfetti()">
+                                🎆 Bắn Pháo Hoa Chúc Mừng
+                            </button>
+                            <button class="btn gray huge" onclick="goToSlide(3)">
+                                🔄 Đấu Thêm Lượt Nữa
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- ==================== CỘT PHẢI: SIDEBAR ĐIỀU KHIỂN ALL-IN-ONE ==================== -->
+        <aside class="sidebar">
+            <!-- 1. BẢNG ĐIỂM CÁC TỔ -->
+            <div class="scoreboard-panel">
+                <div class="score-head">
+                    <span>🏆 ĐIỂM CÁC TỔ</span>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <select id="classSelect" onchange="changeClass(this.value)" title="Chọn lớp">
+                            <option value="4_1">Lớp 4/1</option>
+                            <option value="4_2">Lớp 4/2</option>
+                            <option value="4_3">Lớp 4/3</option>
+                            <option value="4_4">Lớp 4/4</option>
+                            <option value="4_5">Lớp 4/5</option>
+                            <option value="4_6">Lớp 4/6</option>
+                        </select>
+                        <select id="teamCountSelect" onchange="changeTeamCount(this.value)" title="Số tổ">
+                            <option value="2">2 tổ</option>
+                            <option value="3">3 tổ</option>
+                            <option value="4" selected>4 tổ</option>
+                            <option value="5">5 tổ</option>
+                            <option value="6">6 tổ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="padding:6px 10px; background:#f1f5f9; font-size:0.8rem; font-weight:800; color:#475569; display:flex; justify-content:space-between; border-bottom:1px solid #e2e8f0;">
+                    <span>Hô đúng: <strong>+100đ</strong></span>
+                    <span>Thưởng nóng: <strong>+20đ</strong></span>
+                    <span>Phạt ồn: <strong>-10%</strong></span>
+                </div>
+
+                <div class="teams-list-wrap" id="teamsScoreList"></div>
+            </div>
+
+            <!-- 2. ĐỒNG HỒ 35 PHÚT & ĐIỀU HƯỚNG SLIDE -->
+            <div class="dock-box">
+                <div style="font-size:0.82rem; font-weight:800; color:#93c5fd; margin-bottom:4px; display:flex; justify-content:space-between;">
+                    <span>⏳ ĐỒNG HỒ TIẾT HỌC (35 PHÚT)</span>
+                    <span id="lessonClockStatus" style="color:#4ade80;">Đang chạy</span>
+                </div>
+                <div class="lesson-clock-wrap">
+                    <div class="lesson-clock-led" id="lessonClockDisplay">35:00</div>
+                    <div style="display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end;">
+                        <button class="mini-ctrl-btn" onclick="adjustLessonClock(60)" title="Cộng 1 phút">+1p</button>
+                        <button class="mini-ctrl-btn" onclick="adjustLessonClock(-60)" title="Trừ 1 phút">−1p</button>
+                        <button class="mini-ctrl-btn" id="btnPauseClock" onclick="toggleLessonClock()">⏸ Dừng</button>
+                    </div>
+                </div>
+
+                <div class="nav-grid">
+                    <button class="btn primary" onclick="prevSlide()">◀ Trước</button>
+                    <span style="font-weight:900; font-size:0.95rem; color:#facc15;" id="slideIndicator">Slide 1/5</span>
+                    <button class="btn primary" onclick="nextSlide()">Tiếp ▶</button>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px;">
+                    <button class="mini-ctrl-btn" style="background:#1d4ed8; border-color:#60a5fa;" onclick="goToSlide(3)">
+                        🎮 Vào Đấu Trường
+                    </button>
+                    <button class="mini-ctrl-btn" style="background:#b45309; border-color:#f59e0b;" onclick="goToSlide(5)">
+                        🏁 Bảng Vinh Danh
+                    </button>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:6px; border-top:1px dashed #334155; font-size:0.8rem;">
+                    <span style="color:#94a3b8;">🔊 Âm thanh Web Audio:</span>
+                    <button class="mini-ctrl-btn" id="btnSoundToggle" onclick="toggleMuteSound()" style="padding:3px 8px;">
+                        🔊 Bật tiếng
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3. PANEL DANH SÁCH HỌC SINH & GỌI ĐẠI DIỆN NGẪU NHIÊN -->
+            <details id="students-panel" open>
+                <summary id="students-summary">👥 Danh sách học sinh & Gọi đại diện</summary>
+                <div id="students-header">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.82rem; font-weight:800; color:#7dffd4;">TỔNG: <span id="stCountTotal">0</span> HS</span>
+                        <button class="mini-ctrl-btn" onclick="pickRandomStudent()" style="background:#ec4899; border-color:#f472b6; color:#fff;" title="Quay ngẫu nhiên 1 bạn">
+                            🎲 Gọi ngẫu nhiên 1 bạn
+                        </button>
+                    </div>
+                    <input type="text" id="search-student" placeholder="Tìm tên hoặc STT..." onkeyup="filterStudents()">
+                </div>
+                <div id="students-list"></div>
+            </details>
+        </aside>
+    </div>
+
+    <!-- ==================== MODAL CƯỚP LƯỢT KHI CHÁY MÁY ==================== -->
+    <div class="steal-modal" id="stealModal">
+        <div class="steal-box">
+            <div style="font-size:3.5rem;">🔥 🚨 🔥</div>
+            <h2 style="color:#b91c1c; font-size:2.2rem; margin:4px 0 8px;">CHÁY MÁY! QUYỀN CƯỚP LƯỢT!</h2>
+            <p style="font-size:1.15rem; color:#475569; font-weight:700; margin:0 0 16px;">
+                Tổ hiện tại không tìm thấy thông tin hoặc hết 30 giây! Thầy/cô hãy chỉ định <strong>Tổ giơ tay nhanh nhất</strong> để cướp lượt:
+            </p>
+
+            <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:18px;" id="stealTeamOptions"></div>
+
+            <div style="display:flex; justify-content:center; gap:10px;">
+                <button class="btn gray huge" onclick="closeStealModal()">
+                    ↩ Đóng Lại
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MÀN HÌNH KHỞI ĐẦU CHỌN LỚP & TỔ ==================== -->
+    <div class="start-screen" id="startScreen">
+        <div class="start-box">
+            <div style="font-size:3.8rem; margin-bottom:4px;">⚡ 🔍 ⚡</div>
+            <h1 style="margin:4px 0; font-size:2.2rem; color:#1e3a8a;">
+                ĐẤU TRƯỜNG BẢNG CON – SPEEDRUN TRUY TÌM LIÊN KẾT
+            </h1>
+            <p style="color:#475569; font-weight:700; font-size:1.05rem; margin-bottom:14px;">
+                Bài 4: Tìm kiếm thông tin trên Internet (Tiết 2: Thực hành) · Tin học 4
+            </p>
+
+            <div style="font-size:1.2rem; font-weight:900; color:#1e293b; margin-top:10px;">1. Chọn lớp giảng dạy:</div>
+            <div class="chip-row">
+                <button class="chip on" onclick="pickStart('class','4_1',this)">Lớp 4/1</button>
+                <button class="chip" onclick="pickStart('class','4_2',this)">Lớp 4/2</button>
+                <button class="chip" onclick="pickStart('class','4_3',this)">Lớp 4/3</button>
+                <button class="chip" onclick="pickStart('class','4_4',this)">Lớp 4/4</button>
+                <button class="chip" onclick="pickStart('class','4_5',this)">Lớp 4/5</button>
+                <button class="chip" onclick="pickStart('class','4_6',this)">Lớp 4/6</button>
+            </div>
+
+            <div style="font-size:1.2rem; font-weight:900; color:#1e293b;">2. Chọn số tổ tham gia:</div>
+            <div class="chip-row">
+                <button class="chip" onclick="pickStart('teams',2,this)">2 tổ</button>
+                <button class="chip" onclick="pickStart('teams',3,this)">3 tổ</button>
+                <button class="chip on" onclick="pickStart('teams',4,this)">4 tổ</button>
+                <button class="chip" onclick="pickStart('teams',5,this)">5 tổ</button>
+                <button class="chip" onclick="pickStart('teams',6,this)">6 tổ</button>
+            </div>
+
+            <div style="background:#eff6ff; border:2px solid #93c5fd; border-radius:14px; padding:12px; margin:14px 0; color:#1e40af; font-weight:700;">
+                💡 <em>Chuẩn bị sẵn sàng:</em> Mỗi tổ 1 chiếc Bảng con + Bút lông. Laptop của thầy kết nối TV chiếu lớn!
+            </div>
+
+            <button class="btn success huge" style="font-size:1.35rem; padding:14px 32px;" onclick="confirmStartGame()">
+                ▶ Bắt Đầu Đếm Ngược 35 Phút & Vào Bài Giảng
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== LOGIC JAVASCRIPT ==================== -->
+    <script>
+        'use strict';
+
+        const $ = s => document.querySelector(s);
+        const $$ = s => document.querySelectorAll(s);
+
+        /* ================= CẤU HÌNH & HỆ THỐNG MÀU SẮC ================= */
+        const LESSON_TOTAL_SECONDS = 35 * 60; // 35 phút = 2100s
+        const TEAM_COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+        const TEAM_NAMES = ['Tổ 1 (Đỏ)', 'Tổ 2 (Lam)', 'Tổ 3 (Lục)', 'Tổ 4 (Vàng)', 'Tổ 5 (Tím)', 'Tổ 6 (Hồng)'];
+
+        let currentClassID = "4_1";
+        let numTeams = 4;
+        let TEAMS = [];
+        let classStudents = [];
+        let calledStudents = new Set();
+
+        /* ================= ĐỒNG HỒ 35 PHÚT ================= */
+        let lessonRemainingSeconds = LESSON_TOTAL_SECONDS;
+        let lessonClockPaused = false;
+        let lessonClockInterval = null;
+
+        /* ================= BỘ ÂM THANH WEB AUDIO API (KHÔNG LỖI MẠNG) ================= */
+        let audioCtx = null;
+        let isMuted = false;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtxClass) {
+                    audioCtx = new AudioCtxClass();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playTone(freq, type, duration, gainVal = 0.15) {
+            if (isMuted) return;
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch (e) { }
+        }
+
+        function sndTick() {
+            playTone(800, 'sine', 0.05, 0.08);
+        }
+
+        function sndBeep(freq = 600) {
+            playTone(freq, 'triangle', 0.15, 0.2);
+        }
+
+        function sndFlipBoard() {
+            if (isMuted) return;
+            // 3 hồi còi rộn rã
+            playTone(523, 'sawtooth', 0.12, 0.2);
+            setTimeout(() => playTone(659, 'sawtooth', 0.12, 0.2), 140);
+            setTimeout(() => playTone(784, 'sawtooth', 0.3, 0.25), 280);
+        }
+
+        function sndCorrect() {
+            if (isMuted) return;
+            // Hợp âm Đô trưởng vui nhộn
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((n, i) => {
+                setTimeout(() => playTone(n, 'triangle', 0.35, 0.22), i * 100);
+            });
+        }
+
+        function sndAlarmFire() {
+            if (isMuted) return;
+            // Còi báo động Cháy máy
+            playTone(400, 'sawtooth', 0.25, 0.28);
+            setTimeout(() => playTone(280, 'sawtooth', 0.3, 0.28), 260);
+            setTimeout(() => playTone(400, 'sawtooth', 0.25, 0.28), 540);
+            setTimeout(() => playTone(280, 'sawtooth', 0.4, 0.3), 800);
+        }
+
+        function sndCheer() {
+            if (isMuted) return;
+            // Fanfare chúc mừng
+            const chord = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+            chord.forEach((n, idx) => {
+                setTimeout(() => playTone(n, 'sine', 0.6, 0.2), idx * 80);
+            });
+        }
+
+        function toggleMuteSound() {
+            isMuted = !isMuted;
+            $('#btnSoundToggle').textContent = isMuted ? '🔇 Đã tắt tiếng' : '🔊 Bật tiếng';
+            showToast(isMuted ? 'Đã tắt âm thanh' : 'Đã bật âm thanh', 'ok');
+        }
+
+        /* ================= NGÂN HÀNG CÂU HỎI "CÔNG THỨC BẤT TỬ" ================= */
+        const QUEST_BANK = [
+            {
+                id: 1,
+                tag: "game",
+                tagLabel: "🎮 Game Minecraft",
+                topic: "Chế tạo vật phẩm Minecraft",
+                q: "Trong game <em>Minecraft</em>, để chế tạo ra một chiếc <strong>Rìu Kim Cương</strong>, người chơi cần chính xác <strong>bao nhiêu viên kim cương</strong> và <strong>mấy cây gậy gỗ</strong>?",
+                suggestedKeyword: "chế tạo rìu kim cương minecraft",
+                sampleKeywords: [
+                    "chế tạo rìu kim cương minecraft",
+                    "công thức rìu kim cương",
+                    "rìu kim cương minecraft cần bao nhiêu",
+                    "hãy chỉ giúp em cách chế tạo rìu trong game minecraft"
+                ],
+                answer: "Cần chính xác <strong>3 viên kim cương</strong> và <strong>2 cây gậy gỗ</strong>.",
+                analysis: "Từ khoá chuẩn nhất chỉ có 5 chữ: <code>chế tạo rìu kim cương minecraft</code>. Nếu gõ dài lê thê cả câu hỏi xưng hô thì vừa mất thời gian vừa dễ rơi vào link diễn đàn không rõ ràng.",
+                mockResults: [
+                    {
+                        title: "Rìu Kim Cương (Diamond Axe) – Minecraft Wiki Tiếng Việt",
+                        url: "https://minecraft.fandom.com/vi/wiki/Rìu_kim_cương",
+                        snippet: "Công thức chế tạo: Đặt 3 viên kim cương (Diamond) và 2 cây gậy gỗ (Stick) vào bàn chế tạo 3x3 để tạo thành Rìu Kim Cương. Độ bền: 1561 lần sử dụng.",
+                        badge: "trust",
+                        badgeLabel: "⭐ Bách khoa Game Uy tín",
+                        isMatch: true,
+                        articleTitle: "Rìu Kim Cương (Diamond Axe) – Hướng dẫn chế tạo chi tiết",
+                        articleDomain: "🌐 minecraft.fandom.com/vi",
+                        articleContent: `
+                            <p><strong>Rìu Kim Cương</strong> là một trong những công cụ chặt gỗ và chiến đấu mạnh mẽ bậc nhất trong thế giới <em>Minecraft</em>.</p>
+                            <p>Để chế tạo chiếc rìu này trên <strong>Bàn chế tạo (Crafting Table 3x3)</strong>, người chơi cần thu thập đúng nguyên liệu theo tỉ lệ:</p>
+                            <p>👉 <span class="highlight-answer">3 viên kim cương (Diamond)</span> đặt ở 3 ô tạo thành góc lưỡi rìu.</p>
+                            <p>👉 <span class="highlight-answer">2 cây gậy gỗ (Stick)</span> đặt ở 2 ô cột dọc chính giữa làm cán rìu.</p>
+                            <p>Chiếc rìu kim cương có độ bền cực cao lên tới 1561 lượt chặt, giúp khai thác gỗ rừng siêu tốc và có sức sát thương cực lớn.</p>
+                        `
+                    },
+                    {
+                        title: "Báo Thiếu Niên – Mẹo chế tạo đồ nhanh cho tân thủ Minecraft",
+                        url: "https://thieunien.vn/cong-thuc-minecraft-tan-thu",
+                        snippet: "Tổng hợp công thức cơ bản: Cúp kim cương cần 3 kim cương 2 gậy, Rìu kim cương cần 3 kim cương 2 gậy gỗ, Kiếm kim cương cần 2 kim cương 1 gậy...",
+                        badge: "trust",
+                        badgeLabel: "⭐ Trang Tin Tức Trẻ Em",
+                        isMatch: true,
+                        articleTitle: "Cẩm nang Tân thủ: Bảng tra cứu công thức chế tạo Minecraft",
+                        articleDomain: "🌐 thieunien.vn/cong-nghe-tre",
+                        articleContent: `
+                            <p>Chào các bạn nhỏ đam mê khối hộp Minecraft! Khi đào sâu xuống lòng đất tìm thấy kim cương, các bạn hãy chế tạo ngay bộ công cụ thần thánh:</p>
+                            <p>• <strong>Cúp Kim Cương:</strong> 3 kim cương + 2 que gỗ (dùng đào obsidian).</p>
+                            <p>• <strong>Rìu Kim Cương:</strong> <span class="highlight-answer">3 viên kim cương + 2 cây gậy gỗ</span> (dùng chặt cây cổ thụ trong nháy mắt).</p>
+                            <p>• <strong>Kiếm Kim Cương:</strong> 2 kim cương + 1 que gỗ.</p>
+                        `
+                    },
+                    {
+                        title: "Shop Mua Bán Acc Game Giá Rẻ – Tặng Nick Khủng Hôm Nay",
+                        url: "https://shopgameonline-quangcao.vn/nick-vip",
+                        snippet: "Nạp thẻ nhận ngay rương kim cương vô hạn. Khuyến mãi 50% chỉ hôm nay. Bấm vào đây để đăng ký nhận quà...",
+                        badge: "ad",
+                        badgeLabel: "⚠️ Quảng cáo / Không có đáp án",
+                        isMatch: false,
+                        articleTitle: "Quảng Cáo Nạp Thẻ Nhận Quà",
+                        articleDomain: "🌐 shopgameonline-quangcao.vn",
+                        articleContent: `
+                            <p style="color:#dc2626; font-weight:800;">CẢNH BÁO: ĐÂY LÀ TRANG WEB QUẢNG CÁO BÁN HÀNG HOẶC NẠP THẺ!</p>
+                            <p>Trang web này không chứa bất kỳ hướng dẫn hay thông tin công thức nào về game Minecraft.</p>
+                            <p><em>Bài học:</em> Khi bấm vào link quảng cáo tài trợ (Sponsored), học sinh sẽ bị mất lượt hoặc mất thời gian đọc lướt vô ích!</p>
+                        `
+                    }
+                ]
+            },
+            {
+                id: 2,
+                tag: "game",
+                tagLabel: "🧱 Game Roblox",
+                topic: "Năm phát hành game Roblox",
+                q: "Trò chơi <em>Roblox</em> được phát hành chính thức lần đầu tiên vào <strong>năm nào</strong>?",
+                suggestedKeyword: "năm phát hành roblox",
+                sampleKeywords: [
+                    "năm phát hành roblox",
+                    "roblox phát hành năm nào",
+                    "thời gian ra mắt game roblox",
+                    "cho em hỏi trò chơi roblox ra đời khi nào"
+                ],
+                answer: "Chính thức phát hành lần đầu tiên vào <strong>năm 2006</strong> (chính xác ngày 1/9/2006).",
+                analysis: "Từ khoá tối ưu: <code>năm phát hành roblox</code> (chỉ 4 chữ). Google sẽ hiện ngay năm 2006 ở dòng đầu tiên của Wikipedia.",
+                mockResults: [
+                    {
+                        title: "Roblox – Wikipedia tiếng Việt",
+                        url: "https://vi.wikipedia.org/wiki/Roblox",
+                        snippet: "Roblox là một nền tảng trò chơi trực tuyến. Được tạo bởi David Baszucki và Erik Cassel vào năm 2004 và phát hành vào ngày 1 tháng 9 năm 2006...",
+                        badge: "trust",
+                        badgeLabel: "⭐ Bách Khoa Toàn Thư Uy Tín",
+                        isMatch: true,
+                        articleTitle: "Roblox – Bách khoa toàn thư mở Wikipedia",
+                        articleDomain: "🌐 vi.wikipedia.org/wiki/Roblox",
+                        articleContent: `
+                            <p><strong>Roblox</strong> là một hệ thống tạo trò chơi và nền tảng trò chơi trực tuyến toàn cầu do Roblox Corporation phát triển.</p>
+                            <p>Nền tảng này ban đầu mang tên GoBlocks, sau đó đổi thành DynaBlocks vào năm 2004. Hai nhà sáng lập David Baszucki và Erik Cassel đã chính thức phát hành nền tảng dưới tên gọi <strong>Roblox</strong> vào ngày <span class="highlight-answer">1 tháng 9 năm 2006</span>.</p>
+                            <p>Kể từ năm 2010, Roblox phát triển nhanh chóng và trở thành một trong những nền tảng sáng tạo game phổ biến nhất dành cho thanh thiếu niên trên toàn thế giới.</p>
+                        `
+                    },
+                    {
+                        title: "Lịch sử ra đời của Roblox – Cổng thông tin Công nghệ số",
+                        url: "https://congnghetre.vn/lich-su-game-roblox",
+                        snippet: "Bạn có biết Roblox ra đời năm nào? Trải qua hơn 18 năm phát triển kể từ ngày đầu ra mắt chính thức năm 2006, Roblox đã thay đổi diện mạo ngành game...",
+                        badge: "trust",
+                        badgeLabel: "⭐ Tin Công Nghệ",
+                        isMatch: true,
+                        articleTitle: "Roblox: Từ dự án thử nghiệm nhỏ năm 2004 đến hiện tượng toàn cầu",
+                        articleDomain: "🌐 congnghetre.vn",
+                        articleContent: `
+                            <p>Ít ai biết rằng trò chơi khối vuông Roblox đã có tuổi đời gần hai thập kỷ. Được thai nghén từ năm 2004, nhưng phải đến <span class="highlight-answer">năm 2006</span>, Roblox mới chính thức mở cửa cho người chơi toàn cầu đăng ký tài khoản.</p>
+                        `
+                    },
+                    {
+                        title: "Tải bản Hack Roblox Vô Hạn Robux Miễn Phí Mới Nhất",
+                        url: "https://tairobloxhackvip.xyz/download",
+                        snippet: "Link tải file apk hack roblox mod menu bất tử, chạy nhanh, vô hạn tiền. Cảnh báo nguy cơ nhiễm mã độc...",
+                        badge: "trash",
+                        badgeLabel: "⚠️ Trang Web Rác / Độc Hại",
+                        isMatch: false,
+                        articleTitle: "Cảnh báo trang web giả mạo!",
+                        articleDomain: "🌐 tairobloxhackvip.xyz",
+                        articleContent: `
+                            <p style="color:#dc2626; font-weight:800;">CẢNH BÁO NGUY HIỂM: ĐÂY LÀ TRANG WEB CHỨA VIRUS / LỪA ĐẢO TẢI MÃ ĐỘC!</p>
+                            <p>Trang web này không có thông tin lịch sử của trò chơi. Học sinh cần rèn luyện thói quen không bấm vào các link có tiêu đề lừa đảo như hack/nhận tiền miễn phí.</p>
+                        `
+                    }
+                ]
+            },
+            {
+                id: 3,
+                tag: "comic",
+                tagLabel: "🐱 Hoạt hình & Truyện tranh",
+                topic: "Nhân vật Chaien trong Doraemon",
+                q: "Trong truyện <em>Doraemon</em>, tên thật của nhân vật <strong>Chaien</strong> là gì và cậu ấy có ước mơ lớn lên làm nghề gì?",
+                suggestedKeyword: "tên thật của Chaien",
+                sampleKeywords: [
+                    "tên thật của Chaien",
+                    "tên thật Chaien Doraemon",
+                    "ước mơ của Chaien",
+                    "nhân vật chaien trong truyện doraemon tên là gì"
+                ],
+                answer: "Tên thật là <strong>Gouda Takeshi</strong>, ước mơ lớn lên làm <strong>Ca sĩ</strong>.",
+                analysis: "Từ khoá chuẩn: <code>tên thật của Chaien</code> (4 chữ). Bấm vào link Fandom hoặc Wiki là thấy ngay tên tiếng Nhật và ước mơ làm ca sĩ nổi tiếng.",
+                mockResults: [
+                    {
+                        title: "Gouda Takeshi (Jaian / Chaien) – Doraemon Fandom Wiki Tiếng Việt",
+                        url: "https://doraemon.fandom.com/vi/wiki/Gouda_Takeshi",
+                        snippet: "Gouda Takeshi (tên thường gọi: Jaian, bản dịch cũ: Chaien). Cậu có tính cách mạnh mẽ nhưng hay bắt nạt bạn bè. Dù hát rất dở nhưng ước mơ lớn nhất của cậu là trở thành ca sĩ...",
+                        badge: "trust",
+                        badgeLabel: "⭐ Bách Khoa Doraemon Wiki",
+                        isMatch: true,
+                        articleTitle: "Hồ sơ nhân vật: Gouda Takeshi (Chaien / Jaian)",
+                        articleDomain: "🌐 doraemon.fandom.com/vi",
+                        articleContent: `
+                            <p>Trong bộ truyện tranh nổi tiếng <em>Doraemon</em> của tác giả Fujiko F. Fujio, bạn học to béo hay bắt nạt Nobita có tên thật là <span class="highlight-answer">Gouda Takeshi</span> (剛田 武).</p>
+                            <p>Gia đình Takeshi mở một tiệm tạp hóa nhỏ. Mặc dù có giọng hát kinh hoàng khiến mọi người trong khu phố đều khiếp sợ, Takeshi luôn nung nấu ước mơ lớn lên sẽ trở thành một <span class="highlight-answer">Ca sĩ nổi tiếng</span> (hoặc siêu sao nhạc Rock) đứng biểu diễn trước hàng vạn khán giả hâm mộ.</p>
+                        `
+                    },
+                    {
+                        title: "Báo Tuổi Trẻ Cười – Những bí mật thú vị về nhóm bạn Doraemon",
+                        url: "https://tuoitrecuoi.vn/bi-mat-nhan-vat-doraemon",
+                        snippet: "Tên thật của Chaien là Gouda Takeshi. Ước mơ lớn nhất là trở thành ca sĩ. Xeko mỏ nhọn tên thật là Honekawa Suneo...",
+                        badge: "trust",
+                        badgeLabel: "⭐ Báo Điện Tử Uy Tín",
+                        isMatch: true,
+                        articleTitle: "Hé lộ tên thật và ước mơ ngộ nghĩnh của nhóm bạn Nobita",
+                        articleDomain: "🌐 tuoitrecuoi.vn/giai-tri",
+                        articleContent: `
+                            <p>Bạn có biết tên thật của các nhân vật quen thuộc trong Doraemon? Cậu bạn Chaien tên thật là <span class="highlight-answer">Gouda Takeshi</span>, với ước mơ cháy bỏng trở thành một <span class="highlight-answer">Ca sĩ</span> tài năng.</p>
+                        `
+                    },
+                    {
+                        title: "Bán Mô Hình Đồ Chơi Doraemon Nobita Chaien Giá Rẻ",
+                        url: "https://shopee-quangcao-dochoi.vn/doraemon-figure",
+                        snippet: "Mô hình tĩnh đồ chơi nhân vật hoạt hình Doraemon đủ bộ 5 bạn. Chất liệu nhựa PVC an toàn. Miễn phí vận chuyển toàn quốc...",
+                        badge: "ad",
+                        badgeLabel: "⚠️ Quảng cáo Bán hàng",
+                        isMatch: false,
+                        articleTitle: "Gian Hàng Đồ Chơi Mô Hình",
+                        articleDomain: "🌐 shopee-quangcao-dochoi.vn",
+                        articleContent: `
+                            <p style="color:#b45309; font-weight:800;">ĐÂY LÀ TRANG WEB BÁN HÀNG ĐỒ CHƠI TRỰC TUYẾN!</p>
+                            <p>Không có thông tin tiểu sử hay ước mơ của nhân vật. Nhấp nhầm vào link này sẽ khiến tổ của bạn bị cạn 30 giây quý giá!</p>
+                        `
+                    }
+                ]
+            },
+            {
+                id: 4,
+                tag: "comic",
+                tagLabel: "🦁 Hoạt hình Vua Sư Tử",
+                topic: "Cha của sư tử Simba",
+                q: "Trong phim hoạt hình kinh điển <em>Vua Sư Tử (The Lion King)</em>, người cha dũng cảm của chú sư tử Simba tên là gì?",
+                suggestedKeyword: "cha của sư tử Simba",
+                sampleKeywords: [
+                    "cha của sư tử Simba",
+                    "cha simba tên gì",
+                    "người cha trong vua sư tử",
+                    "cho em biết tên người cha của chú sư tử simba trong phim"
+                ],
+                answer: "Tên là <strong>Mufasa</strong> (Vua Mufasa cai quản Vùng Đất Kiêu Hãnh).",
+                analysis: "Từ khoá chuẩn chỉ cần 5 chữ: <code>cha của sư tử Simba</code>. Google sẽ trả về ngay tên vị vua Mufasa ở dòng đầu tiên.",
+                mockResults: [
+                    {
+                        title: "Vua Sư Tử (The Lion King) – Wikipedia tiếng Việt",
+                        url: "https://vi.wikipedia.org/wiki/The_Lion_King",
+                        snippet: "Câu chuyện xoay quanh Simba, chú sư tử con kế vị ngai vàng của người cha Mufasa. Tuy nhiên, người chú độc ác Scar đã mưu hại Mufasa nhằm chiếm ngôi...",
+                        badge: "trust",
+                        badgeLabel: "⭐ Bách Khoa Toàn Thư Wikipedia",
+                        isMatch: true,
+                        articleTitle: "The Lion King (Vua Sư Tử) – Tóm tắt cốt truyện và nhân vật",
+                        articleDomain: "🌐 vi.wikipedia.org/wiki/The_Lion_King",
+                        articleContent: `
+                            <p><em>The Lion King</em> (Vua Sư Tử) là một kiệt tác phim hoạt hình của hãng Walt Disney phát hành năm 1994.</p>
+                            <p>Nhân vật chính là chú sư tử con Simba. Cha của Simba là vua <span class="highlight-answer">Mufasa</span> – một vị vua anh minh, dũng cảm và đầy tình yêu thương, người cai quản Vùng Đất Kiêu Hãnh (Pride Lands) và dạy cho Simba về Vòng tròn sự sống (Circle of Life).</p>
+                        `
+                    },
+                    {
+                        title: "Hồ sơ Disney: Những bài học làm cha vĩ đại của Vua Mufasa",
+                        url: "https://dienanh.net/nhan-vat-mufasa-lion-king",
+                        snippet: "Vua Mufasa là cha của chú sư tử nhỏ Simba. Dù xuất hiện không dài, hình tượng Mufasa là biểu tượng của sự uy nghiêm và tình phụ tử thiêng liêng...",
+                        badge: "trust",
+                        badgeLabel: "⭐ Trang Bình Luận Phim",
+                        isMatch: true,
+                        articleTitle: "Hình tượng vua Mufasa trong lòng khán giả nhiều thế hệ",
+                        articleDomain: "🌐 dienanh.net/hoat-hinh",
+                        articleContent: `
+                            <p>Trong thế giới động vật đồng cỏ châu Phi của Disney, người cha của chú sư tử nhỏ Simba chính là đức vua <span class="highlight-answer">Mufasa</span> dũng mãnh.</p>
+                        `
+                    },
+                    {
+                        title: "Mua Thú Nhồi Bông Sư Tử Simba Nhập Khẩu Mỹ Giá Cực Rẻ",
+                        url: "https://gauxinh-quangcao.com/su-tu-bong",
+                        snippet: "Gấu bông sư tử Simba mềm mịn, quà tặng sinh nhật dễ thương cho bé gái và bé trai. Giảm giá 30% hôm nay...",
+                        badge: "ad",
+                        badgeLabel: "⚠️ Quảng cáo Bán Gấu Bông",
+                        isMatch: false,
+                        articleTitle: "Quảng Cáo Gấu Bông",
+                        articleDomain: "🌐 gauxinh-quangcao.com",
+                        articleContent: `
+                            <p style="color:#dc2626; font-weight:800;">ĐÂY LÀ TRANG WEB BÁN GẤU BÔNG!</p>
+                            <p>Trang này chỉ bán đồ lưu niệm, không có thông tin cốt truyện về tên người cha Mufasa.</p>
+                        `
+                    }
+                ]
+            },
+            {
+                id: 5,
+                tag: "sgk",
+                tagLabel: "🏛️ SGK Hoạt Động 1 (Lịch Sử)",
+                topic: "Số đời vua Hùng dựng nước",
+                q: "Theo truyền thuyết và SGK Lịch sử, <strong>Thời đại Hùng Vương</strong> trong lịch sử Việt Nam trải qua tất cả <strong>bao nhiêu đời vua</strong>?",
+                suggestedKeyword: "bao nhiêu đời vua Hùng",
+                sampleKeywords: [
+                    "bao nhiêu đời vua Hùng",
+                    "các đời vua Hùng",
+                    "thời đại hùng vương có mấy đời vua",
+                    "xin hỏi lịch sử việt nam có tất cả bao nhiêu đời vua hùng"
+                ],
+                answer: "Trải qua tất cả <strong>18 đời vua Hùng</strong>.",
+                analysis: "Từ khoá chuẩn sát sườn SGK Tin học 4 (trang 19): <code>bao nhiêu đời vua Hùng</code> hoặc <code>các đời vua Hùng</code>. Bấm vào bất kỳ link nào của Bảo tàng Lịch sử đều thấy ngay số 18 đời vua.",
+                mockResults: [
+                    {
+                        title: "Thời đại Hùng Vương – Cổng Thông Tin Bảo Tàng Lịch Sử Quốc Gia",
+                        url: "https://baotanglichsu.vn/vi/thoi-dai-hung-vuong",
+                        snippet: "Theo truyền thuyết lịch sử nước nhà, thời đại Hùng Vương trải qua 18 đời vua Hùng với quốc hiệu Văn Lang, kinh đô đặt tại Phong Châu (Phú Thọ ngày nay)...",
+                        badge: "trust",
+                        badgeLabel: "⭐ Bảo Tàng Lịch Sử Quốc Gia",
+                        isMatch: true,
+                        articleTitle: "18 Đời Vua Hùng trong Dòng chảy Lịch sử Dựng nước",
+                        articleDomain: "🌐 baotanglichsu.vn",
+                        articleContent: `
+                            <p>Thời đại Hùng Vương là một giai đoạn lịch sử vô cùng rực rỡ và thiêng liêng, đặt nền móng dựng nước đầu tiên của dân tộc Việt Nam.</p>
+                            <p>Theo ngọc phả và truyền thuyết lưu truyền qua ngàn năm, thời đại các vua Hùng trải qua tất cả <span class="highlight-answer">18 đời vua Hùng</span>, trị vì đất nước mang quốc hiệu Văn Lang.</p>
+                            <p>Ngày mùng 10 tháng 3 âm lịch hàng năm là ngày Giỗ Tổ Hùng Vương, cả nước cùng hướng về cội nguồn dân tộc: <em>'Dù ai đi ngược về xuôi / Nhớ ngày Giỗ Tổ mùng mười tháng ba'</em>.</p>
+                        `
+                    },
+                    {
+                        title: "Sách Giáo Khoa Lịch Sử & Địa Lí 4 – Nước Văn Lang thời vua Hùng",
+                        url: "https://hanhtrangso.nxbgd.vn/lich-su-4-bai-vua-hung",
+                        snippet: "Nhà nước đầu tiên của người Việt cổ là nước Văn Lang do các vua Hùng đứng đầu. Thời đại Hùng Vương được ghi nhận qua 18 đời vua...",
+                        badge: "trust",
+                        badgeLabel: "⭐ Sách Giáo Khoa Điện Tử",
+                        isMatch: true,
+                        articleTitle: "Bài học Lịch sử: Nhà nước Văn Lang và các đời vua Hùng",
+                        articleDomain: "🌐 hanhtrangso.nxbgd.vn",
+                        articleContent: `
+                            <p>Thuở xưa, đất nước ta có tên là Văn Lang. Đứng đầu nhà nước là vua Hùng. Lịch sử ghi nhận triều đại này truyền qua <span class="highlight-answer">18 đời vua Hùng</span>, nhân dân luôn ấm no và đoàn kết.</p>
+                        `
+                    },
+                    {
+                        title: "Tour Du Lịch Đền Hùng Phú Thọ Trọn Gói Giá Ưu Đãi 2026",
+                        url: "https://dulichvietnam-quangcao.com/tour-den-hung",
+                        snippet: "Đặt tour hành hương về đất Tổ Đền Hùng. Xe đưa đón tận nơi, khách sạn 3 sao, hướng dẫn viên nhiệt tình...",
+                        badge: "ad",
+                        badgeLabel: "⚠️ Quảng cáo Tour Du Lịch",
+                        isMatch: false,
+                        articleTitle: "Báo Giá Tour Du Lịch",
+                        articleDomain: "🌐 dulichvietnam-quangcao.com",
+                        articleContent: `
+                            <p style="color:#b45309; font-weight:800;">TRANG WEB QUẢNG CÁO ĐẶT TOUR DU LỊCH!</p>
+                            <p>Trang này chỉ báo giá xe du lịch và phòng khách sạn, không trình bày dữ liệu lịch sử về 18 đời vua Hùng.</p>
+                        `
+                    }
+                ]
+            },
+            {
+                id: 6,
+                tag: "sgk",
+                tagLabel: "⛩️ SGK Vận Dụng (Địa Phương)",
+                topic: "Đền thờ Nguyễn Trung Trực (Rạch Giá)",
+                q: "<strong>Đền thờ Anh hùng dân tộc Nguyễn Trung Trực</strong> ở TP. Rạch Giá nằm trên <strong>đường nào</strong> và tổ chức lễ hội lớn vào <strong>tháng mấy âm lịch</strong>?",
+                suggestedKeyword: "đền Nguyễn Trung Trực Rạch Giá",
+                sampleKeywords: [
+                    "đền Nguyễn Trung Trực Rạch Giá",
+                    "đền thờ Nguyễn Trung Trực ở đâu",
+                    "lễ hội Nguyễn Trung Trực tháng mấy",
+                    "đền thờ anh hùng dân tộc nguyễn trung trực rạch giá kiên giang"
+                ],
+                answer: "Nằm trên đường <strong>Nguyễn Công Trứ</strong> (phường Vĩnh Thanh), lễ hội tổ chức vào <strong>tháng 8 âm lịch</strong> (từ ngày 26 đến 28/8).",
+                analysis: "Từ khoá chuẩn địa phương: <code>đền Nguyễn Trung Trực Rạch Giá</code> (5 chữ). Ra ngay thông tin số 14 đường Nguyễn Công Trứ và Lễ hội tháng 8 âm lịch.",
+                mockResults: [
+                    {
+                        title: "Đền thờ Anh hùng dân tộc Nguyễn Trung Trực – Cổng TTĐT TP. Rạch Giá",
+                        url: "https://rachgia.kiengiang.gov.vn/di-tich-nguyen-trung-truc",
+                        snippet: "Đền thờ toạ lạc tại số 14 đường Nguyễn Công Trứ, phường Vĩnh Thanh, TP. Rạch Giá. Lễ hội truyền thống kỷ niệm ngày hy sinh của ông được tổ chức long trọng vào các ngày 26, 27, 28 tháng 8 âm lịch hàng năm...",
+                        badge: "trust",
+                        badgeLabel: "⭐ Cổng Thông Tin Chính Thống",
+                        isMatch: true,
+                        articleTitle: "Di tích Lịch sử – Văn hóa: Đền thờ Nguyễn Trung Trực (TP. Rạch Giá)",
+                        articleDomain: "🌐 rachgia.kiengiang.gov.vn",
+                        articleContent: `
+                            <p>Đền thờ Anh hùng dân tộc Nguyễn Trung Trực là một trong những di tích lịch sử – văn hóa quốc gia tiêu biểu nhất tại thành phố biển Rạch Giá, tỉnh Kiên Giang.</p>
+                            <p>Đền tọa lạc tại địa chỉ: số 14 đường <span class="highlight-answer">Nguyễn Công Trứ</span>, phường Vĩnh Thanh, thành phố Rạch Giá.</p>
+                            <p>Hàng năm, lễ hội truyền thống tưởng niệm vị anh hùng 'Hỏa hồng Nhựt Tảo oanh thiên địa / Kiếm bạt Kiên Giang khấp quỷ thần' được tổ chức vô cùng náo nhiệt và trang nghiêm từ ngày 26 đến ngày 28 <span class="highlight-answer">tháng 8 âm lịch</span>, thu hút hàng trăm ngàn lượt người dân và du khách thập phương về tham dự.</p>
+                        `
+                    },
+                    {
+                        title: "Báo Kiên Giang – Nét đẹp văn hóa Lễ hội đền Nguyễn Trung Trực",
+                        url: "https://baokiengiang.vn/van-hoa/le-hoi-thang-tam-rach-gia",
+                        snippet: "Về Rạch Giá những ngày tháng 8 âm lịch, ghé thăm đền thờ trên đường Nguyễn Công Trứ để cảm nhận lòng tự hào dân tộc và tình người miền Tây...",
+                        badge: "trust",
+                        badgeLabel: "⭐ Báo Kiên Giang",
+                        isMatch: true,
+                        articleTitle: "Lễ hội tháng 8 âm lịch: Nét đẹp nghĩa tình xứ biển Rạch Giá",
+                        articleDomain: "🌐 baokiengiang.vn/van-hoa",
+                        articleContent: `
+                            <p>Đến hẹn lại lên, cứ vào dịp <span class="highlight-answer">tháng 8 âm lịch</span>, người dân Rạch Giá lại tề tựu về ngôi đền cổ kính trên đường <span class="highlight-answer">Nguyễn Công Trứ</span> để thắp nén hương tưởng nhớ cụ Nguyễn.</p>
+                        `
+                    },
+                    {
+                        title: "Khách Sạn Nhà Nghỉ Gần Đền Nguyễn Trung Trực Giá Rẻ",
+                        url: "https://bookinghotel-rachgia.com/quang-cao",
+                        snippet: "Danh sách phòng khách sạn view sông Kiên, cách cổng đền 200m. Tiện nghi đầy đủ, wifi tốc độ cao...",
+                        badge: "ad",
+                        badgeLabel: "⚠️ Quảng cáo Khách sạn",
+                        isMatch: false,
+                        articleTitle: "Quảng Cáo Đặt Phòng Khách Sạn",
+                        articleDomain: "🌐 bookinghotel-rachgia.com",
+                        articleContent: `
+                            <p style="color:#b45309; font-weight:800;">TRANG WEB QUẢNG CÁO PHÒNG NGHỈ!</p>
+                            <p>Trang này chỉ cho thuê phòng khách sạn, không có thông tin chi tiết về địa chỉ đường và tháng tổ chức lễ hội.</p>
+                        `
+                    }
+                ]
+            },
+            {
+                id: 7,
+                tag: "game",
+                tagLabel: "🦤 Tự Nhiên & Động Vật (Dự Phòng 1)",
+                topic: "Tốc độ chạy của Đà điểu châu Phi",
+                q: "Loài chim chạy nhanh nhất hành tinh là <strong>Đà điểu châu Phi</strong>, tốc độ chạy tối đa của nó có thể đạt <strong>bao nhiêu km/h</strong>?",
+                suggestedKeyword: "tốc độ đà điểu châu Phi",
+                sampleKeywords: [
+                    "tốc độ đà điểu châu Phi",
+                    "đà điểu chạy nhanh bao nhiêu",
+                    "loài chim chạy nhanh nhất",
+                    "cho hỏi con đà điểu có thể chạy tối đa bao nhiêu km trên giờ"
+                ],
+                answer: "Tốc độ tối đa có thể đạt khoảng <strong>70 km/h</strong> (dao động từ 65 – 72 km/h).",
+                analysis: "Từ khoá chuẩn: <code>tốc độ đà điểu châu Phi</code> (5 chữ). Các trang thế giới động vật đều nêu rõ con số 70 km/h.",
+                mockResults: [
+                    {
+                        title: "Đà điểu châu Phi – Loài chim chạy nhanh nhất hành tinh",
+                        url: "https://thegioidongvat.vn/da-dieu-chay-nhanh",
+                        snippet: "Với đôi chân dài cơ bắp, đà điểu châu Phi có thể sải bước dài tới 5 mét và đạt tốc độ chạy nước rút tối đa lên đến 70 km/h, vượt qua cả báo săn trên đường dài...",
+                        badge: "trust",
+                        badgeLabel: "⭐ Thế Giới Động Vật Uy Tín",
+                        isMatch: true,
+                        articleTitle: "Kỷ lục gia tốc độ: Đà điểu châu Phi",
+                        articleDomain: "🌐 thegioidongvat.vn",
+                        articleContent: `
+                            <p>Đà điểu châu Phi là loài chim còn sinh tồn lớn nhất trên Trái Đất. Dù kích thước cơ thể nặng nề khiến chúng không thể bay lượn trên bầu trời, bù lại đôi chân của chúng sở hữu sức mạnh phi thường.</p>
+                            <p>Khi chạy nước rút thoát khỏi kẻ săn mồi, đà điểu có thể đạt tốc độ tối đa lên đến <span class="highlight-answer">70 km/h</span>. Mỗi sải chân của nó có thể vươn dài tới gần 5 mét!</p>
+                        `
+                    },
+                    {
+                        title: "Báo Khám Phá Khoa Học – Top 10 động vật chạy nhanh nhất",
+                        url: "https://khamphakhoahoc.vn/top-dong-vat-chay-nhanh",
+                        snippet: "Đà điểu châu Phi đứng đầu danh sách các loài chim chạy nhanh nhất với vận tốc 70 km/h. Đứng đầu họ thú là báo hoa mai và linh dương...",
+                        badge: "trust",
+                        badgeLabel: "⭐ Báo Khoa Học",
+                        isMatch: true,
+                        articleTitle: "Những vận động viên điền kinh kỳ cựu của tự nhiên",
+                        articleDomain: "🌐 khamphakhoahoc.vn",
+                        articleContent: `
+                            <p>Đà điểu châu Phi giữ vững kỷ lục chim chạy nhanh nhất với tốc độ đáng kinh ngạc: <span class="highlight-answer">khoảng 70 km/h</span>.</p>
+                        `
+                    },
+                    {
+                        title: "Trang Trại Bán Giống Đà Điểu Thịt Toàn Quốc Giá Rẻ",
+                        url: "https://nongnghiep-quangcao.com/ban-da-dieu-giong",
+                        snippet: "Cung cấp đà điểu giống 1 tháng tuổi, trứng đà điểu, thịt đà điểu tươi sạch. Giao hàng tận nơi...",
+                        badge: "ad",
+                        badgeLabel: "⚠️ Quảng cáo Nông nghiệp",
+                        isMatch: false,
+                        articleTitle: "Quảng Cáo Trang Trại Đà Điểu",
+                        articleDomain: "🌐 nongnghiep-quangcao.com",
+                        articleContent: `
+                            <p style="color:#b45309; font-weight:800;">ĐÂY LÀ TRANG WEB BÁN GIỐNG ĐÀ ĐIỂU NÔNG NGHIỆP!</p>
+                            <p>Không có thông tin về tốc độ chạy tối đa của loài chim này trong tự nhiên.</p>
+                        `
+                    }
+                ]
+            },
+            {
+                id: 8,
+                tag: "game",
+                tagLabel: "🚀 Vũ Trụ & Khoa Học (Dự Phòng 2)",
+                topic: "Chuyến bay Apollo 11 lên Mặt Trăng",
+                q: "Người đầu tiên đặt chân lên Mặt Trăng là phi hành gia <strong>Neil Armstrong</strong>, chuyến bay lịch sử Apollo 11 hạ cánh vào <strong>năm nào</strong>?",
+                suggestedKeyword: "năm người lên mặt trăng",
+                sampleKeywords: [
+                    "năm người lên mặt trăng",
+                    "năm đổ bộ apollo 11",
+                    "neil armstrong lên mặt trăng năm nào",
+                    "chuyến bay lịch sử apollo 11 hạ cánh mặt trăng vào năm nào"
+                ],
+                answer: "Hạ cánh thành công vào <strong>năm 1969</strong> (ngày 20 tháng 7 năm 1969).",
+                analysis: "Từ khoá ngắn: <code>năm người lên mặt trăng</code> hoặc <code>năm đổ bộ apollo 11</code> (5 chữ). Các bài viết khoa học đều ghi nhận năm lịch sử 1969.",
+                mockResults: [
+                    {
+                        title: "Apollo 11 – Bách khoa toàn thư mở Wikipedia",
+                        url: "https://vi.wikipedia.org/wiki/Apollo_11",
+                        snippet: "Apollo 11 là chuyến bay không gian đầu tiên hạ cánh con người lên Mặt Trăng. Chỉ huy Neil Armstrong và phi công Buzz Aldrin đã đổ bộ vào ngày 20 tháng 7 năm 1969...",
+                        badge: "trust",
+                        badgeLabel: "⭐ Bách Khoa Toàn Thư Wikipedia",
+                        isMatch: true,
+                        articleTitle: "Apollo 11: Bước tiến khổng lồ của nhân loại",
+                        articleDomain: "🌐 vi.wikipedia.org/wiki/Apollo_11",
+                        articleContent: `
+                            <p>Vào ngày 20 tháng 7 <span class="highlight-answer">năm 1969</span>, con tàu đổ bộ Mặt Trăng Eagle của phi vụ Apollo 11 đã hạ cánh an toàn xuống Biển Tĩnh Lặng.</p>
+                            <p>Chỉ huy Neil Armstrong trở thành người đầu tiên trong lịch sử nhân loại bước ra ngoài bề mặt Mặt Trăng và để lại câu nói bất hủ: <em>'Đây là bước đi nhỏ của một con người, nhưng là một bước tiến khổng lồ của nhân loại'</em>.</p>
+                        `
+                    },
+                    {
+                        title: "Báo Khoa học Trẻ – Kỷ niệm 50 năm con người chinh phục Mặt Trăng",
+                        url: "https://khoahoctre.vn/con-nguoi-dat-chan-len-mat-trang",
+                        snippet: "Mùa hè năm 1969 đánh dấu cột mốc chói lọi khi phi hành gia người Mỹ Neil Armstrong đặt bước chân lịch sử đầu tiên lên bề mặt Mặt Trăng...",
+                        badge: "trust",
+                        badgeLabel: "⭐ Báo Khoa Học",
+                        isMatch: true,
+                        articleTitle: "Cột mốc lịch sử năm 1969: Chinh phục không gian",
+                        articleDomain: "🌐 khoahoctre.vn",
+                        articleContent: `
+                            <p>Phi hành gia Neil Armstrong đã đặt chân lên Mặt Trăng vào mùa hè <span class="highlight-answer">năm 1969</span>.</p>
+                        `
+                    },
+                    {
+                        title: "Bán Kính Thiên Văn Khúc Xạ Ngắm Mặt Trăng Cho Học Sinh",
+                        url: "https://kinhthienvan-quangcao.com/gia-re",
+                        snippet: "Kính thiên văn khúc xạ học sinh độ phóng đại 150x, nhìn rõ các hố trên Mặt Trăng. Quà tặng ý nghĩa kích thích đam mê khoa học...",
+                        badge: "ad",
+                        badgeLabel: "⚠️ Quảng cáo Kính Thiên Văn",
+                        isMatch: false,
+                        articleTitle: "Quảng Cáo Dụng Cụ Thiên Văn",
+                        articleDomain: "🌐 kinhthienvan-quangcao.com",
+                        articleContent: `
+                            <p style="color:#b45309; font-weight:800;">ĐÂY LÀ TRANG WEB BÁN KÍNH THIÊN VĂN!</p>
+                            <p>Không có thông tin lịch sử về năm hạ cánh của phi thuyền Apollo 11.</p>
+                        `
+                    }
+                ]
+            }
+        ];
+
+        let curQuestIdx = 0;
+        let curRhythm = 1;
+        let activeTeamHunterIdx = 0; // Tổ đang được chọn ở Nhịp 2/Nhịp 3
+
+        /* ================= BỘ ĐẾM GIỜ NHỊP 1 (45S) & NHỊP 3 (30S) ================= */
+        let bidRemainingSec = 45;
+        let bidTimerInterval = null;
+
+        let speedrunRemainingSec = 30;
+        let speedrunTimerInterval = null;
+
+        /* ================= DANH SÁCH HỌC SINH FALLBACK ================= */
+        const FALLBACK_STUDENTS = {
+            "4_1": [
+                "Nguyễn Trung An", "Hồ Nhựt Anh", "Lý Ngọc Hà Anh", "Tống Nguyễn Bảo Anh", "Trần Lưu Ngọc Anh",
+                "Trần Mai Mỹ Anh", "Trần Ngọc Vy Anh", "Bùi Ngọc Bách", "Nguyễn Minh Châu", "Trần Bảo Châu",
+                "Vũ Hoàng Kim Chi", "Đoàn Quang Trí Dũng", "Nguyễn Minh Đạt", "Hồ Minh Đức", "Hà Thu Hòa",
+                "Trần Anh Hòa", "Nguyễn Lê Khang", "Phạm Tuấn Khang", "Nguyễn Minh Khôi", "Hình Nhật Ngọc Lâm",
+                "Ngô Hoàng Long", "Trần Minh Mẫn", "Dương Ngọc Quý Minh", "Nguyễn Dương Minh Minh", "Phạm Ngọc Khánh My",
+                "Dương Khánh Nam", "Phan Kim Ngân", "Huỳnh Phương Yến Ngọc", "Hoàng Phúc Nhã", "Phan Võ Minh Nhân",
+                "Lâm Thành Nhất", "Nguyễn Huỳnh Nhi", "Lăng Nguyễn Hồng Nhung", "Trần Đức Phát", "Quách Gia Phú",
+                "Ngô Quang Phúc", "Nguyễn Lê Đại Phúc", "Nguyễn Xuân Phúc", "Đặng Nguyễn Phương Quỳnh", "Từ Anh Thy",
+                "Huỳnh Lâm Mộc Trà", "Trần Cao Thanh Trà", "Trần Minh Triết", "Lê Hoàng Phú Trọng", "Nguyễn Phú Trọng",
+                "Danh Thanh Vân", "Nguyễn Ngọc Bạch Vân", "La Tường Vi", "Đặng Ngọc Vy", "Lê Trần Phương Vy"
+            ]
+        };
+
+        /* ================= KHỞI TẠO TIẾT HỌC ================= */
+        function initApp() {
+            renderLessonDate();
+            initTeams(numTeams);
+            loadStudentsForClass(currentClassID);
+            renderCurrentQuest();
+            startLessonClock();
+        }
+
+        function renderLessonDate() {
+            const now = new Date();
+            const days = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
+            const dName = days[now.getDay()];
+            const d = now.getDate();
+            const m = now.getMonth() + 1;
+            const y = now.getFullYear();
+            const str = `${dName}, ngày ${d} tháng ${m} năm ${y}`;
+            if ($('#lessonDate')) $('#lessonDate').textContent = str;
+        }
+
+        /* ================= QUẢN LÝ TỔ & ĐIỂM SỐ ================= */
+        function initTeams(count) {
+            numTeams = parseInt(count) || 4;
+            TEAMS = [];
+            for (let i = 0; i < numTeams; i++) {
+                TEAMS.push({
+                    id: i,
+                    name: `Tổ ${i + 1}`,
+                    color: TEAM_COLORS[i % TEAM_COLORS.length],
+                    score: 0,
+                    keyword: ""
+                });
+            }
+            renderTeamsSidebar();
+            renderTeamsBoardGrid();
+            renderTeamTabs();
+            renderStealModalOptions();
+        }
+
+        function changeTeamCount(val) {
+            const count = parseInt(val);
+            if (count < 2 || count > 6) return;
+            const oldScores = TEAMS.map(t => t.score);
+            const oldKeywords = TEAMS.map(t => t.keyword);
+
+            TEAMS = [];
+            for (let i = 0; i < count; i++) {
+                TEAMS.push({
+                    id: i,
+                    name: `Tổ ${i + 1}`,
+                    color: TEAM_COLORS[i % TEAM_COLORS.length],
+                    score: oldScores[i] !== undefined ? oldScores[i] : 0,
+                    keyword: oldKeywords[i] || ""
+                });
+            }
+            numTeams = count;
+            $('#teamCountSelect').value = count;
+            renderTeamsSidebar();
+            renderTeamsBoardGrid();
+            renderTeamTabs();
+            renderStealModalOptions();
+            showToast(`Đã đổi sang ${count} tổ`, 'ok');
+        }
+
+        function renderTeamsSidebar() {
+            const container = $('#teamsScoreList');
+            container.innerHTML = '';
+            TEAMS.forEach((t, i) => {
+                const row = document.createElement('div');
+                row.className = `team-score-row ${activeTeamHunterIdx === i ? 'highlight' : ''}`;
+                row.style.setProperty('--team-color', t.color);
+                row.innerHTML = `
+                    <div class="t-row-title">
+                        <span style="font-size:1.2rem;">🚩</span>
+                        <span>${t.name}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div class="t-ctrl-btns">
+                            <button class="t-mini-btn win" onclick="rewardSpeedrun(${i})" title="Thắng Speedrun +100đ">+100</button>
+                            <button class="t-mini-btn plus" onclick="addScore(${i}, 20)" title="Thưởng nóng +20đ">+20</button>
+                            <button class="t-mini-btn noise" onclick="penalizeNoise(${i})" title="Phạt ồn ào -10%">-10%</button>
+                        </div>
+                        <div class="t-score-box" onclick="editTeamScore(${i})" title="Bấm để sửa điểm">${t.score}</div>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function addScore(teamIdx, delta) {
+            if (!TEAMS[teamIdx]) return;
+            TEAMS[teamIdx].score = Math.max(0, TEAMS[teamIdx].score + delta);
+            renderTeamsSidebar();
+            if (delta > 0) {
+                sndCorrect();
+                showToast(`+${delta} điểm cho ${TEAMS[teamIdx].name}!`, 'ok');
+            } else {
+                showToast(`${delta} điểm cho ${TEAMS[teamIdx].name}`, 'bad');
+            }
+        }
+
+        function penalizeNoise(teamIdx) {
+            if (!TEAMS[teamIdx]) return;
+            const current = TEAMS[teamIdx].score;
+            const penalty = Math.max(5, Math.round(current * 0.10));
+            TEAMS[teamIdx].score = Math.max(0, current - penalty);
+            renderTeamsSidebar();
+            playTone(300, 'sawtooth', 0.25, 0.2);
+            showToast(`Phạt ${TEAMS[teamIdx].name} ồn ào: −${penalty} điểm (-10%)`, 'bad');
+        }
+
+        function rewardSpeedrun(teamIdx) {
+            if (!TEAMS[teamIdx]) return;
+            TEAMS[teamIdx].score += 100;
+            renderTeamsSidebar();
+            sndCorrect();
+            launchVictoryConfetti();
+            showToast(`🎉 XUẤT SẮC! ${TEAMS[teamIdx].name} ghi trọn +100 điểm!`, 'ok');
+        }
+
+        function editTeamScore(teamIdx) {
+            const current = TEAMS[teamIdx].score;
+            const res = prompt(`Nhập điểm mới cho ${TEAMS[teamIdx].name}:`, current);
+            if (res !== null && !isNaN(parseInt(res))) {
+                TEAMS[teamIdx].score = Math.max(0, parseInt(res));
+                renderTeamsSidebar();
+                showToast(`Đã cập nhật điểm ${TEAMS[teamIdx].name}: ${TEAMS[teamIdx].score}`, 'ok');
+            }
+        }
+
+        /* ================= NHỊP 1: ĐẤU THẦU TỪ KHÓA BẢNG CON ================= */
+        function renderTeamsBoardGrid() {
+            const container = $('#teamsBoardGrid');
+            container.innerHTML = '';
+            TEAMS.forEach((t, i) => {
+                const card = document.createElement('div');
+                card.className = 'team-board-card';
+                card.style.setProperty('--t-color', t.color);
+                const wordsCount = countWords(t.keyword);
+                const isUnderLimit = wordsCount <= 5;
+
+                card.innerHTML = `
+                    <div class="t-board-head">
+                        <span class="t-board-name">
+                            <span>🚩</span> ${t.name}
+                        </span>
+                        <span class="word-badge ${isUnderLimit ? 'ok' : 'warn'}" id="badgeWords_${i}">
+                            ${wordsCount} chữ ${isUnderLimit ? '✓ Chuẩn' : '⚠️ Hơi dài'}
+                        </span>
+                    </div>
+
+                    <div class="t-board-input-wrap">
+                        <input type="text" class="t-board-input" id="inputKeyword_${i}" 
+                            value="${escapeHtml(t.keyword)}"
+                            placeholder="Gõ từ khóa trên Bảng con của ${t.name}..."
+                            oninput="updateTeamKeyword(${i}, this.value)">
+                    </div>
+
+                    <div class="t-board-meta">
+                        <button class="mini-ctrl-btn" onclick="openTeamGoogleReal(${i})" title="Mở thẳng Google thật trên tab mới">
+                            🌐 Mở Tab Google ↗
+                        </button>
+                        <button class="mini-ctrl-btn" onclick="selectTeamForHunter(${i})" style="color:#60a5fa;" title="Xem tab của tổ này ở Nhịp 2">
+                            🔎 Xem Kết Quả ➔
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function countWords(str) {
+            if (!str) return 0;
+            const trimmed = str.trim();
+            if (!trimmed) return 0;
+            return trimmed.split(/\s+/).length;
+        }
+
+        function updateTeamKeyword(idx, val) {
+            if (!TEAMS[idx]) return;
+            TEAMS[idx].keyword = val;
+            const wCount = countWords(val);
+            const badge = $(`#badgeWords_${idx}`);
+            if (badge) {
+                const isUnderLimit = wCount <= 5;
+                badge.className = `word-badge ${isUnderLimit ? 'ok' : 'warn'}`;
+                badge.textContent = `${wCount} chữ ${isUnderLimit ? '✓ Chuẩn' : '⚠️ Hơi dài'}`;
+            }
+            if (activeTeamHunterIdx === idx) {
+                renderMockGoogleSearch();
+            }
+        }
+
+        function fillSuggestedKeywords() {
+            const q = QUEST_BANK[curQuestIdx];
+            if (!q) return;
+            TEAMS.forEach((t, i) => {
+                const sample = q.sampleKeywords[i % q.sampleKeywords.length] || q.suggestedKeyword;
+                t.keyword = sample;
+            });
+            renderTeamsBoardGrid();
+            renderMockGoogleSearch();
+            showToast('Đã điền từ khóa gợi ý cho các tổ!', 'ok');
+        }
+
+        function openAllGoogleTabs() {
+            TEAMS.forEach(t => {
+                const q = t.keyword.trim() || QUEST_BANK[curQuestIdx].suggestedKeyword;
+                window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank');
+            });
+            showToast('Đã mở các tab Google cho các tổ!', 'ok');
+        }
+
+        function openTeamGoogleReal(teamIdx) {
+            const t = TEAMS[teamIdx];
+            if (!t) return;
+            const kw = t.keyword.trim() || QUEST_BANK[curQuestIdx].suggestedKeyword;
+            window.open(`https://www.google.com/search?q=${encodeURIComponent(kw)}`, '_blank');
+        }
+
+        function openActiveTeamGoogleReal() {
+            openTeamGoogleReal(activeTeamHunterIdx);
+        }
+
+        /* TIMER 45S ĐẤU THẦU */
+        function toggleBidTimer() {
+            if (bidTimerInterval) {
+                clearInterval(bidTimerInterval);
+                bidTimerInterval = null;
+                $('#btnStartBidTimer').textContent = '▶ Tiếp tục 45s';
+                $('#timerStatusLabel').textContent = 'Đang tạm dừng';
+            } else {
+                if (bidRemainingSec <= 0) bidRemainingSec = 45;
+                $('#btnStartBidTimer').textContent = '⏸ Tạm dừng';
+                $('#timerStatusLabel').textContent = 'Đang đếm ngược';
+                bidTimerInterval = setInterval(() => {
+                    bidRemainingSec--;
+                    updateBidTimerUI();
+                    if (bidRemainingSec <= 0) {
+                        clearInterval(bidTimerInterval);
+                        bidTimerInterval = null;
+                        forceBoardFlip();
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetBidTimer() {
+            if (bidTimerInterval) {
+                clearInterval(bidTimerInterval);
+                bidTimerInterval = null;
+            }
+            bidRemainingSec = 45;
+            $('#btnStartBidTimer').textContent = '▶ Bắt Đầu 45s';
+            $('#timerStatusLabel').textContent = 'Sẵn sàng';
+            updateBidTimerUI();
+        }
+
+        function updateBidTimerUI() {
+            const display = $('#bidTimerDisplay');
+            display.textContent = `${bidRemainingSec}s`;
+            const fill = $('#bidProgressFill');
+            const pct = (bidRemainingSec / 45) * 100;
+            fill.style.width = `${pct}%`;
+
+            if (bidRemainingSec <= 5) {
+                display.classList.add('urgent');
+                sndBeep(800);
+            } else if (bidRemainingSec <= 15) {
+                display.classList.add('urgent');
+                sndTick();
+            } else {
+                display.classList.remove('urgent');
+            }
+        }
+
+        function forceBoardFlip() {
+            if (bidTimerInterval) {
+                clearInterval(bidTimerInterval);
+                bidTimerInterval = null;
+            }
+            bidRemainingSec = 0;
+            updateBidTimerUI();
+            sndFlipBoard();
+            showToast('🚨 HẾT GIỜ! 3 - 2 - 1 LẬT BẢNG CON LÊN!', 'bad');
+        }
+
+        /* ================= NHỊP 2: LINK HUNTER (CHỌN SIÊU LIÊN KẾT) ================= */
+        function renderTeamTabs() {
+            const bar = $('#teamTabSelectorBar');
+            bar.innerHTML = '';
+            TEAMS.forEach((t, i) => {
+                const btn = document.createElement('button');
+                btn.className = `tab-btn ${activeTeamHunterIdx === i ? 'active' : ''}`;
+                btn.innerHTML = `<span>🚩</span> Tab ${t.name}`;
+                btn.onclick = () => selectTeamForHunter(i);
+                bar.appendChild(btn);
+            });
+        }
+
+        function selectTeamForHunter(idx) {
+            activeTeamHunterIdx = idx;
+            renderTeamTabs();
+            renderMockGoogleSearch();
+            renderTeamsSidebar();
+            $('#linkHunterCurrentTeamText').textContent = TEAMS[idx].name;
+            $('#speedrunActiveTeamBadge').textContent = TEAMS[idx].name;
+            $('#speedrunActiveTeamBadge').style.background = TEAMS[idx].color;
+        }
+
+        function renderMockGoogleSearch() {
+            const q = QUEST_BANK[curQuestIdx];
+            if (!q) return;
+            const team = TEAMS[activeTeamHunterIdx] || TEAMS[0];
+            const currentKeyword = (team && team.keyword.trim()) ? team.keyword.trim() : q.suggestedKeyword;
+            $('#mockGoogleQuery').textContent = currentKeyword;
+
+            const list = $('#mockSearchLinksList');
+            list.innerHTML = '';
+
+            q.mockResults.forEach((res, linkIdx) => {
+                const card = document.createElement('div');
+                card.className = 'search-link-card';
+                card.onclick = () => handleSelectLink(linkIdx);
+
+                card.innerHTML = `
+                    <div class="link-url-line">
+                        <span>🌐 ${escapeHtml(res.url)}</span>
+                        <span>› bài viết</span>
+                    </div>
+                    <div class="link-title">🔗 ${escapeHtml(res.title)}</div>
+                    <div class="link-snippet">${escapeHtml(res.snippet)}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+                        <span class="link-badge-tag ${res.badge}">${res.badgeLabel}</span>
+                        <button class="btn primary" style="font-size:0.85rem; padding:4px 10px;">
+                            👉 Nháy Chuột Mở Link Này ➔
+                        </button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function handleSelectLink(linkIdx) {
+            const q = QUEST_BANK[curQuestIdx];
+            if (!q || !q.mockResults[linkIdx]) return;
+            const selectedRes = q.mockResults[linkIdx];
+
+            // Nạp nội dung bài viết vào Nhịp 3
+            $('#articleMockTitle').textContent = selectedRes.articleTitle;
+            $('#articleDomainBadge').textContent = selectedRes.articleDomain;
+            $('#articleMockBody').innerHTML = selectedRes.articleContent;
+
+            // Chuyển sang Nhịp 3
+            switchRhythm(3);
+            resetSpeedrunTimer();
+            toggleSpeedrunTimer(); // Tự động bắt đầu đếm 30s
+            sndBeep(520);
+            showToast(`Đã mở trang web: ${selectedRes.title}! Bắt đầu quét mắt 30s!`, 'ok');
+        }
+
+        /* ================= NHỊP 3: SPEEDRUN QUÉT MẮT 30 GIÂY ================= */
+        function toggleSpeedrunTimer() {
+            if (speedrunTimerInterval) {
+                clearInterval(speedrunTimerInterval);
+                speedrunTimerInterval = null;
+                $('#btnStartSpeedrun').textContent = '▶ Tiếp tục 30s';
+            } else {
+                if (speedrunRemainingSec <= 0) speedrunRemainingSec = 30;
+                $('#btnStartSpeedrun').textContent = '⏸ Tạm dừng';
+                speedrunTimerInterval = setInterval(() => {
+                    speedrunRemainingSec--;
+                    updateSpeedrunTimerUI();
+                    if (speedrunRemainingSec <= 0) {
+                        clearInterval(speedrunTimerInterval);
+                        speedrunTimerInterval = null;
+                        triggerAlarmFire();
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetSpeedrunTimer() {
+            if (speedrunTimerInterval) {
+                clearInterval(speedrunTimerInterval);
+                speedrunTimerInterval = null;
+            }
+            speedrunRemainingSec = 30;
+            $('#btnStartSpeedrun').textContent = '▶ Chạy 30s';
+            updateSpeedrunTimerUI();
+        }
+
+        function updateSpeedrunTimerUI() {
+            const display = $('#speedrunTimerDisplay');
+            display.textContent = `${speedrunRemainingSec}s`;
+            if (speedrunRemainingSec <= 5) {
+                display.classList.add('critical');
+                sndBeep(900);
+            } else if (speedrunRemainingSec <= 10) {
+                display.classList.add('critical');
+                sndTick();
+            } else {
+                display.classList.remove('critical');
+            }
+        }
+
+        function triggerAlarmFire() {
+            if (speedrunTimerInterval) {
+                clearInterval(speedrunTimerInterval);
+                speedrunTimerInterval = null;
+            }
+            speedrunRemainingSec = 0;
+            updateSpeedrunTimerUI();
+            sndAlarmFire();
+            openStealModal();
+        }
+
+        function handleTeamCorrectAnswer() {
+            if (speedrunTimerInterval) {
+                clearInterval(speedrunTimerInterval);
+                speedrunTimerInterval = null;
+            }
+            rewardSpeedrun(activeTeamHunterIdx);
+            toggleSecretAnswer(true);
+        }
+
+        /* ================= MODAL CƯỚP LƯỢT ================= */
+        function renderStealModalOptions() {
+            const container = $('#stealTeamOptions');
+            container.innerHTML = '';
+            TEAMS.forEach((t, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn huge';
+                btn.style.background = t.color;
+                btn.style.color = '#fff';
+                btn.innerHTML = `🚩 ${t.name} CƯỚP LƯỢT!`;
+                btn.onclick = () => assignStealTurn(i);
+                container.appendChild(btn);
+            });
+        }
+
+        function openStealModal() {
+            renderStealModalOptions();
+            $('#stealModal').classList.add('show');
+        }
+
+        function closeStealModal() {
+            $('#stealModal').classList.remove('show');
+        }
+
+        function assignStealTurn(teamIdx) {
+            closeStealModal();
+            activeTeamHunterIdx = teamIdx;
+            renderTeamTabs();
+            renderTeamsSidebar();
+            $('#speedrunActiveTeamBadge').textContent = TEAMS[teamIdx].name;
+            $('#speedrunActiveTeamBadge').style.background = TEAMS[teamIdx].color;
+
+            // Khôi phục đồng hồ 15s cướp lượt
+            speedrunRemainingSec = 15;
+            updateSpeedrunTimerUI();
+            toggleSpeedrunTimer();
+            sndBeep(650);
+            showToast(`🔥 Quyền cướp lượt thuộc về ${TEAMS[teamIdx].name}! 15 giây bắt đầu!`, 'ok');
+        }
+
+        /* ================= HIỂN THỊ ĐÁP ÁN BÍ MẬT ================= */
+        function toggleSecretAnswer(forceShow = null) {
+            const banner = $('#secretRevealBanner');
+            const q = QUEST_BANK[curQuestIdx];
+            if (!q) return;
+
+            const isShown = banner.classList.contains('show');
+            const shouldShow = (forceShow !== null) ? forceShow : !isShown;
+
+            if (shouldShow) {
+                $('#secretAnswerDetail').innerHTML = q.answer;
+                $('#secretKeywordAnalysis').innerHTML = `💡 <strong>Bí kíp từ khoá:</strong> ${q.analysis}`;
+                banner.classList.add('show');
+            } else {
+                banner.classList.remove('show');
+            }
+        }
+
+        /* ================= CHUYỂN NHỊP 1 - 2 - 3 ================= */
+        function switchRhythm(rhythmNum) {
+            curRhythm = rhythmNum;
+            for (let i = 1; i <= 3; i++) {
+                const c = $(`#rhythmContainer${i}`);
+                const b = $(`#stepBtn${i}`);
+                if (i === rhythmNum) {
+                    c.classList.add('active');
+                    b.classList.add('active');
+                } else {
+                    c.classList.remove('active');
+                    b.classList.remove('active');
+                }
+            }
+            if (rhythmNum === 2) {
+                renderTeamTabs();
+                renderMockGoogleSearch();
+            }
+        }
+
+        /* ================= QUẢN LÝ NHIỆM VỤ (QUEST) ================= */
+        function renderCurrentQuest() {
+            const q = QUEST_BANK[curQuestIdx];
+            if (!q) return;
+
+            $('#questTopicTag').textContent = q.tagLabel;
+            $('#questTopicTag').className = `quest-topic-tag ${q.tag}`;
+            $('#questIndexLabel').textContent = `Nhiệm vụ ${curQuestIdx + 1} / ${QUEST_BANK.length}`;
+            $('#questQuestionText').innerHTML = q.q;
+            $('#questSummaryBadge').textContent = `Chủ đề: ${q.topic}`;
+
+            // Reset trạng thái các nhịp
+            switchRhythm(1);
+            resetBidTimer();
+            resetSpeedrunTimer();
+            $('#secretRevealBanner').classList.remove('show');
+
+            // Cập nhật từ khoá mặc định vào các tổ nếu chưa có
+            TEAMS.forEach((t, i) => {
+                t.keyword = q.sampleKeywords[i % q.sampleKeywords.length] || q.suggestedKeyword;
+            });
+            renderTeamsBoardGrid();
+            renderTeamTabs();
+            renderMockGoogleSearch();
+        }
+
+        function nextQuest() {
+            curQuestIdx = (curQuestIdx + 1) % QUEST_BANK.length;
+            renderCurrentQuest();
+            showToast(`Đã chuyển sang Nhiệm vụ ${curQuestIdx + 1}!`, 'ok');
+        }
+
+        function prevQuest() {
+            curQuestIdx = (curQuestIdx - 1 + QUEST_BANK.length) % QUEST_BANK.length;
+            renderCurrentQuest();
+        }
+
+        function randomQuest() {
+            let next;
+            do {
+                next = Math.floor(Math.random() * QUEST_BANK.length);
+            } while (next === curQuestIdx && QUEST_BANK.length > 1);
+            curQuestIdx = next;
+            renderCurrentQuest();
+            showToast(`🎲 Ngẫu nhiên: Nhiệm vụ ${curQuestIdx + 1}!`, 'ok');
+        }
+
+        /* ================= CHUYỂN SLIDE BÀI GIẢNG ================= */
+        const SLIDE_IDS = ['slide-intro', 'slide-note', 'slide-arena', 'slide-tips', 'slide-final'];
+        let currentSlideIdx = 0;
+
+        function goToSlide(idx) {
+            if (idx < 1 || idx > SLIDE_IDS.length) return;
+            currentSlideIdx = idx - 1;
+            SLIDE_IDS.forEach((id, i) => {
+                const s = $(`#${id}`);
+                if (i === currentSlideIdx) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+            $('#slideIndicator').textContent = `Slide ${currentSlideIdx + 1}/${SLIDE_IDS.length}`;
+
+            if (currentSlideIdx === 4) {
+                renderFinalPodium();
+                launchVictoryConfetti();
+                sndCheer();
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlideIdx < SLIDE_IDS.length - 1) {
+                goToSlide(currentSlideIdx + 2);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlideIdx > 0) {
+                goToSlide(currentSlideIdx);
+            }
+        }
+
+        /* ================= SLIDE 5: BẢNG XẾP HẠNG CHUNG CUỘC ================= */
+        function renderFinalPodium() {
+            const sorted = [...TEAMS].sort((a, b) => b.score - a.score);
+            const container = $('#finalPodiumContainer');
+            container.innerHTML = '';
+
+            sorted.forEach((t, rank) => {
+                const col = document.createElement('div');
+                col.style.background = '#1e293b';
+                col.style.border = `4px solid ${t.color}`;
+                col.style.borderRadius = '18px';
+                col.style.padding = '18px 22px';
+                col.style.minWidth = '180px';
+                col.style.textAlign = 'center';
+                col.style.boxShadow = `0 8px 24px rgba(0,0,0,0.5)`;
+
+                const medals = ['👑 QUÁN QUÂN', '🥈 Á QUÂN', '🥉 HẠNG BA', '🏅 KHUYẾN KHÍCH', '🏅 KHUYẾN KHÍCH', '🏅 KHUYẾN KHÍCH'];
+                const rankBadge = medals[rank] || '🏅';
+
+                col.innerHTML = `
+                    <div style="font-size:1.1rem; font-weight:900; color:#facc15; margin-bottom:4px;">${rankBadge}</div>
+                    <div style="font-size:1.5rem; font-weight:900; color:${t.color};">${t.name}</div>
+                    <div style="font-family:'Orbitron',monospace; font-size:2.4rem; font-weight:900; color:#fff; margin:10px 0;">${t.score}</div>
+                    <div style="font-size:0.85rem; color:#94a3b8; font-weight:800;">ĐIỂM TỔNG KẾT</div>
+                `;
+                container.appendChild(col);
+            });
+        }
+
+        /* ================= ĐỒNG HỒ 35 PHÚT TIẾT HỌC ================= */
+        function startLessonClock() {
+            if (lessonClockInterval) clearInterval(lessonClockInterval);
+            lessonClockInterval = setInterval(() => {
+                if (!lessonClockPaused && lessonRemainingSeconds > 0) {
+                    lessonRemainingSeconds--;
+                    updateLessonClockUI();
+                    if (lessonRemainingSeconds === 0) {
+                        $('#lessonClockStatus').textContent = 'Hết giờ tiết học!';
+                        $('#lessonClockStatus').style.color = '#ef4444';
+                        sndAlarmFire();
+                        showToast('Đã hết 35 phút thời lượng tiết học!', 'bad');
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateLessonClockUI() {
+            const m = Math.floor(lessonRemainingSeconds / 60);
+            const s = lessonRemainingSeconds % 60;
+            const str = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            $('#lessonClockDisplay').textContent = str;
+        }
+
+        function toggleLessonClock() {
+            lessonClockPaused = !lessonClockPaused;
+            $('#btnPauseClock').textContent = lessonClockPaused ? '▶ Tiếp' : '⏸ Dừng';
+            $('#lessonClockStatus').textContent = lessonClockPaused ? 'Đang tạm dừng' : 'Đang chạy';
+            $('#lessonClockStatus').style.color = lessonClockPaused ? '#f59e0b' : '#4ade80';
+        }
+
+        function adjustLessonClock(deltaSec) {
+            lessonRemainingSeconds = Math.max(0, lessonRemainingSeconds + deltaSec);
+            updateLessonClockUI();
+        }
+
+        /* ================= QUẢN LÝ DANH SÁCH HỌC SINH ================= */
+        async function loadStudentsForClass(classId) {
+            currentClassID = classId;
+            let names = [];
+            try {
+                const res = await fetch('../../assets/data/students_4_2026_2027.json');
+                const data = await res.json();
+                if (Array.isArray(data[classId])) {
+                    names = data[classId];
+                } else {
+                    names = FALLBACK_STUDENTS["4_1"];
+                }
+            } catch (e) {
+                names = FALLBACK_STUDENTS[classId] || FALLBACK_STUDENTS["4_1"];
+            }
+
+            classStudents = names.map((name, idx) => ({
+                id: `${classId}_${idx + 1}`,
+                index: idx + 1,
+                name: name,
+                called: false
+            }));
+
+            calledStudents.clear();
+            renderStudentsList();
+        }
+
+        function changeClass(val) {
+            loadStudentsForClass(val);
+            showToast(`Đã tải danh sách ${val.replace('_', '/')}`, 'ok');
+        }
+
+        function renderStudentsList(filterText = '') {
+            const container = $('#students-list');
+            container.innerHTML = '';
+            const q = filterText.toLowerCase().trim();
+
+            let total = 0;
+            classStudents.forEach(st => {
+                if (q && !st.name.toLowerCase().includes(q) && !String(st.index).includes(q)) {
+                    return;
+                }
+                total++;
+                const isCalled = calledStudents.has(st.id);
+                const btn = document.createElement('button');
+                btn.className = `stu-btn ${isCalled ? 'called' : ''}`;
+                btn.innerHTML = `
+                    <span>#${st.index}. <strong>${escapeHtml(st.name)}</strong></span>
+                    <span>${isCalled ? '✓ Đã gọi' : '○'}</span>
+                `;
+                btn.onclick = () => toggleStudentCalled(st.id);
+                container.appendChild(btn);
+            });
+            $('#stCountTotal').textContent = total;
+        }
+
+        function filterStudents() {
+            const val = $('#search-student').value;
+            renderStudentsList(val);
+        }
+
+        function toggleStudentCalled(stId) {
+            if (calledStudents.has(stId)) {
+                calledStudents.delete(stId);
+            } else {
+                calledStudents.add(stId);
+            }
+            renderStudentsList($('#search-student').value);
+        }
+
+        function pickRandomStudent() {
+            const uncalled = classStudents.filter(s => !calledStudents.has(s.id));
+            const pool = (uncalled.length > 0) ? uncalled : classStudents;
+            const chosen = pool[Math.floor(Math.random() * pool.length)];
+
+            calledStudents.add(chosen.id);
+            renderStudentsList($('#search-student').value);
+            sndBeep(750);
+            showToast(`🎲 Gọi ngẫu nhiên: [STT ${chosen.index}] ${chosen.name}!`, 'ok');
+        }
+
+        /* ================= POPUP KHỞI ĐẦU CHỌN LỚP & TỔ ================= */
+        let tempStartClass = "4_1";
+        let tempStartTeams = 4;
+
+        function pickStart(type, val, btn) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+            btn.classList.add('on');
+            if (type === 'class') {
+                tempStartClass = val;
+            } else if (type === 'teams') {
+                tempStartTeams = parseInt(val);
+            }
+        }
+
+        function confirmStartGame() {
+            currentClassID = tempStartClass;
+            $('#classSelect').value = currentClassID;
+            $('#teamCountSelect').value = tempStartTeams;
+            initTeams(tempStartTeams);
+            loadStudentsForClass(currentClassID);
+            $('#startScreen').classList.add('hidden');
+            sndFlipBoard();
+            showToast('Bắt đầu tiết học! Chúc thầy cô và các em có một tiết thực hành rực lửa!', 'ok');
+        }
+
+        /* ================= XUẤT CSV BẢNG ĐIỂM ================= */
+        function exportCSV() {
+            let csv = '\uFEFF';
+            csv += `BÁO CÁO TIẾT 8: ĐẤU TRƯỜNG BẢNG CON - TIN HỌC 4\n`;
+            csv += `Lớp:,${currentClassID.replace('_', '/')}\n`;
+            csv += `Thời gian xuất:,${new Date().toLocaleString('vi-VN')}\n\n`;
+            csv += `XẾP HẠNG CÁC TỔ:\nHạng,Tên tổ,Điểm số\n`;
+
+            const sorted = [...TEAMS].sort((a, b) => b.score - a.score);
+            sorted.forEach((t, i) => {
+                csv += `${i + 1},${t.name},${t.score}\n`;
+            });
+
+            csv += `\nDANH SÁCH HỌC SINH ĐÃ ĐƯỢC GỌI (${calledStudents.size} bạn):\nSTT,Họ và tên,Trạng thái\n`;
+            classStudents.forEach(st => {
+                csv += `${st.index},"${st.name}",${calledStudents.has(st.id) ? 'Đã gọi' : 'Chưa gọi'}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Bang_Diem_Tiet_08_${currentClassID}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Đã tải xuống file CSV bảng điểm!', 'ok');
+        }
+
+        /* ================= HIỆU ỨNG PHÁO HOA CANVAS CONFETTI ================= */
+        const canvas = $('#confettiCanvas');
+        const ctx = canvas.getContext('2d');
+        let confettiParticles = [];
+        let confettiAnimId = null;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function launchVictoryConfetti() {
+            const colors = ['#facc15', '#3b82f6', '#ef4444', '#10b981', '#ec4899', '#8b5cf6'];
+            confettiParticles = [];
+            for (let i = 0; i < 150; i++) {
+                confettiParticles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * -canvas.height * 0.5,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: Math.random() * 5 + 4,
+                    size: Math.random() * 10 + 6,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rot: Math.random() * 360,
+                    vrot: (Math.random() - 0.5) * 10
+                });
+            }
+            if (!confettiAnimId) {
+                animateConfetti();
+            }
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let active = false;
+            confettiParticles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.rot += p.vrot;
+                if (p.y < canvas.height + 20) {
+                    active = true;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.rot * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.restore();
+                }
+            });
+            if (active) {
+                confettiAnimId = requestAnimationFrame(animateConfetti);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                confettiAnimId = null;
+            }
+        }
+
+        /* ================= TOAST THÔNG BÁO ================= */
+        function showToast(msg, type = 'ok') {
+            const container = $('#toasts');
+            const toast = document.createElement('div');
+            toast.className = `toast-item ${type}`;
+            toast.textContent = msg;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.transition = 'opacity 0.3s';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        /* ================= PHÍM TẮT TIỆN LỢI ================= */
+        window.addEventListener('keydown', (e) => {
+            // Không nhận phím tắt khi đang gõ text input
+            if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === ' ' || e.code === 'Space') {
+                e.preventDefault();
+                if (curRhythm === 1) toggleBidTimer();
+                else if (curRhythm === 3) toggleSpeedrunTimer();
+            }
+        });
+
+        /* Khởi chạy khi DOM sẵn sàng */
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+
+</html>
+
