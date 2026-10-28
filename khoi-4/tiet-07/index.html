@@ -2230,6 +2230,7 @@
             });
             classStudents.forEach(s => {
                 s.isDuplicateName = (nameCounts[s.name] > 1);
+                s.displayName = s.isDuplicateName && !/\s*\([0-9A-Za-z]+\)$/.test(s.name) ? `${s.name} [STT ${s.index}]` : s.name;
             });
 
             calledStudents = calledStudentsByClass[classId] || new Set();
@@ -2337,7 +2338,7 @@
                 const code = `HS${String(stu.index).padStart(3, '0')}`;
                 const esc = val => `"${String(val).replace(/"/g, '""')}"`;
                 const detailStr = s.details.length ? s.details.join(' | ') : 'Chưa phát biểu';
-                csv += `${stu.index},${code},${esc(stu.name)},${esc(s.team)},${s.correct},${s.wrong},${esc(detailStr)}\n`;
+                csv += `${stu.index},${code},${esc(stu.displayName || stu.name)},${esc(s.team)},${s.correct},${s.wrong},${esc(detailStr)}\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });

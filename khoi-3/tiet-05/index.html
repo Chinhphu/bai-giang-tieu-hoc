@@ -1158,7 +1158,21 @@
                 }
             } catch (_) {}
 
-            classStudentsTiet5 = studentNames.map((name, i) => ({ id: `hs-${i + 1}`, name }));
+            const nameCounts = {};
+            studentNames.forEach(name => {
+                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
+                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
+            });
+            const nameTracker = {};
+            classStudentsTiet5 = studentNames.map((name, i) => {
+                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
+                let finalName = trimmed;
+                if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+                    nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
+                    finalName = `${trimmed} (${nameTracker[trimmed]})`;
+                }
+                return { id: `hs-${i + 1}`, name: finalName, rawName: trimmed };
+            });
             calledStudentsTiet5 = new Set();
             selectedStudentTiet5 = null;
             renderStudentsTiet5();

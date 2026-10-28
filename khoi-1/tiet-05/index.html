@@ -397,7 +397,21 @@
             if (!selectedClass) { alert("Thầy ơi, chọn lớp đã nhé!"); return; }
             if (Object.keys(classLists).length === 0) { alert("Chưa tải được danh sách lớp!"); return; }
 
-            currentClassList = [...classLists[selectedClass]];
+            const raw = classLists[selectedClass] || [];
+            const nameCounts = {};
+            raw.forEach(n => {
+                const t = (n || '').trim();
+                nameCounts[t] = (nameCounts[t] || 0) + 1;
+            });
+            const tracker = {};
+            currentClassList = raw.map(n => {
+                const t = (n || '').trim();
+                if (nameCounts[t] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(t)) {
+                    tracker[t] = (tracker[t] || 0) + 1;
+                    return `${t} (${tracker[t]})`;
+                }
+                return t;
+            });
             remainingStudents = shuffleArray([...currentClassList]); 
             playedStudents = [];
             bannedStudents = [];

@@ -16,6 +16,35 @@ const Khoi5Students = (() => {
     'Chu Dương Bảo Như', 'Phương Phú Quý', 'Bùi Quốc Thành', 'Trần Bảo Vy'
   ];
 
+  function disambiguateNames(rawList) {
+    if (!Array.isArray(rawList)) return [];
+    const nameCounts = {};
+    rawList.forEach(item => {
+      const raw = typeof item === 'string' ? item : (item.name || item.hoTen || item.fullName || '');
+      const trimmed = raw.trim();
+      nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
+    });
+
+    const nameTracker = {};
+    return rawList.map((item, idx) => {
+      const raw = typeof item === 'string' ? item : (item.name || item.hoTen || item.fullName || `Học sinh ${idx + 1}`);
+      const trimmed = raw.trim();
+      let finalName = trimmed;
+      if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+        nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
+        finalName = `${trimmed} (${nameTracker[trimmed]})`;
+      }
+      return {
+        id: idx + 1,
+        name: finalName,
+        rawName: trimmed,
+        displayName: finalName,
+        team: (typeof item === 'object' && item.team !== undefined) ? item.team : null,
+        actions: (typeof item === 'object' && Array.isArray(item.actions)) ? item.actions : []
+      };
+    });
+  }
+
   /** Tải danh sách học sinh theo mã lớp (ví dụ: '5_1', '5/1', ...) */
   async function loadStudents(classKey = '5_1') {
     currentClassKey = String(classKey).replace(/[^a-z0-9]/gi, '_').toLowerCase();
@@ -42,12 +71,7 @@ const Khoi5Students = (() => {
         const norm = s => String(s).replace(/[^a-z0-9]/gi, '_').toLowerCase();
         let list = rawData[classKey] || rawData[currentClassKey] || rawData[norm(classKey)] || [];
         if (Array.isArray(list) && list.length > 0) {
-          allStudents = list.map((item, idx) => ({
-            id: idx + 1,
-            name: typeof item === 'string' ? item : (item.name || item.hoTen || item.fullName || `Học sinh ${idx + 1}`),
-            team: null,
-            actions: []
-          }));
+          allStudents = disambiguateNames(list);
           return allStudents;
         }
       }
@@ -56,22 +80,23 @@ const Khoi5Students = (() => {
     }
 
     // Fallback nếu không tải được JSON
-    allStudents = DEFAULT_FALLBACK_NAMES.map((name, idx) => ({
-      id: idx + 1,
-      name,
-      team: null,
-      actions: []
-    }));
+    allStudents = disambiguateNames(DEFAULT_FALLBACK_NAMES);
     return allStudents;
   }
 
-  /** Lấy tên hiển thị gọn gàng (rút gọn họ nếu cần) */
+  /** Lấy tên hiển thị chuẩn xác, phân biệt rõ nếu trùng họ tên */
   function getStudentDisplayName(st) {
     if (!st) return '';
-    const name = typeof st === 'string' ? st : (st.name || '');
-    const parts = name.trim().split(/\s+/);
-    if (parts.length <= 2) return name;
-    return `${parts[0]} ${parts[parts.length - 1]}`;
+    if (typeof st === 'object' && (st.displayName || st.name)) return st.displayName || st.name;
+    let student = null;
+    if (typeof st === 'number') {
+      student = allStudents.find(s => s.id === st);
+    } else if (typeof st === 'string') {
+      student = allStudents.find(s => String(s.id) === st || s.name === st || s.displayName === st);
+      if (!student) student = allStudents.find(s => (s.rawName || s.name).toLowerCase() === st.toLowerCase());
+    }
+    if (student) return student.displayName || student.name;
+    return String(st);
   }
 
   /** Chọn ngẫu nhiên một bạn học sinh */
@@ -97,12 +122,20 @@ const Khoi5Students = (() => {
     return false;
   }
 
-  /** Thêm nhanh một học sinh mới */
+  /** Thêm nhanh một học sinh mới (tự động phân biệt nếu trùng tên) */
   function addStudent(name, teamId = null) {
     if (!name || !name.trim()) return null;
+    const trimmed = name.trim();
+    const sameNames = allStudents.filter(s => (s.rawName || s.name).toLowerCase() === trimmed.toLowerCase());
+    let finalName = trimmed;
+    if (sameNames.length > 0 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+      finalName = `${trimmed} (${sameNames.length + 1})`;
+    }
     const newSt = {
-      id: allStudents.length + 1,
-      name: name.trim(),
+      id: allStudents.length ? Math.max(...allStudents.map(s => s.id || 0)) + 1 : 1,
+      name: finalName,
+      rawName: trimmed,
+      displayName: finalName,
       team: teamId,
       actions: []
     };

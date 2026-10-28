@@ -1703,22 +1703,54 @@
                         const data = await res.json();
                         const rawList = data[classKey] || data[classKey.replace('_', '/')] || [];
                         if (Array.isArray(rawList) && rawList.length > 0) {
-                            return rawList.map((item, idx) => ({
-                                id: idx + 1,
-                                name: typeof item === 'string' ? item : (item.name || item.hoTen || `Học sinh ${idx + 1}`),
-                                teamId: null, // Chỉ gán tổ sau khi bấm trả lời!
-                                answerCount: 0
-                            }));
+                            const nameCounts = {};
+                            rawList.forEach(item => {
+                                const trimmed = (typeof item === 'string' ? item : (item.name || item.hoTen || '')).trim();
+                                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
+                            });
+                            const nameTracker = {};
+                            return rawList.map((item, idx) => {
+                                const trimmed = (typeof item === 'string' ? item : (item.name || item.hoTen || `Học sinh ${idx + 1}`)).trim();
+                                let finalName = trimmed;
+                                if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+                                    nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
+                                    finalName = `${trimmed} (${nameTracker[trimmed]})`;
+                                }
+                                return {
+                                    id: idx + 1,
+                                    name: finalName,
+                                    rawName: trimmed,
+                                    displayName: finalName,
+                                    teamId: null, // Chỉ gán tổ sau khi bấm trả lời!
+                                    answerCount: 0
+                                };
+                            });
                         }
                     }
                 } catch (_) {}
             }
-            return DEFAULT_FALLBACK_STUDENTS.map((name, idx) => ({
-                id: idx + 1,
-                name,
-                teamId: null,
-                answerCount: 0
-            }));
+            const fbCounts = {};
+            DEFAULT_FALLBACK_STUDENTS.forEach(n => {
+                const t = (n || '').trim();
+                fbCounts[t] = (fbCounts[t] || 0) + 1;
+            });
+            const fbTracker = {};
+            return DEFAULT_FALLBACK_STUDENTS.map((name, idx) => {
+                const trimmed = (name || '').trim();
+                let finalName = trimmed;
+                if (fbCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+                    fbTracker[trimmed] = (fbTracker[trimmed] || 0) + 1;
+                    finalName = `${trimmed} (${fbTracker[trimmed]})`;
+                }
+                return {
+                    id: idx + 1,
+                    name: finalName,
+                    rawName: trimmed,
+                    displayName: finalName,
+                    teamId: null,
+                    answerCount: 0
+                };
+            });
         }
 
         async function startGame() {

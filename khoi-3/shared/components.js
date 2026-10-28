@@ -284,8 +284,8 @@
     ],
     "3_3": [
       "Tống Huỳnh Tâm An", "Bùi Ngọc Tú Anh", "Hồng Hoàng Nhật Anh", "Võ Khuê Anh", "Lê Huỳnh Thiên Bách",
-      "Nguyễn Hoàng Bách", "Nguyễn Phạm Bảo Châu", "Võ Hữu Duy", "Trần Quốc Đạt", "Phạm Thế Hào",
-      "Huỳnh Nhã Hân", "Nguyễn Lê Khả Hân", "Nguyễn Ngọc Gia Hân", "Nguyễn Phạm Gia Hân", "Lê Thị Phương Hoa",
+      "Nguyễn Hoàng Bách (1)", "Nguyễn Hoàng Bách (2)", "Nguyễn Phạm Bảo Châu", "Võ Hữu Duy", "Trần Quốc Đạt", "Phạm Thế Hào",
+      "Huỳnh Nhã Hân", "Nguyễn Lê Khả Hân", "Nguyễn Ngọc Gia Hân (1)", "Nguyễn Ngọc Gia Hân (2)", "Nguyễn Phạm Gia Hân", "Lê Thị Phương Hoa",
       "Phan Mạnh Hùng", "Lý Gia Hưng", "Nguyễn Minh Khang", "Phạm Nguyễn Minh Khôi", "Cao Thiên Kim",
       "Nguyễn Hồ Phương Lam", "Mai Nhật Lan", "Vũ Bảo Long", "Huỳnh Thiên Lộc", "Bùi Diệu Mẫn",
       "Dương Quang Minh", "Huỳnh Phúc Minh", "Nguyễn Ngọc Tuệ Minh", "Trần Phạm Khánh My", "Nguyễn Ngọc Kim Ngân",
@@ -325,7 +325,7 @@
       "Trần Khánh Nhi", "Danh Thị Kiều Oanh", "Nguyễn Kỳ Phương", "Lê Hoàng Đăng Quang", "Phan Huỳnh Phú Quý",
       "Nguyễn Ngọc Thảo Quyên", "Châu Ngọc Ngân Thanh", "Vi Huỳnh Kim Thanh", "Lâm Huỳnh Phương Thảo", "Trần Quốc Thiện",
       "Nguyễn Ngọc Tiên", "Lâm Đức Tiến", "Trương Ngọc Toàn", "Mai Võ Thanh Trúc", "Lư Nhã Uyên",
-      "Nguyễn Ngọc Nhã Uyên", "Võ Huỳnh Khánh Vy", "Lê Như Ý", "Nguyễn Phúc Khang Lam", "Huỳnh Hoàng Yến"
+      "Nguyễn Ngọc Nhã Uyên", "Võ Huỳnh Khánh Vy", "Lê Như Ý", "Nguyễn Phúc Khang Lam", "Huỳnh Hoàng Yến (1)", "Huỳnh Hoàng Yến (2)"
     ]
   };
 
@@ -378,7 +378,22 @@
         }
       } catch (_) {}
 
-      this.students = names.map((name, i) => ({ id: `hs-${i + 1}`, name }));
+      // Tự động nhận diện và phân biệt học sinh trùng họ tên
+      const nameCounts = {};
+      names.forEach(name => {
+        const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
+        nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
+      });
+      const nameTracker = {};
+      this.students = names.map((item, i) => {
+        const trimmed = (typeof item === 'string' ? item : (item.name || '')).trim();
+        let finalName = trimmed;
+        if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+          nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
+          finalName = `${trimmed} (${nameTracker[trimmed]})`;
+        }
+        return { id: `hs-${i + 1}`, name: finalName, rawName: trimmed };
+      });
       this.renderStudents();
     },
 

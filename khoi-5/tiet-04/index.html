@@ -1013,6 +1013,7 @@
             const now = new Date();
             const pad = n => String(n).padStart(2, '0');
             const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+            const deltaStr = delta > 0 ? `+${delta}` : String(delta);
             activityLogs.push({
                 stt: activityLogs.length + 1,
                 time: timeStr,
@@ -1020,17 +1021,25 @@
                 student: studentName || 'Chưa chọn',
                 action: action || 'Thương vụ đầu tư',
                 result: result || (delta > 0 ? 'Thành công' : (delta < 0 ? 'Thất bại' : 'Hoàn thành')),
-                delta: delta > 0 ? `+${delta}` : String(delta),
+                delta: deltaStr,
                 scoreAfter: typeof currentScore !== 'undefined' ? currentScore : '-'
             });
+
+            if (studentName && studentName !== 'Chưa chọn' && !studentName.startsWith('Đại diện')) {
+                const st = students.find(s => (s.displayName || s.name) === studentName);
+                if (st && st.actions) {
+                    st.actions.push(`[${timeStr}] ${action} (${deltaStr}đ)`);
+                }
+            }
         }
 
         function getStudentDisplayName(st) {
             if (!st) return '';
-            const rawName = (st.name || '').trim();
+            if (typeof st === 'object' && st.displayName) return st.displayName;
+            const rawName = (typeof st === 'string' ? st : (st.name || '')).trim();
             const trimmed = rawName.toLowerCase();
             const sameNameList = students.filter(s => (s.name || '').trim().toLowerCase() === trimmed);
-            if (sameNameList.length <= 1) return rawName;
+            if (sameNameList.length <= 1 || /\s*\([0-9A-Za-z]+\)$/.test(rawName)) return rawName;
             const matchIndex = sameNameList.findIndex(s => s.id === st.id);
             return `${rawName} (${matchIndex >= 0 ? matchIndex + 1 : 1})`;
         }
@@ -1060,12 +1069,28 @@
 
             let rawList = await loadStudentList(currentClass);
 
-            students = rawList.map((name, i) => ({
-                id: i + 1,
-                name: typeof name === 'string' ? name : (name.name || 'Học sinh ' + (i + 1)),
-                team: null,
-                actions: []
-            }));
+            const nameCounts = {};
+            rawList.forEach(name => {
+                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
+                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
+            });
+            const nameTracker = {};
+            students = rawList.map((item, i) => {
+                const trimmed = (typeof item === 'string' ? item : (item.name || 'Học sinh ' + (i + 1))).trim();
+                let finalName = trimmed;
+                if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+                    nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
+                    finalName = `${trimmed} (${nameTracker[trimmed]})`;
+                }
+                return {
+                    id: i + 1,
+                    name: finalName,
+                    rawName: trimmed,
+                    displayName: finalName,
+                    team: null,
+                    actions: []
+                };
+            });
             nextStudentId = students.length;
 
             const labels = ['A', 'B', 'C', 'D', 'E', 'F'];

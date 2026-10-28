@@ -145,8 +145,15 @@
 
         /* Phân biệt học sinh trùng họ tên */
         function studentDisplayName(student) {
-            const matches = students.filter(s => s.name === student.name);
-            return matches.length > 1 ? `${student.name} (${matches.findIndex(s => s.id === student.id) + 1})` : student.name;
+            if (!student) return '';
+            if (typeof student === 'object' && student.displayName) return student.displayName;
+            const sName = typeof student === 'string' ? student : (student.name || '');
+            const raw = typeof student === 'object' && student.rawName ? student.rawName : sName;
+            const matches = students.filter(s => (s.rawName || s.name) === raw);
+            if (matches.length > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(sName)) {
+                return `${raw} (${matches.findIndex(s => s.id === student.id) + 1})`;
+            }
+            return sName;
         }
 
         /* Nạp danh sách học sinh mặc định theo lớp */
@@ -173,7 +180,21 @@
                 list = ['Nguyễn Văn A', 'Trần Thị B', 'Lê Văn C', 'Phạm Thị D', 'Hoàng Văn E', 'Đỗ Gia Bảo', 'Vũ Minh Anh'];
             }
 
-            students = list.map((name, index) => ({ id: index + 1, name, team: null, actions: [] }));
+            const nameCounts = {};
+            list.forEach(name => {
+                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
+                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
+            });
+            const nameTracker = {};
+            students = list.map((item, index) => {
+                const trimmed = (typeof item === 'string' ? item : (item.name || '')).trim();
+                let finalName = trimmed;
+                if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+                    nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
+                    finalName = `${trimmed} (${nameTracker[trimmed]})`;
+                }
+                return { id: index + 1, name: finalName, rawName: trimmed, displayName: finalName, team: null, actions: [] };
+            });
             nextStudentId = students.length;
             teams = Array.from({ length: n }, (_, i) => ({ name: `Tổ ${i + 1}`, score: STARTING_SCORE, color: TEAM_COLORS[i % TEAM_COLORS.length] }));
 

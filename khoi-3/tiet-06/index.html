@@ -153,8 +153,15 @@
         const G = { students: [], used: new Set(), teams: [], turn: 0, phase: 0, boxes: [], pick: 0, pools: {}, log: [], cur: null, won: false };
         let allStudents = [];
         function studentDisplayName(student) {
-            const matches = G.students.filter(s => s.name === student.name);
-            return matches.length > 1 ? `${student.name} (${matches.findIndex(s => s.id === student.id) + 1})` : student.name;
+            if (!student) return '';
+            if (typeof student === 'object' && student.displayName) return student.displayName;
+            const sName = typeof student === 'string' ? student : (student.name || '');
+            const raw = typeof student === 'object' && student.rawName ? student.rawName : sName;
+            const matches = G.students.filter(s => (s.rawName || s.name) === raw);
+            if (matches.length > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(sName)) {
+                return `${raw} (${matches.findIndex(s => s.id === student.id) + 1})`;
+            }
+            return sName;
         }
         function exportFileBase(classId) {
             const d = new Date(), pad = n => String(n).padStart(2, '0');
@@ -225,7 +232,22 @@
             const cls = $('classSel').value, names = G.classes[cls] || [];
             if (!names.length) return alert('Lớp này chưa có học sinh!');
             G.cls = cls; G.teams = Array.from({ length: +$('teamCount').value }, (_, i) => newTeam(i));
-            G.students = names.map((nm, i) => ({ id: i, name: nm, team: null, correct: 0, total: 0 })); G.nextId = names.length; G.used = new Set();
+            const nameCounts = {};
+            names.forEach(name => {
+                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
+                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
+            });
+            const nameTracker = {};
+            G.students = names.map((nm, i) => {
+                const trimmed = (typeof nm === 'string' ? nm : (nm.name || '')).trim();
+                let finalName = trimmed;
+                if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+                    nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
+                    finalName = `${trimmed} (${nameTracker[trimmed]})`;
+                }
+                return { id: i, name: finalName, rawName: trimmed, displayName: finalName, team: null, correct: 0, total: 0 };
+            });
+            G.nextId = names.length; G.used = new Set();
             G.phase = 1; G.turn = 0; G.log = []; G.won = false; G.gifts = null; G.pool = G.bank.slice();
             $('giftGrid').innerHTML = ''; $('dealBtn').disabled = false; $('p1Next').disabled = true; renderSide(); show('p1');
         }
@@ -526,7 +548,7 @@
             const t = G.teams[G.turn], c = G.cur, st = G.students.find(s => s.id === c.id);
             t.total++; if (ok) t.correct++;
             if (st) { st.total = (st.total || 0) + 1; st.correct = (st.correct || 0) + (ok ? 1 : 0); }
-            const entry = { time: new Date().toLocaleTimeString('vi-VN'), team: t.name, studentId: c.id, student: c.name, level: c.lvl, question: c.q.q, answer: answer, result: ok ? 'Đúng' : 'Sai', item: '' };
+            const entry = { time: new Date().toLocaleTimeString('vi-VN'), team: t.name, studentId: c.id, student: studentDisplayName(c), level: c.lvl, question: c.q.q, answer: answer, result: ok ? 'Đúng' : 'Sai', item: '' };
             G.log.push(entry);
             const fb = $('fb');
             if (ok) {

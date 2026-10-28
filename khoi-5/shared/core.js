@@ -352,15 +352,39 @@ const Khoi5Students = (() => {
     'Chu Dương Bảo Như', 'Phương Phú Quý', 'Bùi Quốc Thành', 'Trần Bảo Vy'
   ];
 
+  function disambiguateNames(rawList) {
+    if (!Array.isArray(rawList)) return [];
+    const nameCounts = {};
+    rawList.forEach(item => {
+      const raw = typeof item === 'string' ? item : (item.name || item.hoTen || item.fullName || '');
+      const trimmed = raw.trim();
+      nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
+    });
+
+    const nameTracker = {};
+    return rawList.map((item, idx) => {
+      const raw = typeof item === 'string' ? item : (item.name || item.hoTen || item.fullName || `Học sinh ${idx + 1}`);
+      const trimmed = raw.trim();
+      let finalName = trimmed;
+      if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+        nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
+        finalName = `${trimmed} (${nameTracker[trimmed]})`;
+      }
+      return {
+        id: idx + 1,
+        name: finalName,
+        rawName: trimmed,
+        displayName: finalName,
+        team: (typeof item === 'object' && item.team !== undefined) ? item.team : null,
+        actions: (typeof item === 'object' && Array.isArray(item.actions)) ? item.actions : []
+      };
+    });
+  }
+
   async function loadStudents(classKey = '5_1') {
     currentClassKey = String(classKey).replace(/[^a-z0-9]/gi, '_').toLowerCase();
     if (importedExcelStudents && importedExcelStudents.length > 0) {
-      allStudents = importedExcelStudents.map((name, idx) => ({
-        id: idx + 1,
-        name: typeof name === 'string' ? name : (name.name || `Học sinh ${idx + 1}`),
-        team: null,
-        actions: []
-      }));
+      allStudents = disambiguateNames(importedExcelStudents);
       return allStudents;
     }
 
@@ -381,20 +405,66 @@ const Khoi5Students = (() => {
         const norm = s => String(s).replace(/[^a-z0-9]/gi, '_').toLowerCase();
         let list = rawData[classKey] || rawData[currentClassKey] || rawData[norm(classKey)] || [];
         if (Array.isArray(list) && list.length > 0) {
-          allStudents = list.map((item, idx) => ({
-            id: idx + 1,
-            name: typeof item === 'string' ? item : (item.name || item.hoTen || item.fullName || `Học sinh ${idx + 1}`),
-            team: null,
-            actions: []
-          }));
+          allStudents = disambiguateNames(list);
           return allStudents;
         }
       }
     } catch (err) {
       console.warn('Dùng danh sách học sinh dự phòng:', err);
     }
-    allStudents = DEFAULT_NAMES.map((name, idx) => ({ id: idx + 1, name, team: null, actions: [] }));
+    allStudents = disambiguateNames(DEFAULT_NAMES);
     return allStudents;
+  }
+
+  function getStudentDisplayName(st) {
+    if (!st) return '';
+    if (typeof st === 'object' && (st.displayName || st.name)) return st.displayName || st.name;
+    let student = null;
+    if (typeof st === 'number') {
+      student = allStudents.find(s => s.id === st);
+    } else if (typeof st === 'string') {
+      student = allStudents.find(s => String(s.id) === st || s.name === st || s.displayName === st);
+      if (!student) student = allStudents.find(s => (s.rawName || s.name).toLowerCase() === st.toLowerCase());
+    }
+    if (student) return student.displayName || student.name;
+    return String(st);
+  }
+
+  function getRandomStudent(teamId = null) {
+    let pool = allStudents;
+    if (teamId !== null) pool = allStudents.filter(s => s.team === teamId);
+    if (!pool.length) pool = allStudents;
+    if (!pool.length) return null;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function recordStudentAnswer(studentId, text) {
+    const st = allStudents.find(s => s.id === studentId);
+    if (st) {
+      st.actions.push(text);
+      return true;
+    }
+    return false;
+  }
+
+  function addStudent(name, teamId = null) {
+    if (!name || !name.trim()) return null;
+    const trimmed = name.trim();
+    const sameNames = allStudents.filter(s => (s.rawName || s.name).toLowerCase() === trimmed.toLowerCase());
+    let finalName = trimmed;
+    if (sameNames.length > 0 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+      finalName = `${trimmed} (${sameNames.length + 1})`;
+    }
+    const newSt = {
+      id: allStudents.length ? Math.max(...allStudents.map(s => s.id || 0)) + 1 : 1,
+      name: finalName,
+      rawName: trimmed,
+      displayName: finalName,
+      team: teamId,
+      actions: []
+    };
+    allStudents.push(newSt);
+    return newSt;
   }
 
   return { loadStudents, getStudentDisplayName, getRandomStudent, recordStudentAnswer, addStudent, getAllStudents: () => [...allStudents] };
@@ -587,7 +657,7 @@ const Khoi5Tracker = (() => {
   function setStudents(sList) { students = sList; }
   function setClass(cName) { config.className = String(cName).replace(/[^a-zA-Z0-9]/g, '_'); }
 
-  function logAction({ teamName, studentName, action, result, delta, currentScore, note = '' }) {
+  function logAction({ teamName, studentName, studentId, action, result, delta, currentScore, note = '' }) {
     const now = new Date();
     const pad = n => String(n).padStart(2, '0');
     const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
@@ -606,6 +676,7 @@ const Khoi5Tracker = (() => {
       time: timeStr,
       team: teamName || 'Toàn lớp',
       student: studentName || 'Chưa chọn',
+      studentId: studentId || '',
       action: action || 'Hoạt động học tập',
       result: result || (Number(delta) > 0 ? 'Đúng' : (Number(delta) < 0 ? 'Phạt' : 'Hoàn thành')),
       delta: deltaStr,
@@ -615,9 +686,11 @@ const Khoi5Tracker = (() => {
 
     timelineLogs.push(logEntry);
 
+    // Đồng thời cập nhật vào danh sách học sinh (ưu tiên khớp chính xác theo studentId)
     if (studentName && studentName !== 'Chưa chọn') {
       const st = students.find(s => {
-        const sName = typeof s === 'string' ? s : (s.name || s.hoTen || '');
+        if (studentId && (s.id === studentId || String(s.id) === String(studentId))) return true;
+        const sName = typeof s === 'string' ? s : (s.displayName || s.name || s.hoTen || '');
         return sName.toLowerCase() === studentName.toLowerCase();
       });
       if (st && st.actions) {
@@ -748,7 +821,8 @@ const Khoi5Tracker = (() => {
 
     let sIndex = 1;
     currentStudents.forEach(s => {
-      const name = typeof s === 'string' ? s : (s.name || s.hoTen || `Học sinh ${sIndex}`);
+      const name = typeof s === 'string' ? s : (s.displayName || s.name || s.hoTen || `Học sinh ${sIndex}`);
+      const sId = (typeof s === 'object' && s.id) ? s.id : sIndex;
       const teamId = s.team;
       const teamObj = currentTeams.find((t, idx) => t.id === teamId || idx === teamId);
       const teamName = teamObj ? teamObj.name : (teamId !== null && teamId !== undefined ? `Tổ ${teamId + 1}` : 'Chưa xếp tổ');
@@ -756,7 +830,7 @@ const Khoi5Tracker = (() => {
 
       studentRows.push([
         sIndex,
-        `HS${String(sIndex).padStart(3, '0')}`,
+        `HS${String(sId).padStart(3, '0')}`,
         name,
         config.className.replace('_', '/'),
         teamName,

@@ -18,6 +18,37 @@ const Khoi3Students = (() => {
     'Đoàn Gia Hưng', 'Nguyễn Phúc Hưng', 'Đỗ Minh Khang', 'Đặng Nguyễn Quốc Khởi'
   ];
 
+  function disambiguateNames(rawList) {
+    if (!Array.isArray(rawList)) return [];
+    const nameCounts = {};
+    rawList.forEach(item => {
+      const raw = typeof item === 'string' ? item : (item.name || item.hoTen || item.fullName || '');
+      const trimmed = raw.trim();
+      nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
+    });
+
+    const nameTracker = {};
+    return rawList.map((item, idx) => {
+      const raw = typeof item === 'string' ? item : (item.name || item.hoTen || item.fullName || `Học sinh ${idx + 1}`);
+      const trimmed = raw.trim();
+      let finalName = trimmed;
+      if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+        nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
+        finalName = `${trimmed} (${nameTracker[trimmed]})`;
+      }
+      return {
+        id: idx + 1,
+        name: finalName,
+        rawName: trimmed,
+        displayName: finalName,
+        team: (typeof item === 'object' && item.team !== undefined) ? item.team : null,
+        total: (typeof item === 'object' && item.total) || 0,
+        correct: (typeof item === 'object' && item.correct) || 0,
+        actions: (typeof item === 'object' && Array.isArray(item.actions)) ? item.actions : []
+      };
+    });
+  }
+
   /** Tải danh sách học sinh theo mã lớp (ví dụ: '3_2', '3/2', ...) */
   async function loadStudents(classKey = '3_2') {
     currentClassKey = String(classKey).replace(/[^a-z0-9]/gi, '_').toLowerCase();
@@ -44,14 +75,7 @@ const Khoi3Students = (() => {
         const norm = s => String(s).replace(/[^a-z0-9]/gi, '_').toLowerCase();
         let list = rawData[classKey] || rawData[currentClassKey] || rawData[norm(classKey)] || [];
         if (Array.isArray(list) && list.length > 0) {
-          allStudents = list.map((item, idx) => ({
-            id: idx + 1,
-            name: typeof item === 'string' ? item : (item.name || item.hoTen || item.fullName || `Học sinh ${idx + 1}`),
-            team: null,
-            total: 0,
-            correct: 0,
-            actions: []
-          }));
+          allStudents = disambiguateNames(list);
           return allStudents;
         }
       }
@@ -60,14 +84,7 @@ const Khoi3Students = (() => {
     }
 
     // Fallback nếu không tải được JSON
-    allStudents = DEFAULT_FALLBACK_NAMES.map((name, idx) => ({
-      id: idx + 1,
-      name,
-      team: null,
-      total: 0,
-      correct: 0,
-      actions: []
-    }));
+    allStudents = disambiguateNames(DEFAULT_FALLBACK_NAMES);
     return allStudents;
   }
 
@@ -75,17 +92,19 @@ const Khoi3Students = (() => {
    * Tên hiển thị kèm số phân biệt nếu có học sinh trùng họ tên
    */
   function getStudentDisplayName(studentOrId) {
-    let student = studentOrId;
-    if (typeof studentOrId === 'number' || typeof studentOrId === 'string') {
-      student = allStudents.find(s => s.id === studentOrId || s.name === studentOrId);
+    let student = null;
+    if (typeof studentOrId === 'object' && studentOrId !== null) {
+      student = studentOrId;
+    } else if (typeof studentOrId === 'number') {
+      student = allStudents.find(s => s.id === studentOrId);
+    } else if (typeof studentOrId === 'string') {
+      student = allStudents.find(s => String(s.id) === studentOrId || s.name === studentOrId || s.displayName === studentOrId);
+      if (!student) {
+        student = allStudents.find(s => (s.rawName || s.name).toLowerCase() === studentOrId.toLowerCase());
+      }
     }
     if (!student) return String(studentOrId || 'Chưa chọn');
-
-    const sameNameList = allStudents.filter(s => s.name.toLowerCase().trim() === student.name.toLowerCase().trim());
-    if (sameNameList.length <= 1) return student.name;
-
-    const matchIndex = sameNameList.findIndex(s => s.id === student.id);
-    return `${student.name} (${matchIndex >= 0 ? matchIndex + 1 : 1})`;
+    return student.displayName || student.name;
   }
 
   /**
@@ -109,10 +128,15 @@ const Khoi3Students = (() => {
   }
 
   /**
-   * Ghi nhận câu trả lời của học sinh
+   * Ghi nhận câu trả lời của học sinh (nhận ID số, ID chuỗi hoặc tên phân biệt)
    */
-  function recordStudentAnswer(studentId, isCorrect, actionName = 'Trả lời câu hỏi') {
-    const student = allStudents.find(s => s.id === studentId);
+  function recordStudentAnswer(studentIdOrName, isCorrect, actionName = 'Trả lời câu hỏi') {
+    let student = null;
+    if (typeof studentIdOrName === 'number') {
+      student = allStudents.find(s => s.id === studentIdOrName);
+    } else if (typeof studentIdOrName === 'string') {
+      student = allStudents.find(s => String(s.id) === studentIdOrName || s.name === studentIdOrName || s.displayName === studentIdOrName);
+    }
     if (!student) return;
 
     student.total = (student.total || 0) + 1;
@@ -126,13 +150,21 @@ const Khoi3Students = (() => {
   }
 
   /**
-   * Thêm học sinh mới thủ công vào danh sách
+   * Thêm học sinh mới thủ công vào danh sách (tự động phân biệt nếu trùng tên)
    */
   function addStudent(name, teamIndex = null) {
     if (!name || !name.trim()) return null;
+    const trimmed = name.trim();
+    const sameNames = allStudents.filter(s => (s.rawName || s.name).toLowerCase() === trimmed.toLowerCase());
+    let finalName = trimmed;
+    if (sameNames.length > 0 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+      finalName = `${trimmed} (${sameNames.length + 1})`;
+    }
     const newStudent = {
       id: allStudents.length ? Math.max(...allStudents.map(s => s.id || 0)) + 1 : 1,
-      name: name.trim(),
+      name: finalName,
+      rawName: trimmed,
+      displayName: finalName,
       team: teamIndex,
       total: 0,
       correct: 0,

@@ -987,12 +987,27 @@
             }
             if (!names || names.length === 0) names = FALLBACK_STUDENTS;
 
-            classStudents = names.map((name, i) => ({
-                id: `${classId}_${i + 1}`,
-                index: i + 1,
-                name: name,
-                classId: classId
-            }));
+            const nameCounts = {};
+            names.forEach(name => {
+                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
+                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
+            });
+            const nameTracker = {};
+            classStudents = names.map((name, i) => {
+                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
+                let finalName = trimmed;
+                if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+                    nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
+                    finalName = `${trimmed} (${nameTracker[trimmed]})`;
+                }
+                return {
+                    id: `${classId}_${i + 1}`,
+                    index: i + 1,
+                    name: finalName,
+                    rawName: trimmed,
+                    classId: classId
+                };
+            });
 
             // Khởi tạo tracking map nếu chưa có
             classStudents.forEach(st => {

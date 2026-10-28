@@ -55,7 +55,7 @@ const Khoi5Tracker = (() => {
    *   - currentScore: Điểm số sau sự kiện
    *   - note: Ghi chú thêm (tùy chọn)
    */
-  function logAction({ teamName, studentName, action, result, delta, currentScore, note = '' }) {
+  function logAction({ teamName, studentName, studentId, action, result, delta, currentScore, note = '' }) {
     const now = new Date();
     const pad = n => String(n).padStart(2, '0');
     const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
@@ -74,6 +74,7 @@ const Khoi5Tracker = (() => {
       time: timeStr,
       team: teamName || 'Toàn lớp',
       student: studentName || 'Chưa chọn',
+      studentId: studentId || '',
       action: action || 'Hoạt động học tập',
       result: result || (Number(delta) > 0 ? 'Đúng' : (Number(delta) < 0 ? 'Phạt' : 'Hoàn thành')),
       delta: deltaStr,
@@ -83,10 +84,11 @@ const Khoi5Tracker = (() => {
 
     timelineLogs.push(logEntry);
 
-    // Đồng thời cập nhật vào danh sách học sinh nếu tìm thấy em đó
+    // Đồng thời cập nhật vào danh sách học sinh (ưu tiên khớp chính xác theo studentId)
     if (studentName && studentName !== 'Chưa chọn') {
       const st = students.find(s => {
-        const sName = typeof s === 'string' ? s : (s.name || s.hoTen || '');
+        if (studentId && (s.id === studentId || String(s.id) === String(studentId))) return true;
+        const sName = typeof s === 'string' ? s : (s.displayName || s.name || s.hoTen || '');
         return sName.toLowerCase() === studentName.toLowerCase();
       });
       if (st && st.actions) {
@@ -250,7 +252,8 @@ const Khoi5Tracker = (() => {
 
     let sIndex = 1;
     currentStudents.forEach(s => {
-      const name = typeof s === 'string' ? s : (s.name || s.hoTen || `Học sinh ${sIndex}`);
+      const name = typeof s === 'string' ? s : (s.displayName || s.name || s.hoTen || `Học sinh ${sIndex}`);
+      const sId = (typeof s === 'object' && s.id) ? s.id : sIndex;
       const teamId = s.team;
       const teamObj = currentTeams.find((t, idx) => t.id === teamId || idx === teamId);
       const teamName = teamObj ? teamObj.name : (teamId !== null && teamId !== undefined ? `Tổ ${teamId + 1}` : 'Chưa xếp tổ');
@@ -258,7 +261,7 @@ const Khoi5Tracker = (() => {
 
       studentRows.push([
         sIndex,
-        `HS${String(sIndex).padStart(3, '0')}`,
+        `HS${String(sId).padStart(3, '0')}`,
         name,
         config.className.replace('_', '/'),
         teamName,

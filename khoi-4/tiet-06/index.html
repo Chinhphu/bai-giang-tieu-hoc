@@ -926,8 +926,15 @@
         let gameLog = [];
 
         function studentDisplayName(student) {
-            const matches = classStudents.filter(s => s.name === student.name);
-            return matches.length > 1 ? `${student.name} (${matches.findIndex(s => s.id === student.id) + 1})` : student.name;
+            if (!student) return '';
+            if (typeof student === 'object' && student.displayName) return student.displayName;
+            const sName = typeof student === 'string' ? student : (student.name || '');
+            const raw = typeof student === 'object' && student.rawName ? student.rawName : sName;
+            const matches = classStudents.filter(s => (s.rawName || s.name) === raw);
+            if (matches.length > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(sName)) {
+                return `${raw} (${matches.findIndex(s => s.id === student.id) + 1})`;
+            }
+            return sName;
         }
         function exportFileBase(classId) {
             const d = new Date(), pad = n => String(n).padStart(2, '0');
@@ -1028,7 +1035,21 @@
                 });
             }
 
-            classStudents = studentNames.map((name, index) => ({ id: `hs-${index + 1}`, name }));
+            const nameCounts = {};
+            studentNames.forEach(name => {
+                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
+                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
+            });
+            const nameTracker = {};
+            classStudents = studentNames.map((name, index) => {
+                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
+                let finalName = trimmed;
+                if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+                    nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
+                    finalName = `${trimmed} (${nameTracker[trimmed]})`;
+                }
+                return { id: `hs-${index + 1}`, name: finalName, rawName: trimmed, displayName: finalName };
+            });
             const migrateStudentValues = saved => Object.fromEntries(classStudents.flatMap(student => {
                 if (Object.prototype.hasOwnProperty.call(saved, student.id)) return [[student.id, saved[student.id]]];
                 return Object.prototype.hasOwnProperty.call(saved, student.name) ? [[student.id, saved[student.name]]] : [];

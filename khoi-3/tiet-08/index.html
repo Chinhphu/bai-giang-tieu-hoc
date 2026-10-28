@@ -2140,11 +2140,28 @@
                 names = ['Đỗ Mỹ Ái', 'Huỳnh Bích Hà', 'Nguyễn Trần Phước Thịnh', 'Phạm Quốc Anh', 'Trần Tuệ Mẫn', 'Lưu Hoàng Kim'];
             }
 
-            G.students = names.map((name, i) => ({ name, stt: i + 1 }));
+            const nameCounts = {};
+            names.forEach(name => {
+                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
+                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
+            });
+            const nameTracker = {};
+            G.students = names.map((name, i) => {
+                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
+                let finalName = trimmed;
+                if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+                    nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
+                    finalName = `${trimmed} (${nameTracker[trimmed]})`;
+                }
+                return { id: `hs_${i + 1}`, name: finalName, rawName: trimmed, displayName: finalName, stt: i + 1 };
+            });
             G.queue = shuffle(G.students);
             G.studentData = {};
             G.students.forEach(s => {
-                G.studentData[s.name] = createEmptyStudentRecord(s.name, s.stt);
+                const rec = createEmptyStudentRecord(s.name, s.stt);
+                rec.id = s.id;
+                rec.displayName = s.displayName;
+                G.studentData[s.name] = rec;
             });
 
             G.lastFinishedResult = null;
@@ -3232,7 +3249,7 @@
 
         /* ── 13. TỔNG KẾT & XUẤT EXCEL 2 SHEET ĐẦY ĐỦ THỐNG KÊ ─ */
         function getRankedStudents() {
-            const all = Object.values(G.studentData);
+            const all = G.students.map(s => G.studentData[s.name]);
             const played = all.filter(s => s.played).sort((a, b) => getFinalTotalMs(a) - getFinalTotalMs(b));
             const unplayed = all.filter(s => !s.played).sort((a, b) => a.stt - b.stt);
             played.forEach((s, idx) => { s.rank = idx + 1; });

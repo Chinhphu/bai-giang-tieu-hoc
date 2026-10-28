@@ -131,7 +131,21 @@
                 pen: 0
             }));
 
-            G.students = names.map((nm, i) => ({ id: i + 1, name: nm, team: null, correct: 0, total: 0 }));
+            const nameCounts = {};
+            names.forEach(name => {
+                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
+                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
+            });
+            const nameTracker = {};
+            G.students = names.map((nm, i) => {
+                const trimmed = (typeof nm === 'string' ? nm : (nm.name || '')).trim();
+                let finalName = trimmed;
+                if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+                    nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
+                    finalName = `${trimmed} (${nameTracker[trimmed]})`;
+                }
+                return { id: i + 1, name: finalName, rawName: trimmed, team: null, correct: 0, total: 0 };
+            });
             G.phase = 1;
             $('setup-screen').classList.add('hidden');
             document.body.classList.remove('full');

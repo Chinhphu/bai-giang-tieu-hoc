@@ -68,11 +68,12 @@ const Khoi3Tracker = (() => {
 
     timelineLogs.push(logEntry);
 
-    // Cập nhật vào danh sách học sinh
+    // Cập nhật vào danh sách học sinh (ưu tiên khớp chính xác theo studentId)
     if (studentName && studentName !== 'Chưa chọn') {
       const st = students.find(s => {
-        const sName = typeof s === 'string' ? s : (s.name || '');
-        return sName.toLowerCase() === studentName.toLowerCase() || (studentId && s.id === studentId);
+        if (studentId && (s.id === studentId || String(s.id) === String(studentId))) return true;
+        const sName = typeof s === 'string' ? s : (s.displayName || s.name || '');
+        return sName.toLowerCase() === studentName.toLowerCase();
       });
       if (st && st.actions) {
         st.actions.push(`[${timeStr}] ${action || question} (${result})`);
@@ -238,10 +239,11 @@ const Khoi3Tracker = (() => {
 
     currentStudents.forEach((s, idx) => {
       const tName = s.team === null ? 'Chưa có tổ' : (currentTeams[s.team] ? currentTeams[s.team].name : `Tổ ${s.team + 1}`);
+      const sName = typeof s === 'string' ? s : (s.displayName || s.name || `Học sinh ${idx + 1}`);
       stuRows.push([
         idx + 1,
         `HS${String(s.id || idx + 1).padStart(3, '0')}`,
-        typeof s === 'string' ? s : (s.name || `Học sinh ${idx + 1}`),
+        sName,
         tName,
         s.total || 0,
         s.correct || 0,
