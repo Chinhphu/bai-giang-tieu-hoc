@@ -1860,26 +1860,37 @@
                 <button class="btn-side end-game" onclick="endGameAndRank()">🏆 KẾT THÚC & VINH DANH TOP</button>
             </div>
 
-            <div class="sidebar-toggles-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+            <div class="sidebar-toggles-grid">
                 <div class="shutdown-toggle-wrap">
                     <label class="shutdown-toggle-lbl" title="Bật hoặc bỏ qua bước 6 Tắt máy tính">
                         <input type="checkbox" id="toggleShutdownCheck" checked
                             onchange="toggleShutdownSetting(this.checked)">
-                        <span>⏻ Tắt máy</span>
+                        <span>⏻ Bước Tắt máy</span>
                     </label>
                 </div>
                 <div class="shutdown-toggle-wrap">
                     <label class="shutdown-toggle-lbl" title="Tự động qua bước nếu học sinh loay hoay quá 12 giây">
                         <input type="checkbox" id="toggleAutoCapCheck" checked
                             onchange="toggleAutoCapSetting(this.checked)">
-                        <span>⚡ >12s</span>
+                        <span>⚡ Tự qua >12s</span>
                     </label>
                 </div>
-                <div class="shutdown-toggle-wrap">
-                    <label class="shutdown-toggle-lbl" title="Bật/Tắt nhạc nền Osu! 8-bit khi đang bấm giờ">
+                <div class="shutdown-toggle-wrap"
+                    style="grid-column: span 2; justify-content: space-between; gap: 6px;">
+                    <label class="shutdown-toggle-lbl" style="width: auto;">
                         <input type="checkbox" id="toggleBgmCheck" checked onchange="toggleBgmSetting(this.checked)">
-                        <span>🎵 Nhạc Osu</span>
+                        <span>🎵 Nhạc 8-bit:</span>
                     </label>
+                    <select id="bgmTrackSelect" onchange="changeBgmMode(this.value)"
+                        style="flex: 1; background: #1e293b; color: #facc15; border: 1px solid rgba(56,189,248,0.4); border-radius: 6px; padding: 3px 6px; font-family: inherit; font-size: 11px; font-weight: 800; outline: none; cursor: pointer;">
+                        <option value="rotate">🎲 Đổi bài mỗi học sinh</option>
+                        <option value="0">🧱 1. Pixel Tetris (Huyền thoại)</option>
+                        <option value="1">🍄 2. Mario Coin Rush (Vui nhộn)</option>
+                        <option value="2">🤖 3. Mega Speedrun (Hành động)</option>
+                        <option value="3">⚡ 4. Đấu Trùm Pokémon (Kịch tính)</option>
+                        <option value="4">🐱 5. Kawaii Nyan (Nhí nhảnh)</option>
+                        <option value="5">🏎️ 6. Đua Nước Rút (Siêu tốc)</option>
+                    </select>
                 </div>
             </div>
 
@@ -1994,76 +2005,364 @@
             ];
             notes.forEach(n => setTimeout(() => playTone(n.f, n.d, 'triangle', 0.35), n.t));
         }
-
-        /* ── BỘ PHÁT NHẠC NỀN OSU! CHIPTUNE 8-BIT (KHÔNG CẦN FILE MP3) ── */
+        /* ══════════════════════════════════════════════════════════════════
+                   BỘ TỔNG HỢP ÂM THANH 8-BIT NES 4 KÊNH (6 BÀI NHẠC + TRỐNG + ARP)
+                   ══════════════════════════════════════════════════════════════════ */
         let _bgmTimer = null;
         let _bgmStep = 0;
         let _bgmEnabled = true;
+        let _bgmMode = 'rotate'; // 'rotate' hoặc chỉ số bài 0..5
+        let _bgmCurrentTrackIdx = 0;
+        let _bgmRotateCounter = 0;
+        let _noiseBuffer = null;
+        window._beatPulse = 0; // Dùng để nhấp nhô vòng tròn mục tiêu theo nhịp trống
 
-        // Giai điệu Pentatonic vui nhộn kiểu game thùng (tần số Hz)
-        const BGM_MELODY = [
-            523.25, 659.25, 783.99, 659.25, 880.00, 783.99, 659.25, 587.33,
-            523.25, 659.25, 783.99, 1046.50, 880.00, 783.99, 659.25, 587.33,
-            659.25, 783.99, 880.00, 1046.50, 987.77, 880.00, 783.99, 659.25,
-            587.33, 659.25, 783.99, 659.25, 523.25, 587.33, 659.25, 523.25
-        ];
-        const BGM_BASS = [
-            261.63, 261.63, 329.63, 329.63, 349.23, 349.23, 392.00, 392.00
+        // Chuyển mã nốt MIDI sang tần số Hz (VD: 60 = C4, 69 = A4 = 440Hz, 0 = Nghỉ)
+        function midiToFreq(m) {
+            return m > 0 ? 440 * Math.pow(2, (m - 69) / 12) : 0;
+        }
+
+        // Tạo bộ đệm White Noise cho tiếng trống Snare & Hi-Hat 8-bit
+        function getNoiseBuffer() {
+            if (_noiseBuffer || !_audioCtx) return _noiseBuffer;
+            const bufSize = _audioCtx.sampleRate * 0.25;
+            const buf = _audioCtx.createBuffer(1, bufSize, _audioCtx.sampleRate);
+            const data = buf.getChannelData(0);
+            for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+            _noiseBuffer = buf;
+            return _noiseBuffer;
+        }
+
+        // Nhạc cụ 1: Tiếng Lead 8-bit (Square wave qua bộ lọc ấm + luyến nhẹ)
+        function playChipLead(midi, durSec, vol = 0.055, wave = 'square') {
+            if (!midi || midi <= 0 || !_audioCtx) return;
+            const now = _audioCtx.currentTime;
+            const osc = _audioCtx.createOscillator();
+            const flt = _audioCtx.createBiquadFilter();
+            const gain = _audioCtx.createGain();
+
+            osc.type = wave;
+            osc.frequency.setValueAtTime(midiToFreq(midi), now);
+
+            flt.type = 'lowpass';
+            flt.frequency.setValueAtTime(3200, now);
+
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.linearRampToValueAtTime(vol, now + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + durSec);
+
+            osc.connect(flt);
+            flt.connect(gain);
+            gain.connect(_audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + durSec + 0.01);
+        }
+
+        // Nhạc cụ 2: Hợp âm rải 8-bit (Arpeggio 3 nốt lướt nhanh kiểu máy NES)
+        function playChipArp(chordMidis, durSec, vol = 0.032) {
+            if (!chordMidis || !chordMidis.length || !_audioCtx) return;
+            const now = _audioCtx.currentTime;
+            const osc = _audioCtx.createOscillator();
+            const gain = _audioCtx.createGain();
+            osc.type = 'square';
+
+            const subStep = durSec / 3;
+            for (let i = 0; i < 3; i++) {
+                const m = chordMidis[i % chordMidis.length];
+                osc.frequency.setValueAtTime(midiToFreq(m), now + i * subStep);
+            }
+
+            gain.gain.setValueAtTime(vol, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + durSec);
+
+            osc.connect(gain);
+            gain.connect(_audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + durSec + 0.01);
+        }
+
+        // Nhạc cụ 3: Tiếng Bass Triangle chắc khỏe
+        function playChipBass(midi, durSec, vol = 0.095) {
+            if (!midi || midi <= 0 || !_audioCtx) return;
+            const now = _audioCtx.currentTime;
+            const osc = _audioCtx.createOscillator();
+            const gain = _audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(midiToFreq(midi), now);
+
+            gain.gain.setValueAtTime(vol, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + durSec);
+
+            osc.connect(gain);
+            gain.connect(_audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + durSec + 0.01);
+        }
+
+        // Nhạc cụ 4: Bộ trống điện tử 8-bit (K = Kick, S = Snare, H = Hi-hat)
+        function playChipDrum(type) {
+            if (!type || type === '.' || !_audioCtx) return;
+            const now = _audioCtx.currentTime;
+
+            if (type === 'K') {
+                window._beatPulse = 1.0; // Kích hoạt hiệu ứng nảy hình ảnh theo nhịp trống
+                const osc = _audioCtx.createOscillator();
+                const gain = _audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(155, now);
+                osc.frequency.exponentialRampToValueAtTime(34, now + 0.085);
+                gain.gain.setValueAtTime(0.18, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+                osc.connect(gain);
+                gain.connect(_audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.095);
+            } else if (type === 'S') {
+                window._beatPulse = 0.6;
+                const noise = _audioCtx.createBufferSource();
+                noise.buffer = getNoiseBuffer();
+                const flt = _audioCtx.createBiquadFilter();
+                flt.type = 'bandpass';
+                flt.frequency.setValueAtTime(1400, now);
+                const gain = _audioCtx.createGain();
+                gain.gain.setValueAtTime(0.09, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+                noise.connect(flt);
+                flt.connect(gain);
+                gain.connect(_audioCtx.destination);
+                noise.start(now);
+                noise.stop(now + 0.095);
+            } else if (type === 'H') {
+                const noise = _audioCtx.createBufferSource();
+                noise.buffer = getNoiseBuffer();
+                const flt = _audioCtx.createBiquadFilter();
+                flt.type = 'highpass';
+                flt.frequency.setValueAtTime(6500, now);
+                const gain = _audioCtx.createGain();
+                gain.gain.setValueAtTime(0.035, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+                noise.connect(flt);
+                flt.connect(gain);
+                gain.connect(_audioCtx.destination);
+                noise.start(now);
+                noise.stop(now + 0.04);
+            }
+        }
+
+        /* ── DANH SÁCH 6 BÀI NHẠC 8-BIT ĐA GIAI ĐIỆU (64 BƯỚC / BÀI) ──
+           Quy ước nốt: số dương = mã MIDI, -1 = ngân dài nốt trước, 0 = nghỉ */
+        const CHIPTUNE_TRACKS = [
+            {
+                name: '🧱 Pixel Tetris (Korobeiniki)',
+                bpm: 144,
+                leadWave: 'square',
+                // Đoạn A (32 bước) + Đoạn B (32 bước)
+                melody: [
+                    76, -1, 71, 72, 74, -1, 72, 71, 69, -1, 69, 72, 76, -1, 74, 72,
+                    71, -1, -1, 72, 74, -1, 76, -1, 72, -1, 69, -1, 69, -1, 0, 0,
+                    74, -1, 74, 77, 81, -1, 79, 77, 76, -1, -1, 72, 76, -1, 74, 72,
+                    71, -1, 71, 72, 74, -1, 76, -1, 72, -1, 69, -1, 69, -1, 0, 0
+                ],
+                bass: [
+                    40, 52, 40, 52, 40, 52, 40, 52, 45, 57, 45, 57, 45, 57, 45, 57,
+                    44, 56, 44, 56, 40, 52, 40, 52, 45, 57, 45, 57, 45, 52, 45, 0,
+                    38, 50, 38, 50, 38, 50, 38, 50, 45, 57, 45, 57, 45, 57, 45, 57,
+                    44, 56, 44, 56, 40, 52, 40, 52, 45, 57, 45, 57, 45, 0, 45, 0
+                ],
+                arps: [
+                    [64, 68, 71], [69, 72, 76], [68, 71, 76], [69, 72, 76],
+                    [62, 65, 69], [64, 69, 72], [64, 68, 71], [69, 72, 76]
+                ],
+                drums: 'K.H.S.H.K.H.S.H.'
+            },
+            {
+                name: '🍄 Mario Coin Rush (Vui nhộn)',
+                bpm: 138,
+                leadWave: 'square',
+                melody: [
+                    76, 76, 0, 76, 0, 72, 76, 0, 79, -1, -1, 0, 67, -1, -1, 0,
+                    72, -1, 0, 67, -1, 0, 64, -1, 69, -1, 71, -1, 70, 69, 0, 0,
+                    67, 76, 79, 81, -1, 77, 79, 0, 76, -1, 72, 74, 71, -1, 0, 0,
+                    79, 78, 77, 75, 0, 76, 0, 68, 69, 72, 0, 69, 72, 74, 0, 0
+                ],
+                bass: [
+                    48, 0, 48, 0, 52, 0, 55, 0, 55, 0, 55, 0, 43, 0, 43, 0,
+                    48, 0, 43, 0, 40, 0, 48, 0, 45, 0, 47, 0, 46, 45, 43, 0,
+                    48, 0, 52, 0, 53, 0, 55, 0, 48, 0, 50, 0, 43, 0, 47, 0,
+                    48, 0, 52, 0, 53, 0, 56, 0, 55, 0, 43, 0, 48, 0, 0, 0
+                ],
+                arps: [
+                    [60, 64, 67], [55, 59, 62], [60, 64, 67], [57, 60, 64],
+                    [60, 65, 69], [60, 64, 67], [60, 63, 68], [55, 59, 62]
+                ],
+                drums: 'K.H.S.H.K.K.S.H.'
+            },
+            {
+                name: '🤖 Mega Speedrun (Cyber Action)',
+                bpm: 152,
+                leadWave: 'sawtooth',
+                melody: [
+                    69, 0, 69, 72, 74, 76, 0, 79, 76, -1, 74, 72, 74, -1, 0, 0,
+                    69, 0, 69, 72, 74, 76, 0, 81, 79, -1, 76, 74, 76, -1, 0, 0,
+                    77, -1, 76, 74, 72, -1, 76, -1, 74, -1, 72, 71, 69, -1, 72, -1,
+                    71, 72, 74, 76, 77, 76, 74, 72, 76, -1, 71, -1, 69, -1, 0, 0
+                ],
+                bass: [
+                    45, 45, 57, 45, 45, 45, 57, 45, 43, 43, 55, 43, 43, 43, 55, 43,
+                    41, 41, 53, 41, 41, 41, 53, 41, 40, 40, 52, 40, 43, 43, 55, 43,
+                    41, 53, 41, 53, 48, 60, 48, 60, 43, 55, 43, 55, 45, 57, 45, 57,
+                    41, 53, 43, 55, 44, 56, 40, 52, 45, 45, 43, 43, 45, 0, 45, 0
+                ],
+                arps: [
+                    [57, 60, 64], [55, 59, 62], [53, 57, 60], [52, 56, 59],
+                    [53, 57, 60], [55, 59, 62], [53, 57, 60], [57, 60, 64]
+                ],
+                drums: 'K.H.S.H.K.K.S.S.'
+            },
+            {
+                name: '⚡ Đấu Trùm Pokémon (Kịch tính)',
+                bpm: 150,
+                leadWave: 'square',
+                melody: [
+                    64, 65, 67, 68, 64, 65, 67, 68, 69, 0, 72, 0, 76, -1, 0, 0,
+                    74, 0, 71, 0, 67, -1, 0, 0, 72, 71, 69, 67, 69, -1, 0, 0,
+                    76, -1, 79, 76, 74, -1, 77, 74, 72, -1, 76, 72, 71, -1, 74, 71,
+                    69, 71, 72, 74, 76, 77, 79, 81, 80, -1, 76, -1, 81, -1, 0, 0
+                ],
+                bass: [
+                    45, 47, 48, 45, 47, 48, 45, 47, 45, 57, 45, 57, 45, 57, 45, 57,
+                    43, 55, 43, 55, 43, 55, 43, 55, 45, 57, 45, 57, 45, 57, 45, 57,
+                    48, 60, 48, 60, 47, 59, 47, 59, 45, 57, 45, 57, 40, 52, 40, 52,
+                    41, 53, 43, 55, 45, 57, 47, 59, 40, 52, 40, 52, 45, 0, 45, 0
+                ],
+                arps: [
+                    [57, 60, 64], [57, 60, 64], [55, 59, 62], [57, 60, 64],
+                    [60, 64, 67], [55, 59, 62], [57, 60, 64], [52, 56, 59]
+                ],
+                drums: 'K.K.S.H.K.K.S.H.'
+            },
+            {
+                name: '🐱 Kawaii Nyan (Nhí nhảnh)',
+                bpm: 142,
+                leadWave: 'square',
+                melody: [
+                    74, 76, 79, -1, 81, 74, 76, 79, 81, 84, 83, 81, 79, 76, 0, 0,
+                    79, 76, 74, -1, 76, 79, 74, 72, 74, 76, 79, 76, 74, -1, 0, 0,
+                    72, 74, 76, 72, 74, 76, 79, 76, 74, 72, 69, 72, 74, -1, 0, 0,
+                    76, 79, 81, 79, 84, -1, 81, 79, 76, 74, 72, 74, 72, -1, 0, 0
+                ],
+                bass: [
+                    48, 60, 48, 60, 55, 67, 55, 67, 57, 69, 57, 69, 52, 64, 52, 64,
+                    53, 65, 53, 65, 48, 60, 48, 60, 50, 62, 50, 62, 55, 67, 55, 67,
+                    53, 65, 53, 65, 55, 67, 55, 67, 52, 64, 52, 64, 57, 69, 57, 69,
+                    53, 65, 53, 65, 55, 67, 55, 67, 48, 60, 55, 67, 48, 0, 0, 0
+                ],
+                arps: [
+                    [60, 64, 67], [55, 59, 62], [57, 60, 64], [53, 57, 60],
+                    [53, 57, 60], [55, 59, 62], [57, 60, 64], [60, 64, 67]
+                ],
+                drums: 'K.H.S.H.K.H.S.K.'
+            },
+            {
+                name: '🏎️ Đua Nước Rút (Final Sprint)',
+                bpm: 156,
+                leadWave: 'sawtooth',
+                melody: [
+                    72, 72, 79, 72, 81, 72, 79, 72, 77, 76, 74, 72, 74, 76, 74, 0,
+                    72, 72, 79, 72, 81, 72, 84, 79, 83, 81, 79, 77, 79, -1, 0, 0,
+                    81, 81, 77, 81, 79, 79, 76, 79, 77, 77, 74, 77, 76, -1, 72, -1,
+                    74, 76, 77, 79, 81, 83, 84, 86, 84, -1, 79, -1, 84, -1, 0, 0
+                ],
+                bass: [
+                    48, 48, 60, 48, 48, 48, 60, 48, 43, 43, 55, 43, 43, 43, 55, 43,
+                    45, 45, 57, 45, 45, 45, 57, 45, 41, 41, 53, 41, 43, 43, 55, 43,
+                    41, 41, 53, 41, 48, 48, 60, 48, 38, 38, 50, 38, 45, 45, 57, 45,
+                    41, 53, 43, 55, 45, 57, 47, 59, 48, 60, 43, 55, 48, 0, 48, 0
+                ],
+                arps: [
+                    [60, 64, 67], [55, 59, 62], [57, 60, 64], [53, 57, 60],
+                    [53, 57, 60], [60, 64, 67], [55, 59, 62], [60, 64, 67]
+                ],
+                drums: 'K.H.S.H.K.K.S.H.'
+            }
         ];
 
         function startOsuBgm() {
             stopOsuBgm();
             if (!_bgmEnabled) return;
             ensureAudio();
+
+            // Xác định bài nhạc cho lượt học sinh hiện tại
+            if (_bgmMode === 'rotate') {
+                _bgmCurrentTrackIdx = _bgmRotateCounter % CHIPTUNE_TRACKS.length;
+                _bgmRotateCounter++;
+            } else {
+                _bgmCurrentTrackIdx = parseInt(_bgmMode, 10) || 0;
+            }
+
+            const track = CHIPTUNE_TRACKS[_bgmCurrentTrackIdx];
             _bgmStep = 0;
-            // 136 BPM -> mỗi nốt móc đơn (1/8) dài ~220ms
-            _bgmTimer = setInterval(() => {
+
+            // Hiển thị tên bản nhạc đang phát ở góc trên màn hình
+            if (typeof popupAt === 'function' && canvas) {
+                popupAt(canvas.width / 2, 130, `🎵 Nhạc nền: ${track.name}`, 'hit');
+            }
+
+            function scheduleNextTick() {
                 if (!G.running || !G.turnRunning || G.waitSpace || !_bgmEnabled) {
                     stopOsuBgm();
                     return;
                 }
+
+                // Nếu học sinh sang Bước 6 (Tắt máy tính), tăng tốc độ nhạc lên 18% (Hurry Up!)
+                const speedMult = G.inShutdownStep ? 1.18 : 1.0;
+                const stepDurMs = (60000 / (track.bpm * speedMult)) / 4; // 1 nốt móc kép (1/16)
+                const stepDurSec = stepDurMs / 1000;
+
                 try {
-                    if (!_audioCtx) return;
-                    const now = _audioCtx.currentTime;
+                    const idx = _bgmStep % track.melody.length;
+                    const note = track.melody[idx];
 
-                    // 1. Tiếng Lead Melody (Square wave 8-bit)
-                    const freq = BGM_MELODY[_bgmStep % BGM_MELODY.length];
-                    const osc = _audioCtx.createOscillator();
-                    const gain = _audioCtx.createGain();
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(freq, now);
-                    gain.gain.setValueAtTime(0.055, now); // Âm lượng vừa phải để không át tiếng hiệu ứng
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-                    osc.connect(gain);
-                    gain.connect(_audioCtx.destination);
-                    osc.start(now);
-                    osc.stop(now + 0.19);
-
-                    // 2. Tiếng Bass dập mỗi 2 nhịp (Triangle wave)
-                    if (_bgmStep % 2 === 0) {
-                        const bFreq = BGM_BASS[Math.floor(_bgmStep / 2) % BGM_BASS.length];
-                        const bOsc = _audioCtx.createOscillator();
-                        const bGain = _audioCtx.createGain();
-                        bOsc.type = 'triangle';
-                        bOsc.frequency.setValueAtTime(bFreq, now);
-                        bGain.gain.setValueAtTime(0.09, now);
-                        bGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-                        bOsc.connect(bGain);
-                        bGain.connect(_audioCtx.destination);
-                        bOsc.start(now);
-                        bOsc.stop(now + 0.21);
+                    // 1. Kênh Lead Melody (Tính độ dài nốt nếu phía sau có ký hiệu ngân -1)
+                    if (note > 0) {
+                        let holdSteps = 1;
+                        while (track.melody[(idx + holdSteps) % track.melody.length] === -1 && holdSteps < 8) {
+                            holdSteps++;
+                        }
+                        playChipLead(note, stepDurSec * holdSteps * 0.92, 0.052, track.leadWave);
                     }
+
+                    // 2. Kênh Hợp âm rải Arpeggio (Đánh vào mỗi phách chẵn)
+                    if (idx % 2 === 0) {
+                        const arpChord = track.arps[Math.floor(idx / 8) % track.arps.length];
+                        playChipArp(arpChord, stepDurSec * 1.9, 0.026);
+                    }
+
+                    // 3. Kênh Bass Triangle
+                    const bassNote = track.bass[idx % track.bass.length];
+                    if (bassNote > 0) {
+                        playChipBass(bassNote, stepDurSec * 1.6, 0.09);
+                    }
+
+                    // 4. Kênh Trống 8-bit (Kick / Snare / Hi-Hat)
+                    const drumChar = track.drums[idx % track.drums.length];
+                    playChipDrum(drumChar);
 
                     _bgmStep++;
                 } catch (e) { }
-            }, 220);
+
+                _bgmTimer = setTimeout(scheduleNextTick, stepDurMs);
+            }
+
+            scheduleNextTick();
         }
 
         function stopOsuBgm() {
             if (_bgmTimer) {
-                clearInterval(_bgmTimer);
+                clearTimeout(_bgmTimer);
                 _bgmTimer = null;
             }
+            window._beatPulse = 0;
         }
 
         function toggleBgmSetting(checked) {
@@ -2072,6 +2371,14 @@
             else if (G.running && G.turnRunning && !G.waitSpace) startOsuBgm();
         }
         window.toggleBgmSetting = toggleBgmSetting;
+
+        function changeBgmMode(val) {
+            _bgmMode = val;
+            if (G.running && G.turnRunning && !G.waitSpace && _bgmEnabled) {
+                startOsuBgm(); // Đổi bài ngay lập tức nếu đang trong lượt chơi
+            }
+        }
+        window.changeBgmMode = changeBgmMode;
 
         /* ── 2. CẤU HÌNH 5 THAO TÁC CHUỘT + BƯỚC 6 TẮT MÁY ── */
         const NOTE_DEFS = {
@@ -3100,6 +3407,8 @@
         function drawNote(note, elapsed, now) {
             const def = NOTE_DEFS[note.type];
             const { x, y } = note;
+            window._beatPulse = Math.max(0, (window._beatPulse || 0) - 0.08);
+            const beatScale = 1 + window._beatPulse * 0.08;
 
             // Vòng nhịp Osu! co giãn
             const cycle = (elapsed % 1800) / 1800;
