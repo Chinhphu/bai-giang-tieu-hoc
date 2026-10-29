@@ -77,6 +77,7 @@
             cursor: pointer; font-family: 'Baloo 2', cursive; font-weight: 700; border: none;
         }
         select { background: #fff; color: #1976d2; outline: none; border: 3px solid #64b5f6; }
+        button:focus-visible, select:focus-visible { outline: 3px solid #0f172a; outline-offset: 3px; }
         .btn-start { background: linear-gradient(45deg, #00c6ff, #0072ff); color: white; box-shadow: 0 4px 0 #0277bd; }
         .btn-start:active { transform: translateY(4px); box-shadow: none; }
 
@@ -117,7 +118,10 @@
             font-size: clamp(100px, 15vh, 150px); user-select: none;
             cursor: pointer; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.15));
             transition: transform 0.1s ease; position: relative;
+            border: 0; padding: 0; background: transparent; color: inherit;
+            font-family: inherit; line-height: 1;
         }
+        .gacha-box:focus-visible { outline: 4px solid #1976d2; outline-offset: 8px; border-radius: 20px; }
         
         .gacha-idle { animation: pulse 2s infinite alternate; }
         @keyframes pulse {
@@ -255,6 +259,29 @@
             25% { transform: translateX(-5px) rotate(-10deg) scale(1.1); }
             75% { transform: translateX(5px) rotate(10deg) scale(1.1); }
         }
+
+        @media (max-width: 760px) {
+            body { height: auto; min-height: 100vh; overflow-x: hidden; overflow-y: auto; }
+            #app-container { min-height: 100vh; height: auto; padding: 12px; }
+            .header-bar { align-items: flex-start; padding: 14px; }
+            .controls { width: 100%; }
+            .controls select, .controls button { flex: 1; min-width: 0; }
+            .main-container { flex-direction: column; overflow: visible; }
+            .game-area { min-height: 380px; padding: 14px; }
+            .sidebar { width: 100%; min-height: 220px; max-height: 42vh; }
+            .student-list-container { max-height: 34vh; }
+            .intro-content { padding: 24px; border-width: 5px; }
+            .ban-notification { width: calc(100vw - 24px); min-width: 0; padding: 22px 16px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
     <script src="../../shared/js/prevent-reload.js"></script>
 </head>
@@ -273,7 +300,7 @@
             <div id="intro-date" class="intro-date"></div>
             <div class="intro-subject">Tin học Lớp 1 - Trưng Vương EdTech</div>
             <div class="intro-title">BÀI 5:<br>THAO TÁC NHÁY ĐÚP CHUỘT</div>
-            <button class="btn-enter" onclick="enterGame()">Tham Gia Vòng Quay 🎁</button>
+            <button class="btn-enter" type="button" onclick="enterGame()">Tham Gia Vòng Quay 🎁</button>
         </div>
     </div>
 
@@ -291,7 +318,7 @@
                     <option value="1_5">Lớp 1/5</option>
                     <option value="1_6">Lớp 1/6</option>
                 </select>
-                <button class="btn-start" onclick="startGame()">Khởi Động Trạm!</button>
+                <button class="btn-start" type="button" onclick="startGame()">Khởi Động Trạm!</button>
             </div>
             <div class="stats-board" style="display: none;" id="stats-board">
                 <span class="stat-badge">🏆 Điểm Lớp: <span id="score">0</span></span>
@@ -301,11 +328,11 @@
 
         <div class="main-container">
             <div id="game-area" class="game-area">
-                <div id="student-name">...</div>
+                <div id="student-name" aria-live="polite">...</div>
                 <div id="instruction">Đưa chuột vào hộp quà và NHÁY ĐÚP thật nhanh!</div>
                 
                 <!-- HỘP GACHA -->
-                <div id="gacha-box" class="gacha-box gacha-idle">🎁</div>
+                <button id="gacha-box" class="gacha-box gacha-idle" type="button" aria-label="Nháy đúp để mở quà">🎁</button>
                 <div id="error-msg">Quá chậm! Phải nháy 2 lần liên tiếp!</div>
 
                 <!-- KẾT QUẢ GACHA -->
@@ -374,6 +401,7 @@
         // BIẾN QUẢN LÝ NHÁY ĐÚP
         let clickCount = 0;
         let clickTimer = null;
+        let turnTimer = null;
         const DOUBLE_CLICK_THRESHOLD = 350;
 
         const gachaBox = document.getElementById("gacha-box");
@@ -399,6 +427,14 @@
             if (Object.keys(classLists).length === 0) { alert("Chưa tải được danh sách lớp!"); return; }
 
             const raw = classLists[selectedClass] || [];
+            if (!Array.isArray(raw) || raw.length === 0) {
+                alert("Lớp này chưa có danh sách học sinh để bắt đầu.");
+                return;
+            }
+            clearTimeout(clickTimer);
+            clearTimeout(turnTimer);
+            clickTimer = null;
+            turnTimer = null;
             const nameCounts = {};
             raw.forEach(n => {
                 const t = (n || '').trim();
@@ -406,7 +442,7 @@
             });
             const tracker = {};
             currentClassList = raw.map(n => {
-                const t = (n || '').trim();
+                const t = String(n || '').trim();
                 if (nameCounts[t] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(t)) {
                     tracker[t] = (tracker[t] || 0) + 1;
                     return `${t} (${tracker[t]})`;
@@ -432,10 +468,10 @@
         function renderStudentList() {
             const listContainer = document.getElementById("student-list");
             listContainer.innerHTML = "";
-            currentClassList.forEach(student => {
+            currentClassList.forEach((student, index) => {
                 const div = document.createElement("div");
                 div.className = "list-item";
-                div.id = "list-" + student.replace(/\s+/g, '-');
+                div.id = "list-" + index;
 
                 const nameDiv = document.createElement("div");
                 nameDiv.className = "student-name-display";
@@ -479,8 +515,8 @@
         }
 
         function updateSidebarUI() {
-            currentClassList.forEach(student => {
-                const el = document.getElementById("list-" + student.replace(/\s+/g, '-'));
+            currentClassList.forEach((student, index) => {
+                const el = document.getElementById("list-" + index);
                 if (!el) return;
                 
                 if (bannedStudents.includes(student)) { el.className = "list-item banned"; } 
@@ -494,6 +530,7 @@
 
         function nextTurn() {
             if (remainingStudents.length === 0) {
+                isWaitingForClick = false;
                 alert(`Hoan hô! Lớp đã hoàn thành (Trừ các bạn bị phạt). Tổng điểm Gacha: ${score}`);
                 return;
             }
@@ -505,11 +542,17 @@
         }
 
         function setupGameUI() {
+            clearTimeout(clickTimer);
+            clearTimeout(turnTimer);
+            clickTimer = null;
+            turnTimer = null;
             updateSidebarUI();
-            const currentEl = document.getElementById("list-" + currentStudentName.replace(/\s+/g, '-'));
+            const currentStudentIndex = currentClassList.indexOf(currentStudentName);
+            const currentEl = document.getElementById("list-" + currentStudentIndex);
             if(currentEl) currentEl.scrollIntoView({ behavior: "smooth", block: "center" });
 
             document.getElementById("student-name").innerText = currentStudentName;
+            gachaBox.setAttribute("aria-label", `Nháy đúp để mở quà cho ${currentStudentName}`);
             
             gachaBox.style.display = "block";
             document.getElementById("reward-container").style.display = "none";
@@ -519,9 +562,9 @@
             isWaitingForClick = true; 
         }
 
-        gachaBox.addEventListener("mousedown", function(e) {
+        function handleGachaActivation(e) {
             if (!isWaitingForClick) return;
-            e.preventDefault();
+            if (e.cancelable) e.preventDefault();
 
             clickCount++;
             
@@ -534,9 +577,20 @@
                 clearTimeout(clickTimer);
                 triggerClickSuccess();
             }
+        }
+
+        gachaBox.addEventListener("pointerdown", e => {
+            if (e.button !== 0) return;
+            handleGachaActivation(e);
+        });
+        gachaBox.addEventListener("keydown", e => {
+            if ((e.key !== "Enter" && e.key !== " ") || e.repeat) return;
+            e.preventDefault();
+            handleGachaActivation(e);
         });
 
         function triggerClickFail() {
+            clickTimer = null;
             clickCount = 0;
             gachaBox.classList.remove("gacha-idle");
             gachaBox.classList.remove("gacha-error");
@@ -548,6 +602,8 @@
         }
 
         function triggerClickSuccess() {
+            clearTimeout(clickTimer);
+            clickTimer = null;
             isWaitingForClick = false;
             clickCount = 0;
             openGacha();
@@ -582,7 +638,9 @@
             score += reward.pts;
             document.getElementById("score").innerText = score;
 
-            setTimeout(() => {
+            clearTimeout(turnTimer);
+            turnTimer = setTimeout(() => {
+                turnTimer = null;
                 if(currentStudentName) playedStudents.push(currentStudentName);
                 currentStudentName = "";
                 nextTurn(); 
@@ -603,6 +661,10 @@
             const idx = remainingStudents.indexOf(studentName);
             if (idx > -1) { remainingStudents.splice(idx, 1); remainingStudents.push(studentName); }
             if (currentStudentName === studentName) {
+                clearTimeout(clickTimer);
+                clearTimeout(turnTimer);
+                clickTimer = null;
+                turnTimer = null;
                 isWaitingForClick = false;
                 remainingStudents.push(studentName);
                 document.body.style.background = "linear-gradient(135deg, #ffd54f 0%, #ffb300 100%)"; 
@@ -631,6 +693,10 @@
 
             // 3. Xử lý logic chuyển lượt nếu người bị cấm đang trên bảng
             if (currentStudentName === studentName) {
+                clearTimeout(clickTimer);
+                clearTimeout(turnTimer);
+                clickTimer = null;
+                turnTimer = null;
                 isWaitingForClick = false;
                 document.body.style.background = "linear-gradient(135deg, #ef5350 0%, #c62828 100%)"; 
                 

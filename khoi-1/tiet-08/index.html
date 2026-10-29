@@ -4,117 +4,214 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tin học 1 - Bài 7: Vui học bảng chữ cái cùng máy tính (Tiết 2)</title>
+  <!-- Thư viện SheetJS xuất Excel SMAS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="../shared/style.css">
   <script src="../shared/gacha.js"></script>
   <script src="../shared/components.js"></script>
 
   <style>
-    .k1-screen {
+    /* ==========================================================================
+       LAYOUT TOÀN MÀN HÌNH (FULL WIDTH) - KHÔNG TỐN DIỆN TÍCH CHO SIDEBAR CỐ ĐỊNH
+       ========================================================================== */
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      font-family: var(--k1-font, 'Baloo 2', 'Nunito', 'Segoe UI', sans-serif);
+      background: #F1F5F9;
+      user-select: none;
+    }
+
+    .app-container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* THANH TOPBAR TRỌNG TÂM TIN GỌN */
+    .topbar {
+      height: 64px;
+      background: #FFFFFF;
+      border-bottom: 3px solid #CBD5E1;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+
+    .nav-tabs {
+      display: flex;
+      background: #E2E8F0;
+      padding: 4px;
+      border-radius: 16px;
+      gap: 6px;
+    }
+
+    .nav-tab-btn {
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 900;
+      padding: 8px 18px;
+      border: none;
+      border-radius: 12px;
+      background: transparent;
+      color: #475569;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.16s ease;
+    }
+
+    .nav-tab-btn.active {
+      background: #0284C7;
+      color: #FFFFFF;
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.35);
+    }
+
+    .current-player-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #FEF3C7;
+      border: 2px solid #F59E0B;
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 15px;
+      font-weight: 900;
+      color: #92400E;
+    }
+
+    .current-player-pill .name {
+      color: #B45309;
+      font-size: 17px;
+    }
+
+    .stage-wrapper {
+      flex: 1;
+      min-height: 0;
+      padding: 12px 18px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .screen-panel {
       display: none;
       flex: 1;
       height: 100%;
       min-height: 0;
       flex-direction: column;
-      gap: 12px;
     }
-    .k1-screen.active {
+
+    .screen-panel.active {
       display: flex;
     }
 
-    /* KHUNG GAME CANVAS VƯỜN TÁO */
-    .k1-game-card {
+    .game-card {
       flex: 1;
       min-height: 0;
       background: #FFFFFF;
-      border-radius: 26px;
-      border: 4px solid #FFFFFF;
-      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+      border-radius: 24px;
+      border: 3px solid #CBD5E1;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
       position: relative;
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
 
-    .k1-hud-overlay {
-      position: absolute;
-      top: 14px;
-      left: 18px;
-      right: 18px;
+    /* ==========================================================================
+       MÀN HÌNH 1: VƯỜN TÁO LUYỆN CHUỘT (KHỞI ĐỘNG LUYỆN CHUỘT)
+       - Thanh điều khiển đặt riêng phía trên, KHÔNG CHE KHUẤT CÂY TÁO
+       - Chế độ 1: Nháy chuột hái táo
+       - Chế độ 2: Di chuột hứng táo rụng (Dễ - dành cho các bé chưa quen)
+       ========================================================================== */
+    .apple-control-bar {
+      height: 58px;
+      background: #F8FAFC;
+      border-bottom: 2px solid #E2E8F0;
+      padding: 0 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
       z-index: 10;
-      pointer-events: none;
     }
 
-    .k1-hud-group {
-      display: flex;
-      gap: 10px;
-      pointer-events: auto;
-    }
-
-    .k1-hud-pill {
-      background: rgba(255, 255, 255, 0.94);
-      backdrop-filter: blur(6px);
-      border: 2px solid #E2E8F0;
-      border-radius: 99px;
-      padding: 6px 16px;
-      font-size: 16px;
-      font-weight: 900;
-      color: #0F172A;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
-
-    /* MÀN HÌNH 2: ĐOÀN TÀU HƠI NƯỚC CHỮ CÁI (CỬU LONG EDU) */
-    .k1-train-world {
+    .apple-canvas-container {
       flex: 1;
-      background: linear-gradient(180deg, #7DD3FC 0%, #BAE6FD 52%, #86EFAC 52%, #4ADE80 100%);
+      min-height: 0;
+      position: relative;
+      background: #BAE6FD;
+      overflow: hidden;
+    }
+
+    /* ==========================================================================
+       MÀN HÌNH 2: ĐOÀN TÀU CHỮ CÁI (CỬU LONG EDU - BÀI HỌC SGK)
+       - Đọc từ Trái sang Phải: Toa 1 -> Toa Cuối -> Đầu máy kéo sang phải
+       - Chế độ 1: Điền chữ còn thiếu (Có thể nháy vào toa để gỡ thẻ trả lại khay)
+       - Chế độ 2: Sắp xếp thứ tự ABC (Nháy 2 toa để tráo đổi, không kẹt biến)
+       ========================================================================== */
+    .train-stage-world {
+      flex: 1;
+      background: linear-gradient(180deg, #7DD3FC 0%, #BAE6FD 50%, #86EFAC 50%, #4ADE80 100%);
       position: relative;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 16px 22px;
+      padding: 16px 24px;
       overflow: hidden;
     }
 
-    .k1-cl-toolbar {
+    .train-top-toolbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      z-index: 5;
-      gap: 10px;
-      flex-wrap: wrap;
+      gap: 12px;
+      z-index: 10;
     }
 
-    .k1-segmented {
+    .segmented-control {
       display: inline-flex;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.95);
       padding: 4px;
       border-radius: 14px;
       gap: 4px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
     }
 
-    .k1-seg-btn {
-      font-family: var(--k1-font);
+    .segmented-btn {
+      font-family: inherit;
       font-size: 14px;
-      font-weight: 800;
-      padding: 6px 14px;
+      font-weight: 900;
+      padding: 7px 16px;
       border: none;
       border-radius: 10px;
       background: transparent;
       color: #475569;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
     }
 
-    .k1-seg-btn.active {
+    .segmented-btn.active {
       background: #0284C7;
       color: #FFFFFF;
+      box-shadow: 0 3px 6px rgba(2, 132, 199, 0.3);
     }
 
-    /* ĐOÀN TÀU XE LỬA VÀ ĐƯỜNG RAY */
-    .k1-railway-zone {
+    .railway-area {
       position: relative;
       display: flex;
       flex-direction: column;
@@ -122,34 +219,39 @@
       justify-content: center;
       margin: auto 0;
       z-index: 5;
+      width: 100%;
     }
 
-    .k1-train-convoy {
+    .train-convoy {
       display: flex;
       align-items: flex-end;
-      gap: 10px;
-      transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+      gap: 14px;
+      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s;
     }
 
-    .k1-train-convoy.departing {
+    .train-convoy.departing {
+      transform: translateX(120vw);
+      opacity: 0;
+    }
+
+    .train-convoy.arriving {
       transform: translateX(-120vw);
+      opacity: 0;
     }
 
-    /* Toa tàu gỗ 3D */
-    .k1-wagon-wrap {
+    .wagon-wrap {
       display: flex;
       flex-direction: column;
       align-items: center;
-      position: relative;
     }
 
-    .k1-wagon-box {
+    .wagon-box {
       width: 102px;
       height: 102px;
       background: linear-gradient(180deg, #FFFFFF 0%, #FEF3C7 100%);
       border: 4px solid #F59E0B;
-      border-radius: 22px;
-      box-shadow: 0 8px 0 #B45309, 0 12px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 20px;
+      box-shadow: 0 8px 0 #B45309, 0 10px 18px rgba(0, 0, 0, 0.12);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -157,36 +259,73 @@
       font-weight: 900;
       color: #0F172A;
       cursor: pointer;
+      user-select: none;
       transition: transform 0.15s, border-color 0.2s, background 0.2s;
       position: relative;
     }
 
-    .k1-wagon-box.empty-slot {
-      background: rgba(255, 255, 255, 0.78);
+    .wagon-box:hover {
+      transform: translateY(-4px);
+    }
+
+    .wagon-box.empty-slot {
+      background: rgba(255, 255, 255, 0.85);
       border: 4px dashed #0284C7;
       box-shadow: 0 8px 0 #0369A1;
       color: #0284C7;
     }
 
-    .k1-wagon-box.selected-swap {
-      transform: translateY(-10px) scale(1.05);
-      border-color: #2563EB;
+    .wagon-box.filled-slot {
       background: #E0F2FE;
+      border-color: #0284C7;
+      color: #0369A1;
     }
 
-    .k1-wagon-box.is-correct {
+    .wagon-box.filled-slot::after {
+      content: '✕ gỡ';
+      position: absolute;
+      bottom: -18px;
+      font-size: 11px;
+      font-weight: 900;
+      color: #EF4444;
+      background: #FFFFFF;
+      padding: 1px 6px;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .wagon-box.filled-slot:hover::after {
+      opacity: 1;
+    }
+
+    .wagon-box.selected-swap {
+      transform: translateY(-12px) scale(1.08);
+      border-color: #2563EB;
+      background: #DBEAFE;
+      box-shadow: 0 14px 0 #1D4ED8, 0 18px 25px rgba(37, 99, 235, 0.35);
+      animation: wagonPulse 0.8s infinite alternate;
+    }
+
+    @keyframes wagonPulse {
+      0% { transform: translateY(-10px) scale(1.05); }
+      100% { transform: translateY(-14px) scale(1.09); }
+    }
+
+    .wagon-box.is-correct {
       background: #DCFCE7;
       border-color: #10B981;
       box-shadow: 0 8px 0 #047857;
       color: #065F46;
     }
 
-    .k1-wagon-box.is-wrong {
+    .wagon-box.is-wrong {
       background: #FFE4E6;
       border-color: #F43F5E;
       box-shadow: 0 8px 0 #BE123C;
       color: #9F1239;
-      animation: wagonShake 0.35s ease-in-out 3;
+      animation: wagonShake 0.4s ease-in-out;
     }
 
     @keyframes wagonShake {
@@ -195,35 +334,34 @@
       75% { transform: translateX(8px); }
     }
 
-    .k1-wagon-wheels {
+    .wagon-wheels {
       display: flex;
       justify-content: space-between;
       width: 78px;
-      margin-top: 2px;
+      margin-top: 3px;
     }
 
-    .k1-wheel-circle {
-      width: 24px;
-      height: 24px;
+    .wheel-dot {
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       background: #334155;
       border: 4px solid #94A3B8;
     }
 
-    .k1-rail-track {
+    .train-rail-line {
       width: 96%;
-      height: 12px;
-      background: repeating-linear-gradient(90deg, #78350F 0px, #78350F 18px, transparent 18px, transparent 34px);
+      height: 14px;
+      background: repeating-linear-gradient(90deg, #78350F 0px, #78350F 20px, transparent 20px, transparent 38px);
       border-top: 4px solid #475569;
       margin-top: 2px;
     }
 
-    /* KHAY THẺ CHỮ CÁI RỜI & NÚT KIỂM TRA */
-    .k1-bottom-dock {
-      background: rgba(255, 255, 255, 0.92);
+    .train-bottom-tray {
+      background: rgba(255, 255, 255, 0.94);
       backdrop-filter: blur(8px);
-      border-radius: 22px;
-      padding: 12px 20px;
+      border-radius: 20px;
+      padding: 10px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -232,20 +370,21 @@
       z-index: 5;
     }
 
-    .k1-cards-tray {
+    .cards-holder {
       display: flex;
       gap: 12px;
       align-items: center;
       flex-wrap: wrap;
+      min-height: 76px;
     }
 
-    .k1-drag-card {
-      width: 74px;
-      height: 78px;
+    .letter-card {
+      width: 72px;
+      height: 76px;
       background: linear-gradient(180deg, #FEF08A 0%, #FACC15 100%);
       border: 3px solid #FFFFFF;
-      border-radius: 18px;
-      box-shadow: 0 6px 0 #CA8A04, 0 8px 15px rgba(0, 0, 0, 0.15);
+      border-radius: 16px;
+      box-shadow: 0 6px 0 #CA8A04, 0 8px 15px rgba(0, 0, 0, 0.12);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -253,27 +392,31 @@
       font-weight: 900;
       color: #0F172A;
       cursor: grab;
-      transition: transform 0.15s;
+      user-select: none;
+      transition: transform 0.15s, opacity 0.2s;
     }
 
-    .k1-drag-card:hover {
+    .letter-card:hover {
       transform: translateY(-5px) scale(1.06);
     }
 
-    .k1-drag-card.picked {
+    .letter-card.picked {
       background: linear-gradient(180deg, #38BDF8 0%, #0284C7 100%);
       color: #FFFFFF;
-      box-shadow: 0 6px 0 #0369A1;
-      transform: translateY(-8px) scale(1.1);
+      box-shadow: 0 6px 0 #0369A1, 0 10px 18px rgba(2, 132, 199, 0.4);
+      transform: translateY(-8px) scale(1.12);
     }
 
-    .k1-drag-card.used {
-      opacity: 0.25;
+    .letter-card.used {
+      opacity: 0.2;
       pointer-events: none;
+      transform: none;
     }
 
-    /* BỤC VINH DANH PODIUM */
-    .k1-podium-grid {
+    /* ==========================================================================
+       MÀN HÌNH 3: BẢNG VÀNG TUYÊN DƯƠNG
+       ========================================================================== */
+    .podium-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
@@ -281,183 +424,441 @@
       min-height: 0;
     }
 
-    .k1-honor-box {
+    .honor-box {
       background: #FFFFFF;
-      border-radius: 24px;
-      padding: 20px 24px;
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+      border-radius: 20px;
+      padding: 18px 22px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
       display: flex;
       flex-direction: column;
       gap: 10px;
       overflow-y: auto;
     }
+
+    .honor-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-radius: 12px;
+      background: #F8FAFC;
+      border: 2px solid #E2E8F0;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .honor-item.done {
+      background: #F0FDF4;
+      border-color: #86EFAC;
+      color: #166534;
+    }
+
+    .honor-item.star {
+      background: #FFFBEB;
+      border-color: #FDE68A;
+      color: #B45309;
+    }
+
+    /* ==========================================================================
+       MODAL THIẾT ĐẶT & QUẢN LÝ DANH SÁCH LỚP HỌC (CHỈNH SỬA THỦ CÔNG)
+       ========================================================================== */
+    .custom-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(5px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .custom-modal-overlay.active {
+      display: flex;
+    }
+
+    .settings-modal-card {
+      width: 780px;
+      max-width: 95vw;
+      max-height: 90vh;
+      background: #FFFFFF;
+      border-radius: 24px;
+      border: 4px solid #CBD5E1;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .settings-header {
+      padding: 16px 22px;
+      background: #F8FAFC;
+      border-bottom: 2px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .settings-body {
+      flex: 1;
+      min-height: 0;
+      padding: 16px 22px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .st-edit-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      border-radius: 12px;
+      background: #F8FAFC;
+      border: 2px solid #E2E8F0;
+      transition: all 0.15s;
+    }
+
+    .st-edit-row.is-done {
+      background: #F0FDF4;
+      border-color: #86EFAC;
+    }
+
+    .st-edit-row.is-star {
+      background: #FFFBEB;
+      border-color: #FDE68A;
+    }
+
+    /* ==========================================================================
+       MODAL POPUP TỔNG KẾT ĐIỂM SAU LƯỢT CHƠI
+       ========================================================================== */
+    .score-summary-card {
+      width: 480px;
+      max-width: 90vw;
+      background: #FFFFFF;
+      border-radius: 28px;
+      border: 4px solid #F59E0B;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+      padding: 26px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.7); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ==========================================================================
+       GACHA MODAL MỚI: TÍCH HỢP CẢ VÒNG QUAY MAY MẮN & BẮT VỊT
+       ========================================================================== */
+    .gacha-modal-card {
+      width: 920px;
+      max-width: 95vw;
+      background: #FFFFFF;
+      border-radius: 28px;
+      border: 4px solid #38BDF8;
+      box-shadow: 0 25px 55px rgba(15, 23, 42, 0.4);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gacha-stage-zone {
+      position: relative;
+      height: 420px;
+      background: #0F172A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .gacha-winner-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(8px);
+      z-index: 20;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+      animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .gacha-winner-overlay.active {
+      display: flex;
+    }
+
+    .winner-name-badge {
+      font-size: 38px;
+      font-weight: 900;
+      color: #38BDF8;
+      text-shadow: 0 4px 15px rgba(56, 189, 248, 0.45);
+      margin: 8px 0;
+    }
+    @media (max-width: 900px) {
+      body, .app-container {
+        width: 100%;
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
+      }
+
+      .topbar {
+        height: auto;
+        min-height: 64px;
+        padding: 10px 12px;
+        flex-wrap: wrap;
+      }
+
+      .nav-tabs {
+        max-width: 100%;
+        overflow-x: auto;
+      }
+
+      .nav-tab-btn {
+        flex: 0 0 auto;
+        padding: 8px 12px;
+      }
+
+      .stage-wrapper {
+        padding: 10px 12px;
+      }
+
+      .screen-panel {
+        flex: 1 0 auto;
+        height: auto;
+        min-height: 70vh;
+      }
+
+      .game-card {
+        min-height: 68vh;
+      }
+
+      .apple-control-bar,
+      .train-top-toolbar,
+      .train-bottom-tray {
+        height: auto;
+        padding: 10px;
+        flex-wrap: wrap;
+      }
+
+      .apple-canvas-container {
+        min-height: 320px;
+      }
+
+      .train-stage-world {
+        min-height: 68vh;
+        padding: 12px;
+      }
+
+      .train-top-toolbar {
+        align-items: flex-start;
+      }
+
+      .railway-area {
+        overflow-x: auto;
+        align-items: flex-start;
+        padding: 16px 8px 24px;
+      }
+
+      .train-convoy {
+        width: max-content;
+      }
+
+      .train-bottom-tray {
+        align-items: stretch;
+      }
+
+      .train-bottom-tray > button {
+        flex: 1 0 100%;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="k1-layout">
-    <!-- 1. SIDEBAR QUẢN LÝ LỚP 1/6 -->
-    <khoi1-sidebar default-class="1_6"></khoi1-sidebar>
+  <div class="app-container">
+    <!-- ===================================================================== -->
+    <!-- 1. THANH ĐIỀU HƯỚNG TOPBAR TIN GỌN                                    -->
+    <!-- ===================================================================== -->
+    <header class="topbar">
+      <!-- 3 Màn hình theo đúng tiến trình sư phạm -->
+      <div class="nav-tabs">
+        <button class="nav-tab-btn active" id="tab-btn-0" type="button" onclick="AppManager.switchScreen(0)">
+          🍎 1. Vườn Táo Luyện Chuột
+        </button>
+        <button class="nav-tab-btn" id="tab-btn-1" type="button" onclick="AppManager.switchScreen(1)">
+          🚂 2. Đoàn Tàu Chữ Cái
+        </button>
+        <button class="nav-tab-btn" id="tab-btn-2" type="button" onclick="AppManager.switchScreen(2)">
+          🏆 3. Bảng Vàng
+        </button>
+      </div>
 
-    <!-- 2. SÂN KHẤU CHÍNH -->
-    <main class="k1-stage">
-      <!-- THANH ĐIỀU HƯỚNG GỌN GÀNG -->
-      <header class="k1-topbar">
-        <div class="k1-nav-pills">
-          <button class="k1-nav-pill active" id="nav-tab-0" type="button" onclick="switchScreen(0)">
-            1. Vườn Táo Chữ Cái
-          </button>
-          <button class="k1-nav-pill" id="nav-tab-1" type="button" onclick="switchScreen(1)">
-            2. Đoàn Tàu Chữ Cái
-          </button>
-          <button class="k1-nav-pill" id="nav-tab-2" type="button" onclick="switchScreen(2)">
-            3. Bảng Vàng
-          </button>
-        </div>
+      <!-- Học sinh đang có lượt chơi -->
+      <div class="current-player-pill" id="active-player-pill" title="Học sinh đang có lượt thực hành">
+        <span>👤 Đang chơi:</span>
+        <span class="name" id="active-player-name">Chưa chọn bạn nào</span>
+      </div>
 
-        <div style="display:flex; gap:8px;">
-          <button class="k1-btn k1-btn-amber k1-btn-sm" type="button" onclick="Khoi1Gacha.open('pond')">
-            Bắt Vịt Gọi Tên
-          </button>
-          <button class="k1-btn k1-btn-sky k1-btn-sm" type="button" onclick="Khoi1Components.openMouseModal()">
-            Mẫu Cầm Chuột
-          </button>
-        </div>
-      </header>
+      <!-- Nút Gacha Gọi Tên & Nút Thiết Đặt Danh Sách Lớp -->
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="k1-btn k1-btn-amber k1-btn-sm" type="button" onclick="SuperGacha.open()" title="Quay số hồi hộp chọn học sinh lên bảng">
+          🎲 GỌI TÊN HỌC SINH
+        </button>
+        <button class="k1-btn k1-btn-sky k1-btn-sm" type="button" onclick="Khoi1Components.openMouseModal()" title="Xem mẫu cầm chuột">
+          🖱️ Mẫu Chuột
+        </button>
+        <button class="k1-btn k1-btn-white k1-btn-sm" type="button" onclick="SettingsManager.open()" title="Xem và chỉnh sửa thủ công danh sách lớp">
+          ⚙️ Danh Sách Lớp
+        </button>
+      </div>
+    </header>
 
-      <!-- =================================================================== -->
-      <!-- MÀN HÌNH 1: VƯỜN TÁO CHỮ CÁI (CANVAS 2D 60FPS - KHÔNG EMOJI)         -->
-      <!-- =================================================================== -->
-      <section class="k1-screen active" id="screen-0">
-        <div class="k1-game-card">
-          <div class="k1-hud-overlay">
-            <div class="k1-hud-group">
-              <button class="k1-btn k1-btn-sky k1-btn-sm" id="apple-mode-pick" type="button" onclick="AppleGame.setMode('pick')">
-                Chế độ 1: Nháy Chuột Hái Táo
+    <!-- ===================================================================== -->
+    <!-- 2. SÂN KHẤU CHÍNH                                                    -->
+    <!-- ===================================================================== -->
+    <main class="stage-wrapper">
+      <!-- ----------------------------------------------------------------- -->
+      <!-- MÀN HÌNH 1: VƯỜN TÁO LUYỆN CHUỘT (KHỞI ĐỘNG LUYỆN CHUỘT)          -->
+      <!-- ----------------------------------------------------------------- -->
+      <section class="screen-panel active" id="screen-0">
+        <div class="game-card">
+          <!-- Thanh điều khiển riêng phía trên - KHÔNG CHE CÂY TÁO -->
+          <div class="apple-control-bar">
+            <!-- Chuyển đổi 2 chế độ luyện chuột -->
+            <div class="segmented-control">
+              <button class="segmented-btn active" id="btn-mode-pick" type="button" onclick="AppleGame.setMode('pick')">
+                🖱️ Nháy Chuột Hái Táo
               </button>
-              <button class="k1-btn k1-btn-white k1-btn-sm" id="apple-mode-catch" type="button" onclick="AppleGame.setMode('catch')">
-                Chế độ 2: Lắc Cổ Tay Hứng Táo
+              <button class="segmented-btn" id="btn-mode-catch" type="button" onclick="AppleGame.setMode('catch')">
+                🧺 Di Chuột Hứng Táo (Dễ)
               </button>
             </div>
 
-            <div class="k1-hud-group">
-              <div class="k1-hud-pill" id="apple-score-txt">Táo: 0</div>
-              <div class="k1-hud-pill" id="apple-time-txt">20 giây</div>
-              <button class="k1-btn k1-btn-mint k1-btn-sm" type="button" onclick="AppleGame.start()">
-                BẮT ĐẦU CHƠI
+            <!-- Bảng điểm & Thời gian -->
+            <div style="display:flex; gap:12px; align-items:center;">
+              <div class="k1-hud-pill" id="apple-score-pill" style="font-size:17px;">🍎 Táo: 0</div>
+              <div class="k1-hud-pill" id="apple-timer-pill" style="font-size:17px; display:none;">⏱️ 30s</div>
+
+              <button class="k1-btn k1-btn-mint k1-btn-sm" id="apple-start-btn" type="button" onclick="AppleGame.startRound(30)">
+                ▶ BẮT ĐẦU (30s)
+              </button>
+              <button class="k1-btn k1-btn-white k1-btn-sm" type="button" onclick="AppleGame.startFreePractice()">
+                ♾️ Luyện Tự Do
               </button>
             </div>
           </div>
 
-          <canvas id="k1-apple-canvas" style="width:100%; height:100%; display:block; cursor:pointer;"></canvas>
+          <!-- Khung Canvas Cây Táo thoáng đãng 100% -->
+          <div class="apple-canvas-container">
+            <canvas id="k1-apple-canvas" style="width:100%; height:100%; display:block; cursor:pointer;"></canvas>
+          </div>
         </div>
       </section>
 
-      <!-- =================================================================== -->
-      <!-- MÀN HÌNH 2: ĐOÀN TÀU HƠI NƯỚC CHỮ CÁI (CỬU LONG EDU SIMULATOR)      -->
-      <!-- =================================================================== -->
-      <section class="k1-screen" id="screen-1">
-        <div class="k1-game-card">
-          <div class="k1-train-world">
-            <!-- Thanh công cụ phía trên -->
-            <div class="k1-cl-toolbar">
-              <div class="k1-segmented">
-                <button class="k1-seg-btn active" id="cl-tab-fill" type="button" onclick="TrainGame.setMode('fill')">
-                  Bài 1: Điền Chữ Còn Thiếu
+      <!-- ----------------------------------------------------------------- -->
+      <!-- MÀN HÌNH 2: ĐOÀN TÀU CHỮ CÁI (CỬU LONG EDU SIMULATOR)              -->
+      <!-- ----------------------------------------------------------------- -->
+      <section class="screen-panel" id="screen-1">
+        <div class="game-card">
+          <div class="train-stage-world">
+            <!-- Toolbar tinh gọn phía trên -->
+            <div class="train-top-toolbar">
+              <div class="segmented-control">
+                <button class="segmented-btn active" id="train-mode-fill" type="button" onclick="TrainGame.setMode('fill')">
+                  🧩 Toa Thiếu Chữ
                 </button>
-                <button class="k1-seg-btn" id="cl-tab-sort" type="button" onclick="TrainGame.setMode('sort')">
-                  Bài 2: Sắp Xếp Thứ Tự ABC
-                </button>
-              </div>
-
-              <div class="k1-segmented">
-                <button class="k1-seg-btn active" id="cl-case-lower" type="button" onclick="TrainGame.setCase('lower')">
-                  a b c (Chữ thường)
-                </button>
-                <button class="k1-seg-btn" id="cl-case-upper" type="button" onclick="TrainGame.setCase('upper')">
-                  A B C (Chữ HOA)
+                <button class="segmented-btn" id="train-mode-sort" type="button" onclick="TrainGame.setMode('sort')">
+                  🔀 Sắp Xếp ABC
                 </button>
               </div>
 
-              <!-- 3 Nút điều khiển chuẩn SGK: Hướng dẫn (?), Chuyển bài, Làm mẫu sai -->
+              <div class="segmented-control">
+                <button class="segmented-btn active" id="train-case-lower" type="button" onclick="TrainGame.setCase('lower')">
+                  abc (Thường)
+                </button>
+                <button class="segmented-btn" id="train-case-upper" type="button" onclick="TrainGame.setCase('upper')">
+                  ABC (HOA)
+                </button>
+              </div>
+
               <div style="display:flex; gap:8px;">
-                <button class="k1-btn k1-btn-violet k1-btn-sm" type="button" onclick="TrainGame.teacherDemoWrong()" title="Thầy làm mẫu cố tình xếp sai để học sinh nhìn nút Kiểm tra báo đỏ">
-                  Thầy Làm Mẫu (Xếp Sai)
-                </button>
-                <button class="k1-btn k1-btn-sky k1-btn-sm" type="button" onclick="TrainGame.speakGuide()">
-                  ? Hướng Dẫn
-                </button>
                 <button class="k1-btn k1-btn-amber k1-btn-sm" type="button" onclick="TrainGame.nextLevel()">
                   Bài Tiếp Theo ➔
                 </button>
               </div>
             </div>
 
-            <!-- Đoàn tàu xe lửa hơi nước SVG + Các toa chữ cái -->
-            <div class="k1-railway-zone">
-              <div class="k1-train-convoy" id="k1-train-convoy">
-                <!-- Đầu máy xe lửa SVG chi tiết -->
-                <div style="display:flex; flex-direction:column; align-items:center; margin-right:4px;">
-                  <svg width="135" height="115" viewBox="0 0 150 130">
-                    <!-- Cụm khói trắng bay lên -->
-                    <circle cx="42" cy="18" r="10" fill="rgba(255,255,255,0.85)"/>
-                    <circle cx="58" cy="12" r="13" fill="rgba(255,255,255,0.7)"/>
-                    <!-- Ống khói -->
-                    <rect x="30" y="30" width="22" height="32" rx="4" fill="#EF4444" stroke="#991B1B" stroke-width="3"/>
-                    <!-- Thân đầu máy -->
-                    <rect x="20" y="55" width="75" height="48" rx="12" fill="#0284C7" stroke="#0369A1" stroke-width="3"/>
-                    <!-- Buồng lái -->
-                    <rect x="85" y="34" width="52" height="69" rx="10" fill="#F59E0B" stroke="#B45309" stroke-width="3"/>
-                    <rect x="95" y="44" width="32" height="26" rx="6" fill="#E0F2FE"/>
-                    <!-- Mũi cản trước -->
-                    <polygon points="5,103 22,75 22,103" fill="#EF4444"/>
-                    <!-- Bánh xe lửa -->
-                    <circle cx="42" cy="108" r="16" fill="#334155" stroke="#94A3B8" stroke-width="5"/>
-                    <circle cx="108" cy="108" r="18" fill="#334155" stroke="#94A3B8" stroke-width="5"/>
+            <!-- Đường ray và Đoàn tàu kéo sang PHẢI (đọc từ trái qua phải) -->
+            <div class="railway-area">
+              <div class="train-convoy" id="k1-train-convoy">
+                <!-- Các toa tàu chữ cái -->
+                <div id="k1-wagons-slot" style="display:flex; gap:12px; align-items:flex-end;"></div>
+
+                <!-- Đầu máy xe lửa kéo sang phải -->
+                <div style="display:flex; flex-direction:column; align-items:center; margin-left:4px;">
+                  <svg width="138" height="116" viewBox="0 0 150 130">
+                    <circle cx="108" cy="18" r="10" fill="rgba(255,255,255,0.85)"/>
+                    <circle cx="92" cy="12" r="13" fill="rgba(255,255,255,0.7)"/>
+                    <rect x="98" y="30" width="22" height="32" rx="4" fill="#EF4444" stroke="#991B1B" stroke-width="3"/>
+                    <rect x="55" y="55" width="75" height="48" rx="12" fill="#0284C7" stroke="#0369A1" stroke-width="3"/>
+                    <rect x="12" y="34" width="52" height="69" rx="10" fill="#F59E0B" stroke="#B45309" stroke-width="3"/>
+                    <rect x="22" y="44" width="32" height="26" rx="6" fill="#E0F2FE"/>
+                    <polygon points="145,103 128,75 128,103" fill="#EF4444"/>
+                    <circle cx="42" cy="108" r="18" fill="#334155" stroke="#94A3B8" stroke-width="5"/>
+                    <circle cx="108" cy="108" r="16" fill="#334155" stroke="#94A3B8" stroke-width="5"/>
                   </svg>
                 </div>
-
-                <!-- Các toa tàu chứa chữ cái sẽ render vào đây -->
-                <div id="k1-wagons-slot" style="display:flex; gap:10px; align-items:flex-end;"></div>
               </div>
-              <div class="k1-rail-track"></div>
+              <div class="train-rail-line"></div>
             </div>
 
-            <!-- Thanh Dock phía dưới: Khay thẻ chữ cái & Nút KIỂM TRA lớn -->
-            <div class="k1-bottom-dock">
-              <div class="k1-cards-tray" id="k1-cards-tray"></div>
+            <!-- Khay Thẻ Rời & Nút Kiểm Tra -->
+            <div class="train-bottom-tray">
+              <div class="cards-holder" id="k1-cards-tray"></div>
 
-              <button class="k1-btn k1-btn-mint k1-btn-lg" type="button" onclick="TrainGame.checkAnswer()" style="min-width:230px; font-size:20px;">
-                ✓ KIỂM TRA KẾT QUẢ
+              <button class="k1-btn k1-btn-mint k1-btn-lg" type="button" onclick="TrainGame.checkAnswer()" style="min-width:210px; font-size:20px;">
+                ✓ KIỂM TRA
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- =================================================================== -->
-      <!-- MÀN HÌNH 3: BẢNG VÀNG CHIẾN THẮNG & XUẤT EXCEL SMAS                  -->
-      <!-- =================================================================== -->
-      <section class="k1-screen" id="screen-2">
-        <div class="k1-podium-grid">
-          <div class="k1-honor-box">
-            <div style="font-size:22px; font-weight:900; color:#0284C7;">
-              HỌC SINH ĐÃ HOÀN THÀNH THỰC HÀNH HÔM NAY
+      <!-- ----------------------------------------------------------------- -->
+      <!-- MÀN HÌNH 3: BẢNG VÀNG TUYÊN DƯƠNG                                  -->
+      <!-- ----------------------------------------------------------------- -->
+      <section class="screen-panel" id="screen-2">
+        <div class="podium-grid">
+          <div class="honor-box">
+            <div style="font-size:20px; font-weight:900; color:#0284C7;">
+              🎖️ HỌC SINH ĐÃ THỰC HÀNH HÔM NAY
             </div>
-            <div id="k1-done-students-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+            <div id="podium-done-list" style="display:flex; flex-direction:column; gap:8px;"></div>
           </div>
 
-          <div class="k1-honor-box">
-            <div style="font-size:22px; font-weight:900; color:#D97706;">
-              DANH SÁCH SAO NGOAN ƯU TIÊN TUẦN SAU
+          <div class="honor-box">
+            <div style="font-size:20px; font-weight:900; color:#D97706;">
+              ⭐ VÉ ƯU TIÊN TUẦN SAU (SAO NGOAN)
             </div>
-            <div id="k1-star-students-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+            <div id="podium-star-list" style="display:flex; flex-direction:column; gap:8px;"></div>
 
             <div style="margin-top:auto; display:flex; gap:10px; padding-top:14px;">
-              <button class="k1-btn k1-btn-mint k1-btn-lg" style="flex:1;" type="button" onclick="Khoi1Components.exportExcel()">
-                Xuất Báo Cáo Excel (SMAS / TT27)
+              <button class="k1-btn k1-btn-mint k1-btn-lg" style="flex:1;" type="button" onclick="SettingsManager.exportExcel()">
+                📥 Xuất Báo Cáo Excel (SMAS)
               </button>
               <button class="k1-btn k1-btn-amber k1-btn-lg" type="button" onclick="Khoi1Confetti.fire(); Khoi1Audio.playVictoryFanfare();">
-                Pháo Hoa
+                🎉 Bắn Pháo Hoa Khen Thưởng
               </button>
             </div>
           </div>
@@ -466,66 +867,438 @@
     </main>
   </div>
 
+  <!-- ===================================================================== -->
+  <!-- MODAL GACHA: TÍCH HỢP XOAY VÒNG XOAY CƠ BẢN VÀ HỘI CHỢ BẮT VỊT      -->
+  <!-- ===================================================================== -->
+  <div class="custom-modal-overlay" id="super-gacha-modal">
+    <div class="gacha-modal-card">
+      <div class="settings-header">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:22px; font-weight:900; color:#0284C7;">🎲 GỌI TÊN HỌC SINH</span>
+          <!-- Chọn Mode Gacha -->
+          <div class="segmented-control">
+            <button class="segmented-btn active" id="gacha-mode-wheel" type="button" onclick="SuperGacha.setMode('wheel')">
+              🎡 Vòng Quay May Mắn
+            </button>
+            <button class="segmented-btn" id="gacha-mode-duck" type="button" onclick="SuperGacha.setMode('duck')">
+              🦆 Hồ Bắt Vịt 3D
+            </button>
+          </div>
+        </div>
+        <button class="k1-close-circle" type="button" onclick="SuperGacha.close()">✕</button>
+      </div>
+
+      <!-- Sân khấu Gacha Canvas -->
+      <div class="gacha-stage-zone">
+        <canvas id="gacha-canvas" width="920" height="420" style="width:100%; height:100%; display:block;"></canvas>
+
+        <!-- Banner Chiến Thắng & Chọn Chế Độ Chơi Cho Bé -->
+        <div class="gacha-winner-overlay" id="gacha-winner-overlay">
+          <div style="font-size:16px; font-weight:900; color:#FACC15; text-transform:uppercase; letter-spacing:1px;">
+            🎉 CHÚC MỪNG BẠN MAY MẮN LÊN BẢNG 🎉
+          </div>
+          <div class="winner-name-badge" id="gacha-winner-name">Nguyễn Văn A</div>
+          <div style="font-size:15px; font-weight:800; color:#94A3B8; margin-bottom:18px;" id="gacha-winner-next">
+            Chuẩn bị kế tiếp: Trần Thị B
+          </div>
+
+          <div style="font-size:17px; font-weight:900; color:#FFFFFF; margin-bottom:12px;">
+            Mời bạn chọn trò chơi muốn tham gia:
+          </div>
+          <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+            <button class="k1-btn k1-btn-mint k1-btn-lg" type="button" onclick="SuperGacha.chooseGame('apple-pick')">
+              🖱️ Nháy Chuột Hái Táo
+            </button>
+            <button class="k1-btn k1-btn-yellow k1-btn-lg" type="button" onclick="SuperGacha.chooseGame('apple-catch')">
+              🧺 Hứng Táo (Dễ)
+            </button>
+            <button class="k1-btn k1-btn-sky k1-btn-lg" type="button" onclick="SuperGacha.chooseGame('train')">
+              🚂 Đoàn Tàu Chữ Cái
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nút Kích Hoạt Quay -->
+      <div style="padding:14px 24px; background:#F8FAFC; display:flex; align-items:center; justify-content:space-between; border-top:2px solid #E2E8F0;">
+        <div style="font-size:15px; font-weight:800; color:#64748B;">
+          💡 Bấm nút để bắt đầu quay hồi hộp chọn học sinh tiếp theo!
+        </div>
+        <button class="k1-btn k1-btn-amber k1-btn-lg" id="gacha-spin-btn" type="button" onclick="SuperGacha.spin()" style="min-width:220px; font-size:19px;">
+          BẮT ĐẦU QUAY NGAY
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL TỔNG KẾT ĐIỂM SAU KHI CHƠI XONG                                 -->
+  <!-- ===================================================================== -->
+  <div class="custom-modal-overlay" id="score-summary-modal">
+    <div class="score-summary-card">
+      <div style="font-size:42px;">🏆</div>
+      <div style="font-size:15px; font-weight:900; color:#D97706; text-transform:uppercase;">
+        HOÀN THÀNH XUẤT SẮC LƯỢT CHƠI
+      </div>
+      <div style="font-size:28px; font-weight:900; color:#0284C7;" id="summary-student-name">
+        Nguyễn Văn A
+      </div>
+      <div style="font-size:36px; font-weight:900; color:#10B981;" id="summary-score-value">
+        🍎 12 Quả Táo
+      </div>
+      <div style="font-size:15px; font-weight:800; color:#64748B;">
+        Em đã điều khiển chuột rất khéo léo! Đã lưu kết quả vào danh sách lớp.
+      </div>
+      <div style="display:flex; gap:12px; margin-top:10px;">
+        <button class="k1-btn k1-btn-white k1-btn-md" type="button" onclick="document.getElementById('score-summary-modal').classList.remove('active')">
+          Đóng
+        </button>
+        <button class="k1-btn k1-btn-amber k1-btn-md" type="button" onclick="document.getElementById('score-summary-modal').classList.remove('active'); SuperGacha.open();">
+          🎲 Gọi Bạn Kế Tiếp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL THIẾT ĐẶT: QUẢN LÝ DANH SÁCH LỚP & CHỈNH SỬA THỦ CÔNG          -->
+  <!-- ===================================================================== -->
+  <div class="custom-modal-overlay" id="settings-modal">
+    <div class="settings-modal-card">
+      <div class="settings-header">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:22px; font-weight:900; color:#0F172A;">⚙️ QUẢN LÝ DANH SÁCH LỚP</span>
+          <select class="k1-class-select" id="settings-class-select" onchange="SettingsManager.onClassChange(this.value)" style="padding:6px 14px; border-radius:10px; font-weight:900;">
+            <option value="1_1">Lớp 1/1</option>
+            <option value="1_2">Lớp 1/2</option>
+            <option value="1_3">Lớp 1/3</option>
+            <option value="1_4">Lớp 1/4</option>
+            <option value="1_5">Lớp 1/5</option>
+            <option value="1_6" selected>Lớp 1/6</option>
+          </select>
+        </div>
+        <button class="k1-close-circle" type="button" onclick="SettingsManager.close()">✕</button>
+      </div>
+
+      <div style="padding:10px 22px; background:#F1F5F9; display:flex; align-items:center; justify-content:space-between;">
+        <!-- Tabs lọc danh sách -->
+        <div class="segmented-control">
+          <button class="segmented-btn active" id="st-tab-waiting" type="button" onclick="SettingsManager.setFilter('waiting')">
+            Chưa làm (<span id="count-waiting">0</span>)
+          </button>
+          <button class="segmented-btn" id="st-tab-done" type="button" onclick="SettingsManager.setFilter('done')">
+            Đã làm (<span id="count-done">0</span>)
+          </button>
+          <button class="segmented-btn" id="st-tab-star" type="button" onclick="SettingsManager.setFilter('star')">
+            Ưu tiên (<span id="count-star">0</span>)
+          </button>
+        </div>
+
+        <button class="k1-btn k1-btn-coral k1-btn-sm" type="button" onclick="SettingsManager.resetRound()">
+          🔄 Làm Mới Vòng Gọi Tên
+        </button>
+      </div>
+
+      <!-- Danh sách học sinh có nút bấm chỉnh sửa thủ công -->
+      <div class="settings-body" id="settings-student-list"></div>
+
+      <div style="padding:14px 22px; background:#F8FAFC; border-top:2px solid #E2E8F0; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:14px; font-weight:800; color:#64748B;">
+          💡 Thầy/Cô có thể bấm vào nút tick hoặc ngôi sao để chỉnh sửa trạng thái thủ công của học sinh.
+        </span>
+        <button class="k1-btn k1-btn-mint k1-btn-sm" type="button" onclick="SettingsManager.exportExcel()">
+          📥 Xuất Excel SMAS
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    /* ================= CHUYỂN MÀN HÌNH ================= */
-    function switchScreen(idx) {
-      Khoi1Audio.playClick();
-      for (let i = 0; i < 3; i++) {
-        document.getElementById(`screen-${i}`).classList.toggle('active', i === idx);
-        document.getElementById(`nav-tab-${i}`).classList.toggle('active', i === idx);
-      }
-      if (idx === 0) AppleGame.resize();
-      if (idx === 2) renderSummaryBoard();
-    }
+    /* ==========================================================================
+       1. QUẢN LÝ DỮ LIỆU HỌC SINH & LƯU TRỮ LOCALSTORAGE KỸ CÀNG
+       ========================================================================== */
+    const StudentStore = (() => {
+      const STORAGE_KEY_PREFIX = 'k1_tiet08_students_v3_';
+      let currentClass = '1_6';
+      let students = [];
+      let activeStudent = null;
+      let nextStudent = null;
 
-    function speakVietnamese(text) {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = 'vi-VN';
-        u.rate = 0.95;
-        window.speechSynthesis.speak(u);
-      }
-    }
+      const FALLBACK_NAMES = [
+        "Lê Nguyễn Thảo An", "Dương Quỳnh Anh", "Nguyễn Duy Anh", "Nguyễn Trần Bảo Anh", "Tô Tuệ Anh",
+        "Trần Nguyễn Phương Anh", "Danh Trần Gia Bảo", "Trần Tuyết Băng", "Nguyễn Hoàng Dũng", "Phạm Quang Đạt",
+        "Nguyễn Phúc Hậu", "Huỳnh Minh Huy", "Phạm Khắc Huy", "Phạm Minh Ken", "Thái Phát Khang",
+        "Lâm Hoàng Gia Khương", "Nguyễn Tuấn Kiệt", "Đỗ Ngọc Thiên Kim", "Nguyễn Ngọc Thiên Kim", "Đặng Bảo Linh",
+        "Danh Nguyễn Trà My", "Hà Tiểu My", "Nguyễn Cẩm Ngọc", "Nguyễn Hoàng Bảo Ngọc", "Nguyễn Phan Kim Nguyên",
+        "Lưu Nguyệt Nhân", "Lương Huỳnh An Nhiên", "Huỳnh Minh Phát", "Lê Hoàng Phát", "Lưu Vương Thành Phát",
+        "Đàm Tâm Phú", "Huỳnh Ngọc Như Phúc", "Ngô Anh Quốc", "Đặng Phi Thiên", "Nguyễn Hoàng Thiện",
+        "Danh Minh Thuận", "Tô Minh Trí", "Đặng Bảo Trúc", "Phan Nhật Trường", "Võ Huỳnh Khánh Vân",
+        "Mai Đức Vĩnh", "Danh Nguyễn Hoàng Yến"
+      ];
 
-    /* ================= MÀN HÌNH 1: GAME VƯỜN TÁO CHỮ CÁI CANVAS 2D ================= */
+      async function init(cls = '1_6') {
+        currentClass = cls;
+        await load();
+      }
+
+      async function load() {
+        let saved = null;
+        try {
+          saved = localStorage.getItem(STORAGE_KEY_PREFIX + currentClass);
+        } catch (error) {
+          console.error('Không thể đọc dữ liệu đã lưu của Tiết 8.', error);
+          Khoi1Components.showToast('Không đọc được dữ liệu đã lưu. Danh sách tạm thời sẽ được dùng.', true);
+        }
+
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (parsed && Array.isArray(parsed.students) && parsed.students.length > 0 &&
+                parsed.students.every(student => student && Number.isInteger(student.id) && typeof student.name === 'string')) {
+              students = parsed.students;
+              activeStudent = parsed.activeStudent || null;
+              nextStudent = parsed.nextStudent || null;
+              updateHeaderActiveStudent();
+              return;
+            }
+            Khoi1Components.showToast('Dữ liệu đã lưu không đúng định dạng. Đang nạp lại danh sách.', true);
+          } catch (error) {
+            console.error('Không thể phân tích dữ liệu đã lưu của Tiết 8.', error);
+            Khoi1Components.showToast('Dữ liệu đã lưu bị lỗi. Đang nạp lại danh sách.', true);
+          }
+        }
+
+        // Tải danh sách mặc định
+        students = FALLBACK_NAMES.map((name, idx) => ({
+          id: idx + 1,
+          code: `HS1_${String(idx + 1).padStart(2, '0')}`,
+          name: name.trim(),
+          status: 'waiting', // 'waiting' | 'done'
+          isPriority: false,
+          score: 0,
+          calledCount: 0
+        }));
+        activeStudent = null;
+        nextStudent = null;
+        save();
+        updateHeaderActiveStudent();
+      }
+
+      function save() {
+        try {
+          localStorage.setItem(STORAGE_KEY_PREFIX + currentClass, JSON.stringify({
+            students,
+            activeStudent,
+            nextStudent
+          }));
+        } catch (error) {
+          console.error('Không thể lưu dữ liệu học sinh của Tiết 8.', error);
+          Khoi1Components.showToast('Không lưu được dữ liệu trên thiết bị này.', true);
+        }
+      }
+
+      function updateHeaderActiveStudent() {
+        const pill = document.getElementById('active-player-name');
+        if (pill) {
+          pill.textContent = activeStudent || 'Chưa chọn bạn nào';
+        }
+      }
+
+      function getStudents() { return students; }
+      function getActive() { return activeStudent; }
+      function getNext() { return nextStudent; }
+
+      function setActive(name, nextName = null) {
+        activeStudent = name;
+        if (nextName) nextStudent = nextName;
+        save();
+        updateHeaderActiveStudent();
+      }
+
+      function recordScore(score) {
+        if (!activeStudent) return;
+        const st = students.find(s => s.name === activeStudent);
+        if (st) {
+          st.status = 'done';
+          st.score = Math.max(st.score || 0, score);
+          st.calledCount = (st.calledCount || 0) + 1;
+        }
+        save();
+        SettingsManager.renderList();
+        AppManager.renderSummaryBoard();
+      }
+
+      function toggleStudentStatus(id) {
+        const st = students.find(s => s.id === id);
+        if (st) {
+          st.status = st.status === 'done' ? 'waiting' : 'done';
+          save();
+          SettingsManager.renderList();
+          AppManager.renderSummaryBoard();
+        }
+      }
+
+      function toggleStudentStar(id) {
+        const st = students.find(s => s.id === id);
+        if (st) {
+          st.isPriority = !st.isPriority;
+          save();
+          SettingsManager.renderList();
+          AppManager.renderSummaryBoard();
+          if (st.isPriority && window.Khoi1Audio) Khoi1Audio.playVictoryFanfare();
+        }
+      }
+
+      function resetRound() {
+        students.forEach(s => { s.status = 'waiting'; });
+        activeStudent = null;
+        nextStudent = null;
+        save();
+        updateHeaderActiveStudent();
+        SettingsManager.renderList();
+        AppManager.renderSummaryBoard();
+      }
+
+      return {
+        init, load, save, getStudents, getActive, getNext, setActive,
+        recordScore, toggleStudentStatus, toggleStudentStar, resetRound
+      };
+    })();
+
+    /* ==========================================================================
+       2. QUẢN LÝ ĐIỀU HƯỚNG CHÍNH (APP MANAGER)
+       ========================================================================== */
+    const AppManager = (() => {
+      let currentScreen = 0;
+
+      function switchScreen(idx) {
+        if (!Number.isInteger(idx) || idx < 0 || idx > 2 || idx === currentScreen) return;
+        if (currentScreen === 0) AppleGame.onScreenInactive();
+        currentScreen = idx;
+        if (window.Khoi1Audio) Khoi1Audio.playClick();
+        for (let i = 0; i < 3; i++) {
+          document.getElementById(`screen-${i}`).classList.toggle('active', i === idx);
+          document.getElementById(`tab-btn-${i}`).classList.toggle('active', i === idx);
+        }
+        if (idx === 0) AppleGame.onScreenActive();
+        if (idx === 1) TrainGame.render();
+        if (idx === 2) renderSummaryBoard();
+      }
+
+      function renderSummaryBoard() {
+        const students = StudentStore.getStudents();
+        const doneList = students.filter(s => s.status === 'done');
+        const starList = students.filter(s => s.isPriority);
+
+        const doneEl = document.getElementById('podium-done-list');
+        doneEl.innerHTML = doneList.length > 0
+          ? doneList.map(s => `
+              <div class="honor-item done">
+                <span>✓ ${s.name}</span>
+                <span style="font-weight:900; color:#15803D;">${s.score > 0 ? s.score + ' điểm' : 'Đã làm'}</span>
+              </div>
+            `).join('')
+          : `<div style="color:#64748B; font-weight:700; padding:12px;">Chưa có bạn nào lên thực hành. Bấm Gọi Tên Học Sinh để chọn bé lên bảng nhé!</div>`;
+
+        const starEl = document.getElementById('podium-star-list');
+        starEl.innerHTML = starList.length > 0
+          ? starList.map(s => `
+              <div class="honor-item star">
+                <span>⭐ ${s.name}</span>
+                <span style="font-size:14px; color:#B45309;">Ưu tiên tuần sau</span>
+              </div>
+            `).join('')
+          : `<div style="color:#64748B; font-weight:700; padding:12px;">Bấm nút Danh Sách Lớp ở góc trên để tặng sao ưu tiên cho học sinh.</div>`;
+      }
+
+      function showScoreSummary(scoreText, scoreVal) {
+        const stName = StudentStore.getActive() || 'Bé ngoan';
+        document.getElementById('summary-student-name').textContent = stName;
+        document.getElementById('summary-score-value').textContent = scoreText;
+        document.getElementById('score-summary-modal').classList.add('active');
+        if (window.Khoi1Audio) Khoi1Audio.playVictoryFanfare();
+        if (window.Khoi1Confetti) Khoi1Confetti.fire();
+        StudentStore.recordScore(scoreVal);
+      }
+
+      return { switchScreen, renderSummaryBoard, showScoreSummary };
+    })();
+
+    /* ==========================================================================
+       3. MÀN HÌNH 1: VƯỜN TÁO LUYỆN CHUỘT
+       - Không theo chữ cái, hái càng nhiều càng tốt để rèn luyện chuột
+       - Chế độ 1: Nháy chuột hái táo
+       - Chế độ 2: Di chuột hứng táo rụng (Dễ - dành cho các bé chưa quen)
+       - Canvas thoáng đãng 100%, không bị popup trôi nổi che khuất
+       ========================================================================== */
     const AppleGame = (() => {
-      const LETTERS = ['a', 'ă', 'â', 'b', 'c', 'd', 'đ', 'e', 'ê', 'g', 'h', 'i', 'k', 'l', 'm', 'n', 'o', 'ô', 'ơ', 'p', 'q', 'r', 's', 't', 'u', 'ư', 'v', 'x', 'y'];
       let cvs = null, ctx = null;
-      let mode = 'pick'; // 'pick' | 'catch'
+      let mode = 'pick'; // 'pick' (Nháy chuột) | 'catch' (Di chuột hứng)
       let apples = [];
       let particles = [];
-      let basketX = 400;
-      let score = 0, timeLeft = 20, running = false, timerId = null;
+      let score = 0;
+      let timeLeft = 30;
+      let isTiming = false;
+      let timerId = null;
+      let animationFrameId = null;
+      let screenActive = false;
+      let basketX = 480;
 
       function init() {
         cvs = document.getElementById('k1-apple-canvas');
         ctx = cvs.getContext('2d');
         resize();
+        spawnApplesOnTree();
         window.addEventListener('resize', resize);
 
+        // Di chuột điều khiển giỏ mây (Chế độ hứng táo)
         cvs.addEventListener('mousemove', e => {
           const r = cvs.getBoundingClientRect();
           basketX = (e.clientX - r.left) * (cvs.width / r.width);
         });
 
+        // Nháy chuột hái táo (Chế độ nháy chuột)
         cvs.addEventListener('mousedown', e => {
-          if (!running || mode !== 'pick') return;
+          if (mode !== 'pick') return;
           const r = cvs.getBoundingClientRect();
           const mx = (e.clientX - r.left) * (cvs.width / r.width);
           const my = (e.clientY - r.top) * (cvs.height / r.height);
 
           for (let i = apples.length - 1; i >= 0; i--) {
             const a = apples[i];
-            if (Math.hypot(a.x - mx, a.y - my) < 36) {
-              collectApple(a, i);
+            if (a.state === 'hanging' && Math.hypot(a.x - mx, a.y - my) < 38) {
+              harvestApple(a, i);
               break;
             }
           }
         });
 
-        spawnTreeApples();
-        requestAnimationFrame(loop);
+        screenActive = true;
+        animationFrameId = requestAnimationFrame(loop);
+      }
+
+      function onScreenActive() {
+        screenActive = true;
+        resize();
+        if (apples.length === 0) {
+          spawnApplesOnTree();
+        }
+        if (animationFrameId === null) {
+          animationFrameId = requestAnimationFrame(loop);
+        }
+        resumeTimer();
+      }
+
+      function onScreenInactive() {
+        screenActive = false;
+        if (timerId !== null) {
+          clearInterval(timerId);
+          timerId = null;
+        }
+        if (animationFrameId !== null) {
+          cancelAnimationFrame(animationFrameId);
+          animationFrameId = null;
+        }
       }
 
       function resize() {
@@ -537,133 +1310,158 @@
 
       function setMode(m) {
         mode = m;
-        Khoi1Audio.playClick();
-        document.getElementById('apple-mode-pick').className = `k1-btn ${m === 'pick' ? 'k1-btn-sky' : 'k1-btn-white'} k1-btn-sm`;
-        document.getElementById('apple-mode-catch').className = `k1-btn ${m === 'catch' ? 'k1-btn-sky' : 'k1-btn-white'} k1-btn-sm`;
-        spawnTreeApples();
+        if (window.Khoi1Audio) Khoi1Audio.playClick();
+        document.getElementById('btn-mode-pick').classList.toggle('active', m === 'pick');
+        document.getElementById('btn-mode-catch').classList.toggle('active', m === 'catch');
+        spawnApplesOnTree();
       }
 
-      function spawnTreeApples() {
-        const cx = (cvs ? cvs.width : 960) / 2;
+      function spawnApplesOnTree() {
+        const width = cvs ? cvs.width : 960;
+        const cx = width / 2;
+        const horizontalScale = Math.max(0, Math.min(1, (width - 60) / 400));
         const spots = [
-          { dx: -170, y: 150 }, { dx: -85, y: 115 }, { dx: 0, y: 135 }, { dx: 90, y: 115 }, { dx: 175, y: 155 },
-          { dx: -130, y: 225 }, { dx: -35, y: 205 }, { dx: 55, y: 210 }, { dx: 140, y: 230 }
+          { dx: -200, y: 155 }, { dx: -110, y: 120 }, { dx: -10, y: 135 }, { dx: 100, y: 115 }, { dx: 200, y: 155 },
+          { dx: -155, y: 225 }, { dx: -60, y: 205 }, { dx: 45, y: 200 }, { dx: 150, y: 225 }, { dx: 0, y: 230 }
         ];
+
         apples = spots.map(s => ({
-          x: cx + s.dx,
+          x: cx + s.dx * horizontalScale,
           y: s.y,
+          originX: cx + s.dx * horizontalScale,
+          originY: s.y,
+          state: 'hanging', // 'hanging' | 'falling'
           vy: 0,
-          letter: LETTERS[Math.floor(Math.random() * LETTERS.length)].toUpperCase(),
           scale: 1
         }));
       }
 
-      function start() {
-        score = 0;
-        timeLeft = 20;
-        running = true;
-        updateHUD();
-        Khoi1Audio.playVictoryFanfare();
-        spawnTreeApples();
-
-        clearInterval(timerId);
-        timerId = setInterval(() => {
-          timeLeft--;
-          updateHUD();
-          if (mode === 'catch' && running) {
-            const cx = cvs.width / 2;
-            apples.push({
-              x: cx + (Math.random() - 0.5) * 420,
-              y: 110,
-              vy: 3.4 + Math.random() * 2.2,
-              letter: LETTERS[Math.floor(Math.random() * LETTERS.length)].toUpperCase(),
-              scale: 1
-            });
-          }
-          if (timeLeft <= 0) {
-            running = false;
-            clearInterval(timerId);
-            Khoi1Audio.playVictoryFanfare();
-            Khoi1Confetti.fire();
-            if (window.Khoi1Components && window.Khoi1Components.getActiveStudent()) {
-              window.Khoi1Components.markStudentDone(window.Khoi1Components.getActiveStudent(), score);
-            }
-          }
-        }, 1000);
-      }
-
-      function collectApple(a, idx) {
-        apples.splice(idx, 1);
+      function harvestApple(apple, idx) {
+        apple.state = 'falling';
+        apple.vy = 4.5;
         score++;
-        updateHUD();
-        Khoi1Audio.playClick();
-        speakVietnamese(`Chữ ${a.letter}`);
+        document.getElementById('apple-score-pill').textContent = `🍎 Táo: ${score}`;
+        if (window.Khoi1Audio) Khoi1Audio.playClick();
+
+        // Hạt ngôi sao vàng nổ tí tách
         for (let i = 0; i < 14; i++) {
           particles.push({
-            x: a.x, y: a.y,
+            x: apple.x, y: apple.y,
             vx: (Math.random() - 0.5) * 8,
             vy: (Math.random() - 0.5) * 8,
             r: Math.random() * 5 + 3,
             a: 1
           });
         }
-        if (mode === 'pick' && apples.length === 0 && running) {
-          spawnTreeApples();
-        }
+
+        // Táo mới mọc ra sau 0.8 giây
+        setTimeout(() => {
+          apple.x = apple.originX;
+          apple.y = apple.originY;
+          apple.state = 'hanging';
+          apple.vy = 0;
+        }, 800);
       }
 
-      function updateHUD() {
-        document.getElementById('apple-score-txt').textContent = `Táo: ${score}`;
-        document.getElementById('apple-time-txt').textContent = `${timeLeft} giây`;
+      function startRound(seconds = 30) {
+        score = 0;
+        timeLeft = seconds;
+        isTiming = true;
+        document.getElementById('apple-score-pill').textContent = `🍎 Táo: 0`;
+        const timerPill = document.getElementById('apple-timer-pill');
+        timerPill.style.display = 'flex';
+        timerPill.textContent = `⏱️ ${timeLeft}s`;
+
+        spawnApplesOnTree();
+        if (window.Khoi1Audio) Khoi1Audio.playVictoryFanfare();
+
+        clearInterval(timerId);
+        timerId = null;
+        resumeTimer();
       }
 
-      function drawVectorApple(ctx, x, y, letter) {
+      function resumeTimer() {
+        if (!isTiming || !screenActive || timerId !== null) return;
+        const timerPill = document.getElementById('apple-timer-pill');
+        timerId = setInterval(() => {
+          timeLeft--;
+          timerPill.textContent = `⏱️ ${timeLeft}s`;
+
+          // Ở chế độ hứng táo, táo thỉnh thoảng rụng từ cây
+          if (mode === 'catch' && Math.random() < 0.6) {
+            const hanging = apples.filter(a => a.state === 'hanging');
+            if (hanging.length > 0) {
+              const a = hanging[Math.floor(Math.random() * hanging.length)];
+              a.state = 'falling';
+              a.vy = 2.2 + Math.random() * 0.8; // Rơi vừa phải, dễ chịu
+            }
+          }
+
+          if (timeLeft <= 0) {
+            clearInterval(timerId);
+            timerId = null;
+            isTiming = false;
+            timerPill.style.display = 'none';
+            AppManager.showScoreSummary(`🍎 ${score} Quả Táo`, score);
+          }
+        }, 1000);
+      }
+
+      function startFreePractice() {
+        clearInterval(timerId);
+        timerId = null;
+        isTiming = false;
+        document.getElementById('apple-timer-pill').style.display = 'none';
+        score = 0;
+        document.getElementById('apple-score-pill').textContent = `🍎 Táo: 0`;
+        spawnApplesOnTree();
+        if (window.Khoi1Audio) Khoi1Audio.playClick();
+      }
+
+      function drawApple(ctx, x, y) {
         ctx.save();
         ctx.translate(x, y);
 
-        // Quả táo đỏ bóng 3D
-        const grad = ctx.createRadialGradient(-8, -8, 4, 0, 0, 28);
+        // Quả táo đỏ 3D căng mọng
+        const grad = ctx.createRadialGradient(-7, -7, 3, 0, 0, 26);
         grad.addColorStop(0, '#FDA4AF');
         grad.addColorStop(0.35, '#F43F5E');
         grad.addColorStop(1, '#9F1239');
         ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.arc(0, 2, 27, 0, Math.PI * 2);
+        ctx.arc(0, 2, 26, 0, Math.PI * 2);
         ctx.fill();
 
-        // Cuống nâu & chiếc lá xanh
+        // Cuống lá & Chiếc lá xanh
         ctx.strokeStyle = '#78350F';
         ctx.lineWidth = 4;
         ctx.beginPath();
-        ctx.moveTo(0, -22);
-        ctx.quadraticCurveTo(4, -32, 8, -30);
+        ctx.moveTo(0, -20);
+        ctx.quadraticCurveTo(4, -30, 8, -28);
         ctx.stroke();
 
         ctx.fillStyle = '#22C55E';
         ctx.beginPath();
-        ctx.ellipse(11, -27, 9, 5, -0.4, 0, Math.PI * 2);
+        ctx.ellipse(10, -25, 9, 5, -0.4, 0, Math.PI * 2);
         ctx.fill();
-
-        // Chữ cái in rõ giữa quả táo
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = '900 24px "Baloo 2", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(letter, 0, 4);
 
         ctx.restore();
       }
 
       function loop() {
+        if (!screenActive) {
+          animationFrameId = null;
+          return;
+        }
         if (ctx && cvs) {
           const w = cvs.width, h = cvs.height;
           const cx = w / 2;
 
-          // Bầu trời & Đồi cỏ
+          // Bầu trời & Đồi cỏ xanh mát
           const sky = ctx.createLinearGradient(0, 0, 0, h);
           sky.addColorStop(0, '#BAE6FD');
-          sky.addColorStop(0.68, '#E0F2FE');
-          sky.addColorStop(0.68, '#86EFAC');
+          sky.addColorStop(0.66, '#E0F2FE');
+          sky.addColorStop(0.66, '#86EFAC');
           sky.addColorStop(1, '#22C55E');
           ctx.fillStyle = sky;
           ctx.fillRect(0, 0, w, h);
@@ -671,16 +1469,16 @@
           // Thân cây táo cổ thụ
           ctx.fillStyle = '#78350F';
           ctx.beginPath();
-          ctx.roundRect(cx - 42, h * 0.42, 84, h * 0.35, 16);
+          ctx.roundRect(cx - 44, h * 0.42, 88, h * 0.35, 16);
           ctx.fill();
 
-          // Tán lá cây táo 3D nhiều tầng
+          // Tán lá 3D nhiều tầng xum xuê
           const canopies = [
-            { x: cx - 150, y: 190, r: 105, c: '#16A34A' },
-            { x: cx + 150, y: 190, r: 105, c: '#15803D' },
-            { x: cx, y: 155, r: 135, c: '#22C55E' },
-            { x: cx - 75, y: 135, r: 95, c: '#4ADE80' },
-            { x: cx + 80, y: 135, r: 95, c: '#22C55E' }
+            { x: cx - 170, y: 190, r: 110, c: '#16A34A' },
+            { x: cx + 170, y: 190, r: 110, c: '#15803D' },
+            { x: cx, y: 155, r: 140, c: '#22C55E' },
+            { x: cx - 85, y: 135, r: 100, c: '#4ADE80' },
+            { x: cx + 90, y: 135, r: 100, c: '#22C55E' }
           ];
           canopies.forEach(cp => {
             ctx.fillStyle = cp.c;
@@ -689,38 +1487,62 @@
             ctx.fill();
           });
 
-          // Vẽ và cập nhật các quả táo
-          for (let i = apples.length - 1; i >= 0; i--) {
-            const a = apples[i];
-            if (mode === 'catch' && running) {
+          // Vẽ và xử lý các quả táo
+          apples.forEach((a, idx) => {
+            if (a.state === 'falling') {
               a.y += a.vy;
-              if (a.y >= h - 75 && a.y <= h - 30 && Math.abs(a.x - basketX) < 68) {
-                collectApple(a, i);
-                continue;
+
+              // Chế độ hứng táo: Kiểm tra rơi trúng giỏ
+              if (mode === 'catch') {
+                if (a.y >= h - 75 && a.y <= h - 25 && Math.abs(a.x - basketX) < 70) {
+                  score++;
+                  document.getElementById('apple-score-pill').textContent = `🍎 Táo: ${score}`;
+                  if (window.Khoi1Audio) Khoi1Audio.playClick();
+                  // Reset quả táo
+                  a.x = a.originX;
+                  a.y = a.originY;
+                  a.state = 'hanging';
+                  a.vy = 0;
+                  return;
+                }
               }
+
+              // Rơi chạm đất
               if (a.y > h + 30) {
-                apples.splice(i, 1);
-                continue;
+                a.x = a.originX;
+                a.y = a.originY;
+                a.state = 'hanging';
+                a.vy = 0;
               }
             }
-            drawVectorApple(ctx, a.x, a.y, a.letter);
-          }
+            drawApple(ctx, a.x, a.y);
+          });
 
-          // Vẽ Rổ mây hứng táo (nếu ở chế độ Hứng táo)
+          // Giỏ mây hứng táo (Chế độ hứng táo)
           if (mode === 'catch') {
             ctx.save();
-            ctx.translate(basketX, h - 48);
+            ctx.translate(basketX, h - 45);
             ctx.fillStyle = '#D97706';
             ctx.strokeStyle = '#78350F';
             ctx.lineWidth = 4;
             ctx.beginPath();
-            ctx.roundRect(-62, -22, 124, 44, [6, 6, 26, 26]);
+            ctx.roundRect(-65, -22, 130, 44, [6, 6, 26, 26]);
             ctx.fill();
             ctx.stroke();
+
+            // Hoa văn đan rổ mây
+            ctx.strokeStyle = '#B45309';
+            ctx.lineWidth = 2.5;
+            for (let rx = -50; rx <= 50; rx += 25) {
+              ctx.beginPath();
+              ctx.moveTo(rx, -20);
+              ctx.lineTo(rx, 20);
+              ctx.stroke();
+            }
             ctx.restore();
           }
 
-          // Hạt ngôi sao khi hái trúng táo
+          // Hạt ngôi sao vàng
           for (let i = particles.length - 1; i >= 0; i--) {
             const p = particles[i];
             p.x += p.vx;
@@ -736,32 +1558,36 @@
             ctx.fill();
           }
         }
-        requestAnimationFrame(loop);
+        animationFrameId = requestAnimationFrame(loop);
       }
 
-      return { init, resize, setMode, start };
+      return { init, onScreenActive, onScreenInactive, setMode, startRound, startFreePractice };
     })();
 
-    /* ================= MÀN HÌNH 2: ĐOÀN TÀU CHỮ CÁI (CỬU LONG EDU) ================= */
+    /* ==========================================================================
+       4. MÀN HÌNH 2: ĐOÀN TÀU CHỮ CÁI (CỬU LONG EDU)
+       ========================================================================== */
     const TrainGame = (() => {
       const FILL_LEVELS = [
         { seq: ['a', null, 'c', 'd', null], ans: ['b', 'đ'], pool: ['b', 'đ', 'e', 'g'] },
-        { seq: ['a', 'ă', null, 'b', null], ans: ['â', 'c'], pool: ['â', 'c', 'd', 'ê'] },
         { seq: ['e', null, 'g', 'h', null], ans: ['ê', 'i'], pool: ['ê', 'i', 'k', 'l'] },
-        { seq: ['m', null, 'o', null, 'ơ'], ans: ['n', 'ô'], pool: ['n', 'ô', 'p', 'q'] }
-      ];
-      const SORT_LEVELS = [
-        { init: ['d', 'a', 'c', 'b'], ans: ['a', 'b', 'c', 'd'] },
-        { init: ['b', 'a', 'â', 'ă'], ans: ['a', 'ă', 'â', 'b'] },
-        { init: ['g', 'e', 'đ', 'ê'], ans: ['đ', 'e', 'ê', 'g'] },
-        { init: ['p', 'm', 'o', 'n'], ans: ['m', 'n', 'o', 'p'] }
+        { seq: ['m', null, 'o', null, 'ơ'], ans: ['n', 'ô'], pool: ['n', 'ô', 'p', 'q'] },
+        { seq: ['u', null, 'v', 'x', null], ans: ['ư', 'y'], pool: ['ư', 'y', 's', 't'] }
       ];
 
-      let mode = 'fill'; // 'fill' | 'sort'
+      const SORT_LEVELS = [
+        { init: ['b', 'a', 'd', 'c'], ans: ['a', 'b', 'c', 'd'] },
+        { init: ['ê', 'e', 'i', 'h'], ans: ['e', 'ê', 'h', 'i'] },
+        { init: ['ơ', 'ô', 'o', 'n'], ans: ['n', 'o', 'ô', 'ơ'] },
+        { init: ['y', 'u', 'x', 'ư'], ans: ['u', 'ư', 'x', 'y'] }
+      ];
+
+      let mode = 'fill';
       let letterCase = 'lower';
       let levelIdx = 0;
-      let pickedCard = null;
-      let swapFirstWagon = null;
+      let selectedTrayCard = null;
+      let selectedWagonBox = null;
+      let levelLocked = false;
 
       function fmt(ch) {
         if (!ch) return '';
@@ -770,147 +1596,263 @@
 
       function setMode(m) {
         mode = m;
-        Khoi1Audio.playClick();
-        document.getElementById('cl-tab-fill').classList.toggle('active', m === 'fill');
-        document.getElementById('cl-tab-sort').classList.toggle('active', m === 'sort');
+        if (window.Khoi1Audio) Khoi1Audio.playClick();
+        document.getElementById('train-mode-fill').classList.toggle('active', m === 'fill');
+        document.getElementById('train-mode-sort').classList.toggle('active', m === 'sort');
         render();
       }
 
       function setCase(c) {
         letterCase = c;
-        Khoi1Audio.playClick();
-        document.getElementById('cl-case-lower').classList.toggle('active', c === 'lower');
-        document.getElementById('cl-case-upper').classList.toggle('active', c === 'upper');
-        render();
+        if (window.Khoi1Audio) Khoi1Audio.playClick();
+        document.getElementById('train-case-lower').classList.toggle('active', c === 'lower');
+        document.getElementById('train-case-upper').classList.toggle('active', c === 'upper');
+        updateCaseDisplay();
+      }
+
+      function updateCaseDisplay() {
+        const boxes = document.querySelectorAll('#k1-wagons-slot .wagon-box');
+        boxes.forEach(b => {
+          if (b.dataset.char) b.textContent = fmt(b.dataset.char);
+        });
+        const cards = document.querySelectorAll('#k1-cards-tray .letter-card');
+        cards.forEach(c => {
+          if (c.dataset.char) c.textContent = fmt(c.dataset.char);
+        });
       }
 
       function render() {
         const wagonsEl = document.getElementById('k1-wagons-slot');
         const trayEl = document.getElementById('k1-cards-tray');
         const convoy = document.getElementById('k1-train-convoy');
-        if (convoy) convoy.classList.remove('departing');
-        pickedCard = null;
-        swapFirstWagon = null;
 
+        if (convoy) convoy.classList.remove('departing', 'arriving');
+
+        selectedTrayCard = null;
+        selectedWagonBox = null;
         wagonsEl.innerHTML = '';
         trayEl.innerHTML = '';
 
         if (mode === 'fill') {
           const lv = FILL_LEVELS[levelIdx % FILL_LEVELS.length];
-          lv.seq.forEach(ch => {
+
+          // Render các toa
+          lv.seq.forEach((ch, idx) => {
             const wrap = document.createElement('div');
-            wrap.className = 'k1-wagon-wrap';
+            wrap.className = 'wagon-wrap';
+
             const box = document.createElement('div');
+            box.className = 'wagon-box';
+            box.dataset.wagonIndex = idx;
+
             if (ch === null) {
-              box.className = 'k1-wagon-box empty-slot';
+              box.classList.add('empty-slot');
               box.textContent = '?';
-              box.dataset.empty = 'true';
-              // Hỗ trợ cả Click lẫn Kéo Thả (Drag & Drop)
-              box.ondragover = e => e.preventDefault();
+
+              // Kéo thả
+              box.ondragover = e => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+              };
               box.ondrop = e => {
                 e.preventDefault();
-                if (pickedCard) placeCardIntoWagon(box, pickedCard);
+                const cardChar = e.dataTransfer.getData('text/plain');
+                if (cardChar) placeCharIntoSlot(box, cardChar);
               };
+
+              // Nháy chuột
               box.onclick = () => {
-                if (pickedCard) placeCardIntoWagon(box, pickedCard);
+                if (box.dataset.char) {
+                  removeCharFromSlot(box);
+                } else if (selectedTrayCard) {
+                  placeCharIntoSlot(box, selectedTrayCard.dataset.char);
+                }
               };
             } else {
-              box.className = 'k1-wagon-box';
               box.textContent = fmt(ch);
+              box.dataset.char = ch;
             }
+
             wrap.appendChild(box);
-            wrap.insertAdjacentHTML('beforeend', `<div class="k1-wagon-wheels"><div class="k1-wheel-circle"></div><div class="k1-wheel-circle"></div></div>`);
+            wrap.insertAdjacentHTML('beforeend', `
+              <div class="wagon-wheels">
+                <div class="wheel-dot"></div>
+                <div class="wheel-dot"></div>
+              </div>
+            `);
             wagonsEl.appendChild(wrap);
           });
 
-          lv.pool.forEach(ch => {
+          // Render khay thẻ rời
+          lv.pool.forEach((ch, cIdx) => {
             const card = document.createElement('div');
-            card.className = 'k1-drag-card';
-            card.draggable = true;
+            card.className = 'letter-card';
+            card.dataset.char = ch;
             card.textContent = fmt(ch);
-            card.ondragstart = () => { pickedCard = card; };
-            card.onclick = () => {
-              document.querySelectorAll('.k1-drag-card').forEach(c => c.classList.remove('picked'));
-              pickedCard = card;
-              card.classList.add('picked');
-              Khoi1Audio.playClick();
-              speakVietnamese(`Chữ ${ch}`);
+            card.draggable = true;
+
+            card.ondragstart = e => {
+              e.dataTransfer.setData('text/plain', ch);
+              e.dataTransfer.effectAllowed = 'copy';
             };
+
+            card.onclick = () => {
+              if (card.classList.contains('used')) return;
+              document.querySelectorAll('.letter-card').forEach(c => c.classList.remove('picked'));
+              if (selectedTrayCard === card) {
+                selectedTrayCard = null;
+              } else {
+                selectedTrayCard = card;
+                card.classList.add('picked');
+                if (window.Khoi1Audio) Khoi1Audio.playClick();
+              }
+            };
+
             trayEl.appendChild(card);
           });
         } else {
-          // Chế độ Sắp xếp thứ tự ABC
+          // Mode Sắp xếp ABC
           const lv = SORT_LEVELS[levelIdx % SORT_LEVELS.length];
-          lv.init.forEach(ch => {
+          lv.init.forEach((ch, idx) => {
             const wrap = document.createElement('div');
-            wrap.className = 'k1-wagon-wrap';
-            const box = document.createElement('div');
-            box.className = 'k1-wagon-box';
-            box.draggable = true;
-            box.textContent = fmt(ch);
-            box.dataset.raw = ch;
+            wrap.className = 'wagon-wrap';
 
-            box.ondragstart = () => { swapFirstWagon = box; };
-            box.ondragover = e => e.preventDefault();
+            const box = document.createElement('div');
+            box.className = 'wagon-box';
+            box.dataset.wagonIndex = idx;
+            box.dataset.char = ch;
+            box.textContent = fmt(ch);
+            box.draggable = true;
+
+            box.ondragstart = e => {
+              e.dataTransfer.setData('text/plain', idx);
+              e.dataTransfer.effectAllowed = 'move';
+              selectedWagonBox = box;
+            };
+
+            box.ondragend = () => {
+              document.querySelectorAll('.wagon-box').forEach(b => b.classList.remove('selected-swap'));
+              selectedWagonBox = null;
+            };
+
+            box.ondragover = e => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = 'move';
+            };
+
             box.ondrop = e => {
               e.preventDefault();
-              if (swapFirstWagon && swapFirstWagon !== box) swapTwoWagons(swapFirstWagon, box);
+              const fromIdx = e.dataTransfer.getData('text/plain');
+              if (fromIdx !== '' && Number(fromIdx) !== idx) {
+                swapWagons(Number(fromIdx), idx);
+              }
+              selectedWagonBox = null;
             };
+
             box.onclick = () => {
-              if (!swapFirstWagon) {
-                swapFirstWagon = box;
+              if (!selectedWagonBox) {
+                selectedWagonBox = box;
                 box.classList.add('selected-swap');
-                Khoi1Audio.playClick();
+                if (window.Khoi1Audio) Khoi1Audio.playClick();
+              } else if (selectedWagonBox === box) {
+                box.classList.remove('selected-swap');
+                selectedWagonBox = null;
               } else {
-                if (swapFirstWagon !== box) swapTwoWagons(swapFirstWagon, box);
-                swapFirstWagon.classList.remove('selected-swap');
-                swapFirstWagon = null;
+                const idx1 = Number(selectedWagonBox.dataset.wagonIndex);
+                swapWagons(idx1, idx);
+                selectedWagonBox.classList.remove('selected-swap');
+                selectedWagonBox = null;
               }
             };
 
             wrap.appendChild(box);
-            wrap.insertAdjacentHTML('beforeend', `<div class="k1-wagon-wheels"><div class="k1-wheel-circle"></div><div class="k1-wheel-circle"></div></div>`);
+            wrap.insertAdjacentHTML('beforeend', `
+              <div class="wagon-wheels">
+                <div class="wheel-dot"></div>
+                <div class="wheel-dot"></div>
+              </div>
+            `);
             wagonsEl.appendChild(wrap);
           });
 
-          trayEl.innerHTML = `<div style="font-size:17px; font-weight:800; color:#0369A1;">Nháy chuột hoặc kéo thả 2 toa tàu để đổi vị trí theo đúng thứ tự ABC!</div>`;
+          trayEl.innerHTML = `
+            <div style="font-size:16px; font-weight:800; color:#0369A1;">
+              💡 Em hãy nháy chuột vào 2 toa tàu để tráo đổi theo thứ tự ABC nhé!
+            </div>
+          `;
         }
       }
 
-      function placeCardIntoWagon(wagonBox, cardEl) {
-        wagonBox.textContent = cardEl.textContent;
+      function placeCharIntoSlot(wagonBox, char) {
+        if (wagonBox.dataset.char) {
+          restoreTrayCard(wagonBox.dataset.char);
+        }
+        wagonBox.textContent = fmt(char);
+        wagonBox.dataset.char = char;
         wagonBox.classList.remove('empty-slot', 'is-wrong');
-        cardEl.classList.remove('picked');
-        Khoi1Audio.playClick();
-        pickedCard = null;
-      }
+        wagonBox.classList.add('filled-slot');
 
-      function swapTwoWagons(w1, w2) {
-        const tmpTxt = w1.textContent;
-        w1.textContent = w2.textContent;
-        w2.textContent = tmpTxt;
-        w1.classList.remove('is-wrong', 'is-correct', 'selected-swap');
-        w2.classList.remove('is-wrong', 'is-correct', 'selected-swap');
-        Khoi1Audio.playQuack();
-      }
+        markTrayCardUsed(char);
 
-      /* THẦY LÀM MẪU (CỐ TÌNH XẾP SAI ĐỂ BÁO ĐỎ RỒI SỬA LẠI) */
-      function teacherDemoWrong() {
-        setMode('sort');
-        const boxes = document.querySelectorAll('#k1-wagons-slot .k1-wagon-box');
-        if (boxes.length >= 2) {
-          const lv = SORT_LEVELS[levelIdx % SORT_LEVELS.length];
-          boxes[0].textContent = fmt(lv.ans[1]);
-          boxes[1].textContent = fmt(lv.ans[0]);
-          for (let i = 2; i < boxes.length; i++) {
-            boxes[i].textContent = fmt(lv.ans[i]);
-          }
-          setTimeout(() => checkAnswer(), 300);
+        if (selectedTrayCard && selectedTrayCard.dataset.char === char) {
+          selectedTrayCard.classList.remove('picked');
+          selectedTrayCard = null;
         }
+        if (window.Khoi1Audio) Khoi1Audio.playClick();
+      }
+
+      function removeCharFromSlot(wagonBox) {
+        const oldChar = wagonBox.dataset.char;
+        if (!oldChar) return;
+        wagonBox.textContent = '?';
+        delete wagonBox.dataset.char;
+        wagonBox.classList.remove('filled-slot', 'is-wrong', 'is-correct');
+        wagonBox.classList.add('empty-slot');
+        restoreTrayCard(oldChar);
+        if (window.Khoi1Audio) Khoi1Audio.playClick();
+      }
+
+      function markTrayCardUsed(char) {
+        const cards = document.querySelectorAll('#k1-cards-tray .letter-card:not(.used)');
+        for (const c of cards) {
+          if (c.dataset.char === char) {
+            c.classList.add('used');
+            c.classList.remove('picked');
+            break;
+          }
+        }
+      }
+
+      function restoreTrayCard(char) {
+        const usedCards = document.querySelectorAll('#k1-cards-tray .letter-card.used');
+        for (const c of usedCards) {
+          if (c.dataset.char === char) {
+            c.classList.remove('used');
+            break;
+          }
+        }
+      }
+
+      function swapWagons(idx1, idx2) {
+        const boxes = document.querySelectorAll('#k1-wagons-slot .wagon-box');
+        const b1 = boxes[idx1], b2 = boxes[idx2];
+        if (!b1 || !b2) return;
+
+        const c1 = b1.dataset.char, c2 = b2.dataset.char;
+        b1.dataset.char = c2;
+        b1.textContent = fmt(c2);
+        b2.dataset.char = c1;
+        b2.textContent = fmt(c1);
+
+        b1.classList.remove('is-wrong', 'is-correct', 'selected-swap');
+        b2.classList.remove('is-wrong', 'is-correct', 'selected-swap');
+
+        if (window.Khoi1Audio) Khoi1Audio.playClick();
       }
 
       function checkAnswer() {
-        const boxes = document.querySelectorAll('#k1-wagons-slot .k1-wagon-box');
+        if (levelLocked) return;
+        const boxes = document.querySelectorAll('#k1-wagons-slot .wagon-box');
         let allRight = true;
 
         if (mode === 'fill') {
@@ -918,8 +1860,8 @@
           let ansIdx = 0;
           lv.seq.forEach((ch, i) => {
             if (ch === null) {
-              const expected = fmt(lv.ans[ansIdx]);
-              const actual = boxes[i].textContent.trim();
+              const expected = lv.ans[ansIdx];
+              const actual = boxes[i].dataset.char || '';
               if (actual === expected) {
                 boxes[i].classList.add('is-correct');
                 boxes[i].classList.remove('is-wrong');
@@ -934,8 +1876,9 @@
         } else {
           const lv = SORT_LEVELS[levelIdx % SORT_LEVELS.length];
           boxes.forEach((b, i) => {
-            const expected = fmt(lv.ans[i]);
-            if (b.textContent.trim() === expected) {
+            const expected = lv.ans[i];
+            const actual = b.dataset.char || '';
+            if (actual === expected) {
               b.classList.add('is-correct');
               b.classList.remove('is-wrong');
             } else {
@@ -947,57 +1890,381 @@
         }
 
         if (allRight) {
-          Khoi1Audio.playVictoryFanfare();
-          Khoi1Confetti.fire();
-          speakVietnamese('Chính xác! Đoàn tàu chữ cái khởi hành!');
-          if (window.Khoi1Components && window.Khoi1Components.getActiveStudent()) {
-            window.Khoi1Components.markStudentDone(window.Khoi1Components.getActiveStudent(), 100);
-          }
+          levelLocked = true;
+          if (window.Khoi1Audio) Khoi1Audio.playVictoryFanfare();
+          if (window.Khoi1Confetti) Khoi1Confetti.fire();
+
+          const convoy = document.getElementById('k1-train-convoy');
           setTimeout(() => {
-            document.getElementById('k1-train-convoy').classList.add('departing');
-          }, 450);
-          setTimeout(() => nextLevel(), 1450);
+            if (convoy) convoy.classList.add('departing');
+          }, 400);
+
+          setTimeout(() => {
+            levelIdx++;
+            levelLocked = false;
+            if (convoy) {
+              convoy.classList.remove('departing');
+              convoy.classList.add('arriving');
+            }
+            render();
+            setTimeout(() => {
+              if (convoy) convoy.classList.remove('arriving');
+            }, 60);
+          }, 1200);
+
+          AppManager.showScoreSummary('⭐ 100 Điểm Đoàn Tàu', 100);
         } else {
-          Khoi1Audio.playBuzzer();
-          speakVietnamese('Chưa đúng thứ tự rồi, em hãy kéo đổi lại toa màu đỏ nhé!');
+          if (window.Khoi1Audio) Khoi1Audio.playBuzzer();
         }
       }
 
       function nextLevel() {
+        if (levelLocked) return;
         levelIdx++;
-        Khoi1Audio.playClick();
+        if (window.Khoi1Audio) Khoi1Audio.playClick();
         render();
       }
 
-      function speakGuide() {
-        Khoi1Audio.playClick();
-        speakVietnamese('Các em hãy dùng chuột nháy chọn hoặc kéo chữ cái đặt vào toa tàu cho đúng thứ tự bảng chữ cái, sau đó bấm nút Kiểm tra kết quả màu xanh lá nhé!');
-      }
-
-      return { setMode, setCase, render, teacherDemoWrong, checkAnswer, nextLevel, speakGuide };
+      return { setMode, setCase, render, checkAnswer, nextLevel };
     })();
 
-    /* ================= MÀN HÌNH 3: BẢNG VÀNG TỔNG KẾT ================= */
-    function renderSummaryBoard() {
-      if (!window.Khoi1Components) return;
-      const all = window.Khoi1Components.getAllStudents();
-      const doneList = all.filter(s => s.status === 'called');
-      const starList = all.filter(s => s.isPriority);
+    /* ==========================================================================
+       5. SUPER GACHA: HỒI HỘP - ĐẦU TƯ HIỆU ỨNG (VÒNG QUAY & BẮT VỊT 3D)
+       ========================================================================== */
+    const SuperGacha = (() => {
+      let mode = 'wheel'; // 'wheel' | 'duck'
+      let cvs = null, ctx = null, animId = null;
+      let isSpinning = false;
+      let angle = 0, speed = 0;
+      let candidates = [];
+      let winnerName = null, nextCandidate = null;
 
-      const doneEl = document.getElementById('k1-done-students-list');
-      doneEl.innerHTML = doneList.length > 0
-        ? doneList.map(s => `<div class="k1-st-row is-done"><span>✓ ${s.name}</span><span>${s.mouseSkill}</span></div>`).join('')
-        : `<div style="color:#64748B; font-weight:700;">Chưa có học sinh thực hành trong phiên này.</div>`;
+      function open() {
+        cvs = document.getElementById('gacha-canvas');
+        ctx = cvs.getContext('2d');
+        document.getElementById('super-gacha-modal').classList.add('active');
+        document.getElementById('gacha-winner-overlay').classList.remove('active');
+        isSpinning = false;
 
-      const starEl = document.getElementById('k1-star-students-list');
-      starEl.innerHTML = starList.length > 0
-        ? starList.map(s => `<div class="k1-st-row is-star"><span>★ ${s.name}</span><span>Ưu tiên tuần sau</span></div>`).join('')
-        : `<div style="color:#64748B; font-weight:700;">Bấm nút ★ cạnh tên học sinh ở thanh bên trái để thưởng vé ưu tiên tuần sau.</div>`;
-    }
+        // Lấy danh sách chưa gọi
+        const all = StudentStore.getStudents();
+        const uncalled = all.filter(s => s.status === 'waiting');
+        candidates = uncalled.length >= 4 ? uncalled.map(s => s.name) : all.map(s => s.name);
 
-    window.addEventListener('DOMContentLoaded', () => {
+        if (animId) cancelAnimationFrame(animId);
+        loop();
+      }
+
+      function close() {
+        document.getElementById('super-gacha-modal').classList.remove('active');
+        if (animId) cancelAnimationFrame(animId);
+        isSpinning = false;
+      }
+
+      function setMode(m) {
+        if (isSpinning) return;
+        mode = m;
+        document.getElementById('gacha-mode-wheel').classList.toggle('active', m === 'wheel');
+        document.getElementById('gacha-mode-duck').classList.toggle('active', m === 'duck');
+        if (window.Khoi1Audio) Khoi1Audio.playClick();
+      }
+
+      function spin() {
+        if (isSpinning) return;
+        isSpinning = true;
+        document.getElementById('gacha-spin-btn').disabled = true;
+
+        if (mode === 'wheel') {
+          // Quay vòng xoay may mắn: Tốc độ cao rồi hãm phanh từ từ
+          speed = 0.45 + Math.random() * 0.15;
+          let friction = 0.985;
+          let lastTick = -1;
+
+          function spinStep() {
+            angle += speed;
+            speed *= friction;
+
+            // Âm thanh tạch tạch khi kim chạm nan quạt
+            const slice = (Math.PI * 2) / candidates.length;
+            const currentSlice = Math.floor(angle / slice);
+            if (currentSlice !== lastTick) {
+              lastTick = currentSlice;
+              if (window.Khoi1Audio) Khoi1Audio.playClick();
+            }
+
+            if (speed > 0.0025) {
+              requestAnimationFrame(spinStep);
+            } else {
+              // Dừng lại kịch tính!
+              isSpinning = false;
+              document.getElementById('gacha-spin-btn').disabled = false;
+              const normalized = (angle % (Math.PI * 2));
+              // Kim chỉ ở góc 270 độ (đỉnh vòng quay)
+              const pointerAngle = (Math.PI * 1.5 - normalized + Math.PI * 4) % (Math.PI * 2);
+              const winIdx = Math.floor(pointerAngle / slice) % candidates.length;
+              showWinner(candidates[winIdx]);
+            }
+          }
+          requestAnimationFrame(spinStep);
+        } else {
+          // Mode Bắt vịt 3D: Chạy thời gian 3.5 giây với tiếng vịt quạc
+          let elapsed = 0;
+          const interval = setInterval(() => {
+            elapsed += 200;
+            if (window.Khoi1Audio) Khoi1Audio.playQuack();
+            if (elapsed >= 3400) {
+              clearInterval(interval);
+              isSpinning = false;
+              document.getElementById('gacha-spin-btn').disabled = false;
+              const winIdx = Math.floor(Math.random() * candidates.length);
+              showWinner(candidates[winIdx]);
+            }
+          }, 200);
+        }
+      }
+
+      function showWinner(name) {
+        winnerName = name;
+        const pool = candidates.filter(n => n !== name);
+        nextCandidate = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : 'Đã hết danh sách';
+
+        document.getElementById('gacha-winner-name').textContent = winnerName;
+        document.getElementById('gacha-winner-next').textContent = `Chuẩn bị kế tiếp: ${nextCandidate}`;
+        document.getElementById('gacha-winner-overlay').classList.add('active');
+
+        if (window.Khoi1Audio) Khoi1Audio.playVictoryFanfare();
+        if (window.Khoi1Confetti) Khoi1Confetti.fire();
+
+        StudentStore.setActive(winnerName, nextCandidate);
+      }
+
+      function chooseGame(gameType) {
+        close();
+        if (gameType === 'apple-pick') {
+          AppManager.switchScreen(0);
+          AppleGame.setMode('pick');
+          AppleGame.startRound(30);
+        } else if (gameType === 'apple-catch') {
+          AppManager.switchScreen(0);
+          AppleGame.setMode('catch');
+          AppleGame.startRound(30);
+        } else if (gameType === 'train') {
+          AppManager.switchScreen(1);
+          TrainGame.render();
+        }
+      }
+
+      function loop() {
+        if (ctx && cvs) {
+          ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+          if (mode === 'wheel') {
+            drawWheel();
+          } else {
+            drawDuckPond();
+          }
+        }
+        animId = requestAnimationFrame(loop);
+      }
+
+      function drawWheel() {
+        const cx = cvs.width / 2, cy = cvs.height / 2;
+        const radius = 175;
+        const slices = candidates.length;
+        const sliceAngle = (Math.PI * 2) / slices;
+        const colors = ['#EF4444', '#F59E0B', '#10B981', '#06B6D4', '#3B82F6', '#8B5CF6', '#EC4899', '#14B8A6'];
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+
+        // Vẽ các nan quạt nhiều màu
+        for (let i = 0; i < slices; i++) {
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.arc(0, 0, radius, i * sliceAngle, (i + 1) * sliceAngle);
+          ctx.fillStyle = colors[i % colors.length];
+          ctx.fill();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.stroke();
+
+          // Tên học sinh trên nan quạt
+          ctx.save();
+          ctx.rotate(i * sliceAngle + sliceAngle / 2);
+          ctx.textAlign = 'right';
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = '900 14px "Baloo 2", sans-serif';
+          ctx.fillText(candidates[i], radius - 18, 5);
+          ctx.restore();
+        }
+
+        // Tâm vòng quay
+        ctx.beginPath();
+        ctx.arc(0, 0, 24, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#F59E0B';
+        ctx.stroke();
+
+        ctx.restore();
+
+        // Kim chỉ cố định ở trên đỉnh
+        ctx.fillStyle = '#EF4444';
+        ctx.beginPath();
+        ctx.moveTo(cx - 14, cy - radius - 12);
+        ctx.lineTo(cx + 14, cy - radius - 12);
+        ctx.lineTo(cx, cy - radius + 15);
+        ctx.closePath();
+        ctx.fill();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.stroke();
+      }
+
+      function drawDuckPond() {
+        // Hồ nước xanh lung linh
+        ctx.fillStyle = '#0284C7';
+        ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+        // Đàn vịt vàng bơi lội
+        const t = Date.now() * 0.003;
+        candidates.slice(0, 8).forEach((name, i) => {
+          const dx = (cvs.width / 9) * (i + 1) + Math.sin(t + i) * 20;
+          const dy = 200 + Math.cos(t * 1.5 + i) * 35;
+
+          // Thân vịt vàng
+          ctx.fillStyle = '#FACC15';
+          ctx.beginPath();
+          ctx.ellipse(dx, dy, 24, 16, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Đầu vịt & Mỏ cam
+          ctx.beginPath();
+          ctx.arc(dx + 16, dy - 10, 11, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#F97316';
+          ctx.beginPath();
+          ctx.moveTo(dx + 25, dy - 10);
+          ctx.lineTo(dx + 35, dy - 7);
+          ctx.lineTo(dx + 25, dy - 4);
+          ctx.fill();
+
+          // Tên bé trên đầu vịt
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = '900 13px "Baloo 2", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(name, dx, dy + 32);
+        });
+      }
+
+      return { open, close, setMode, spin, chooseGame };
+    })();
+
+    /* ==========================================================================
+       6. MODAL THIẾT ĐẶT: QUẢN LÝ DANH SÁCH LỚP & CHỈNH SỬA THỦ CÔNG
+       ========================================================================== */
+    const SettingsManager = (() => {
+      let currentFilter = 'waiting';
+
+      function open() {
+        document.getElementById('settings-modal').classList.add('active');
+        renderList();
+      }
+
+      function close() {
+        document.getElementById('settings-modal').classList.remove('active');
+      }
+
+      function setFilter(f) {
+        currentFilter = f;
+        document.getElementById('st-tab-waiting').classList.toggle('active', f === 'waiting');
+        document.getElementById('st-tab-done').classList.toggle('active', f === 'done');
+        document.getElementById('st-tab-star').classList.toggle('active', f === 'star');
+        renderList();
+      }
+
+      function onClassChange(cls) {
+        StudentStore.init(cls).then(() => {
+          renderList();
+          AppManager.renderSummaryBoard();
+        });
+      }
+
+      function renderList() {
+        const students = StudentStore.getStudents();
+        const waiting = students.filter(s => s.status === 'waiting');
+        const done = students.filter(s => s.status === 'done');
+        const stars = students.filter(s => s.isPriority);
+
+        document.getElementById('count-waiting').textContent = waiting.length;
+        document.getElementById('count-done').textContent = done.length;
+        document.getElementById('count-star').textContent = stars.length;
+
+        const listEl = document.getElementById('settings-student-list');
+        const displayList = currentFilter === 'waiting' ? waiting : (currentFilter === 'done' ? done : stars);
+
+        listEl.innerHTML = displayList.map(s => `
+          <div class="st-edit-row ${s.status === 'done' ? 'is-done' : ''} ${s.isPriority ? 'is-star' : ''}">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:16px; font-weight:900; color:#0F172A;">${s.name}</span>
+              ${s.score > 0 ? `<span style="font-size:13px; font-weight:800; color:#059669; background:#D1FAE5; padding:2px 8px; border-radius:99px;">${s.score}đ</span>` : ''}
+            </div>
+
+            <div style="display:flex; gap:8px;">
+              <!-- Nút chuyển trạng thái thủ công -->
+              <button class="k1-btn ${s.status === 'done' ? 'k1-btn-mint' : 'k1-btn-white'} k1-btn-sm" type="button" onclick="StudentStore.toggleStudentStatus(${s.id})" title="Đổi trạng thái đã làm / chưa làm">
+                ${s.status === 'done' ? '✓ Đã làm' : '⏳ Chưa làm'}
+              </button>
+
+              <!-- Nút tặng sao ưu tiên -->
+              <button class="k1-btn ${s.isPriority ? 'k1-btn-amber' : 'k1-btn-white'} k1-btn-sm" type="button" onclick="StudentStore.toggleStudentStar(${s.id})" title="Thưởng sao ưu tiên tuần sau">
+                ★
+              </button>
+
+              <!-- Nút gọi lên chơi ngay -->
+              <button class="k1-btn k1-btn-sky k1-btn-sm" type="button" onclick="StudentStore.setActive('${s.name}'); SettingsManager.close();" title="Chỉ định lên bảng ngay">
+                ▶ Chơi ngay
+              </button>
+            </div>
+          </div>
+        `).join('') || `<div style="text-align:center; padding:20px; color:#64748B; font-weight:700;">Không có học sinh nào trong mục này.</div>`;
+      }
+
+      function resetRound() {
+        if (confirm('Thầy/Cô có muốn đặt lại toàn bộ danh sách lớp về trạng thái Chưa làm để bắt đầu tiết mới?')) {
+          StudentStore.resetRound();
+        }
+      }
+
+      function exportExcel() {
+        const students = StudentStore.getStudents();
+        const rows = students.map((s, idx) => ({
+          "STT": idx + 1,
+          "Mã HS": s.code,
+          "Họ và Tên": s.name,
+          "Trạng Thái": s.status === 'done' ? 'Đã hoàn thành' : 'Chưa gọi',
+          "Điểm Đạt Được": s.score || 0,
+          "Sao Ưu Tiên": s.isPriority ? 'Có (Sao Ngoan)' : '',
+          "Đánh Giá TT27": s.status === 'done' ? 'Hoàn thành tốt (T)' : 'Hoàn thành (H)',
+          "Nhận Xét": s.status === 'done'
+            ? 'Em thao tác chuột nhanh nhẹn, hoàn thành tốt trò chơi hái táo và xếp toa tàu.'
+            : 'Em chú ý lắng nghe, thực hiện đúng nội quy giờ học máy tính.'
+        }));
+
+        Khoi1Components.exportRows(rows, 'SMAS_TinHoc1_Tiet08.xlsx', 'Danh_Gia_SMAS');
+      }
+
+      return { open, close, setFilter, onClassChange, renderList, resetRound, exportExcel };
+    })();
+
+    /* KHỞI ĐỘNG HỆ THỐNG KHI TẢI TRANG */
+    window.addEventListener('DOMContentLoaded', async () => {
+      await StudentStore.init('1_6');
       AppleGame.init();
       TrainGame.render();
+      AppManager.renderSummaryBoard();
     });
   </script>
 </body>

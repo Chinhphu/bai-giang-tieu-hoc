@@ -1,18 +1,22 @@
 # 🌟 BỘ THƯ VIỆN DÙNG CHUNG KHỐI 1 (LỚP 1)
-**Hệ thống EdTech Gamification Chuẩn Tiểu Học cho 35 Tiết Tin Học Lớp 1 (`tiet-01` đến `tiet-35`)**
+**Thư viện dùng chung cho các bài Tin học Lớp 1 (`tiet-01` đến `tiet-35`)**
+
+> Hiện chỉ các trang `tiet-01`, `tiet-05` và `tiet-08` có nội dung. Các trang còn lại đang để trống; không nhân bản nội dung bài mẫu sang những tiết này nếu chưa có nội dung chương trình.
 
 ---
 
 ## 🎯 1. QUY TẮC BẮT BUỘC (CRITICAL RULES)
 1. **100% Giao Diện Tiếng Việt:** Không một từ tiếng Anh trên nút bấm, nhãn, thông báo. Nút bấm kèm Emoji trực quan, cỡ chữ cực lớn, font tròn trịa dễ đọc (`'Baloo 2'`, `'Nunito'`, `'Segoe UI'`).
-2. **Chạy Offline 100%:**
+2. **Ưu tiên hoạt động offline:**
    - Đồ họa vẽ bằng CSS3, SVG, HTML5 Canvas và Emoji.
-   - Âm thanh tổng hợp hoàn toàn bằng **Web Audio API** (Nhạc nền 8-bit, vịt quạc "Quạc quạc", còi chiến thắng, còi báo lỗi, tiếng vỗ tay, pháo hoa).
-   - Tự động fallback dữ liệu lớp học nếu mở qua giao thức `file://`.
+   - Âm thanh được tổng hợp bằng **Web Audio API**.
+   - Một số chức năng tải danh sách lớp và xuất Excel cần truy cập tệp/thư viện ngoài; không đảm bảo mọi tính năng hoạt động khi mở trực tiếp bằng `file://`.
+   - Khi không tải được dữ liệu lớp, các trang dùng `components.js` có danh sách dự phòng.
 3. **Chặn Phím F5 Của Học Sinh:**
    - Tự động chặn phím `F5`, `Ctrl+R`, `Ctrl+F5` với thông báo tiếng Việt: `"⚠️ Cấm bấm F5 tải lại trang!"`.
    - **Chỉ khi giáo viên giữ `Shift + F5` mới cho phép tải lại trang.**
-   - Khóa menu chuột phải chống bấm nhầm (giáo viên dùng `Shift + Chuột phải`).
+
+Giao diện dùng chung hỗ trợ cuộn nội dung dài, bố cục màn hình nhỏ, phím điều hướng dễ nhận biết và giảm chuyển động khi người dùng bật chế độ hạn chế chuyển động.
 
 ---
 
@@ -20,10 +24,10 @@
 
 ```text
 khoi-1/shared/
-├── style.css         # Hệ thống biến màu sắc, nút bấm 3D Neubrutalism, Sidebar (250px) + Sân khấu (calc(100vw - 250px))
+├── style.css         # Màu sắc, nút bấm, sidebar, bố cục co giãn và hỗ trợ màn hình nhỏ
 ├── gacha.js          # Hệ thống Popup Vòng quay Gacha 6 chế độ & Bộ âm thanh Web Audio API
-├── components.js     # Quản lý danh sách lớp, localStorage, widget kiểm tra cầm chuột, xuất Excel SMAS
-├── template.html     # Trang mẫu chuẩn để nhân bản cho các tiết từ 01 đến 35
+├── components.js     # Danh sách lớp, lưu trạng thái, widget cầm chuột, xuất Excel/CSV
+├── template.html     # Khung tham khảo để tạo trang tiết mới
 └── README.md         # Hướng dẫn kiến trúc và sử dụng API
 ```
 
@@ -99,4 +103,3 @@ Chỉ cần nhúng 3 file dùng chung:
 </body>
 </html>
 ```
-

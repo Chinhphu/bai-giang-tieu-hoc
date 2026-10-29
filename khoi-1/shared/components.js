@@ -73,17 +73,29 @@
     }
 
     async function loadStudents(cls) {
-      const saved = localStorage.getItem(KEY_PREFIX + cls);
+      let saved = null;
+      try {
+        saved = localStorage.getItem(KEY_PREFIX + cls);
+      } catch (error) {
+        console.error('Không thể đọc dữ liệu lớp đã lưu.', error);
+        showToast('Không đọc được dữ liệu lớp đã lưu. Danh sách tạm thời sẽ được dùng.', true);
+      }
+
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed.students) && parsed.students.length > 0) {
+          if (parsed && Array.isArray(parsed.students) && parsed.students.length > 0 &&
+              parsed.students.every(student => student && Number.isInteger(student.id) && typeof student.name === 'string')) {
             students = parsed.students;
             activeStudent = parsed.activeStudent || null;
             nextStudent = parsed.nextStudent || null;
             return;
           }
-        } catch (_) {}
+          showToast('Dữ liệu lớp đã lưu không đúng định dạng. Đang nạp lại danh sách.', true);
+        } catch (error) {
+          console.error('Không thể đọc dữ liệu lớp đã lưu.', error);
+          showToast('Dữ liệu lớp đã lưu bị lỗi. Đang nạp lại danh sách.', true);
+        }
       }
 
       let rawNames = null;
@@ -124,11 +136,16 @@
     }
 
     function save() {
-      localStorage.setItem(KEY_PREFIX + currentClass, JSON.stringify({
-        students,
-        activeStudent,
-        nextStudent
-      }));
+      try {
+        localStorage.setItem(KEY_PREFIX + currentClass, JSON.stringify({
+          students,
+          activeStudent,
+          nextStudent
+        }));
+      } catch (error) {
+        console.error('Không thể lưu dữ liệu lớp.', error);
+        showToast('Không lưu được dữ liệu lớp trên thiết bị này.', true);
+      }
     }
 
     function getUncalledStudents() {
@@ -373,6 +390,39 @@
       closeMouseModal();
     }
 
+    function exportRows(rows, fileName, sheetName = 'Danh_Gia_SMAS') {
+      let excelFailed = false;
+      if (typeof window.XLSX !== 'undefined') {
+        try {
+          const ws = window.XLSX.utils.json_to_sheet(rows);
+          const wb = window.XLSX.utils.book_new();
+          window.XLSX.utils.book_append_sheet(wb, ws, sheetName);
+          window.XLSX.writeFile(wb, fileName);
+          showToast(`Đã xuất file ${fileName}!`);
+        } catch (error) {
+          console.error('Không thể xuất bảng Excel.', error);
+          excelFailed = true;
+        }
+        if (!excelFailed) return;
+      }
+
+      const columns = Object.keys(rows[0] || {});
+      const csv = [
+        columns,
+        ...rows.map(row => columns.map(column => row[column] == null ? '' : row[column]))
+      ].map(values => values.map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+      const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName.replace(/\.xlsx$/i, '.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast(excelFailed ? 'Xuất Excel không thành công. Đã tải danh sách dạng CSV.' : 'Đã tải danh sách dạng CSV.');
+    }
+
     /* 4. XUẤT EXCEL CHUẨN SMAS & THÔNG TƯ 27 */
     function exportExcel() {
       const rows = students.map((s, idx) => ({
@@ -391,19 +441,13 @@
       }));
 
       const fileName = `SMAS_TinHoc1_Tiet08_Lop_${currentClass}.xlsx`;
-      if (typeof window.XLSX !== 'undefined') {
-        const ws = window.XLSX.utils.json_to_sheet(rows);
-        const wb = window.XLSX.utils.book_new();
-        window.XLSX.utils.book_append_sheet(wb, ws, 'Danh_Gia_SMAS');
-        window.XLSX.writeFile(wb, fileName);
-        showToast(`Đã xuất file ${fileName}!`);
-      }
+      exportRows(rows, fileName);
     }
 
     return {
       init, setClass, setTab, getUncalledStudents, getActiveStudent, getAllStudents,
       setActiveTurn, markStudentDone, handleDiscipline, skipStudent, toggleStar,
-      resetNewRound, openMouseModal, closeMouseModal, rateMouse, exportExcel
+      resetNewRound, openMouseModal, closeMouseModal, rateMouse, exportExcel, exportRows, showToast
     };
   })();
 
