@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tin học 1 - Bài 7: Vui học bảng chữ cái cùng máy tính (Tiết 2)</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="../shared/style.css">
+  <script src="../shared/gacha.js"></script>
+  <script src="../shared/components.js"></script>
+
+  <style>
+    .k1-screen {
+      display: none;
+      flex: 1;
+      height: 100%;
+      min-height: 0;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .k1-screen.active {
+      display: flex;
+    }
+
+    /* KHUNG GAME CANVAS VƯỜN TÁO */
+    .k1-game-card {
+      flex: 1;
+      min-height: 0;
+      background: #FFFFFF;
+      border-radius: 26px;
+      border: 4px solid #FFFFFF;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .k1-hud-overlay {
+      position: absolute;
+      top: 14px;
+      left: 18px;
+      right: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .k1-hud-group {
+      display: flex;
+      gap: 10px;
+      pointer-events: auto;
+    }
+
+    .k1-hud-pill {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(6px);
+      border: 2px solid #E2E8F0;
+      border-radius: 99px;
+      padding: 6px 16px;
+      font-size: 16px;
+      font-weight: 900;
+      color: #0F172A;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    /* MÀN HÌNH 2: ĐOÀN TÀU HƠI NƯỚC CHỮ CÁI (CỬU LONG EDU) */
+    .k1-train-world {
+      flex: 1;
+      background: linear-gradient(180deg, #7DD3FC 0%, #BAE6FD 52%, #86EFAC 52%, #4ADE80 100%);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px 22px;
+      overflow: hidden;
+    }
+
+    .k1-cl-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 5;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .k1-segmented {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 4px;
+      border-radius: 14px;
+      gap: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .k1-seg-btn {
+      font-family: var(--k1-font);
+      font-size: 14px;
+      font-weight: 800;
+      padding: 6px 14px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: #475569;
+      cursor: pointer;
+    }
+
+    .k1-seg-btn.active {
+      background: #0284C7;
+      color: #FFFFFF;
+    }
+
+    /* ĐOÀN TÀU XE LỬA VÀ ĐƯỜNG RAY */
+    .k1-railway-zone {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: auto 0;
+      z-index: 5;
+    }
+
+    .k1-train-convoy {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .k1-train-convoy.departing {
+      transform: translateX(-120vw);
+    }
+
+    /* Toa tàu gỗ 3D */
+    .k1-wagon-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .k1-wagon-box {
+      width: 102px;
+      height: 102px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #FEF3C7 100%);
+      border: 4px solid #F59E0B;
+      border-radius: 22px;
+      box-shadow: 0 8px 0 #B45309, 0 12px 20px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 46px;
+      font-weight: 900;
+      color: #0F172A;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+
+    .k1-wagon-box.empty-slot {
+      background: rgba(255, 255, 255, 0.78);
+      border: 4px dashed #0284C7;
+      box-shadow: 0 8px 0 #0369A1;
+      color: #0284C7;
+    }
+
+    .k1-wagon-box.selected-swap {
+      transform: translateY(-10px) scale(1.05);
+      border-color: #2563EB;
+      background: #E0F2FE;
+    }
+
+    .k1-wagon-box.is-correct {
+      background: #DCFCE7;
+      border-color: #10B981;
+      box-shadow: 0 8px 0 #047857;
+      color: #065F46;
+    }
+
+    .k1-wagon-box.is-wrong {
+      background: #FFE4E6;
+      border-color: #F43F5E;
+      box-shadow: 0 8px 0 #BE123C;
+      color: #9F1239;
+      animation: wagonShake 0.35s ease-in-out 3;
+    }
+
+    @keyframes wagonShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+
+    .k1-wagon-wheels {
+      display: flex;
+      justify-content: space-between;
+      width: 78px;
+      margin-top: 2px;
+    }
+
+    .k1-wheel-circle {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #334155;
+      border: 4px solid #94A3B8;
+    }
+
+    .k1-rail-track {
+      width: 96%;
+      height: 12px;
+      background: repeating-linear-gradient(90deg, #78350F 0px, #78350F 18px, transparent 18px, transparent 34px);
+      border-top: 4px solid #475569;
+      margin-top: 2px;
+    }
+
+    /* KHAY THẺ CHỮ CÁI RỜI & NÚT KIỂM TRA */
+    .k1-bottom-dock {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border-radius: 22px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+      z-index: 5;
+    }
+
+    .k1-cards-tray {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .k1-drag-card {
+      width: 74px;
+      height: 78px;
+      background: linear-gradient(180deg, #FEF08A 0%, #FACC15 100%);
+      border: 3px solid #FFFFFF;
+      border-radius: 18px;
+      box-shadow: 0 6px 0 #CA8A04, 0 8px 15px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      font-weight: 900;
+      color: #0F172A;
+      cursor: grab;
+      transition: transform 0.15s;
+    }
+
+    .k1-drag-card:hover {
+      transform: translateY(-5px) scale(1.06);
+    }
+
+    .k1-drag-card.picked {
+      background: linear-gradient(180deg, #38BDF8 0%, #0284C7 100%);
+      color: #FFFFFF;
+      box-shadow: 0 6px 0 #0369A1;
+      transform: translateY(-8px) scale(1.1);
+    }
+
+    .k1-drag-card.used {
+      opacity: 0.25;
+      pointer-events: none;
+    }
+
+    /* BỤC VINH DANH PODIUM */
+    .k1-podium-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .k1-honor-box {
+      background: #FFFFFF;
+      border-radius: 24px;
+      padding: 20px 24px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="k1-layout">
+    <!-- 1. SIDEBAR QUẢN LÝ LỚP 1/6 -->
+    <khoi1-sidebar default-class="1_6"></khoi1-sidebar>
+
+    <!-- 2. SÂN KHẤU CHÍNH -->
+    <main class="k1-stage">
+      <!-- THANH ĐIỀU HƯỚNG GỌN GÀNG -->
+      <header class="k1-topbar">
+        <div class="k1-nav-pills">
+          <button class="k1-nav-pill active" id="nav-tab-0" type="button" onclick="switchScreen(0)">
+            1. Vườn Táo Chữ Cái
+          </button>
+          <button class="k1-nav-pill" id="nav-tab-1" type="button" onclick="switchScreen(1)">
+            2. Đoàn Tàu Chữ Cái
+          </button>
+          <button class="k1-nav-pill" id="nav-tab-2" type="button" onclick="switchScreen(2)">
+            3. Bảng Vàng
+          </button>
+        </div>
+
+        <div style="display:flex; gap:8px;">
+          <button class="k1-btn k1-btn-amber k1-btn-sm" type="button" onclick="Khoi1Gacha.open('pond')">
+            Bắt Vịt Gọi Tên
+          </button>
+          <button class="k1-btn k1-btn-sky k1-btn-sm" type="button" onclick="Khoi1Components.openMouseModal()">
+            Mẫu Cầm Chuột
+          </button>
+        </div>
+      </header>
+
+      <!-- =================================================================== -->
+      <!-- MÀN HÌNH 1: VƯỜN TÁO CHỮ CÁI (CANVAS 2D 60FPS - KHÔNG EMOJI)         -->
+      <!-- =================================================================== -->
+      <section class="k1-screen active" id="screen-0">
+        <div class="k1-game-card">
+          <div class="k1-hud-overlay">
+            <div class="k1-hud-group">
+              <button class="k1-btn k1-btn-sky k1-btn-sm" id="apple-mode-pick" type="button" onclick="AppleGame.setMode('pick')">
+                Chế độ 1: Nháy Chuột Hái Táo
+              </button>
+              <button class="k1-btn k1-btn-white k1-btn-sm" id="apple-mode-catch" type="button" onclick="AppleGame.setMode('catch')">
+                Chế độ 2: Lắc Cổ Tay Hứng Táo
+              </button>
+            </div>
+
+            <div class="k1-hud-group">
+              <div class="k1-hud-pill" id="apple-score-txt">Táo: 0</div>
+              <div class="k1-hud-pill" id="apple-time-txt">20 giây</div>
+              <button class="k1-btn k1-btn-mint k1-btn-sm" type="button" onclick="AppleGame.start()">
+                BẮT ĐẦU CHƠI
+              </button>
+            </div>
+          </div>
+
+          <canvas id="k1-apple-canvas" style="width:100%; height:100%; display:block; cursor:pointer;"></canvas>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- MÀN HÌNH 2: ĐOÀN TÀU HƠI NƯỚC CHỮ CÁI (CỬU LONG EDU SIMULATOR)      -->
+      <!-- =================================================================== -->
+      <section class="k1-screen" id="screen-1">
+        <div class="k1-game-card">
+          <div class="k1-train-world">
+            <!-- Thanh công cụ phía trên -->
+            <div class="k1-cl-toolbar">
+              <div class="k1-segmented">
+                <button class="k1-seg-btn active" id="cl-tab-fill" type="button" onclick="TrainGame.setMode('fill')">
+                  Bài 1: Điền Chữ Còn Thiếu
+                </button>
+                <button class="k1-seg-btn" id="cl-tab-sort" type="button" onclick="TrainGame.setMode('sort')">
+                  Bài 2: Sắp Xếp Thứ Tự ABC
+                </button>
+              </div>
+
+              <div class="k1-segmented">
+                <button class="k1-seg-btn active" id="cl-case-lower" type="button" onclick="TrainGame.setCase('lower')">
+                  a b c (Chữ thường)
+                </button>
+                <button class="k1-seg-btn" id="cl-case-upper" type="button" onclick="TrainGame.setCase('upper')">
+                  A B C (Chữ HOA)
+                </button>
+              </div>
+
+              <!-- 3 Nút điều khiển chuẩn SGK: Hướng dẫn (?), Chuyển bài, Làm mẫu sai -->
+              <div style="display:flex; gap:8px;">
+                <button class="k1-btn k1-btn-violet k1-btn-sm" type="button" onclick="TrainGame.teacherDemoWrong()" title="Thầy làm mẫu cố tình xếp sai để học sinh nhìn nút Kiểm tra báo đỏ">
+                  Thầy Làm Mẫu (Xếp Sai)
+                </button>
+                <button class="k1-btn k1-btn-sky k1-btn-sm" type="button" onclick="TrainGame.speakGuide()">
+                  ? Hướng Dẫn
+                </button>
+                <button class="k1-btn k1-btn-amber k1-btn-sm" type="button" onclick="TrainGame.nextLevel()">
+                  Bài Tiếp Theo ➔
+                </button>
+              </div>
+            </div>
+
+            <!-- Đoàn tàu xe lửa hơi nước SVG + Các toa chữ cái -->
+            <div class="k1-railway-zone">
+              <div class="k1-train-convoy" id="k1-train-convoy">
+                <!-- Đầu máy xe lửa SVG chi tiết -->
+                <div style="display:flex; flex-direction:column; align-items:center; margin-right:4px;">
+                  <svg width="135" height="115" viewBox="0 0 150 130">
+                    <!-- Cụm khói trắng bay lên -->
+                    <circle cx="42" cy="18" r="10" fill="rgba(255,255,255,0.85)"/>
+                    <circle cx="58" cy="12" r="13" fill="rgba(255,255,255,0.7)"/>
+                    <!-- Ống khói -->
+                    <rect x="30" y="30" width="22" height="32" rx="4" fill="#EF4444" stroke="#991B1B" stroke-width="3"/>
+                    <!-- Thân đầu máy -->
+                    <rect x="20" y="55" width="75" height="48" rx="12" fill="#0284C7" stroke="#0369A1" stroke-width="3"/>
+                    <!-- Buồng lái -->
+                    <rect x="85" y="34" width="52" height="69" rx="10" fill="#F59E0B" stroke="#B45309" stroke-width="3"/>
+                    <rect x="95" y="44" width="32" height="26" rx="6" fill="#E0F2FE"/>
+                    <!-- Mũi cản trước -->
+                    <polygon points="5,103 22,75 22,103" fill="#EF4444"/>
+                    <!-- Bánh xe lửa -->
+                    <circle cx="42" cy="108" r="16" fill="#334155" stroke="#94A3B8" stroke-width="5"/>
+                    <circle cx="108" cy="108" r="18" fill="#334155" stroke="#94A3B8" stroke-width="5"/>
+                  </svg>
+                </div>
+
+                <!-- Các toa tàu chứa chữ cái sẽ render vào đây -->
+                <div id="k1-wagons-slot" style="display:flex; gap:10px; align-items:flex-end;"></div>
+              </div>
+              <div class="k1-rail-track"></div>
+            </div>
+
+            <!-- Thanh Dock phía dưới: Khay thẻ chữ cái & Nút KIỂM TRA lớn -->
+            <div class="k1-bottom-dock">
+              <div class="k1-cards-tray" id="k1-cards-tray"></div>
+
+              <button class="k1-btn k1-btn-mint k1-btn-lg" type="button" onclick="TrainGame.checkAnswer()" style="min-width:230px; font-size:20px;">
+                ✓ KIỂM TRA KẾT QUẢ
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- MÀN HÌNH 3: BẢNG VÀNG CHIẾN THẮNG & XUẤT EXCEL SMAS                  -->
+      <!-- =================================================================== -->
+      <section class="k1-screen" id="screen-2">
+        <div class="k1-podium-grid">
+          <div class="k1-honor-box">
+            <div style="font-size:22px; font-weight:900; color:#0284C7;">
+              HỌC SINH ĐÃ HOÀN THÀNH THỰC HÀNH HÔM NAY
+            </div>
+            <div id="k1-done-students-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+          </div>
+
+          <div class="k1-honor-box">
+            <div style="font-size:22px; font-weight:900; color:#D97706;">
+              DANH SÁCH SAO NGOAN ƯU TIÊN TUẦN SAU
+            </div>
+            <div id="k1-star-students-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+
+            <div style="margin-top:auto; display:flex; gap:10px; padding-top:14px;">
+              <button class="k1-btn k1-btn-mint k1-btn-lg" style="flex:1;" type="button" onclick="Khoi1Components.exportExcel()">
+                Xuất Báo Cáo Excel (SMAS / TT27)
+              </button>
+              <button class="k1-btn k1-btn-amber k1-btn-lg" type="button" onclick="Khoi1Confetti.fire(); Khoi1Audio.playVictoryFanfare();">
+                Pháo Hoa
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    /* ================= CHUYỂN MÀN HÌNH ================= */
+    function switchScreen(idx) {
+      Khoi1Audio.playClick();
+      for (let i = 0; i < 3; i++) {
+        document.getElementById(`screen-${i}`).classList.toggle('active', i === idx);
+        document.getElementById(`nav-tab-${i}`).classList.toggle('active', i === idx);
+      }
+      if (idx === 0) AppleGame.resize();
+      if (idx === 2) renderSummaryBoard();
+    }
+
+    function speakVietnamese(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'vi-VN';
+        u.rate = 0.95;
+        window.speechSynthesis.speak(u);
+      }
+    }
+
+    /* ================= MÀN HÌNH 1: GAME VƯỜN TÁO CHỮ CÁI CANVAS 2D ================= */
+    const AppleGame = (() => {
+      const LETTERS = ['a', 'ă', 'â', 'b', 'c', 'd', 'đ', 'e', 'ê', 'g', 'h', 'i', 'k', 'l', 'm', 'n', 'o', 'ô', 'ơ', 'p', 'q', 'r', 's', 't', 'u', 'ư', 'v', 'x', 'y'];
+      let cvs = null, ctx = null;
+      let mode = 'pick'; // 'pick' | 'catch'
+      let apples = [];
+      let particles = [];
+      let basketX = 400;
+      let score = 0, timeLeft = 20, running = false, timerId = null;
+
+      function init() {
+        cvs = document.getElementById('k1-apple-canvas');
+        ctx = cvs.getContext('2d');
+        resize();
+        window.addEventListener('resize', resize);
+
+        cvs.addEventListener('mousemove', e => {
+          const r = cvs.getBoundingClientRect();
+          basketX = (e.clientX - r.left) * (cvs.width / r.width);
+        });
+
+        cvs.addEventListener('mousedown', e => {
+          if (!running || mode !== 'pick') return;
+          const r = cvs.getBoundingClientRect();
+          const mx = (e.clientX - r.left) * (cvs.width / r.width);
+          const my = (e.clientY - r.top) * (cvs.height / r.height);
+
+          for (let i = apples.length - 1; i >= 0; i--) {
+            const a = apples[i];
+            if (Math.hypot(a.x - mx, a.y - my) < 36) {
+              collectApple(a, i);
+              break;
+            }
+          }
+        });
+
+        spawnTreeApples();
+        requestAnimationFrame(loop);
+      }
+
+      function resize() {
+        if (!cvs) return;
+        const rect = cvs.parentElement.getBoundingClientRect();
+        cvs.width = rect.width || 960;
+        cvs.height = rect.height || 540;
+      }
+
+      function setMode(m) {
+        mode = m;
+        Khoi1Audio.playClick();
+        document.getElementById('apple-mode-pick').className = `k1-btn ${m === 'pick' ? 'k1-btn-sky' : 'k1-btn-white'} k1-btn-sm`;
+        document.getElementById('apple-mode-catch').className = `k1-btn ${m === 'catch' ? 'k1-btn-sky' : 'k1-btn-white'} k1-btn-sm`;
+        spawnTreeApples();
+      }
+
+      function spawnTreeApples() {
+        const cx = (cvs ? cvs.width : 960) / 2;
+        const spots = [
+          { dx: -170, y: 150 }, { dx: -85, y: 115 }, { dx: 0, y: 135 }, { dx: 90, y: 115 }, { dx: 175, y: 155 },
+          { dx: -130, y: 225 }, { dx: -35, y: 205 }, { dx: 55, y: 210 }, { dx: 140, y: 230 }
+        ];
+        apples = spots.map(s => ({
+          x: cx + s.dx,
+          y: s.y,
+          vy: 0,
+          letter: LETTERS[Math.floor(Math.random() * LETTERS.length)].toUpperCase(),
+          scale: 1
+        }));
+      }
+
+      function start() {
+        score = 0;
+        timeLeft = 20;
+        running = true;
+        updateHUD();
+        Khoi1Audio.playVictoryFanfare();
+        spawnTreeApples();
+
+        clearInterval(timerId);
+        timerId = setInterval(() => {
+          timeLeft--;
+          updateHUD();
+          if (mode === 'catch' && running) {
+            const cx = cvs.width / 2;
+            apples.push({
+              x: cx + (Math.random() - 0.5) * 420,
+              y: 110,
+              vy: 3.4 + Math.random() * 2.2,
+              letter: LETTERS[Math.floor(Math.random() * LETTERS.length)].toUpperCase(),
+              scale: 1
+            });
+          }
+          if (timeLeft <= 0) {
+            running = false;
+            clearInterval(timerId);
+            Khoi1Audio.playVictoryFanfare();
+            Khoi1Confetti.fire();
+            if (window.Khoi1Components && window.Khoi1Components.getActiveStudent()) {
+              window.Khoi1Components.markStudentDone(window.Khoi1Components.getActiveStudent(), score);
+            }
+          }
+        }, 1000);
+      }
+
+      function collectApple(a, idx) {
+        apples.splice(idx, 1);
+        score++;
+        updateHUD();
+        Khoi1Audio.playClick();
+        speakVietnamese(`Chữ ${a.letter}`);
+        for (let i = 0; i < 14; i++) {
+          particles.push({
+            x: a.x, y: a.y,
+            vx: (Math.random() - 0.5) * 8,
+            vy: (Math.random() - 0.5) * 8,
+            r: Math.random() * 5 + 3,
+            a: 1
+          });
+        }
+        if (mode === 'pick' && apples.length === 0 && running) {
+          spawnTreeApples();
+        }
+      }
+
+      function updateHUD() {
+        document.getElementById('apple-score-txt').textContent = `Táo: ${score}`;
+        document.getElementById('apple-time-txt').textContent = `${timeLeft} giây`;
+      }
+
+      function drawVectorApple(ctx, x, y, letter) {
+        ctx.save();
+        ctx.translate(x, y);
+
+        // Quả táo đỏ bóng 3D
+        const grad = ctx.createRadialGradient(-8, -8, 4, 0, 0, 28);
+        grad.addColorStop(0, '#FDA4AF');
+        grad.addColorStop(0.35, '#F43F5E');
+        grad.addColorStop(1, '#9F1239');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(0, 2, 27, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Cuống nâu & chiếc lá xanh
+        ctx.strokeStyle = '#78350F';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(0, -22);
+        ctx.quadraticCurveTo(4, -32, 8, -30);
+        ctx.stroke();
+
+        ctx.fillStyle = '#22C55E';
+        ctx.beginPath();
+        ctx.ellipse(11, -27, 9, 5, -0.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Chữ cái in rõ giữa quả táo
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '900 24px "Baloo 2", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(letter, 0, 4);
+
+        ctx.restore();
+      }
+
+      function loop() {
+        if (ctx && cvs) {
+          const w = cvs.width, h = cvs.height;
+          const cx = w / 2;
+
+          // Bầu trời & Đồi cỏ
+          const sky = ctx.createLinearGradient(0, 0, 0, h);
+          sky.addColorStop(0, '#BAE6FD');
+          sky.addColorStop(0.68, '#E0F2FE');
+          sky.addColorStop(0.68, '#86EFAC');
+          sky.addColorStop(1, '#22C55E');
+          ctx.fillStyle = sky;
+          ctx.fillRect(0, 0, w, h);
+
+          // Thân cây táo cổ thụ
+          ctx.fillStyle = '#78350F';
+          ctx.beginPath();
+          ctx.roundRect(cx - 42, h * 0.42, 84, h * 0.35, 16);
+          ctx.fill();
+
+          // Tán lá cây táo 3D nhiều tầng
+          const canopies = [
+            { x: cx - 150, y: 190, r: 105, c: '#16A34A' },
+            { x: cx + 150, y: 190, r: 105, c: '#15803D' },
+            { x: cx, y: 155, r: 135, c: '#22C55E' },
+            { x: cx - 75, y: 135, r: 95, c: '#4ADE80' },
+            { x: cx + 80, y: 135, r: 95, c: '#22C55E' }
+          ];
+          canopies.forEach(cp => {
+            ctx.fillStyle = cp.c;
+            ctx.beginPath();
+            ctx.arc(cp.x, cp.y, cp.r, 0, Math.PI * 2);
+            ctx.fill();
+          });
+
+          // Vẽ và cập nhật các quả táo
+          for (let i = apples.length - 1; i >= 0; i--) {
+            const a = apples[i];
+            if (mode === 'catch' && running) {
+              a.y += a.vy;
+              if (a.y >= h - 75 && a.y <= h - 30 && Math.abs(a.x - basketX) < 68) {
+                collectApple(a, i);
+                continue;
+              }
+              if (a.y > h + 30) {
+                apples.splice(i, 1);
+                continue;
+              }
+            }
+            drawVectorApple(ctx, a.x, a.y, a.letter);
+          }
+
+          // Vẽ Rổ mây hứng táo (nếu ở chế độ Hứng táo)
+          if (mode === 'catch') {
+            ctx.save();
+            ctx.translate(basketX, h - 48);
+            ctx.fillStyle = '#D97706';
+            ctx.strokeStyle = '#78350F';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.roundRect(-62, -22, 124, 44, [6, 6, 26, 26]);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          // Hạt ngôi sao khi hái trúng táo
+          for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.a -= 0.03;
+            if (p.a <= 0) {
+              particles.splice(i, 1);
+              continue;
+            }
+            ctx.fillStyle = `rgba(250, 204, 21, ${p.a})`;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        requestAnimationFrame(loop);
+      }
+
+      return { init, resize, setMode, start };
+    })();
+
+    /* ================= MÀN HÌNH 2: ĐOÀN TÀU CHỮ CÁI (CỬU LONG EDU) ================= */
+    const TrainGame = (() => {
+      const FILL_LEVELS = [
+        { seq: ['a', null, 'c', 'd', null], ans: ['b', 'đ'], pool: ['b', 'đ', 'e', 'g'] },
+        { seq: ['a', 'ă', null, 'b', null], ans: ['â', 'c'], pool: ['â', 'c', 'd', 'ê'] },
+        { seq: ['e', null, 'g', 'h', null], ans: ['ê', 'i'], pool: ['ê', 'i', 'k', 'l'] },
+        { seq: ['m', null, 'o', null, 'ơ'], ans: ['n', 'ô'], pool: ['n', 'ô', 'p', 'q'] }
+      ];
+      const SORT_LEVELS = [
+        { init: ['d', 'a', 'c', 'b'], ans: ['a', 'b', 'c', 'd'] },
+        { init: ['b', 'a', 'â', 'ă'], ans: ['a', 'ă', 'â', 'b'] },
+        { init: ['g', 'e', 'đ', 'ê'], ans: ['đ', 'e', 'ê', 'g'] },
+        { init: ['p', 'm', 'o', 'n'], ans: ['m', 'n', 'o', 'p'] }
+      ];
+
+      let mode = 'fill'; // 'fill' | 'sort'
+      let letterCase = 'lower';
+      let levelIdx = 0;
+      let pickedCard = null;
+      let swapFirstWagon = null;
+
+      function fmt(ch) {
+        if (!ch) return '';
+        return letterCase === 'upper' ? ch.toUpperCase() : ch.toLowerCase();
+      }
+
+      function setMode(m) {
+        mode = m;
+        Khoi1Audio.playClick();
+        document.getElementById('cl-tab-fill').classList.toggle('active', m === 'fill');
+        document.getElementById('cl-tab-sort').classList.toggle('active', m === 'sort');
+        render();
+      }
+
+      function setCase(c) {
+        letterCase = c;
+        Khoi1Audio.playClick();
+        document.getElementById('cl-case-lower').classList.toggle('active', c === 'lower');
+        document.getElementById('cl-case-upper').classList.toggle('active', c === 'upper');
+        render();
+      }
+
+      function render() {
+        const wagonsEl = document.getElementById('k1-wagons-slot');
+        const trayEl = document.getElementById('k1-cards-tray');
+        const convoy = document.getElementById('k1-train-convoy');
+        if (convoy) convoy.classList.remove('departing');
+        pickedCard = null;
+        swapFirstWagon = null;
+
+        wagonsEl.innerHTML = '';
+        trayEl.innerHTML = '';
+
+        if (mode === 'fill') {
+          const lv = FILL_LEVELS[levelIdx % FILL_LEVELS.length];
+          lv.seq.forEach(ch => {
+            const wrap = document.createElement('div');
+            wrap.className = 'k1-wagon-wrap';
+            const box = document.createElement('div');
+            if (ch === null) {
+              box.className = 'k1-wagon-box empty-slot';
+              box.textContent = '?';
+              box.dataset.empty = 'true';
+              // Hỗ trợ cả Click lẫn Kéo Thả (Drag & Drop)
+              box.ondragover = e => e.preventDefault();
+              box.ondrop = e => {
+                e.preventDefault();
+                if (pickedCard) placeCardIntoWagon(box, pickedCard);
+              };
+              box.onclick = () => {
+                if (pickedCard) placeCardIntoWagon(box, pickedCard);
+              };
+            } else {
+              box.className = 'k1-wagon-box';
+              box.textContent = fmt(ch);
+            }
+            wrap.appendChild(box);
+            wrap.insertAdjacentHTML('beforeend', `<div class="k1-wagon-wheels"><div class="k1-wheel-circle"></div><div class="k1-wheel-circle"></div></div>`);
+            wagonsEl.appendChild(wrap);
+          });
+
+          lv.pool.forEach(ch => {
+            const card = document.createElement('div');
+            card.className = 'k1-drag-card';
+            card.draggable = true;
+            card.textContent = fmt(ch);
+            card.ondragstart = () => { pickedCard = card; };
+            card.onclick = () => {
+              document.querySelectorAll('.k1-drag-card').forEach(c => c.classList.remove('picked'));
+              pickedCard = card;
+              card.classList.add('picked');
+              Khoi1Audio.playClick();
+              speakVietnamese(`Chữ ${ch}`);
+            };
+            trayEl.appendChild(card);
+          });
+        } else {
+          // Chế độ Sắp xếp thứ tự ABC
+          const lv = SORT_LEVELS[levelIdx % SORT_LEVELS.length];
+          lv.init.forEach(ch => {
+            const wrap = document.createElement('div');
+            wrap.className = 'k1-wagon-wrap';
+            const box = document.createElement('div');
+            box.className = 'k1-wagon-box';
+            box.draggable = true;
+            box.textContent = fmt(ch);
+            box.dataset.raw = ch;
+
+            box.ondragstart = () => { swapFirstWagon = box; };
+            box.ondragover = e => e.preventDefault();
+            box.ondrop = e => {
+              e.preventDefault();
+              if (swapFirstWagon && swapFirstWagon !== box) swapTwoWagons(swapFirstWagon, box);
+            };
+            box.onclick = () => {
+              if (!swapFirstWagon) {
+                swapFirstWagon = box;
+                box.classList.add('selected-swap');
+                Khoi1Audio.playClick();
+              } else {
+                if (swapFirstWagon !== box) swapTwoWagons(swapFirstWagon, box);
+                swapFirstWagon.classList.remove('selected-swap');
+                swapFirstWagon = null;
+              }
+            };
+
+            wrap.appendChild(box);
+            wrap.insertAdjacentHTML('beforeend', `<div class="k1-wagon-wheels"><div class="k1-wheel-circle"></div><div class="k1-wheel-circle"></div></div>`);
+            wagonsEl.appendChild(wrap);
+          });
+
+          trayEl.innerHTML = `<div style="font-size:17px; font-weight:800; color:#0369A1;">Nháy chuột hoặc kéo thả 2 toa tàu để đổi vị trí theo đúng thứ tự ABC!</div>`;
+        }
+      }
+
+      function placeCardIntoWagon(wagonBox, cardEl) {
+        wagonBox.textContent = cardEl.textContent;
+        wagonBox.classList.remove('empty-slot', 'is-wrong');
+        cardEl.classList.remove('picked');
+        Khoi1Audio.playClick();
+        pickedCard = null;
+      }
+
+      function swapTwoWagons(w1, w2) {
+        const tmpTxt = w1.textContent;
+        w1.textContent = w2.textContent;
+        w2.textContent = tmpTxt;
+        w1.classList.remove('is-wrong', 'is-correct', 'selected-swap');
+        w2.classList.remove('is-wrong', 'is-correct', 'selected-swap');
+        Khoi1Audio.playQuack();
+      }
+
+      /* THẦY LÀM MẪU (CỐ TÌNH XẾP SAI ĐỂ BÁO ĐỎ RỒI SỬA LẠI) */
+      function teacherDemoWrong() {
+        setMode('sort');
+        const boxes = document.querySelectorAll('#k1-wagons-slot .k1-wagon-box');
+        if (boxes.length >= 2) {
+          const lv = SORT_LEVELS[levelIdx % SORT_LEVELS.length];
+          boxes[0].textContent = fmt(lv.ans[1]);
+          boxes[1].textContent = fmt(lv.ans[0]);
+          for (let i = 2; i < boxes.length; i++) {
+            boxes[i].textContent = fmt(lv.ans[i]);
+          }
+          setTimeout(() => checkAnswer(), 300);
+        }
+      }
+
+      function checkAnswer() {
+        const boxes = document.querySelectorAll('#k1-wagons-slot .k1-wagon-box');
+        let allRight = true;
+
+        if (mode === 'fill') {
+          const lv = FILL_LEVELS[levelIdx % FILL_LEVELS.length];
+          let ansIdx = 0;
+          lv.seq.forEach((ch, i) => {
+            if (ch === null) {
+              const expected = fmt(lv.ans[ansIdx]);
+              const actual = boxes[i].textContent.trim();
+              if (actual === expected) {
+                boxes[i].classList.add('is-correct');
+                boxes[i].classList.remove('is-wrong');
+              } else {
+                boxes[i].classList.add('is-wrong');
+                boxes[i].classList.remove('is-correct');
+                allRight = false;
+              }
+              ansIdx++;
+            }
+          });
+        } else {
+          const lv = SORT_LEVELS[levelIdx % SORT_LEVELS.length];
+          boxes.forEach((b, i) => {
+            const expected = fmt(lv.ans[i]);
+            if (b.textContent.trim() === expected) {
+              b.classList.add('is-correct');
+              b.classList.remove('is-wrong');
+            } else {
+              b.classList.add('is-wrong');
+              b.classList.remove('is-correct');
+              allRight = false;
+            }
+          });
+        }
+
+        if (allRight) {
+          Khoi1Audio.playVictoryFanfare();
+          Khoi1Confetti.fire();
+          speakVietnamese('Chính xác! Đoàn tàu chữ cái khởi hành!');
+          if (window.Khoi1Components && window.Khoi1Components.getActiveStudent()) {
+            window.Khoi1Components.markStudentDone(window.Khoi1Components.getActiveStudent(), 100);
+          }
+          setTimeout(() => {
+            document.getElementById('k1-train-convoy').classList.add('departing');
+          }, 450);
+          setTimeout(() => nextLevel(), 1450);
+        } else {
+          Khoi1Audio.playBuzzer();
+          speakVietnamese('Chưa đúng thứ tự rồi, em hãy kéo đổi lại toa màu đỏ nhé!');
+        }
+      }
+
+      function nextLevel() {
+        levelIdx++;
+        Khoi1Audio.playClick();
+        render();
+      }
+
+      function speakGuide() {
+        Khoi1Audio.playClick();
+        speakVietnamese('Các em hãy dùng chuột nháy chọn hoặc kéo chữ cái đặt vào toa tàu cho đúng thứ tự bảng chữ cái, sau đó bấm nút Kiểm tra kết quả màu xanh lá nhé!');
+      }
+
+      return { setMode, setCase, render, teacherDemoWrong, checkAnswer, nextLevel, speakGuide };
+    })();
+
+    /* ================= MÀN HÌNH 3: BẢNG VÀNG TỔNG KẾT ================= */
+    function renderSummaryBoard() {
+      if (!window.Khoi1Components) return;
+      const all = window.Khoi1Components.getAllStudents();
+      const doneList = all.filter(s => s.status === 'called');
+      const starList = all.filter(s => s.isPriority);
+
+      const doneEl = document.getElementById('k1-done-students-list');
+      doneEl.innerHTML = doneList.length > 0
+        ? doneList.map(s => `<div class="k1-st-row is-done"><span>✓ ${s.name}</span><span>${s.mouseSkill}</span></div>`).join('')
+        : `<div style="color:#64748B; font-weight:700;">Chưa có học sinh thực hành trong phiên này.</div>`;
+
+      const starEl = document.getElementById('k1-star-students-list');
+      starEl.innerHTML = starList.length > 0
+        ? starList.map(s => `<div class="k1-st-row is-star"><span>★ ${s.name}</span><span>Ưu tiên tuần sau</span></div>`).join('')
+        : `<div style="color:#64748B; font-weight:700;">Bấm nút ★ cạnh tên học sinh ở thanh bên trái để thưởng vé ưu tiên tuần sau.</div>`;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      AppleGame.init();
+      TrainGame.render();
+    });
+  </script>
+</body>
+</html>
