@@ -1,4 +1,65 @@
 (() => {
+  /* ================= 0. CHỐNG TẢI LẠI TRANG & MẤT DỮ LIỆU TIẾT HỌC ================= */
+  if (!window.__PREVENT_RELOAD_ACTIVE__) {
+    window.__PREVENT_RELOAD_ACTIVE__ = true;
+    let isReloadAllowed = false;
+
+    window.addEventListener('beforeunload', function (e) {
+      if (isReloadAllowed) return;
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    }, { capture: true });
+
+    function showBlockToast(msg) {
+      if (typeof window.toast === 'function') {
+        window.toast(msg, 2500, '#dc2626');
+      } else {
+        alert(msg);
+      }
+    }
+
+    window.addEventListener('keydown', function (e) {
+      const key = e.key || '';
+      const keyCode = e.keyCode || 0;
+      const isCtrl = e.ctrlKey || e.metaKey;
+      const isF5 = key === 'F5' || keyCode === 116;
+      const isReloadShortcut = isCtrl && (key === 'r' || key === 'R' || keyCode === 82);
+      const isHistoryNav = e.altKey && (key === 'ArrowLeft' || key === 'ArrowRight' || keyCode === 37 || keyCode === 39);
+
+      const target = e.target;
+      const isTargetInput = target && (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable ||
+        (typeof target.getAttribute === 'function' && target.getAttribute('contenteditable') === 'true')
+      );
+      const isBadBackspace = (key === 'Backspace' || keyCode === 8) && !isTargetInput;
+
+      if (isF5 || isReloadShortcut) {
+        e.preventDefault();
+        e.stopPropagation();
+        showBlockToast('⚠️ Đã khóa phím F5 / Ctrl+R để tránh mất dữ liệu bài học!');
+        return false;
+      }
+
+      if (isHistoryNav || isBadBackspace) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    }, true);
+
+    window.addEventListener('contextmenu', function (e) {
+      if (e.shiftKey) return;
+      e.preventDefault();
+      showBlockToast('⚠️ Chuột phải đã bị khóa để tránh bấm nhầm Tải lại!');
+    }, true);
+
+    window.allowPageReload = function () { isReloadAllowed = true; };
+    window.preventPageReload = function () { isReloadAllowed = false; };
+  }
+
   let toastTimer;
 
   const escapeHtml = value => String(value).replace(/[&<>"']/g, character => ({
