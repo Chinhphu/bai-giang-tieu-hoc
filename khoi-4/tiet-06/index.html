@@ -938,9 +938,14 @@
             return sName;
         }
         function exportFileBase(classId) {
+            if (typeof window.buildExportFileName === 'function') {
+                return window.buildExportFileName({ grade: 4, classId: classId, lesson: '06' });
+            }
             const d = new Date(), pad = n => String(n).padStart(2, '0');
-            const timestamp = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
-            return `Tiet06_Lop${classId.replace('_', '-')}_${timestamp}`;
+            const c = String(classId || '4_1').replace(/[\/_]/g, '-');
+            const timeStr = `${pad(d.getHours())}h${pad(d.getMinutes())}p${pad(d.getSeconds())}s`;
+            const dateStr = `Ngay_${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()}`;
+            return `KetQua_TinHoc4_Lop_${c}_Tiet_06_${timeStr}_${dateStr}.csv`;
         }
 
         // Các biến Đồ thị
@@ -1652,7 +1657,7 @@
             $('#mBody').innerHTML = endHtml;
             $('#mRes').innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top:15px;">
-                    <button class="btn good" style="font-size: 1.1rem" onclick="exportCSV()">📊 Xuất danh sách lớp (Excel)</button>
+                    <button class="btn good" style="font-size: 1.1rem" onclick="exportCSV()">📊 Xuất danh sách lớp (CSV)</button>
                     <button class="btn yellow" style="font-size: 1.1rem" onclick="$('#modal').classList.remove('show'); init(true);">🔄 Tạo Ván Mới (Xóa bản đồ)</button>
                 </div>`;
             $('#modal').classList.add('show');
@@ -1777,7 +1782,8 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.setAttribute("href", url);
-            link.setAttribute("download", `${exportFileBase(currentClassID)}.csv`);
+            const dlName = exportFileBase(currentClassID);
+            link.setAttribute("download", dlName.endsWith('.csv') ? dlName : (dlName + '.csv'));
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

@@ -1944,7 +1944,7 @@
 
             <div class="summary-actions">
                 <button class="btn-sum blue" onclick="restartGame()">🔄 Chơi lại</button>
-                <button class="btn-sum green" onclick="exportExcel()">📥 Xuất Excel Siêu Chi Tiết (2 Sheet)</button>
+                <button class="btn-sum green" onclick="exportExcel()">📥 Xuất CSV Siêu Chi Tiết</button>
             </div>
         </div>
     </div>
@@ -3980,10 +3980,6 @@
         }
 
         function exportExcel() {
-            if (typeof XLSX === 'undefined') {
-                alert('Chưa tải thư viện Excel!');
-                return;
-            }
             const { played, combined } = getRankedStudents();
 
             const detailRows = combined.map(s => {
@@ -4040,20 +4036,23 @@
                 { 'Chỉ số thống kê lớp': 'Thời gian TB 6. Tắt máy tính (Start➔Power➔Shut down)', 'Giá trị': fmtSec(avgMs('SHUTDOWN')) },
             ];
 
-            const wb = XLSX.utils.book_new();
-            const ws1 = XLSX.utils.json_to_sheet(detailRows);
-            const ws2 = XLSX.utils.json_to_sheet(summarySheetRows);
-            XLSX.utils.book_append_sheet(wb, ws1, 'Chi Tiết Từng Học Sinh (ms)');
-            XLSX.utils.book_append_sheet(wb, ws2, 'Thống Kê Chung Cả Lớp');
+            const sections = [
+                ['Chi Tiết Từng Học Sinh (ms)', detailRows],
+                ['Thống Kê Chung Cả Lớp', summarySheetRows]
+            ];
 
-            const fn = `KetQuaChiTiet_TinHoc3_Bai04_Lop${G.classId}_${new Date().toISOString().slice(0, 10)}.xlsx`;
-            if (typeof window.uploadExcelToDrive === 'function') {
-                window.uploadExcelToDrive(wb, fn);
-            } else {
-                XLSX.writeFile(wb, fn);
+            const fn = (typeof window.buildExportFileName === 'function')
+                ? window.buildExportFileName({ grade: 3, classId: G.classId, lesson: '08' })
+                : `KetQua_TinHoc3_Lop_${String(G.classId).replace(/[\/_]/g, '-')}_Tiet_08.csv`;
+
+            if (typeof window.uploadCsvToDrive === 'function') {
+                window.uploadCsvToDrive(sections, fn);
+            } else if (typeof window.LessonExport !== 'undefined') {
+                window.LessonExport.download(sections, fn);
             }
         }
         window.exportExcel = exportExcel;
+        window.exportCsv = exportExcel;
 
         function restartGame() {
             if (G.fwRaf) { cancelAnimationFrame(G.fwRaf); G.fwRaf = null; }

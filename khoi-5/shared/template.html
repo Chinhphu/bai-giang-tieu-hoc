@@ -98,7 +98,7 @@
                 <div class="rankings-box" id="rankings-box"></div>
                 <div style="margin-top: 24px; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
                     <button style="background: var(--mint); color: #fff; font-size: 22px; font-weight: 900; padding: 14px 32px; border-radius: 14px; box-shadow: 0 6px 0 #087d69;" onclick="exportExcel()">
-                        📥 Xuất Báo Cáo Tiết Học (Excel)
+                        📥 Xuất Báo Cáo Tiết Học (CSV)
                     </button>
                     <button style="background: var(--blue); color: #fff; font-size: 22px; font-weight: 900; padding: 14px 28px; border-radius: 14px; box-shadow: 0 6px 0 #1e50a8;" onclick="fireCelebration()">
                         🎉 Bắn Pháo Hoa Ăn Mừng
@@ -517,14 +517,9 @@
             });
         }
 
-        /* Xuất file Excel 3 Sheet chuẩn */
+        /* Xuất file CSV 3 Phần chuẩn */
         function exportExcel() {
-            if (typeof XLSX === 'undefined') {
-                toast('Chưa tải xong thư viện Excel, vui lòng thử lại sau!', 2500, 'var(--coral)');
-                return;
-            }
-
-            // Sheet 1: Bảng Xếp Hạng
+            // Phần 1: Bảng Xếp Hạng
             const rankRows = [
                 ['BẢNG TỔNG KẾT THI ĐUA VÀ XẾP HẠNG TIẾT HỌC'],
                 [`Lớp: ${cls} | Thời gian: ${new Date().toLocaleString('vi-VN')} | Môn: Tin học 5`],
@@ -549,10 +544,8 @@
                     'Hoàn thành xuất sắc nhiệm vụ'
                 ]);
             });
-            const wsRank = XLSX.utils.aoa_to_sheet(rankRows);
-            wsRank['!cols'] = [{ wch: 12 }, { wch: 22 }, { wch: 18 }, { wch: 14 }, { wch: 16 }, { wch: 28 }];
 
-            // Sheet 2: Nhật Ký Chi Tiết
+            // Phần 2: Nhật Ký Chi Tiết
             const logRows = [
                 ['NHẬT KÝ CHI TIẾT HOẠT ĐỘNG VÀ BIẾN ĐỘNG ĐIỂM SỐ THEO THỜI GIAN'],
                 [`Thời gian xuất: ${new Date().toLocaleString('vi-VN')} | Tổng số sự kiện ghi nhận: ${activityLogs.length}`],
@@ -576,10 +569,8 @@
                     ]);
                 });
             }
-            const wsLogs = XLSX.utils.aoa_to_sheet(logRows);
-            wsLogs['!cols'] = [{ wch: 6 }, { wch: 12 }, { wch: 18 }, { wch: 24 }, { wch: 42 }, { wch: 18 }, { wch: 16 }, { wch: 18 }];
 
-            // Sheet 3: Danh Sách Học Sinh
+            // Phần 3: Danh Sách Học Sinh
             const rows = [
                 ['DANH SÁCH HỌC SINH VÀ LỊCH SỬ THAM GIA PHÁT BIỂU'],
                 [`Lớp: ${cls} | Tổng số học sinh: ${students.length}`],
@@ -599,24 +590,25 @@
                     ]);
                 });
             });
-            const wsStudents = XLSX.utils.aoa_to_sheet(rows);
-            wsStudents['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 28 }, { wch: 10 }, { wch: 16 }, { wch: 80 }];
 
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, wsRank, 'Bảng Xếp Hạng');
-            XLSX.utils.book_append_sheet(wb, wsLogs, 'Nhật Ký Chi Tiết');
-            XLSX.utils.book_append_sheet(wb, wsStudents, 'Danh Sách Học Sinh');
+            const sections = [
+                ['Bảng Xếp Hạng', rankRows],
+                ['Nhật Ký Chi Tiết', logRows],
+                ['Danh Sách Học Sinh', rows]
+            ];
 
-            const d = new Date(), pad = n => String(n).padStart(2, '0');
-            const timeStr = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
-            const cleanClass = cls.replace(/[^a-zA-Z0-9]/g, '_');
-            const fileName = `KetQua_TinHoc5_Template_Lop${cleanClass}_${timeStr}.xlsx`;
-            if (typeof uploadExcelToDrive === 'function') {
-                uploadExcelToDrive(wb, fileName);
+            const fileName = (typeof window.buildExportFileName === 'function')
+                ? window.buildExportFileName({ grade: 5, classId: cls, lesson: '01' })
+                : `KetQua_TinHoc5_Lop_${cls.replace(/[\/_]/g, '-')}_Tiet_01.csv`;
+
+            if (typeof uploadCsvToDrive === 'function') {
+                uploadCsvToDrive(sections, fileName);
                 return;
             }
-            XLSX.writeFile(wb, fileName);
-            toast(`📥 Đã xuất file: ${fileName}`, 2500, 'var(--mint)');
+            if (window.LessonExport) {
+                LessonExport.download(sections, fileName);
+                toast(`📥 Đã xuất file CSV: ${fileName}`, 2500, 'var(--mint)');
+            }
         }
 
         // Điều khiển phím mũi tên chuyển slide

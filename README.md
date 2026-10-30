@@ -30,3 +30,29 @@ Slide bài giảng HTML/CSS/JS cho khối 1, 2, 3, 4, 5 và Kho mini-games.
    window.allowPageReload(); // Cho phép reload trang mà không hiện cảnh báo
    location.reload();
    ```
+
+---
+
+## 📊 Quy chuẩn Xuất Dữ Liệu Báo Cáo (CSV) Toàn Repo
+
+Toàn bộ hệ thống bài giảng (tất cả các khối 1, 2, 3, 4, 5 và games) chuyển đổi toàn diện sang định dạng **CSV chuẩn UTF-8 có BOM (`\uFEFF`)** thay cho định dạng `.xlsx`:
+
+### 1. Quy cách đặt tên file chuẩn thống nhất:
+```text
+KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}_{HH}h{MM}p{SS}s_Ngay_{DD}-{MM}-{YYYY}.csv
+```
+- **Khối**: `1`, `2`, `3`, `4`, `5`.
+- **Lớp**: Ký tự `/` hoặc `_` được chuẩn hóa thành `-` an toàn (ví dụ: `3/2` hay `3_2` thành `3-2`).
+- **Tiết**: Định dạng 2 chữ số (ví dụ: `Tiet_06`, `Tiet_08`).
+- **Thời gian**: Giờ, phút, giây 24h đầy đủ: `{HH}h{MM}p{SS}s` (ví dụ: `14h30p25s`).
+- **Ngày**: Ngày, tháng, năm đầy đủ: `Ngay_{DD}-{MM}-{YYYY}` (ví dụ: `Ngay_31-10-2026`).
+- *Ví dụ mẫu:*
+  - `KetQua_TinHoc3_Lop_3-2_Tiet_06_14h30p25s_Ngay_31-10-2026.csv`
+  - `KetQua_TinHoc5_Lop_5-1_Tiet_07_09h15p40s_Ngay_31-10-2026.csv`
+
+### 2. Các hàm dùng chung (Đã tích hợp trong `shared/js/core.js`, `shared/js/prevent-reload.js` và `components.js` của từng khối):
+- **`window.buildExportFileName({ grade, classId, lesson, prefix, ext })`**: Sinh tên file chuẩn theo quy cách trên.
+- **`window.exportToCsv(data, fileName, options)`**: Xuất dữ liệu bảng hoặc dữ liệu nhiều phần (multi-section) ra file CSV UTF-8 có BOM.
+- **`window.uploadCsvToDrive(data, fileName, options)`**: Gửi Base64 CSV đồng bộ về Google Apps Script Web App và Google Drive, tự động fallback tải file về máy giáo viên nếu offline.
+- **`window.uploadExcelToDrive`**: Bridge tương thích ngược, tự động gọi `uploadCsvToDrive` để đảm bảo không gãy code cũ.
+- **Báo cáo nhiều bảng/sheet**: Được phân chia tự động và trực quan bằng tiêu đề `=== TÊN PHẦN ===`, mở tốt trên mọi phần mềm bảng tính.

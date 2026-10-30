@@ -1137,8 +1137,7 @@
                         <div id="finalRankings"
                             style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-bottom:20px;">
                         </div>
-                        <button class="btn success huge" onclick="exportCSV()">📊 Tải Bảng Điểm & Lịch Sử Trả Lời
-                            (Excel)</button>
+                        <button class="btn success huge" onclick="exportCSV()">📊 Tải Bảng Điểm & Lịch Sử Trả Lời (CSV)</button>
                     </div>
                 </div>
             </section>
@@ -2342,15 +2341,18 @@
                 csv += `${stu.index},${code},${esc(stu.displayName || stu.name)},${esc(s.team)},${s.correct},${s.wrong},${esc(detailStr)}\n`;
             });
 
+            const fn = (typeof window.buildExportFileName === 'function')
+                ? window.buildExportFileName({ grade: 4, classId: currentClassID, lesson: '07' })
+                : `KetQua_TinHoc4_Lop_${currentClassID.replace(/[\/_]/g, '-')}_Tiet_07.csv`;
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `KetQua_GoBomTuKhoa_Lop${currentClassID.replace('_', '-')}.csv`;
+            a.download = fn;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            toast('📊 Đã xuất file Excel kết quả học tập!', 'ok');
+            toast(`📊 Đã xuất file CSV: ${fn}!`, 'ok');
         }
 
         function toast(msg, cls = '') {

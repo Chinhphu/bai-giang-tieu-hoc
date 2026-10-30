@@ -15,15 +15,19 @@ Các bài giảng Tin học khối 3 có cùng khung lớp học theo chuẩn gi
 - `utils.js`: Các hàm tiện ích: toast, confetti bắn pháo hoa, timer, xáo trộn câu hỏi và xuất Excel.
 - `template.html`: Khung tạo bài học mới cho Khối 3.
 
-## Cơ chế Xuất Báo Cáo & Bắn về Google Drive
+## Cơ chế Xuất Báo Cáo CSV & Đồng Bộ Google Drive
 
-Khối 3 tuân theo chuẩn Khối 5 trong việc xuất báo cáo:
-1. Khi giáo viên bấm nút **"📥 Xuất Excel báo cáo"** ở màn hình tổng kết:
-2. Hệ thống sử dụng hàm `uploadExcelToDrive(wb, fileName)` (được cung cấp sẵn từ `../shared/components.js`).
-3. Dữ liệu workbook được mã hóa Base64 và gửi qua POST request đến Google Apps Script Web App:
+Toàn bộ hệ thống xuất file báo cáo ở định dạng **CSV chuẩn UTF-8 có BOM (`\uFEFF`)**:
+1. **Quy cách đặt tên file chuẩn thống nhất:**
+   `KetQua_TinHoc3_Lop_{Lop}_Tiet_{Tiet}_{HH}h{MM}p{SS}s_Ngay_{DD}-{MM}-{YYYY}.csv`
+   *(Ví dụ: `KetQua_TinHoc3_Lop_3-2_Tiet_06_14h30p25s_Ngay_31-10-2026.csv`)*
+2. Khi giáo viên bấm nút **"📥 Xuất CSV báo cáo"** ở màn hình tổng kết:
+3. Hệ thống sử dụng hàm `uploadCsvToDrive(csvDataOrSections, fileName)` (cung cấp sẵn từ `../shared/components.js`, với alias tương thích `uploadExcelToDrive`).
+4. Với báo cáo nhiều phần (Bảng Xếp Hạng, Nhật Ký Chi Tiết, Danh Sách Học Sinh), hệ thống tự động gộp thành định dạng multi-section CSV ngăn cách bởi tiêu đề `=== TÊN PHẦN ===`, lưu giữ trọn vẹn dữ liệu.
+5. Dữ liệu CSV được mã hóa Base64 với MIME `text/csv;charset=utf-8` và gửi qua POST request đến Google Apps Script Web App:
    `https://script.google.com/macros/s/AKfycbywqn9mgeON9fTqp3xmnGbuqWW-eChABhvaotV4qHezosaqlYuWpF0c4vnB7APkuXBSRw/exec`
-4. Dữ liệu được lưu trực tiếp vào thư mục Drive lưu trữ log tiết học của nhà trường.
-5. **Cơ chế dự phòng (Fallback):** Nếu mất mạng hoặc không kết nối được Google Apps Script, hệ thống sẽ tự động kích hoạt `XLSX.writeFile(wb, fileName)` tải file về máy giáo viên để đảm bảo dữ liệu không bao giờ bị thất lạc.
+6. Dữ liệu được lưu trực tiếp vào thư mục Drive lưu trữ log tiết học của nhà trường.
+7. **Cơ chế dự phòng (Fallback):** Nếu mất mạng hoặc không kết nối được Google Apps Script, hệ thống sẽ tự động kích hoạt tải trực tiếp tệp CSV về máy giáo viên qua `window.LessonExport.download(...)`.
 
 ## Cách dùng Web Components
 

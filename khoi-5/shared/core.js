@@ -583,24 +583,43 @@ const Khoi5Utils = (() => {
     }
   }
 
-  function exportExcel(fileName = 'Ket_Qua_Tiet_Hoc.xlsx', sheetName = 'Kết Quả', dataRows = []) {
-    if (typeof window.XLSX === 'undefined') {
-      toast('⚠️ Thư viện XLSX chưa được nạp!', 2000, 'var(--coral)');
-      return;
+  function exportExcel(fileName = 'Ket_Qua_Tiet_Hoc.csv', sheetName = 'Kết Quả', dataRows = []) {
+    let name = fileName;
+    if (typeof window.buildExportFileName === 'function' && (!fileName || fileName.includes('Ket_Qua_Tiet_Hoc'))) {
+      name = window.buildExportFileName({ grade: 5, lesson: '01', classId: '5_1' });
     }
+    if (name.toLowerCase().endsWith('.xlsx') || name.toLowerCase().endsWith('.xls')) {
+      name = name.replace(/\.xlsx?$/i, '.csv');
+    }
+
     try {
-      const wb = window.XLSX.utils.book_new();
-      const ws = window.XLSX.utils.json_to_sheet(dataRows);
-      window.XLSX.utils.book_append_sheet(wb, ws, sheetName);
-      window.XLSX.writeFile(wb, fileName);
-      toast('📥 Xuất file Excel thành công!', 2000, 'var(--mint)');
+      if (typeof window.LessonExport !== 'undefined') {
+        window.LessonExport.download(dataRows, name);
+      } else {
+        const rows = Array.isArray(dataRows) ? dataRows : [];
+        let csv = '';
+        if (rows.length > 0 && Array.isArray(rows[0])) {
+          csv = rows.map(r => r.map(v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+        } else if (rows.length > 0) {
+          const cols = Object.keys(rows[0]);
+          csv = cols.join(',') + '\r\n' + rows.map(r => cols.map(c => `"${String(r[c] == null ? '' : r[c]).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+        }
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+      toast(`📥 Xuất file CSV thành công: ${name}`, 2000, 'var(--mint)');
     } catch (err) {
-      console.error('Lỗi xuất Excel:', err);
-      toast('🚨 Lỗi khi xuất Excel!', 2500, 'var(--coral)');
+      console.error('Lỗi xuất file CSV:', err);
+      toast('🚨 Lỗi khi xuất CSV!', 2500, 'var(--coral)');
     }
   }
 
-  return { toast, flashStage, triggerConfetti, exportExcel };
+  return { toast, flashStage, triggerConfetti, exportExcel, exportCsv: exportExcel };
 })();
 
 // ==========================================
@@ -741,20 +760,22 @@ const Khoi5Tracker = (() => {
   }
 
   function getStandardFileName(lessonNum = null, classKey = null) {
+    if (typeof window.buildExportFileName === 'function') {
+      return window.buildExportFileName({
+        grade: 5,
+        classId: classKey || config.className || '5_1',
+        lesson: lessonNum || config.lessonNumber || '01'
+      });
+    }
     const lNum = String(lessonNum || config.lessonNumber || '01').padStart(2, '0');
-    const cKey = String(classKey || config.className || '5_1').replace(/[^a-zA-Z0-9]/g, '_');
-    const d = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    const timeStamp = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
-    return `KetQua_TinHoc5_Tiet${lNum}_Lop${cKey}_${timeStamp}.xlsx`;
+    const cKey = String(classKey || config.className || '5_1').replace(/^(?:l[oớ]p)[_\s-]*/i, '').replace(/[\/_]/g, '-').replace(/[^a-zA-Z0-9\-]/g, '');
+    const d = new Date(), pad = n => String(n).padStart(2, '0');
+    const timeStr = `${pad(d.getHours())}h${pad(d.getMinutes())}p${pad(d.getSeconds())}s`;
+    const dateStr = `Ngay_${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()}`;
+    return `KetQua_TinHoc5_Lop_${cKey}_Tiet_${lNum}_${timeStr}_${dateStr}.csv`;
   }
 
   function exportDetailedExcel(customData = {}) {
-    if (typeof window.XLSX === 'undefined') {
-      alert('⚠️ Thư viện SheetJS (xlsx.full.min.js) chưa được nạp!');
-      return;
-    }
-
     const currentTeams = customData.teams || teams;
     const currentStudents = customData.students || students;
     const rankings = calculateRankings(currentTeams);
@@ -843,25 +864,26 @@ const Khoi5Tracker = (() => {
     const wsStudents = window.XLSX.utils.aoa_to_sheet(studentRows);
     wsStudents['!cols'] = [{ wch: 6 }, { wch: 10 }, { wch: 26 }, { wch: 10 }, { wch: 18 }, { wch: 18 }, { wch: 60 }];
 
-    const wb = window.XLSX.utils.book_new();
-    window.XLSX.utils.book_append_sheet(wb, wsRank, 'Bảng Xếp Hạng');
-    window.XLSX.utils.book_append_sheet(wb, wsLogs, 'Nhật Ký Chi Tiết');
-    window.XLSX.utils.book_append_sheet(wb, wsStudents, 'Danh Sách Học Sinh');
+    const sections = [
+      ['Bảng Xếp Hạng Thi Đua', rankRows],
+      ['Nhật Ký Chi Tiết', logRows],
+      ['Danh Sách Học Sinh', studentRows]
+    ];
 
     const fileName = customData.fileName || getStandardFileName();
-    if (typeof window.uploadExcelToDrive === 'function') {
-      window.uploadExcelToDrive(wb, fileName);
-    } else {
-      window.XLSX.writeFile(wb, fileName);
+    if (typeof window.uploadCsvToDrive === 'function') {
+      window.uploadCsvToDrive(sections, fileName);
+    } else if (typeof window.LessonExport !== 'undefined') {
+      window.LessonExport.download(sections, fileName);
       if (window.toast) {
-        window.toast(`📥 Đã xuất file: ${fileName}`, 3000, 'var(--mint)');
+        window.toast(`📥 Đã xuất file CSV: ${fileName}`, 3000, 'var(--mint)');
       } else {
-        alert(`Đã xuất file báo cáo chi tiết: ${fileName}`);
+        alert(`Đã xuất file báo cáo chi tiết CSV: ${fileName}`);
       }
     }
   }
 
-  return { init, setTeams, setStudents, setClass, logAction, calculateRankings, getStandardFileName, exportDetailedExcel, getLogs: () => [...timelineLogs] };
+  return { init, setTeams, setStudents, setClass, logAction, calculateRankings, getStandardFileName, exportDetailedExcel, exportDetailedCsv: exportDetailedExcel, getLogs: () => [...timelineLogs] };
 })();
 
 window.KHOI5.Tracker = Khoi5Tracker;

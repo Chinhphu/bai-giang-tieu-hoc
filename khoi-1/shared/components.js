@@ -300,8 +300,8 @@
             <button class="k1-btn k1-btn-sky k1-btn-sm" style="flex:1;" type="button" onclick="Khoi1Components.openMouseModal()">
               Mẫu Cầm Chuột
             </button>
-            <button class="k1-btn k1-btn-mint k1-btn-sm" style="flex:1;" type="button" onclick="Khoi1Components.exportExcel()">
-              Xuất Excel
+            <button class="k1-btn k1-btn-mint k1-btn-sm" style="flex:1;" type="button" onclick="Khoi1Components.exportCsv()">
+              Xuất CSV
             </button>
           </div>
         </div>
@@ -390,20 +390,28 @@
       closeMouseModal();
     }
 
+    function buildFileName(lessonNum = '08', classKey = null) {
+      if (typeof window.buildExportFileName === 'function') {
+        return window.buildExportFileName({ grade: 1, classId: classKey || currentClass, lesson: lessonNum });
+      }
+      const d = new Date(), pad = n => String(n).padStart(2, '0');
+      const c = String(classKey || currentClass || '1_1').replace(/[^a-zA-Z0-9\-]/g, '-');
+      return `KetQua_TinHoc1_Lop_${c}_Tiet_${String(lessonNum).padStart(2, '0')}_${pad(d.getHours())}h${pad(d.getMinutes())}p${pad(d.getSeconds())}s_Ngay_${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()}.csv`;
+    }
+
     function exportRows(rows, fileName, sheetName = 'Danh_Gia_SMAS') {
-      let excelFailed = false;
-      if (typeof window.XLSX !== 'undefined') {
-        try {
-          const ws = window.XLSX.utils.json_to_sheet(rows);
-          const wb = window.XLSX.utils.book_new();
-          window.XLSX.utils.book_append_sheet(wb, ws, sheetName);
-          window.XLSX.writeFile(wb, fileName);
-          showToast(`Đã xuất file ${fileName}!`);
-        } catch (error) {
-          console.error('Không thể xuất bảng Excel.', error);
-          excelFailed = true;
-        }
-        if (!excelFailed) return;
+      let name = fileName;
+      if (!name || name.endsWith('.xlsx')) {
+        name = buildFileName('08', currentClass);
+      }
+      if (!name.endsWith('.csv')) {
+        name = name.replace(/\.xlsx?$/i, '') + '.csv';
+      }
+
+      if (typeof window.LessonExport !== 'undefined' && window.LessonExport.download) {
+        window.LessonExport.download(rows, name);
+        showToast(`Đã xuất file CSV: ${name}!`);
+        return;
       }
 
       const columns = Object.keys(rows[0] || {});
@@ -415,21 +423,21 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = fileName.replace(/\.xlsx$/i, '.csv');
+      link.download = name;
       document.body.appendChild(link);
       link.click();
       link.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      showToast(excelFailed ? 'Xuất Excel không thành công. Đã tải danh sách dạng CSV.' : 'Đã tải danh sách dạng CSV.');
+      showToast(`Đã tải file CSV: ${name}`);
     }
 
-    /* 4. XUẤT EXCEL CHUẨN SMAS & THÔNG TƯ 27 */
-    function exportExcel() {
+    /* 4. XUẤT CSV CHUẨN SMAS & THÔNG TƯ 27 */
+    function exportCsv() {
       const rows = students.map((s, idx) => ({
         "STT": idx + 1,
         "Mã HS": s.code,
         "Họ và Tên": s.name,
-        "Lớp": `1/${currentClass.split('_')[1]}`,
+        "Lớp": `1/${currentClass.split('_')[1] || currentClass}`,
         "Trạng Thái": s.status === 'called' ? `Đã thực hành (${s.calledCount} lượt)` : 'Chưa gọi',
         "Tư Thế Cầm Chuột": s.mouseSkill,
         "Điểm Thưởng": s.score || 0,
@@ -440,14 +448,14 @@
           : 'Thực hiện đúng nội quy giờ học, chú ý quan sát thao tác mẫu trên máy tính.'
       }));
 
-      const fileName = `SMAS_TinHoc1_Tiet08_Lop_${currentClass}.xlsx`;
+      const fileName = buildFileName('08', currentClass);
       exportRows(rows, fileName);
     }
 
     return {
       init, setClass, setTab, getUncalledStudents, getActiveStudent, getAllStudents,
       setActiveTurn, markStudentDone, handleDiscipline, skipStudent, toggleStar,
-      resetNewRound, openMouseModal, closeMouseModal, rateMouse, exportExcel, exportRows, showToast
+      resetNewRound, openMouseModal, closeMouseModal, rateMouse, exportCsv, exportExcel: exportCsv, exportRows, buildExportFileName: buildFileName, showToast
     };
   })();
 

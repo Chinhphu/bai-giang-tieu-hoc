@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tin học 3 - Xưởng Ráp PC</title>
-    <!-- SheetJS để xuất Excel thật (.xlsx) & Thư viện dùng chung Khối 3 -->
+    <!-- Thư viện bổ trợ & Thư viện dùng chung Khối 3 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link rel="stylesheet" href="../shared/style.css">
@@ -82,7 +82,7 @@
             <h1 id="sumTitle">📊 Tổng kết</h1>
             <div class="kanban" id="kanban"></div>
             <div class="spacer"><button class="btn gray" onclick="show(G.phase===1?'p1':'p2')">⬅ Quay lại game</button>
-                <button class="btn green" onclick="exportExcel()">📥 Xuất Excel báo cáo</button>
+                <button class="btn green" onclick="exportExcel()">📥 Xuất CSV báo cáo</button>
             </div>
         </section>
     </div>
@@ -165,9 +165,14 @@
             return sName;
         }
         function exportFileBase(classId) {
+            if (typeof window.buildExportFileName === 'function') {
+                return window.buildExportFileName({ grade: 3, classId: classId, lesson: '06' });
+            }
             const d = new Date(), pad = n => String(n).padStart(2, '0');
-            const timestamp = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
-            return `Tiet06_Lop${classId.replace('_', '-')}_${timestamp}`;
+            const c = String(classId || '3_2').replace(/[\/_]/g, '-');
+            const timeStr = `${pad(d.getHours())}h${pad(d.getMinutes())}p${pad(d.getSeconds())}s`;
+            const dateStr = `Ngay_${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()}`;
+            return `KetQua_TinHoc3_Lop_${c}_Tiet_06_${timeStr}_${dateStr}.csv`;
         }
 
         function show(id) {
@@ -648,25 +653,24 @@
            ===================================================================== */
         function showSummary() { show('sum'); renderKanban('kanban'); }
         function exportExcel() {
-            const lop = G.cls || 'lop', lopTxt = lop.replace('_', '/'), tn = s => s.team === null ? 'Chưa có tổ' : G.teams[s.team].name;
+            const lop = G.cls || '3_2', lopTxt = lop.replace('_', '/'), tn = s => s.team === null ? 'Chưa có tổ' : G.teams[s.team].name;
             const studentCode = id => Number.isInteger(id) ? `HS${String(id + 1).padStart(3, '0')}` : '';
             const detail = G.log.map((l, i) => ({ 'STT': i + 1, 'Lớp': lopTxt, 'Giờ': l.time, 'Đội': l.team, 'Mã học sinh': studentCode(l.studentId), 'Học sinh': l.student, 'Mức': l.level, 'Câu hỏi': l.question, 'Trả lời': l.answer, 'Kết quả': l.result, 'Vật phẩm nhận': l.item }));
             const stu = G.students.map(s => ({ 'Lớp': lopTxt, 'Mã học sinh': studentCode(s.id), 'Tổ': tn(s), 'Học sinh': studentDisplayName(s), 'Số câu': s.total, 'Đúng': s.correct, 'Sai': s.total - s.correct }));
             const tm = G.teams.map((t, i) => ({ 'Lớp': lopTxt, 'Đội': t.name, 'Số học sinh': G.students.filter(s => s.team === i).length, 'Câu đúng': t.correct, 'Tổng câu': t.total, 'Linh kiện cốt lõi': coreCount(t) + '/4', 'Đồ phụ': t.fluff.length, 'Lần bị phạt ồn': t.pen }));
-            const name = exportFileBase(lop);
-            const fileName = name + '.xlsx';
-            if (window.XLSX) {
-                const wb = XLSX.utils.book_new();
-                [['Chi tiết', detail], ['Theo học sinh', stu], ['Theo đội', tm]].forEach(([n, d]) => XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(d), n));
-                if (typeof uploadExcelToDrive === 'function') {
-                    uploadExcelToDrive(wb, fileName);
-                    return;
-                }
-                XLSX.writeFile(wb, fileName);
-                toast(`📥 Đã lưu file: ${fileName}`, 3000, 'var(--green)');
-            } else {                                           // Dự phòng khi không tải được SheetJS: CSV (có BOM để Excel đọc tiếng Việt)
-                const rows = d => d.length ? [Object.keys(d[0]).join(','), ...d.map(r => Object.values(r).map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))].join('\n') : '';
-                const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff' + rows(detail)], { type: 'text/csv;charset=utf-8' })); a.download = name + '.csv'; a.click();
+            const fileName = exportFileBase(lop);
+            const sections = [
+                ['Chi tiết nhật ký', detail],
+                ['Thống kê theo học sinh', stu],
+                ['Thống kê theo đội', tm]
+            ];
+            if (typeof uploadCsvToDrive === 'function') {
+                uploadCsvToDrive(sections, fileName);
+                return;
+            }
+            if (window.LessonExport) {
+                LessonExport.download(sections, fileName);
+                toast(`📥 Đã lưu file CSV: ${fileName}`, 3000, 'var(--green)');
             }
         }
         loadData();

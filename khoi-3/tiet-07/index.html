@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bài 4: Làm Việc Với Máy Tính (Tiết 1) – Tin Học 3</title>
     <link rel="stylesheet" href="../shared/style.css">
-    <!-- SheetJS để xuất file Excel chuẩn (.xlsx) -->
+    <!-- Thư viện bổ trợ & Thư viện dùng chung Khối 3 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="../shared/components.js"></script>
 
@@ -1600,8 +1600,7 @@
                         <div id="finalRankings"
                             style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-bottom:20px;">
                         </div>
-                        <button class="btn success huge" onclick="exportToExcel()">☁️ Xuất Excel & Lưu Google
-                            Drive</button>
+                        <button class="btn success huge" onclick="exportToExcel()">☁️ Xuất CSV & Lưu Google Drive</button>
                     </div>
                 </div>
             </section>
@@ -2868,18 +2867,13 @@
         }
 
         function exportToExcel() {
-            if (typeof XLSX === 'undefined') {
-                toast('⚠️ Chưa nạp xong thư viện Excel SheetJS!', 'bad');
-                return;
-            }
-
-            const cleanClass = currentClassID.replace(/[^a-zA-Z0-9]/g, '_');
             const classDisplay = currentClassID.replace('_', '/');
             const now = new Date();
             const pad = n => String(n).padStart(2, '0');
             const dateStr = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-            const timeFileStr = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
-            const fileName = `KetQua_TinHoc3_Tiet07_Lop${cleanClass}_${timeFileStr}.xlsx`;
+            const fileName = (typeof window.buildExportFileName === 'function')
+                ? window.buildExportFileName({ grade: 3, classId: currentClassID, lesson: '07' })
+                : `KetQua_TinHoc3_Lop_${currentClassID.replace(/[\/_]/g, '-')}_Tiet_07.csv`;
 
             const sortedTeams = [...TEAMS].sort((a, b) => b.score - a.score);
             const rankRows = [
@@ -2897,8 +2891,6 @@
                 if (tied) medal = `${medal} (đồng hạng ${rank})`;
                 rankRows.push([tied ? `Đồng hạng ${rank}` : rank, t.n, t.score, medal]);
             });
-            const wsRank = XLSX.utils.aoa_to_sheet(rankRows);
-            wsRank['!cols'] = [{ wch: 8 }, { wch: 18 }, { wch: 14 }, { wch: 28 }];
 
             const logRows = [
                 ['NHẬT KÝ HOẠT ĐỘNG VÀ ĐIỂM SỐ TIẾT HỌC'],
@@ -2913,8 +2905,6 @@
                     logRows.push([idx + 1, item.time, item.team, item.student, item.action, item.result, item.delta, item.scoreAfter]);
                 });
             }
-            const wsLogs = XLSX.utils.aoa_to_sheet(logRows);
-            wsLogs['!cols'] = [{ wch: 6 }, { wch: 12 }, { wch: 16 }, { wch: 24 }, { wch: 42 }, { wch: 16 }, { wch: 16 }, { wch: 16 }];
 
             const calledCount = classStudents.filter(s => calledStudents.has(s.id)).length;
             const stuRows = [
@@ -2929,20 +2919,21 @@
                 const actText = acts.length > 0 ? acts.join('; ') : (isCalled ? 'Đã tham gia phát biểu / thực hành' : 'Chưa có lượt gọi');
                 stuRows.push([idx + 1, `HS${String(idx + 1).padStart(3, '0')}`, stu.name, classDisplay, isCalled ? 'Đã tham gia ✓' : 'Chưa gọi', actText]);
             });
-            const wsStudents = XLSX.utils.aoa_to_sheet(stuRows);
-            wsStudents['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 28 }, { wch: 10 }, { wch: 22 }, { wch: 50 }];
 
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, wsRank, 'Bảng Xếp Hạng');
-            XLSX.utils.book_append_sheet(wb, wsLogs, 'Nhật Ký Chi Tiết');
-            XLSX.utils.book_append_sheet(wb, wsStudents, 'Danh Sách Học Sinh');
+            const sections = [
+                ['Bảng Xếp Hạng', rankRows],
+                ['Nhật Ký Chi Tiết', logRows],
+                ['Danh Sách Học Sinh', stuRows]
+            ];
 
-            if (typeof uploadExcelToDrive === 'function') {
-                uploadExcelToDrive(wb, fileName);
+            if (typeof uploadCsvToDrive === 'function') {
+                uploadCsvToDrive(sections, fileName);
                 return;
             }
-            XLSX.writeFile(wb, fileName);
-            toast(`📥 Đã lưu file: ${fileName}`, 'ok');
+            if (window.LessonExport) {
+                LessonExport.download(sections, fileName);
+                toast(`📥 Đã lưu file CSV: ${fileName}`, 'ok');
+            }
         }
 
         function toast(msg, cls = '') {

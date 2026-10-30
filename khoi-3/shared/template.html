@@ -68,7 +68,7 @@
         </section>
 
         <!-- 3. MÀN HÌNH TỔNG KẾT & KANBAN (Component dùng chung) -->
-        <khoi3-summary heading="📊 Tổng kết & Xếp hạng" export-label="📥 Xuất Excel (Bắn lên Google Drive)"></khoi3-summary>
+        <khoi3-summary heading="📊 Tổng kết & Xếp hạng" export-label="📥 Xuất CSV (Bắn lên Google Drive)"></khoi3-summary>
     </div>
 
     <!-- 4. SIDEBAR QUẢN LÝ TỔ ĐỘI (Component dùng chung) -->
@@ -206,12 +206,17 @@
             }).join('');
         }
 
-        /* Xuất báo cáo và BẮN THẲNG LÊN GOOGLE DRIVE */
+        /* Xuất báo cáo CSV và ĐỒNG BỘ LÊN GOOGLE DRIVE */
         function exportExcel() {
             const lop = G.cls || '3_2';
             const lopTxt = lop.replace('_', '/');
-            const d = new Date(), pad = n => String(n).padStart(2, '0');
-            const fileName = `KetQua_TinHoc3_Lop${lop.replace('_', '-')}_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.xlsx`;
+            const fileName = (typeof window.buildExportFileName === 'function')
+                ? window.buildExportFileName({ grade: 3, classId: lop, lesson: '01' })
+                : `KetQua_TinHoc3_Lop_${lop.replace(/[\/_]/g, '-')}_Tiet_01.csv`;
+
+            const tm = G.teams.map(t => ({
+                'Lớp': lopTxt, 'Đội': t.name, 'Câu đúng': t.correct, 'Phạt ồn': t.pen
+            }));
 
             const detail = G.log.map((l, i) => ({
                 'STT': i + 1, 'Lớp': lopTxt, 'Giờ': l.time, 'Đội': l.team, 'Học sinh': l.student, 'Câu hỏi': l.question, 'Kết quả': l.result
@@ -221,21 +226,18 @@
                 'Lớp': lopTxt, 'Mã HS': `HS${String(s.id).padStart(3, '0')}`, 'Tổ': s.team === null ? 'Chưa có' : G.teams[s.team].name, 'Học sinh': s.name, 'Đúng': s.correct, 'Tổng câu': s.total
             }));
 
-            const tm = G.teams.map(t => ({
-                'Lớp': lopTxt, 'Đội': t.name, 'Câu đúng': t.correct, 'Phạt ồn': t.pen
-            }));
+            const sections = [
+                ['Bảng Xếp Hạng', tm],
+                ['Nhật Ký Chi Tiết', detail],
+                ['Danh Sách Học Sinh', stu]
+            ];
 
-            if (window.XLSX) {
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(tm), 'Bảng Xếp Hạng');
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(detail), 'Nhật Ký Chi Tiết');
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stu), 'Danh Sách Học Sinh');
-
-                if (typeof uploadExcelToDrive === 'function') {
-                    uploadExcelToDrive(wb, fileName);
-                    return;
-                }
-                XLSX.writeFile(wb, fileName);
+            if (typeof uploadCsvToDrive === 'function') {
+                uploadCsvToDrive(sections, fileName);
+                return;
+            }
+            if (window.LessonExport) {
+                LessonExport.download(sections, fileName);
             }
         }
 

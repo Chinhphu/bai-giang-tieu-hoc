@@ -99,22 +99,48 @@
   const GAS_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbywqn9mgeON9fTqp3xmnGbuqWW-eChABhvaotV4qHezosaqlYuWpF0c4vnB7APkuXBSRw/exec';
   window.GAS_UPLOAD_URL = GAS_UPLOAD_URL;
 
-  window.uploadExcelToDrive = async function uploadExcelToDrive(wb, fileName) {
-    if (!wb || typeof window.XLSX === 'undefined') {
-      window.toast && window.toast('⚠️ Chưa nạp xong thư viện Excel!', 2500, 'var(--coral)');
-      return;
+  window.uploadCsvToDrive = async function uploadCsvToDrive(data, fileName) {
+    if (typeof window.LessonExport !== 'undefined') {
+      return window.LessonExport.uploadToDrive(data, fileName);
+    }
+
+    let name = String(fileName || 'KetQua_TinHoc5.csv').trim();
+    if (name.toLowerCase().endsWith('.xlsx') || name.toLowerCase().endsWith('.xls')) {
+      name = name.replace(/\.xlsx?$/i, '.csv');
+    } else if (!name.toLowerCase().endsWith('.csv')) {
+      name += '.csv';
     }
 
     if (window.toast) {
-      window.toast('☁️ Đang đồng bộ nhật ký lên Google Drive...', 4500, 'var(--primary)');
+      window.toast('☁️ Đang đồng bộ nhật ký CSV lên Google Drive...', 4500, 'var(--primary)');
+    }
+
+    let csvContent = typeof data === 'string' ? data : '';
+    if (!csvContent && Array.isArray(data)) {
+      csvContent = data.map(item => {
+        if (Array.isArray(item) && item.length === 2 && typeof item[0] === 'string') {
+          const title = `=== ${item[0].toUpperCase()} ===\r\n`;
+          const rows = item[1];
+          if (Array.isArray(rows)) {
+            return title + rows.map(r => (Array.isArray(r) ? r : Object.values(r)).map(v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+          }
+        }
+        return '';
+      }).filter(Boolean).join('\r\n\r\n');
     }
 
     try {
-      const base64Data = window.XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+      const utf8Bytes = new TextEncoder().encode('\uFEFF' + csvContent);
+      let binary = '';
+      for (let i = 0; i < utf8Bytes.byteLength; i++) {
+        binary += String.fromCharCode(utf8Bytes[i]);
+      }
+      const base64Data = btoa(binary);
+
       const payload = {
-        fileName: fileName,
+        fileName: name,
         fileData: base64Data,
-        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        mimeType: 'text/csv;charset=utf-8'
       };
 
       const response = await fetch(GAS_UPLOAD_URL, {
@@ -130,7 +156,7 @@
         if (window.toast) {
           window.toast('✅ Đã lưu vào Drive (Thư mục Log tiết học)!', 4000, 'var(--mint)');
         } else {
-          alert('Đã lưu thành công vào Google Drive: ' + fileName);
+          alert('Đã lưu thành công vào Google Drive: ' + name);
         }
         return result;
       } else {
@@ -138,14 +164,25 @@
       }
     } catch (err) {
       console.warn('Không thể gửi lên Google Drive, chuyển sang tải file trực tiếp:', err);
-      // Fallback an toàn: Tự động tải file về máy để giáo viên không bị mất dữ liệu
-      window.XLSX.writeFile(wb, fileName);
+      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
       if (window.toast) {
-        window.toast('⚠️ Không kết nối được Drive. Đã tự động lưu file về máy!', 4500, 'var(--coral)');
+        window.toast(`⚠️ Không kết nối được Drive. Đã tự động lưu file CSV về máy: ${name}`, 4500, 'var(--coral)');
       } else {
-        alert('Không thể kết nối đến Google Drive. File đã được lưu về máy: ' + fileName);
+        alert('Không thể kết nối đến Google Drive. File CSV đã được lưu về máy: ' + name);
       }
     }
+  };
+
+  window.uploadExcelToDrive = function (wbOrData, fileName) {
+    return window.uploadCsvToDrive(wbOrData, fileName);
   };
 
   class Khoi5Setup extends HTMLElement {
@@ -285,7 +322,7 @@
       this.style.display = 'contents';
 
       const heading = escapeHtml(this.getAttribute('heading') || '📋 Quản lí học sinh các tổ (Kéo thả thẻ tên)');
-      const exportLabel = escapeHtml(this.getAttribute('export-label') || '📥 Xuất File Excel');
+      const exportLabel = escapeHtml(this.getAttribute('export-label') || '📥 Xuất File CSV');
       const goldBoard = this.hasAttribute('gold-board');
 
       this.innerHTML = `

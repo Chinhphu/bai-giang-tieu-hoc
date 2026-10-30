@@ -1264,7 +1264,7 @@
                     <button
                         style="background: var(--mint); color: #fff; font-size: 18px; font-weight: 900; padding: 10px 24px; border-radius: 12px; box-shadow: 0 5px 0 #087d69; cursor: pointer;"
                         onclick="exportExcel()">
-                        📥 Xuất Excel Đánh Giá Chi Tiết (TT27 & SMAS)
+                        📥 Xuất CSV Đánh Giá Chi Tiết (TT27 & SMAS)
                     </button>
                     <button
                         style="background: var(--blue); color: #fff; font-size: 18px; font-weight: 900; padding: 10px 22px; border-radius: 12px; box-shadow: 0 5px 0 #1e50a8; cursor: pointer;"
@@ -3197,8 +3197,6 @@
         }
 
         function exportExcel() {
-            if (typeof XLSX === 'undefined') return;
-            const wb = XLSX.utils.book_new();
             const nowStr = new Date().toLocaleString('vi-VN');
             const classDisplay = currentClassKey.replace('_', '/');
 
@@ -3222,8 +3220,6 @@
                     titles[i] || '🌟 Khuyến Khích'
                 ]);
             });
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(s1), 'Bang_Diem_To');
-
             // 2. SHEET 2: ĐÁNH GIÁ TỪNG EM (THÔNG TƯ 27 & SMAS)
             const s2 = [
                 ['BÁO CÁO THEO DÕI & ĐÁNH GIÁ NĂNG LỰC TỔ CHỨC CÂY THƯ MỤC CỦA TỪNG HỌC SINH (THÔNG TƯ 27 & SMAS)'],
@@ -3263,8 +3259,6 @@
                     ev.comment
                 ]);
             });
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(s2), 'Danh_Gia_Tung_Em');
-
             // 3. SHEET 3: NHẬT KÝ CHI TIẾT TỪNG LƯỢT ĐI
             const s3 = [
                 ['NHẬT KÝ CHI TIẾT CÁC LƯỢT THỰC HÀNH TRUY TÌM TỆP TRÊN CÂY THƯ MỤC'],
@@ -3297,14 +3291,46 @@
                     l.detailComment
                 ]);
             });
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(s3), 'Nhat_Ky_Chi_Tiet');
 
-            const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-            const fileName = `KetQua_CayThuMuc_TinHoc5_Tiet08_Lop_${currentClassKey}_${stamp}.xlsx`;
-            if (typeof window.uploadExcelToDrive === 'function') {
-                window.uploadExcelToDrive(wb, fileName);
+            const sections = [
+                ['Bảng Điểm Tổ', s1],
+                ['Đánh Giá Từng Em', s2],
+                ['Nhật Ký Chi Tiết', s3]
+            ];
+
+            const fileName = (typeof window.buildExportFileName === 'function')
+                ? window.buildExportFileName({ grade: 5, classId: currentClassKey, lesson: '08' })
+                : `KetQua_TinHoc5_Lop_${currentClassKey.replace(/[\/_]/g, '-')}_Tiet_08.csv`;
+
+            if (typeof window.uploadCsvToDrive === 'function') {
+                window.uploadCsvToDrive(sections, fileName);
+            } else if (typeof window.LessonExport !== 'undefined') {
+                window.LessonExport.download(sections, fileName);
+                if (typeof toast === 'function') toast(`📥 Đã xuất file CSV: ${fileName}`, 3000, 'var(--mint)');
             } else {
-                XLSX.writeFile(wb, fileName);
+                let csvContent = '\uFEFF';
+                sections.forEach(([secTitle, rows]) => {
+                    csvContent += `=== ${secTitle} ===\r\n`;
+                    rows.forEach(r => {
+                        const line = (r || []).map(cell => {
+                            if (cell === null || cell === undefined) return '""';
+                            const str = String(cell).replace(/"/g, '""');
+                            return `"${str}"`;
+                        }).join(',');
+                        csvContent += line + '\r\n';
+                    });
+                    csvContent += '\r\n';
+                });
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                if (typeof toast === 'function') toast(`📥 Đã xuất file CSV: ${fileName}`, 3000, 'var(--mint)');
             }
         }
 

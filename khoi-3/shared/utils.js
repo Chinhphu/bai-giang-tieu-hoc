@@ -49,31 +49,41 @@ const Khoi3Utils = (() => {
   }
 
   /**
-   * Xuất file Excel và TỰ ĐỘNG BẮN LÊN GOOGLE DRIVE
+   * Xuất file CSV và TỰ ĐỘNG ĐỒNG BỘ LÊN GOOGLE DRIVE
    */
-  function exportExcel(fileName = 'KetQua_TinHoc3.xlsx', sheetName = 'Kết Quả', dataRows = []) {
-    if (typeof window.XLSX === 'undefined') {
-      if (window.toast) window.toast('⚠️ Thư viện XLSX chưa được nạp!', 2500, 'var(--red)');
-      else alert('Chưa nạp thư viện XLSX!');
-      return;
+  function exportExcel(fileName = 'KetQua_TinHoc3.csv', sheetName = 'Kết Quả', dataRows = []) {
+    let name = fileName;
+    if (typeof window.buildExportFileName === 'function' && (!fileName || fileName.includes('KetQua_TinHoc3'))) {
+      name = window.buildExportFileName({ grade: 3, lesson: '06', classId: '3_1' });
+    }
+    if (name.toLowerCase().endsWith('.xlsx') || name.toLowerCase().endsWith('.xls')) {
+      name = name.replace(/\.xlsx?$/i, '.csv');
     }
 
     try {
-      const wb = window.XLSX.utils.book_new();
-      const ws = Array.isArray(dataRows) && dataRows.length > 0 && Array.isArray(dataRows[0])
-        ? window.XLSX.utils.aoa_to_sheet(dataRows)
-        : window.XLSX.utils.json_to_sheet(dataRows);
-      window.XLSX.utils.book_append_sheet(wb, ws, sheetName);
-
-      if (typeof window.uploadExcelToDrive === 'function') {
-        window.uploadExcelToDrive(wb, fileName);
+      if (typeof window.LessonExport !== 'undefined') {
+        window.LessonExport.download(dataRows, name);
       } else {
-        window.XLSX.writeFile(wb, fileName);
-        if (window.toast) window.toast('📥 Xuất file Excel thành công!', 2000, 'var(--green)');
+        const rows = Array.isArray(dataRows) ? dataRows : [];
+        let csv = '';
+        if (rows.length > 0 && Array.isArray(rows[0])) {
+          csv = rows.map(r => r.map(v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+        } else if (rows.length > 0) {
+          const cols = Object.keys(rows[0]);
+          csv = cols.join(',') + '\r\n' + rows.map(r => cols.map(c => `"${String(r[c] == null ? '' : r[c]).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+        }
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
       }
+      if (window.toast) window.toast(`📥 Xuất file CSV thành công: ${name}`, 2000, 'var(--green)');
     } catch (err) {
-      console.error('Lỗi xuất Excel:', err);
-      if (window.toast) window.toast('🚨 Lỗi khi xuất Excel!', 2500, 'var(--red)');
+      console.error('Lỗi xuất CSV:', err);
+      if (window.toast) window.toast('🚨 Lỗi khi xuất CSV!', 2500, 'var(--red)');
     }
   }
 
@@ -81,7 +91,8 @@ const Khoi3Utils = (() => {
     escapeHtml,
     shuffle,
     triggerConfetti,
-    exportExcel
+    exportExcel,
+    exportCsv: exportExcel
   };
 })();
 

@@ -740,10 +740,10 @@
                         <!-- CÁC NÚT HÀNH ĐỘNG -->
                         <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:20px;">
                             <button class="btn green" style="font-size:1.15rem; padding:14px 28px;" onclick="exportDetailedExcel(true)">
-                                ☁️ Xuất Excel & Lưu Lên Google Drive (.xlsx)
+                                ☁️ Xuất CSV & Lưu Lên Google Drive (.csv)
                             </button>
                             <button class="btn blue" style="font-size:1.15rem; padding:14px 24px;" onclick="exportDetailedExcel(false)">
-                                📥 Tải File Về Máy (.xlsx)
+                                📥 Tải File CSV Về Máy (.csv)
                             </button>
                             <button class="btn teal" style="font-size:1.15rem; padding:14px 24px;" onclick="switchScreen(2)">
                                 🔄 Quay lại Đấu trường
@@ -812,7 +812,7 @@
         <nav class="menu">
             <button class="active" data-go="1" onclick="switchScreen(1)">✍️ Vở thực hành</button>
             <button data-go="2" onclick="switchScreen(2)">🎯 Đấu trường Speedrun</button>
-            <button data-go="3" onclick="switchScreen(3)">🏆 Bảng vàng & Xuất Excel</button>
+            <button data-go="3" onclick="switchScreen(3)">🏆 Bảng vàng & Xuất CSV</button>
         </nav>
     </div>
 
@@ -1567,24 +1567,63 @@
         const GAS_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbywqn9mgeON9fTqp3xmnGbuqWW-eChABhvaotV4qHezosaqlYuWpF0c4vnB7APkuXBSRw/exec';
         window.GAS_UPLOAD_URL = GAS_UPLOAD_URL;
 
-        window.uploadExcelToDrive = async function uploadExcelToDrive(wb, fileName) {
-            if (!wb || typeof window.XLSX === 'undefined') {
-                showToast('⚠️ Chưa nạp xong thư viện Excel!', 'bad');
-                return;
+        window.uploadCsvToDrive = async function uploadCsvToDrive(csvDataOrSections, fileName) {
+            fileName = fileName || (typeof window.buildExportFileName === 'function'
+                ? window.buildExportFileName({ grade: 4, classId: currentClassID, lesson: '08' })
+                : `KetQua_TinHoc4_Lop_${currentClassID.replace(/[\/_]/g, '-')}_Tiet_08.csv`);
+
+            if (fileName.toLowerCase().endsWith('.xlsx') || fileName.toLowerCase().endsWith('.xls')) {
+                fileName = fileName.replace(/\.xlsx?$/i, '.csv');
             }
 
-            if (!fileName.endsWith('.xlsx')) {
-                fileName += '.xlsx';
+            let csvString = '';
+            if (typeof csvDataOrSections === 'string') {
+                csvString = csvDataOrSections;
+            } else if (Array.isArray(csvDataOrSections)) {
+                if (csvDataOrSections.length > 0 && Array.isArray(csvDataOrSections[0]) && typeof csvDataOrSections[0][0] === 'string' && Array.isArray(csvDataOrSections[0][1])) {
+                    csvDataOrSections.forEach(([sectionTitle, rows]) => {
+                        csvString += `=== ${sectionTitle} ===\r\n`;
+                        (rows || []).forEach(r => {
+                            const line = (r || []).map(cell => {
+                                if (cell === null || cell === undefined) return '""';
+                                const str = String(cell).replace(/"/g, '""');
+                                return `"${str}"`;
+                            }).join(',');
+                            csvString += line + '\r\n';
+                        });
+                        csvString += '\r\n';
+                    });
+                } else {
+                    csvDataOrSections.forEach(r => {
+                        const line = (r || []).map(cell => {
+                            if (cell === null || cell === undefined) return '""';
+                            const str = String(cell).replace(/"/g, '""');
+                            return `"${str}"`;
+                        }).join(',');
+                        csvString += line + '\r\n';
+                    });
+                }
             }
 
-            showToast('☁️ Đang đồng bộ nhật ký lên Google Drive...', 'ok');
+            if (!csvString.startsWith('\uFEFF')) {
+                csvString = '\uFEFF' + csvString;
+            }
+
+            showToast('☁️ Đang đồng bộ nhật ký CSV lên Google Drive...', 'ok');
 
             try {
-                const base64Data = window.XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+                const utf8Bytes = new TextEncoder().encode(csvString);
+                let binary = '';
+                const len = utf8Bytes.byteLength;
+                for (let i = 0; i < len; i++) {
+                    binary += String.fromCharCode(utf8Bytes[i]);
+                }
+                const base64Data = btoa(binary);
+
                 const payload = {
                     fileName: fileName,
                     fileData: base64Data,
-                    mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    mimeType: 'text/csv;charset=utf-8'
                 };
 
                 const response = await fetch(GAS_UPLOAD_URL, {
@@ -1603,32 +1642,32 @@
                     throw new Error((result && result.message) || 'Lỗi từ máy chủ Google Apps Script');
                 }
             } catch (err) {
-                console.warn('Không thể gửi lên Google Drive, chuyển sang tải file trực tiếp:', err);
-                // Fallback an toàn: Tự động tải file về máy để giáo viên không bị mất dữ liệu
-                window.XLSX.writeFile(wb, fileName);
-                showToast('⚠️ Không kết nối được Drive. Đã tự động lưu file về máy!', 'warn');
+                console.warn('Không thể gửi lên Google Drive, chuyển sang tải file CSV trực tiếp:', err);
+                const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('⚠️ Không kết nối được Drive. Đã tự động lưu file CSV về máy!', 'warn');
             }
         };
+        window.uploadExcelToDrive = window.uploadCsvToDrive;
 
-        /* 11. XUẤT FILE EXCEL TRACKING ĐÁNH GIÁ NĂNG LỰC TỪNG HỌC SINH (YÊU CẦU TRỌNG TÂM) */
+        /* 11. XUẤT FILE CSV TRACKING ĐÁNH GIÁ NĂNG LỰC TỪNG HỌC SINH (YÊU CẦU TRỌNG TÂM) */
         async function exportDetailedExcel(sendToDrive = true) {
-            if (typeof XLSX === 'undefined') {
-                alert('Chưa tải được thư viện SheetJS. Đang chuyển sang xuất file CSV dự phòng...');
-                exportCSVFallback();
-                return;
-            }
-
-            const cleanClass = currentClassID.replace(/[^a-zA-Z0-9]/g, '_');
             const classDisplay = currentClassID.replace('_', '/');
             const now = new Date();
             const pad = n => String(n).padStart(2, '0');
             const dateStr = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-            const fileTime = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
-            const fileName = `KetQua_TimKiem_TinHoc4_Tiet08_Lop${cleanClass}_${fileTime}.xlsx`;
+            const fileName = (typeof window.buildExportFileName === 'function')
+                ? window.buildExportFileName({ grade: 4, classId: currentClassID, lesson: '08' })
+                : `KetQua_TinHoc4_Lop_${currentClassID.replace(/[\/_]/g, '-')}_Tiet_08.csv`;
 
-            const wb = XLSX.utils.book_new();
-
-            // SHEET 1: BẢNG XẾP HẠNG TỔ
+            // PHẦN 1: BẢNG XẾP HẠNG TỔ
             const sortedTeams = [...TEAMS].sort((a, b) => b.score - a.score);
             const rankRows = [
                 ['BẢNG TỔNG KẾT ĐIỂM TIẾT THỰC HÀNH - TIN HỌC 4'],
@@ -1641,11 +1680,8 @@
                 let title = i === 0 ? '👑 Quán Quân Xuất Sắc' : (i === 1 ? '🥈 Á Quân Xuất Sắc' : (i === 2 ? '🥉 Hạng Ba Tích Cực' : '🏅 Hoàn Thành Tốt'));
                 rankRows.push([i + 1, t.name, t.score, turns, title]);
             });
-            const wsRank = XLSX.utils.aoa_to_sheet(rankRows);
-            wsRank['!cols'] = [{ wch: 8 }, { wch: 16 }, { wch: 16 }, { wch: 18 }, { wch: 28 }];
-            XLSX.utils.book_append_sheet(wb, wsRank, 'Bang_Diem_To');
 
-            // SHEET 2: ĐÁNH GIÁ NĂNG LỰC TỪNG EM (QUAN TRỌNG NHẤT!)
+            // PHẦN 2: ĐÁNH GIÁ NĂNG LỰC TỪNG EM (QUAN TRỌNG NHẤT!)
             const stuRows = [
                 ['BÁO CÁO THEO DÕI & ĐÁNH GIÁ NĂNG LỰC TÌM KIẾM CỦA TỪNG HỌC SINH (THÔNG TƯ 27)'],
                 [`Môn: Tin Học 4 - Bài 4 (Tiết 2) | Lớp: ${classDisplay} | Sĩ số: ${classStudents.length} học sinh | Ngày thực hành: ${dateStr}`],
@@ -1692,16 +1728,8 @@
                     ]);
                 }
             });
-            const wsStudents = XLSX.utils.aoa_to_sheet(stuRows);
-            wsStudents['!cols'] = [
-                { wch: 6 }, { wch: 12 }, { wch: 26 }, { wch: 8 }, { wch: 10 },
-                { wch: 16 }, { wch: 24 }, { wch: 32 },
-                { wch: 20 }, { wch: 24 }, { wch: 20 },
-                { wch: 16 }, { wch: 12 }, { wch: 22 }, { wch: 55 }
-            ];
-            XLSX.utils.book_append_sheet(wb, wsStudents, 'Danh_Gia_Tung_Em');
 
-            // SHEET 3: NHẬT KÝ CHI TIẾT TỪNG LƯỢT THỰC HÀNH (LOG)
+            // PHẦN 3: NHẬT KÝ CHI TIẾT TỪNG LƯỢT THỰC HÀNH (LOG)
             const logRows = [
                 ['NHẬT KÝ CHI TIẾT CÁC LƯỢT THỰC HÀNH TÌM KIẾM GOOGLE'],
                 [`Lớp: ${classDisplay} | Tổng số lượt đã ghi nhận: ${turnHistoryLogs.length}`],
@@ -1725,26 +1753,32 @@
                     ]);
                 });
             }
-            const wsLogs = XLSX.utils.aoa_to_sheet(logRows);
-            wsLogs['!cols'] = [
-                { wch: 8 }, { wch: 12 }, { wch: 12 }, { wch: 24 },
-                { wch: 24 }, { wch: 30 },
-                { wch: 18 }, { wch: 18 }, { wch: 18 },
-                { wch: 14 }, { wch: 20 }, { wch: 12 }, { wch: 20 }, { wch: 45 }
+
+            const sections = [
+                ['Bảng Điểm Tổ', rankRows],
+                ['Đánh Giá Năng Lực Từng Em', stuRows],
+                ['Nhật Ký Chi Tiết', logRows]
             ];
-            XLSX.utils.book_append_sheet(wb, wsLogs, 'Nhat_Ky_Chi_Tiet');
 
             // Xuất file: Gửi Google Drive hoặc Tải về máy
             if (sendToDrive) {
-                await window.uploadExcelToDrive(wb, fileName);
+                if (typeof window.uploadCsvToDrive === 'function') {
+                    await window.uploadCsvToDrive(sections, fileName);
+                } else if (typeof window.uploadExcelToDrive === 'function') {
+                    await window.uploadExcelToDrive(sections, fileName);
+                }
             } else {
-                XLSX.writeFile(wb, fileName);
-                showToast(`📥 Đã tải file Excel về máy: ${fileName}`, 'ok');
+                if (typeof window.LessonExport !== 'undefined') {
+                    window.LessonExport.download(sections, fileName);
+                } else {
+                    exportCSVFallback(fileName);
+                }
+                showToast(`📥 Đã tải file CSV về máy: ${fileName}`, 'ok');
             }
         }
 
-        /* Fallback xuất CSV nếu SheetJS không load được */
-        function exportCSVFallback() {
+        /* Fallback xuất CSV */
+        function exportCSVFallback(targetName) {
             let csv = '\uFEFF';
             csv += `BÁO CÁO ĐÁNH GIÁ NĂNG LỰC TÌM KIẾM HỌC SINH - TIN HỌC 4\n`;
             csv += `Lớp:,${currentClassID.replace('_', '/')}\n\n`;
@@ -1757,14 +1791,17 @@
                     csv += `${idx + 1},HS${idx + 1},"${st.name}","Tổ ${(idx % numTeams) + 1}","Chưa gọi","—",0,"Chưa đánh giá","Chưa có lượt thực hành trên máy."\n`;
                 }
             });
+            const fileName = targetName || (typeof window.buildExportFileName === 'function'
+                ? window.buildExportFileName({ grade: 4, classId: currentClassID, lesson: '08' })
+                : `Danh_Gia_Tim_Kiem_TinHoc4_Lop_${currentClassID}.csv`);
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Danh_Gia_Tim_Kiem_TinHoc4_Lop_${currentClassID}.csv`;
+            a.download = fileName;
             a.click();
             URL.revokeObjectURL(url);
-            showToast('📥 Đã tải file CSV dự phòng!', 'ok');
+            showToast(`📥 Đã tải file CSV: ${fileName}`, 'ok');
         }
 
         /* 12. Đồng hồ 35 phút tiết học */

@@ -708,7 +708,7 @@
                 <div class="rankings-box" id="rankings-box"></div>
                 <div style="margin-top: 15px;">
                     <button style="background:var(--mint); color:#fff; font-size:22px; font-weight:900; padding:12px 32px; border-radius:14px; box-shadow:0 6px 0 #087d69;" onclick="exportExcel()">
-                        📥 Xuất Báo Cáo Tiết Học (Excel)
+                        📥 Xuất Báo Cáo Tiết Học (CSV)
                     </button>
                 </div>
             </section>
@@ -1438,21 +1438,22 @@
             const wsStudents = XLSX.utils.aoa_to_sheet(rows);
             wsStudents['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 28 }, { wch: 10 }, { wch: 16 }, { wch: 80 }];
 
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, wsRank, 'Bảng Xếp Hạng');
-            XLSX.utils.book_append_sheet(wb, wsLogs, 'Nhật Ký Chi Tiết');
-            XLSX.utils.book_append_sheet(wb, wsStudents, 'Danh Sách Học Sinh');
-
-            const d = new Date(), pad = n => String(n).padStart(2, '0');
-            const timeStr = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
-            const cleanClass = currentClass.replace(/[^a-zA-Z0-9]/g, '_');
-            const fileName = `KetQua_TinHoc5_Tiet03_Lop${cleanClass}_${timeStr}.xlsx`;
-            if (typeof uploadExcelToDrive === 'function') {
-                uploadExcelToDrive(wb, fileName);
+            const sections = [
+                ['Bảng Xếp Hạng Thi Đua', rankRows],
+                ['Nhật Ký Chi Tiết', logRows],
+                ['Danh Sách Học Sinh', rows]
+            ];
+            const fileName = (typeof window.buildExportFileName === 'function')
+                ? window.buildExportFileName({ grade: 5, classId: currentClass, lesson: '03' })
+                : `KetQua_TinHoc5_Lop_${currentClass.replace(/[\/_]/g, '-')}_Tiet_03.csv`;
+            if (typeof uploadCsvToDrive === 'function') {
+                uploadCsvToDrive(sections, fileName);
                 return;
             }
-            XLSX.writeFile(wb, fileName);
-            toast(`📥 Đã xuất file: ${fileName}`, 3000, 'var(--mint)');
+            if (window.LessonExport) {
+                LessonExport.download(sections, fileName);
+                toast(`📥 Đã xuất file CSV: ${fileName}`, 3000, 'var(--mint)');
+            }
         }
 
         /* ================= ÂM THANH & TIỆN ÍCH ================= */

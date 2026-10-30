@@ -3,11 +3,11 @@
  * 
  * 1. Tính điểm và Xếp hạng chuẩn sư phạm (Xử lý Bằng điểm - Đồng hạng).
  * 2. Ghi nhật ký THẬT CHI TIẾT theo thứ tự thời gian (Ai trả lời, chuyện gì xảy ra, cộng/trừ bao nhiêu).
- * 3. Xuất file Excel chuẩn thống nhất cho tất cả các bài:
- *    - Cú pháp tên file: KetQua_TinHoc5_Tiet{XX}_Lop{Lop}_{YYYYMMDD_HHmm}.xlsx
- *    - Sheet 1: "Bảng Xếp Hạng" (Xếp hạng chuẩn đồng hạng, tổng điểm, danh hiệu)
- *    - Sheet 2: "Nhật Ký Chi Tiết" (Dòng thời gian sự kiện, học sinh, biến động điểm)
- *    - Sheet 3: "Danh Sách Học Sinh" (Thống kê lịch sử phát biểu từng em)
+ * 3. Xuất file CSV chuẩn thống nhất cho tất cả các bài:
+ *    - Cú pháp tên file: KetQua_TinHoc5_Lop_{Lop}_Tiet_{Tiet}_{HH}h{MM}p{SS}s_Ngay_{DD}-{MM}-{YYYY}.csv
+ *    - Phần 1: "Bảng Xếp Hạng" (Xếp hạng chuẩn đồng hạng, tổng điểm, danh hiệu)
+ *    - Phần 2: "Nhật Ký Chi Tiết" (Dòng thời gian sự kiện, học sinh, biến động điểm)
+ *    - Phần 3: "Danh Sách Học Sinh" (Thống kê lịch sử phát biểu từng em)
  */
 
 const Khoi5Tracker = (() => {
@@ -148,28 +148,30 @@ const Khoi5Tracker = (() => {
   }
 
   /**
-   * Tạo tên file Excel theo cú pháp chuẩn duy nhất từ nay về sau
-   * Cú pháp: KetQua_TinHoc5_Tiet{XX}_Lop{Lop}_{YYYYMMDD_HHmm}.xlsx
+   * Tạo tên file CSV theo cú pháp chuẩn duy nhất từ nay về sau
+   * Cú pháp: KetQua_TinHoc5_Lop_{Lop}_Tiet_{Tiet}_{HH}h{MM}p{SS}s_Ngay_{DD}-{MM}-{YYYY}.csv
    */
   function getStandardFileName(lessonNum = null, classKey = null) {
+    if (typeof window.buildExportFileName === 'function') {
+      return window.buildExportFileName({
+        grade: 5,
+        classId: classKey || config.className || '5_1',
+        lesson: lessonNum || config.lessonNumber || '01'
+      });
+    }
     const lNum = String(lessonNum || config.lessonNumber || '01').padStart(2, '0');
-    const cKey = String(classKey || config.className || '5_1').replace(/[^a-zA-Z0-9]/g, '_');
-    const d = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    const timeStamp = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
-    return `KetQua_TinHoc5_Tiet${lNum}_Lop${cKey}_${timeStamp}.xlsx`;
+    const cKey = String(classKey || config.className || '5_1').replace(/^(?:l[oớ]p)[_\s-]*/i, '').replace(/[\/_]/g, '-').replace(/[^a-zA-Z0-9\-]/g, '');
+    const d = new Date(), pad = n => String(n).padStart(2, '0');
+    const timeStr = `${pad(d.getHours())}h${pad(d.getMinutes())}p${pad(d.getSeconds())}s`;
+    const dateStr = `Ngay_${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()}`;
+    return `KetQua_TinHoc5_Lop_${cKey}_Tiet_${lNum}_${timeStr}_${dateStr}.csv`;
   }
 
   /**
-   * Xuất file Excel THẬT CHI TIẾT (3 Sheets)
+   * Xuất file CSV THẬT CHI TIẾT
    * @param {Object} customData - Tùy chọn truyền bổ sung { teams, students, fileName }
    */
   function exportDetailedExcel(customData = {}) {
-    if (typeof window.XLSX === 'undefined') {
-      alert('⚠️ Thư viện SheetJS (xlsx.full.min.js) chưa được nạp trên trang!');
-      return;
-    }
-
     const currentTeams = customData.teams || teams;
     const currentStudents = customData.students || students;
     const rankings = calculateRankings(currentTeams);
@@ -282,21 +284,21 @@ const Khoi5Tracker = (() => {
       { wch: 60 }
     ];
 
-    // Tạo Workbook và xuất file
-    const wb = window.XLSX.utils.book_new();
-    window.XLSX.utils.book_append_sheet(wb, wsRank, 'Bảng Xếp Hạng');
-    window.XLSX.utils.book_append_sheet(wb, wsLogs, 'Nhật Ký Chi Tiết');
-    window.XLSX.utils.book_append_sheet(wb, wsStudents, 'Danh Sách Học Sinh');
+    const sections = [
+      ['Bảng Xếp Hạng Thi Đua', rankRows],
+      ['Nhật Ký Chi Tiết', logRows],
+      ['Danh Sách Học Sinh', studentRows]
+    ];
 
     const fileName = customData.fileName || getStandardFileName();
-    if (typeof window.uploadExcelToDrive === 'function') {
-      window.uploadExcelToDrive(wb, fileName);
-    } else {
-      window.XLSX.writeFile(wb, fileName);
+    if (typeof window.uploadCsvToDrive === 'function') {
+      window.uploadCsvToDrive(sections, fileName);
+    } else if (typeof window.LessonExport !== 'undefined') {
+      window.LessonExport.download(sections, fileName);
       if (window.toast) {
-        window.toast(`📥 Đã xuất file: ${fileName}`, 3000, 'var(--mint)');
+        window.toast(`📥 Đã xuất file CSV: ${fileName}`, 3000, 'var(--mint)');
       } else {
-        alert(`Đã xuất file báo cáo chi tiết: ${fileName}`);
+        alert(`Đã xuất file báo cáo chi tiết CSV: ${fileName}`);
       }
     }
   }
@@ -310,6 +312,7 @@ const Khoi5Tracker = (() => {
     calculateRankings,
     getStandardFileName,
     exportDetailedExcel,
+    exportDetailedCsv: exportDetailedExcel,
     getLogs: () => [...timelineLogs]
   };
 })();

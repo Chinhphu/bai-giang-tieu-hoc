@@ -46,21 +46,40 @@ const Khoi5Utils = (() => {
     toast('🎉🎉🎉 CHÚC MỪNG CHIẾN THẮNG! 🎉🎉🎉', 3000, 'var(--yellow)');
   }
 
-  /** Xuất bảng tổng kết ra file Excel (sử dụng SheetJS nếu có) */
-  function exportExcel(fileName = 'Ket_Qua_Tiet_Hoc.xlsx', sheetName = 'Kết Quả', dataRows = []) {
-    if (typeof window.XLSX === 'undefined') {
-      toast('⚠️ Thư viện XLSX chưa được tải!', 2000, 'var(--coral)');
-      return;
+  /** Xuất bảng tổng kết ra file CSV chuẩn UTF-8 BOM */
+  function exportExcel(fileName = 'Ket_Qua_Tiet_Hoc.csv', sheetName = 'Kết Quả', dataRows = []) {
+    let name = fileName;
+    if (typeof window.buildExportFileName === 'function' && (!fileName || fileName.includes('Ket_Qua_Tiet_Hoc'))) {
+      name = window.buildExportFileName({ grade: 5, lesson: '01', classId: '5_1' });
     }
+    if (name.toLowerCase().endsWith('.xlsx') || name.toLowerCase().endsWith('.xls')) {
+      name = name.replace(/\.xlsx?$/i, '.csv');
+    }
+
     try {
-      const wb = window.XLSX.utils.book_new();
-      const ws = window.XLSX.utils.json_to_sheet(dataRows);
-      window.XLSX.utils.book_append_sheet(wb, ws, sheetName);
-      window.XLSX.writeFile(wb, fileName);
-      toast('📥 Xuất file Excel thành công!', 2000, 'var(--mint)');
+      if (typeof window.LessonExport !== 'undefined') {
+        window.LessonExport.download(dataRows, name);
+      } else {
+        const rows = Array.isArray(dataRows) ? dataRows : [];
+        let csv = '';
+        if (rows.length > 0 && Array.isArray(rows[0])) {
+          csv = rows.map(r => r.map(v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+        } else if (rows.length > 0) {
+          const cols = Object.keys(rows[0]);
+          csv = cols.join(',') + '\r\n' + rows.map(r => cols.map(c => `"${String(r[c] == null ? '' : r[c]).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+        }
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+      toast(`📥 Xuất file CSV thành công: ${name}`, 2000, 'var(--mint)');
     } catch (err) {
-      console.error('Lỗi xuất file Excel:', err);
-      toast('🚨 Lỗi khi xuất Excel!', 2500, 'var(--coral)');
+      console.error('Lỗi xuất file CSV:', err);
+      toast('🚨 Lỗi khi xuất CSV!', 2500, 'var(--coral)');
     }
   }
 
@@ -68,7 +87,8 @@ const Khoi5Utils = (() => {
     toast,
     flashStage,
     triggerConfetti,
-    exportExcel
+    exportExcel,
+    exportCsv: exportExcel
   };
 })();
 

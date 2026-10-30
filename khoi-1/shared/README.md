@@ -66,10 +66,13 @@ Khi Gacha dừng lại, hệ thống hiển thị cùng lúc:
 
 ---
 
-## 📊 5. XUẤT FILE EXCEL CUỐI TIẾT (`SMAS_TinHoc1_Lop_1_6.xlsx`)
-- Tích hợp SheetJS tự động xuất bảng điểm chuẩn SMAS.
-- Cột thông tin: STT, Mã học sinh, Họ và tên, Lớp, Trạng thái thực hành, Kỹ năng cầm chuột, Kỹ năng thao tác chuột, Kỷ luật phòng học, Xếp loại TT27 (T/H/C), Nhận xét tự động chuẩn Thông tư 27.
-- Fallback tự động xuất CSV UTF-8 có BOM nếu chạy offline không có mạng.
+## 📊 5. XUẤT FILE BÁO CÁO CSV CUỐI TIẾT
+- Toàn bộ hệ thống xuất định dạng **CSV chuẩn UTF-8 có BOM (`\uFEFF`)**, đảm bảo mở trực tiếp bằng Microsoft Excel, Google Sheets mà không bị lỗi font Tiếng Việt.
+- **Quy cách đặt tên file chuẩn thống nhất:**
+  `KetQua_TinHoc1_Lop_{Lop}_Tiet_{Tiet}_{HH}h{MM}p{SS}s_Ngay_{DD}-{MM}-{YYYY}.csv`
+  *(Ví dụ: `KetQua_TinHoc1_Lop_1-6_Tiet_08_14h30p25s_Ngay_31-10-2026.csv`)*
+- Cột thông tin chuẩn SMAS & Thông tư 27: STT, Mã học sinh, Họ và tên, Lớp, Trạng thái thực hành, Kỹ năng cầm chuột, Kỹ năng thao tác chuột, Kỷ luật phòng học, Xếp loại TT27 (T/H/C), Nhận xét tự động sư phạm.
+- Tích hợp hàm `buildExportFileName` và `exportRows` / `LessonExport` dùng chung.
 
 ---
 

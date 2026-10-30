@@ -855,7 +855,7 @@
 
             <div style="margin-top:auto; display:flex; gap:10px; padding-top:14px;">
               <button class="k1-btn k1-btn-mint k1-btn-lg" style="flex:1;" type="button" onclick="SettingsManager.exportExcel()">
-                📥 Xuất Báo Cáo Excel (SMAS)
+                📥 Xuất Báo Cáo CSV (SMAS)
               </button>
               <button class="k1-btn k1-btn-amber k1-btn-lg" type="button" onclick="Khoi1Confetti.fire(); Khoi1Audio.playVictoryFanfare();">
                 🎉 Bắn Pháo Hoa Khen Thưởng
@@ -1007,7 +1007,7 @@
           💡 Thầy/Cô có thể bấm vào nút tick hoặc ngôi sao để chỉnh sửa trạng thái thủ công của học sinh.
         </span>
         <button class="k1-btn k1-btn-mint k1-btn-sm" type="button" onclick="SettingsManager.exportExcel()">
-          📥 Xuất Excel SMAS
+          📥 Xuất CSV SMAS
         </button>
       </div>
     </div>
@@ -2240,6 +2240,7 @@
 
       function exportExcel() {
         const students = StudentStore.getStudents();
+        const currentClassKey = StudentStore.getCurrentClass();
         const rows = students.map((s, idx) => ({
           "STT": idx + 1,
           "Mã HS": s.code,
@@ -2253,7 +2254,12 @@
             : 'Em chú ý lắng nghe, thực hiện đúng nội quy giờ học máy tính.'
         }));
 
-        Khoi1Components.exportRows(rows, 'SMAS_TinHoc1_Tiet08.xlsx', 'Danh_Gia_SMAS');
+        const fileName = (window.buildExportFileName || Khoi1Components.buildExportFileName)({
+          grade: 1,
+          classId: currentClassKey,
+          lesson: '08'
+        });
+        Khoi1Components.exportRows(rows, fileName, 'Danh_Gia_SMAS');
       }
 
       return { open, close, setFilter, onClassChange, renderList, resetRound, exportExcel };
