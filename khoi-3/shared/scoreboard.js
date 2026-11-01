@@ -43,10 +43,13 @@ const Khoi3Scoreboard = (() => {
 
   let teams = [];
 
-  function createTeam(index) {
+  function createTeam(index, initialScore) {
+    const scoreInput = document.getElementById('s-score') || document.getElementById('startingScore');
+    const startScore = typeof initialScore === 'number' ? initialScore : (scoreInput ? (parseInt(scoreInput.value, 10) || 0) : 0);
     return {
       id: index,
       name: `TỔ ${index + 1}`,
+      score: startScore,
       inv: { case: 0, monitor: 0, keyboard: 0, mouse: 0 },
       fluff: [],
       correct: 0,
@@ -55,8 +58,8 @@ const Khoi3Scoreboard = (() => {
     };
   }
 
-  function init(teamCount = 4) {
-    teams = Array.from({ length: teamCount }, (_, i) => createTeam(i));
+  function init(teamCount = 4, initialScore) {
+    teams = Array.from({ length: teamCount }, (_, i) => createTeam(i, initialScore));
     return teams;
   }
 

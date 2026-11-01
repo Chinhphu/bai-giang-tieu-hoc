@@ -1,7 +1,7 @@
 /**
  * KHOI 3 - STUDENTS ENGINE
  * Quản lý danh sách học sinh khối 3:
- * 1. Tự động tải từ JSON (lớp 3/1 -> 3/6 từ assets/data/students_3_2026_2027.json)
+ * 1. Tự động chuẩn bị danh sách học sinh (lớp 3/1 -> 3/6)
  * 2. Quay số / gọi ngẫu nhiên học sinh đại diện
  * 3. Ghi nhận phát biểu và thêm học sinh nhanh
  * (Không dùng import Excel - hoàn toàn dựa trên JSON chuẩn sư phạm)

@@ -203,7 +203,7 @@
   /**
    * <khoi3-setup>
    * Khung cài đặt đầu giờ theo chuẩn UI Tiết 06:
-   * Chọn lớp (3/1 -> 3/6), chọn số tổ (2 -> 6), nạp tự động từ JSON.
+   * Chọn lớp (3/1 -> 3/6), chọn số tổ (2 -> 6), thiết lập điểm khởi đầu.
    */
   class Khoi3Setup extends HTMLElement {
     connectedCallback() {
@@ -214,6 +214,8 @@
       const heading = escapeHtml(this.getAttribute('heading') || '🛠️ XƯỞNG RÁP PC 🛠️');
       const description = escapeHtml(this.getAttribute('description') || 'Điệp vụ lắp ráp máy tính — đội nào gom đủ 4 linh kiện sẽ vô địch!');
       const startLabel = escapeHtml(this.getAttribute('start-label') || 'Bắt đầu ➔');
+      const startingScoreLabel = escapeHtml(this.getAttribute('starting-score-label') || 'Điểm khởi đầu mỗi tổ:');
+      const defaultScore = escapeHtml(this.getAttribute('default-score') || '100');
       const selectedClass = /^3_[1-6]$/.test(this.getAttribute('default-class') || '')
         ? this.getAttribute('default-class')
         : '3_2';
@@ -246,8 +248,8 @@
               </select>
             </div>
             <div class="setup-row">
-              <span>Dữ liệu học sinh:</span>
-              <span id="setupMsg" style="color:var(--green);font-weight:800;">✅ Tự động tải từ JSON</span>
+              <span>${startingScoreLabel}</span>
+              <input id="s-score" type="number" min="0" step="10" value="${defaultScore}" class="setup-score-input" />
             </div>
             <button class="btn-setup" type="button" onclick="if(typeof startPhase1==='function')startPhase1();else if(typeof startGame==='function')startGame();">${startLabel}</button>
           </div>
@@ -442,12 +444,14 @@
       await this.loadClassStudents(this.classId);
     },
 
-    initTeams(count) {
+    initTeams(count, initialScore) {
       this.teamCount = Math.max(2, Math.min(6, count));
+      const scoreInput = document.getElementById('s-score') || document.getElementById('startingScore');
+      const startScore = typeof initialScore === 'number' ? initialScore : (scoreInput ? (parseInt(scoreInput.value, 10) || 0) : 100);
       this.teams = Array.from({ length: this.teamCount }, (_, i) => ({
         id: i,
         name: `Tổ ${i + 1}`,
-        score: 100,
+        score: startScore,
         color: TEAM_COLORS_KHOI_3[i % TEAM_COLORS_KHOI_3.length]
       }));
       this.turn = 0;

@@ -213,7 +213,9 @@ const Khoi5Scoreboard = (() => {
   function init(options = {}) {
     const count = options.teamCount || 4;
     const containerId = options.containerId || 'scoreboard-container';
-    const initialScore = typeof options.initialScore === 'number' ? options.initialScore : 0;
+    const scoreInput = document.getElementById('s-score');
+    const defaultInitialScore = scoreInput ? (parseInt(scoreInput.value, 10) || 0) : 0;
+    const initialScore = typeof options.initialScore === 'number' ? options.initialScore : defaultInitialScore;
     const names = options.teamNames || [];
     layoutType = options.layout || 'topbar';
 

@@ -203,6 +203,7 @@
       const selectedTeams = /^[2-6]$/.test(this.getAttribute('default-teams') || '')
         ? this.getAttribute('default-teams')
         : '4';
+      const defaultScore = escapeHtml(this.getAttribute('default-score') || '1000');
 
       this.innerHTML = `
         <div id="setup-screen">
@@ -229,11 +230,7 @@
             </div>
             <div class="setup-row">
               <span>${startingScoreLabel}</span>
-              <span class="setup-starting-score">1000 Điểm</span>
-            </div>
-            <div class="setup-row">
-              <span>Dữ liệu học sinh:</span>
-              <span class="setup-student-status" style="color:var(--mint);font-weight:700;">✅ Tự động tải từ JSON</span>
+              <input id="s-score" type="number" min="0" step="50" value="${defaultScore}" class="setup-score-input" />
             </div>
             <button class="btn-setup" onclick="startGame()">${startLabel}</button>
           </div>

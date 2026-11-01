@@ -1,7 +1,7 @@
 /**
  * KHOI 5 - STUDENTS ENGINE
  * Quản lý danh sách học sinh khối 5:
- * 1. Tự động tải từ JSON (lớp 5/1 -> 5/6)
+ * 1. Tự động chuẩn bị danh sách học sinh (lớp 5/1 -> 5/6)
  * 3. Quay số / gọi ngẫu nhiên học sinh đại diện
  * 4. Ghi nhận phát biểu và thêm học sinh nhanh
  */
