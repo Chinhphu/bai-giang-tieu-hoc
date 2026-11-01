@@ -1,0 +1,3396 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 4: Làm Việc Với Máy Tính (Tiết 3) – Tin Học 3</title>
+    <link rel="stylesheet" href="../shared/style.css">
+    <!-- SheetJS xuất Excel & Đẩy dữ liệu lên Google Drive -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <!-- Hook chặn capture contextmenu trên Virtual Desktop để menu chuột phải hoạt động tự nhiên -->
+    <script>
+        window.addEventListener('contextmenu', function (e) {
+            if (e.target && e.target.closest && e.target.closest('[data-allow-contextmenu], .virtual-desktop, .desktop-icon, .desktop-stage, .vd-item, .thispc-box')) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+            }
+        }, true);
+    </script>
+
+    <script src="../shared/components.js"></script>
+    <script src="../../shared/js/prevent-reload.js"></script>
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            color: var(--ink, #0f172a);
+            background: #eef4fb;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 19px;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            border: 0;
+            touch-action: manipulation;
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .layout-container {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) clamp(410px, 25vw, 470px);
+            gap: 16px;
+            max-width: 1920px;
+            margin: 0 auto;
+            padding: 12px 16px;
+            min-height: 100vh;
+            align-items: start;
+        }
+
+        .slide-screen {
+            display: none;
+            animation: slideIn .25s ease forwards;
+        }
+
+        .slide-screen.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-panel {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 3px solid #cbd5e1;
+            padding: 18px 22px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+            margin-bottom: 14px;
+        }
+
+        .panel-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 2px dashed #e2e8f0;
+        }
+
+        .panel-heading h2 {
+            margin: 0;
+            font-size: clamp(1.4rem, 2vw, 1.85rem);
+            color: #1e3a8a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 900;
+        }
+
+        .turn-banner-bar {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            color: #fff;
+            border-radius: 14px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+            font-weight: 800;
+            border: 2px solid #3b82f6;
+        }
+
+        .active-student-pill {
+            background: #facc15;
+            color: #0f172a;
+            padding: 3px 12px;
+            border-radius: 99px;
+            font-weight: 900;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* VỞ CHÉP BÀI */
+        .note-step {
+            display: inline-block;
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: #fff;
+            background: #10b981;
+            padding: 5px 18px;
+            border-radius: 99px;
+            margin-bottom: 8px;
+        }
+
+        .notebook-box {
+            background-color: #ffffff;
+            border: 3px solid #94a3b8;
+            border-left: 16px solid #ef4444;
+            border-radius: 16px;
+            padding: 14px 28px;
+            margin: 6px 0;
+            box-shadow: 4px 6px 0 rgba(100, 116, 139, 0.12);
+            text-align: left;
+            font-size: clamp(1.15rem, 1.55vw, 1.35rem);
+            line-height: 1.6;
+        }
+
+        .notebook-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px dashed #cbd5e1;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+            font-weight: 800;
+            color: #475569;
+            font-size: 1.05rem;
+        }
+
+        .notebook-lesson-title {
+            color: #1e3a8a;
+            font-size: 1.5rem;
+            font-weight: 900;
+            margin: 0 0 10px;
+        }
+
+        .copy-timer-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border: 3px solid #3b82f6;
+            border-radius: 16px;
+            padding: 10px 16px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .copy-timer-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .copy-timer-badge {
+            background: #ef4444;
+            color: #fff;
+            font-weight: 900;
+            font-size: 0.85rem;
+            padding: 4px 10px;
+            border-radius: 99px;
+        }
+
+        .copy-timer-digits {
+            font-family: 'Quicksand', monospace, sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #facc15;
+            letter-spacing: 2px;
+            min-width: 85px;
+            text-align: center;
+        }
+
+        .copy-timer-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-timer {
+            font-weight: 800;
+            font-size: 0.85rem;
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+
+        .btn-timer.start {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        .btn-timer.pause {
+            background: #f59e0b;
+            color: #451a03;
+        }
+
+        .btn-timer.reset {
+            background: #64748b;
+            color: #fff;
+        }
+
+        /* NÚT BẤM CHUNG */
+        .btn {
+            font-weight: 800;
+            padding: 8px 16px;
+            border-radius: 10px;
+            transition: transform 0.1s, opacity 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn.primary {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .btn.success {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        .btn.warning {
+            background: #ea580c;
+            color: #fff;
+        }
+
+        .btn.secondary {
+            background: #475569;
+            color: #fff;
+        }
+
+        .btn.huge {
+            font-size: 1.35rem;
+            padding: 12px 28px;
+            border-radius: 14px;
+        }
+
+        /* KHU VỰC VIRTUAL HARDWARE BẬT MÁY TÍNH */
+        .hardware-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin: 14px 0;
+        }
+
+        .hardware-card {
+            background: #f8fafc;
+            border: 3px solid #cbd5e1;
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .hardware-card.powered {
+            border-color: #22c55e;
+            background: #f0fdf4;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.25);
+        }
+
+        .hardware-icon-box {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .pwr-switch-btn {
+            background: #ef4444;
+            color: #fff;
+            font-size: 1.25rem;
+            font-weight: 900;
+            padding: 10px 24px;
+            border-radius: 99px;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 3px solid #b91c1c;
+        }
+
+        .pwr-switch-btn.on {
+            background: #22c55e;
+            border-color: #15803d;
+            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.5);
+        }
+
+        .power-status-tag {
+            font-weight: 900;
+            font-size: 1.1rem;
+            margin-top: 8px;
+            color: #64748b;
+        }
+
+        .power-status-tag.on {
+            color: #16a34a;
+        }
+
+        /* VIRTUAL DESKTOP SIMULATOR (MÀN HÌNH NỀN ẢO) */
+        .virtual-desktop-frame {
+            background: #0f172a;
+            border: 4px solid #334155;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            position: relative;
+        }
+
+        .vd-tabs-row {
+            display: flex;
+            gap: 6px;
+            background: #0f172a;
+            padding: 6px 10px;
+            overflow-x: auto;
+            border-bottom: 2px solid #334155;
+        }
+
+        .vd-task-tab {
+            background: #1e293b;
+            color: #94a3b8;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-weight: 800;
+            font-size: 0.92rem;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+
+        .vd-task-tab.active {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .vd-task-tab.done {
+            background: #065f46;
+            color: #6ee7b7;
+        }
+
+        .virtual-screen-viewport {
+            height: 440px;
+            position: relative;
+            background: linear-gradient(135deg, #1e3a8a 0%, #0284c7 50%, #38bdf8 100%);
+            background-size: cover;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .desktop-icons-container {
+            position: absolute;
+            inset: 0 0 46px 0;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 105px);
+            grid-auto-rows: 105px;
+            gap: 16px;
+            align-content: start;
+        }
+
+        .vd-item {
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6px;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+            font-size: 0.82rem;
+            font-weight: 800;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            position: absolute;
+        }
+
+        .vd-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .vd-item.selected {
+            background: rgba(59, 130, 246, 0.45);
+            border-color: #60a5fa;
+            box-shadow: 0 0 10px rgba(96, 165, 250, 0.6);
+        }
+
+        .vd-item-icon {
+            font-size: 2.5rem;
+            line-height: 1;
+            margin-bottom: 4px;
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.35));
+        }
+
+        .vd-item-name {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* CONTEXT MENU (CHUỘT PHẢI) */
+        .desktop-context-menu {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(8px);
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            width: 190px;
+            padding: 6px 0;
+            z-index: 100;
+            display: none;
+            color: #0f172a;
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .context-menu-item {
+            padding: 6px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        .context-menu-item:hover {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .context-menu-sep {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 4px 0;
+        }
+
+        /* WINDOW PHẦN MỀM (MICROSOFT WORD) */
+        .virtual-app-window {
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 82%;
+            height: 330px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.45);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 80;
+            border: 2px solid #3b82f6;
+            animation: zoomApp .2s ease-out;
+        }
+
+        @keyframes zoomApp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) scale(0.85);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) scale(1);
+            }
+        }
+
+        .app-window-titlebar {
+            background: #1e3a8a;
+            color: #fff;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: 800;
+        }
+
+        .app-window-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .win-ctrl-btn {
+            width: 26px;
+            height: 22px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        .win-ctrl-btn.min {
+            background: #64748b;
+        }
+
+        .win-ctrl-btn.max {
+            background: #64748b;
+        }
+
+        .win-ctrl-btn.close {
+            background: #ef4444;
+            cursor: pointer;
+        }
+
+        .win-ctrl-btn.close:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .app-window-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            color: #1e293b;
+        }
+
+        /* TASKBAR & START MENU */
+        .desktop-taskbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 46px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            z-index: 90;
+        }
+
+        .start-btn {
+            background: #2563eb;
+            color: #fff;
+            padding: 5px 14px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 900;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+            cursor: pointer;
+        }
+
+        .start-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* START MENU */
+        .desktop-start-menu {
+            position: absolute;
+            bottom: 50px;
+            left: 8px;
+            width: 290px;
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 14px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            padding: 12px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            color: #fff;
+            z-index: 95;
+            animation: slideUpMenu .15s ease-out;
+        }
+
+        @keyframes slideUpMenu {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .start-user-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #1e293b;
+            font-weight: 800;
+        }
+
+        .start-apps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .start-app-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .start-app-item:hover {
+            background: #1e293b;
+        }
+
+        .start-power-row {
+            margin-top: 6px;
+            padding-top: 8px;
+            border-top: 1px solid #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .power-menu-btn {
+            background: #ef4444;
+            color: #fff;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-weight: 900;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .power-flyout-menu {
+            position: absolute;
+            bottom: 52px;
+            right: 12px;
+            background: #1e293b;
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            width: 170px;
+            display: none;
+            flex-direction: column;
+            padding: 4px;
+            z-index: 99;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .power-flyout-item {
+            padding: 8px 12px;
+            font-weight: 800;
+            font-size: 0.92rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .power-flyout-item:hover {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .power-flyout-item.shutdown-choice {
+            color: #fca5a5;
+        }
+
+        .power-flyout-item.shutdown-choice:hover {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        /* SHUTDOWN SCREEN OVERLAY */
+        .shutdown-curtain {
+            position: absolute;
+            inset: 0;
+            background: #020617;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            z-index: 110;
+        }
+
+        .shutdown-spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #38bdf8;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 5 LƯU Ý AN TOÀN */
+        .safety-rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 14px;
+            margin: 14px 0;
+        }
+
+        .safety-card {
+            background: #ffffff;
+            border-radius: 14px;
+            border: 2.5px solid #e2e8f0;
+            padding: 14px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+
+        .safety-card.danger {
+            border-left: 8px solid #ef4444;
+            background: #fff5f5;
+        }
+
+        .safety-icon {
+            font-size: 2.2rem;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .safety-title {
+            font-weight: 900;
+            font-size: 1.15rem;
+            color: #991b1b;
+            margin-bottom: 4px;
+        }
+
+        .safety-desc {
+            font-size: 0.98rem;
+            color: #334155;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        /* TRẮC NGHIỆM / QUIZ */
+        .quiz-card {
+            background: #f8fafc;
+            border: 2.5px solid #cbd5e1;
+            border-radius: 16px;
+            padding: 18px 22px;
+            margin: 12px 0;
+        }
+
+        .quiz-q-title {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #1e3a8a;
+            margin-bottom: 14px;
+            line-height: 1.4;
+        }
+
+        .quiz-answers-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .quiz-opt-btn {
+            background: #ffffff;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 12px 18px;
+            text-align: left;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #1e293b;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quiz-opt-btn:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            transform: translateX(4px);
+        }
+
+        .quiz-opt-btn.correct {
+            background: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+
+        .quiz-opt-btn.wrong {
+            background: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+
+        .quiz-feedback-box {
+            margin-top: 12px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            display: none;
+        }
+
+        /* SƠ ĐỒ TƯ DUY (MINDMAP) */
+        .mindmap-wrapper {
+            background: radial-gradient(ellipse at center, #1e293b 0%, #0f172a 100%);
+            border-radius: 18px;
+            padding: 24px;
+            color: #fff;
+            border: 3px solid #38bdf8;
+            margin: 14px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .mindmap-core {
+            text-align: center;
+            background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 99px;
+            font-size: 1.6rem;
+            font-weight: 900;
+            display: inline-block;
+            margin-bottom: 24px;
+            box-shadow: 0 6px 20px rgba(234, 88, 12, 0.4);
+            border: 3px solid #fef08a;
+        }
+
+        .mindmap-branches {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .mm-branch {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 16px;
+            transition: all 0.2s;
+        }
+
+        .mm-branch:hover {
+            transform: translateY(-4px);
+            border-color: #38bdf8;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .mm-b-title {
+            font-size: 1.25rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mm-b-1 .mm-b-title {
+            color: #4ade80;
+        }
+
+        .mm-b-2 .mm-b-title {
+            color: #60a5fa;
+        }
+
+        .mm-b-3 .mm-b-title {
+            color: #facc15;
+        }
+
+        .mm-b-4 .mm-b-title {
+            color: #f472b6;
+        }
+
+        .mm-item-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.7;
+            color: #e2e8f0;
+        }
+
+        .mm-item-list li::before {
+            content: "➔ ";
+            color: #38bdf8;
+            font-weight: 900;
+        }
+
+        /* ================= SIDEBAR ĐIỀU KHIỂN & CHẤM ĐIỂM CÁ NHÂN ================= */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: sticky;
+            top: 12px;
+            max-height: calc(100vh - 24px);
+        }
+
+        /* THẺ HỌC SINH ĐANG THỰC HÀNH (ACTIVE STUDENT CARD) */
+        .active-student-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border: 3px solid #38bdf8;
+            border-radius: 18px;
+            padding: 14px;
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .asc-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding-bottom: 8px;
+        }
+
+        .asc-badge {
+            background: #0284c7;
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 900;
+            padding: 3px 10px;
+            border-radius: 99px;
+            text-transform: uppercase;
+        }
+
+        .asc-body {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .asc-name-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .asc-name {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #facc15;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .asc-class {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            font-weight: 700;
+        }
+
+        .asc-score-box {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .asc-score {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #4ade80;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .asc-score-lbl {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #94a3b8;
+        }
+
+        /* CHECKLIST KỸ NĂNG CÁ NHÂN */
+        .asc-skills-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .asc-skill-pip {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            padding: 4px 2px;
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .asc-skill-pip.done {
+            background: rgba(34, 197, 94, 0.25);
+            border-color: #22c55e;
+            color: #4ade80;
+        }
+
+        /* THANH NÚT CHẤM ĐIỂM NHANH */
+        .asc-action-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 5px;
+        }
+
+        .btn-score-quick {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 8px;
+            padding: 6px 2px;
+            font-weight: 900;
+            font-size: 0.85rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .btn-score-quick:hover {
+            background: #2563eb;
+            border-color: #60a5fa;
+        }
+
+        .btn-score-quick.perfect {
+            background: #16a34a;
+            border-color: #86efac;
+        }
+
+        .btn-score-quick.penalty {
+            background: #dc2626;
+            border-color: #fca5a5;
+        }
+
+        /* DANH SÁCH HỌC SINH CẢ LỚP (CỘT BÊN) */
+        .students-roster-card {
+            background: #ffffff;
+            border-radius: 18px;
+            border: 3px solid #cbd5e1;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 280px;
+        }
+
+        .src-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: #fff;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 900;
+            font-size: 1.05rem;
+        }
+
+        .src-header select {
+            padding: 3px 8px;
+            border: 0;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+
+        .src-search-bar {
+            padding: 6px 10px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            gap: 6px;
+        }
+
+        .src-search-bar input {
+            flex: 1;
+            padding: 5px 10px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            outline: none;
+        }
+
+        .src-search-bar input:focus {
+            border-color: #2563eb;
+        }
+
+        .src-list {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 330px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .student-item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-left: 5px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .student-item-row:hover {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .student-item-row.is-active {
+            background: #eff6ff;
+            border-left-color: #0284c7;
+            box-shadow: 0 0 0 2px #bfdbfe inset;
+            font-weight: 900;
+        }
+
+        .student-item-row.is-done {
+            border-left-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        .sir-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .sir-stt {
+            font-size: 0.82rem;
+            font-weight: 900;
+            color: #64748b;
+            min-width: 22px;
+        }
+
+        .sir-name {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #1e293b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sir-score {
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: #16a34a;
+            min-width: 45px;
+            text-align: right;
+        }
+
+        .sir-score.empty {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        /* NÚT ĐIỀU HƯỚNG SLIDE */
+        .dock-box {
+            background: #0f172a;
+            color: #fff;
+            border: 3px solid #1e293b;
+            border-radius: 16px;
+            padding: 10px 12px;
+            flex-shrink: 0;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 6px;
+            align-items: center;
+        }
+
+        /* MÀN HÌNH KHỞI ĐẦU CHỌN LỚP */
+        .start-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            background: linear-gradient(180deg, #090e1a 0%, #152238 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .start-screen.hidden {
+            display: none;
+        }
+
+        .start-box {
+            background: #fff;
+            border: 4px solid #1e293b;
+            border-radius: 28px;
+            padding: 26px 34px;
+            max-width: 820px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .chip-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 8px 0 16px;
+        }
+
+        .chip {
+            background: #e2e8f0;
+            color: #0f172a;
+            font-weight: 900;
+            font-size: 1.35rem;
+            padding: 8px 20px;
+            border-radius: 12px;
+            border: 3px solid #cbd5e1;
+        }
+
+        .chip.on {
+            background: #2563eb;
+            color: #fff;
+            border-color: #1d4ed8;
+        }
+
+        #toasts {
+            position: fixed;
+            top: 18px;
+            left: 42%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+            pointer-events: none;
+            max-width: 85vw;
+        }
+
+        .toast-item {
+            background: #111c33;
+            color: #ffffff;
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .toast-item.bad {
+            background: #3b0d0d;
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        .toast-item.ok {
+            background: #064e3b;
+            border-color: #10b981;
+            color: #a7f3d0;
+        }
+
+        @media(max-width: 1120px) {
+            .layout-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="toasts"></div>
+
+    <div class="layout-container">
+        <!-- ==================== CỘT TRÁI: CÁC SLIDE BÀI GIẢNG ==================== -->
+        <main>
+            <!-- SLIDE 0: KHỞI ĐỘNG - ĐỐ VUI TIẾP SỨC -->
+            <section id="slide-0" class="slide-screen active">
+                <div class="card-panel">
+                    <div class="panel-heading">
+                        <h2>🚀 HOẠT ĐỘNG KHỞI ĐỘNG: ĐỐ VUI TIẾP SỨC (ÔN TẬP TIẾT 1 & 2)</h2>
+                        <span style="background:#dbeafe; color:#1e40af; font-weight:900; padding:4px 14px; border-radius:99px;">
+                            ⏱️ 7 Phút
+                        </span>
+                    </div>
+
+                    <div class="turn-banner-bar">
+                        <div>
+                            🎯 HỌC SINH ĐANG THỰC HIỆN: 
+                            <span class="active-student-pill" id="turnStuName0">Chưa chỉ định</span>
+                        </div>
+                        <div style="font-size:1.1rem; color:#bbf7d0; font-weight:700;">
+                            👉 Trả lời đúng để nhận ngay +20đ cá nhân!
+                        </div>
+                    </div>
+
+                    <div style="background:#f1f5f9; border-radius:16px; padding:16px; margin-bottom:16px; display:flex; align-items:center; gap:16px;">
+                        <div style="font-size:3.5rem;">🎒</div>
+                        <div>
+                            <div style="font-weight:900; font-size:1.35rem; color:#1e3a8a;">Chào mừng cả lớp đến với phòng máy tính!</div>
+                            <div style="color:#475569; font-weight:700; font-size:1.1rem; margin-top:4px;">
+                                Ở Tiết 1 và Tiết 2, các em đã rèn luyện tư thế ngồi và phản xạ rê chuột. Trước khi bắt đầu làm việc trên máy tính thật, chúng mình cùng vượt qua 3 thử thách đố vui nhé!
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-card" id="warmupQuizBox">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span style="background:#2563eb; color:#fff; font-weight:900; padding:4px 12px; border-radius:99px; font-size:0.95rem;" id="warmupStepBadge">
+                                Câu hỏi 1 / 3
+                            </span>
+                            <span style="font-weight:800; color:#16a34a;" id="warmupScoreHint">+20 Điểm Cá Nhân</span>
+                        </div>
+                        <div class="quiz-q-title" id="warmupQuestion">
+                            1. Khi ngồi làm việc với máy tính, mắt em cần hướng ngang tầm màn hình và cách màn hình khoảng bao nhiêu?
+                        </div>
+                        <div class="quiz-answers-grid" id="warmupAnswers"></div>
+                        <div class="quiz-feedback-box" id="warmupFeedback"></div>
+                    </div>
+
+                    <div style="text-align:right; margin-top:12px;">
+                        <button class="btn primary huge" id="btnNextWarmup" onclick="nextWarmupQuestion()" style="display:none;">
+                            Câu hỏi tiếp theo ➔
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 1: NHIỆM VỤ 1 & 2 - BẬT MÁY TÍNH & MÀN HÌNH NỀN -->
+            <section id="slide-1" class="slide-screen">
+                <div class="card-panel">
+                    <div class="panel-heading">
+                        <h2>🖥️ NHIỆM VỤ 1 & 2: BẬT MÁY TÍNH & KHÁM PHÁ MÀN HÌNH NỀN</h2>
+                        <span style="background:#dcfce7; color:#166534; font-weight:900; padding:4px 12px; border-radius:99px;">
+                            SGK Trang 20 - 21
+                        </span>
+                    </div>
+
+                    <div class="turn-banner-bar">
+                        <div>
+                            🎯 HỌC SINH ĐANG THỰC HIỆN: 
+                            <span class="active-student-pill" id="turnStuName1">Chưa chỉ định</span>
+                        </div>
+                        <div style="font-size:1.1rem; color:#bbf7d0; font-weight:700;">
+                            👉 Bật đúng công tắc Thân máy và Màn hình để máy tính khởi động (+30đ)!
+                        </div>
+                    </div>
+
+                    <!-- NHIỆM VỤ 1: CHECKLIST TƯ THẾ & CẦM CHUỘT -->
+                    <div style="background:#eff6ff; border:2px solid #93c5fd; border-radius:14px; padding:12px 18px; margin-bottom:14px;">
+                        <div style="font-weight:900; color:#1e3a8a; font-size:1.2rem; margin-bottom:6px;">
+                            📋 NHIỆM VỤ 1: Checklist tư thế ngồi & cách cầm chuột trước khi bật máy:
+                        </div>
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:8px; font-size:1.05rem; font-weight:700; color:#334155;">
+                            <div>✅ Ngồi thẳng lưng, vai thả lỏng</div>
+                            <div>✅ Mắt cách màn hình 50 – 80 cm</div>
+                            <div>✅ Tay đặt ngang tầm bàn phím</div>
+                            <div>✅ Hai chân để phẳng trên sàn</div>
+                            <div style="grid-column: 1 / -1; color:#2563eb;">
+                                🖱️ Cầm chuột tay phải: Ngón trỏ đặt nút trái, ngón giữa đặt nút phải, ngón cái và ngón còn lại ôm thân chuột.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NHIỆM VỤ 2: BẬT MÁY TÍNH MÔ PHỎNG -->
+                    <div style="font-weight:900; color:#0f172a; font-size:1.35rem; margin:12px 0 6px;">
+                        ⚡ NHIỆM VỤ 2: Nhấn công tắc để bật máy tính (Quan sát sự thay đổi):
+                    </div>
+                    <div style="color:#64748b; font-weight:700; margin-bottom:10px;">
+                        💡 Máy tính để bàn cần bật <strong>2 nút công tắc</strong> (Thân máy và Màn hình). Máy tính xách tay chỉ có <strong>1 nút nguồn chung</strong>.
+                    </div>
+
+                    <div class="hardware-grid">
+                        <!-- THÂN MÁY (CASE) -->
+                        <div class="hardware-card" id="hwCaseCard">
+                            <div style="font-weight:900; font-size:1.25rem; color:#1e3a8a; margin-bottom:8px;">
+                                1. THÂN MÁY TÍNH (CASE)
+                            </div>
+                            <div class="hardware-icon-box">
+                                <svg width="120" height="150" viewBox="0 0 120 150">
+                                    <rect x="15" y="10" width="90" height="130" rx="10" fill="#334155" stroke="#0f172a" stroke-width="4" />
+                                    <!-- Ổ đĩa DVD -->
+                                    <rect x="25" y="25" width="70" height="15" rx="3" fill="#1e293b" />
+                                    <circle cx="85" cy="32" r="2" fill="#94a3b8" />
+                                    <!-- Cổng USB -->
+                                    <rect x="25" y="50" width="20" height="6" fill="#0f172a" />
+                                    <rect x="50" y="50" width="20" height="6" fill="#0f172a" />
+                                    <!-- Nút nguồn Case -->
+                                    <circle id="caseLed" cx="60" cy="85" r="16" fill="#64748b" stroke="#0f172a" stroke-width="3" />
+                                    <path d="M60 76 L60 84 M54 78 A9 9 0 1 0 66 78" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" />
+                                    <!-- Khe tản nhiệt -->
+                                    <line x1="25" y1="115" x2="95" y2="115" stroke="#1e293b" stroke-width="3" />
+                                    <line x1="25" y1="122" x2="95" y2="122" stroke="#1e293b" stroke-width="3" />
+                                </svg>
+                            </div>
+                            <button class="pwr-switch-btn" id="btnPowerCase" onclick="toggleCasePower()">
+                                ⏻ Bật Thân Máy
+                            </button>
+                            <div class="power-status-tag" id="statusCase">Đang tắt nguồn</div>
+                        </div>
+
+                        <!-- MÀN HÌNH (MONITOR) -->
+                        <div class="hardware-card" id="hwMonitorCard">
+                            <div style="font-weight:900; font-size:1.25rem; color:#1e3a8a; margin-bottom:8px;">
+                                2. MÀN HÌNH (MONITOR)
+                            </div>
+                            <div class="hardware-icon-box">
+                                <svg width="170" height="150" viewBox="0 0 170 150">
+                                    <!-- Khung màn hình -->
+                                    <rect x="10" y="10" width="150" height="100" rx="8" fill="#1e293b" stroke="#0f172a" stroke-width="4" />
+                                    <!-- Mặt kính màn hình -->
+                                    <rect id="monitorScreenGlass" x="18" y="18" width="134" height="84" rx="4" fill="#020617" />
+                                    <text id="monitorText" x="85" y="65" font-size="13" font-weight="900" fill="#64748b" text-anchor="middle">TẮT ĐEN</text>
+                                    <!-- Chân đế -->
+                                    <path d="M75 110 L95 110 L100 135 L70 135 Z" fill="#334155" />
+                                    <rect x="50" y="135" width="70" height="8" rx="3" fill="#1e293b" />
+                                    <!-- Nút nguồn Màn hình -->
+                                    <circle id="monLed" cx="145" cy="102" r="3" fill="#64748b" />
+                                </svg>
+                            </div>
+                            <button class="pwr-switch-btn" id="btnPowerMon" onclick="toggleMonitorPower()">
+                                ⏻ Bật Màn Hình
+                            </button>
+                            <div class="power-status-tag" id="statusMon">Đang tắt nguồn</div>
+                        </div>
+                    </div>
+
+                    <!-- PHẢN HỒI SAU KHI KHỞI ĐỘNG XONG -->
+                    <div id="bootSuccessBanner" style="display:none; background:#ecfdf5; border:2px solid #10b981; border-radius:14px; padding:14px; margin-top:12px; text-align:center;">
+                        <div style="font-size:1.4rem; font-weight:900; color:#065f46;">
+                            🎉 TUYỆT VỜI! MÁY TÍNH ĐÃ KHỞI ĐỘNG THÀNH CÔNG!
+                        </div>
+                        <div style="color:#047857; font-weight:700; margin-top:4px; font-size:1.1rem;">
+                            Màn hình nền (Desktop) đã hiện ra gồm <strong>Các biểu tượng (Icons)</strong> và <strong>Nút Start</strong> ở góc dưới bên trái!
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 2: NHIỆM VỤ 3 - THAO TÁC CHUỘT TRÊN MÀN HÌNH NỀN -->
+            <section id="slide-2" class="slide-screen">
+                <div class="card-panel">
+                    <div class="panel-heading">
+                        <h2>🖱️ NHIỆM VỤ 3: THỰC HÀNH CÁC THAO TÁC CHUỘT TRÊN MÀN HÌNH NỀN</h2>
+                        <span style="background:#fef3c7; color:#b45309; font-weight:900; padding:4px 12px; border-radius:99px;" id="mousePracProgress">
+                            Tiến độ: 0 / 5 Thao tác
+                        </span>
+                    </div>
+
+                    <div class="turn-banner-bar">
+                        <div>
+                            🎯 HỌC SINH ĐANG THỰC HIỆN: 
+                            <span class="active-student-pill" id="turnStuName2">Chưa chỉ định</span>
+                        </div>
+                        <div style="font-size:1.1rem; color:#bbf7d0; font-weight:700;" id="mouseTaskInstruct">
+                            👉 Thực hành đủ 5 thao tác chuột trên Desktop ảo để đạt điểm tối đa!
+                        </div>
+                    </div>
+
+                    <!-- MÀN HÌNH NỀN ẢO INTERACTIVE -->
+                    <div class="virtual-desktop-frame" data-allow-contextmenu="true">
+                        <!-- THANH TAB NHIỆM VỤ -->
+                        <div class="vd-tabs-row" id="vdTabs">
+                            <button class="vd-task-tab active" onclick="switchMouseTask(0)">1. Di chuyển chuột</button>
+                            <button class="vd-task-tab" onclick="switchMouseTask(1)">2. Nháy chuột (Chọn icon)</button>
+                            <button class="vd-task-tab" onclick="switchMouseTask(2)">3. Nháy nút phải (Menu)</button>
+                            <button class="vd-task-tab" onclick="switchMouseTask(3)">4. Kéo thả biểu tượng</button>
+                            <button class="vd-task-tab" onclick="switchMouseTask(4)">5. Nháy đúp mở & Đóng Word</button>
+                        </div>
+
+                        <!-- KHU VỰC DESKTOP -->
+                        <div class="virtual-screen-viewport" id="vDesktopViewport" onclick="handleDesktopBlankClick(event)">
+                            <div class="desktop-icons-container" id="vdIconsArea">
+                                <!-- Icon This PC -->
+                                <div class="vd-item" id="iconThisPC" style="top:20px; left:20px;" onclick="handleIconClick(this, event)">
+                                    <div class="vd-item-icon">💻</div>
+                                    <div class="vd-item-name">This PC</div>
+                                </div>
+                                <!-- Icon Thùng Rác -->
+                                <div class="vd-item" id="iconTrash" style="top:130px; left:20px;" onclick="handleIconClick(this, event)">
+                                    <div class="vd-item-icon">🗑️</div>
+                                    <div class="vd-item-name">Thùng rác</div>
+                                </div>
+                                <!-- Icon Microsoft Word -->
+                                <div class="vd-item" id="iconWord" style="top:240px; left:20px;" onclick="handleIconClick(this, event)" ondblclick="openWordApp()">
+                                    <div class="vd-item-icon">📘</div>
+                                    <div class="vd-item-name">Word 2026</div>
+                                </div>
+                                <!-- Icon Bài Tập -->
+                                <div class="vd-item" id="iconFolder" style="top:20px; left:135px;" onclick="handleIconClick(this, event)">
+                                    <div class="vd-item-icon">📁</div>
+                                    <div class="vd-item-name">Bài tập Tin 3</div>
+                                </div>
+                                <!-- Icon Tranh Vẽ (Kéo thả) -->
+                                <div class="vd-item" id="iconDrawing" style="top:130px; left:135px;" draggable="true" onclick="handleIconClick(this, event)">
+                                    <div class="vd-item-icon">🎨</div>
+                                    <div class="vd-item-name">Tranh vẽ Em</div>
+                                </div>
+                            </div>
+
+                            <!-- MENU NGỮ CẢNH (CHUỘT PHẢI) -->
+                            <div class="desktop-context-menu" id="vdContextMenu">
+                                <div class="context-menu-item" onclick="triggerContextAction('Xem')">👁️ Xem (View)</div>
+                                <div class="context-menu-item" onclick="triggerContextAction('Sắp xếp')">🔀 Sắp xếp theo</div>
+                                <div class="context-menu-item" onclick="triggerContextAction('Làm mới')">🔄 Làm mới (Refresh)</div>
+                                <div class="context-menu-sep"></div>
+                                <div class="context-menu-item" onclick="triggerContextAction('Tạo mới')">➕ Tạo mới (New)</div>
+                                <div class="context-menu-item" onclick="triggerContextAction('Thuộc tính')">⚙️ Thuộc tính</div>
+                            </div>
+
+                            <!-- CỬA SỔ PHẦN MỀM WORD -->
+                            <div class="virtual-app-window" id="vdWordWindow">
+                                <div class="app-window-titlebar">
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <span>📘</span>
+                                        <span>Microsoft Word - [Bài 4: Làm việc với máy tính]</span>
+                                    </div>
+                                    <div class="app-window-controls">
+                                        <div class="win-ctrl-btn min" title="Thu nhỏ">_</div>
+                                        <div class="win-ctrl-btn max" title="Phóng to">□</div>
+                                        <div class="win-ctrl-btn close" title="Đóng phần mềm (SGK)" onclick="closeWordApp()">✕</div>
+                                    </div>
+                                </div>
+                                <div class="app-window-body">
+                                    <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:16px; min-height:190px;">
+                                        <h3 style="color:#1e3a8a; margin:0 0 8px;">Chào mừng các em học sinh Lớp 3!</h3>
+                                        <p style="font-size:1.15rem; line-height:1.6; color:#334155; margin:0;">
+                                            Em đã dùng thao tác <strong>Nháy đúp chuột</strong> để khởi động phần mềm Word thành công!<br />
+                                            👉 Giờ em hãy nháy chuột trái vào nút <strong>✕ (Đóng cửa sổ)</strong> ở góc trên bên phải để thoát phần mềm theo đúng SGK nhé!
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- THANH TASKBAR & NÚT START -->
+                            <div class="desktop-taskbar">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <button class="start-btn" id="vStartBtn" onclick="toggleStartMenu(event)">
+                                        <span>🪟</span>
+                                        <span>Start</span>
+                                    </button>
+                                    <span style="color:#94a3b8; font-size:0.85rem; font-weight:700;">Thanh tác vụ (Taskbar)</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:12px; color:#cbd5e1; font-size:0.85rem; font-weight:800;">
+                                    <span>🌐 VN</span>
+                                    <span id="vdLiveClock">08:30 AM</span>
+                                </div>
+                            </div>
+
+                            <!-- START MENU BẬT LÊN -->
+                            <div class="desktop-start-menu" id="vdStartMenu">
+                                <div class="start-user-row">
+                                    <span style="font-size:1.4rem;">👦</span>
+                                    <span>Học sinh Lớp 3</span>
+                                </div>
+                                <div class="start-apps-list">
+                                    <div class="start-app-item" onclick="openWordApp()">📘 Microsoft Word</div>
+                                    <div class="start-app-item">🎨 Paint Vẽ Hình</div>
+                                    <div class="start-app-item">🔢 Máy tính cầm tay</div>
+                                </div>
+                                <div class="start-power-row">
+                                    <span style="font-size:0.85rem; color:#94a3b8; font-weight:700;">Hệ thống</span>
+                                    <button class="power-menu-btn" onclick="togglePowerFlyout(event)">
+                                        ⏻ Nguồn (Power)
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- MENU CON NGUỒN CỦA START -->
+                            <div class="power-flyout-menu" id="vdPowerFlyout">
+                                <div class="power-flyout-item">💤 Sleep (Ngủ)</div>
+                                <div class="power-flyout-item shutdown-choice" onclick="executeShutdown()">⏻ Shut down (Tắt máy)</div>
+                                <div class="power-flyout-item">🔄 Restart (Khởi động lại)</div>
+                            </div>
+
+                            <!-- MÀN HÌNH TẮT MÁY (SHUTTING DOWN) -->
+                            <div class="shutdown-curtain" id="vdShutdownCurtain">
+                                <div class="shutdown-spinner"></div>
+                                <div style="font-size:1.6rem; font-weight:900; color:#38bdf8; margin-bottom:6px;">
+                                    Đang tắt máy tính...
+                                </div>
+                                <div style="font-size:1.1rem; color:#94a3b8; font-weight:700;">
+                                    Shutting down &amp; Lưu dữ liệu an toàn
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 3: NHIỆM VỤ 4 (PHẦN 1) - TẮT MÁY TÍNH ĐÚNG CÁCH -->
+            <section id="slide-3" class="slide-screen">
+                <div class="card-panel">
+                    <div class="panel-heading">
+                        <h2>🔌 NHIỆM VỤ 4: TẮT MÁY TÍNH ĐÚNG CÁCH (CHUẨN 4 BƯỚC SGK)</h2>
+                        <span style="background:#fee2e2; color:#991b1b; font-weight:900; padding:4px 12px; border-radius:99px;">
+                            SGK Trang 22
+                        </span>
+                    </div>
+
+                    <div class="turn-banner-bar">
+                        <div>
+                            🎯 HỌC SINH ĐANG THỰC HIỆN: 
+                            <span class="active-student-pill" id="turnStuName3">Chưa chỉ định</span>
+                        </div>
+                        <div style="font-size:1.1rem; color:#bbf7d0; font-weight:700;">
+                            👉 Thực hiện đúng 4 bước theo trình tự để tắt máy tính an toàn (+30đ)!
+                        </div>
+                    </div>
+
+                    <!-- 4 BƯỚC TẮT MÁY TÍNH -->
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:12px; margin-bottom:16px;">
+                        <div style="background:#eff6ff; border:2px solid #60a5fa; border-radius:14px; padding:12px; text-align:center;">
+                            <div style="background:#2563eb; color:#fff; font-weight:900; width:36px; height:36px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-bottom:6px;">1</div>
+                            <div style="font-weight:900; color:#1e3a8a; font-size:1.15rem;">BƯỚC 1</div>
+                            <div style="font-weight:700; color:#334155; font-size:1rem; margin-top:4px;">
+                                Đóng các phần mềm đang mở. Nháy chuột vào nút <strong>Start</strong> góc dưới bên trái.
+                            </div>
+                        </div>
+
+                        <div style="background:#fef3c7; border:2px solid #f59e0b; border-radius:14px; padding:12px; text-align:center;">
+                            <div style="background:#d97706; color:#fff; font-weight:900; width:36px; height:36px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-bottom:6px;">2</div>
+                            <div style="font-weight:900; color:#92400e; font-size:1.15rem;">BƯỚC 2</div>
+                            <div style="font-weight:700; color:#334155; font-size:1rem; margin-top:4px;">
+                                Nháy chuột vào biểu tượng <strong>Power ⏻</strong> (Nguồn).
+                            </div>
+                        </div>
+
+                        <div style="background:#fee2e2; border:2px solid #ef4444; border-radius:14px; padding:12px; text-align:center;">
+                            <div style="background:#dc2626; color:#fff; font-weight:900; width:36px; height:36px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-bottom:6px;">3</div>
+                            <div style="font-weight:900; color:#991b1b; font-size:1.15rem;">BƯỚC 3</div>
+                            <div style="font-weight:700; color:#334155; font-size:1rem; margin-top:4px;">
+                                Nháy chuột chọn <strong>Shut down</strong> để máy tính tắt an toàn.
+                            </div>
+                        </div>
+
+                        <div style="background:#f1f5f9; border:2px solid #64748b; border-radius:14px; padding:12px; text-align:center;">
+                            <div style="background:#475569; color:#fff; font-weight:900; width:36px; height:36px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-bottom:6px;">4</div>
+                            <div style="font-weight:900; color:#1e293b; font-size:1.15rem;">BƯỚC 4</div>
+                            <div style="font-weight:700; color:#334155; font-size:1rem; margin-top:4px;">
+                                Nhấn <strong>nút công tắc màn hình</strong> (đối với máy tính để bàn).
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KHU VỰC THỬ THÁCH BẤM TẮT MÁY MÔ PHỎNG -->
+                    <div style="background:#0f172a; border-radius:16px; padding:20px; color:#fff; text-align:center; border:2px solid #334155;">
+                        <div style="font-size:1.35rem; font-weight:900; color:#facc15; margin-bottom:10px;">
+                            🎮 THỬ THÁCH: Bấm nút để thực hiện quy trình tắt máy tính
+                        </div>
+                        <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-bottom:14px;">
+                            <button class="btn primary" id="stepBtn1" onclick="performShutdownStep(1)">1️⃣ Nháy chuột nút Start</button>
+                            <button class="btn secondary" id="stepBtn2" onclick="performShutdownStep(2)" disabled>2️⃣ Nháy nút Power ⏻</button>
+                            <button class="btn warning" id="stepBtn3" onclick="performShutdownStep(3)" disabled>3️⃣ Chọn Shut down</button>
+                            <button class="btn success" id="stepBtn4" onclick="performShutdownStep(4)" disabled>4️⃣ Tắt công tắc màn hình</button>
+                        </div>
+                        <div id="shutdownStepResult" style="font-size:1.2rem; font-weight:800; color:#38bdf8;">
+                            👉 Bước 1: Hãy bấm chọn nút Start góc màn hình!
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 4: MỘT SỐ LƯU Ý KHI LÀM VIỆC VỚI MÁY TÍNH (5 ĐIỀU NGUY HẠI) -->
+            <section id="slide-4" class="slide-screen">
+                <div class="card-panel">
+                    <div class="panel-heading">
+                        <h2>⚠️ MỘT SỐ LƯU Ý QUAN TRỌNG KHI LÀM VIỆC VỚI MÁY TÍNH</h2>
+                        <span style="background:#fee2e2; color:#dc2626; font-weight:900; padding:4px 12px; border-radius:99px;">
+                            SGK Trang 23 (Hình 30)
+                        </span>
+                    </div>
+
+                    <div class="turn-banner-bar">
+                        <div>
+                            🎯 HỌC SINH ĐANG THỰC HIỆN: 
+                            <span class="active-student-pill" id="turnStuName4">Chưa chỉ định</span>
+                        </div>
+                        <div style="font-size:1.1rem; color:#bbf7d0; font-weight:700;">
+                            👉 Nhận biết 5 thao tác SAI gây hư hỏng thiết bị và mất dữ liệu!
+                        </div>
+                    </div>
+
+                    <div class="safety-rules-grid">
+                        <div class="safety-card danger">
+                            <div class="safety-icon">❌</div>
+                            <div>
+                                <div class="safety-title">1. Không nhấn nút công tắc trên thân máy để tắt</div>
+                                <div class="safety-desc">Tác hại: Làm tắt nguồn đột ngột, lỗi hệ điều hành Windows và có thể làm hỏng ổ cứng máy tính.</div>
+                            </div>
+                        </div>
+
+                        <div class="safety-card danger">
+                            <div class="safety-icon">🔌</div>
+                            <div>
+                                <div class="safety-title">2. Không ngắt điện khi máy tính đang chạy</div>
+                                <div class="safety-desc">Tác hại: Rút phích cắm đột ngột gây sốc điện, chập cháy bo mạch nguồn và mất dữ liệu chưa lưu.</div>
+                            </div>
+                        </div>
+
+                        <div class="safety-card danger">
+                            <div class="safety-icon">📁</div>
+                            <div>
+                                <div class="safety-title">3. Trước khi tắt cần đóng các phần mềm</div>
+                                <div class="safety-desc">Tác hại: Tránh bị mất bài tập đang soạn thảo và tránh làm lỗi các tệp tin của hệ thống.</div>
+                            </div>
+                        </div>
+
+                        <div class="safety-card danger">
+                            <div class="safety-icon">🗑️</div>
+                            <div>
+                                <div class="safety-title">4. Không tự ý xoá các biểu tượng trên màn hình</div>
+                                <div class="safety-desc">Tác hại: Mất lối tắt của các chương trình học tập, khiến bạn học ở tiết sau không tìm thấy phần mềm để mở.</div>
+                            </div>
+                        </div>
+
+                        <div class="safety-card danger">
+                            <div class="safety-icon">🚚</div>
+                            <div>
+                                <div class="safety-title">5. Không di chuyển màn hình, thân máy khi đang chạy</div>
+                                <div class="safety-desc">Tác hại: Rung lắc mạnh làm đĩa cứng bị xước, lỏng các giắc cắm và có nguy cơ đổ vỡ, chập điện.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MINI-GAME BÁC SĨ MÁY TÍNH -->
+                    <div style="background:#f8fafc; border:2px dashed #94a3b8; border-radius:14px; padding:16px; margin-top:10px;">
+                        <div style="font-weight:900; font-size:1.2rem; color:#1e3a8a; margin-bottom:8px;">
+                            🩺 BÁC SĨ MÁY TÍNH: Hành động sau đây là NÊN LÀM hay KHÔNG NÊN LÀM?
+                        </div>
+                        <div style="font-size:1.15rem; font-weight:800; color:#334155; margin-bottom:10px;" id="doctorScenarioText">
+                            "Khi hết giờ học, bạn Nam vội vàng rút luôn phích cắm điện để kịp chạy ra sân chơi."
+                        </div>
+                        <div style="display:flex; gap:12px;">
+                            <button class="btn success" onclick="judgeDoctorAction(false)">✅ NÊN LÀM</button>
+                            <button class="btn warning" onclick="judgeDoctorAction(true)">❌ KHÔNG NÊN LÀM (GÂY HẠI)</button>
+                        </div>
+                        <div id="doctorFeedback" style="margin-top:10px; font-weight:800; font-size:1.1rem; display:none;"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 5: CHÉP BÀI VÀO VỞ (ĐỒNG HỒ 3 PHÚT) -->
+            <section id="slide-5" class="slide-screen">
+                <div class="card-panel">
+                    <div class="copy-timer-card">
+                        <div class="copy-timer-info">
+                            <span class="copy-timer-badge">⏳ THỜI GIAN CHÉP BÀI</span>
+                            <span class="copy-timer-digits" id="copyTimer">03:00</span>
+                        </div>
+                        <div class="copy-timer-actions">
+                            <button class="btn-timer start" onclick="startCopyTimer()">▶ Bắt đầu</button>
+                            <button class="btn-timer pause" onclick="pauseCopyTimer()">⏸ Tạm dừng</button>
+                            <button class="btn-timer reset" onclick="resetCopyTimer()">🔄 3 Phút</button>
+                        </div>
+                    </div>
+
+                    <span class="note-step">✍️ GHI NHỚ VÀO VỞ · BÀI 4 (TIẾT 3)</span>
+                    <div class="notebook-box">
+                        <div class="notebook-header">
+                            <span id="lessonDateDisplay">Ngày ... tháng ... năm 2026</span>
+                            <span>Môn: Tin học · Khối 3</span>
+                        </div>
+                        <h2 class="notebook-lesson-title">Bài 4: Làm việc với máy tính (Tiết 3)</h2>
+                        <div style="font-size:1.15rem; line-height:1.7;">
+                            <strong>1. Bật máy tính:</strong> Bật công tắc màn hình và thân máy (máy để bàn) hoặc nút nguồn chung (máy tính xách tay).<br />
+                            <strong>2. Thao tác trên màn hình nền:</strong>
+                            <ul style="margin:4px 0 6px 20px; padding:0;">
+                                <li>Nháy chuột để chọn biểu tượng.</li>
+                                <li>Nháy nút phải chuột để mở bảng chọn (menu).</li>
+                                <li>Kéo thả chuột để di chuyển biểu tượng.</li>
+                                <li>Nháy đúp chuột để mở phần mềm; nháy nút [✕] ở góc trên bên phải để đóng phần mềm.</li>
+                            </ul>
+                            <strong>3. Tắt máy tính đúng cách:</strong> Đóng các phần mềm đang mở ➔ Nháy chuột vào <strong>Start</strong> ➔ Chọn <strong>Power</strong> ➔ Chọn <strong>Shut down</strong> ➔ Tắt công tắc màn hình.<br />
+                            <strong>4. An toàn:</strong> Tuyệt đối không tắt máy bằng công tắc thân máy hoặc ngắt nguồn điện đột ngột.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 6: TÌNH HUỐNG NĂNG LỰC SỐ (PTNLS 2.3.CB1b) -->
+            <section id="slide-6" class="slide-screen">
+                <div class="card-panel">
+                    <div class="panel-heading">
+                        <h2>🌱 PHÁT TRIỂN NĂNG LỰC SỐ: BẠN LAN HỌC TRỰC TUYẾN</h2>
+                        <span style="background:#e0e7ff; color:#3730a3; font-weight:900; padding:4px 12px; border-radius:99px;">
+                            Mục tiêu 2.3.CB1b
+                        </span>
+                    </div>
+
+                    <div class="turn-banner-bar">
+                        <div>
+                            🎯 HỌC SINH ĐANG THỰC HIỆN: 
+                            <span class="active-student-pill" id="turnStuName6">Chưa chỉ định</span>
+                        </div>
+                        <div style="font-size:1.1rem; color:#bbf7d0; font-weight:700;">
+                            👉 Thảo luận nhóm đôi và chia sẻ suy nghĩ trước lớp (+30đ cá nhân)!
+                        </div>
+                    </div>
+
+                    <div style="background:#f8fafc; border:3px solid #6366f1; border-radius:18px; padding:20px; margin-bottom:16px;">
+                        <div style="display:flex; align-items:center; gap:16px; margin-bottom:14px;">
+                            <div style="font-size:3.8rem;">👧💻</div>
+                            <div>
+                                <div style="font-size:1.35rem; font-weight:900; color:#312e81;">
+                                    TÌNH HUỐNG THỰC TẾ:
+                                </div>
+                                <div style="font-size:1.15rem; font-weight:700; color:#334155; line-height:1.5; margin-top:4px;">
+                                    "Bạn Lan biết sử dụng chuột để mở phần mềm học tập trên máy tính và luyện tập các bài học trực tuyến tại nhà."
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:14px;">
+                            <!-- CÂU HỎI 1 -->
+                            <div style="background:#ffffff; border:2px solid #cbd5e1; border-radius:14px; padding:14px;">
+                                <div style="font-weight:900; color:#1e3a8a; font-size:1.15rem; margin-bottom:8px;">
+                                    ❓ Câu hỏi 1: Lan đã sử dụng công nghệ số nào?
+                                </div>
+                                <div style="color:#475569; font-weight:600; font-size:1rem; margin-bottom:10px;">
+                                    Em hãy kể tên các thiết bị và phần mềm mà bạn Lan đã dùng.
+                                </div>
+                                <button class="btn primary" onclick="toggleAnswerTip(1)">👁️ Xem gợi ý trả lời</button>
+                                <div id="ansTip1" style="display:none; margin-top:8px; background:#eff6ff; padding:8px 12px; border-radius:8px; font-weight:800; color:#1d4ed8; font-size:1.05rem;">
+                                    💡 Gợi ý: Máy tính, chuột máy tính, phần mềm học tập, mạng Internet / website học trực tuyến.
+                                </div>
+                            </div>
+
+                            <!-- CÂU HỎI 2 -->
+                            <div style="background:#ffffff; border:2px solid #cbd5e1; border-radius:14px; padding:14px;">
+                                <div style="font-weight:900; color:#1e3a8a; font-size:1.15rem; margin-bottom:8px;">
+                                    ❓ Câu hỏi 2: Việc sử dụng công nghệ số đó giúp Lan như thế nào?
+                                </div>
+                                <div style="color:#475569; font-weight:600; font-size:1rem; margin-bottom:10px;">
+                                    Công nghệ số mang lại lợi ích gì cho việc học của Lan?
+                                </div>
+                                <button class="btn success" onclick="toggleAnswerTip(2)">👁️ Xem gợi ý trả lời</button>
+                                <div id="ansTip2" style="display:none; margin-top:8px; background:#ecfdf5; padding:8px 12px; border-radius:8px; font-weight:800; color:#047857; font-size:1.05rem;">
+                                    💡 Gợi ý: Giúp Lan tự học mọi lúc mọi nơi, ôn bài nhanh hơn, mở rộng kiến thức và trở thành một công dân số tự tin!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- THÔNG ĐIỆP BÀI HỌC -->
+                    <div style="background:linear-gradient(135deg, #312e81 0%, #4338ca 100%); color:#fff; border-radius:14px; padding:12px 18px; text-align:center;">
+                        <span style="font-weight:900; font-size:1.2rem; color:#facc15;">🌟 THÔNG ĐIỆP CÔNG DÂN SỐ:</span>
+                        <span style="font-weight:700; font-size:1.1rem; margin-left:8px;">
+                            Biết sử dụng thành thạo máy tính và phần mềm học tập giúp các em phát triển năng lực bản thân để tự tin hội nhập xã hội tương lai!
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 7: LUYỆN TẬP - ĐẤU TRƯỜNG TRI THỨC -->
+            <section id="slide-7" class="slide-screen">
+                <div class="card-panel">
+                    <div class="panel-heading">
+                        <h2>🎯 HOẠT ĐỘNG LUYỆN TẬP: TRẢ LỜI CÂU HỎI SGK TRANG 23</h2>
+                        <span style="background:#fef3c7; color:#92400e; font-weight:900; padding:4px 12px; border-radius:99px;">
+                            Sát hạch cá nhân (+25đ/câu)
+                        </span>
+                    </div>
+
+                    <div class="turn-banner-bar">
+                        <div>
+                            🎯 HỌC SINH ĐANG THỰC HIỆN: 
+                            <span class="active-student-pill" id="turnStuName7">Chưa chỉ định</span>
+                        </div>
+                        <div style="font-size:1.1rem; color:#bbf7d0; font-weight:700;">
+                            👉 Đọc kỹ câu hỏi và bấm vào đáp án đúng nhất!
+                        </div>
+                    </div>
+
+                    <div class="quiz-card" id="practiceQuizBox">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span style="background:#2563eb; color:#fff; font-weight:900; padding:4px 12px; border-radius:99px; font-size:0.95rem;" id="practiceStepBadge">
+                                Câu hỏi 1 / 3
+                            </span>
+                            <span style="font-weight:800; color:#16a34a;">+25 Điểm</span>
+                        </div>
+                        <div class="quiz-q-title" id="practiceQuestionText">
+                            1. Thao tác nào sau đây là ĐÚNG khi tắt máy tính?
+                        </div>
+                        <div class="quiz-answers-grid" id="practiceAnswersGrid"></div>
+                        <div class="quiz-feedback-box" id="practiceFeedbackBox"></div>
+                    </div>
+
+                    <div style="text-align:right; margin-top:12px;">
+                        <button class="btn primary huge" id="btnNextPracticeQ" onclick="nextPracticeQuestion()" style="display:none;">
+                            Câu hỏi tiếp theo ➔
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 8: VẬN DỤNG & SƠ ĐỒ TƯ DUY TOÀN DIỆN BÀI 4 -->
+            <section id="slide-8" class="slide-screen">
+                <div class="card-panel">
+                    <div class="panel-heading">
+                        <h2>💡 VẬN DỤNG & SƠ ĐỒ TƯ DUY TỔNG KẾT BÀI 4</h2>
+                        <span style="background:#dbeafe; color:#1e40af; font-weight:900; padding:4px 12px; border-radius:99px;">
+                            SGK Trang 23
+                        </span>
+                    </div>
+
+                    <div class="turn-banner-bar">
+                        <div>
+                            🎯 HỌC SINH ĐANG THỰC HIỆN: 
+                            <span class="active-student-pill" id="turnStuName8">Chưa chỉ định</span>
+                        </div>
+                        <div style="font-size:1.1rem; color:#bbf7d0; font-weight:700;">
+                            👉 Vận dụng 1: Nháy nút phải chuột vào biểu tượng This PC trên màn hình (+30đ)!
+                        </div>
+                    </div>
+
+                    <!-- THỬ THÁCH VẬN DỤNG 1 (SGK) -->
+                    <div style="background:#f8fafc; border:2.5px solid #3b82f6; border-radius:16px; padding:16px; margin-bottom:16px;" data-allow-contextmenu="true">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <div>
+                                <span style="background:#2563eb; color:#fff; font-weight:900; padding:4px 12px; border-radius:99px; font-size:0.9rem;">VẬN DỤNG 1</span>
+                                <span style="font-weight:900; font-size:1.25rem; color:#1e3a8a; margin-left:8px;">
+                                    Nháy nút phải chuột vào This PC ➔ Xem bảng chọn ➔ Nháy ra ngoài để đóng:
+                                </span>
+                            </div>
+                            <div id="applyStatusBadge" style="background:#fee2e2; color:#991b1b; font-weight:900; padding:4px 14px; border-radius:99px; font-size:0.95rem;">
+                                Chưa thực hiện
+                            </div>
+                        </div>
+
+                        <div style="position:relative; height:180px; background:linear-gradient(135deg, #1e3a8a 0%, #0284c7 100%); border-radius:12px; margin-top:12px; overflow:hidden;" onclick="handleApplyStageClick(event)">
+                            <!-- ICON THIS PC -->
+                            <div class="vd-item thispc-box" id="applyThisPCIcon" style="top:30px; left:40px;" oncontextmenu="triggerApplyRightClick(event)">
+                                <div class="vd-item-icon">💻</div>
+                                <div class="vd-item-name">This PC</div>
+                            </div>
+
+                            <!-- MENU NGỮ CẢNH CỦA THIS PC -->
+                            <div class="desktop-context-menu" id="applyThisPCMenu" style="top:30px; left:160px;">
+                                <div class="context-menu-item" onclick="toast('Lệnh Open mở thư mục This PC!', 'ok')">📂 Mở (Open)</div>
+                                <div class="context-menu-item" onclick="toast('Ghim lối tắt!', 'ok')">📌 Pin to Quick access</div>
+                                <div class="context-menu-item" onclick="toast('Quản lý hệ thống máy tính!', 'ok')">🛠️ Manage</div>
+                                <div class="context-menu-sep"></div>
+                                <div class="context-menu-item" onclick="toast('Xem thông số cấu hình máy tính!', 'ok')">ℹ️ Thuộc tính (Properties)</div>
+                            </div>
+
+                            <div style="position:absolute; bottom:10px; right:16px; color:#fff; font-size:0.92rem; font-weight:700; background:rgba(0,0,0,0.4); padding:4px 12px; border-radius:8px;">
+                                💡 Nháy nút phải chuột vào biểu tượng máy tính để mở bảng chọn
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SƠ ĐỒ TƯ DUY TOÀN BỘ BÀI 4 -->
+                    <div class="mindmap-wrapper">
+                        <div style="text-align:center;">
+                            <div class="mindmap-core">
+                                💻 BÀI 4: LÀM VIỆC VỚI MÁY TÍNH
+                            </div>
+                        </div>
+
+                        <div class="mindmap-branches">
+                            <!-- NHÁNH 1 -->
+                            <div class="mm-branch mm-b-1">
+                                <div class="mm-b-title">🪑 1. TƯ THẾ NGỒI</div>
+                                <ul class="mm-item-list">
+                                    <li>Ngồi thẳng lưng, vai thả lỏng</li>
+                                    <li>Mắt cách màn hình 50 – 80 cm</li>
+                                    <li>Nghỉ ngơi sau 30 phút</li>
+                                    <li>Phòng đủ ánh sáng</li>
+                                    <li><strong>Tránh vẹo cột sống & cận thị</strong></li>
+                                </ul>
+                            </div>
+
+                            <!-- NHÁNH 2 -->
+                            <div class="mm-branch mm-b-2">
+                                <div class="mm-b-title">🖱️ 2. CHUỘT MÁY TÍNH</div>
+                                <ul class="mm-item-list">
+                                    <li>3 Bộ phận: Nút trái, nút phải, nút cuộn</li>
+                                    <li>Cầm chuột bằng tay phải</li>
+                                    <li>Ngón trỏ đặt nút trái chuột</li>
+                                    <li>Ngón giữa đặt nút phải chuột</li>
+                                    <li>Ngón cái và ngón còn lại giữ thân chuột</li>
+                                </ul>
+                            </div>
+
+                            <!-- NHÁNH 3 -->
+                            <div class="mm-branch mm-b-3">
+                                <div class="mm-b-title">⚡ 3. CÁC THAO TÁC</div>
+                                <ul class="mm-item-list">
+                                    <li><strong>Di chuyển chuột</strong> trên mặt bàn</li>
+                                    <li><strong>Nháy chuột:</strong> chọn biểu tượng</li>
+                                    <li><strong>Nháy phải chuột:</strong> mở bảng chọn</li>
+                                    <li><strong>Nháy đúp chuột:</strong> mở phần mềm</li>
+                                    <li><strong>Kéo thả chuột:</strong> di chuyển biểu tượng</li>
+                                    <li>Nháy nút <strong>✕</strong> để đóng cửa sổ</li>
+                                </ul>
+                            </div>
+
+                            <!-- NHÁNH 4 -->
+                            <div class="mm-branch mm-b-4">
+                                <div class="mm-b-title">🔌 4. BẬT / TẮT & AN TOÀN</div>
+                                <ul class="mm-item-list">
+                                    <li><strong>Bật:</strong> Công tắc Case + Màn hình</li>
+                                    <li><strong>Tắt:</strong> Start ➔ Power ➔ Shut down</li>
+                                    <li>Tắt công tắc màn hình máy bàn</li>
+                                    <li><strong>KHÔNG:</strong> ấn nút thân máy để tắt</li>
+                                    <li><strong>KHÔNG:</strong> rút điện khi máy đang chạy</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- DẶN DÒ TIẾT SAU -->
+                        <div style="margin-top:18px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.25); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <span style="font-weight:900; font-size:1.15rem; color:#fde047;">
+                                📖 DẶN DÒ: Về nhà ôn tập và chuẩn bị trước BÀI 5: SỬ DỤNG BÀN PHÍM!
+                            </span>
+                            <span style="font-weight:700; color:#94a3b8; font-size:1rem;">
+                                Luyện tập tư thế ngồi chuẩn mỗi khi sử dụng máy tính.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 9: TỔNG KẾT & VINH DANH CÁC TỔ -->
+            <section id="slide-9" class="slide-screen">
+                <div class="card-panel" style="text-align:center;">
+                    <div class="panel-heading" style="justify-content:center;">
+                        <h2>🌟 TỔNG KẾT TIẾT HỌC & VINH DANH CÁ NHÂN XUẤT SẮC</h2>
+                    </div>
+
+                    <div style="background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color:#fff; border-radius:22px; padding:28px; margin-top:12px; border:3px solid #facc15; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                        <h3 style="font-size:1.9rem; color:#facc15; margin:0 0 16px; text-shadow:0 2px 10px rgba(250, 204, 21, 0.4);">
+                            🏆 BẢNG VÀNG VINH DANH CÁ NHÂN XUẤT SẮC 🏆
+                        </h3>
+
+                        <!-- PODIUM TOP 3 CÁ NHÂN -->
+                        <div id="finalRankings" style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-bottom:24px;">
+                            <!-- Sẽ được render tự động bằng Javascript -->
+                        </div>
+
+                        <!-- THỐNG KÊ KẾT QUẢ CẢ LỚP -->
+                        <div style="background:rgba(255,255,255,0.08); border-radius:14px; padding:14px 20px; margin-bottom:22px; display:flex; justify-content:space-around; flex-wrap:wrap; gap:12px;">
+                            <div>
+                                <div style="font-size:0.9rem; color:#94a3b8; font-weight:800;">TỔNG SĨ SỐ</div>
+                                <div style="font-size:1.8rem; font-weight:900; color:#38bdf8;" id="sumTotalStudents">0</div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.9rem; color:#94a3b8; font-weight:800;">ĐÃ LẤY ĐIỂM</div>
+                                <div style="font-size:1.8rem; font-weight:900; color:#4ade80;" id="sumDoneStudents">0</div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.9rem; color:#94a3b8; font-weight:800;">ĐIỂM TRUNG BÌNH LỚP</div>
+                                <div style="font-size:1.8rem; font-weight:900; color:#facc15;" id="sumAvgScore">0đ</div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+                            <button class="btn success huge" onclick="exportToExcel()">
+                                ☁️ Xuất CSV Bảng Điểm Cá Nhân &amp; Lưu Google Drive
+                            </button>
+                            <button class="btn primary huge" onclick="celebrateFireworks()">
+                                🎆 Bắn Pháo Hoa Chúc Mừng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- ==================== CỘT PHẢI: SIDEBAR ĐIỀU KHIỂN & LẤY ĐIỂM CÁ NHÂN ==================== -->
+        <aside class="sidebar">
+            <!-- 1. THẺ HỌC SINH ĐANG THỰC HIỆN (ACTIVE STUDENT CARD) -->
+            <div class="active-student-card">
+                <div class="asc-header">
+                    <span class="asc-badge" id="activeBadgeStatus">🎯 Đang Gọi Lên Bảng</span>
+                    <div style="display:flex; gap:6px;">
+                        <button class="btn" style="padding:2px 8px; font-size:0.75rem; background:#38bdf8; color:#0f172a; font-weight:900;" onclick="randomPickStudent()" title="Bốc thăm ngẫu nhiên">🎲 Gacha</button>
+                        <button class="btn" style="padding:2px 8px; font-size:0.75rem; background:#f59e0b; color:#fff; font-weight:900;" onclick="nextStudentQueue()" title="Đổi bạn kế tiếp">⏭ Kế tiếp</button>
+                    </div>
+                </div>
+
+                <div class="asc-body">
+                    <div class="asc-name-wrap">
+                        <div class="asc-name" id="ascStudentName">Chưa chọn bạn nào</div>
+                        <div class="asc-class" id="ascStudentClass">Nháy vào tên trong danh sách bên dưới</div>
+                    </div>
+                    <div class="asc-score-box">
+                        <div class="asc-score" id="ascStudentScore">100đ</div>
+                        <div class="asc-score-lbl">ĐIỂM CÁ NHÂN</div>
+                    </div>
+                </div>
+
+                <!-- CHECKLIST TIẾN ĐỘ KỸ NĂNG CÁ NHÂN -->
+                <div class="asc-skills-grid">
+                    <div class="asc-skill-pip" id="pipBoot">⚡ Bật máy</div>
+                    <div class="asc-skill-pip" id="pipDesktop">🖱️ Desktop</div>
+                    <div class="asc-skill-pip" id="pipShutdown">🔌 Tắt máy</div>
+                    <div class="asc-skill-pip" id="pipSafety">⚠️ An toàn</div>
+                </div>
+
+                <!-- THANH NÚT CHẤM ĐIỂM NHANH CHO HỌC SINH -->
+                <div class="asc-action-btns">
+                    <button class="btn-score-quick" onclick="addActiveStudentScore(10)">+10đ</button>
+                    <button class="btn-score-quick" onclick="addActiveStudentScore(25)">+25đ</button>
+                    <button class="btn-score-quick perfect" onclick="setActiveStudentScore(100)">💯 100đ</button>
+                    <button class="btn-score-quick penalty" onclick="addActiveStudentScore(-10)">-10đ ồn</button>
+                </div>
+            </div>
+
+            <!-- 2. DANH SÁCH TẤT CẢ HỌC SINH CẢ LỚP ĐỂ CHẤM ĐIỂM -->
+            <div class="students-roster-card">
+                <div class="src-header">
+                    <span>👥 DANH SÁCH LỚP LẤY ĐIỂM</span>
+                    <select id="classSelect" onchange="changeClass(this.value)" title="Chọn lớp">
+                        <option value="3_2">Lớp 3/2</option>
+                        <option value="3_3">Lớp 3/3</option>
+                        <option value="3_4">Lớp 3/4</option>
+                        <option value="3_5">Lớp 3/5</option>
+                        <option value="3_6">Lớp 3/6</option>
+                    </select>
+                </div>
+
+                <div class="src-search-bar">
+                    <input type="text" id="search-student" placeholder="🔍 Tìm tên học sinh..." onkeyup="filterStudents()">
+                    <span id="slpStatsBadge" style="font-size:0.8rem; font-weight:900; color:#0284c7; white-space:nowrap; display:flex; align-items:center;">
+                        0/0 Đã xong
+                    </span>
+                </div>
+
+                <div class="src-list" id="studentRosterContainer">
+                    <!-- Tự động nạp bằng JS -->
+                </div>
+            </div>
+
+            <!-- 3. BỘ ĐIỀU HƯỚNG SLIDE -->
+            <div class="dock-box">
+                <div class="nav-grid">
+                    <button class="btn primary" onclick="prevSlide()">◀ Trước</button>
+                    <span style="font-weight:900; font-size:0.95rem; color:#facc15;" id="slideIndicator">Slide 1/10</span>
+                    <button class="btn primary" onclick="nextSlide()">Tiếp ▶</button>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- MÀN HÌNH KHỞI ĐẦU CHỌN LỚP & ĐIỂM -->
+    <div class="start-screen" id="startScreen">
+        <div class="start-box">
+            <div style="font-size:3.6rem;">🖥️</div>
+            <h1 style="margin:4px 0; font-size:2.2rem; color:#1e3a8a;">BÀI 4: LÀM VIỆC VỚI MÁY TÍNH (TIẾT 3)</h1>
+            <p style="color:#475569; font-weight:700; font-size:1.15rem;">Bật máy tính, màn hình nền, mở/đóng phần mềm &amp; Tắt máy đúng cách · Tin học 3</p>
+            
+            <div style="font-size:1.25rem; font-weight:900; margin-top:14px;">Chọn lớp học giảng dạy hôm nay:</div>
+            <div class="chip-row">
+                <button class="chip on" onclick="pickStart('class','3_2',this)">Lớp 3/2</button>
+                <button class="chip" onclick="pickStart('class','3_3',this)">Lớp 3/3</button>
+                <button class="chip" onclick="pickStart('class','3_4',this)">Lớp 3/4</button>
+                <button class="chip" onclick="pickStart('class','3_5',this)">Lớp 3/5</button>
+                <button class="chip" onclick="pickStart('class','3_6',this)">Lớp 3/6</button>
+            </div>
+            
+            <div style="font-size:1.25rem; font-weight:900;">Điểm số cá nhân khởi điểm:</div>
+            <div style="margin: 8px 0 20px;">
+                <input id="startScoreInput" type="number" min="0" step="10" value="100" style="font-size:1.35rem; font-weight:900; width:130px; padding:6px 12px; border:2px solid #2563eb; border-radius:10px; color:#2563eb; text-align:center; outline:none;" />
+            </div>
+            
+            <button class="btn success huge" onclick="confirmStart()">▶ Bắt đầu tiết học &amp; Lấy điểm</button>
+        </div>
+    </div>
+
+    <!-- ==================== LOGIC JAVASCRIPT ==================== -->
+    <script>
+        'use strict';
+
+        const $ = s => document.querySelector(s);
+        const $$ = s => document.querySelectorAll(s);
+
+        let START_SCORE = 100;
+        const TOTAL_SLIDES = 10;
+        let currentSlide = 0;
+        let currentClassID = '3_2';
+
+        /* QUẢN LÝ DỮ LIỆU ĐIỂM CÁ NHÂN CẢ LỚP */
+        let classStudents = [];
+        let studentData = {}; // studentData[name] = { stt, name, score, played, skills: {boot, desktop, shutdown, safety}, penaltySec, eval }
+        let currentStudent = null;
+        let lessonLogs = [];
+
+        /* ================= ÂM THANH WEB AUDIO API (OFFLINE 100%) ================= */
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let _audioCtx = null;
+        function ensureAudio() {
+            if (!_audioCtx) {
+                try { _audioCtx = new AudioCtx(); } catch (e) { }
+            }
+            if (_audioCtx && _audioCtx.state === 'suspended') {
+                _audioCtx.resume().catch(() => { });
+            }
+        }
+
+        function playTone(freq, dur, type = 'sine', vol = 0.3) {
+            try {
+                ensureAudio();
+                if (!_audioCtx) return;
+                const osc = _audioCtx.createOscillator();
+                const gain = _audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, _audioCtx.currentTime);
+                gain.gain.setValueAtTime(vol, _audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, _audioCtx.currentTime + dur);
+                osc.connect(gain);
+                gain.connect(_audioCtx.destination);
+                osc.start();
+                osc.stop(_audioCtx.currentTime + dur);
+            } catch (e) { }
+        }
+
+        function soundCorrect() {
+            try {
+                ensureAudio();
+                if (!_audioCtx) return;
+                [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+                    const osc = _audioCtx.createOscillator();
+                    const gain = _audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(f, _audioCtx.currentTime + i * 0.08);
+                    gain.gain.setValueAtTime(0.25, _audioCtx.currentTime + i * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, _audioCtx.currentTime + i * 0.08 + 0.18);
+                    osc.connect(gain);
+                    gain.connect(_audioCtx.destination);
+                    osc.start(_audioCtx.currentTime + i * 0.08);
+                    osc.stop(_audioCtx.currentTime + i * 0.08 + 0.2);
+                });
+            } catch (e) { }
+        }
+
+        function soundWrong() {
+            try {
+                ensureAudio();
+                if (!_audioCtx) return;
+                const osc = _audioCtx.createOscillator();
+                const gain = _audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(140, _audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(90, _audioCtx.currentTime + 0.28);
+                gain.gain.setValueAtTime(0.3, _audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, _audioCtx.currentTime + 0.28);
+                osc.connect(gain);
+                gain.connect(_audioCtx.destination);
+                osc.start();
+                osc.stop(_audioCtx.currentTime + 0.28);
+            } catch (e) { }
+        }
+
+        function soundClick() {
+            playTone(800, 0.04, 'sine', 0.15);
+        }
+
+        function soundStartupFan() {
+            try {
+                ensureAudio();
+                if (!_audioCtx) return;
+                const osc = _audioCtx.createOscillator();
+                const gain = _audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(220, _audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, _audioCtx.currentTime + 1.2);
+                gain.gain.setValueAtTime(0.1, _audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.2, _audioCtx.currentTime + 0.8);
+                gain.gain.exponentialRampToValueAtTime(0.001, _audioCtx.currentTime + 1.4);
+                osc.connect(gain);
+                gain.connect(_audioCtx.destination);
+                osc.start();
+                osc.stop(_audioCtx.currentTime + 1.4);
+                setTimeout(() => {
+                    [440, 554, 659, 880].forEach((f, i) => {
+                        const o = _audioCtx.createOscillator();
+                        const g = _audioCtx.createGain();
+                        o.type = 'triangle';
+                        o.frequency.setValueAtTime(f, _audioCtx.currentTime + i * 0.12);
+                        g.gain.setValueAtTime(0.25, _audioCtx.currentTime + i * 0.12);
+                        g.gain.exponentialRampToValueAtTime(0.001, _audioCtx.currentTime + i * 0.12 + 0.45);
+                        o.connect(g);
+                        g.connect(_audioCtx.destination);
+                        o.start(_audioCtx.currentTime + i * 0.12);
+                        o.stop(_audioCtx.currentTime + i * 0.12 + 0.5);
+                    });
+                }, 600);
+            } catch (e) { }
+        }
+
+        function soundShutdown() {
+            try {
+                ensureAudio();
+                if (!_audioCtx) return;
+                [880, 659, 554, 440].forEach((f, i) => {
+                    const o = _audioCtx.createOscillator();
+                    const g = _audioCtx.createGain();
+                    o.type = 'sine';
+                    o.frequency.setValueAtTime(f, _audioCtx.currentTime + i * 0.15);
+                    g.gain.setValueAtTime(0.2, _audioCtx.currentTime + i * 0.15);
+                    g.gain.exponentialRampToValueAtTime(0.001, _audioCtx.currentTime + i * 0.15 + 0.35);
+                    o.connect(g);
+                    g.connect(_audioCtx.destination);
+                    o.start(_audioCtx.currentTime + i * 0.15);
+                    o.stop(_audioCtx.currentTime + i * 0.15 + 0.4);
+                });
+            } catch (e) { }
+        }
+
+        /* ================= QUẢN LÝ ĐỒNG HỒ 3 PHÚT CHÉP BÀI ================= */
+        let copyTimerInterval = null;
+        let copyTimeRemaining = 180;
+        let copyTimerPaused = true;
+
+        function updateCopyTimerUI() {
+            const el = document.getElementById('copyTimer');
+            if (!el) return;
+            const mm = Math.floor(copyTimeRemaining / 60);
+            const ss = copyTimeRemaining % 60;
+            el.textContent = `${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
+            el.style.color = copyTimeRemaining <= 30 ? '#ef4444' : '#facc15';
+        }
+
+        function startCopyTimer() {
+            if (copyTimeRemaining <= 0) copyTimeRemaining = 180;
+            clearInterval(copyTimerInterval);
+            copyTimerPaused = false;
+            copyTimerInterval = setInterval(() => {
+                if (!copyTimerPaused && copyTimeRemaining > 0) {
+                    copyTimeRemaining--;
+                    updateCopyTimerUI();
+                    if (copyTimeRemaining === 0) {
+                        clearInterval(copyTimerInterval);
+                        soundCorrect();
+                        toast('⏰ ĐÃ HẾT GIỜ CHÉP BÀI! Cả lớp cùng buông bút nhé!', 'ok');
+                    }
+                }
+            }, 1000);
+            updateCopyTimerUI();
+            toast('⏳ Bắt đầu 3 phút chép bài!', 'ok');
+        }
+
+        function pauseCopyTimer() {
+            copyTimerPaused = !copyTimerPaused;
+            toast(copyTimerPaused ? '⏸ Đã tạm dừng đồng hồ' : '▶ Tiếp tục đếm giờ', 'ok');
+        }
+
+        function resetCopyTimer() {
+            clearInterval(copyTimerInterval);
+            copyTimeRemaining = 180;
+            copyTimerPaused = true;
+            updateCopyTimerUI();
+        }
+
+        /* ================= DANH SÁCH HỌC SINH FALLBACK ================= */
+        const FALLBACK_STUDENTS = {
+            "3_2": ["Nguyễn Khả Ái", "Nguyễn Đức Anh", "Nguyễn Quốc Anh", "Trịnh Gia Bảo", "Ngô Hoàng Bảo Châu", "Nguyễn Doanh Doanh", "Phạm Đại Dương", "Danh Thành Đạt", "Vũ Nghi Đình", "Võ Đoàn Nhã Hân", "Võ Hứa Chí Hiếu", "Nguyễn Trần Gia Huy", "Đoàn Gia Hưng", "Nguyễn Phúc Hưng", "Đỗ Minh Khang", "Đặng Nguyễn Quốc Khởi", "Đặng Lê Thiên Kim", "Trương Quân Kỳ", "Mai Hoàng Lam", "Lê Trúc Ly", "Vũ Hoàng Ánh Minh", "Vương Lê Bảo Minh", "Đinh Kim Ngân", "Trần Y Như Ngọc", "Chiêm Nguyễn Khôi Nguyên", "Nguyễn Công Gia Phát", "Trần Thiên Phú", "Keo Trần Kim Phúc", "Lê Đức Phúc", "Bùi Mai Phương", "Nguyễn Quốc Quân", "Lê Anh Quốc", "Nguyễn Xuân Quý", "Hình Minh Thanh", "Nguyễn Việt Thanh", "Nguyễn Minh Thành", "Lê Đức Thịnh", "Huỳnh Minh Thuận", "Huỳnh Gia Tiến", "Nguyễn Ngọc Trâm", "Nguyễn Ngọc Bảo Trân", "Nguyễn Thanh Trọng", "Nguyễn Đức Tuấn", "Đoàn Thị Bảo Vy", "Hình Lê Khánh Vy", "Hồ Nhật Vy", "Nguyễn Trần Thảo Vy", "Lê Ngọc Kim Yến"],
+            "3_3": ["Tống Huỳnh Tâm An", "Bùi Ngọc Tú Anh", "Hồng Hoàng Nhật Anh", "Võ Khuê Anh", "Lê Huỳnh Thiên Bách", "Nguyễn Hoàng Bách (1)", "Nguyễn Hoàng Bách (2)", "Nguyễn Phạm Bảo Châu", "Võ Hữu Duy", "Trần Quốc Đạt", "Phạm Thế Hào", "Huỳnh Nhã Hân", "Nguyễn Lê Khả Hân", "Nguyễn Ngọc Gia Hân (1)", "Nguyễn Ngọc Gia Hân (2)", "Nguyễn Phạm Gia Hân", "Lê Thị Phương Hoa", "Phan Mạnh Hùng", "Lý Gia Hưng", "Nguyễn Minh Khang", "Phạm Nguyễn Minh Khôi", "Cao Thiên Kim", "Nguyễn Hồ Phương Lam", "Mai Nhật Lan", "Vũ Bảo Long", "Huỳnh Thiên Lộc", "Bùi Diệu Mẫn", "Dương Quang Minh", "Huỳnh Phúc Minh", "Nguyễn Ngọc Tuệ Minh", "Trần Phạm Khánh My", "Nguyễn Ngọc Kim Ngân", "Nguyễn Khởi Nghiệp", "Đào Phúc Nguyên", "Tạ Hoàng Nhân", "Phan An Nhiên", "Trần Lê An Nhiên", "Nguyễn Phúc", "Phạm Thiên Phúc", "Hoàng Bảo Phước", "Cao Lê Nhã Phương", "Trần Quốc Sang", "Từ Tấn Sang", "Nguyễn Minh Tâm", "Phạm Quang Thành", "Nguyễn Phương Thảo", "Nguyễn Quốc Thắng", "Đinh Trung Tín", "Võ Cát Tường", "Hà Mỹ Uyên"],
+            "3_4": ["Đỗ Mỹ Ái", "Lê Đặng Trâm Anh", "Phạm Quốc Anh", "Trần Ngọc Tú Anh", "Trương Tuyết Anh", "Nguyễn Dương Thiên Ân", "Thạch Thiên Bảo", "Trần Lâm Hữu Duyên", "Nguyễn Lê Hoàng Đăng", "Phạm Minh Đăng", "Huỳnh Bích Hà", "Trần Ngọc Khánh Hà", "Đặng Thị Ngọc Hân", "Lê Nguyễn Quang Hưng", "Thái Minh Khang", "Vũ Duy Khang", "Lê Trịnh Minh Khoa", "Lý Minh Khôi", "Nguyễn Đặng Đăng Khôi", "Phạm Trọng Kiên", "Huỳnh Ngọc Thiên Kim", "Lưu Hoàng Kim", "Lưu Nhựt Lam", "Hà Tuyết Lan", "Nguyễn Tuyết Loan", "Lê Đình Mạnh", "Trần Tuệ Mẫn", "Nguyễn Hoàng Gia Mỹ", "Thái Bảo Ngọc", "Lưu Nguyễn Đan Nguyên", "Nguyễn Thảo Nguyên", "Cao Phương Nhã", "Phan Thị Xuân Nhi", "Trần Tuệ Nhi", "Phạm Hoàng Oanh", "Trang Trường Phát", "Đỗ Hoàng Bảo Quân", "Nguyễn Phương Thảo", "Trương Bùi Phương Thảo", "Nguyễn Ngọc Kim Thiên", "Huỳnh Chí Thiện", "Lương Phúc Thịnh", "Nguyễn Ngọc Thịnh", "Nguyễn Trần Phước Thịnh", "Quách Hoàng Thịnh", "Mai Minh Thư", "Trần Anh Thư", "Đỗ Thị Thu Trang", "Lê Huyền Trâm", "Nguyễn Minh Triết", "Giang Ngọc Cát Tường"],
+            "3_5": ["Đỗ Nhật Anh", "Phạm Lưu Duy Bách", "Đặng Tuệ Băng", "Thái Thị Kim Chi", "Lê Trần Bảo Di", "Huỳnh Tấn Đạt", "Đặng Minh Đức", "Trần Nhật Thiên Đức", "Trần Ngọc Thiên Hà", "Lâm Ngọc Hân", "Nguyễn Thị Xuân Hiền", "Nguyễn Hoàng An Khang", "Nguyễn Quốc Khánh", "Nguyễn Duy Khiêm", "Võ Thiên Kim", "Nguyễn Gia Kỳ", "Lê Ngọc Kim Ngân", "Nguyễn Thị Bảo Ngọc", "Nguyễn Hồ Kim Nguyên", "Nguyễn Đặng Thành Nhân", "Huỳnh Bảo Nhi", "Đặng Thị Quỳnh Như", "Trần Quỳnh Như", "Nguyễn Hồng Phát", "Nguyễn Lâm Gia Phát", "Đàm Tâm Phúc", "Đặng Thành Hữu Phúc", "Huỳnh Gia Phúc", "Trần Hoàng Quân", "Nguyễn Chí Thiện", "Trần Trường Quân", "Tăng Thế Tài", "Võ Thị Thu Thảo", "Nguyễn Trọng Thắng", "Tăng Ngọc Thi", "Nguyễn Hồng Minh Thư", "Ngô Văn Tiền", "Chu Mạnh Tiến", "Nguyễn Thiên Trường", "Nguyễn Ngọc Thu Tuyền", "Trần Thị Khánh Tuyết"],
+            "3_6": ["Nguyễn Ngọc Khả Ái", "Trần Khả Ái", "Hoàng Thiên An", "Nguyễn Thiên An", "Nguyễn Ngọc Diệp Anh", "Trần Nguyễn Hải Anh", "Phạm Kiều Thiên Ân", "Từ Quốc Bảo", "Danh Minh Châu", "Dương Hoàng Hải Đăng", "Nguyễn Hoàng Đăng", "Nguyễn Lưu Nhật Hạ", "Trương Minh Hằng", "Cao Ngọc Gia Hân", "Lê Ngọc Khả Hân", "Lại Xuân Khang", "Trương Trọng Nghĩa", "Phạm Ngô Thanh Ngọc", "Danh Nguyễn Yến Nhi", "Nguyễn Ngọc Tuệ Nhi", "Trần Khánh Nhi", "Danh Thị Kiều Oanh", "Nguyễn Kỳ Phương", "Lê Hoàng Đăng Quang", "Phan Huỳnh Phú Quý", "Nguyễn Ngọc Thảo Quyên", "Châu Ngọc Ngân Thanh", "Vi Huỳnh Kim Thanh", "Lâm Huỳnh Phương Thảo", "Trần Quốc Thiện", "Nguyễn Ngọc Tiên", "Lâm Đức Tiến", "Trương Ngọc Toàn", "Mai Võ Thanh Trúc", "Lư Nhã Uyên", "Nguyễn Ngọc Nhã Uyên", "Võ Huỳnh Khánh Vy", "Lê Như Ý", "Nguyễn Phúc Khang Lam", "Huỳnh Hoàng Yến (1)", "Huỳnh Hoàng Yến (2)"]
+        };
+
+        /* ================= DỮ LIỆU ĐỐ VUI KHỞI ĐỘNG ================= */
+        const WARMUP_QUESTIONS = [
+            {
+                q: "1. Khi ngồi làm việc với máy tính, khoảng cách thích hợp từ mắt đến màn hình là bao nhiêu?",
+                opts: [
+                    { t: "A. Khoảng 10 – 20 cm (Dí sát mắt vào xem cho rõ)", ok: false },
+                    { t: "B. Khoảng 50 – 80 cm (Tầm một sải tay)", ok: true },
+                    { t: "C. Khoảng 2 – 3 mét (Càng xa càng tốt)", ok: false }
+                ],
+                exp: "✅ Chính xác! Khoảng cách 50 – 80 cm giúp bảo vệ mắt, tránh cận thị và mỏi mắt."
+            },
+            {
+                q: "2. Khi cầm chuột máy tính bằng tay phải, ngón trỏ và ngón giữa đặt ở đâu?",
+                opts: [
+                    { t: "A. Ngón trỏ đặt nút trái, ngón giữa đặt nút phải", ok: true },
+                    { t: "B. Ngón trỏ đặt nút phải, ngón giữa đặt nút trái", ok: false },
+                    { t: "C. Cả 2 ngón cùng đè lên nút cuộn ở giữa", ok: false }
+                ],
+                exp: "✅ Chuẩn xác! Ngón trỏ đặt nút trái để nháy chọn; ngón giữa đặt nút phải để mở bảng chọn."
+            },
+            {
+                q: "3. Để mở một phần mềm hoặc trò chơi trên màn hình máy tính, em thường dùng thao tác chuột nào?",
+                opts: [
+                    { t: "A. Di chuyển chuột một vòng", ok: false },
+                    { t: "B. Nháy đúp chuột (nhấn nút trái 2 lần liên tiếp nhanh)", ok: true },
+                    { t: "C. Kéo thả chuột ra khỏi màn hình", ok: false }
+                ],
+                exp: "✅ Rất giỏi! Thao tác nháy đúp chuột (nhấn 2 lần nhanh bằng ngón trỏ) dùng để khởi động phần mềm!"
+            }
+        ];
+        let curWarmupIdx = 0;
+
+        /* ================= DỮ LIỆU LUYỆN TẬP SGK ================= */
+        const PRACTICE_QUESTIONS = [
+            {
+                q: "1. Thao tác nào sau đây là ĐÚNG khi tắt máy tính?",
+                opts: [
+                    { t: "A. Rút phích cắm điện ra khỏi ổ cắm ngay lập tức.", ok: false },
+                    { t: "B. Nhấn nút công tắc nguồn trên thân máy tính.", ok: false },
+                    { t: "C. Đóng các phần mềm đang mở và chọn Start \\ Power \\ Shut down.", ok: true }
+                ],
+                exp: "✅ Hoàn toàn chính xác! Đóng phần mềm ➔ Start ➔ Power ➔ Shut down là quy trình tắt máy tính chuẩn và an toàn nhất!"
+            },
+            {
+                q: "2. Em sử dụng thao tác nào để di chuyển một biểu tượng từ vị trí này sang vị trí khác trên màn hình nền?",
+                opts: [
+                    { t: "A. Nháy chuột.", ok: false },
+                    { t: "B. Nháy đúp chuột.", ok: false },
+                    { t: "C. Kéo thả chuột.", ok: true }
+                ],
+                exp: "✅ Đúng rồi! Nhấn giữ nút trái chuột, kéo biểu tượng đến vị trí mới rồi thả ngón tay chính là thao tác Kéo thả chuột!"
+            },
+            {
+                q: "3. Để đóng một cửa sổ phần mềm đang mở trên màn hình, em nháy chuột vào nút nào ở góc trên bên phải?",
+                opts: [
+                    { t: "A. Nút dấu trừ [ - ] để thu nhỏ", ok: false },
+                    { t: "B. Nút ô vuông [ ▢ ] để phóng to", ok: false },
+                    { t: "C. Nút dấu nhân màu đỏ [ ✕ ]", ok: true }
+                ],
+                exp: "✅ Rất thông minh! Nút [ ✕ ] ở góc trên cùng bên phải cửa sổ dùng để đóng và thoát khỏi phần mềm."
+            }
+        ];
+        let curPracticeIdx = 0;
+
+        /* ================= QUẢN LÝ ĐIỂM CÁ NHÂN & GỌI HỌC SINH ================= */
+        function selectStudentFromList(name) {
+            const rec = studentData[name];
+            if (!rec) return;
+            currentStudent = rec;
+            soundClick();
+            updateActiveStudentCard();
+            updateTurnLabels();
+            renderStudentRoster();
+            toast(`👤 Đang lấy điểm cho bạn: ${rec.name}`, 'ok');
+        }
+
+        function updateActiveStudentCard() {
+            const nameEl = document.getElementById('ascStudentName');
+            const classEl = document.getElementById('ascStudentClass');
+            const scoreEl = document.getElementById('ascStudentScore');
+            const statusEl = document.getElementById('activeBadgeStatus');
+
+            if (!currentStudent) {
+                if (nameEl) nameEl.textContent = 'Chưa chọn bạn nào';
+                if (classEl) classEl.textContent = 'Nháy vào tên trong danh sách bên dưới';
+                if (scoreEl) scoreEl.textContent = '100đ';
+                if (statusEl) statusEl.textContent = 'Chờ gọi tên';
+                return;
+            }
+
+            if (nameEl) nameEl.textContent = currentStudent.name;
+            if (classEl) classEl.textContent = `STT: ${currentStudent.stt} · Lớp: ${currentClassID.replace('_', '/')}`;
+            if (scoreEl) scoreEl.textContent = `${currentStudent.score}đ`;
+            if (statusEl) {
+                statusEl.textContent = currentStudent.played ? '✅ Đã Hoàn Thành' : '🎯 Đang Kiểm Tra';
+                statusEl.style.background = currentStudent.played ? '#16a34a' : '#0284c7';
+            }
+
+            // Cập nhật Pips kỹ năng
+            const sk = currentStudent.skills;
+            const pBoot = document.getElementById('pipBoot');
+            const pDesk = document.getElementById('pipDesktop');
+            const pShut = document.getElementById('pipShutdown');
+            const pSafe = document.getElementById('pipSafety');
+
+            if (pBoot) pBoot.className = `asc-skill-pip ${sk.boot ? 'done' : ''}`;
+            if (pDesk) pDesk.className = `asc-skill-pip ${sk.desktop ? 'done' : ''}`;
+            if (pShut) pShut.className = `asc-skill-pip ${sk.shutdown ? 'done' : ''}`;
+            if (pSafe) pSafe.className = `asc-skill-pip ${sk.safety ? 'done' : ''}`;
+        }
+
+        function addActiveStudentScore(delta, skillKey = null) {
+            if (!currentStudent) {
+                toast('⚠️ Vui lòng nháy chọn một học sinh trong danh sách trước nhé!', 'bad');
+                return;
+            }
+            currentStudent.score += delta;
+            if (currentStudent.score < 0) currentStudent.score = 0;
+            currentStudent.played = true;
+
+            if (skillKey && currentStudent.skills[skillKey] !== undefined) {
+                currentStudent.skills[skillKey] = true;
+            }
+
+            updateActiveStudentCard();
+            renderStudentRoster();
+
+            const now = new Date();
+            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            lessonLogs.push({
+                time: timeStr,
+                student: currentStudent.name,
+                action: skillKey ? `Hoàn thành ${skillKey}` : 'Cộng điểm cá nhân',
+                result: delta > 0 ? `+${delta}đ` : `${delta}đ`,
+                scoreAfter: `${currentStudent.score}đ`
+            });
+        }
+
+        function setActiveStudentScore(scoreVal) {
+            if (!currentStudent) return;
+            currentStudent.score = scoreVal;
+            currentStudent.played = true;
+            soundCorrect();
+            updateActiveStudentCard();
+            renderStudentRoster();
+            toast(`🌟 Đã đặt ${scoreVal}đ xuất sắc cho ${currentStudent.name}!`, 'ok');
+        }
+
+        function nextStudentQueue() {
+            soundClick();
+            const all = classStudents.map(s => studentData[s.name]);
+            const unplayed = all.filter(r => !r.played);
+            const candidate = unplayed.length > 0 ? unplayed[0] : all[(all.indexOf(currentStudent) + 1) % all.length];
+            if (candidate) {
+                selectStudentFromList(candidate.name);
+            }
+        }
+
+        function randomPickStudent() {
+            soundClick();
+            const all = classStudents.map(s => studentData[s.name]);
+            const unplayed = all.filter(r => !r.played);
+            const pool = unplayed.length > 0 ? unplayed : all;
+            const picked = pool[Math.floor(Math.random() * pool.length)];
+            if (picked) {
+                selectStudentFromList(picked.name);
+            }
+        }
+
+        function updateTurnLabels() {
+            const stuText = currentStudent ? currentStudent.name : 'Chưa chỉ định';
+            for (let i = 0; i < TOTAL_SLIDES; i++) {
+                const el = document.getElementById(`turnStuName${i}`);
+                if (el) el.textContent = stuText;
+            }
+        }
+
+        /* ================= ĐIỀU HƯỚNG SLIDE ================= */
+        function showSlide(idx) {
+            if (idx < 0) idx = 0;
+            if (idx >= TOTAL_SLIDES) idx = TOTAL_SLIDES - 1;
+            currentSlide = idx;
+            $$('.slide-screen').forEach((el, i) => el.classList.toggle('active', i === currentSlide));
+            const ind = document.getElementById('slideIndicator');
+            if (ind) ind.textContent = `Slide ${currentSlide + 1}/${TOTAL_SLIDES}`;
+            updateTurnLabels();
+
+            if (currentSlide === TOTAL_SLIDES - 1) {
+                renderFinalRankings();
+            }
+        }
+
+        function nextSlide() { showSlide(currentSlide + 1); }
+        function prevSlide() { showSlide(currentSlide - 1); }
+
+        window.addEventListener('keydown', e => {
+            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+            if (e.key === 'ArrowRight' || e.key === 'PageDown') nextSlide();
+            if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevSlide();
+        });
+
+        /* ================= SLIDE 0: ĐỐ VUI KHỞI ĐỘNG ================= */
+        function renderWarmupQuestion() {
+            const qData = WARMUP_QUESTIONS[curWarmupIdx];
+            const qTitle = document.getElementById('warmupQuestion');
+            const ansGrid = document.getElementById('warmupAnswers');
+            const fbBox = document.getElementById('warmupFeedback');
+            const stepBadge = document.getElementById('warmupStepBadge');
+            const btnNext = document.getElementById('btnNextWarmup');
+
+            if (!qData || !qTitle) return;
+            stepBadge.textContent = `Câu hỏi ${curWarmupIdx + 1} / ${WARMUP_QUESTIONS.length}`;
+            qTitle.textContent = qData.q;
+            ansGrid.innerHTML = '';
+            fbBox.style.display = 'none';
+            if (btnNext) btnNext.style.display = 'none';
+
+            qData.opts.forEach((opt, idx) => {
+                const b = document.createElement('button');
+                b.className = 'quiz-opt-btn';
+                b.textContent = opt.t;
+                b.onclick = () => handleWarmupAnswer(idx, opt.ok, b);
+                ansGrid.appendChild(b);
+            });
+        }
+
+        function handleWarmupAnswer(optIdx, isOk, btnEl) {
+            const ansGrid = document.getElementById('warmupAnswers');
+            const fbBox = document.getElementById('warmupFeedback');
+            const btnNext = document.getElementById('btnNextWarmup');
+            const qData = WARMUP_QUESTIONS[curWarmupIdx];
+
+            Array.from(ansGrid.children).forEach(b => b.disabled = true);
+
+            if (isOk) {
+                btnEl.classList.add('correct');
+                soundCorrect();
+                addActiveStudentScore(20, 'quiz');
+                fbBox.style.display = 'block';
+                fbBox.style.background = '#dcfce7';
+                fbBox.style.color = '#166534';
+                fbBox.textContent = qData.exp;
+                toast(`🎉 Chính xác! +20đ cho ${currentStudent ? currentStudent.name : 'bạn'}!`, 'ok');
+            } else {
+                btnEl.classList.add('wrong');
+                soundWrong();
+                fbBox.style.display = 'block';
+                fbBox.style.background = '#fee2e2';
+                fbBox.style.color = '#991b1b';
+                fbBox.textContent = `Chưa đúng rồi! Hãy nhớ lại kiến thức Tiết 1 nhé.`;
+                qData.opts.forEach((o, i) => {
+                    if (o.ok && ansGrid.children[i]) ansGrid.children[i].classList.add('correct');
+                });
+            }
+
+            if (btnNext) btnNext.style.display = 'inline-flex';
+        }
+
+        function nextWarmupQuestion() {
+            curWarmupIdx++;
+            if (curWarmupIdx < WARMUP_QUESTIONS.length) {
+                nextStudentQueue();
+                renderWarmupQuestion();
+            } else {
+                toast('🎉 Cả lớp đã hoàn thành xuất sắc phần Khởi động!', 'ok');
+                nextSlide();
+            }
+        }
+
+        /* ================= SLIDE 1: BẬT MÁY TÍNH MÔ PHỎNG ================= */
+        let isCasePowered = false;
+        let isMonPowered = false;
+
+        function toggleCasePower() {
+            soundClick();
+            isCasePowered = !isCasePowered;
+            const btn = document.getElementById('btnPowerCase');
+            const card = document.getElementById('hwCaseCard');
+            const led = document.getElementById('caseLed');
+            const st = document.getElementById('statusCase');
+
+            if (isCasePowered) {
+                soundStartupFan();
+                btn.classList.add('on');
+                btn.textContent = '🟢 Thân Máy ĐANG CHẠY';
+                card.classList.add('powered');
+                if (led) led.setAttribute('fill', '#22c55e');
+                if (st) { st.textContent = 'Đang có điện (Quạt tản nhiệt quay)'; st.classList.add('on'); }
+                toast('⚡ Thân máy tính (Case) đã được cấp điện!', 'ok');
+            } else {
+                btn.classList.remove('on');
+                btn.textContent = '⏻ Bật Thân Máy';
+                card.classList.remove('powered');
+                if (led) led.setAttribute('fill', '#64748b');
+                if (st) { st.textContent = 'Đang tắt nguồn'; st.classList.remove('on'); }
+            }
+            checkBootCompletion();
+        }
+
+        function toggleMonitorPower() {
+            soundClick();
+            isMonPowered = !isMonPowered;
+            const btn = document.getElementById('btnPowerMon');
+            const card = document.getElementById('hwMonitorCard');
+            const led = document.getElementById('monLed');
+            const txt = document.getElementById('monitorText');
+            const glass = document.getElementById('monitorScreenGlass');
+            const st = document.getElementById('statusMon');
+
+            if (isMonPowered) {
+                btn.classList.add('on');
+                btn.textContent = '🟢 Màn Hình ĐÃ BẬT';
+                card.classList.add('powered');
+                if (led) led.setAttribute('fill', '#38bdf8');
+                if (st) { st.textContent = 'Màn hình đã bật sáng'; st.classList.add('on'); }
+                toast('💡 Màn hình máy tính đã bật công tắc!', 'ok');
+            } else {
+                btn.classList.remove('on');
+                btn.textContent = '⏻ Bật Màn Hình';
+                card.classList.remove('powered');
+                if (led) led.setAttribute('fill', '#64748b');
+                if (txt) { txt.textContent = 'TẮT ĐEN'; txt.setAttribute('fill', '#64748b'); }
+                if (glass) glass.setAttribute('fill', '#020617');
+                if (st) { st.textContent = 'Đang tắt nguồn'; st.classList.remove('on'); }
+            }
+            checkBootCompletion();
+        }
+
+        function checkBootCompletion() {
+            const txt = document.getElementById('monitorText');
+            const glass = document.getElementById('monitorScreenGlass');
+            const banner = document.getElementById('bootSuccessBanner');
+
+            if (isCasePowered && isMonPowered) {
+                if (glass) glass.setAttribute('fill', '#0284c7');
+                if (txt) { txt.textContent = 'WINDOWS DESKTOP'; txt.setAttribute('fill', '#ffffff'); }
+                if (banner && banner.style.display !== 'block') {
+                    banner.style.display = 'block';
+                    soundCorrect();
+                    addActiveStudentScore(30, 'boot');
+                    toast(`🌟 +30đ cá nhân cho ${currentStudent ? currentStudent.name : 'em'} vì bật máy tính chính xác!`, 'ok');
+                }
+            } else if (isMonPowered && !isCasePowered) {
+                if (glass) glass.setAttribute('fill', '#1e293b');
+                if (txt) { txt.textContent = 'NO SIGNAL (Chờ thân máy)'; txt.setAttribute('fill', '#f59e0b'); }
+                if (banner) banner.style.display = 'none';
+            }
+        }
+
+        /* ================= SLIDE 2: VIRTUAL DESKTOP 5 TRONG 1 ================= */
+        let currentMouseTaskIdx = 0;
+        let mouseTasksDone = [false, false, false, false, false];
+
+        const MOUSE_TASK_DESCS = [
+            "👉 Rê chuột di chuyển tự do trên mặt bàn để điều khiển con trỏ lướt trên màn hình nền!",
+            "👉 Dùng ngón trỏ NHÁY CHUỘT TRÁI vào một biểu tượng (ví dụ thư mục) để CHỌN biểu tượng đó!",
+            "👉 Dùng ngón giữa NHÁY NÚT PHẢI CHUỘT vào màn hình hoặc biểu tượng để mở Menu, rồi nháy ra ngoài để đóng!",
+            "👉 Nhấn giữ nút trái vào biểu tượng 'Tranh vẽ Em', kéo rê sang chỗ khác rồi thả ngón tay (Kéo thả chuột)!",
+            "👉 NHÁY ĐÚP CHUỘT vào biểu tượng Microsoft Word để mở phần mềm, sau đó nháy nút [✕] đỏ để đóng!"
+        ];
+
+        function switchMouseTask(taskIdx) {
+            soundClick();
+            currentMouseTaskIdx = taskIdx;
+            $$('.vd-task-tab').forEach((t, i) => t.classList.toggle('active', i === taskIdx));
+            const descEl = document.getElementById('mouseTaskInstruct');
+            if (descEl) descEl.textContent = MOUSE_TASK_DESCS[taskIdx];
+        }
+
+        function markMouseTaskCompleted(idx) {
+            if (mouseTasksDone[idx]) return;
+            mouseTasksDone[idx] = true;
+            soundCorrect();
+            addActiveStudentScore(20, 'desktop');
+            const tabs = $$('.vd-task-tab');
+            if (tabs[idx]) tabs[idx].classList.add('done');
+            
+            const doneCount = mouseTasksDone.filter(Boolean).length;
+            const prog = document.getElementById('mousePracProgress');
+            if (prog) prog.textContent = `Tiến độ: ${doneCount} / 5 Thao tác`;
+            toast(`🎉 Đã thành thạo Thao tác ${idx + 1}! (+20đ)`, 'ok');
+        }
+
+        function handleIconClick(el, ev) {
+            if (ev) ev.stopPropagation();
+            soundClick();
+            $$('.vd-item').forEach(i => i.classList.remove('selected'));
+            el.classList.add('selected');
+            const menu = document.getElementById('vdContextMenu');
+            if (menu) menu.style.display = 'none';
+            markMouseTaskCompleted(1);
+        }
+
+        function handleDesktopBlankClick(ev) {
+            $$('.vd-item').forEach(i => i.classList.remove('selected'));
+            const menu = document.getElementById('vdContextMenu');
+            if (menu && menu.style.display === 'block') {
+                menu.style.display = 'none';
+                toast('✅ Đã nháy chuột ra ngoài để đóng bảng chọn!', 'ok');
+                markMouseTaskCompleted(2);
+            }
+            const sm = document.getElementById('vdStartMenu');
+            if (sm && sm.style.display === 'flex' && !ev.target.closest('#vStartBtn, #vdStartMenu')) {
+                sm.style.display = 'none';
+            }
+            markMouseTaskCompleted(0);
+        }
+
+        const vViewport = document.getElementById('vDesktopViewport');
+        if (vViewport) {
+            vViewport.addEventListener('contextmenu', function (e) {
+                e.preventDefault();
+                const menu = document.getElementById('vdContextMenu');
+                if (!menu) return;
+                const rect = vViewport.getBoundingClientRect();
+                const x = Math.min(e.clientX - rect.left, rect.width - 200);
+                const y = Math.min(e.clientY - rect.top, rect.height - 180);
+                menu.style.left = `${x}px`;
+                menu.style.top = `${y}px`;
+                menu.style.display = 'block';
+                soundClick();
+                toast('🖱️ Đã mở Bảng chọn (Menu). Nháy ra khoảng trống để đóng lại!', 'ok');
+            });
+        }
+
+        function triggerContextAction(actName) {
+            soundClick();
+            const menu = document.getElementById('vdContextMenu');
+            if (menu) menu.style.display = 'none';
+            toast(`Đã chọn lệnh: ${actName}`, 'ok');
+            markMouseTaskCompleted(2);
+        }
+
+        const dragItem = document.getElementById('iconDrawing');
+        if (dragItem) {
+            let pointerDown = false;
+            let startX, startY;
+
+            dragItem.addEventListener('pointerdown', function (e) {
+                pointerDown = true;
+                const rect = dragItem.getBoundingClientRect();
+                startX = e.clientX - rect.left;
+                startY = e.clientY - rect.top;
+            });
+
+            window.addEventListener('pointermove', function (e) {
+                if (!pointerDown) return;
+                const vp = document.getElementById('vDesktopViewport');
+                if (!vp) return;
+                const vpRect = vp.getBoundingClientRect();
+                const x = e.clientX - vpRect.left - startX;
+                const y = e.clientY - vpRect.top - startY;
+                if (x >= 0 && x <= vpRect.width - 100 && y >= 0 && y <= vpRect.height - 100) {
+                    dragItem.style.left = `${x}px`;
+                    dragItem.style.top = `${y}px`;
+                }
+            });
+
+            window.addEventListener('pointerup', function () {
+                if (pointerDown) {
+                    pointerDown = false;
+                    markMouseTaskCompleted(3);
+                }
+            });
+        }
+
+        function openWordApp() {
+            soundCorrect();
+            const win = document.getElementById('vdWordWindow');
+            if (win) win.style.display = 'flex';
+            toast('📘 Đã nháy đúp chuột mở Microsoft Word!', 'ok');
+        }
+
+        function closeWordApp() {
+            soundClick();
+            const win = document.getElementById('vdWordWindow');
+            if (win) win.style.display = 'none';
+            toast('❌ Đã nháy chuột vào nút [✕] để đóng phần mềm Word an toàn!', 'ok');
+            markMouseTaskCompleted(4);
+        }
+
+        function toggleStartMenu(ev) {
+            if (ev) ev.stopPropagation();
+            soundClick();
+            const sm = document.getElementById('vdStartMenu');
+            if (!sm) return;
+            const isShown = sm.style.display === 'flex';
+            sm.style.display = isShown ? 'none' : 'flex';
+            const pf = document.getElementById('vdPowerFlyout');
+            if (pf) pf.style.display = 'none';
+        }
+
+        function togglePowerFlyout(ev) {
+            if (ev) ev.stopPropagation();
+            soundClick();
+            const pf = document.getElementById('vdPowerFlyout');
+            if (!pf) return;
+            pf.style.display = pf.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function executeShutdown() {
+            soundShutdown();
+            const pf = document.getElementById('vdPowerFlyout');
+            const sm = document.getElementById('vdStartMenu');
+            if (pf) pf.style.display = 'none';
+            if (sm) sm.style.display = 'none';
+            const curtain = document.getElementById('vdShutdownCurtain');
+            if (curtain) {
+                curtain.style.display = 'flex';
+                setTimeout(() => {
+                    curtain.innerHTML = `
+                        <div style="font-size:3.5rem;">🔌</div>
+                        <div style="font-size:1.8rem; font-weight:900; color:#22c55e; margin:10px 0;">MÁY TÍNH ĐÃ TẮT HOÀN TOÀN AN TOÀN!</div>
+                        <button class="btn primary" onclick="document.getElementById('vdShutdownCurtain').style.display='none'">Bật lại màn hình ảo</button>
+                    `;
+                }, 2000);
+            }
+        }
+
+        /* ================= SLIDE 3: 4 BƯỚC TẮT MÁY TÍNH ================= */
+        function performShutdownStep(step) {
+            soundClick();
+            const res = document.getElementById('shutdownStepResult');
+            const b1 = document.getElementById('stepBtn1');
+            const b2 = document.getElementById('stepBtn2');
+            const b3 = document.getElementById('stepBtn3');
+            const b4 = document.getElementById('stepBtn4');
+
+            if (step === 1) {
+                b1.disabled = true;
+                b2.disabled = false;
+                b2.className = 'btn primary';
+                res.innerHTML = '👉 Bước 1 thành công! Tiếp tục bấm chọn nút <strong>Power ⏻</strong> (Nguồn)!';
+            } else if (step === 2) {
+                b2.disabled = true;
+                b3.disabled = false;
+                b3.className = 'btn primary';
+                res.innerHTML = '👉 Bước 2 thành công! Bấm chọn dòng <strong>Shut down</strong> để tắt máy!';
+            } else if (step === 3) {
+                soundShutdown();
+                b3.disabled = true;
+                b4.disabled = false;
+                b4.className = 'btn primary';
+                res.innerHTML = '👉 Bước 3 thành công! Máy đã lưu bài và tắt hệ điều hành. Giờ hãy <strong>Tắt công tắc màn hình</strong>!';
+            } else if (step === 4) {
+                b4.disabled = true;
+                soundCorrect();
+                addActiveStudentScore(30, 'shutdown');
+                res.innerHTML = '🎉 <strong>XUẤT SẮC!</strong> Em đã hoàn thành quy trình 4 bước tắt máy tính chuẩn SGK! (+30đ)';
+                toast(`🌟 Chúc mừng ${currentStudent ? currentStudent.name : 'em'} đã tắt máy chuẩn 4 bước!`, 'ok');
+            }
+        }
+
+        /* ================= SLIDE 4: BÁC SĨ MÁY TÍNH ================= */
+        function judgeDoctorAction(isDanger) {
+            const fb = document.getElementById('doctorFeedback');
+            fb.style.display = 'block';
+            if (isDanger) {
+                soundCorrect();
+                fb.style.color = '#16a34a';
+                fb.innerHTML = '✅ <strong>ĐÚNG RỒI! ĐÂY LÀ HÀNH ĐỘNG NGUY HIỂM KHÔNG NÊN LÀM!</strong><br/>Rút phích cắm đột ngột sẽ làm sốc điện và hỏng linh kiện máy tính!';
+                addActiveStudentScore(25, 'safety');
+                toast(`🎉 Chính xác! +25đ cho ${currentStudent ? currentStudent.name : 'em'}!`, 'ok');
+            } else {
+                soundWrong();
+                fb.style.color = '#dc2626';
+                fb.innerHTML = '❌ Chưa đúng rồi! Tuyệt đối KHÔNG ĐƯỢC rút phích cắm khi máy đang chạy nhé!';
+            }
+        }
+
+        /* ================= SLIDE 6: PTNLS GỢI Ý ================= */
+        function toggleAnswerTip(idx) {
+            soundClick();
+            const el = document.getElementById(`ansTip${idx}`);
+            if (el) el.style.display = el.style.display === 'block' ? 'none' : 'block';
+        }
+
+        /* ================= SLIDE 7: LUYỆN TẬP SGK ================= */
+        function renderPracticeQuestion() {
+            const qData = PRACTICE_QUESTIONS[curPracticeIdx];
+            const qTitle = document.getElementById('practiceQuestionText');
+            const ansGrid = document.getElementById('practiceAnswersGrid');
+            const fbBox = document.getElementById('practiceFeedbackBox');
+            const stepBadge = document.getElementById('practiceStepBadge');
+            const btnNext = document.getElementById('btnNextPracticeQ');
+
+            if (!qData || !qTitle) return;
+            stepBadge.textContent = `Câu hỏi ${curPracticeIdx + 1} / ${PRACTICE_QUESTIONS.length}`;
+            qTitle.textContent = qData.q;
+            ansGrid.innerHTML = '';
+            fbBox.style.display = 'none';
+            if (btnNext) btnNext.style.display = 'none';
+
+            qData.opts.forEach((opt, idx) => {
+                const b = document.createElement('button');
+                b.className = 'quiz-opt-btn';
+                b.textContent = opt.t;
+                b.onclick = () => handlePracticeAnswer(idx, opt.ok, b);
+                ansGrid.appendChild(b);
+            });
+        }
+
+        function handlePracticeAnswer(optIdx, isOk, btnEl) {
+            const ansGrid = document.getElementById('practiceAnswersGrid');
+            const fbBox = document.getElementById('practiceFeedbackBox');
+            const btnNext = document.getElementById('btnNextPracticeQ');
+            const qData = PRACTICE_QUESTIONS[curPracticeIdx];
+
+            Array.from(ansGrid.children).forEach(b => b.disabled = true);
+
+            if (isOk) {
+                btnEl.classList.add('correct');
+                soundCorrect();
+                addActiveStudentScore(25);
+                fbBox.style.display = 'block';
+                fbBox.style.background = '#dcfce7';
+                fbBox.style.color = '#166534';
+                fbBox.textContent = qData.exp;
+                toast(`🎉 Đúng rồi! +25đ cho ${currentStudent ? currentStudent.name : 'em'}!`, 'ok');
+            } else {
+                btnEl.classList.add('wrong');
+                soundWrong();
+                fbBox.style.display = 'block';
+                fbBox.style.background = '#fee2e2';
+                fbBox.style.color = '#991b1b';
+                fbBox.textContent = 'Chưa chính xác! Hãy đọc lại câu hỏi thật kỹ nhé.';
+                qData.opts.forEach((o, i) => {
+                    if (o.ok && ansGrid.children[i]) ansGrid.children[i].classList.add('correct');
+                });
+            }
+
+            if (btnNext) btnNext.style.display = 'inline-flex';
+        }
+
+        function nextPracticeQuestion() {
+            curPracticeIdx++;
+            if (curPracticeIdx < PRACTICE_QUESTIONS.length) {
+                nextStudentQueue();
+                renderPracticeQuestion();
+            } else {
+                toast('🎉 Hoàn thành phần Luyện tập xuất sắc!', 'ok');
+                nextSlide();
+            }
+        }
+
+        /* ================= SLIDE 8: VẬN DỤNG 1 (THIS PC) ================= */
+        function triggerApplyRightClick(ev) {
+            if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+            soundClick();
+            const menu = document.getElementById('applyThisPCMenu');
+            const badge = document.getElementById('applyStatusBadge');
+            if (menu) menu.style.display = 'block';
+            if (badge) {
+                badge.style.background = '#dbeafe';
+                badge.style.color = '#1e40af';
+                badge.textContent = 'Đang mở menu';
+            }
+            toast('🖱️ Đã mở bảng chọn của This PC! Giờ hãy nháy chuột ra ngoài để đóng!', 'ok');
+        }
+
+        function handleApplyStageClick(ev) {
+            const menu = document.getElementById('applyThisPCMenu');
+            const badge = document.getElementById('applyStatusBadge');
+            if (menu && menu.style.display === 'block') {
+                menu.style.display = 'none';
+                soundCorrect();
+                if (badge) {
+                    badge.style.background = '#dcfce7';
+                    badge.style.color = '#166534';
+                    badge.textContent = 'Hoàn thành xuất sắc ✓';
+                }
+                addActiveStudentScore(30, 'desktop');
+                toast(`🎉 Tuyệt vời! Đã thực hiện đúng Vận dụng 1! (+30đ cho ${currentStudent ? currentStudent.name : 'em'})`, 'ok');
+            }
+        }
+
+        /* ================= PHÁO HOA & VINH DANH ================= */
+        function celebrateFireworks() {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+                setTimeout(() => {
+                    confetti({ particleCount: 100, spread: 100, origin: { x: 0.2, y: 0.5 } });
+                    confetti({ particleCount: 100, spread: 100, origin: { x: 0.8, y: 0.5 } });
+                }, 300);
+            }
+            soundCorrect();
+        }
+
+        function renderFinalRankings() {
+            const container = document.getElementById('finalRankings');
+            if (!container) return;
+            container.innerHTML = '';
+            const all = classStudents.map(s => studentData[s.name]);
+            const sorted = [...all].sort((a, b) => b.score - a.score);
+
+            const top3 = sorted.slice(0, 3);
+            top3.forEach((r, i) => {
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    background: #ffffff;
+                    color: #0f172a;
+                    border-radius: 16px;
+                    padding: 16px 22px;
+                    min-width: 170px;
+                    border: 3px solid ${i === 0 ? '#facc15' : i === 1 ? '#94a3b8' : '#b45309'};
+                    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+                `;
+                const trophy = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
+                const title = i === 0 ? 'QUÁN QUÂN' : i === 1 ? 'Á QUÂN' : 'HẠNG BA';
+
+                card.innerHTML = `
+                    <div style="font-size:2.8rem; line-height:1;">${trophy}</div>
+                    <div style="font-weight:900; font-size:1.35rem; margin:6px 0 2px; color:#1e3a8a;">${r.name}</div>
+                    <div style="font-size:0.85rem; font-weight:800; color:#64748b;">${title}</div>
+                    <div style="font-size:2.2rem; font-weight:900; color:#16a34a; margin-top:8px;">${r.score}đ</div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Thống kê chung cả lớp
+            const doneCount = all.filter(r => r.played).length;
+            const avg = doneCount > 0 ? Math.round(all.reduce((s, r) => s + r.score, 0) / doneCount) : 0;
+            const tEl = document.getElementById('sumTotalStudents');
+            const dEl = document.getElementById('sumDoneStudents');
+            const aEl = document.getElementById('sumAvgScore');
+            if (tEl) tEl.textContent = all.length;
+            if (dEl) dEl.textContent = doneCount;
+            if (aEl) aEl.textContent = `${avg}đ`;
+
+            celebrateFireworks();
+        }
+
+        /* ================= XUẤT CSV & LƯU GOOGLE DRIVE ================= */
+        function exportToExcel() {
+            const classDisplay = currentClassID.replace('_', '/');
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const dateStr = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+            const fileName = (typeof window.buildExportFileName === 'function')
+                ? window.buildExportFileName({ grade: 3, classId: currentClassID, lesson: '09' })
+                : `KetQua_TinHoc3_Lop_${currentClassID.replace(/[\/_]/g, '-')}_Tiet_09.csv`;
+
+            const all = classStudents.map(s => studentData[s.name]);
+            const sorted = [...all].sort((a, b) => b.score - a.score);
+
+            // Sheet 1: BẢNG ĐIỂM CÁ NHÂN TOÀN LỚP (CHUẨN THÔNG TƯ 27)
+            const scoreRows = [
+                ['BẢNG ĐIỂM CÁ NHÂN HỌC SINH - KHỐI 3'],
+                [`Bài: Tin Học 3 - Bài 4: Làm Việc Với Máy Tính (Tiết 3) | Lớp: ${classDisplay} | Thời gian: ${dateStr}`],
+                [''],
+                ['STT', 'Mã Học Sinh', 'Họ Và Tên', 'Lớp', 'Điểm Số Cá Nhân', 'Bật Máy Tính', 'Thao Tác Desktop', 'Tắt Máy 4 Bước', 'An Toàn Thiết Bị', 'Xếp Loại / Đánh Giá']
+            ];
+
+            sorted.forEach((r, idx) => {
+                const evalText = r.score >= 90 ? 'Hoàn thành Tốt (Xuất sắc)' : (r.score >= 70 ? 'Hoàn thành Tốt' : (r.played ? 'Hoàn thành' : 'Chưa kiểm tra'));
+                scoreRows.push([
+                    idx + 1,
+                    `HS${String(r.stt).padStart(3, '0')}`,
+                    r.name,
+                    classDisplay,
+                    r.played ? `${r.score}đ` : '—',
+                    r.skills.boot ? 'Đạt ✓' : 'Chưa',
+                    r.skills.desktop ? 'Đạt ✓' : 'Chưa',
+                    r.skills.shutdown ? 'Đạt ✓' : 'Chưa',
+                    r.skills.safety ? 'Đạt ✓' : 'Chưa',
+                    evalText
+                ]);
+            });
+
+            // Sheet 2: NHẬT KÝ CHI TIẾT
+            const logRows = [
+                ['NHẬT KÝ HOẠT ĐỘNG VÀ ĐIỂM SỐ TIẾT HỌC'],
+                [`Lớp: ${classDisplay} | Tổng số lượt ghi nhận: ${lessonLogs.length}`],
+                [''],
+                ['STT', 'Thời Gian', 'Học Sinh Đại Diện', 'Nội Dung Hoạt Động', 'Kết Quả', 'Điểm Thay Đổi', 'Điểm Sau Cùng']
+            ];
+            if (lessonLogs.length === 0) {
+                logRows.push([1, `${pad(now.getHours())}:${pad(now.getMinutes())}`, 'Cả lớp', 'Bắt đầu tiết học', 'Sẵn sàng', '100đ', '100đ']);
+            } else {
+                lessonLogs.forEach((item, idx) => {
+                    logRows.push([idx + 1, item.time, item.student, item.action, item.result, item.result, item.scoreAfter]);
+                });
+            }
+
+            const sections = [
+                ['Bảng Điểm Cá Nhân', scoreRows],
+                ['Nhật Ký Chi Tiết', logRows]
+            ];
+
+            if (typeof uploadCsvToDrive === 'function') {
+                uploadCsvToDrive(sections, fileName);
+                return;
+            }
+            if (window.LessonExport) {
+                LessonExport.download(sections, fileName);
+                toast(`📥 Đã lưu file CSV: ${fileName}`, 'ok');
+            }
+        }
+
+        /* ================= NẠP DANH SÁCH LỚP & CHẤM ĐIỂM ================= */
+        async function loadClassData(classId) {
+            currentClassID = classId;
+            const sel = document.getElementById('classSelect');
+            if (sel) sel.value = classId;
+
+            let names = FALLBACK_STUDENTS[classId] || [];
+            try {
+                const res = await fetch('../../assets/data/students_3_2026_2027.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data[classId]) names = data[classId];
+                }
+            } catch (e) { }
+
+            classStudents = names.map((name, idx) => ({ id: idx + 1, name: name }));
+            studentData = {};
+            classStudents.forEach(s => {
+                studentData[s.name] = {
+                    stt: s.id,
+                    name: s.name,
+                    score: START_SCORE,
+                    played: false,
+                    skills: { boot: false, desktop: false, shutdown: false, safety: false, quiz: false }
+                };
+            });
+
+            currentStudent = studentData[names[0]] || null;
+            updateActiveStudentCard();
+            renderStudentRoster();
+            updateTurnLabels();
+        }
+
+        function renderStudentRoster() {
+            const container = document.getElementById('studentRosterContainer');
+            if (!container) return;
+
+            const q = (document.getElementById('search-student')?.value || '').toLowerCase().trim();
+            const all = classStudents.map(s => studentData[s.name]);
+            const doneCount = all.filter(r => r.played).length;
+
+            const badge = document.getElementById('slpStatsBadge');
+            if (badge) badge.textContent = `${doneCount}/${all.length} Đã xong`;
+
+            const list = q ? all.filter(r => r.name.toLowerCase().includes(q)) : all;
+
+            container.innerHTML = list.map(r => {
+                const isActive = currentStudent && currentStudent.name === r.name;
+                const rowCls = isActive ? 'is-active' : (r.played ? 'is-done' : '');
+                const scoreDisplay = r.played ? `${r.score}đ` : '—';
+                const safeName = r.name.replace(/'/g, "\\'");
+
+                return `
+                    <div class="student-item-row ${rowCls}" onclick="selectStudentFromList('${safeName}')">
+                        <div class="sir-left">
+                            <span class="sir-stt">${r.stt}.</span>
+                            <span class="sir-name">${r.name}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span class="sir-score ${r.played ? '' : 'empty'}">${scoreDisplay}</span>
+                            <button class="btn" style="padding:2px 6px; font-size:0.75rem; background:#dcfce7; color:#166534; font-weight:900;" onclick="event.stopPropagation(); selectStudentFromList('${safeName}'); addActiveStudentScore(10);" title="Thưởng +10đ">+10</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterStudents() {
+            renderStudentRoster();
+        }
+
+        function changeClass(cid) {
+            loadClassData(cid);
+        }
+
+        function toast(msg, cls = '') {
+            const d = document.createElement('div');
+            d.className = `toast-item ${cls}`;
+            d.textContent = msg;
+            const box = document.getElementById('toasts');
+            if (box) {
+                box.appendChild(d);
+                setTimeout(() => d.remove(), 2600);
+            }
+        }
+
+        /* ================= SETUP MODAL ================= */
+        let startConfig = { class: '3_2' };
+
+        function pickStart(kind, val, el) {
+            soundClick();
+            startConfig[kind] = val;
+            el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+            el.classList.add('on');
+        }
+
+        function confirmStart() {
+            soundClick();
+            ensureAudio();
+            const scInput = document.getElementById('startScoreInput');
+            if (scInput) START_SCORE = parseInt(scInput.value, 10) || 100;
+
+            loadClassData(startConfig.class);
+
+            const scr = document.getElementById('startScreen');
+            if (scr) scr.classList.add('hidden');
+            toast('🚀 Tiết học đã bắt đầu! Mời các em lên lấy điểm cá nhân!', 'ok');
+        }
+
+        /* ================= KHỞI ĐỘNG TRANG ================= */
+        window.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            const dateStr = `Ngày ${now.getDate()} tháng ${now.getMonth() + 1} năm ${now.getFullYear()}`;
+            const dtEl = document.getElementById('lessonDateDisplay');
+            if (dtEl) dtEl.textContent = dateStr;
+
+            const clockEl = document.getElementById('vdLiveClock');
+            if (clockEl) {
+                setInterval(() => {
+                    const d = new Date();
+                    clockEl.textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+                }, 1000);
+            }
+
+            renderWarmupQuestion();
+            renderPracticeQuestion();
+            updateCopyTimerUI();
+            showSlide(0);
+        });
+    </script>
+</body>
+
+</html>
