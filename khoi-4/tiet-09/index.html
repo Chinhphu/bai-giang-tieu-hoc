@@ -897,7 +897,7 @@ $('#skipBtn').onclick = () => {
 };
 
 /* ===== 7. QUẢN LÝ ĐIỂM CÁC TỔ (NHẬP PHÍM TRỰC TIẾP & NÚT PHẠT ỒN -10%) ===== */
-let numTeams = 4, scores = [0, 0, 0, 0], students = [];
+let numTeams = 4, scores = [100, 100, 100, 100], students = [];
 const FALLBACK = ["Nguyễn Trung An","Hồ Nhật Anh","Lý Ngọc Hà Anh","Tống Nguyễn Bảo Anh","Trần Lưu Ngọc Anh","Trần Mai Mỹ Anh","Trần Ngọc Vy Anh","Bùi Ngọc Bích","Nguyễn Minh Châu","Trần Bảo Châu","Vũ Hoàng Kim Chi","Đoàn Quang Trí Dũng","Nguyễn Minh Đạt","Hồ Minh Đức","Hà Thu Hòa","Trần Anh Hòa","Nguyễn Lê Khang","Phạm Tuấn Khang","Nguyễn Minh Khôi","Huỳnh Nhật Ngọc Lâm","Ngô Hoàng Long","Trần Minh Mẫn","Dương Ngọc Quý Minh","Nguyễn Dương Minh Minh","Phạm Ngọc Khánh My","Dương Khánh Nam","Phan Kim Ngân","Huỳnh Phương Yến Ngọc","Hoàng Phúc Nha","Phan Võ Minh Nhân","Lâm Thành Nhật","Nguyễn Huỳnh Như","Lăng Nguyễn Hồng Nhung","Trần Đức Phát","Quách Gia Phú","Ngô Quang Phúc","Nguyễn Lê Đại Phúc","Nguyễn Xuân Phúc","Đặng Nguyễn Phương Quỳnh","Tạ Anh Thy","Huỳnh Lâm Mộc Trà","Trần Cao Thanh Trà","Trần Minh Triết","Lê Hoàng Phú Trọng","Nguyễn Phú Trọng","Danh Thanh Vân","Nguyễn Ngọc Bạch Vân","La Tường Vi","Đặng Ngọc Vy","Lê Trần Phương Vy"];
 
 for (let i = 1; i <= 6; i++) $('#cls').add(new Option('4/' + i, '4_' + i));
@@ -961,7 +961,7 @@ $('#cls').onchange = e => loadClass(e.target.value);
 
 $('#nTeams').onchange = e => {
   const n = +e.target.value;
-  scores = Array.from({ length: n }, (_, i) => scores[i] || 0);
+  scores = Array.from({ length: n }, (_, i) => scores[i] ?? 100);
   numTeams = n;
   updateActiveMissions();
   if (curTree) drawGame();
@@ -974,16 +974,78 @@ $('#nRounds').onchange = () => {
 };
 
 /* ===== 8. MÀN 4: BẢNG VÀNG & ĐỒNG BỘ GOOGLE DRIVE ===== */
+function getRankedTeams() {
+  const list = scores.map((s, i) => {
+    const okCnt = activeMissions.filter((_, idx) => turnTeam(idx) === i && status[idx] === 'ok').length;
+    return { i, s, okCnt };
+  });
+
+  // Sắp xếp: Điểm cao xếp trước; nếu điểm bằng nhau thì số nhiệm vụ đạt nhiều hơn xếp trước
+  list.sort((a, b) => (b.s !== a.s ? b.s - a.s : b.okCnt - a.okCnt));
+
+  // Gán thứ hạng chuẩn thi đấu có xử lý trường hợp bằng điểm
+  for (let k = 0; k < list.length; k++) {
+    if (k > 0) {
+      const prev = list[k - 1];
+      const cur = list[k];
+      if (cur.s === prev.s && cur.okCnt === prev.okCnt) {
+        cur.rank = prev.rank;
+        cur.isTie = true;
+        prev.isTie = true;
+      } else {
+        cur.rank = k + 1;
+        cur.isTie = false;
+      }
+    } else {
+      list[0].rank = 1;
+      list[0].isTie = false;
+    }
+  }
+
+  list.forEach(item => {
+    if (item.rank === 1) {
+      item.title = item.isTie ? 'Đồng Quán quân' : 'Quán quân';
+      item.icon = '👑';
+    } else if (item.rank === 2) {
+      item.title = item.isTie ? 'Đồng Á quân' : 'Á quân';
+      item.icon = '🥈';
+    } else if (item.rank === 3) {
+      item.title = item.isTie ? 'Đồng Hạng ba' : 'Hạng ba';
+      item.icon = '🥉';
+    } else {
+      item.title = 'Khuyến khích';
+      item.icon = '⭐';
+    }
+  });
+
+  return list;
+}
+
 function drawPodium() {
-  const sorted = scores.map((s, i) => ({ s, i })).sort((a, b) => b.s - a.s);
-  const cfg = [[1, '🥈', 'Á quân'], [0, '👑', 'Quán quân'], [2, '🥉', 'Hạng ba']];
-  $('#podium').innerHTML = cfg.map(([k, ic, tt]) => sorted[k] ? `
-    <div class="pod" style="margin-bottom:${k === 0 ? 30 : k === 1 ? 10 : 0}px">
-      <div style="font-size:2.4rem">${ic}</div>
-      <div style="font-weight:900;font-size:1.2rem">Tổ ${sorted[k].i + 1}</div>
-      <div style="font-weight:900;font-size:1.7rem;color:var(--purple)">${sorted[k].s} điểm</div>
-      <small style="font-weight:800;color:#64748b">${tt}</small>
-    </div>` : '').join('');
+  const ranked = getRankedTeams();
+  const topTeams = ranked.filter(t => t.rank <= 3);
+  let displayOrder = [...topTeams];
+  const hasTie1 = topTeams.filter(t => t.rank === 1).length > 1;
+
+  if (!hasTie1 && topTeams.length >= 2) {
+    const r1 = topTeams.find(t => t.rank === 1);
+    const r2 = topTeams.find(t => t.rank === 2);
+    const r3 = topTeams.find(t => t.rank === 3);
+    displayOrder = [r2, r1, r3].filter(Boolean);
+  }
+
+  $('#podium').innerHTML = displayOrder.map(team => {
+    const isRank1 = team.rank === 1;
+    const isRank2 = team.rank === 2;
+    const mb = isRank1 ? 30 : isRank2 ? 12 : 0;
+    return `
+    <div class="pod" style="margin-bottom:${mb}px;border-color:${isRank1 ? 'var(--yellow)' : 'var(--ink)'}">
+      <div style="font-size:2.4rem">${team.icon}</div>
+      <div style="font-weight:900;font-size:1.2rem">Tổ ${team.i + 1}</div>
+      <div style="font-weight:900;font-size:1.7rem;color:var(--purple)">${team.s} điểm</div>
+      <small style="font-weight:800;color:#64748b">${team.title}${team.isTie ? ' (Đồng hạng)' : ''}</small>
+    </div>`;
+  }).join('');
   $('#stDone').textContent = `${doneCnt}/${activeMissions.length}`;
   const tries = doneCnt + totalMistakes;
   $('#stAcc').textContent = tries ? Math.round(doneCnt / tries * 100) + '%' : '100%';
@@ -995,11 +1057,11 @@ function reportData() {
     ['KẾT QUẢ THI ĐUA CÁC TỔ – BÀI 5: THAO TÁC VỚI TỆP VÀ THƯ MỤC (TIẾT 1)'],
     [`Lớp: ${cl} – Ngày thực hành: ${day}`],
     [],
-    ['Hạng', 'Tổ', 'Tổng điểm', 'Số nhiệm vụ đạt', 'Ghi chú']
+    ['Hạng', 'Tổ', 'Tổng điểm', 'Số nhiệm vụ đạt', 'Danh hiệu thi đua']
   ];
-  scores.map((s, i) => ({ s, i })).sort((a, b) => b.s - a.s).forEach((x, k) => {
-    const teamMissionsOk = activeMissions.filter((_, idx) => turnTeam(idx) === x.i && status[idx] === 'ok').length;
-    teamRows.push([k + 1, 'Tổ ' + (x.i + 1), x.s, teamMissionsOk, k === 0 ? 'Xuất sắc' : 'Hoàn thành tốt']);
+  getRankedTeams().forEach(x => {
+    const rankLabel = x.isTie ? `${x.rank} (Đồng hạng)` : `${x.rank}`;
+    teamRows.push([rankLabel, 'Tổ ' + (x.i + 1), x.s, x.okCnt, x.title]);
   });
 
   const stRows = [

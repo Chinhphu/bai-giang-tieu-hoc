@@ -1,0 +1,2239 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bài 5: Thao tác với tệp và thư mục (Tiết 2) – Tin học 4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;700;800;900&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="../shared/components.js"></script>
+    <script src="../../shared/js/prevent-reload.js"></script>
+    <style>
+        :root {
+            --ink: #14213d;
+            --paper: #ffffff;
+            --bg: #f4efe6;
+            --coral: #e0453a;
+            --green: #16a34a;
+            --yellow: #ffd23f;
+            --blue: #2563eb;
+            --purple: #6d4fd1;
+            --folder: #f5b82e;
+            --file: #6bb7e6;
+            --line: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            display: flex;
+            flex-direction: column
+        }
+
+        button,
+        select,
+        input {
+            font: inherit
+        }
+
+        button {
+            font-weight: 800;
+            border: 2px solid var(--ink);
+            background: #fff;
+            border-radius: 10px;
+            padding: 7px 14px;
+            cursor: pointer;
+            color: var(--ink);
+            transition: all .15s ease
+        }
+
+        button:hover:enabled {
+            background: #fff3c4;
+            transform: translateY(-1px)
+        }
+
+        button:active:enabled {
+            transform: translateY(1px)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed
+        }
+
+        .go {
+            background: var(--green);
+            color: #fff;
+            border-color: #14532d
+        }
+
+        .go:hover:enabled {
+            background: #15803d
+        }
+
+        .warn {
+            background: var(--coral);
+            color: #fff;
+            border-color: #991b1b
+        }
+
+        .warn:hover:enabled {
+            background: #b91c1c
+        }
+
+        .noise-btn {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #ef4444;
+            font-size: .82rem;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-weight: 900
+        }
+
+        .noise-btn:hover:enabled {
+            background: #fca5a5
+        }
+
+        .info {
+            background: #eff6ff;
+            color: var(--blue);
+            border-color: var(--blue)
+        }
+
+        .info:hover:enabled {
+            background: #dbeafe
+        }
+
+        .sm {
+            padding: 5px 10px;
+            font-size: .86rem;
+            border-radius: 8px
+        }
+
+        select,
+        input[type=text] {
+            font-weight: 700;
+            padding: 5px 8px;
+            border-radius: 8px;
+            border: 2px solid var(--ink);
+            background: #fff
+        }
+
+        .score-input {
+            width: 68px;
+            font-weight: 900;
+            font-size: 1.25rem;
+            text-align: center;
+            border: 2px solid var(--line);
+            border-radius: 8px;
+            padding: 3px 4px;
+            background: #f8fafc;
+            color: var(--purple)
+        }
+
+        .score-input:focus {
+            border-color: var(--blue);
+            background: #fff;
+            outline: none
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: var(--ink);
+            color: #fff;
+            flex-wrap: wrap
+        }
+
+        header h1 {
+            font-size: 1.15rem;
+            margin: 0;
+            flex: 1;
+            min-width: 260px
+        }
+
+        header label {
+            font-size: .88rem;
+            font-weight: 700
+        }
+
+        nav {
+            display: flex;
+            gap: 6px;
+            padding: 8px 14px 0;
+            background: var(--bg)
+        }
+
+        nav button {
+            border-radius: 10px 10px 0 0;
+            border-bottom: none
+        }
+
+        nav button.on {
+            background: var(--ink);
+            color: #fff
+        }
+
+        .layout {
+            flex: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 280px;
+            gap: 12px;
+            padding: 0 14px 14px;
+            min-height: 0
+        }
+
+        main {
+            min-height: 0;
+            overflow: auto
+        }
+
+        .screen {
+            display: none
+        }
+
+        .screen.on {
+            display: block
+        }
+
+        .card {
+            background: var(--paper);
+            border: 3px solid var(--ink);
+            border-radius: 16px;
+            padding: 16px
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.35rem
+        }
+
+        /* ===== 1. VỞ GHI TIỂU HỌC (GIỐNG TIẾT 9: SẠCH SẼ, KHÔNG CẦU KỲ MÀU MÈ) ===== */
+        #boardWrap {
+            background: #fff;
+            border: 3px solid var(--ink);
+            border-radius: 16px;
+            padding: 24px 30px;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .board-date {
+            font-size: 1.15rem;
+            font-style: italic;
+            font-weight: 700;
+            color: #475569;
+            text-align: center;
+            margin-bottom: 6px
+        }
+
+        .board-subject {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: var(--coral);
+            text-align: center;
+            margin-bottom: 10px
+        }
+
+        .board-title {
+            font-size: 1.7rem;
+            font-weight: 900;
+            text-align: center;
+            line-height: 1.4;
+            color: var(--ink);
+            margin-bottom: 12px
+        }
+
+        /* ===== 2. KHỞI ĐỘNG: ÔN TẬP NHỚ KIẾN THỨC ===== */
+        .relic-map {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(90deg, #fef3c7, #dcfce7);
+            border: 3px solid var(--ink);
+            border-radius: 16px;
+            padding: 16px 24px;
+            margin-bottom: 14px;
+            position: relative
+        }
+
+        .relic-stop {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            z-index: 2;
+            cursor: pointer
+        }
+
+        .relic-circle {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #fff;
+            border: 3px solid var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 900;
+            transition: all .25s ease
+        }
+
+        .relic-stop.active .relic-circle {
+            background: var(--yellow);
+            transform: scale(1.15);
+            box-shadow: 0 0 0 4px rgba(255, 210, 63, .5)
+        }
+
+        .relic-stop.done .relic-circle {
+            background: var(--green);
+            color: #fff
+        }
+
+        .relic-line {
+            position: absolute;
+            left: 45px;
+            right: 45px;
+            top: 42px;
+            height: 6px;
+            background: var(--ink);
+            z-index: 1
+        }
+
+        .quiz-box {
+            background: #f8fafc;
+            border: 2px solid var(--blue);
+            border-radius: 14px;
+            padding: 18px
+        }
+
+        .quiz-q {
+            font-size: 1.32rem;
+            font-weight: 900;
+            margin-bottom: 16px;
+            color: var(--ink);
+            line-height: 1.45
+        }
+
+        .quiz-opts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px
+        }
+
+        .quiz-opt {
+            text-align: left;
+            font-size: 1.1rem;
+            padding: 14px 16px;
+            border-radius: 12px;
+            background: #fff;
+            border: 2px solid var(--line);
+            cursor: pointer;
+            line-height: 1.35
+        }
+
+        .quiz-opt:hover {
+            border-color: var(--blue);
+            background: #eff6ff
+        }
+
+        .quiz-opt.correct {
+            background: #dcfce7 !important;
+            border-color: var(--green) !important;
+            color: #14532d;
+            font-weight: 900
+        }
+
+        .quiz-opt.wrong {
+            background: #fee2e2 !important;
+            border-color: var(--coral) !important;
+            color: #991b1b
+        }
+
+        .quiz-complete-banner {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            border: 3px solid var(--green);
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            margin-top: 14px;
+            animation: animPulseSuccess .8s ease
+        }
+
+        /* ===== 3. THỰC HÀNH COMBO QUEST & ĐỒNG HỒ ĐẾM GIỜ ===== */
+        .conn-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 2px solid var(--line);
+            background: #f8fafc;
+            flex-wrap: wrap
+        }
+
+        .conn-bar.ok {
+            background: #f0fdf4;
+            border-color: #86efac;
+            color: #166534
+        }
+
+        .conn-bar.bad {
+            background: #fef2f2;
+            border-color: #fca5a5;
+            color: #991b1b
+        }
+
+        .conn-bar.warn {
+            background: #fffbeb;
+            border-color: #fde68a;
+            color: #92400e
+        }
+
+        .conn-status {
+            font-weight: 900;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px
+        }
+
+        .top-bar-quest {
+            display: grid;
+            grid-template-columns: 1fr 310px;
+            gap: 12px;
+            margin-bottom: 10px
+        }
+
+        /* KHỐI HIỆN ĐỀ BÀI: GỌN GÀNG, KHÔNG LẶP LẠI */
+        .quest-box {
+            background: #f0fdf4;
+            border: 3px solid var(--green);
+            border-radius: 14px;
+            padding: 14px 16px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 10px
+        }
+
+        .quest-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px
+        }
+
+        .team-pill {
+            display: inline-block;
+            background: var(--coral);
+            color: #fff;
+            font-size: .92rem;
+            font-weight: 900;
+            padding: 4px 12px;
+            border-radius: 99px;
+            letter-spacing: .5px
+        }
+
+        .combo-pill {
+            display: inline-block;
+            background: var(--purple);
+            color: #fff;
+            font-size: .88rem;
+            font-weight: 900;
+            padding: 4px 12px;
+            border-radius: 99px
+        }
+
+        .quest-summary-text {
+            font-size: 1.25rem;
+            font-weight: 900;
+            line-height: 1.45;
+            color: var(--ink);
+            background: #fff;
+            border: 2px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 14px
+        }
+
+        .combo-steps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .combo-step-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fff;
+            border: 2px solid var(--line);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-weight: 800;
+            font-size: .95rem
+        }
+
+        .combo-step-item.done {
+            background: #dcfce7;
+            border-color: var(--green);
+            color: #14532d
+        }
+
+        .combo-step-badge {
+            font-size: .8rem;
+            font-weight: 900;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: #e2e8f0;
+            color: #334155;
+            white-space: nowrap
+        }
+
+        .combo-step-item.done .combo-step-badge {
+            background: var(--green);
+            color: #fff
+        }
+
+        /* ===== ĐỒNG HỒ ĐẾM NGƯỢC (TIMER) CÓ NÚT SẴN SÀNG ===== */
+        .timer-card {
+            background: #ffffff;
+            border: 3px solid var(--ink);
+            border-radius: 14px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .timer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .timer-display {
+            font-size: 2.1rem;
+            font-weight: 900;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 1px;
+            color: var(--ink);
+            transition: color .3s ease
+        }
+
+        .timer-display.ready {
+            color: var(--blue)
+        }
+
+        .timer-display.warn {
+            color: #d97706;
+            animation: animPulseSuccess .6s infinite alternate
+        }
+
+        .timer-display.danger {
+            color: var(--coral);
+            animation: animShakeError .5s infinite
+        }
+
+        .timer-progress {
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 99px;
+            overflow: hidden;
+            position: relative
+        }
+
+        .timer-progress-bar {
+            height: 100%;
+            background: var(--green);
+            width: 100%;
+            transition: width 1s linear, background-color .4s ease
+        }
+
+        .btn-ready-start {
+            width: 100%;
+            background: var(--green);
+            color: #fff;
+            border-color: #14532d;
+            font-size: 1rem;
+            padding: 8px 12px;
+            border-radius: 10px
+        }
+
+        .btn-ready-start:hover:enabled {
+            background: #15803d
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 6px;
+            justify-content: center
+        }
+
+        /* SƠ ĐỒ CÂY SVG GỌN GÀNG, KHÔNG BỂ FORM */
+        .treebox {
+            background: #fff;
+            border: 2px solid var(--line);
+            border-radius: 14px;
+            padding: 8px;
+            overflow-x: auto;
+            transition: all .3s ease
+        }
+
+        .treebox svg {
+            display: block;
+            width: 100%;
+            height: auto;
+            min-width: 520px;
+            max-height: 50vh
+        }
+
+        .edge {
+            fill: none;
+            stroke: #9a927a;
+            stroke-width: 2.8
+        }
+
+        .node {
+            cursor: pointer
+        }
+
+        .node rect {
+            stroke: var(--ink);
+            stroke-width: 2.5;
+            transition: all .2s ease
+        }
+
+        .node.folder rect {
+            fill: var(--folder)
+        }
+
+        .node.file rect {
+            fill: var(--file)
+        }
+
+        .node.mark rect {
+            stroke: var(--green);
+            stroke-width: 5;
+            filter: drop-shadow(0 2px 6px rgba(22, 163, 74, .4))
+        }
+
+        .node.flash rect {
+            stroke: var(--coral);
+            stroke-width: 5;
+            fill: #fee2e2;
+            stroke-dasharray: 5 3
+        }
+
+        .node text {
+            font-size: 14px;
+            font-weight: 800;
+            fill: var(--ink);
+            pointer-events: none
+        }
+
+        .nocl .node {
+            cursor: default
+        }
+
+        @keyframes animPulseSuccess {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(22, 163, 74, .7);
+            }
+
+            50% {
+                transform: scale(1.015);
+                box-shadow: 0 0 0 10px rgba(22, 163, 74, 0);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+            }
+        }
+
+        @keyframes animShakeError {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            60% {
+                transform: translateX(-8px);
+            }
+
+            40%,
+            80% {
+                transform: translateX(8px);
+            }
+        }
+
+        .tree-anim-success {
+            animation: animPulseSuccess .7s ease;
+            border-color: var(--green) !important
+        }
+
+        .tree-anim-error {
+            animation: animShakeError .5s ease;
+            border-color: var(--coral) !important
+        }
+
+        .chip {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 99px;
+            border: 2px solid var(--line);
+            font-weight: 800;
+            font-size: .85rem;
+            background: #fff;
+            margin: 0 4px 4px 0;
+            cursor: pointer
+        }
+
+        .chip:hover {
+            background: #f1f5f9
+        }
+
+        .chip.ok {
+            background: #d7f2e0;
+            border-color: var(--green);
+            color: #14532d
+        }
+
+        .chip.cur {
+            background: #dbeafe;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 2px var(--blue);
+            color: var(--blue)
+        }
+
+        .chip.skip {
+            background: #eee;
+            color: #888
+        }
+
+        .msg {
+            margin-top: 10px;
+            min-height: 3.2em;
+            font-weight: 800;
+            font-size: 1.08rem;
+            border-radius: 12px;
+            padding: 10px 14px;
+            background: #eee9d9;
+            line-height: 1.5
+        }
+
+        .msg.ok {
+            background: #d7f2e0;
+            color: #14532d;
+            border: 2px solid #86efac
+        }
+
+        .msg.bad {
+            background: #fde0dd;
+            color: #8a1c14;
+            border: 2px solid #fca5a5
+        }
+
+        .msg.hint {
+            background: #dbeafe;
+            color: #1e3a8a;
+            border: 2px solid #93c5fd
+        }
+
+        aside {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow: auto;
+            min-height: 0
+        }
+
+        .team {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 10px;
+            border: 2px solid var(--line);
+            border-radius: 10px;
+            background: #fff;
+            margin-bottom: 8px;
+            font-weight: 900
+        }
+
+        .team.turn {
+            background: #fff3c4;
+            border-color: var(--folder);
+            box-shadow: 0 0 0 2px var(--folder)
+        }
+
+        .team .n {
+            flex: 1;
+            font-size: 1.05rem
+        }
+
+        .podium {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin: 18px 0
+        }
+
+        .pod {
+            background: var(--paper);
+            border: 3px solid var(--ink);
+            border-radius: 16px;
+            padding: 14px 22px;
+            min-width: 160px;
+            text-align: center
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px
+        }
+
+        .stat {
+            background: #fff;
+            border: 2px solid var(--line);
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center
+        }
+
+        .stat b {
+            display: block;
+            font-size: 1.8rem;
+            color: var(--purple)
+        }
+
+        @media(max-width:960px) {
+
+            .layout,
+            .top-bar-quest,
+            .quiz-opts {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>📁 Bài 5: Thao tác với tệp và thư mục (Tiết 2) – Tin học 4</h1>
+        <label>Lớp <select id="cls"></select></label>
+        <label>Số tổ <select id="nTeams"></select></label>
+        <label>Thời gian mỗi Combo:
+            <select id="selComboTime">
+                <option value="120">2 phút</option>
+                <option value="180" selected>3 phút (Chuẩn ⭐)</option>
+                <option value="240">4 phút</option>
+                <option value="300">5 phút</option>
+            </select>
+        </label>
+        <label>Số vòng chơi <select id="nRounds">
+                <option value="2">2 vòng chơi</option>
+                <option value="3" selected>3 vòng chơi (Trọn bộ combo SGK)</option>
+            </select></label>
+    </header>
+
+    <nav>
+        <button data-go="1" class="on">✍️ Vở ghi</button>
+        <button data-go="2">🗺️ Khởi động: Mảnh ghép tri thức</button>
+        <button data-go="3">🔥 Thực hành Combo (SGK)</button>
+        <button data-go="4">🏆 Bảng vàng</button>
+    </nav>
+
+    <div class="layout">
+        <main>
+            <!-- 1. VỞ GHI TIẾT 2: GIAO DIỆN SẠCH SẼ NHƯ TIẾT 9, CHỈ GHI TIÊU ĐỀ BÀI -->
+            <section class="screen on" id="s1">
+                <div class="card">
+                    <div id="boardWrap">
+                        <div class="board-date" id="boardDate">Thứ ..., ngày ... tháng ... năm ...</div>
+                        <div class="board-subject">MÔN: TIN HỌC · KHỐI 4</div>
+                        <div class="board-title">BÀI 5: THAO TÁC VỚI TỆP VÀ THƯ MỤC (Tiết 2)</div>
+                    </div>
+
+                    <div style="text-align:right;margin-top:14px">
+                        <button class="go" data-go="2">Sang Khởi động: Mảnh ghép tri thức ▶</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. KHỞI ĐỘNG: ÔN TẬP NHỚ KIẾN THỨC & CÓ LOG HỌC SINH (KHÔNG GÁN TỔ) -->
+            <section class="screen" id="s2">
+                <div class="card">
+                    <h2>🗺️ Khởi động: Mảnh Ghép Tri Thức (Nhớ Lại Tiết 1)</h2>
+                    <p style="margin:0 0 14px;font-weight:700;color:#475569">
+                        Cả lớp cùng nhau vượt qua 4 câu hỏi trắc nghiệm nhanh để nhớ lại kiến thức Tiết 1 trước khi bước vào Thực hành Combo trên máy tính nhé!
+                    </p>
+
+                    <div class="relic-map">
+                        <div class="relic-line"></div>
+                        <div class="relic-stop active" data-step="0">
+                            <div class="relic-circle">1</div>
+                            <span style="font-weight:900;font-size:.9rem">Trạm 1</span>
+                        </div>
+                        <div class="relic-stop" data-step="1">
+                            <div class="relic-circle">2</div>
+                            <span style="font-weight:900;font-size:.9rem">Trạm 2</span>
+                        </div>
+                        <div class="relic-stop" data-step="2">
+                            <div class="relic-circle">3</div>
+                            <span style="font-weight:900;font-size:.9rem">Trạm 3</span>
+                        </div>
+                        <div class="relic-stop" data-step="3">
+                            <div class="relic-circle">4</div>
+                            <span style="font-weight:900;font-size:.9rem">Đích đến</span>
+                        </div>
+                    </div>
+
+                    <div class="quiz-box">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+                            <span id="qStepTag" style="font-weight:900;color:var(--blue);font-size:1.05rem">CÂU HỎI 1 / 4</span>
+                            <!-- CHỌN HỌC SINH ĐỂ GHI LOG (KHÔNG GÁN TỔ THI ĐUA) -->
+                            <label style="font-weight:800;font-size:.92rem">👤 Học sinh xung phong/gọi tên:
+                                <select id="quizStudentPick" style="margin-left:4px">
+                                    <option value="">-- Cả lớp cùng làm / Gọi tên --</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div class="quiz-q" id="quizQuestion"></div>
+                        <div class="quiz-opts" id="quizOptions"></div>
+                        <div class="msg hint" id="quizFeedback" style="margin-top:14px">
+                            Bấm chọn vào đáp án em cho là đúng nhất!
+                        </div>
+
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+                            <button class="sm" id="btnPrevQuiz" disabled>◀ Câu trước</button>
+                            <span id="qProgressTag" style="font-weight:800;color:#64748b;font-size:.9rem">Tiến độ: 0/4 câu</span>
+                            <button class="sm info" id="btnNextQuiz">Câu tiếp theo ▶</button>
+                        </div>
+                    </div>
+
+                    <div id="quizCompleteBanner" class="quiz-complete-banner" style="display:none">
+                        <h3 style="margin:0 0 8px;color:#14532d;font-size:1.35rem">🎉 XUẤT SẮC! CẢ LỚP ĐÃ ÔN VỮNG TOÀN BỘ KIẾN THỨC!</h3>
+                        <p style="margin:0 0 14px;font-weight:800;color:#166534">
+                            Các em đã nắm vững các thao tác và sẵn sàng bước vào thử thách Thực hành Combo liên hoàn!
+                        </p>
+                        <button class="go" data-go="3" style="font-size:1.15rem;padding:12px 30px">
+                            🚀 VÀO THỰC HÀNH COMBO TRÊN MÁY THẬT NGAY! ▶
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. THỰC HÀNH COMBO QUEST (GỌN GÀNG, KHÔNG CHỒNG LẤN, ĐẾM GIỜ KHI SẴN SÀNG) -->
+            <section class="screen" id="s3">
+                <div class="card">
+                    <div class="conn-bar" id="connBar">
+                        <div class="conn-status" id="connIconText">⚪ Chưa kết nối thư mục (Đang hiện cây mẫu Tiết 2)</div>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap">
+                            <button id="pickBtn" class="sm go">📂 Chọn thư mục "Hoc tap"</button>
+                            <input type="file" id="dirInput" webkitdirectory directory multiple style="display:none">
+                            <button id="btnDlTaoCay" class="sm info">📥 Tải TaoCay.bat</button>
+                            <button id="btnDlGhiCay" class="sm">📥 Tải GhiCay.bat</button>
+                        </div>
+                    </div>
+
+                    <div class="top-bar-quest">
+                        <!-- KHỐI NHIỆM VỤ COMBO: GỌN GÀNG, KHÔNG LẶP CHỮ -->
+                        <div class="quest-box">
+                            <div class="quest-top-row">
+                                <div style="display:flex;gap:6px;align-items:center">
+                                    <span class="team-pill" id="questTeamBadge">TỔ 1</span>
+                                    <span class="combo-pill" id="questComboBadge">COMBO 2 BƯỚC</span>
+                                    <span style="font-weight:900;color:var(--ink)" id="questRoundTag">Nhiệm vụ 1/12</span>
+                                </div>
+                                <div style="display:flex;gap:4px">
+                                    <button class="sm" id="prevQuestBtn">◀ Trước</button>
+                                    <button class="sm" id="nextQuestBtn">Tiếp ▶</button>
+                                </div>
+                            </div>
+
+                            <!-- TÓM TẮT MỤC TIÊU DUY NHẤT -->
+                            <div class="quest-summary-text" id="questSummary"></div>
+
+                            <!-- THẺ CÁC BƯỚC HÀNH ĐỘNG (CHỈ LÀ HƯỚNG DẪN, KHÔNG TỰ TICK XANH TRƯỚC) -->
+                            <div class="combo-steps-list" id="comboStepsList"></div>
+                        </div>
+
+                        <!-- KHỐI ĐỒNG HỒ & ĐIỀU KHIỂN -->
+                        <div class="timer-card">
+                            <div class="timer-header">
+                                <span style="font-weight:900;color:var(--ink);font-size:.95rem">⏱️ Đồng hồ 3 phút</span>
+                                <div style="display:flex;gap:4px">
+                                    <button class="sm" id="btnTimerMinus30" title="Giảm 30s">-30s</button>
+                                    <button class="sm" id="btnTimerPlus30" title="Cộng thêm 30s">+30s</button>
+                                </div>
+                            </div>
+
+                            <div class="timer-display ready" id="timerClock">03:00</div>
+
+                            <div class="timer-progress">
+                                <div class="timer-progress-bar" id="timerProgressBar"></div>
+                            </div>
+
+                            <!-- NÚT BẮT ĐẦU KHI HỌC SINH ĐÃ SẴN SÀNG -->
+                            <button class="btn-ready-start" id="btnTimerToggle">
+                                ▶ BẮT ĐẦU TÍNH GIỜ (SẴN SÀNG)
+                            </button>
+
+                            <div class="timer-controls">
+                                <button class="sm" id="btnTimerReset">🔄 Đặt lại 3:00</button>
+                            </div>
+
+                            <div style="border-top:2px dashed var(--line);padding-top:8px;margin-top:2px">
+                                <div style="font-weight:900;margin-bottom:4px;color:var(--coral);font-size:.9rem">
+                                    👤 Học sinh thực hiện <span style="color:red">*</span>:
+                                </div>
+                                <select id="questStudentPick" style="width:100%;margin-bottom:8px">
+                                    <option value="">-- Chọn học sinh đại diện --</option>
+                                </select>
+                                <!-- NÚT NỘP BÀI SỚM/CHẤM ĐIỂM THANH LỊCH (KHÔNG SẶC SỠ) -->
+                                <div style="display:flex;gap:6px">
+                                    <button class="sm" id="gradeBtn" style="flex:1" title="Bấm khi hoàn thành sớm trước thời gian">
+                                        ✔ Nộp bài sớm
+                                    </button>
+                                    <button class="sm" id="skipBtn">Bỏ qua</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="chips" style="margin-bottom:6px"></div>
+                    <div class="treebox nocl" id="gTree"></div>
+                    <div class="msg hint" id="gMsg"></div>
+
+                    <!-- DỰ PHÒNG DÁN CÂY VÀ CHẤM ĐIỂM TỪ CLIPBOARD KHI KHÔNG TỰ QUÉT ĐƯỢC -->
+                    <details style="margin-top:8px">
+                        <summary style="font-weight:800;cursor:pointer;color:var(--purple)">
+                            ⚙️ Dự phòng dán cây từ GhiCay.bat & Chấm điểm thủ công (Nếu cần)
+                        </summary>
+                        <div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                            <button class="sm info" id="btnPasteClip">📋 Dán từ Clipboard</button>
+                            <button class="sm go" id="btnPasteAndGrade">📋 Dán Clipboard & Chấm điểm ngay</button>
+                            <span style="font-size:.85rem;color:#64748b">Dùng khi không kết nối trực tiếp được thư mục</span>
+                        </div>
+                        <textarea id="pasteBox" style="margin-top:4px;width:100%;height:80px"
+                            placeholder="Dán nội dung cây thư mục tại đây..."></textarea>
+                    </details>
+                </div>
+            </section>
+
+            <!-- 4. BẢNG VÀNG CÓ CƠ CHẾ ĐỒNG HẠNG CHUẨN XÁC -->
+            <section class="screen" id="s4">
+                <div class="card" style="text-align:center">
+                    <h2 style="font-size:2rem">🏆 Bảng Vàng Danh Dự (Tiết 2)</h2>
+                    <div class="podium" id="podium"></div>
+                    <div class="stats">
+                        <div class="stat"><b id="stN">0</b>Sĩ số học sinh</div>
+                        <div class="stat"><b id="stDone">0</b>Combo hoàn thành</div>
+                        <div class="stat"><b id="stAcc">–</b>Độ chuẩn xác</div>
+                    </div>
+                    <div style="margin-top:20px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
+                        <button class="go" id="csvDriveBtn" style="font-size:1.1rem;padding:12px 24px">
+                            ☁️ Xuất CSV & Lưu lên Google Drive
+                        </button>
+                        <button id="csvLocalBtn" style="font-size:1rem;padding:12px 18px">
+                            📄 Tải file CSV về máy
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <aside>
+            <div class="card" style="padding:12px">
+                <div style="font-weight:900;margin-bottom:8px;font-size:1.05rem">🚩 Điểm thi đua các tổ (Sàn 100đ)</div>
+                <div id="teams"></div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        'use strict';
+        const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+        const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+        /* ===== 1. ÂM THANH WEB AUDIO API ===== */
+        let AC = null;
+        function getAudioContext() {
+            if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+            if (AC.state === 'suspended') AC.resume();
+            return AC;
+        }
+
+        function beep(ok) {
+            try {
+                const ctx = getAudioContext();
+                const o = ctx.createOscillator(), g = ctx.createGain();
+                o.type = ok ? 'triangle' : 'sawtooth';
+                o.frequency.value = ok ? 880 : 160;
+                g.gain.setValueAtTime(.15, ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (ok ? .25 : .3));
+                o.connect(g); g.connect(ctx.destination);
+                o.start(); o.stop(ctx.currentTime + (ok ? .25 : .3));
+            } catch (e) { }
+        }
+
+        function playTickSound() {
+            try {
+                const ctx = getAudioContext();
+                const o = ctx.createOscillator(), g = ctx.createGain();
+                o.type = 'sine';
+                o.frequency.setValueAtTime(1200, ctx.currentTime);
+                g.gain.setValueAtTime(.08, ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+                o.connect(g); g.connect(ctx.destination);
+                o.start(); o.stop(ctx.currentTime + 0.08);
+            } catch (e) { }
+        }
+
+        function playTimeUpSound() {
+            try {
+                const ctx = getAudioContext();
+                [
+                    { freq: 659.25, time: 0, dur: 0.35 },
+                    { freq: 523.25, time: 0.25, dur: 0.5 },
+                    { freq: 392.00, time: 0.5, dur: 0.7 }
+                ].forEach(n => {
+                    const o = ctx.createOscillator(), g = ctx.createGain();
+                    o.type = 'triangle';
+                    o.frequency.setValueAtTime(n.freq, ctx.currentTime + n.time);
+                    g.gain.setValueAtTime(.2, ctx.currentTime + n.time);
+                    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + n.time + n.dur);
+                    o.connect(g); g.connect(ctx.destination);
+                    o.start(ctx.currentTime + n.time);
+                    o.stop(ctx.currentTime + n.time + n.dur);
+                });
+            } catch (e) { }
+        }
+
+        function playFanfareSound() {
+            try {
+                const ctx = getAudioContext();
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                    const o = ctx.createOscillator(), g = ctx.createGain();
+                    o.type = 'triangle';
+                    o.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.1);
+                    g.gain.setValueAtTime(.15, ctx.currentTime + idx * 0.1);
+                    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.1 + 0.4);
+                    o.connect(g); g.connect(ctx.destination);
+                    o.start(ctx.currentTime + idx * 0.1);
+                    o.stop(ctx.currentTime + idx * 0.1 + 0.45);
+                });
+            } catch (e) { }
+        }
+
+        function fireConfetti() {
+            if (typeof confetti === 'function') confetti({ particleCount: 80, spread: 70, origin: { y: 0.65 } });
+        }
+
+        /* ===== 2. FILE .BAT TIẾT 2 (TÊN GỌN, KHÔNG CHỒNG LẤN CÁC TỔ) ===== */
+        const BAT_TAO_CAY_TIET2 = `@echo off
+chcp 65001 >nul
+title KHOI TAO CAY THU MUC TIET 2 - BAI 5 TIN HOC 4
+echo ========================================================
+echo   DANG KHOI TAO CAY THU MUC TIET 2 (THUC HANH TONG HOP)
+echo ========================================================
+
+set "R=%~dp0Hoc tap"
+if exist "%R%" rmdir /s /q "%R%"
+mkdir "%R%"
+
+:: Kho tu lieu chung cua ca lop (dung de sao chep, khong xoa)
+mkdir "%R%\\Kho"
+type nul > "%R%\\Kho\\Bai1.pptx"
+type nul > "%R%\\Kho\\Anh.png"
+type nul > "%R%\\Kho\\Phim.mp4"
+
+:: Thu muc rieng cua tung to (doc lap, khong chong lan)
+mkdir "%R%\\To 1\\An"
+mkdir "%R%\\To 1\\Binh"
+
+mkdir "%R%\\To 2\\Hoa"
+mkdir "%R%\\To 2\\Kha"
+
+mkdir "%R%\\To 3\\Khoa"
+mkdir "%R%\\To 3\\Mai"
+
+mkdir "%R%\\To 4\\Nam"
+mkdir "%R%\\To 4\\Lan"
+
+mkdir "%R%\\To 5\\Nga"
+mkdir "%R%\\To 5\\Phat"
+
+mkdir "%R%\\To 6\\Quan"
+mkdir "%R%\\To 6\\Son"
+
+echo.
+echo [THANH CONG] Da tao xong cay thu muc Tiet 2 tai:
+echo "%R%"
+echo ========================================================
+start "" "%R%"
+pause
+`;
+
+        const BAT_GHI_CAY = `@echo off
+chcp 65001 >nul
+title GHI CAY THU MUC HIEN TAI VAO CLIPBOARD
+set "R=%~dp0Hoc tap"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$r = Join-Path -Path '%~dp0' -ChildPath 'Hoc tap'; if (-not (Test-Path -LiteralPath $r)) { Write-Host ('Khong tim thay thu muc: ' + $r) -ForegroundColor Red; pause; exit }; $o = Get-ChildItem -LiteralPath $r -Recurse -Force | ForEach-Object { $p = $_.FullName.Substring($r.Length + 1).Replace('\\', '/'); if ($_.PSIsContainer) { $p + '/' } else { $p } }; if ($o) { $o | Set-Clipboard; Write-Host 'Da chep cay thu muc vao Clipboard thanh cong!' -ForegroundColor Green } else { '' | Set-Clipboard }"
+pause
+`;
+
+        function downloadBat(filename, content) {
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+        }
+        $('#btnDlTaoCay').onclick = () => downloadBat('TaoCay.bat', BAT_TAO_CAY_TIET2);
+        $('#btnDlGhiCay').onclick = () => downloadBat('GhiCay.bat', BAT_GHI_CAY);
+
+        /* ===== 3. CHUYỂN MÀN HÌNH ===== */
+        function go(n) {
+            if (n == 3) {
+                resetTimer();
+            } else {
+                pauseTimer();
+            }
+            $$('.screen').forEach(s => s.classList.toggle('on', s.id === 's' + n));
+            $$('nav button').forEach(b => b.classList.toggle('on', b.dataset.go == n));
+            if (n == 2) renderRelicQuiz();
+            if (n == 3 && curTree) drawGame();
+            if (n == 4) { drawPodium(); fireConfetti(); }
+        }
+        $$('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+
+        /* ===== 4. VỞ GHI TIẾT 2 (GIỐNG TIẾT 9: CHỈ TIÊU ĐỀ BÀI) ===== */
+        const days = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+        const now = new Date();
+        $('#boardDate').textContent = `${days[now.getDay()]}, ngày ${String(now.getDate()).padStart(2, '0')} tháng ${String(now.getMonth() + 1).padStart(2, '0')} năm ${now.getFullYear()}`;
+
+        /* ===== 5. KHỞI ĐỘNG: ÔN TẬP NHỚ KIẾN THỨC & GHI LOG HỌC SINH ===== */
+        const RELIC_QUIZ = [
+            {
+                q: "Trạm 1: Khi muốn một tệp hoặc thư mục xuất hiện ở nơi mới mà vị trí cũ VẪN CÒN NGUYÊN BẢN GỐC, em dùng thao tác nào?",
+                opts: ["A. Sao chép (Copy)", "B. Di chuyển (Cut/Move)", "C. Xoá (Delete)", "D. Đổi tên (Rename)"],
+                ans: 0,
+                exp: "Rất chính xác! Lệnh Sao chép (Copy) giúp nhân bản dữ liệu sang nơi mới mà vẫn giữ nguyên bản gốc."
+            },
+            {
+                q: "Trạm 2: Cặp phím tắt nào trên bàn phím dùng để DI CHUYỂN (Cắt rồi Dán) tệp/thư mục sang vị trí khác?",
+                opts: ["A. Ctrl + C rồi Ctrl + V", "B. Ctrl + X rồi Ctrl + V", "C. Phím F2 rồi Enter", "D. Phím Delete rồi Enter"],
+                ans: 1,
+                exp: "Tuyệt vời! Ctrl + X là Cắt (Cut), sau đó sang thư mục mới bấm Ctrl + V (Paste) để di chuyển."
+            },
+            {
+                q: "Trạm 3: Để ĐỔI TÊN nhanh một tệp hoặc thư mục đang được chọn, em sử dụng phím nào trên bàn phím?",
+                opts: ["A. Phím Space (Dấu cách)", "B. Phím Esc", "C. Phím F2 (hoặc biểu tượng Rename)", "D. Phím Ctrl + Z"],
+                ans: 2,
+                exp: "Đúng rồi! Phím F2 là phím tắt thần thánh giúp em đổi tên tệp và thư mục nhanh nhất!"
+            },
+            {
+                q: "Đích đến: Em có thư mục chứa ảnh tham quan của lớp, làm cách nào để gửi cho bạn mà máy em vẫn giữ được ảnh?",
+                opts: ["A. Dùng lệnh Di chuyển (Cut)", "B. Dùng lệnh Sao chép (Copy) sang USB hoặc máy bạn", "C. Dùng lệnh Đổi tên (Rename)", "D. Dùng lệnh Xoá (Delete)"],
+                ans: 1,
+                exp: "Quá chuẩn! Dùng lệnh Sao chép (Copy) để chia sẻ bài cho bạn mà vẫn giữ được bản gốc trên máy mình!"
+            }
+        ];
+
+        let curQuizIdx = 0;
+        let quizDone = [false, false, false, false];
+        let quizLogs = [];
+
+        function updateQuizStudentSelect() {
+            const sel = $('#quizStudentPick');
+            sel.innerHTML = '<option value="">-- Cả lớp cùng làm / Gọi tên --</option>';
+            students.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = `${s.no}. ${s.name}`;
+                sel.appendChild(opt);
+            });
+        }
+
+        function renderRelicQuiz() {
+            $$('.relic-stop').forEach((el, i) => {
+                el.classList.toggle('active', i === curQuizIdx);
+                el.classList.toggle('done', quizDone[i]);
+            });
+
+            const doneCount = quizDone.filter(Boolean).length;
+            $('#qStepTag').textContent = `CÂU HỎI ${curQuizIdx + 1} / ${RELIC_QUIZ.length}`;
+            $('#qProgressTag').textContent = `Tiến độ: ${doneCount}/${RELIC_QUIZ.length} câu`;
+
+            const item = RELIC_QUIZ[curQuizIdx];
+            $('#quizQuestion').textContent = item.q;
+            $('#quizOptions').innerHTML = item.opts.map((opt, idx) =>
+                `<button class="quiz-opt" data-oi="${idx}">${esc(opt)}</button>`
+            ).join('');
+
+            $('#btnPrevQuiz').disabled = curQuizIdx <= 0;
+            $('#btnNextQuiz').disabled = curQuizIdx >= RELIC_QUIZ.length - 1;
+
+            if (quizDone[curQuizIdx]) {
+                $('#quizFeedback').className = 'msg ok';
+                $('#quizFeedback').textContent = `🎉 Câu này đã trả lời đúng! ${item.exp}`;
+                const correctBtn = $(`#quizOptions [data-oi="${item.ans}"]`);
+                if (correctBtn) correctBtn.classList.add('correct');
+            } else {
+                $('#quizFeedback').className = 'msg hint';
+                $('#quizFeedback').textContent = `Bấm chọn đáp án em cho là đúng nhất!`;
+            }
+
+            $$('#quizOptions .quiz-opt').forEach(btn => btn.onclick = () => {
+                const pickIdx = +btn.dataset.oi;
+                const isCorrect = (pickIdx === item.ans);
+                const stId = $('#quizStudentPick').value;
+                const stObj = students.find(s => s.id === stId);
+                const stName = stObj ? stObj.name : 'Cả lớp';
+
+                quizLogs.push({
+                    stId: stId || '',
+                    stName: stName,
+                    questionIdx: curQuizIdx + 1,
+                    pickText: item.opts[pickIdx],
+                    isCorrect: isCorrect,
+                    time: new Date().toLocaleTimeString('vi-VN')
+                });
+
+                if (isCorrect) {
+                    btn.classList.add('correct');
+                    beep(true);
+                    fireConfetti();
+                    quizDone[curQuizIdx] = true;
+                    $('#quizFeedback').className = 'msg ok';
+                    $('#quizFeedback').textContent = `🎉 Hoan hô ${stName}! Rất chính xác! ${item.exp}`;
+                    renderRelicQuiz();
+
+                    if (quizDone.every(Boolean)) {
+                        $('#quizCompleteBanner').style.display = 'block';
+                        $('#quizCompleteBanner').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        playFanfareSound();
+                    }
+                } else {
+                    btn.classList.add('wrong');
+                    beep(false);
+                    $('#quizFeedback').className = 'msg bad';
+                    $('#quizFeedback').textContent = `❌ Chưa chính xác rồi! Cố lên ${stName}, cùng suy nghĩ và chọn lại nhé!`;
+                }
+            });
+        }
+
+        $('#btnPrevQuiz').onclick = () => {
+            if (curQuizIdx > 0) {
+                curQuizIdx--;
+                renderRelicQuiz();
+            }
+        };
+
+        $('#btnNextQuiz').onclick = () => {
+            if (curQuizIdx < RELIC_QUIZ.length - 1) {
+                curQuizIdx++;
+                renderRelicQuiz();
+            }
+        };
+
+        $$('.relic-stop').forEach(el => el.onclick = () => {
+            curQuizIdx = +el.dataset.step;
+            renderRelicQuiz();
+        });
+
+        /* ===== 6. SƠ ĐỒ CÂY SVG GỌN GÀNG ===== */
+        let uid = 0;
+        const N = (name, type, children = []) => ({ id: ++uid, name, type, children });
+        function layout(n, d = 0, st = { y: 0 }) {
+            n.d = d;
+            if (!n.children.length) n.y = st.y++;
+            else { n.children.forEach(c => layout(c, d + 1, st)); n.y = (n.children[0].y + n.children.at(-1).y) / 2; }
+            return st.y;
+        }
+        function drawTree(t, el, o = {}) {
+            const rows = layout(t); let maxD = 0; (function w(n) { maxD = Math.max(maxD, n.d); n.children.forEach(w); })(t);
+            const CW = 210, RH = 46, NW = 175, NH = 34, vw = (maxD + 1) * CW + 20, vh = Math.max(rows, 2) * RH + 16;
+            let edges = '', nodes = '';
+            (function w(n) {
+                n.px = n.d * CW + NW / 2 + 10; n.py = n.y * RH + RH / 2 + 8;
+                n.children.forEach(c => {
+                    w(c);
+                    const x1 = n.px + NW / 2, x2 = c.px - NW / 2;
+                    edges += `<path class="edge" d="M${x1} ${n.py} C${x1 + 25} ${n.py},${x2 - 25} ${c.py},${x2} ${c.py}"/>`;
+                });
+            })(t);
+            (function w(n) {
+                const nm = n.name.length > 18 ? n.name.slice(0, 16) + '…' : n.name;
+                nodes += `<g class="node ${n.type} ${o.cls ? o.cls(n) : ''}"><rect x="${n.px - NW / 2}" y="${n.py - NH / 2}" width="${NW}" height="${NH}" rx="8"/><text x="${n.px}" y="${n.py + 5}" text-anchor="middle">${n.type === 'folder' ? '📁' : '📄'} ${esc(nm)}</text></g>`;
+                n.children.forEach(w);
+            })(t);
+            el.innerHTML = `<svg viewBox="0 0 ${vw} ${vh}">${edges}${nodes}</svg>`;
+        }
+        function treeFromPaths(list) {
+            const root = N('Hoc tap', 'folder'); root.path = '';
+            list.forEach(p => {
+                const folder = p.endsWith('/'), parts = p.split('/').filter(Boolean);
+                let cur = root, acc = '';
+                parts.forEach((part, i) => {
+                    acc += part + (i < parts.length - 1 || folder ? '/' : '');
+                    let c = cur.children.find(x => x.name.toLowerCase() === part.toLowerCase());
+                    if (!c) {
+                        c = N(part, i < parts.length - 1 || folder ? 'folder' : 'file');
+                        c.path = acc.toLowerCase();
+                        cur.children.push(c);
+                    }
+                    cur = c;
+                });
+            });
+            (function sort(n) {
+                n.children.sort((a, b) => (a.type === b.type ? a.name.localeCompare(b.name) : a.type === 'folder' ? -1 : 1));
+                n.children.forEach(sort);
+            })(root);
+            return root;
+        }
+
+        /* ===== 7. NHIỆM VỤ COMBO ĐỘC LẬP TỪNG TỔ (KHÔNG CHỒNG LẤN, KHỚP TAOCAY.BAT) ===== */
+        const TEAM_MEMBERS = [
+            { m1: 'An', m2: 'Binh' },
+            { m1: 'Hoa', m2: 'Kha' },
+            { m1: 'Khoa', m2: 'Mai' },
+            { m1: 'Nam', m2: 'Lan' },
+            { m1: 'Nga', m2: 'Phat' },
+            { m1: 'Quan', m2: 'Son' }
+        ];
+
+        function getBaseTreePaths(nTeams) {
+            const paths = [
+                'Kho/',
+                'Kho/Bai1.pptx',
+                'Kho/Anh.png',
+                'Kho/Phim.mp4'
+            ];
+            for (let t = 1; t <= nTeams; t++) {
+                const mem = TEAM_MEMBERS[t - 1] || { m1: 'An', m2: 'Binh' };
+                paths.push(`To ${t}/${mem.m1}/`);
+                paths.push(`To ${t}/${mem.m2}/`);
+            }
+            return paths;
+        }
+
+        function generateMissions(nTeams, nRounds) {
+            const missions = [];
+            let qId = 1;
+
+            for (let r = 1; r <= nRounds; r++) {
+                for (let t = 0; t < nTeams; t++) {
+                    const toNum = t + 1;
+                    const mem = TEAM_MEMBERS[t] || { m1: 'An', m2: 'Binh' };
+
+                    if (r === 1) {
+                        missions.push({
+                            id: qId++,
+                            round: 1,
+                            teamIdx: t,
+                            tag: 'Vòng 1: [Sao chép 📋] ➔ [Đổi tên ✏️]',
+                            comboBadge: 'COMBO 2 BƯỚC',
+                            summary: `Sao chép tệp bài học từ Kho vào thư mục bạn ${mem.m1} rồi đổi tên tệp.`,
+                            steps: [
+                                `Sao chép "Bai1.pptx" từ "Kho" vào "To ${toNum}/${mem.m1}"`,
+                                `Đổi tên tệp trong "To ${toNum}/${mem.m1}" thành "Bai_${mem.m1}.pptx"`
+                            ],
+                            to: [`To ${toNum}/${mem.m1}/Bai_${mem.m1}.pptx`],
+                            gone: [`To ${toNum}/${mem.m1}/Bai1.pptx`],
+                            keep: ['Kho/Bai1.pptx']
+                        });
+                    } else if (r === 2) {
+                        missions.push({
+                            id: qId++,
+                            round: 2,
+                            teamIdx: t,
+                            tag: 'Vòng 2: [Tạo mới ➕] ➔ [Di chuyển ✂️]',
+                            comboBadge: 'COMBO 2 BƯỚC',
+                            summary: `Tạo thư mục "Luu tru" trong "To ${toNum}/${mem.m1}" rồi di chuyển tệp bài vào đó.`,
+                            steps: [
+                                `Tạo thư mục mới "Luu tru" trong "To ${toNum}/${mem.m1}"`,
+                                `Di chuyển tệp "Bai_${mem.m1}.pptx" vào thư mục "Luu tru"`
+                            ],
+                            to: [`To ${toNum}/${mem.m1}/Luu tru/Bai_${mem.m1}.pptx`],
+                            gone: [`To ${toNum}/${mem.m1}/Bai_${mem.m1}.pptx`]
+                        });
+                    } else {
+                        missions.push({
+                            id: qId++,
+                            round: 3,
+                            teamIdx: t,
+                            tag: 'Vòng 3: [Sao chép 📋] ➔ [Chia sẻ bạn bè 👥]',
+                            comboBadge: 'COMBO 2 BƯỚC',
+                            summary: `Sao chép "Anh.png" từ Kho vào "Luu tru" rồi chia sẻ cho bạn ${mem.m2}.`,
+                            steps: [
+                                `Sao chép "Anh.png" từ "Kho" vào "To ${toNum}/${mem.m1}/Luu tru"`,
+                                `Sao chép tệp "Anh.png" sang cho bạn "${mem.m2}" ("To ${toNum}/${mem.m2}")`
+                            ],
+                            to: [`To ${toNum}/${mem.m1}/Luu tru/Anh.png`, `To ${toNum}/${mem.m2}/Anh.png`],
+                            keep: ['Kho/Anh.png']
+                        });
+                    }
+                }
+            }
+            return missions;
+        }
+
+        let activeMissions = [];
+        let mIdx = 0, mistakes = 0, totalMistakes = 0, doneCnt = 0;
+        let status = [], questDoer = [];
+        let rootHandle = null, present = new Set(), curTree = null, lastWebkitFiles = null;
+
+        const gMsg = (t, k = 'hint') => { $('#gMsg').textContent = t; $('#gMsg').className = 'msg ' + k; };
+        const turnTeam = idx => activeMissions[idx] ? activeMissions[idx].teamIdx : (idx % numTeams);
+        const has = p => present.has(p.toLowerCase());
+        const nm = a => a.map(p => '"' + p.replace(/\/$/, '').split('/').pop() + '"').join(', ');
+
+        /* ===== 8. ĐỒNG HỒ ĐẾM NGƯỢC (3 PHÚT, CÓ NÚT SẴN SÀNG) ===== */
+        let totalTimerSeconds = 180;
+        let timerRemaining = 180;
+        let timerInterval = null;
+        let timerRunning = false;
+        let timerReady = true;
+
+        function updateTimerUI() {
+            const m = Math.floor(timerRemaining / 60);
+            const s = timerRemaining % 60;
+            const clockEl = $('#timerClock');
+            clockEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+
+            const pct = Math.max(0, Math.min(100, (timerRemaining / totalTimerSeconds) * 100));
+            const bar = $('#timerProgressBar');
+            bar.style.width = pct + '%';
+
+            clockEl.classList.remove('ready', 'warn', 'danger');
+            if (timerReady) {
+                clockEl.classList.add('ready');
+                bar.style.backgroundColor = 'var(--blue)';
+            } else if (timerRemaining <= 20) {
+                clockEl.classList.add('danger');
+                bar.style.backgroundColor = 'var(--coral)';
+            } else if (timerRemaining <= Math.round(totalTimerSeconds * 0.4)) {
+                clockEl.classList.add('warn');
+                bar.style.backgroundColor = '#d97706';
+            } else {
+                bar.style.backgroundColor = 'var(--green)';
+            }
+        }
+
+        function startTimer() {
+            if (timerRunning) return;
+            timerReady = false;
+            timerRunning = true;
+            $('#btnTimerToggle').textContent = '⏸ Tạm dừng';
+            $('#btnTimerToggle').className = 'btn-ready-start warn';
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (timerRemaining > 0) {
+                    timerRemaining--;
+                    updateTimerUI();
+                    if (timerRemaining > 0 && timerRemaining <= 5) playTickSound();
+                } else {
+                    pauseTimer();
+                    handleTimeUp();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            timerRunning = false;
+            clearInterval(timerInterval);
+            if (!timerReady) {
+                $('#btnTimerToggle').textContent = '▶ Tiếp tục';
+                $('#btnTimerToggle').className = 'btn-ready-start go';
+            }
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timerReady = true;
+            totalTimerSeconds = +$('#selComboTime').value || 180;
+            timerRemaining = totalTimerSeconds;
+            $('#btnTimerToggle').textContent = '▶ BẮT ĐẦU TÍNH GIỜ (SẴN SÀNG)';
+            $('#btnTimerToggle').className = 'btn-ready-start go';
+            updateTimerUI();
+        }
+
+        function addTimerSeconds(sec) {
+            timerRemaining = Math.max(10, timerRemaining + sec);
+            totalTimerSeconds = Math.max(totalTimerSeconds, timerRemaining);
+            updateTimerUI();
+            gMsg(`⏱️ Đã điều chỉnh thời gian: ${timerRemaining}s còn lại`, 'hint');
+        }
+
+        $('#btnTimerToggle').onclick = () => {
+            if (timerRunning) pauseTimer();
+            else startTimer();
+        };
+        $('#btnTimerReset').onclick = resetTimer;
+        $('#btnTimerPlus30').onclick = () => addTimerSeconds(30);
+        $('#btnTimerMinus30').onclick = () => addTimerSeconds(-30);
+        $('#selComboTime').onchange = resetTimer;
+
+        async function handleTimeUp() {
+            playTimeUpSound();
+            gMsg('⏰ ĐÃ HẾT GIỜ! Đang tự động quét cây thư mục để chấm điểm...', 'bad');
+
+            setTimeout(async () => {
+                try {
+                    await loadState();
+                    gradeCurrentMission(true);
+                } catch (e) {
+                    beep(false);
+                    gMsg(`⏰ ĐÃ HẾT GIỜ! Hãy mở phần "Dự phòng dán cây từ Clipboard" bên dưới để hệ thống ghi nhận điểm của Tổ!`, 'bad');
+                }
+            }, 400);
+        }
+
+        function updateActiveMissions() {
+            const rounds = +$('#nRounds').value;
+            activeMissions = generateMissions(numTeams, rounds);
+            status = Array(activeMissions.length).fill('');
+            questDoer = Array(activeMissions.length).fill(null);
+            if (mIdx >= activeMissions.length) mIdx = 0;
+        }
+
+        function setPresent(list) {
+            present = new Set();
+            list.forEach(p => {
+                const parts = p.toLowerCase().split('/').filter(Boolean);
+                let acc = '';
+                parts.forEach((x, i) => {
+                    acc += x + (i < parts.length - 1 || p.endsWith('/') ? '/' : '');
+                    present.add(acc);
+                });
+            });
+            curTree = treeFromPaths(list);
+        }
+
+        function updateConnUI(state, text, details = '') {
+            const bar = $('#connBar'), label = $('#connIconText');
+            bar.className = 'conn-bar ' + state;
+            if (state === 'ok') label.innerHTML = `🟢 <b>ĐÃ KẾT NỐI:</b> ${esc(text)} <small style="margin-left:6px;font-weight:700">(${esc(details)})</small>`;
+            else if (state === 'bad') label.innerHTML = `🔴 <b>LỖI KẾT NỐI:</b> ${esc(text)}`;
+            else if (state === 'warn') label.innerHTML = `⚠️ <b>CHỌN CHƯA ĐÚNG:</b> ${esc(text)}`;
+            else label.innerHTML = `⚪ <b>CHƯA KẾT NỐI THƯ MỤC:</b> ${esc(text)}`;
+        }
+
+        function updateStudentSelect() {
+            const sel = $('#questStudentPick');
+            const usedStIds = new Set(questDoer.filter((id, idx) => id && status[idx] === 'ok' && idx !== mIdx));
+            sel.innerHTML = '<option value="">-- Chọn học sinh đại diện --</option>';
+            students.forEach(s => {
+                const isUsed = usedStIds.has(s.id);
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.disabled = isUsed;
+                opt.textContent = `${s.no}. ${s.name}${isUsed ? ' (Đã lên)' : ''}`;
+                sel.appendChild(opt);
+            });
+            if (questDoer[mIdx]) sel.value = questDoer[mIdx];
+        }
+
+        /* ===== RENDER BƯỚC HÀNH ĐỘNG (CHỈ LÀ HƯỚNG DẪN, CHỈ TICK KHI ĐÃ ĐẠT) ===== */
+        function renderComboSteps(m) {
+            const box = $('#comboStepsList');
+            if (!m) { box.innerHTML = ''; return; }
+
+            const isQuestPassed = status[mIdx] === 'ok';
+
+            const stepsHtml = (m.steps || []).map((stepText, idx) => {
+                return `
+                    <div class="combo-step-item ${isQuestPassed ? 'done' : ''}">
+                        <span class="combo-step-badge">BƯỚC ${idx + 1}</span>
+                        <span>${esc(stepText)}</span>
+                        ${isQuestPassed ? '<span style="margin-left:auto;font-weight:900">🟢 Hoàn thành</span>' : ''}
+                    </div>
+                `;
+            }).join('');
+
+            box.innerHTML = stepsHtml;
+        }
+
+        function drawGame() {
+            const m = activeMissions[mIdx];
+            drawTree(curTree, $('#gTree'), {
+                cls: n => !m ? '' : (m.to || []).some(p => p.toLowerCase() === n.path) ? 'mark' : (m.gone || []).some(p => p.toLowerCase() === n.path) ? 'flash' : ''
+            });
+
+            const teamNum = turnTeam(mIdx) + 1;
+            const isDone = status[mIdx] === 'ok';
+            const isSkip = status[mIdx] === 'skip';
+
+            $('#questTeamBadge').textContent = `TỔ ${teamNum}`;
+            $('#questComboBadge').textContent = m ? m.comboBadge || 'COMBO' : 'COMBO';
+            $('#questRoundTag').textContent = `Nhiệm vụ ${mIdx + 1}/${activeMissions.length} ${isDone ? '✔ Đạt' : isSkip ? '⏭ Bỏ qua' : ''}`;
+            $('#questSummary').textContent = m ? m.summary : 'Đã hoàn thành hết tất cả combo!';
+
+            renderComboSteps(m);
+
+            $('#chips').innerHTML = activeMissions.map((q, i) => {
+                const t = turnTeam(i) + 1;
+                let cls = status[i] || (i === mIdx ? 'cur' : '');
+                return `<span class="chip ${cls}" data-qi="${i}">T${t} - Q${i + 1}${status[i] === 'ok' ? ' ✔' : status[i] === 'skip' ? ' ⏭' : ''}</span>`;
+            }).join('');
+
+            $$('#chips .chip').forEach(el => el.onclick = () => {
+                mIdx = +el.dataset.qi;
+                mistakes = 0;
+                resetTimer();
+                drawGame();
+            });
+
+            $('#prevQuestBtn').disabled = mIdx <= 0;
+            $('#nextQuestBtn').disabled = mIdx >= activeMissions.length - 1;
+            $('#gradeBtn').disabled = isDone;
+            $('#skipBtn').disabled = isDone;
+
+            updateStudentSelect();
+            drawTeams();
+        }
+
+        $('#prevQuestBtn').onclick = () => {
+            if (mIdx > 0) {
+                mIdx--;
+                mistakes = 0;
+                resetTimer();
+                drawGame();
+            }
+        };
+
+        $('#nextQuestBtn').onclick = () => {
+            if (mIdx < activeMissions.length - 1) {
+                mIdx++;
+                mistakes = 0;
+                resetTimer();
+                drawGame();
+            }
+        };
+
+        async function walk(dir, prefix, out) {
+            for await (const [name, h] of dir.entries()) {
+                if (h.kind === 'directory') {
+                    out.push(prefix + name + '/');
+                    await walk(h, prefix + name + '/', out);
+                } else out.push(prefix + name);
+            }
+        }
+
+        async function readHandle() {
+            if (!rootHandle) throw new Error('Chưa kết nối thư mục.');
+            if ((await rootHandle.queryPermission({ mode: 'read' })) !== 'granted') {
+                if ((await rootHandle.requestPermission({ mode: 'read' })) !== 'granted') {
+                    updateConnUI('bad', 'Quyền đọc bị từ chối');
+                    throw new Error('Chưa được cấp quyền đọc thư mục.');
+                }
+            }
+            let d = rootHandle;
+            if (rootHandle.name.toLowerCase() !== 'hoc tap') {
+                try { d = await rootHandle.getDirectoryHandle('Hoc tap'); }
+                catch (e) {
+                    updateConnUI('warn', rootHandle.name, 'Không tìm thấy Hoc tap');
+                    throw new Error(`Hãy chọn đúng thư mục "Hoc tap" nhé!`);
+                }
+            }
+            const out = [];
+            await walk(d, '', out);
+            updateConnUI('ok', d.name, `Quét thấy ${out.length} mục`);
+            return out;
+        }
+
+        function parseWebkitFiles(fileList) {
+            const list = [], dirSet = new Set();
+            for (let i = 0; i < fileList.length; i++) {
+                const f = fileList[i];
+                let p = (f.webkitRelativePath || f.name).replace(/\\/g, '/');
+                const idx = p.toLowerCase().indexOf('hoc tap/');
+                if (idx >= 0) p = p.slice(idx + 8);
+                list.push(p);
+                const parts = p.split('/');
+                let cur = '';
+                for (let j = 0; j < parts.length - 1; j++) { cur += parts[j] + '/'; dirSet.add(cur); }
+            }
+            dirSet.forEach(d => { if (!list.includes(d)) list.push(d); });
+            return list;
+        }
+
+        $('#dirInput').onchange = e => {
+            const files = e.target.files;
+            if (!files || !files.length) return;
+            lastWebkitFiles = files; rootHandle = null;
+            const list = parseWebkitFiles(files);
+            setPresent(list); drawGame();
+            updateConnUI('ok', 'Hoc tap', `Đã quét ${list.length} mục`);
+            gMsg(`✅ Đã kết nối thư mục Hoc tap thành công!`, 'ok');
+        };
+
+        function parsePaste(txt) {
+            return txt.replace(/^\uFEFF/, '').split(/\r?\n/).map(l => l.trim().replace(/\\/g, '/')).filter(Boolean)
+                .map(l => { const i = l.toLowerCase().indexOf('hoc tap/'); return i >= 0 ? l.slice(i + 8) : l; }).filter(Boolean);
+        }
+
+        async function loadState() {
+            if (rootHandle) { setPresent(await readHandle()); return; }
+            if (lastWebkitFiles) { setPresent(parseWebkitFiles(lastWebkitFiles)); return; }
+            const t = $('#pasteBox').value.trim();
+            if (!t) throw new Error('Hãy bấm "Chọn thư mục Hoc tap" trước khi chấm điểm.');
+            const list = parsePaste(t);
+            setPresent(list);
+            updateConnUI('ok', 'Clipboard', `Đã nạp ${list.length} mục`);
+        }
+
+        $('#pickBtn').onclick = async () => {
+            const inIframe = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+            if (window.showDirectoryPicker && !inIframe && window.isSecureContext) {
+                try {
+                    rootHandle = await showDirectoryPicker({ mode: 'read' });
+                    lastWebkitFiles = null;
+                    await loadState(); drawGame();
+                    gMsg('✅ Đã kết nối thư mục Hoc tap!', 'ok');
+                    return;
+                } catch (e) { if (e.name === 'AbortError') return; }
+            }
+            $('#dirInput').click();
+        };
+
+        $('#btnPasteClip').onclick = async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (!text.trim()) return gMsg('Clipboard đang trống! Hãy chạy GhiCay.bat trước.', 'bad');
+                $('#pasteBox').value = text; rootHandle = null; lastWebkitFiles = null;
+                await loadState(); drawGame();
+                gMsg('✅ Đã nạp cây thư mục từ Clipboard!', 'ok');
+            } catch (e) { gMsg('Hãy bấm vào ô dưới và nhấn Ctrl+V.', 'hint'); }
+        };
+
+        $('#btnPasteAndGrade').onclick = async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (!text.trim()) return gMsg('Clipboard đang trống! Hãy chạy GhiCay.bat trước.', 'bad');
+                $('#pasteBox').value = text; rootHandle = null; lastWebkitFiles = null;
+                await loadState(); drawGame();
+                gradeCurrentMission(false);
+            } catch (e) {
+                if ($('#pasteBox').value.trim()) {
+                    gradeCurrentMission(false);
+                } else {
+                    gMsg('Hãy bấm vào ô dưới, nhấn Ctrl+V rồi bấm lại nút này.', 'hint');
+                }
+            }
+        };
+
+        /* ===== 9. CHẤM ĐIỂM COMBO (TÍNH THEO % ĐÚNG VÀ THỜI GIAN) ===== */
+        function evaluateCombo(m) {
+            let missing = (m.to || []).filter(p => !has(p));
+            let still = (m.gone || []).filter(has);
+            let lost = (m.keep || []).filter(p => !has(p));
+            let extraHint = '';
+
+            if (missing.length) {
+                const cleanMissing = [];
+                for (const path of missing) {
+                    const noExt = path.replace(/\.[^/.]+$/, "");
+                    if (has(noExt)) {
+                        extraHint = ' (Tệp thiếu đuôi mở rộng nhưng vẫn tính đạt!)';
+                    } else {
+                        cleanMissing.push(path);
+                    }
+                }
+                missing = cleanMissing;
+            }
+
+            const totalConditions = (m.to || []).length + (m.gone || []).length + (m.keep || []).length;
+            const okConditions = ((m.to || []).length - missing.length) +
+                ((m.gone || []).length - still.length) +
+                ((m.keep || []).length - lost.length);
+
+            const accuracy = totalConditions > 0 ? Math.round((okConditions / totalConditions) * 100) : 100;
+            const isFullSuccess = !missing.length && !still.length && !lost.length;
+
+            let why = '';
+            if (!isFullSuccess) {
+                if (!missing.length && still.length) {
+                    why = `Em đã làm tốt Bước 1, nhưng còn thiếu Bước 2: ${nm(still)} vẫn còn ở vị trí cũ!`;
+                } else if (lost.length) {
+                    why = `Cẩn thận! Em đã làm mất tệp gốc ${nm(lost)}!`;
+                } else {
+                    why = (missing.length ? 'Chưa thấy ' + nm(missing) + ' ở đúng vị trí. ' : '') + (still.length ? 'Vẫn còn ' + nm(still) + ' ở vị trí cũ.' : '');
+                }
+            }
+
+            return {
+                ok: isFullSuccess,
+                accuracy,
+                okConditions,
+                totalConditions,
+                why,
+                extraHint
+            };
+        }
+
+        async function gradeCurrentMission(isAutoTimeUp = false) {
+            pauseTimer();
+
+            const stId = $('#questStudentPick').value;
+            const teamIdx = turnTeam(mIdx);
+            const m = activeMissions[mIdx];
+
+            if (!stId && !isAutoTimeUp) {
+                beep(false);
+                $('#questStudentPick').focus();
+                return gMsg('⚠️ VUI LÒNG CHỌN HỌC SINH ĐẠI DIỆN TRƯỚC KHI CHẤM ĐIỂM!', 'bad');
+            }
+
+            try { await loadState(); }
+            catch (e) {
+                beep(false);
+                return gMsg(e.message, 'bad');
+            }
+
+            drawGame();
+            const treeBox = $('#gTree');
+            treeBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            treeBox.classList.remove('tree-anim-success', 'tree-anim-error');
+            void treeBox.offsetWidth;
+
+            const res = evaluateCombo(m);
+            const stObj = students.find(s => s.id === stId);
+            const stName = stObj ? stObj.name : `Đại diện Tổ ${teamIdx + 1}`;
+
+            // CƠ CHẾ ĐIỂM (Thang 30 điểm):
+            const ptsAccuracy = Math.round(20 * (res.accuracy / 100));
+
+            let ptsSpeed = 0;
+            if (res.ok && !isAutoTimeUp && timerRemaining > 0 && !timerReady) {
+                ptsSpeed = Math.max(1, Math.round(10 * (timerRemaining / totalTimerSeconds)));
+            }
+
+            const totalScore = ptsAccuracy + ptsSpeed;
+
+            if (res.ok) {
+                treeBox.classList.add('tree-anim-success');
+                beep(true);
+                playFanfareSound();
+                fireConfetti();
+
+                scores[teamIdx] += totalScore;
+                doneCnt++;
+                status[mIdx] = 'ok';
+                if (stId) questDoer[mIdx] = stId;
+
+                drawGame();
+
+                const timeNotice = ptsSpeed > 0 ? ` | Tốc độ: Còn ${timerRemaining}s (+${ptsSpeed}đ thưởng)` : ` | Hết giờ (+0đ thưởng tốc độ)`;
+                gMsg(`🎉 XUẤT SẮC! ${stName} (Tổ ${teamIdx + 1}) hoàn thành 100% Combo! Độ chuẩn: +${ptsAccuracy}đ${timeNotice} ➔ TỔNG: +${totalScore} ĐIỂM!${res.extraHint || ''}`, 'ok');
+
+                if (mIdx < activeMissions.length - 1) {
+                    setTimeout(() => {
+                        mIdx++;
+                        mistakes = 0;
+                        resetTimer();
+                        drawGame();
+                    }, 2400);
+                } else {
+                    setTimeout(() => { go(4); }, 2800);
+                }
+            } else if (res.accuracy > 0 && isAutoTimeUp) {
+                treeBox.classList.add('tree-anim-error');
+                beep(false);
+                scores[teamIdx] += ptsAccuracy;
+                drawGame();
+                gMsg(`⏰ HẾT GIỜ! Tổ ${teamIdx + 1} đạt ${res.accuracy}% tiến độ Combo (+${ptsAccuracy} điểm khuyến khích). Còn thiếu: ${res.why}`, 'bad');
+            } else {
+                treeBox.classList.add('tree-anim-error');
+                beep(false);
+                mistakes++;
+                totalMistakes++;
+                gMsg(`❌ Độ chính xác: ${res.accuracy}%. ${res.why}`, 'bad');
+            }
+        }
+
+        $('#gradeBtn').onclick = () => gradeCurrentMission(false);
+
+        $('#skipBtn').onclick = () => {
+            pauseTimer();
+            status[mIdx] = 'skip';
+            if (mIdx < activeMissions.length - 1) {
+                mIdx++;
+                mistakes = 0;
+                resetTimer();
+                drawGame();
+            }
+        };
+
+        /* ===== 10. QUẢN LÝ TỔ (2 ĐẾN 6 TỔ) & ĐIỂM SÀN 100 ĐIỂM ===== */
+        let numTeams = 4, scores = [100, 100, 100, 100], students = [];
+        const FALLBACK = [
+            "Nguyễn Trung An", "Hồ Nhật Anh", "Lý Ngọc Hà Anh", "Tống Nguyễn Bảo Anh", "Trần Lưu Ngọc Anh",
+            "Trần Mai Mỹ Anh", "Trần Ngọc Vy Anh", "Bùi Ngọc Bích", "Nguyễn Minh Châu", "Trần Bảo Châu",
+            "Vũ Hoàng Kim Chi", "Đoàn Quang Trí Dũng", "Nguyễn Minh Đạt", "Hồ Minh Đức", "Hà Thu Hòa",
+            "Trần Anh Hòa", "Nguyễn Lê Khang", "Phạm Tuấn Khang", "Nguyễn Minh Khôi", "Huỳnh Nhật Ngọc Lâm",
+            "Ngô Hoàng Long", "Trần Minh Mẫn", "Dương Ngọc Quý Minh", "Nguyễn Dương Minh Minh", "Phạm Ngọc Khánh My",
+            "Dương Khánh Nam", "Phan Kim Ngân", "Huỳnh Phương Yến Ngọc", "Hoàng Phúc Nha", "Phan Võ Minh Nhân",
+            "Lâm Thành Nhật", "Nguyễn Huỳnh Như", "Lăng Nguyễn Hồng Nhung", "Trần Đức Phát", "Quách Gia Phú",
+            "Ngô Quang Phúc", "Nguyễn Lê Đại Phúc", "Nguyễn Xuân Phúc", "Đặng Nguyễn Phương Quỳnh", "Tạ Anh Thy",
+            "Huỳnh Lâm Mộc Trà", "Trần Cao Thanh Trà", "Trần Minh Triết", "Lê Hoàng Phú Trọng", "Nguyễn Phú Trọng",
+            "Danh Thanh Vân", "Nguyễn Ngọc Bạch Vân", "La Tường Vi", "Đặng Ngọc Vy", "Lê Trần Phương Vy"
+        ];
+
+        for (let i = 1; i <= 6; i++) $('#cls').add(new Option('4/' + i, '4_' + i));
+        for (let i = 2; i <= 6; i++) $('#nTeams').add(new Option(i + ' tổ', i, i === 4, i === 4));
+
+        async function loadClass(id) {
+            let names = [];
+            try {
+                const r = await fetch('../../assets/data/students_4_2026_2027.json');
+                if (r.ok) { const d = await r.json(); if (Array.isArray(d[id])) names = d[id]; }
+            } catch (e) { }
+            if (!names.length) names = FALLBACK;
+            const cnt = {}, seen = {};
+            names = names.map(n => (typeof n === 'string' ? n : n.name || '').trim());
+            names.forEach(n => cnt[n] = (cnt[n] || 0) + 1);
+            students = names.map((n, i) => {
+                if (cnt[n] > 1) { seen[n] = (seen[n] || 0) + 1; n += ` (${seen[n]})`; }
+                return { id: id + '_' + (i + 1), no: i + 1, name: n };
+            });
+            $('#stN').textContent = students.length;
+            updateStudentSelect();
+            updateQuizStudentSelect();
+        }
+
+        function penalizeNoise(teamIdx) {
+            const current = scores[teamIdx];
+            if (current <= 0) return gMsg(`Tổ ${teamIdx + 1} đang có 0 điểm, nhắc nhở giữ trật tự!`, 'bad');
+            const pen = Math.max(5, Math.round(current * 0.10));
+            scores[teamIdx] = Math.max(0, current - pen);
+            drawTeams(); beep(false);
+            gMsg(`🔇 Phạt Tổ ${teamIdx + 1} mất trật tự: −${pen} điểm (còn ${scores[teamIdx]}đ)`, 'bad');
+        }
+
+        function setTeamScore(teamIdx, val) {
+            const num = parseInt(val, 10);
+            scores[teamIdx] = isNaN(num) ? 0 : Math.max(0, num);
+            drawTeams();
+        }
+        window.setTeamScore = setTeamScore;
+
+        function drawTeams() {
+            $('#teams').innerHTML = scores.map((s, i) => `
+                <div class="team ${i === turnTeam(mIdx) ? 'turn' : ''}">
+                    <span class="n">Tổ ${i + 1}</span>
+                    <input type="number" class="score-input" value="${s}" min="0" onchange="setTeamScore(${i}, this.value)">
+                    <button class="noise-btn" data-pen="${i}">🔇 -10%</button>
+                </div>
+            `).join('');
+            $$('#teams [data-pen]').forEach(b => b.onclick = () => penalizeNoise(+b.dataset.pen));
+        }
+
+        $('#cls').onchange = e => loadClass(e.target.value);
+        $('#nTeams').onchange = e => {
+            const n = +e.target.value;
+            scores = Array.from({ length: n }, (_, i) => scores[i] ?? 100);
+            numTeams = n;
+            setPresent(getBaseTreePaths(numTeams));
+            updateActiveMissions();
+            resetTimer();
+            if (curTree) drawGame();
+            drawTeams();
+        };
+        $('#nRounds').onchange = () => {
+            updateActiveMissions();
+            resetTimer();
+            if (curTree) drawGame();
+        };
+
+        /* ===== 11. BẢNG VÀNG CÓ CƠ CHẾ ĐỒNG HẠNG CHUẨN XÁC ===== */
+        function getRankedTeams() {
+            const list = scores.map((s, i) => {
+                const okCnt = activeMissions.filter((_, idx) => turnTeam(idx) === i && status[idx] === 'ok').length;
+                return { i, s, okCnt };
+            });
+
+            list.sort((a, b) => (b.s !== a.s ? b.s - a.s : b.okCnt - a.okCnt));
+
+            for (let k = 0; k < list.length; k++) {
+                if (k > 0) {
+                    const prev = list[k - 1];
+                    const cur = list[k];
+                    if (cur.s === prev.s && cur.okCnt === prev.okCnt) {
+                        cur.rank = prev.rank;
+                        cur.isTie = true;
+                        prev.isTie = true;
+                    } else {
+                        cur.rank = k + 1;
+                        cur.isTie = false;
+                    }
+                } else {
+                    list[0].rank = 1;
+                    list[0].isTie = false;
+                }
+            }
+
+            list.forEach(item => {
+                if (item.rank === 1) {
+                    item.title = item.isTie ? 'Đồng Quán quân' : 'Quán quân';
+                    item.icon = '👑';
+                } else if (item.rank === 2) {
+                    item.title = item.isTie ? 'Đồng Á quân' : 'Á quân';
+                    item.icon = '🥈';
+                } else if (item.rank === 3) {
+                    item.title = item.isTie ? 'Đồng Hạng ba' : 'Hạng ba';
+                    item.icon = '🥉';
+                } else {
+                    item.title = 'Khuyến khích';
+                    item.icon = '⭐';
+                }
+            });
+
+            return list;
+        }
+
+        function drawPodium() {
+            const ranked = getRankedTeams();
+            const topTeams = ranked.filter(t => t.rank <= 3);
+            let displayOrder = [...topTeams];
+            const hasTie1 = topTeams.filter(t => t.rank === 1).length > 1;
+
+            if (!hasTie1 && topTeams.length >= 2) {
+                const r1 = topTeams.find(t => t.rank === 1);
+                const r2 = topTeams.find(t => t.rank === 2);
+                const r3 = topTeams.find(t => t.rank === 3);
+                displayOrder = [r2, r1, r3].filter(Boolean);
+            }
+
+            $('#podium').innerHTML = displayOrder.map(team => {
+                const isRank1 = team.rank === 1;
+                const isRank2 = team.rank === 2;
+                const mb = isRank1 ? 30 : isRank2 ? 12 : 0;
+                return `
+                    <div class="pod" style="margin-bottom:${mb}px;border-color:${isRank1 ? 'var(--yellow)' : 'var(--ink)'}">
+                        <div style="font-size:2.4rem">${team.icon}</div>
+                        <div style="font-weight:900;font-size:1.2rem">Tổ ${team.i + 1}</div>
+                        <div style="font-weight:900;font-size:1.7rem;color:var(--purple)">${team.s} điểm</div>
+                        <small style="font-weight:800;color:#64748b">${team.title}${team.isTie ? ' (Đồng hạng)' : ''}</small>
+                    </div>`;
+            }).join('');
+
+            $('#stDone').textContent = `${doneCnt}/${activeMissions.length}`;
+            const tries = doneCnt + totalMistakes;
+            $('#stAcc').textContent = tries ? Math.round(doneCnt / tries * 100) + '%' : '100%';
+        }
+
+        function reportData() {
+            const cl = $('#cls').value.replace('_', '/'), day = new Date().toLocaleDateString('vi-VN');
+            const teamRows = [
+                ['KẾT QUẢ THI ĐUA CÁC TỔ – BÀI 5: THAO TÁC VỚI TỆP VÀ THƯ MỤC (TIẾT 2)'],
+                [`Lớp: ${cl} – Ngày thực hành: ${day}`],
+                [],
+                ['Hạng', 'Tổ', 'Tổng điểm', 'Số Combo hoàn thành', 'Danh hiệu thi đua']
+            ];
+
+            getRankedTeams().forEach(x => {
+                const rankLabel = x.isTie ? `${x.rank} (Đồng hạng)` : `${x.rank}`;
+                teamRows.push([rankLabel, 'Tổ ' + (x.i + 1), x.s, x.okCnt, x.title]);
+            });
+
+            const stRows = [
+                [`DANH SÁCH HỌC SINH ĐẠI DIỆN THỰC HÀNH COMBO – LỚP ${cl} – NGÀY ${day}`],
+                [],
+                ['STT', 'Họ và tên', 'Lớp', 'Combo đã thực hiện', 'Mức độ', 'Nhận xét']
+            ];
+            students.forEach(s => {
+                const doneTasks = [];
+                questDoer.forEach((stId, qIdx) => { if (stId === s.id && status[qIdx] === 'ok') doneTasks.push(`Combo ${qIdx + 1}`); });
+                stRows.push([s.no, s.name, cl, doneTasks.length ? doneTasks.join(', ') : 'Tham gia thảo luận nhóm', doneTasks.length ? 'Hoàn thành xuất sắc' : 'Đạt', 'Thực hành tích cực']);
+            });
+
+            const quizLogRows = [
+                [`NHẬT KÝ KHỞI ĐỘNG CỦA HỌC SINH – LỚP ${cl} – NGÀY ${day}`],
+                [],
+                ['Thời gian', 'Học sinh', 'Câu hỏi', 'Đáp án đã chọn', 'Kết quả']
+            ];
+            quizLogs.forEach(lg => {
+                quizLogRows.push([lg.time, lg.stName, `Câu ${lg.questionIdx}`, lg.pickText, lg.isCorrect ? 'Đúng ✔' : 'Chưa đúng ❌']);
+            });
+
+            return [['Điểm các tổ', teamRows], ['Học sinh thực hành', stRows], ['Nhật ký khởi động', quizLogRows]];
+        }
+
+        function buildExportName() {
+            const cl = $('#cls').value.replace('_', '-');
+            const d = String(now.getDate()).padStart(2, '0'), m = String(now.getMonth() + 1).padStart(2, '0'), y = now.getFullYear();
+            const hh = String(now.getHours()).padStart(2, '0'), mm = String(now.getMinutes()).padStart(2, '0'), ss = String(now.getSeconds()).padStart(2, '0');
+            return `KetQua_TinHoc4_Lop_${cl}_Tiet_10_${hh}h${mm}p${ss}s_Ngay_${d}-${m}-${y}.csv`;
+        }
+
+        function exportCsvLocal() {
+            let out = '\uFEFF';
+            reportData().forEach(([t, rows]) => {
+                out += `=== ${t.toUpperCase()} ===\r\n` + rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n') + '\r\n\r\n';
+            });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([out], { type: 'text/csv;charset=utf-8' }));
+            a.download = buildExportName();
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        }
+
+        $('#csvDriveBtn').onclick = async () => {
+            if (typeof window.uploadCsvToDrive === 'function') {
+                try { await window.uploadCsvToDrive(reportData(), buildExportName()); }
+                catch (e) { exportCsvLocal(); }
+            } else exportCsvLocal();
+        };
+        $('#csvLocalBtn').onclick = exportCsvLocal;
+
+        /* ===== 12. KHỞI TẠO BAN ĐẦU ===== */
+        loadClass('4_1');
+        updateActiveMissions();
+        setPresent(getBaseTreePaths(numTeams));
+        resetTimer();
+        drawGame();
+        renderRelicQuiz();
+        updateConnUI('init', 'Đang hiện cây mẫu Tiết 2 (Độc lập từng tổ)');
+        gMsg('Chạy TaoCay.bat → Bấm "Chọn thư mục Hoc tap" → Sẵn sàng thì bấm "BẮT ĐẦU TÍNH GIỜ" → Thực hiện combo và chấm điểm!');
+    </script>
+</body>
+
+</html>
