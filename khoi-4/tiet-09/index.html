@@ -5,90 +5,122 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bài 5: Thao tác với tệp và thư mục (Tiết 1) – Tin học 4</title>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;700;800;900&display=swap" rel="stylesheet">
-<!-- Thư viện xuất Excel & Hiệu ứng ăn mừng -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- Hiệu ứng pháo hoa ăn mừng khi hoàn thành bài -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-<!-- Chống tải lại trang gây mất điểm bài giảng -->
+<!-- Tích hợp Google Drive & Toast dùng chung của Khối 4 -->
+<script src="../shared/components.js"></script>
+<!-- Bộ bảo vệ chống F5 và reload mất dữ liệu tiết học của repo -->
 <script src="../../shared/js/prevent-reload.js"></script>
 <style>
-:root{--ink:#14213d;--paper:#fffdf7;--bg:#f3efe3;--coral:#e0453a;--green:#2e9e5b;--yellow:#ffd23f;--blue:#2563eb;--purple:#6d4fd1;--folder:#f5b82e;--file:#6bb7e6;--line:#cbd5e1}
+:root{--ink:#14213d;--paper:#ffffff;--bg:#f4efe6;--coral:#e0453a;--green:#16a34a;--yellow:#ffd23f;--blue:#2563eb;--purple:#6d4fd1;--folder:#f5b82e;--file:#6bb7e6;--line:#cbd5e1}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 body{font-family:'Be Vietnam Pro',system-ui,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column}
 button,select,input{font:inherit}
-button{font-weight:800;border:2px solid var(--ink);background:#fff;border-radius:10px;padding:8px 12px;cursor:pointer;color:var(--ink);transition:all .15s ease}
+button{font-weight:800;border:2px solid var(--ink);background:#fff;border-radius:10px;padding:7px 12px;cursor:pointer;color:var(--ink);transition:all .15s ease}
 button:hover:enabled{background:#fff3c4;transform:translateY(-1px)}
 button:active:enabled{transform:translateY(1px)}
 button:disabled{opacity:.4;cursor:not-allowed}
-.go{background:var(--green);color:#fff}.go:hover:enabled{background:#26874e}
-.warn{background:var(--coral);color:#fff}.warn:hover:enabled{background:#c93a30}
+.go{background:var(--green);color:#fff;border-color:#14532d}.go:hover:enabled{background:#15803d}
+.warn{background:var(--coral);color:#fff;border-color:#991b1b}.warn:hover:enabled{background:#b91c1c}
+.noise-btn{background:#fee2e2;color:#991b1b;border-color:#ef4444;font-size:.82rem;padding:4px 8px;border-radius:8px;font-weight:900}
+.noise-btn:hover:enabled{background:#fca5a5}
 .info{background:#eff6ff;color:var(--blue);border-color:var(--blue)}.info:hover:enabled{background:#dbeafe}
-.sm{padding:4px 10px;font-size:.85rem;border-radius:8px}
+.sm{padding:4px 9px;font-size:.85rem;border-radius:8px}
 select,input[type=text]{font-weight:700;padding:5px 8px;border-radius:8px;border:2px solid var(--ink);background:#fff}
+.score-input{width:68px;font-weight:900;font-size:1.25rem;text-align:center;border:2px solid var(--line);border-radius:8px;padding:3px 4px;background:#f8fafc;color:var(--purple)}
+.score-input:focus{border-color:var(--blue);background:#fff;outline:none}
+
 header{display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--ink);color:#fff;flex-wrap:wrap}
-header h1{font-size:1.1rem;margin:0;flex:1;min-width:260px}
-header label{font-size:.85rem;font-weight:700}
-#clock{font-family:monospace;font-size:1.3rem;font-weight:900;color:var(--yellow);background:rgba(255,255,255,.1);padding:2px 8px;border-radius:6px}
+header h1{font-size:1.15rem;margin:0;flex:1;min-width:260px}
+header label{font-size:.88rem;font-weight:700}
 nav{display:flex;gap:6px;padding:8px 14px 0;background:var(--bg)}
 nav button{border-radius:10px 10px 0 0;border-bottom:none}
 nav button.on{background:var(--ink);color:#fff}
-.layout{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:12px;padding:0 14px 14px;min-height:0}
+.layout{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:12px;padding:0 14px 14px;min-height:0}
 main{min-height:0;overflow:auto}
 .screen{display:none}.screen.on{display:block}
 .card{background:var(--paper);border:3px solid var(--ink);border-radius:16px;padding:16px}
 h2{margin:0 0 10px;font-size:1.35rem}
-/* Vở ghi */
-#board{--fs:1.45rem;font-size:var(--fs);line-height:1.8;background-color:var(--paper);background-image:repeating-linear-gradient(transparent,transparent calc(var(--fs)*1.8 - 1px),#d0e7f7 calc(var(--fs)*1.8 - 1px),#d0e7f7 calc(var(--fs)*1.8));padding:18px 34px;transition:background .2s}
-#board.dark{background-color:#14532d;color:#fff;background-image:repeating-linear-gradient(transparent,transparent calc(var(--fs)*1.8 - 1px),rgba(255,255,255,.14) calc(var(--fs)*1.8 - 1px),rgba(255,255,255,.14) calc(var(--fs)*1.8))}
-#board .c{text-align:center;margin:0;font-weight:800}
-#board h3{margin:0;text-align:center;font-size:1.3em;font-weight:900}
-.step{background:rgba(255,255,255,.93);color:var(--ink);border:2px solid var(--line);border-left:9px solid var(--coral);border-radius:14px;padding:6px 20px;margin:10px 0;line-height:1.65}
-.step.o{border-left-color:#f59e0b}
-.step ul{margin:4px 0;padding-left:24px;font-weight:700}
-.tools{display:flex;gap:6px;justify-content:flex-end;margin-bottom:6px;font-size:.85rem}
-/* Sơ đồ cây */
-.treebox{background:#fff;border:2px solid var(--line);border-radius:14px;padding:8px;overflow-x:auto}
-.treebox svg{display:block;width:100%;height:auto;min-width:550px;max-height:58vh}
+
+/* ===== VỞ GHI TỐI GIẢN (HIỆN TRỌN VẸN CHỮ, KHÔNG CẮT CỤT) ===== */
+#boardWrap{background:#fff;border:3px solid var(--ink);border-radius:16px;padding:24px 30px;min-height:360px}
+.board-date{font-size:1.1rem;font-style:italic;font-weight:700;color:#475569;text-align:center;margin-bottom:4px}
+.board-subject{font-size:1.25rem;font-weight:900;color:var(--coral);text-align:center;margin-bottom:6px}
+.board-title{font-size:1.6rem;font-weight:900;text-align:center;margin-bottom:24px;line-height:1.4;color:var(--ink)}
+.board-line{font-size:1.35rem;font-weight:800;line-height:1.8;margin:16px 0;opacity:0;transform:translateY(10px);transition:all .35s ease;white-space:normal;word-break:break-word}
+.board-line.show{opacity:1;transform:translateY(0)}
+.board-nav{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+
+/* ===== SỔ TAY HƯỚNG DẪN THAO TÁC WINDOWS 11 ===== */
+.win11-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:14px 0}
+.win11-card{background:#f8fafc;border:2px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.win11-card.highlight{border-color:var(--blue);background:#eff6ff}
+.win11-head{display:flex;align-items:center;gap:8px;font-size:1.15rem;font-weight:900}
+.win11-head span.icon{font-size:1.4rem}
+.win11-body{font-size:.95rem;line-height:1.6;font-weight:700;color:#334155}
+.win11-badge{display:inline-block;background:#e2e8f0;padding:2px 8px;border-radius:6px;font-family:monospace;font-size:.88rem;font-weight:800;color:#0f172a}
+
+/* ===== THANH TRẠNG THÁI KẾT NỐI THƯ MỤC ===== */
+.conn-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:12px;margin-bottom:10px;border:2px solid var(--line);background:#f8fafc;flex-wrap:wrap}
+.conn-bar.ok{background:#f0fdf4;border-color:#86efac;color:#166534}
+.conn-bar.bad{background:#fef2f2;border-color:#fca5a5;color:#991b1b}
+.conn-bar.warn{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.conn-status{font-weight:900;font-size:1rem;display:flex;align-items:center;gap:6px}
+
+/* Sơ đồ cây & Animation phản hồi */
+.treebox{background:#fff;border:2px solid var(--line);border-radius:14px;padding:8px;overflow-x:auto;transition:all .3s ease}
+.treebox svg{display:block;width:100%;height:auto;min-width:550px;max-height:55vh}
 .edge{fill:none;stroke:#9a927a;stroke-width:2.8}
 .node{cursor:pointer}
 .node rect{stroke:var(--ink);stroke-width:2.5;transition:all .2s ease}
 .node.folder rect{fill:var(--folder)}.node.file rect{fill:var(--file)}
-.node.sel rect{stroke:var(--blue);stroke-width:6}
-.node.dest rect{stroke:var(--green);stroke-width:5;stroke-dasharray:7 4}
-.node.mark rect{stroke:var(--green);stroke-width:6;filter:drop-shadow(0 2px 6px rgba(46,158,91,.4))}
+.node.mark rect{stroke:var(--green);stroke-width:6;filter:drop-shadow(0 2px 6px rgba(22,163,74,.4))}
 .node.flash rect{stroke:var(--coral);stroke-width:6;fill:#fee2e2;stroke-dasharray:6 4}
 .node text{font-size:16px;font-weight:800;fill:var(--ink);pointer-events:none}
 .nocl .node{cursor:default}
-.top3{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px}.top3>div{flex:1;min-width:280px}
-.chip{display:inline-block;padding:4px 10px;border-radius:99px;border:2px solid var(--line);font-weight:800;font-size:.85rem;background:#fff;margin:0 4px 4px 0}.chip.ok{background:#d7f2e0;border-color:var(--green)}.chip.cur{background:#dbeafe;border-color:var(--blue);box-shadow:0 0 0 2px var(--blue)}.chip.skip{background:#eee;color:#888}
-details{margin-top:8px}textarea{width:100%;height:100px;font:13px monospace;border:2px solid var(--ink);border-radius:8px;padding:6px}
-.msg{margin-top:10px;min-height:3.2em;font-weight:800;font-size:1.1rem;border-radius:12px;padding:10px 14px;background:#eee9d9;line-height:1.5}
+
+/* Animation phản hồi khi bấm Chấm điểm */
+@keyframes animPulseSuccess {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22,163,74,.7); }
+  50% { transform: scale(1.015); box-shadow: 0 0 0 10px rgba(22,163,74,0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22,163,74,0); }
+}
+@keyframes animShakeError {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+.tree-anim-success{animation:animPulseSuccess .7s ease;border-color:var(--green)!important}
+.tree-anim-error{animation:animShakeError .5s ease;border-color:var(--coral)!important}
+
+.top-bar-quest{display:grid;grid-template-columns:1fr auto;gap:12px;margin-bottom:10px}
+.quest-box{background:#eff6ff;border:2px solid var(--blue);border-radius:14px;padding:12px 14px}
+.chip{display:inline-block;padding:4px 10px;border-radius:99px;border:2px solid var(--line);font-weight:800;font-size:.85rem;background:#fff;margin:0 4px 4px 0;cursor:pointer}
+.chip:hover{background:#f1f5f9}
+.chip.ok{background:#d7f2e0;border-color:var(--green);color:#14532d}
+.chip.cur{background:#dbeafe;border-color:var(--blue);box-shadow:0 0 0 2px var(--blue);color:var(--blue)}
+.chip.skip{background:#eee;color:#888}
+
+.msg{margin-top:10px;min-height:3em;font-weight:800;font-size:1.08rem;border-radius:12px;padding:10px 14px;background:#eee9d9;line-height:1.5}
 .msg.ok{background:#d7f2e0;color:#14532d;border:2px solid #86efac}.msg.bad{background:#fde0dd;color:#8a1c14;border:2px solid #fca5a5}.msg.hint{background:#dbeafe;color:#1e3a8a;border:2px solid #93c5fd}
-#mText{font-size:1.4rem;font-weight:800;line-height:1.45}
-#mTag{font-size:1.15rem;font-weight:900;color:var(--blue);margin-bottom:4px}
-.opt{display:block;width:100%;text-align:left;font-size:1.2rem;margin-bottom:8px;padding:12px 16px;line-height:1.4}
-/* Hướng dẫn thao tác */
-.guide-box{background:#f8fafc;border:2px dashed #94a3b8;border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:.9rem}
-.guide-box ol{margin:4px 0;padding-left:20px}
-.guide-box li{margin-bottom:3px}
-/* Sidebar */
+#mText{font-size:1.35rem;font-weight:800;line-height:1.45}
+#mTag{font-size:1.1rem;font-weight:900;color:var(--blue);margin-bottom:4px}
+
+/* Sidebar chỉ chứa Điểm thi đua các tổ */
 aside{display:flex;flex-direction:column;gap:10px;overflow:auto;min-height:0}
-.team{display:flex;align-items:center;gap:5px;padding:6px 8px;border:2px solid var(--line);border-radius:10px;background:#fff;margin-bottom:6px;font-weight:900}
+.team{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:2px solid var(--line);border-radius:10px;background:#fff;margin-bottom:8px;font-weight:900}
 .team.turn{background:#fff3c4;border-color:var(--folder);box-shadow:0 0 0 2px var(--folder)}
-.team .n{flex:1}.team .p{font-size:1.5rem;min-width:2.2em;text-align:right}
+.team .n{flex:1;font-size:1.05rem}
 .team small{font-weight:700;color:#64748b}
-#stList{max-height:220px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px}
-.st{display:flex;justify-content:space-between;padding:4px 6px;border-radius:6px;font-size:.85rem;font-weight:700;cursor:pointer}
-.st:hover{background:#f1f5f9}
-.st.on{background:#dbeafe;color:var(--blue)}
-.chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+
 /* Bảng vàng */
 .podium{display:flex;gap:14px;justify-content:center;align-items:flex-end;flex-wrap:wrap;margin:18px 0}
 .pod{background:var(--paper);border:3px solid var(--ink);border-radius:16px;padding:14px 22px;min-width:160px;text-align:center}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
 .stat{background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px;text-align:center}
 .stat b{display:block;font-size:1.8rem;color:var(--purple)}
-@media(max-width:900px){.layout{grid-template-columns:1fr}}
+@media(max-width:900px){.layout,.top-bar-quest{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -96,120 +128,158 @@ aside{display:flex;flex-direction:column;gap:10px;overflow:auto;min-height:0}
   <h1>📁 Bài 5: Thao tác với tệp và thư mục (Tiết 1) – Tin học 4</h1>
   <label>Lớp <select id="cls"></select></label>
   <label>Số tổ <select id="nTeams"></select></label>
-  <span id="clock">35:00</span>
-  <button class="sm" id="clkBtn" title="Bắt đầu / Tạm dừng">▶</button>
-  <button class="sm" id="clkRst" title="Đặt lại 35 phút">↺</button>
+  <label>Số vòng chơi <select id="nRounds">
+    <option value="2" selected>2 vòng (mỗi tổ 2 lượt)</option>
+    <option value="3">3 vòng (mỗi tổ 3 lượt)</option>
+  </select></label>
 </header>
 <nav>
   <button data-go="1" class="on">✍️ Vở ghi</button>
-  <button data-go="2">🚀 Khởi động</button>
+  <button data-go="2">🚀 Sổ tay Windows 11</button>
   <button data-go="3">🖥️ Thực hành máy thật</button>
   <button data-go="4">🏆 Bảng vàng</button>
 </nav>
 
 <div class="layout">
 <main>
-  <!-- 1. VỞ GHI -->
+  <!-- 1. VỞ GHI (ĐẦY ĐỦ THỨ NGÀY THÁNG NEW DATE, TÊN MÔN, TÊN BÀI, HIỂN THỊ TRỌN VẸN CHỮ) -->
   <section class="screen on" id="s1">
-    <div class="tools">
-      <button class="sm" id="themeBtn">🟢 Bảng xanh</button>
-      <button class="sm" id="fMinus">A−</button><button class="sm" id="fPlus">A+</button>
-    </div>
-    <div class="card" id="board">
-      <p class="c" id="today" style="font-style:italic;font-weight:600"></p>
-      <p class="c" style="color:var(--coral)">MÔN: TIN HỌC · KHỐI 4</p>
-      <h3>BÀI 5: THAO TÁC VỚI TỆP VÀ THƯ MỤC (Tiết 1)</h3>
-      <div class="step">
-        <b style="color:var(--coral)">1. Các thao tác với tệp và thư mục:</b>
-        <ul>
-          <li>Tạo thư mục mới, đổi tên, xoá, di chuyển, sao chép.</li>
-          <li><span style="color:var(--blue)">Di chuyển:</span> tệp và thư mục con chuyển sang vị trí mới, <u>không còn ở vị trí cũ</u>.</li>
-          <li><span style="color:var(--purple)">Sao chép:</span> tệp và thư mục con có <u>ở cả vị trí cũ và vị trí mới</u>.</li>
-        </ul>
+    <div class="card">
+      <div class="board-nav">
+        <span style="font-weight:900;margin-right:8px">Lần ghi bài:</span>
+        <button id="btnB1" class="sm info">1. Tiêu đề bài</button>
+        <button id="btnB2" class="sm">2. Phần 1: Thao tác</button>
+        <button id="btnB3" class="sm">3. Phần 2: Lưu ý</button>
+        <button id="btnBAll" class="sm">Hiện tất cả</button>
       </div>
-      <div class="step o">
-        <b style="color:#c2410c">2. Tác hại khi thao tác nhầm:</b>
-        <ul>
-          <li>Làm <b>mất thông tin</b>, <b>lỗi chương trình</b>, đảo lộn cách lưu trữ, tốn bộ nhớ.</li>
-          <li>Chỉ thao tác với tệp và thư mục <b>do mình tạo ra</b>. Không tự ý xoá, đổi tên, di chuyển thư mục hệ thống (như <code>C:\Windows</code>).</li>
-        </ul>
+
+      <div id="boardWrap">
+        <div class="board-date" id="boardDate">Thứ ..., ngày ... tháng ... năm ...</div>
+        <div class="board-subject">MÔN: TIN HỌC · KHỐI 4</div>
+        <div class="board-title">BÀI 5: THAO TÁC VỚI TỆP VÀ THƯ MỤC (Tiết 1)</div>
+        <div class="board-line" id="bLine1">1. Thao tác: Tạo mới, đổi tên, xoá, di chuyển (mất chỗ cũ), sao chép (còn chỗ cũ).</div>
+        <div class="board-line" id="bLine2">2. Lưu ý: Chỉ thao tác tệp của mình; cẩn thận tránh làm mất dữ liệu, lỗi máy.</div>
       </div>
-      <div style="text-align:right"><button class="go" data-go="2">Sang phần Khởi động ▶</button></div>
+
+      <div style="text-align:right;margin-top:14px">
+        <button class="go" data-go="2">Sang Sổ tay thao tác Windows 11 ▶</button>
+      </div>
     </div>
   </section>
 
-  <!-- 2. KHỞI ĐỘNG -->
+  <!-- 2. SỔ TAY HƯỚNG DẪN THAO TÁC WINDOWS 11 -->
   <section class="screen" id="s2">
     <div class="card">
-      <h2>🚀 Tình huống: Thu An chuyển từ Nhóm 1 sang Nhóm 2 – cần làm gì?</h2>
-      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-        <button id="dMove" style="background:#dbeafe">✂️ Thử Di chuyển (Move)</button>
-        <button id="dCopy" style="background:#ede9fe">📋 Thử Sao chép (Copy)</button>
-        <button id="dRst">🔄 Đặt lại ban đầu</button>
+      <h2>📖 Sổ tay thao tác tệp & thư mục (Chuẩn Windows 11)</h2>
+      <p style="margin:4px 0 10px;font-weight:700;color:#64748b">
+        Trên <b>File Explorer của Windows 11</b>, các nút lệnh được thu gọn thành biểu tượng trực quan trên thanh công cụ:
+      </p>
+
+      <div class="win11-grid">
+        <div class="win11-card highlight">
+          <div class="win11-head"><span class="icon">✂️</span> <span>1. Di chuyển (Move)</span></div>
+          <div class="win11-body">
+            Windows 11 không còn nút chữ "Move to". Hãy dùng biểu tượng cây kéo <b>Cut</b> (hoặc <span class="win11-badge">Ctrl + X</span>) → Mở thư mục đích → Bấm biểu tượng <b>Paste</b> (<span class="win11-badge">Ctrl + V</span>).<br>
+            <span style="color:var(--coral)">👉 Tệp biến mất ở vị trí cũ, chuyển sang vị trí mới.</span>
+          </div>
+        </div>
+
+        <div class="win11-card">
+          <div class="win11-head"><span class="icon">📋</span> <span>2. Sao chép (Copy)</span></div>
+          <div class="win11-body">
+            Bấm biểu tượng 2 trang giấy <b>Copy</b> trên thanh lệnh (hoặc <span class="win11-badge">Ctrl + C</span>) → Mở thư mục đích → Bấm <b>Paste</b> (<span class="win11-badge">Ctrl + V</span>).<br>
+            <span style="color:var(--purple)">👉 Tệp được nhân bản, có ở cả hai nơi.</span>
+          </div>
+        </div>
+
+        <div class="win11-card">
+          <div class="win11-head"><span class="icon">➕</span> <span>3. Tạo thư mục mới (New)</span></div>
+          <div class="win11-body">
+            Bấm nút <b>+ New</b> ở góc trái thanh công cụ → Chọn <b>Folder</b> (hoặc phím tắt <span class="win11-badge">Ctrl + Shift + N</span>) → Gõ tên thư mục rồi gõ <span class="win11-badge">Enter</span>.
+          </div>
+        </div>
+
+        <div class="win11-card">
+          <div class="win11-head"><span class="icon">✏️</span> <span>4. Đổi tên (Rename)</span></div>
+          <div class="win11-body">
+            Chọn tệp/thư mục → Bấm biểu tượng khung chữ I <b>Rename</b> trên thanh công cụ (hoặc phím tắt <span class="win11-badge">F2</span>) → Gõ tên mới rồi gõ <span class="win11-badge">Enter</span>.
+          </div>
+        </div>
+
+        <div class="win11-card">
+          <div class="win11-head"><span class="icon">🗑️</span> <span>5. Xoá (Delete)</span></div>
+          <div class="win11-body">
+            Chọn tệp/thư mục → Bấm biểu tượng thùng rác <b>Delete</b> trên thanh công cụ (hoặc phím <span class="win11-badge">Delete</span> trên bàn phím).
+          </div>
+        </div>
       </div>
-      <div class="treebox nocl" id="warmTree"></div>
-      <div class="msg hint" id="warmMsg"></div>
-      <h2 style="margin-top:16px">❓ Cách nào là tốt nhất?</h2>
-      <button class="opt" data-q="A">A. Tạo mới thư mục Thu An ở Nhom 2 và xoá thư mục Thu An ở Nhom 1.</button>
-      <button class="opt" data-q="B">B. Di chuyển thư mục Thu An từ Nhom 1 sang Nhom 2.</button>
-      <button class="opt" data-q="C">C. Sao chép thư mục Thu An sang Nhom 2, rồi xoá thư mục Thu An ở Nhom 1.</button>
-      <div class="msg" id="qMsg" style="display:none"></div>
-      <div style="text-align:right;margin-top:10px"><button class="go" data-go="3">Sang phần Thực hành ▶</button></div>
+
+      <div style="text-align:right;margin-top:14px">
+        <button class="go" data-go="3">Bắt đầu Thực hành máy thật ▶</button>
+      </div>
     </div>
   </section>
 
   <!-- 3. THỰC HÀNH MÁY THẬT -->
   <section class="screen" id="s3">
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-        <h2>🖥️ Thực hành trên máy thật – Chấm điểm tự động</h2>
-        <div style="display:flex;gap:6px">
-          <button class="sm info" id="helpToggle">💡 Hướng dẫn 3 bước</button>
-          <button class="sm" id="gReset">🔄 Làm mới từ đầu</button>
+      <!-- THANH TRẠNG THÁI KẾT NỐI THƯ MỤC CÓ UI RÕ RÀNG -->
+      <div class="conn-bar" id="connBar">
+        <div class="conn-status" id="connIconText">⚪ Chưa kết nối thư mục (Đang hiện cây mẫu ban đầu)</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button id="pickBtn" class="sm go">📂 Chọn thư mục "Hoc tap"</button>
+          <input type="file" id="dirInput" webkitdirectory directory multiple style="display:none">
+          <button id="btnDlTaoCay" class="sm">📥 Tải TaoCay.bat</button>
+          <button id="btnDlGhiCay" class="sm">📥 Tải GhiCay.bat</button>
         </div>
       </div>
 
-      <!-- Hướng dẫn 3 bước cho lớp học -->
-      <div class="guide-box" id="guideBox">
-        <b>📋 Các bước thực hiện (chạy mượt trên GitHub Pages / Chrome / Edge):</b>
-        <ol>
-          <li><b>Bước 1:</b> Nhấn <button class="sm" id="btnDlTaoCay" style="padding:1px 6px">📥 Tải TaoCay.bat</button> rồi nhấp đúp chạy để tạo nhanh thư mục mẫu <code>C:\TinHoc4\Hoc tap</code> trên máy tính.</li>
-          <li><b>Bước 2:</b> Nhấn nút <b>📂 Chọn thư mục "Hoc tap"</b> bên dưới và bấm <i>"Xem tệp / Cho phép"</i> khi trình duyệt hỏi.</li>
-          <li><b>Bước 3:</b> Từng tổ lần lượt thao tác trên <b>File Explorer</b> của Windows theo yêu cầu nhiệm vụ, rồi bấm <b>✔ Chấm điểm</b>!</li>
-        </ol>
-      </div>
-
-      <div class="top3">
-        <div style="background:#eff6ff;border:2px solid var(--blue);border-radius:14px;padding:12px 14px">
-          <div id="mTag"></div><div id="mText"></div>
-        </div>
-        <div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button id="pickBtn" style="background:#fff3c4">📂 Chọn thư mục "Hoc tap"</button>
-            <button class="go" id="gradeBtn">✔ Chấm điểm</button>
-            <button class="sm" id="skipBtn">⏭ Bỏ qua</button>
-          </div>
-          <div style="font-size:.85rem;font-weight:700;margin-top:6px;color:#64748b" id="srcInfo">Chưa kết nối thư mục (đang hiện cây mẫu ban đầu).</div>
-          
-          <details>
-            <summary style="font-weight:800;cursor:pointer;margin-top:6px;color:var(--purple)">
-              ⚙️ Phương án dự phòng (Trình duyệt không hỗ trợ chọn thư mục)
-            </summary>
-            <div style="margin-top:6px">
-              <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">
-                <button class="sm" id="btnDlGhiCay">📥 Tải GhiCay.bat</button>
-                <button class="sm" id="btnPasteClip">📋 Dán từ Clipboard</button>
-              </div>
-              <textarea id="pasteBox" placeholder="Chạy GhiCay.bat trên máy tính rồi nhấn Ctrl+V (hoặc bấm Dán từ Clipboard) vào đây..."></textarea>
+      <!-- ĐIỀU HƯỚNG QUEST & NỘI DUNG NHIỆM VỤ -->
+      <div class="top-bar-quest">
+        <div class="quest-box">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div id="mTag"></div>
+            <div style="display:flex;gap:4px">
+              <button class="sm" id="prevQuestBtn" title="Nhiệm vụ trước">◀ Trước</button>
+              <button class="sm" id="nextQuestBtn" title="Nhiệm vụ tiếp">Tiếp ▶</button>
             </div>
-          </details>
+          </div>
+          <div id="mText"></div>
+        </div>
+
+        <div style="background:#f8fafc;border:2px solid var(--line);border-radius:14px;padding:12px;min-width:280px">
+          <!-- BẮT BUỘC CHỌN HỌC SINH THỰC HIỆN TRƯỚC KHI CHẤM (CHỈ ĐƯỢC LÊN 1 LẦN) -->
+          <div style="font-weight:900;margin-bottom:4px;color:var(--coral)">
+            👤 Học sinh đại diện thực hiện <span style="color:red">*</span>:
+          </div>
+          <select id="questStudentPick" style="width:100%;margin-bottom:8px">
+            <option value="">-- Chọn học sinh (Mỗi em 1 lần) --</option>
+          </select>
+          <div style="display:flex;gap:6px">
+            <button class="go" id="gradeBtn" style="flex:1">✔ Chấm điểm</button>
+            <button class="sm" id="skipBtn">Bỏ qua</button>
+          </div>
         </div>
       </div>
 
-      <div id="chips"></div>
+      <!-- CHIP DANH SÁCH QUEST ĐỂ CHUYỂN QUA LẠI -->
+      <div id="chips" style="margin-bottom:6px"></div>
+      
+      <!-- CÂY THƯ MỤC SVG VỚI ANIMATION PHẢN HỒI -->
       <div class="treebox nocl" id="gTree"></div>
       <div class="msg hint" id="gMsg"></div>
-      <button class="go" id="nextBtn" style="display:none;width:100%;margin-top:8px;font-size:1.1rem;padding:12px">Nhiệm vụ tiếp theo ▶</button>
+
+      <!-- KHUNG DỰ PHÒNG DÁN CLIPBOARD TỪ GHICAY.BAT -->
+      <details style="margin-top:8px">
+        <summary style="font-weight:800;cursor:pointer;color:var(--purple)">
+          ⚙️ Dự phòng dán cây từ GhiCay.bat (Nếu cần)
+        </summary>
+        <div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <button class="sm" id="btnPasteClip">📋 Dán từ Clipboard</button>
+          <span style="font-size:.85rem;color:#64748b">Chạy GhiCay.bat rồi bấm nút để dán cây vào kiểm tra</span>
+        </div>
+        <textarea id="pasteBox" style="margin-top:4px" placeholder="Dán nội dung cây thư mục tại đây..."></textarea>
+      </details>
     </div>
   </section>
 
@@ -223,27 +293,24 @@ aside{display:flex;flex-direction:column;gap:10px;overflow:auto;min-height:0}
         <div class="stat"><b id="stDone">0</b>Nhiệm vụ hoàn thành</div>
         <div class="stat"><b id="stAcc">–</b>Tỉ lệ đúng ngay</div>
       </div>
-      <div style="margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-        <button class="go" id="xlsBtn">📥 Tải Báo cáo Excel (.xlsx)</button>
-        <button id="csvBtn">📄 Tải Báo cáo CSV (UTF-8)</button>
+      <div style="margin-top:20px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
+        <!-- ĐỒNG BỘ GOOGLE DRIVE CHUẨN TOÀN REPO -->
+        <button class="go" id="csvDriveBtn" style="font-size:1.1rem;padding:12px 24px">
+          ☁️ Xuất CSV & Lưu lên Google Drive
+        </button>
+        <button id="csvLocalBtn" style="font-size:1rem;padding:12px 18px">
+          📄 Tải file CSV về máy
+        </button>
       </div>
     </div>
   </section>
 </main>
 
 <aside>
-  <div class="card" style="padding:10px">
-    <div style="font-weight:900;margin-bottom:6px">🚩 Điểm thi đua các tổ <small style="font-weight:700;color:#64748b">(vàng = đang đến lượt)</small></div>
+  <!-- CHỈ GIỮ LẠI ĐIỂM THI ĐUA CÁC TỔ, SỬA ĐIỂM BẰNG PHÍM VÀ NÚT -10% PHẠT ỒN -->
+  <div class="card" style="padding:12px">
+    <div style="font-weight:900;margin-bottom:8px;font-size:1.05rem">🚩 Điểm thi đua các tổ</div>
     <div id="teams"></div>
-  </div>
-  <div class="card" style="padding:10px">
-    <div style="font-weight:900">👥 Danh sách học sinh (<span id="stCount">0</span>)</div>
-    <input type="text" id="stSearch" placeholder="Tìm tên học sinh..." style="width:100%;margin:6px 0">
-    <div id="stList"></div>
-    <div id="assign" style="display:none">
-      <div style="font-size:.8rem;font-weight:800;margin-top:6px">Xếp em <span id="stPick" style="color:var(--blue)"></span> vào:</div>
-      <div class="chips" id="assignChips"></div>
-    </div>
   </div>
 </aside>
 </div>
@@ -271,16 +338,15 @@ function fireConfetti() {
   }
 }
 
-/* ===== 2. NỘI DUNG VÀ HỖ TRỢ TẢI FILE .BAT TRÊN MỌI MÔI TRƯỜNG ===== */
+/* ===== 2. NỘI DUNG TẢI FILE .BAT TỰ ĐỘNG TẠI THƯ MỤC HIỆN TẠI (%~dp0) ===== */
 const BAT_TAO_CAY = `@echo off
 chcp 65001 >nul
 title KHOI TAO CAY THU MUC MAU - BAI 5 TIN HOC 4
 echo ========================================================
 echo   DANG KHOI TAO CAY THU MUC MAU CHO TIET HOC
-echo   Thu muc muc tieu: C:\\TinHoc4\\Hoc tap
 echo ========================================================
 
-set "R=C:\\TinHoc4\\Hoc tap"
+set "R=%~dp0Hoc tap"
 if exist "%R%" rmdir /s /q "%R%"
 mkdir "%R%"
 mkdir "%R%\\Nhom 1\\Thu An"
@@ -299,8 +365,10 @@ type nul > "%R%\\Nhom 2\\Binh\\Gioi thieu.pptx"
 mkdir "%R%\\Nhom 3"
 
 echo.
-echo [THANH CONG] Da tao xong cay thu muc mau tai: %R%
-echo Cua so thu muc dang duoc mo de cac to bat dau thuc hanh...
+echo [THANH CONG] Da tao xong thu muc tai:
+echo "%R%"
+echo.
+echo Cua so thu muc dang duoc mo len de cac em thuc hanh...
 echo ========================================================
 start "" "%R%"
 pause
@@ -310,11 +378,11 @@ const BAT_GHI_CAY = `@echo off
 chcp 65001 >nul
 title GHI CAY THU MUC HIEN TAI VAO CLIPBOARD
 echo ========================================================
-echo   DANG DOC CAY THU MUC: C:\\TinHoc4\\Hoc tap
+echo   DANG DOC CAY THU MUC: Hoc tap
 echo ========================================================
 
-set "R=C:\\TinHoc4\\Hoc tap"
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$r='%R%'; if (-not (Test-Path -LiteralPath $r)) { Write-Host 'Khong tim thay thu muc %R%! Hay chay TaoCay.bat truoc.' -ForegroundColor Red; pause; exit }; $o = Get-ChildItem -LiteralPath $r -Recurse -Force | ForEach-Object { $p=$_.FullName.Substring($r.Length+1).Replace('\\','/'); if($_.PSIsContainer){$p+'/'}else{$p} }; if ($o) { $o | Set-Clipboard; $o | Set-Content -Encoding UTF8 'C:\\TinHoc4\\cay_hien_tai.txt'; Write-Host 'Da chep cay thu muc vao Clipboard thanh cong!' -ForegroundColor Green } else { '' | Set-Clipboard; Write-Host 'Thu muc trong!' -ForegroundColor Yellow }"
+set "R=%~dp0Hoc tap"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$r = Join-Path -Path '%~dp0' -ChildPath 'Hoc tap'; if (-not (Test-Path -LiteralPath $r)) { Write-Host ('Khong tim thay thu muc: ' + $r + '! Hay chay TaoCay.bat truoc.') -ForegroundColor Red; pause; exit }; $o = Get-ChildItem -LiteralPath $r -Recurse -Force | ForEach-Object { $p = $_.FullName.Substring($r.Length + 1).Replace('\\', '/'); if ($_.PSIsContainer) { $p + '/' } else { $p } }; if ($o) { $o | Set-Clipboard; $txtFile = Join-Path -Path '%~dp0' -ChildPath 'cay_hien_tai.txt'; $o | Set-Content -Encoding UTF8 $txtFile; Write-Host 'Da chep cay thu muc vao Clipboard thanh cong!' -ForegroundColor Green } else { '' | Set-Clipboard; Write-Host 'Thu muc trong!' -ForegroundColor Yellow }"
 
 echo.
 echo [DA XONG] Cay thu muc da duoc luu vao bo nho tam (Clipboard).
@@ -335,10 +403,6 @@ function downloadBat(filename, content) {
 }
 $('#btnDlTaoCay').onclick = () => downloadBat('TaoCay.bat', BAT_TAO_CAY);
 $('#btnDlGhiCay').onclick = () => downloadBat('GhiCay.bat', BAT_GHI_CAY);
-$('#helpToggle').onclick = () => {
-  const gb = $('#guideBox');
-  gb.style.display = gb.style.display === 'none' ? 'block' : 'none';
-};
 
 /* ===== 3. CHUYỂN MÀN HÌNH ===== */
 function go(n) {
@@ -349,32 +413,33 @@ function go(n) {
 }
 $$('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
 
-/* ===== 4. ĐỒNG HỒ TIẾT HỌC ===== */
-let secs = 35 * 60, tick = null;
-const drawClock = () => $('#clock').textContent = String(Math.floor(secs / 60)).padStart(2, '0') + ':' + String(secs % 60).padStart(2, '0');
-$('#clkBtn').onclick = () => {
-  if (tick) { clearInterval(tick); tick = null; $('#clkBtn').textContent = '▶'; return; }
-  $('#clkBtn').textContent = '⏸';
-  tick = setInterval(() => {
-    if (secs > 0) { secs--; drawClock(); }
-    else { clearInterval(tick); tick = null; beep(true); fireConfetti(); }
-  }, 1000);
-};
-$('#clkRst').onclick = () => { clearInterval(tick); tick = null; secs = 35 * 60; drawClock(); $('#clkBtn').textContent = '▶'; };
+/* ===== 4. VỞ GHI (LẤY THỨ NGÀY THÁNG NEW DATE, TÊN MÔN, TÊN BÀI, CHỮ TRỌN VẸN) ===== */
+const days = ['Chủ nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+const now = new Date();
+$('#boardDate').textContent = `${days[now.getDay()]}, ngày ${String(now.getDate()).padStart(2, '0')} tháng ${String(now.getMonth() + 1).padStart(2, '0')} năm ${now.getFullYear()}`;
 
-/* ===== 5. VỞ GHI ===== */
-const days = ['Chủ nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'], now = new Date();
-$('#today').textContent = `${days[now.getDay()]}, ngày ${now.getDate()} tháng ${now.getMonth() + 1} năm ${now.getFullYear()}`;
-let fs = 1.45;
-$('#themeBtn').onclick = () => { const d = $('#board').classList.toggle('dark'); $('#themeBtn').textContent = d ? '📄 Vở ô li' : '🟢 Bảng xanh'; };
-$('#fPlus').onclick = () => { fs = Math.min(2.2, fs + .1); $('#board').style.setProperty('--fs', fs + 'rem'); };
-$('#fMinus').onclick = () => { fs = Math.max(1, fs - .1); $('#board').style.setProperty('--fs', fs + 'rem'); };
+let curBoardStep = 1;
+function setBoardStep(step) {
+  curBoardStep = step;
+  $('#bLine1').classList.toggle('show', step >= 2);
+  $('#bLine2').classList.toggle('show', step >= 3);
+  $('#btnB1').className = 'sm ' + (step === 1 ? 'info' : '');
+  $('#btnB2').className = 'sm ' + (step === 2 ? 'info' : '');
+  $('#btnB3').className = 'sm ' + (step === 3 ? 'info' : '');
+  $('#btnBAll').className = 'sm ' + (step === 4 ? 'info' : '');
+  if (step === 4) {
+    $('#bLine1').classList.add('show');
+    $('#bLine2').classList.add('show');
+  }
+}
+$('#btnB1').onclick = () => setBoardStep(1);
+$('#btnB2').onclick = () => setBoardStep(2);
+$('#btnB3').onclick = () => setBoardStep(3);
+$('#btnBAll').onclick = () => setBoardStep(4);
 
-/* ===== 6. CÂY THƯ MỤC: DỮ LIỆU & VẼ SVG NẰM NGANG ===== */
+/* ===== 5. SƠ ĐỒ CÂY THƯ MỤC: DỮ LIỆU & VẼ SVG NẰM NGANG ===== */
 let uid = 0;
 const N = (name, type, children = []) => ({ id: ++uid, name, type, children });
-const byName = (n, name) => n.name === name ? n : n.children.reduce((r, c) => r || byName(c, name), null);
-const clone = n => JSON.parse(JSON.stringify(n));
 const fresh = n => ({ ...n, id: ++uid, children: n.children.map(fresh) });
 
 function layout(n, d = 0, st = { y: 0 }) {
@@ -425,39 +490,7 @@ function treeFromPaths(list) {
   return root;
 }
 
-/* ===== 7. MÀN 2: KHỞI ĐỘNG MÔ PHỎNG ===== */
-const warmBase = () => N('Lop 4A', 'folder', [
-  N('Nhom 1', 'folder', [N('An', 'folder'), N('Thu An', 'folder', [N('Gioi thieu.pptx', 'file')])]),
-  N('Nhom 2', 'folder', [N('Binh', 'folder'), N('Kha', 'folder')])
-]);
-function warm(mode) {
-  const t = warmBase(); let mark = null, msg = '💡 Thu An đang ở trong Nhom 1. Bấm nút để xem Di chuyển và Sao chép khác nhau thế nào.';
-  const a = byName(t, 'Nhom 1'), b = byName(t, 'Nhom 2'), tu = byName(t, 'Thu An');
-  if (mode === 'move') {
-    a.children = a.children.filter(c => c !== tu);
-    b.children.push(tu); mark = tu.id;
-    msg = '✂️ DI CHUYỂN: Thu An sang Nhom 2 và KHÔNG còn ở Nhom 1. Chỉ mất đúng 1 bước!';
-  }
-  if (mode === 'copy') {
-    const cp = fresh(clone(tu));
-    b.children.push(cp); mark = cp.id;
-    msg = '📋 SAO CHÉP: Thu An có ở CẢ Nhom 2 và Nhom 1. Để đạt đúng yêu cầu chuyển nhóm, em phải thêm bước xoá thư mục ở Nhom 1.';
-  }
-  drawTree(t, $('#warmTree'), { cls: n => n.id === mark ? 'mark' : '' });
-  $('#warmMsg').textContent = msg;
-}
-$('#dMove').onclick = () => warm('move');
-$('#dCopy').onclick = () => warm('copy');
-$('#dRst').onclick = () => warm('');
-$$('[data-q]').forEach(b => b.onclick = () => {
-  const m = $('#qMsg'), ok = b.dataset.q === 'B';
-  m.style.display = 'block'; beep(ok);
-  if (ok) fireConfetti();
-  m.className = 'msg ' + (ok ? 'ok' : 'bad');
-  m.textContent = ok ? '🎉 Chính xác! Di chuyển là cách nhanh nhất (chỉ 1 bước) và thư mục cũ không còn bị thừa.' : '❌ Chưa phải cách tối ưu nhất. Hãy xem lại: Di chuyển chỉ cần 1 thao tác, không phải tạo mới hay xoá thừa.';
-});
-
-/* ===== 8. MÀN 3: THỰC HÀNH MÁY THẬT – CHẤM ĐIỂM TỰ ĐỘNG ===== */
+/* ===== 6. MÀN 3: THỰC HÀNH MÁY THẬT ===== */
 const BASE = [
   'Nhom 1/Thu An/', 'Nhom 1/Thu An/Gioi thieu.pptx',
   'Nhom 1/Minh/', 'Nhom 1/Minh/Bai tap.docx',
@@ -468,29 +501,70 @@ const BASE = [
   'Nhom 3/'
 ];
 
-const MISSIONS = [
-  { type: 'move',   text: 'DI CHUYỂN thư mục "Thu An" từ Nhom 1 sang Nhom 2.', to: ['Nhom 2/Thu An/', 'Nhom 2/Thu An/Gioi thieu.pptx'], gone: ['Nhom 1/Thu An/'] },
-  { type: 'copy',   text: 'SAO CHÉP thư mục "Minh" từ Nhom 1 sang Nhom 3.', to: ['Nhom 3/Minh/Bai tap.docx'], keep: ['Nhom 1/Minh/Bai tap.docx'] },
-  { type: 'rename', text: 'ĐỔI TÊN tệp "Gioi thieu.pptx" trong thư mục Binh (Nhom 2) thành "Gioi thieu nhom".', to: ['Nhom 2/Binh/Gioi thieu nhom.pptx'], gone: ['Nhom 2/Binh/Gioi thieu.pptx'] },
-  { type: 'delete', text: 'XOÁ tệp nháp "Nhap.txt" trong thư mục Huy (Nhom 2). Giữ nguyên các tệp khác!', to: [], gone: ['Nhom 2/Huy/Nhap.txt'], keep: ['Nhom 2/Huy/', 'Nhom 2/Huy/Anh lop.png'] },
-  { type: 'create', text: 'TẠO thư mục mới tên "Hinh anh" trong thư mục "Nhom 3".', to: ['Nhom 3/Hinh anh/'] },
-  { type: 'move',   text: 'DI CHUYỂN tệp "Video.mp4" từ thư mục Lan (Nhom 1) sang Nhom 3.', to: ['Nhom 3/Video.mp4'], gone: ['Nhom 1/Lan/Video.mp4'] },
-  { type: 'copy',   text: 'SAO CHÉP tệp "Bai doc.docx" từ thư mục Lan (Nhom 1) sang Nhom 2.', to: ['Nhom 2/Bai doc.docx'], keep: ['Nhom 1/Lan/Bai doc.docx'] },
-  { type: 'rename', text: 'ĐỔI TÊN thư mục "Khoa" (trong Nhom 1) thành "Khoa Nam".', to: ['Nhom 1/Khoa Nam/'], gone: ['Nhom 1/Khoa/'] }
+/* DỮ LIỆU CÁC NHIỆM VỤ THỰC HÀNH (TẢI ĐỘNG TỪ FILE quests.json) */
+let MASTER_MISSIONS = [];
+
+const FALLBACK_MISSIONS = [
+  { type: 'move',   text: 'DI CHUYỂN (Cut ✂️ rồi Paste) thư mục "Thu An" từ Nhom 1 sang Nhom 2.', to: ['Nhom 2/Thu An/', 'Nhom 2/Thu An/Gioi thieu.pptx'], gone: ['Nhom 1/Thu An/'] },
+  { type: 'copy',   text: 'SAO CHÉP (Copy 📋 rồi Paste) thư mục "Minh" từ Nhom 1 sang Nhom 3.', to: ['Nhom 3/Minh/Bai tap.docx'], keep: ['Nhom 1/Minh/Bai tap.docx'] },
+  { type: 'rename', text: 'ĐỔI TÊN (Rename ✏️) tệp "Gioi thieu.pptx" trong thư mục Binh (Nhom 2) thành "Gioi thieu nhom.pptx".', to: ['Nhom 2/Binh/Gioi thieu nhom.pptx'], gone: ['Nhom 2/Binh/Gioi thieu.pptx'] },
+  { type: 'delete', text: 'XOÁ (Delete 🗑️) tệp nháp "Nhap.txt" trong thư mục Huy (Nhom 2). Giữ nguyên các tệp khác!', to: [], gone: ['Nhom 2/Huy/Nhap.txt'], keep: ['Nhom 2/Huy/', 'Nhom 2/Huy/Anh lop.png'] },
+  { type: 'create', text: 'TẠO (New ➕) thư mục mới tên "Hinh anh" trong thư mục "Nhom 3".', to: ['Nhom 3/Hinh anh/'] },
+  { type: 'move',   text: 'DI CHUYỂN (Cut ✂️) tệp "Video.mp4" từ thư mục Lan (Nhom 1) sang Nhom 3.', to: ['Nhom 3/Video.mp4'], gone: ['Nhom 1/Lan/Video.mp4'] },
+  { type: 'copy',   text: 'SAO CHÉP (Copy 📋) tệp "Bai doc.docx" từ thư mục Lan (Nhom 1) sang Nhom 2.', to: ['Nhom 2/Bai doc.docx'], keep: ['Nhom 1/Lan/Bai doc.docx'] },
+  { type: 'rename', text: 'ĐỔI TÊN (Rename ✏️) thư mục "Khoa" (trong Nhom 1) thành "Khoa Nam".', to: ['Nhom 1/Khoa Nam/'], gone: ['Nhom 1/Khoa/'] },
+  { type: 'create', text: 'TẠO (New ➕) thư mục mới tên "Tai lieu" trong thư mục "Nhom 2".', to: ['Nhom 2/Tai lieu/'] },
+  { type: 'move',   text: 'DI CHUYỂN (Cut ✂️) tệp "Anh lop.png" từ thư mục Huy (Nhom 2) sang thư mục "Hinh anh" trong Nhom 3.', to: ['Nhom 3/Hinh anh/Anh lop.png'], gone: ['Nhom 2/Huy/Anh lop.png'] },
+  { type: 'copy',   text: 'SAO CHÉP (Copy 📋) tệp "Bai tap.docx" từ thư mục Minh (Nhom 1) sang thư mục "Tai lieu" (Nhom 2).', to: ['Nhom 2/Tai lieu/Bai tap.docx'], keep: ['Nhom 1/Minh/Bai tap.docx'] },
+  { type: 'rename', text: 'ĐỔI TÊN (Rename ✏️) thư mục "Lan" (trong Nhom 1) thành "Mai Lan".', to: ['Nhom 1/Mai Lan/'], gone: ['Nhom 1/Lan/'] },
+  { type: 'create', text: 'TẠO (New ➕) thư mục mới tên "Nhom 4" trong thư mục "Hoc tap".', to: ['Nhom 4/'] },
+  { type: 'move',   text: 'DI CHUYỂN (Cut ✂️) thư mục "Khoa Nam" từ Nhom 1 sang Nhom 4.', to: ['Nhom 4/Khoa Nam/'], gone: ['Nhom 1/Khoa Nam/'] },
+  { type: 'copy',   text: 'SAO CHÉP (Copy 📋) thư mục "Hinh anh" từ Nhom 3 sang Nhom 4.', to: ['Nhom 4/Hinh anh/'], keep: ['Nhom 3/Hinh anh/'] },
+  { type: 'delete', text: 'XOÁ (Delete 🗑️) thư mục "Huy" trong Nhom 2 (sau khi đã dọn các tệp quan trọng).', to: [], gone: ['Nhom 2/Huy/'] },
+  { type: 'rename', text: 'ĐỔI TÊN (Rename ✏️) tệp "Video.mp4" trong Nhom 3 thành "Video tiet hoc.mp4".', to: ['Nhom 3/Video tiet hoc.mp4'], gone: ['Nhom 3/Video.mp4'] },
+  { type: 'create', text: 'TẠO (New ➕) thư mục mới tên "Tong ket" trong thư mục "Nhom 4".', to: ['Nhom 4/Tong ket/'] }
 ];
 
-const HARM = {
-  delete: 'Xoá nhầm → mất thông tin quan trọng!',
-  move:   'Di chuyển nhầm → tệp/thư mục biến mất khỏi vị trí cũ, đảo lộn sắp xếp.',
-  copy:   'Sao chép nhầm → sinh ra bản trùng lặp, tốn bộ nhớ.'
-};
+async function loadQuests() {
+  try {
+    const res = await fetch('quests.json');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length) {
+        MASTER_MISSIONS = data;
+        updateActiveMissions();
+        if (curTree) drawGame();
+        return;
+      }
+    }
+  } catch (e) {
+    console.warn('Không tải được quests.json, dùng fallback:', e);
+  }
+  MASTER_MISSIONS = FALLBACK_MISSIONS;
+  updateActiveMissions();
+  if (curTree) drawGame();
+}
 
+let activeMissions = [];
+let mIdx = 0, mistakes = 0, totalMistakes = 0, doneCnt = 0;
+let status = []; // 'ok' | 'skip' | ''
+let questDoer = []; // [stId, ...]
 let rootHandle = null, present = new Set(), curTree = null;
-let mIdx = 0, mistakes = 0, totalMistakes = 0, allDone = false, doneCnt = 0, locked = false, status = [];
+let lastWebkitFiles = null;
+
 const gMsg = (t, k = 'hint') => { $('#gMsg').textContent = t; $('#gMsg').className = 'msg ' + k; };
-const turnTeam = () => mIdx % numTeams;
+const turnTeam = idx => idx % numTeams;
 const has = p => present.has(p.toLowerCase());
 const nm = a => a.map(p => '"' + p.replace(/\/$/, '').split('/').pop() + '"').join(', ');
+
+function updateActiveMissions() {
+  const rounds = +$('#nRounds').value;
+  const count = numTeams * rounds;
+  activeMissions = MASTER_MISSIONS.slice(0, count);
+  status = Array(count).fill('');
+  questDoer = Array(count).fill(null);
+  if (mIdx >= count) mIdx = 0;
+}
 
 function setPresent(list) {
   present = new Set();
@@ -505,20 +579,84 @@ function setPresent(list) {
   curTree = treeFromPaths(list);
 }
 
+function updateConnUI(state, text, details = '') {
+  const bar = $('#connBar'), label = $('#connIconText');
+  bar.className = 'conn-bar ' + state;
+  if (state === 'ok') {
+    label.innerHTML = `🟢 <b>ĐÃ KẾT NỐI:</b> ${esc(text)} <small style="margin-left:6px;font-weight:700">(${esc(details)})</small>`;
+  } else if (state === 'bad') {
+    label.innerHTML = `🔴 <b>LỖI KẾT NỐI:</b> ${esc(text)}`;
+  } else if (state === 'warn') {
+    label.innerHTML = `⚠️ <b>CHỌN CHƯA ĐÚNG:</b> ${esc(text)}`;
+  } else {
+    label.innerHTML = `⚪ <b>CHƯA KẾT NỐI THƯ MỤC:</b> ${esc(text)}`;
+  }
+}
+
+/* CẬP NHẬT DROPDOWN HỌC SINH ĐẠI DIỆN: CHỈ CHO LÊN 1 LẦN */
+function updateStudentSelect() {
+  const sel = $('#questStudentPick');
+  const teamId = turnTeam(mIdx);
+  
+  // Tập hợp các học sinh đã từng hoàn thành nhiệm vụ trước đó
+  const usedStIds = new Set(questDoer.filter((id, idx) => id && status[idx] === 'ok' && idx !== mIdx));
+
+  const allSt = students.length ? students : [];
+  
+  sel.innerHTML = '<option value="">-- Chọn học sinh (Mỗi em 1 lần) --</option>';
+  
+  allSt.forEach(s => {
+    const isUsed = usedStIds.has(s.id);
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.disabled = isUsed;
+    opt.textContent = `${s.no}. ${s.name}${isUsed ? ' (Đã lên trước)' : ''}`;
+    sel.appendChild(opt);
+  });
+
+  if (questDoer[mIdx]) {
+    sel.value = questDoer[mIdx];
+  }
+}
+
 function drawGame() {
-  const m = allDone ? null : MISSIONS[mIdx];
+  const m = activeMissions[mIdx];
   drawTree(curTree, $('#gTree'), {
     cls: n => !m ? '' : m.to.some(p => p.toLowerCase() === n.path) ? 'mark' : (m.gone || []).some(p => p.toLowerCase() === n.path) ? 'flash' : ''
   });
-  $('#mTag').textContent = allDone ? '🏆 Chúc mừng! Đã hoàn thành tất cả nhiệm vụ!' : `🚩 Lượt Tổ ${turnTeam() + 1} · Nhiệm vụ ${mIdx + 1}/${MISSIONS.length}`;
-  $('#mText').textContent = allDone ? 'Cả lớp cùng xem kết quả xếp hạng tại Bảng vàng.' : m.text;
-  $('#chips').innerHTML = MISSIONS.map((_, i) => `<span class="chip ${status[i] || (i === mIdx && !allDone ? 'cur' : '')}">${i + 1}${status[i] === 'ok' ? ' ✔' : status[i] === 'skip' ? ' ⏭' : ''}</span>`).join('');
-  $('#gradeBtn').disabled = locked || allDone;
-  $('#skipBtn').disabled = locked || allDone;
+  
+  const teamNum = turnTeam(mIdx) + 1;
+  const isDone = status[mIdx] === 'ok';
+  const isSkip = status[mIdx] === 'skip';
+  
+  $('#mTag').innerHTML = `🚩 <b>Lượt Tổ ${teamNum}</b> · Nhiệm vụ ${mIdx + 1}/${activeMissions.length} ${isDone ? '<span style="color:var(--green)">✔ Đã đạt</span>' : isSkip ? '<span style="color:#888">⏭ Bỏ qua</span>' : ''}`;
+  $('#mText').textContent = m ? m.text : 'Đã hết nhiệm vụ!';
+  
+  $('#chips').innerHTML = activeMissions.map((_, i) => {
+    const t = turnTeam(i) + 1;
+    let cls = status[i] || (i === mIdx ? 'cur' : '');
+    return `<span class="chip ${cls}" data-qi="${i}">Tổ ${t} - Q${i + 1}${status[i] === 'ok' ? ' ✔' : status[i] === 'skip' ? ' ⏭' : ''}</span>`;
+  }).join('');
+  
+  $$('#chips .chip').forEach(el => el.onclick = () => {
+    mIdx = +el.dataset.qi;
+    mistakes = 0;
+    drawGame();
+  });
+  
+  $('#prevQuestBtn').disabled = mIdx <= 0;
+  $('#nextQuestBtn').disabled = mIdx >= activeMissions.length - 1;
+  $('#gradeBtn').disabled = isDone;
+  $('#skipBtn').disabled = isDone;
+  
+  updateStudentSelect();
   drawTeams();
 }
 
-/* Đọc thư mục thật qua File System Access API (Hỗ trợ cực tốt trên GitHub Pages HTTPS) */
+$('#prevQuestBtn').onclick = () => { if (mIdx > 0) { mIdx--; mistakes = 0; drawGame(); } };
+$('#nextQuestBtn').onclick = () => { if (mIdx < activeMissions.length - 1) { mIdx++; mistakes = 0; drawGame(); } };
+
+/* ĐỌC THƯ MỤC TRÊN GITHUB PAGES / CHROME / EDGE THẬT */
 async function walk(dir, prefix, out) {
   for await (const [name, h] of dir.entries()) {
     if (h.kind === 'directory') {
@@ -532,26 +670,61 @@ async function walk(dir, prefix, out) {
 
 async function readHandle() {
   if (!rootHandle) throw new Error('Chưa kết nối thư mục.');
-  // Kiểm tra quyền đọc
   if ((await rootHandle.queryPermission({ mode: 'read' })) !== 'granted') {
     if ((await rootHandle.requestPermission({ mode: 'read' })) !== 'granted') {
-      throw new Error('Chưa được cấp quyền đọc thư mục. Hãy bấm lại nút "Chọn thư mục Hoc tap" và chọn Cho phép.');
+      updateConnUI('bad', 'Quyền đọc bị từ chối');
+      throw new Error('Chưa được cấp quyền đọc thư mục. Vui lòng bấm chọn thư mục và chọn "Xem tệp".');
     }
   }
   let d = rootHandle;
-  // Người dùng có thể chọn C:\TinHoc4 hoặc chọn thẳng C:\TinHoc4\Hoc tap
   if (rootHandle.name.toLowerCase() !== 'hoc tap') {
     try {
       d = await rootHandle.getDirectoryHandle('Hoc tap');
     } catch (e) {
-      // Nếu không tìm thấy Hoc tap bên trong
-      throw new Error(`Bạn đang chọn thư mục "${rootHandle.name}". Hãy chọn đúng thư mục "Hoc tap" (hoặc thư mục cha chứa "Hoc tap") nhé!`);
+      updateConnUI('warn', rootHandle.name, 'Không tìm thấy thư mục Hoc tap bên trong');
+      throw new Error(`Bạn đang chọn thư mục "${rootHandle.name}". Vui lòng chọn đúng thư mục "Hoc tap" (hoặc thư mục chứa "Hoc tap") nhé!`);
     }
   }
   const out = [];
   await walk(d, '', out);
+  updateConnUI('ok', d.name, `Đã quét thấy ${out.length} tệp & thư mục`);
   return out;
 }
+
+function parseWebkitFiles(fileList) {
+  const list = [];
+  const dirSet = new Set();
+  for (let i = 0; i < fileList.length; i++) {
+    const f = fileList[i];
+    let p = (f.webkitRelativePath || f.name).replace(/\\/g, '/');
+    const idx = p.toLowerCase().indexOf('hoc tap/');
+    if (idx >= 0) p = p.slice(idx + 8);
+    list.push(p);
+
+    const parts = p.split('/');
+    let cur = '';
+    for (let j = 0; j < parts.length - 1; j++) {
+      cur += parts[j] + '/';
+      dirSet.add(cur);
+    }
+  }
+  dirSet.forEach(d => {
+    if (!list.includes(d)) list.push(d);
+  });
+  return list;
+}
+
+$('#dirInput').onchange = (e) => {
+  const files = e.target.files;
+  if (!files || !files.length) return;
+  lastWebkitFiles = files;
+  rootHandle = null;
+  const list = parseWebkitFiles(files);
+  setPresent(list);
+  drawGame();
+  updateConnUI('ok', 'Hoc tap (HTML5 Mode)', `Đã quét ${list.length} mục`);
+  gMsg(`✅ Đã kết nối thành công thư mục (quét thấy ${list.length} mục)!`, 'ok');
+};
 
 function parsePaste(txt) {
   return txt.replace(/^\uFEFF/, '').split(/\r?\n/).map(l => l.trim().replace(/\\/g, '/')).filter(Boolean)
@@ -567,24 +740,34 @@ async function loadState() {
     setPresent(list);
     return;
   }
+  if (lastWebkitFiles) {
+    const list = parseWebkitFiles(lastWebkitFiles);
+    setPresent(list);
+    return;
+  }
   const t = $('#pasteBox').value.trim();
-  if (!t) throw new Error('Chưa có dữ liệu cây: Bấm "Chọn thư mục Hoc tap" hoặc dán kết quả từ GhiCay.bat.');
-  setPresent(parsePaste(t));
+  if (!t) throw new Error('Chưa kết nối thư mục: Hãy bấm "Chọn thư mục Hoc tap" hoặc dán kết quả từ GhiCay.bat.');
+  const list = parsePaste(t);
+  setPresent(list);
+  updateConnUI('ok', 'Clipboard / GhiCay.bat', `Đã nạp ${list.length} mục`);
 }
 
 $('#pickBtn').onclick = async () => {
-  if (!window.showDirectoryPicker) {
-    return gMsg('Trình duyệt này không hỗ trợ chọn thư mục trực tiếp. Hãy dùng Chrome/Edge trên máy tính hoặc sử dụng GhiCay.bat ở ô bên dưới.', 'bad');
+  const inIframe = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+  if (window.showDirectoryPicker && !inIframe && window.isSecureContext) {
+    try {
+      rootHandle = await showDirectoryPicker({ mode: 'read' });
+      lastWebkitFiles = null;
+      await loadState();
+      drawGame();
+      gMsg('✅ Đã kết nối thành công qua File System API!', 'ok');
+      return;
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+      console.warn('showDirectoryPicker failed, falling back:', e);
+    }
   }
-  try {
-    rootHandle = await showDirectoryPicker({ mode: 'read' });
-    await loadState();
-    drawGame();
-    $('#srcInfo').textContent = '✅ Đã kết nối thư mục: ' + rootHandle.name;
-    gMsg('Đã kết nối thành công! Khi tổ làm xong trên máy, bấm "Chấm điểm".', 'ok');
-  } catch (e) {
-    if (e.name !== 'AbortError') gMsg('Lỗi kết nối thư mục: ' + e.message, 'bad');
-  }
+  $('#dirInput').click();
 };
 
 $('#btnPasteClip').onclick = async () => {
@@ -592,25 +775,23 @@ $('#btnPasteClip').onclick = async () => {
     const text = await navigator.clipboard.readText();
     if (!text.trim()) return gMsg('Bộ nhớ tạm (Clipboard) đang trống! Hãy chạy GhiCay.bat trước.', 'bad');
     $('#pasteBox').value = text;
+    rootHandle = null;
+    lastWebkitFiles = null;
     await loadState();
     drawGame();
-    $('#srcInfo').textContent = '✅ Đã cập nhật cây từ Clipboard (GhiCay.bat)';
-    gMsg('Đã nạp cây thư mục từ clipboard. Bấm "Chấm điểm" để kiểm tra.', 'ok');
+    gMsg('✅ Đã cập nhật cây thư mục từ Clipboard (GhiCay.bat)! Bấm "Chấm điểm" để kiểm tra.', 'ok');
   } catch (e) {
-    gMsg('Không thể đọc tự động clipboard. Hãy bấm vào ô và ấn Ctrl+V.', 'hint');
+    gMsg('Không thể tự động đọc clipboard. Hãy bấm vào ô textarea và ấn Ctrl+V.', 'hint');
   }
 };
 
 function grade(m) {
-  // Hỗ trợ trường hợp đổi tên bị mất phần mở rộng (.pptx) ở học sinh tiểu học
   let missing = m.to.filter(p => !has(p));
   let still = (m.gone || []).filter(has);
   let lost = (m.keep || []).filter(p => !has(p));
 
-  // Kiểm tra đặc thù nhiệm vụ 3 (đổi tên tệp)
   let extraHint = '';
   if (m.type === 'rename' && missing.length) {
-    // Nếu học sinh lỡ đổi thành 'Gioi thieu nhom' không có đuôi .pptx
     if (has('nhom 2/binh/gioi thieu nhom')) {
       missing = [];
       extraHint = ' (Lưu ý: Tệp bị mất đuôi .pptx do đổi tên chưa giữ phần mở rộng, cô vẫn châm chước chấm đạt nhé!)';
@@ -621,86 +802,102 @@ function grade(m) {
 
   let why;
   if (m.type === 'copy' && !missing.length && lost.length) {
-    why = 'Em đã DI CHUYỂN chứ chưa SAO CHÉP: tệp gốc ở vị trí cũ đã bị mất! ' + HARM.move;
+    why = 'Em đã DI CHUYỂN chứ chưa SAO CHÉP: tệp gốc ở vị trí cũ đã bị mất!';
   } else if (lost.length) {
-    why = 'Bị mất nhầm ' + nm(lost) + '! ' + HARM.delete;
+    why = 'Bị mất nhầm ' + nm(lost) + '!';
   } else if (m.type === 'move' && !missing.length && still.length) {
-    why = 'Đây là SAO CHÉP chứ chưa phải DI CHUYỂN: ' + nm(still) + ' vẫn còn nguyên ở chỗ cũ. ' + HARM.copy;
+    why = 'Đây là SAO CHÉP chứ chưa phải DI CHUYỂN: ' + nm(still) + ' vẫn còn nguyên ở chỗ cũ.';
   } else {
     why = (missing.length ? 'Chưa thấy ' + nm(missing) + '. ' : '') + (still.length ? 'Vẫn còn ' + nm(still) + ' ở chỗ cũ. ' : '') + 'Đọc kĩ yêu cầu và thử lại nhé.';
   }
   return { ok: false, why };
 }
 
+/* CHẤM ĐIỂM: CUỘN MƯỢT TỚI SƠ ĐỒ VÀ PHÁT ANIMATION (CẢ ĐÚNG LẪN SAI) */
 $('#gradeBtn').onclick = async () => {
-  if (locked || allDone) return;
+  const stId = $('#questStudentPick').value;
+  if (!stId) {
+    beep(false);
+    $('#questStudentPick').focus();
+    $('#questStudentPick').style.outline = '3px solid red';
+    setTimeout(() => $('#questStudentPick').style.outline = '', 2000);
+    return gMsg('⚠️ VUI LÒNG CHỌN HỌC SINH ĐẠI DIỆN THỰC HIỆN TRƯỚC KHI BẤM CHẤM ĐIỂM!', 'bad');
+  }
+
   try {
     await loadState();
   } catch (e) {
     beep(false);
     return gMsg(e.message, 'bad');
   }
+
   drawGame();
-  const r = grade(MISSIONS[mIdx]);
+
+  // 1. Tự động cuộn mượt tới khu vực sơ đồ cây
+  const treeBox = $('#gTree');
+  treeBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  const m = activeMissions[mIdx];
+  const r = grade(m);
+
+  // 2. Kích hoạt Animation chuyển đổi sau khi cuộn
+  treeBox.classList.remove('tree-anim-success', 'tree-anim-error');
+  // trigger reflow để reset animation
+  void treeBox.offsetWidth;
+
   if (r.ok) {
+    treeBox.classList.add('tree-anim-success');
     beep(true);
     fireConfetti();
-    const pts = mistakes ? 10 : 20, t = turnTeam();
+    const pts = mistakes ? 10 : 20, t = turnTeam(mIdx);
     scores[t] += pts;
     doneCnt++;
     status[mIdx] = 'ok';
-    locked = true;
+    questDoer[mIdx] = stId;
+
+    const stObj = students.find(s => s.id === stId);
+    const stName = stObj ? stObj.name : 'Học sinh';
+
     drawGame();
-    gMsg(`🎉 Chính xác! Tổ ${t + 1} được +${pts} điểm${mistakes ? ` (đã sửa sau ${mistakes} lần thử)` : ' (đúng ngay lần đầu)'}.${r.extraHint || ''}`, 'ok');
-    $('#nextBtn').textContent = mIdx + 1 >= MISSIONS.length ? 'Xem kết quả Bảng vàng 🏆' : 'Nhiệm vụ tiếp theo ▶';
-    $('#nextBtn').style.display = 'block';
+    gMsg(`🎉 Chính xác! Em ${stName} (Tổ ${t + 1}) đã hoàn thành xuất sắc! +${pts} điểm.${r.extraHint || ''}`, 'ok');
+
+    if (mIdx < activeMissions.length - 1) {
+      setTimeout(() => {
+        mIdx++;
+        mistakes = 0;
+        drawGame();
+        gMsg(`Chuyển sang Nhiệm vụ ${mIdx + 1} của Tổ ${turnTeam(mIdx) + 1}. Chọn học sinh thực hiện tiếp theo.`);
+      }, 1600);
+    } else {
+      setTimeout(() => { go(4); }, 2200);
+    }
   } else {
+    treeBox.classList.add('tree-anim-error');
     beep(false);
     mistakes++;
     totalMistakes++;
     gMsg('❌ ' + r.why, 'bad');
   }
+
+  setTimeout(() => {
+    treeBox.classList.remove('tree-anim-success', 'tree-anim-error');
+  }, 1200);
 };
 
-function nextMission() {
-  $('#nextBtn').style.display = 'none';
-  locked = false;
-  mistakes = 0;
-  mIdx++;
-  if (mIdx >= MISSIONS.length) {
-    mIdx = MISSIONS.length - 1;
-    allDone = true;
-    drawGame();
-    go(4);
-    return gMsg('🎉 Cả lớp đã hoàn thành tất cả nhiệm vụ! Xem kết quả tại Bảng vàng.', 'ok');
-  }
-  drawGame();
-  gMsg(`Mời Tổ ${turnTeam() + 1} chuẩn bị thực hiện trên máy, xong thì bấm "Chấm điểm".`);
-}
-$('#nextBtn').onclick = nextMission;
 $('#skipBtn').onclick = () => {
-  if (locked || allDone) return;
   status[mIdx] = 'skip';
-  nextMission();
-};
-$('#gReset').onclick = () => {
-  mIdx = 0; mistakes = 0; totalMistakes = 0; doneCnt = 0; allDone = false; locked = false;
-  status = []; scores = scores.map(() => 0);
-  $('#nextBtn').style.display = 'none';
-  setPresent(BASE);
-  drawGame();
-  gMsg('Đã làm mới! Chạy lại TaoCay.bat trên máy để làm mới cây thư mục, rồi bắt đầu Nhiệm vụ 1.');
+  if (mIdx < activeMissions.length - 1) {
+    mIdx++;
+    mistakes = 0;
+    drawGame();
+  } else {
+    drawGame();
+    gMsg('Đã đến nhiệm vụ cuối cùng.');
+  }
 };
 
-function startGame() {
-  setPresent(BASE);
-  drawGame();
-  gMsg('Chạy TaoCay.bat → Bấm "Chọn thư mục Hoc tap" → Tổ thực hành trên File Explorer → Bấm "Chấm điểm".');
-}
-
-/* ===== 9. TỔ & HỌC SINH ===== */
-let numTeams = 4, scores = [0, 0, 0, 0], students = [], pick = null;
-const stTeam = new Map();
+/* ===== 7. QUẢN LÝ ĐIỂM CÁC TỔ (NHẬP PHÍM TRỰC TIẾP & NÚT PHẠT ỒN -10%) ===== */
+let numTeams = 4, scores = [0, 0, 0, 0], students = [];
 const FALLBACK = ["Nguyễn Trung An","Hồ Nhật Anh","Lý Ngọc Hà Anh","Tống Nguyễn Bảo Anh","Trần Lưu Ngọc Anh","Trần Mai Mỹ Anh","Trần Ngọc Vy Anh","Bùi Ngọc Bích","Nguyễn Minh Châu","Trần Bảo Châu","Vũ Hoàng Kim Chi","Đoàn Quang Trí Dũng","Nguyễn Minh Đạt","Hồ Minh Đức","Hà Thu Hòa","Trần Anh Hòa","Nguyễn Lê Khang","Phạm Tuấn Khang","Nguyễn Minh Khôi","Huỳnh Nhật Ngọc Lâm","Ngô Hoàng Long","Trần Minh Mẫn","Dương Ngọc Quý Minh","Nguyễn Dương Minh Minh","Phạm Ngọc Khánh My","Dương Khánh Nam","Phan Kim Ngân","Huỳnh Phương Yến Ngọc","Hoàng Phúc Nha","Phan Võ Minh Nhân","Lâm Thành Nhật","Nguyễn Huỳnh Như","Lăng Nguyễn Hồng Nhung","Trần Đức Phát","Quách Gia Phú","Ngô Quang Phúc","Nguyễn Lê Đại Phúc","Nguyễn Xuân Phúc","Đặng Nguyễn Phương Quỳnh","Tạ Anh Thy","Huỳnh Lâm Mộc Trà","Trần Cao Thanh Trà","Trần Minh Triết","Lê Hoàng Phú Trọng","Nguyễn Phú Trọng","Danh Thanh Vân","Nguyễn Ngọc Bạch Vân","La Tường Vi","Đặng Ngọc Vy","Lê Trần Phương Vy"];
 
 for (let i = 1; i <= 6; i++) $('#cls').add(new Option('4/' + i, '4_' + i));
@@ -723,70 +920,60 @@ async function loadClass(id) {
     if (cnt[n] > 1) { seen[n] = (seen[n] || 0) + 1; n += ` (${seen[n]})`; }
     return { id: id + '_' + (i + 1), no: i + 1, name: n };
   });
-  stTeam.clear();
-  pick = null;
-  drawStudents();
+  updateStudentSelect();
+}
+
+function penalizeNoise(teamIdx) {
+  const current = scores[teamIdx];
+  if (current <= 0) {
+    return gMsg(`Tổ ${teamIdx + 1} đang có 0 điểm, nhắc nhở giữ trật tự!`, 'bad');
+  }
+  const pen = Math.max(5, Math.round(current * 0.10));
+  scores[teamIdx] = Math.max(0, current - pen);
+  drawTeams();
+  beep(false);
+  gMsg(`🔇 Phạt Tổ ${teamIdx + 1} mất trật tự: −${pen} điểm (còn ${scores[teamIdx]}đ)`, 'bad');
+}
+
+function setTeamScore(teamIdx, val) {
+  const num = parseInt(val, 10);
+  scores[teamIdx] = isNaN(num) ? 0 : Math.max(0, num);
+  drawTeams();
 }
 
 function drawTeams() {
   $('#teams').innerHTML = scores.map((s, i) => {
-    const members = students.filter(st => stTeam.get(st.id) === i).length;
-    return `<div class="team ${i === turnTeam() && !allDone ? 'turn' : ''}">
-      <span class="n">Tổ ${i + 1}${members ? ` <small>(${members} em)</small>` : ''}</span>
-      <span class="p">${s}</span>
-      <button class="sm" data-d="${i},10" title="Cộng 10 điểm">+</button>
-      <button class="sm" data-d="${i},-10" title="Trừ 10 điểm">−</button>
+    const isCurrent = (i === turnTeam(mIdx));
+    return `<div class="team ${isCurrent ? 'turn' : ''}">
+      <span class="n">Tổ ${i + 1}</span>
+      <input type="number" class="score-input" value="${s}" min="0" onchange="setTeamScore(${i}, this.value)" title="Nhập trực tiếp điểm bằng bàn phím">
+      <button class="noise-btn" data-pen="${i}" title="Phạt mất trật tự trừ 10% điểm">🔇 -10%</button>
     </div>`;
   }).join('');
-  $$('#teams [data-d]').forEach(b => b.onclick = () => {
-    const [i, d] = b.dataset.d.split(',').map(Number);
-    scores[i] = Math.max(0, scores[i] + d);
-    drawTeams();
+
+  $$('#teams [data-pen]').forEach(b => b.onclick = () => {
+    penalizeNoise(+b.dataset.pen);
   });
 }
+window.setTeamScore = setTeamScore;
 
-function drawStudents() {
-  const q = $('#stSearch').value.toLowerCase().trim();
-  $('#stCount').textContent = students.length;
-  $('#stN').textContent = students.length;
-  $('#stList').innerHTML = students.filter(s => !q || s.name.toLowerCase().includes(q)).map(s =>
-    `<div class="st ${pick === s.id ? 'on' : ''}" data-s="${s.id}">
-      <span>${s.no}. ${esc(s.name)}</span>
-      <span style="color:var(--blue)">${stTeam.has(s.id) ? 'Tổ ' + (stTeam.get(s.id) + 1) : ''}</span>
-    </div>`
-  ).join('');
-  $$('#stList .st').forEach(el => el.onclick = () => {
-    pick = pick === el.dataset.s ? null : el.dataset.s;
-    drawStudents();
-  });
-  const a = $('#assign');
-  if (!pick) { a.style.display = 'none'; return; }
-  a.style.display = 'block';
-  const curSt = students.find(s => s.id === pick);
-  $('#stPick').textContent = curSt ? curSt.name : '';
-  $('#assignChips').innerHTML = scores.map((_, i) => `<button class="sm" data-t="${i}">Tổ ${i + 1}</button>`).join('') + '<button class="sm" data-t="-1">Bỏ xếp</button>';
-  $$('#assignChips [data-t]').forEach(b => b.onclick = () => {
-    const t = +b.dataset.t;
-    if (t < 0) stTeam.delete(pick); else stTeam.set(pick, t);
-    pick = null;
-    drawStudents();
-    drawTeams();
-  });
-}
-
-$('#stSearch').oninput = drawStudents;
 $('#cls').onchange = e => loadClass(e.target.value);
+
 $('#nTeams').onchange = e => {
   const n = +e.target.value;
   scores = Array.from({ length: n }, (_, i) => scores[i] || 0);
   numTeams = n;
-  stTeam.forEach((t, id) => { if (t >= n) stTeam.delete(id); });
+  updateActiveMissions();
   if (curTree) drawGame();
-  drawStudents();
   drawTeams();
 };
 
-/* ===== 10. MÀN 4: BẢNG VÀNG & XUẤT BÁO CÁO CHUẨN ===== */
+$('#nRounds').onchange = () => {
+  updateActiveMissions();
+  if (curTree) drawGame();
+};
+
+/* ===== 8. MÀN 4: BẢNG VÀNG & ĐỒNG BỘ GOOGLE DRIVE ===== */
 function drawPodium() {
   const sorted = scores.map((s, i) => ({ s, i })).sort((a, b) => b.s - a.s);
   const cfg = [[1, '🥈', 'Á quân'], [0, '👑', 'Quán quân'], [2, '🥉', 'Hạng ba']];
@@ -797,7 +984,7 @@ function drawPodium() {
       <div style="font-weight:900;font-size:1.7rem;color:var(--purple)">${sorted[k].s} điểm</div>
       <small style="font-weight:800;color:#64748b">${tt}</small>
     </div>` : '').join('');
-  $('#stDone').textContent = `${doneCnt}/${MISSIONS.length}`;
+  $('#stDone').textContent = `${doneCnt}/${activeMissions.length}`;
   const tries = doneCnt + totalMistakes;
   $('#stAcc').textContent = tries ? Math.round(doneCnt / tries * 100) + '%' : '100%';
 }
@@ -808,24 +995,30 @@ function reportData() {
     ['KẾT QUẢ THI ĐUA CÁC TỔ – BÀI 5: THAO TÁC VỚI TỆP VÀ THƯ MỤC (TIẾT 1)'],
     [`Lớp: ${cl} – Ngày thực hành: ${day}`],
     [],
-    ['Hạng', 'Tổ', 'Tổng điểm']
+    ['Hạng', 'Tổ', 'Tổng điểm', 'Số nhiệm vụ đạt', 'Ghi chú']
   ];
   scores.map((s, i) => ({ s, i })).sort((a, b) => b.s - a.s).forEach((x, k) => {
-    teamRows.push([k + 1, 'Tổ ' + (x.i + 1), x.s]);
+    const teamMissionsOk = activeMissions.filter((_, idx) => turnTeam(idx) === x.i && status[idx] === 'ok').length;
+    teamRows.push([k + 1, 'Tổ ' + (x.i + 1), x.s, teamMissionsOk, k === 0 ? 'Xuất sắc' : 'Hoàn thành tốt']);
   });
 
   const stRows = [
-    [`DANH SÁCH HỌC SINH – LỚP ${cl} – NGÀY ${day}`],
+    [`DANH SÁCH HỌC SINH ĐẠI DIỆN THỰC HÀNH – LỚP ${cl} – NGÀY ${day}`],
     [],
-    ['STT', 'Họ và tên', 'Lớp', 'Tổ', 'Mức độ hoàn thành', 'Nhận xét của giáo viên']
+    ['STT', 'Họ và tên', 'Lớp', 'Nhiệm vụ đã thực hiện', 'Mức độ', 'Nhận xét']
   ];
   students.forEach(s => {
-    stRows.push([s.no, s.name, cl, stTeam.has(s.id) ? 'Tổ ' + (stTeam.get(s.id) + 1) : 'Chưa xếp tổ', 'Đạt', 'Thực hành tích cực']);
+    const doneTasks = [];
+    questDoer.forEach((stId, qIdx) => {
+      if (stId === s.id && status[qIdx] === 'ok') doneTasks.push(`NV ${qIdx + 1}`);
+    });
+    const taskStr = doneTasks.length ? doneTasks.join(', ') : 'Học sinh tham gia cổ vũ';
+    stRows.push([s.no, s.name, cl, taskStr, doneTasks.length ? 'Hoàn thành tốt' : 'Đạt', 'Thực hành tích cực']);
   });
   return [['Điểm các tổ', teamRows], ['Học sinh', stRows]];
 }
 
-function buildExportName(ext) {
+function buildExportName() {
   const cl = $('#cls').value.replace('_', '-');
   const now = new Date();
   const d = String(now.getDate()).padStart(2, '0');
@@ -833,33 +1026,54 @@ function buildExportName(ext) {
   const y = now.getFullYear();
   const hh = String(now.getHours()).padStart(2, '0');
   const mm = String(now.getMinutes()).padStart(2, '0');
-  return `KetQua_TinHoc4_Lop_${cl}_Tiet_09_${hh}h${mm}p_Ngay_${d}-${m}-${y}.${ext}`;
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  return `KetQua_TinHoc4_Lop_${cl}_Tiet_09_${hh}h${mm}p${ss}s_Ngay_${d}-${m}-${y}.csv`;
 }
 
-function csv() {
-  let out = '\uFEFF'; // BOM UTF-8 để mở tiếng Việt không lỗi font trên Excel
+function generateCsvString() {
+  let out = '\uFEFF';
   reportData().forEach(([t, rows]) => {
     out += `=== ${t.toUpperCase()} ===\r\n` + rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n') + '\r\n\r\n';
   });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([out], { type: 'text/csv;charset=utf-8' }));
-  a.download = buildExportName('csv');
-  a.click();
+  return out;
 }
-$('#csvBtn').onclick = csv;
 
-$('#xlsBtn').onclick = () => {
-  if (typeof XLSX === 'undefined') return csv();
-  const wb = XLSX.utils.book_new();
-  reportData().forEach(([n, rows]) => XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), n));
-  XLSX.writeFile(wb, buildExportName('xlsx'));
+function exportCsvLocal() {
+  const csvContent = generateCsvString();
+  const fileName = buildExportName();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csvContent], { type: 'text/csv;charset=utf-8' }));
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+}
+
+$('#csvDriveBtn').onclick = async () => {
+  const data = reportData();
+  const fileName = buildExportName();
+  if (typeof window.uploadCsvToDrive === 'function') {
+    try {
+      await window.uploadCsvToDrive(data, fileName);
+    } catch (e) {
+      console.warn('Lỗi đồng bộ Drive, tải về máy:', e);
+      exportCsvLocal();
+    }
+  } else {
+    exportCsvLocal();
+  }
 };
+$('#csvLocalBtn').onclick = exportCsvLocal;
 
-/* ===== 11. KHỞI TẠO BAN ĐẦU ===== */
-drawClock();
-warm('');
+/* ===== 9. KHỞI TẠO BAN ĐẦU ===== */
+loadQuests();
+setBoardStep(1);
 loadClass('4_1');
-startGame();
+setPresent(BASE);
+drawGame();
+updateConnUI('init', 'Đang hiện cây mẫu ban đầu');
+gMsg('Chạy TaoCay.bat → Bấm "Chọn thư mục Hoc tap" → Chọn học sinh thực hiện → Bấm "Chấm điểm".');
 </script>
 </body>
 </html>
