@@ -1074,7 +1074,7 @@
 
         /* ================= LOGIC GAME CÁC VÒNG ================= */
         // VÒNG 1
-        const v1_tasks = [
+        let v1_tasks = [
             { text: "NÚT TÌM KIẾM 🔍", target: "search" },
             { text: "NÚT TRANG CHỦ 🏠 (Ngôi nhà / Logo)", target: "home" },
             { text: "VỊ TRÍ CÁC CHỦ ĐỀ 📋 (Thanh ngang)", target: "menu" }
@@ -1128,7 +1128,7 @@
         });
 
         // VÒNG 2
-        const v2_questions = [
+        let v2_questions = [
             { text: 'Tin tức: Sôi nổi giải bơi lội thanh thiếu nhi toàn quốc', ans: 'Thể thao' },
             { text: 'Tin tức: Lịch phát sóng phim hoạt hình Doraemon', ans: 'Giải trí' },
             { text: 'Sự kiện: Ngày hội Trạng Nguyên nhỏ tuổi năm 2026', ans: 'Học đường' },
@@ -1164,7 +1164,7 @@
         }
 
         // VÒNG 3
-        const v3_questions = [
+        let v3_questions = [
             { text: 'Sao chép dữ liệu vào USB', isFile: true },
             { text: 'Gọi điện thoại bàn cho bạn', isFile: false },
             { text: 'Gửi qua Thư điện tử (Email)', isFile: true },
@@ -1173,6 +1173,23 @@
             { text: 'Chia sẻ qua Google Drive', isFile: true }
         ];
         let v3_current = 0;
+
+        const QUEST_JSON = './quests.json';
+        async function loadQuests() {
+            try {
+                const res = await fetch(QUEST_JSON);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data.v1_tasks) && data.v1_tasks.length > 0) v1_tasks = data.v1_tasks;
+                    if (Array.isArray(data.v2_questions) && data.v2_questions.length > 0) v2_questions = data.v2_questions;
+                    if (Array.isArray(data.v3_questions) && data.v3_questions.length > 0) v3_questions = data.v3_questions;
+                    console.log('✅ Đã nạp thành công câu hỏi & nhiệm vụ từ ' + QUEST_JSON);
+                }
+            } catch (e) {
+                console.warn('Dùng dữ liệu mặc định do không nạp được ' + QUEST_JSON, e);
+            }
+        }
+        loadQuests();
 
         function nextV3Question() {
             document.getElementById('custom-alert-v3').classList.remove('show');

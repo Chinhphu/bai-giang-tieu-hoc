@@ -1975,11 +1975,19 @@
         /**************************************************************
          * 8. NGÂN HÀNG VỤ ÁN CÂN BẰNG THEO SỐ TỔ (TỰ ĐỘNG CHUYỂN LƯỢT)
          **************************************************************/
+        function resolveScenarioField(fieldOrFn, pT, dT) {
+            if (typeof fieldOrFn === 'function') return fieldOrFn(pT, dT);
+            if (!fieldOrFn) return '';
+            return fieldOrFn
+                .replace(/\{pName\}/g, pT ? pT.name : '')
+                .replace(/\{dName\}/g, dT ? dT.name : '');
+        }
+
         let casesData = { 1: [], 2: [], 3: [] };
         let currentCaseIdx = { 1: 0, 2: 0, 3: 0 };
 
         // Ngân hàng tình huống đa dạng, gần gũi học sinh tiểu học
-        const SCENARIOS_CH1 = [
+        let SCENARIOS_CH1 = [
             {
                 fact: (pT, dT) => `${dT.name} mượn video clip thí nghiệm khoa học của ${pT.name} để chiếu trong buổi chào cờ. Trước khi chiếu, ${dT.name} đã <u>nhắn tin xin phép</u> và được ${pT.name} đồng ý, cuối video có ghi: <i>"Video thực hiện bởi: ${pT.name}"</i>.`,
                 action: 'ALLOW',
@@ -2018,7 +2026,7 @@
             }
         ];
 
-        const SCENARIOS_CH2 = [
+        let SCENARIOS_CH2 = [
             {
                 fact: (pT, dT) => `${dT.name} viết lại truyện cổ tích "Thạch Sanh" bằng lời văn mới để diễn kịch, ngoài bìa kịch bản ghi rõ: <b>"Phỏng theo truyện cổ tích Thạch Sanh"</b>.`,
                 action: 'ALLOW',
@@ -2057,7 +2065,7 @@
             }
         ];
 
-        const SCENARIOS_CH3 = [
+        let SCENARIOS_CH3 = [
             {
                 fact: (dT, pT) => `Thành viên của <b>${dT.name}</b> sang mượn máy tính của <b>${pT.name}</b> để gõ bài, thấy thư mục ảnh gia đình và nhật ký của bạn mở sẵn liền <u>mở xem rồi đi kể lung tung</u> cho cả lớp nghe.`,
                 rulingApologize: dT => `<b>ĐẠO ĐỨC XUẤT SẮC: TỰ GIÁC SỬA SAI!</b><br>Dũng cảm nhận lỗi và xin lỗi tổ bạn là phẩm chất văn minh số. ${dT.name} được tuyên dương và thưởng nóng <b>+100 Xu</b>!`,
@@ -2090,6 +2098,23 @@
             }
         ];
 
+        /* Nạp quests.json nếu có server, tự động dùng dữ liệu tích hợp sẵn nếu chạy file:// */
+        async function loadQuestsFromJSON() {
+            try {
+                const res = await fetch('quests.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data.stage1) && data.stage1.length > 0) SCENARIOS_CH1 = data.stage1;
+                    if (Array.isArray(data.stage2) && data.stage2.length > 0) SCENARIOS_CH2 = data.stage2;
+                    if (Array.isArray(data.stage3) && data.stage3.length > 0) SCENARIOS_CH3 = data.stage3;
+                    console.log('✅ Đã nạp thành công ngân hàng tình huống từ quests.json!');
+                }
+            } catch (err) {
+                console.warn('Dùng ngân hàng tình huống tích hợp sẵn (fallback khi mở file://):', err);
+            }
+        }
+        loadQuestsFromJSON();
+
         function initBalancedCaseData() {
             const N = teams.length;
             casesData[1] = [];
@@ -2108,10 +2133,10 @@
                     badge: `HỒ SƠ 1.${i + 1}`,
                     plaintiffIdx: plaintiffIdx,
                     defendantIdx: defendantIdx,
-                    fact: sc.fact(pT, dT),
+                    fact: resolveScenarioField(sc.fact, pT, dT),
                     correctAction: sc.action,
-                    rulingAllow: sc.rulingAllow(pT),
-                    rulingReport: sc.rulingReport(pT)
+                    rulingAllow: resolveScenarioField(sc.rulingAllow, pT, dT),
+                    rulingReport: resolveScenarioField(sc.rulingReport, pT, dT)
                 });
             }
 
@@ -2127,10 +2152,10 @@
                     badge: `HỒ SƠ 2.${i + 1}`,
                     plaintiffIdx: plaintiffIdx,
                     defendantIdx: defendantIdx,
-                    fact: sc.fact(pT, dT),
+                    fact: resolveScenarioField(sc.fact, pT, dT),
                     correctAction: sc.action,
-                    rulingAllow: sc.rulingAllow(pT),
-                    rulingReport: sc.rulingReport(pT)
+                    rulingAllow: resolveScenarioField(sc.rulingAllow, pT, dT),
+                    rulingReport: resolveScenarioField(sc.rulingReport, pT, dT)
                 });
             }
 
@@ -2146,10 +2171,10 @@
                     badge: `HỒ SƠ 3.${i + 1}`,
                     plaintiffIdx: plaintiffIdx,
                     defendantIdx: defendantIdx,
-                    fact: sc.fact(dT, pT),
+                    fact: resolveScenarioField(sc.fact, pT, dT),
                     correctAction: 'APOLOGIZE',
-                    rulingApologize: sc.rulingApologize(dT),
-                    rulingDefend: sc.rulingDefend(dT)
+                    rulingApologize: resolveScenarioField(sc.rulingApologize, pT, dT),
+                    rulingDefend: resolveScenarioField(sc.rulingDefend, pT, dT)
                 });
             }
 

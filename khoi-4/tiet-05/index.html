@@ -282,7 +282,7 @@
         }
 
         // --- 3. NGÂN HÀNG CÂU HỎI (ĐÃ CHUẨN HÓA ĐỊNH NGHĨA Ở LEVEL 2) ---
-        const banks = {
+        let banks = {
             1: [
                 { q: 'Đâu KHÔNG PHẢI là thông tin trên trang web?', a: ['Mùi hương thơm', 'Đoạn văn bản', 'Đoạn video clip', 'Hình ảnh minh họa'] },
                 { q: 'Chữ viết em đọc trên trang web thuộc dạng thông tin gì?', a: ['Văn bản', 'Hình ảnh', 'Âm thanh', 'Video'] },
@@ -335,6 +335,23 @@
                 { q: 'Ai là người em nên báo cáo ngay khi gặp rắc rối trên Internet?', a: ['Bố mẹ hoặc thầy cô giáo', 'Bạn bè cùng lớp', 'Người lạ trên mạng', 'Em nhỏ ở nhà'] }
             ]
         };
+
+        const QUEST_JSON = './quests.json';
+        async function loadQuests() {
+            try {
+                const res = await fetch(QUEST_JSON);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.banks) {
+                        banks = data.banks;
+                        console.log('✅ Đã nạp thành công ngân hàng câu hỏi từ ' + QUEST_JSON);
+                    }
+                }
+            } catch (e) {
+                console.warn('Dùng ngân hàng câu hỏi mặc định do không nạp được ' + QUEST_JSON, e);
+            }
+        }
+        loadQuests();
 
         let masterQuestionBank = [];
         let loadedLevels = [];

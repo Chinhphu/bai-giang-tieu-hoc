@@ -1184,13 +1184,23 @@
         }
 
         /**************************************************************
-         * 7. NGÂN HÀNG 12 HỒ SƠ VỤ ÁN MINH BẠCH 100% DỮ KIỆN
-         * - Không giấu diếm hợp đồng: Cả 2 tổ và cả lớp đều nhìn thấy rõ:
-         *   (1) Tin đồn dư luận đang xôn xao điều gì
-         *   (2) Sự thật khách quan & Vật chứng thực tế hiển thị trên sản phẩm là gì
-         * - Học sinh dùng đúng 3 Điều Luật để phán xử xem thực tế đó Đúng hay Sai luật!
+         * 7. NGÂN HÀNG 12 HỒ SƠ VỤ ÁN (NẠP TỪ quests.json & DỮ LIỆU TÍCH HỢP)
          **************************************************************/
-        const SUPREME_CASE_BANK = [
+        function formatCaseText(templateText, pT, dT) {
+            if (!templateText) return '';
+            return templateText
+                .replace(/\{pName\}/g, pT.name)
+                .replace(/\{pStartup\}/g, pT.startupName)
+                .replace(/\{dName\}/g, dT.name)
+                .replace(/\{dStartup\}/g, dT.startupName);
+        }
+
+        function resolveCaseField(fieldOrFn, pT, dT) {
+            if (typeof fieldOrFn === 'function') return fieldOrFn(pT, dT);
+            return formatCaseText(fieldOrFn, pT, dT);
+        }
+
+        let SUPREME_CASE_BANK = [
             // ================= BỂ ÁN VÒNG 1 (6 VỤ) =================
             {
                 type: 'VIOLATION',
@@ -1376,6 +1386,23 @@
             }
         ];
 
+        /* Nạp quests.json nếu có server, tự động dùng dữ liệu tích hợp sẵn nếu chạy file:// */
+        async function loadQuestsFromJSON() {
+            try {
+                const res = await fetch('quests.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data.cases) && data.cases.length > 0) {
+                        SUPREME_CASE_BANK = data.cases;
+                        console.log('✅ Đã nạp thành công ngân hàng 12 vụ án từ quests.json!');
+                    }
+                }
+            } catch (err) {
+                console.warn('Dùng ngân hàng vụ án tích hợp sẵn (fallback khi mở file://):', err);
+            }
+        }
+        loadQuestsFromJSON();
+
         function shuffleArray(arr) {
             const copy = [...arr];
             for (let i = copy.length - 1; i > 0; i--) {
@@ -1460,11 +1487,11 @@
                 defendantIdx: dIdx,
                 type: template.type, // 'VIOLATION' hoặc 'TRAP'
                 lawTag: template.lawTag,
-                rumorHtml: template.rumor(pT, dT),
-                knownFactsHtml: template.knownFacts(pT, dT),
-                exhibitHtml: template.exhibitBox(pT, dT),
+                rumorHtml: resolveCaseField(template.rumor, pT, dT),
+                knownFactsHtml: resolveCaseField(template.knownFacts, pT, dT),
+                exhibitHtml: resolveCaseField(template.exhibitBox, pT, dT),
                 cards: shuffledCards,
-                verdictExplainHtml: template.verdictExplain(pT, dT),
+                verdictExplainHtml: resolveCaseField(template.verdictExplain, pT, dT),
                 phase: 1,
                 plaintiffAction: null,     // 'SUE' hoặc 'PASS'
                 stealerIdx: null,          // null hoặc teamIdx của tổ Cướp còi

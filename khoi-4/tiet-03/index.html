@@ -383,7 +383,7 @@
         });
 
         // === 5. GAME BÀN PHÍM (POP-UP ĐÁP ÁN & GỢI Ý) ===
-        const fingerData = [
+        let fingerData = [
             { key: '1', finger: 'Ngón út', hand: 'Tay trái' }, { key: 'Q', finger: 'Ngón út', hand: 'Tay trái' }, { key: 'A', finger: 'Ngón út', hand: 'Tay trái' }, { key: 'Z', finger: 'Ngón út', hand: 'Tay trái' },
             { key: '2', finger: 'Ngón áp út', hand: 'Tay trái' }, { key: 'W', finger: 'Ngón áp út', hand: 'Tay trái' }, { key: 'S', finger: 'Ngón áp út', hand: 'Tay trái' }, { key: 'X', finger: 'Ngón áp út', hand: 'Tay trái' },
             { key: '3', finger: 'Ngón giữa', hand: 'Tay trái' }, { key: 'E', finger: 'Ngón giữa', hand: 'Tay trái' }, { key: 'D', finger: 'Ngón giữa', hand: 'Tay trái' }, { key: 'C', finger: 'Ngón giữa', hand: 'Tay trái' },
@@ -428,7 +428,7 @@
         document.getElementById('closeAnswerBtn2').onclick = () => answerModal.classList.remove('show');
 
         // === 6. TRẮC NGHIỆM ĐÁP ÁN DỌC TỐI ƯU ===
-        const quizData = [
+        let quizData = [
             { q: "Hai phím có gai F và J thuộc hàng phím nào?", a: ["Hàng phím số", "Hàng phím trên", "Hàng phím cơ sở", "Hàng phím dưới"], correct: 2 },
             { q: "Khi ngồi gõ phím, tư thế lưng phải như thế nào?", a: ["Cong lưng", "Thẳng lưng", "Nằm dài", "Dựa hẳn vào ghế"], correct: 1 },
             { q: "Phím cách (Space) do ngón tay nào phụ trách?", a: ["Ngón cái", "Ngón trỏ", "Ngón giữa", "Ngón út"], correct: 0 },
@@ -524,6 +524,23 @@
         
         document.getElementById('closeGachaBtn').onclick = () => gachaModal.classList.remove('show');
         document.getElementById('resetGachaBtn').onclick = initGacha;
+
+        const QUEST_JSON = './quests.json';
+        async function loadQuests() {
+            try {
+                const res = await fetch(QUEST_JSON);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data.quizData) && data.quizData.length > 0) quizData = data.quizData;
+                    if (Array.isArray(data.fingerData) && data.fingerData.length > 0) fingerData = data.fingerData;
+                    console.log('✅ Đã nạp thành công câu hỏi & phím từ ' + QUEST_JSON);
+                    if (typeof loadQuiz === 'function') loadQuiz();
+                }
+            } catch (e) {
+                console.warn('Dùng dữ liệu mặc định do không nạp được ' + QUEST_JSON, e);
+            }
+        }
+        loadQuests();
         initGacha();
     </script>
 </body>
