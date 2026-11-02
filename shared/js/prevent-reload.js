@@ -287,10 +287,13 @@
         const csv = (typeof csvData === 'string') ? csvData : convertToCsv(csvData);
 
         const showMsg = (msg, type = 'info') => {
-            if (typeof window.toast === 'function') {
-                window.toast(msg, 3500);
-            } else if (typeof window.showToast === 'function') {
+            const bg = (type === 'ok' || type === 'success') ? '#16a34a' :
+                       (type === 'warn' || type === 'warning') ? '#d97706' :
+                       (type === 'bad' || type === 'error') ? '#dc2626' : '#2563eb';
+            if (typeof window.showToast === 'function') {
                 window.showToast(msg, type);
+            } else if (typeof window.toast === 'function') {
+                window.toast(msg, 3500, bg);
             } else {
                 console.log(msg);
             }

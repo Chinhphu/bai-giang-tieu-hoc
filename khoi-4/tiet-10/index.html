@@ -2200,6 +2200,7 @@ pause
 
         function buildExportName() {
             const cl = $('#cls').value.replace('_', '-');
+            const now = new Date();
             const d = String(now.getDate()).padStart(2, '0'), m = String(now.getMonth() + 1).padStart(2, '0'), y = now.getFullYear();
             const hh = String(now.getHours()).padStart(2, '0'), mm = String(now.getMinutes()).padStart(2, '0'), ss = String(now.getSeconds()).padStart(2, '0');
             return `KetQua_TinHoc4_Lop_${cl}_Tiet_10_${hh}h${mm}p${ss}s_Ngay_${d}-${m}-${y}.csv`;
@@ -2217,10 +2218,25 @@ pause
         }
 
         $('#csvDriveBtn').onclick = async () => {
-            if (typeof window.uploadCsvToDrive === 'function') {
-                try { await window.uploadCsvToDrive(reportData(), buildExportName()); }
-                catch (e) { exportCsvLocal(); }
-            } else exportCsvLocal();
+            const btn = $('#csvDriveBtn');
+            const origText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Đang bắn file lên Google Drive...';
+            try {
+                if (typeof window.uploadCsvToDrive === 'function') {
+                    await window.uploadCsvToDrive(reportData(), buildExportName());
+                } else if (typeof window.uploadExcelToDrive === 'function') {
+                    await window.uploadExcelToDrive(reportData(), buildExportName());
+                } else {
+                    exportCsvLocal();
+                }
+            } catch (e) {
+                console.error('Lỗi khi lưu lên Google Drive:', e);
+                exportCsvLocal();
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origText;
+            }
         };
         $('#csvLocalBtn').onclick = exportCsvLocal;
 

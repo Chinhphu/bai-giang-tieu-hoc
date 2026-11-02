@@ -1401,6 +1401,7 @@
         let activityLogs = [];
         let currentSlide = 0;
         let currentTurnIndex = 0;
+        let calledStudentIndices = new Set();
 
         /**************************************************************
          * 2. TỔNG HỢP WEB AUDIO SYNTHESIZER
@@ -1516,6 +1517,7 @@
         }
 
         async function startGame() {
+            calledStudentIndices.clear();
             currentClass = $('s-class').value;
             const n = +$('s-teams').value;
             const scoreInput = $('s-score');
@@ -1626,11 +1628,68 @@
             });
         }
 
+        function isStudentSelectedElsewhere(idx, currentSelectEl) {
+            if (!teams || !teams.length) return { selected: false, where: '' };
+            // 1. Kiểm tra các ô chọn ở Sidebar của từng tổ
+            for (let i = 0; i < teams.length; i++) {
+                const s = $('sel-' + i);
+                if (s && s !== currentSelectEl && s.value !== '' && +s.value === idx) {
+                    return { selected: true, where: `Đang chọn ở ${teams[i].name}` };
+                }
+            }
+            // 2. Kiểm tra các ô chọn học sinh trả lời trong từng câu hỏi
+            if (typeof ALL_INLINE_Q_IDS !== 'undefined') {
+                for (let qId of ALL_INLINE_Q_IDS) {
+                    const s = $('sel-st-' + qId);
+                    if (s && s !== currentSelectEl && s.value !== '' && +s.value === idx) {
+                        return { selected: true, where: 'Đang chọn ở câu khác' };
+                    }
+                }
+            }
+            return { selected: false, where: '' };
+        }
+
+        function markStudentCalled(idx) {
+            if (idx === null || idx === undefined || isNaN(idx)) return;
+            const num = +idx;
+            if (num < 0 || num >= students.length) return;
+            calledStudentIndices.add(num);
+            refreshSelects();
+        }
+
+        function resetCalledStudents(silent = false) {
+            calledStudentIndices.clear();
+            refreshSelects();
+            if (!silent) {
+                playSuccessSound();
+                toast('🔄 Đã làm mới vòng gọi! Toàn bộ học sinh trong lớp sẵn sàng cho lượt mới.', 2400, 'var(--mint)');
+            }
+        }
+
+        function updateCalledBadge() {
+            const el = $('called-count-badge');
+            if (el) {
+                el.textContent = `${calledStudentIndices.size}/${students.length} HS`;
+            }
+        }
+
+        function onStudentSelectChanged(selEl) {
+            refreshSelects();
+        }
+
         function renderTeams() {
             const container = $('teams');
             if (!container) return;
 
-            container.innerHTML = teams.map((t, i) => `
+            const rosterCount = students.length;
+            const calledCount = calledStudentIndices.size;
+
+            container.innerHTML = `
+                <div class="roster-call-bar" style="margin-bottom:8px; padding:6px 10px; background:#fff; border:1.5px solid #cbd5e1; border-radius:10px; display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:800; color:#475569; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                    <span>🎯 ĐÃ LÊN BẢNG: <b id="called-count-badge" style="color:var(--blue);">${calledCount}/${rosterCount} HS</b></span>
+                    <button type="button" onclick="event.stopPropagation(); resetCalledStudents()" style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; padding:2px 8px; font-size:11px; font-weight:800; color:#334155; cursor:pointer;" title="Làm mới vòng gọi học sinh cả lớp">🔄 Đặt lại</button>
+                </div>
+            ` + teams.map((t, i) => `
                 <div class="team ${i === currentTurnIndex ? 'turn' : ''}" id="team-${i}" style="--tc:${t.color}" onclick="setTurn(${i})">
                     <div class="turn-badge">ĐANG TỚI LƯỢT</div>
                     <div class="trow">
@@ -1643,7 +1702,7 @@
                     <span class="tstartup-name">${t.startupName}</span>
                     <div class="tscore" id="sc-${i}" contenteditable="true" spellcheck="false" title="Nhấp vào để sửa điểm trực tiếp" onclick="event.stopPropagation()">${t.score}</div>
                     <div class="pick-box" onclick="event.stopPropagation()">
-                        <select class="hs-select" id="sel-${i}"></select>
+                        <select class="hs-select" id="sel-${i}" onchange="onStudentSelectChanged(this)"></select>
                         <button class="btn-dice" type="button" onclick="randomPickStudent(${i})" title="Gọi ngẫu nhiên">🎲</button>
                     </div>
                 </div>
@@ -1671,6 +1730,12 @@
                         scEl.blur();
                     }
                 });
+
+                const sEl = $('sel-' + i);
+                if (sEl && !sEl.dataset.boundChange) {
+                    sEl.dataset.boundChange = 'true';
+                    sEl.addEventListener('change', () => onStudentSelectChanged(sEl));
+                }
             });
 
             refreshSelects();
@@ -1680,20 +1745,49 @@
             teams.forEach((t, i) => {
                 const s = $('sel-' + i);
                 if (!s) return;
-                const v = s.value;
+                if (!s.dataset.boundChange) {
+                    s.dataset.boundChange = 'true';
+                    s.addEventListener('change', () => onStudentSelectChanged(s));
+                }
+                const cur = s.value;
                 s.innerHTML = '<option value="">-- Chọn học sinh --</option>' + students.map((st, k) => {
                     const isMyTeam = (st.team === t.id || st.team === i);
                     const isUnassigned = (st.team === null || st.team === undefined);
                     const isOtherTeam = !isMyTeam && !isUnassigned;
                     const otherTeamName = isOtherTeam ? (teams[st.team] ? teams[st.team].name : `Tổ ${st.team + 1}`) : '';
-                    const prefix = isMyTeam ? '⭐ ' : (isOtherTeam ? `🔒 [${otherTeamName}] ` : '');
-                    return `<option value="${k}" ${isOtherTeam ? 'disabled' : ''}>${prefix}${esc(studentDisplayName(st))}</option>`;
+
+                    const isCalled = calledStudentIndices.has(k);
+                    const isCurrent = (cur !== '' && +cur === k);
+                    const elsewhere = isStudentSelectedElsewhere(k, s);
+
+                    let prefix = isMyTeam ? '⭐ ' : '';
+                    let suffix = '';
+                    let disabled = false;
+
+                    if (isOtherTeam) {
+                        prefix = `🔒 [${otherTeamName}] `;
+                        disabled = true;
+                    } else if (isCurrent) {
+                        prefix = isCalled ? '✅ ' : '⭐ ';
+                        suffix = isCalled ? ' (Đã lên bảng)' : ' (Đang chọn)';
+                    } else if (isCalled) {
+                        prefix = '🔒 ';
+                        suffix = ' (Đã gọi)';
+                        disabled = true;
+                    } else if (elsewhere.selected) {
+                        prefix = '🔒 ';
+                        suffix = ` (${elsewhere.where})`;
+                        disabled = true;
+                    }
+
+                    return `<option value="${k}" ${disabled ? 'disabled' : ''} ${isCurrent ? 'selected' : ''}>${prefix}${esc(studentDisplayName(st))}${suffix}</option>`;
                 }).join('');
-                if (v !== '' && students[+v] && (students[+v].team === t.id || students[+v].team === i || students[+v].team === null || students[+v].team === undefined)) {
-                    s.value = v;
+                if (cur !== '' && students[+cur] && (students[+cur].team === t.id || students[+cur].team === i || students[+cur].team === null || students[+cur].team === undefined)) {
+                    s.value = cur;
                 }
             });
             refreshAllInlineCallers();
+            updateCalledBadge();
         }
 
         function getSelectedStudent(i) {
@@ -1753,19 +1847,38 @@
 
         function randomPickStudent(i) {
             const t = teams[i];
+            const sel = $('sel-' + i);
+            if (!sel || !students.length) return;
+
             const myTeam = students.map((s, idx) => ({ s, idx })).filter(item => item.s.team === t.id || item.s.team === i);
             const unassigned = students.map((s, idx) => ({ s, idx })).filter(item => item.s.team === null || item.s.team === undefined);
-            const pool = myTeam.length > 0 ? myTeam : (unassigned.length > 0 ? unassigned : students.map((s, idx) => ({ s, idx })));
-            if (!pool.length) return;
-            const r = pool[Math.floor(Math.random() * pool.length)];
-            const sel = $('sel-' + i);
-            if (sel) {
-                sel.value = r.idx;
-                sel.classList.remove('need');
-                sel.style.background = '#fef08a';
-                setTimeout(() => sel.style.background = '', 800);
+            const basePool = myTeam.length > 0 ? myTeam : (unassigned.length > 0 ? unassigned : students.map((s, idx) => ({ s, idx })));
+            if (!basePool.length) return;
+
+            // 1. Ưu tiên học sinh chưa được gọi và không đang chọn ở tổ khác
+            let candidates = basePool.filter(item => !calledStudentIndices.has(item.idx) && !isStudentSelectedElsewhere(item.idx, sel).selected);
+
+            // 2. Nếu không còn ứng viên do đang được chọn ở chỗ khác, lấy các bạn chưa gọi
+            if (!candidates.length) {
+                candidates = basePool.filter(item => !calledStudentIndices.has(item.idx));
             }
-            showBigStudentAlert(studentDisplayName(r.s), `Đại diện ${t.name}:`);
+
+            // 3. Nếu toàn bộ ứng viên trong nhóm đã được gọi hết 1 vòng -> bắt đầu xoay vòng mới cho nhóm
+            if (!candidates.length) {
+                basePool.forEach(item => calledStudentIndices.delete(item.idx));
+                toast(`🎉 ${t.name} đã gọi đủ 1 vòng các thành viên! Bắt đầu vòng mới của tổ!`, 2500, t.color);
+                candidates = basePool.filter(item => !isStudentSelectedElsewhere(item.idx, sel).selected);
+                if (!candidates.length) candidates = basePool;
+            }
+
+            const picked = candidates[Math.floor(Math.random() * candidates.length)];
+            sel.value = picked.idx;
+            sel.classList.remove('need');
+            sel.style.background = '#fef08a';
+            setTimeout(() => sel.style.background = '', 800);
+
+            markStudentCalled(picked.idx);
+            showBigStudentAlert(studentDisplayName(picked.s), `Đại diện ${t.name}:`);
         }
 
         function addScore(i, pts, reason) {
@@ -1838,10 +1951,35 @@
             ALL_INLINE_Q_IDS.forEach(qId => {
                 const sel = $('sel-st-' + qId);
                 if (!sel) return;
+                if (!sel.dataset.boundChange) {
+                    sel.dataset.boundChange = 'true';
+                    sel.addEventListener('change', () => onStudentSelectChanged(sel));
+                }
                 const cur = sel.value;
-                sel.innerHTML = '<option value="">-- Chọn học sinh --</option>' + students.map((st, idx) => `
-                    <option value="${idx}">${escapeHtml(studentDisplayName(st))}</option>
-                `).join('');
+                sel.innerHTML = '<option value="">-- Chọn học sinh --</option>' + students.map((st, idx) => {
+                    const isCalled = calledStudentIndices.has(idx);
+                    const isCurrent = (cur !== '' && +cur === idx);
+                    const elsewhere = isStudentSelectedElsewhere(idx, sel);
+
+                    let prefix = '';
+                    let suffix = '';
+                    let disabled = false;
+
+                    if (isCurrent) {
+                        prefix = isCalled ? '✅ ' : '⭐ ';
+                        suffix = isCalled ? ' (Đã trả lời)' : ' (Đang chọn)';
+                    } else if (isCalled) {
+                        prefix = '🔒 ';
+                        suffix = ' (Đã gọi)';
+                        disabled = true;
+                    } else if (elsewhere.selected) {
+                        prefix = '🔒 ';
+                        suffix = ` (${elsewhere.where})`;
+                        disabled = true;
+                    }
+
+                    return `<option value="${idx}" ${disabled ? 'disabled' : ''} ${isCurrent ? 'selected' : ''}>${prefix}${escapeHtml(studentDisplayName(st))}${suffix}</option>`;
+                }).join('');
                 if (cur !== '' && students[+cur]) sel.value = cur;
             });
         }
@@ -1849,11 +1987,33 @@
         function pickRandomStudentFor(qId) {
             const sel = $('sel-st-' + qId);
             if (!sel || !students.length) return;
-            const rIdx = Math.floor(Math.random() * students.length);
-            sel.value = rIdx;
+
+            // 1. Ưu tiên các bạn chưa gọi và không đang chọn ở câu hỏi / tổ khác
+            let candidates = students.map((s, idx) => ({ s, idx }))
+                .filter(item => !calledStudentIndices.has(item.idx) && !isStudentSelectedElsewhere(item.idx, sel).selected);
+
+            if (!candidates.length) {
+                candidates = students.map((s, idx) => ({ s, idx }))
+                    .filter(item => !calledStudentIndices.has(item.idx));
+            }
+
+            // 2. Nếu cả lớp đã gọi hết 1 vòng -> tự động xoay vòng gọi mới
+            if (!candidates.length) {
+                calledStudentIndices.clear();
+                toast(`🎉 Cả lớp đã tham gia đủ 1 vòng (${students.length}/${students.length} HS)! Bắt đầu xoay vòng gọi mới!`, 2800, 'var(--mint)');
+                candidates = students.map((s, idx) => ({ s, idx }))
+                    .filter(item => !isStudentSelectedElsewhere(item.idx, sel).selected);
+                if (!candidates.length) candidates = students.map((s, idx) => ({ s, idx }));
+            }
+
+            const picked = candidates[Math.floor(Math.random() * candidates.length)];
+            sel.value = picked.idx;
+            sel.classList.remove('need');
             sel.style.background = '#fef08a';
             setTimeout(() => sel.style.background = '', 700);
-            showBigStudentAlert(studentDisplayName(students[rIdx]), 'Mời học sinh trả lời:');
+
+            markStudentCalled(picked.idx);
+            showBigStudentAlert(studentDisplayName(picked.s), 'Mời học sinh trả lời:');
         }
 
         function requireStudent(qId) {
@@ -1874,6 +2034,8 @@
         function gradeInlineQ(qId, isCorrect, qTitle, revId) {
             const student = requireStudent(qId);
             if (!student) return;
+            const sel = $('sel-st-' + qId);
+            if (sel && sel.value !== '') markStudentCalled(+sel.value);
 
             if (isCorrect) {
                 playSuccessSound();
@@ -1884,8 +2046,8 @@
                 playThunderSound();
                 logTimelineAction(student.team !== null && teams[student.team] ? teams[student.team].name : 'Cá nhân', studentDisplayName(student), qTitle, 'Chưa chính xác (SMAS: Cần cố gắng)', 0);
                 toast(`Em ${studentDisplayName(student)} trả lời chưa chính xác. Mời bạn khác!`, 2500, 'var(--coral)');
-                const sel = $('sel-st-' + qId);
                 if (sel) sel.value = '';
+                refreshSelects();
             }
         }
 
@@ -1893,6 +2055,8 @@
         function checkSgkQuestionChoice(choice) {
             const student = requireStudent('m1-q1');
             if (!student) return;
+            const sel = $('sel-st-m1-q1');
+            if (sel && sel.value !== '') markStudentCalled(+sel.value);
             const isCorrect = (choice === 'D');
             const btnChoice = $('btn-sgk-' + choice.toLowerCase());
 
@@ -1916,8 +2080,8 @@
                     }, 1000);
                 }
                 toast(`Chưa chính xác! Phát biểu ${choice} là đúng theo SGK. Mời bạn khác chọn lại!`, 2500, 'var(--coral)');
-                const sel = $('sel-st-m1-q1');
                 if (sel) sel.value = '';
+                refreshSelects();
             }
         }
 
@@ -1944,6 +2108,8 @@
             }
             const student = requireStudent('m2-match');
             if (!student) return;
+            const sel = $('sel-st-m2-match');
+            if (sel && sel.value !== '') markStudentCalled(+sel.value);
 
             if (correctPairs[selectedLeft] === letter) {
                 playSuccessSound();
@@ -1965,6 +2131,7 @@
                 toast(`Cặp ghép chưa chính xác! Mời bạn khác ghép lại.`, 2200, 'var(--coral)');
                 const sel = $('sel-st-m2-match');
                 if (sel) sel.value = '';
+                refreshSelects();
             }
         }
 
@@ -1972,6 +2139,8 @@
         function checkInlineAttitude(qId, userChoice, isCorrect, actionTitle) {
             const student = requireStudent(qId);
             if (!student) return;
+            const sel = $('sel-st-' + qId);
+            if (sel && sel.value !== '') markStudentCalled(+sel.value);
             const btnDongTinh = $(`btn-att-${qId}-a`);
             const btnKhongDongTinh = $(`btn-att-${qId}-b`);
 
@@ -1992,6 +2161,7 @@
                 toast(`Thái độ chưa chính xác! Mời bạn khác trả lời lại.`, 2500, 'var(--coral)');
                 const sel = $('sel-st-' + qId);
                 if (sel) sel.value = '';
+                refreshSelects();
             }
         }
 
@@ -2286,6 +2456,8 @@
             const data = casesData[1][currentCaseIdx[1]];
             const student = requireSidebarStudent(data.plaintiffIdx);
             if (!student) return;
+            const sel = $('sel-' + data.plaintiffIdx);
+            if (sel && sel.value !== '') markStudentCalled(+sel.value);
 
             playGavelSound();
             const pTeam = teams[data.plaintiffIdx];
@@ -2322,6 +2494,8 @@
             const data = casesData[2][currentCaseIdx[2]];
             const student = requireSidebarStudent(data.plaintiffIdx);
             if (!student) return;
+            const sel = $('sel-' + data.plaintiffIdx);
+            if (sel && sel.value !== '') markStudentCalled(+sel.value);
 
             playGavelSound();
             const pTeam = teams[data.plaintiffIdx];
@@ -2358,6 +2532,8 @@
             const data = casesData[3][currentCaseIdx[3]];
             const student = requireSidebarStudent(data.defendantIdx);
             if (!student) return;
+            const sel = $('sel-' + data.defendantIdx);
+            if (sel && sel.value !== '') markStudentCalled(+sel.value);
 
             playGavelSound();
             const dTeam = teams[data.defendantIdx];

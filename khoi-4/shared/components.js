@@ -80,15 +80,42 @@
     }
 
     element.innerHTML = message;
-    element.style.background = background;
-    element.style.display = 'block';
-    element.classList.add('show');
+    element.style.cssText = [
+      'position: fixed',
+      'top: 24px',
+      'left: 50%',
+      'transform: translateX(-50%)',
+      `background: ${background}`,
+      'color: #ffffff',
+      'padding: 12px 24px',
+      'border-radius: 9999px',
+      'box-shadow: 0 10px 25px rgba(0,0,0,0.3)',
+      'font-family: "Be Vietnam Pro", system-ui, -apple-system, sans-serif',
+      'font-size: 15px',
+      'font-weight: 700',
+      'letter-spacing: 0.3px',
+      'z-index: 9999999',
+      'pointer-events: none',
+      'display: flex',
+      'align-items: center',
+      'gap: 8px',
+      'text-align: center',
+      'border: 2px solid rgba(255, 255, 255, 0.3)',
+      'box-sizing: border-box',
+      'max-width: 90vw'
+    ].join(';');
 
     window.clearTimeout(toastTimer);
     toastTimer = window.setTimeout(() => {
-      element.classList.remove('show');
       element.style.display = 'none';
     }, duration);
+  };
+
+  window.showToast = function showToast(message, type = 'ok') {
+    const bg = (type === 'ok' || type === 'success') ? '#16a34a' :
+               (type === 'warn' || type === 'warning') ? '#d97706' :
+               (type === 'bad' || type === 'error') ? '#dc2626' : '#2563eb';
+    return window.toast(message, 3500, bg);
   };
 
   /* ================= 2. ĐẨY CSV LÊN GOOGLE DRIVE ================= */
@@ -96,7 +123,7 @@
   window.GAS_UPLOAD_URL = GAS_UPLOAD_URL;
 
   window.uploadCsvToDrive = async function uploadCsvToDrive(data, fileName) {
-    if (typeof window.LessonExport !== 'undefined') {
+    if (typeof window.LessonExport !== 'undefined' && typeof window.LessonExport.uploadToDrive === 'function' && window.LessonExport.uploadToDrive !== uploadCsvToDrive) {
       return window.LessonExport.uploadToDrive(data, fileName);
     }
 
@@ -107,11 +134,7 @@
       name += '.csv';
     }
 
-    if (typeof window.showToast === 'function') {
-      window.showToast('☁️ Đang đồng bộ nhật ký CSV lên Google Drive...', 'ok');
-    } else if (window.toast) {
-      window.toast('☁️ Đang đồng bộ nhật ký CSV lên Google Drive...', 4500, '#2563eb');
-    }
+    window.showToast('☁️ Đang đồng bộ nhật ký CSV lên Google Drive...', 'info');
 
     let csvContent = typeof data === 'string' ? data : '';
     if (!csvContent && Array.isArray(data)) {
@@ -128,10 +151,15 @@
     }
 
     try {
-      const utf8Bytes = new TextEncoder().encode('\uFEFF' + csvContent);
+      let cleanCsv = csvContent;
+      if (cleanCsv.charCodeAt(0) === 0xFEFF) {
+        cleanCsv = cleanCsv.slice(1);
+      }
+      const utf8Bytes = new TextEncoder().encode('\uFEFF' + cleanCsv);
       let binary = '';
-      for (let i = 0; i < utf8Bytes.byteLength; i++) {
-        binary += String.fromCharCode(utf8Bytes[i]);
+      const chunkSize = 8192;
+      for (let i = 0; i < utf8Bytes.length; i += chunkSize) {
+        binary += String.fromCharCode.apply(null, utf8Bytes.subarray(i, i + chunkSize));
       }
       const base64Data = btoa(binary);
 
@@ -151,13 +179,7 @@
 
       const result = await response.json();
       if (result && result.status === 'success') {
-        if (typeof window.showToast === 'function') {
-          window.showToast('✅ Đã lưu vào Drive (Thư mục Log tiết học)!', 'ok');
-        } else if (window.toast) {
-          window.toast('✅ Đã lưu vào Drive (Thư mục Log tiết học)!', 4000, '#16a34a');
-        } else {
-          alert('Đã lưu thành công vào Google Drive: ' + name);
-        }
+        window.showToast('✅ Đã lưu vào Drive (Thư mục Log tiết học)!', 'ok');
         return result;
       } else {
         throw new Error((result && result.message) || 'Lỗi từ máy chủ Google Apps Script');
@@ -173,19 +195,12 @@
       link.click();
       document.body.removeChild(link);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      if (typeof window.showToast === 'function') {
-        window.showToast(`⚠️ Không kết nối được Drive. Đã tự động lưu file CSV về máy: ${name}`, 'warn');
-      } else if (window.toast) {
-        window.toast(`⚠️ Không kết nối được Drive. Đã tự động lưu file CSV về máy: ${name}`, 4500, '#dc2626');
-      } else {
-        alert('Không thể kết nối đến Google Drive. File CSV đã được lưu về máy: ' + name);
-      }
+      window.showToast(`⚠️ Không kết nối được Drive. Đã tự động lưu file CSV về máy: ${name}`, 'warn');
     }
   };
 
   window.uploadExcelToDrive = function (wbOrData, fileName) {
     return window.uploadCsvToDrive(wbOrData, fileName);
-  };
   };
 })();
 

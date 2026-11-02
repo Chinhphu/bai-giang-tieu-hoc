@@ -1216,17 +1216,26 @@ function exportCsvLocal() {
 }
 
 $('#csvDriveBtn').onclick = async () => {
-  const data = reportData();
-  const fileName = buildExportName();
-  if (typeof window.uploadCsvToDrive === 'function') {
-    try {
+  const btn = $('#csvDriveBtn');
+  const origText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Đang bắn file lên Google Drive...';
+  try {
+    const data = reportData();
+    const fileName = buildExportName();
+    if (typeof window.uploadCsvToDrive === 'function') {
       await window.uploadCsvToDrive(data, fileName);
-    } catch (e) {
-      console.warn('Lỗi đồng bộ Drive, tải về máy:', e);
+    } else if (typeof window.uploadExcelToDrive === 'function') {
+      await window.uploadExcelToDrive(data, fileName);
+    } else {
       exportCsvLocal();
     }
-  } else {
+  } catch (e) {
+    console.error('Lỗi khi lưu lên Google Drive:', e);
     exportCsvLocal();
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = origText;
   }
 };
 $('#csvLocalBtn').onclick = exportCsvLocal;
