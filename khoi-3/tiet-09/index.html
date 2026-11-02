@@ -152,11 +152,76 @@
             gap: 10px;
         }
 
-        /* Dàn máy các đội (2 đến 6 đội linh hoạt) */
+        /* Dàn máy các đội (2 đến 6 đội linh hoạt - đặt ở sidebar phải) */
         .teams-rack-container {
-            display: grid;
-            gap: 10px;
-            margin-bottom: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 8px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .teams-sidebar-card {
+            background: #0b1120;
+            border-radius: 16px;
+            border: 3px solid #334155;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            height: 100%;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .turn-indicator-badge {
+            background: #facc15;
+            color: #0f172a;
+            font-size: 0.72rem;
+            font-weight: 900;
+            padding: 2px 7px;
+            border-radius: 99px;
+            animation: pulseTurn 0.8s infinite alternate;
+        }
+
+        @keyframes pulseTurn {
+            from { opacity: 0.85; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1.04); }
+        }
+
+        .student-select-strip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #eff6ff;
+            border: 2px solid #3b82f6;
+            padding: 4px 10px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+            transition: all 0.2s ease;
+        }
+
+        .student-select-strip select {
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1.5px solid #2563eb;
+            font-weight: 800;
+            font-size: 0.92rem;
+            background: #ffffff;
+            color: #0f172a;
+            cursor: pointer;
+            min-width: 220px;
+            max-width: 320px;
+        }
+
+        .student-select-strip select:focus {
+            outline: 2px solid #1d4ed8;
+            border-color: #1d4ed8;
+        }
+
+        .student-select-strip select option:disabled {
+            color: #94a3b8;
+            background: #f1f5f9;
         }
 
         .team-rig-box {
@@ -817,17 +882,12 @@
             <!-- ==================== SLIDE 2: ĐẤU TRƯỜNG CẮT CÁP ==================== -->
             <section id="slide-1" class="slide-screen active">
                 <div class="card-panel">
-                    <!-- DÀN MÁY CỦA CÁC ĐỘI (DYNAMIC RACKS) -->
-                    <div class="teams-rack-container" id="teamsRackContainer" style="grid-template-columns: repeat(4, 1fr);">
-                        <!-- Sẽ render tự động qua JS theo số đội được chọn -->
-                    </div>
-
                     <!-- SÂN KHẤU TRUNG TÂM -->
                     <div class="center-arena-stage">
                         <div class="center-stage-header">
                             <div class="turn-banner-text" id="turnBannerText">
                                 <span>🎯 LƯỢT CỦA [TỔ 1]:</span>
-                                <span style="color:#fde047;" id="currentTurnStudentName">(Nháy tên học sinh trong danh sách)</span>
+                                <span style="color:#fde047;" id="currentTurnStudentName">(Chưa chọn học sinh)</span>
                             </div>
                             <div style="display:flex; gap:6px;">
                                 <button class="btn warning" style="padding:4px 10px; font-size:0.85rem;" onclick="passTurnToNextAliveTeam()">
@@ -841,9 +901,25 @@
 
                         <!-- 1. KHUNG HIỂN THỊ CÂU HỎI ĐA DẠNG -->
                         <div class="stage-view-box" id="questionStageBox">
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span class="q-badge" id="qBadgeText">ĐANG TẢI...</span>
-                                <span style="font-weight:900; color:#64748b; font-size:0.9rem;" id="qIndexProgress">Câu 1/25</span>
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span class="q-badge" id="qBadgeText" style="margin-bottom:0;">ĐANG TẢI...</span>
+                                    <span style="font-weight:900; color:#64748b; font-size:0.9rem;" id="qIndexProgress">Câu 1/25</span>
+                                </div>
+
+                                <!-- VÙNG DROPDOWN CHỌN HỌC SINH TẠI TỪNG CÂU HỎI -->
+                                <div class="student-select-strip" id="studentSelectWrapper">
+                                    <label for="questionStudentSelect" style="font-weight:900; font-size:0.88rem; color:#1d4ed8; white-space:nowrap; cursor:pointer;">
+                                        👤 Học sinh:
+                                    </label>
+                                    <select id="questionStudentSelect" onchange="onStudentSelectChange(this.value)">
+                                        <option value="">-- Chọn học sinh trả lời --</option>
+                                    </select>
+                                    <button class="btn primary" onclick="randomPickAnyStudent()" style="padding:5px 12px; font-size:0.82rem; font-weight:900; border-radius:8px; white-space:nowrap;" title="Bốc thăm ngẫu nhiên một bạn chưa lên">
+                                        🎲 Bốc thăm
+                                    </button>
+                                    <span id="slpStatsBadge" style="font-size:0.8rem; font-weight:900; color:#1e40af; background:#dbeafe; padding:4px 8px; border-radius:6px; white-space:nowrap;">Đã lên: 0/41</span>
+                                </div>
                             </div>
 
                             <div class="q-title" id="qTitleDisplay">
@@ -1030,23 +1106,22 @@
 
         <!-- ==================== CỘT PHẢI ==================== -->
         <aside class="sidebar">
-            <!-- Danh Sách Học Sinh -->
-            <div class="students-roster-card">
+            <!-- DÀN MÁY & SỐ CÁP NGUỒN CÁC TỔ THI ĐẤU -->
+            <div class="teams-sidebar-card">
                 <div class="src-header">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span>👥 DANH SÁCH LỚP</span>
-                        <button class="btn" style="padding:2px 8px; font-size:0.75rem; background:#38bdf8; color:#0f172a; border-radius:6px;"
-                            onclick="randomPickAnyStudent()" title="Bốc ngẫu nhiên một bạn trong lớp cho tổ đang giữ lượt">
-                            🎲 Bốc thăm
-                        </button>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span>⚡ CÁC TỔ THI ĐẤU</span>
                     </div>
-                    <select id="classSelect" onchange="changeClass(this.value)" style="padding:3px 8px; border-radius:6px; font-weight:900;">
-                        <option value="3_2">Lớp 3/2</option>
-                        <option value="3_3">Lớp 3/3</option>
-                        <option value="3_4">Lớp 3/4</option>
-                        <option value="3_5" selected>Lớp 3/5</option>
-                        <option value="3_6">Lớp 3/6</option>
-                    </select>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span style="font-size:0.78rem; color:#cbd5e1; font-weight:800;">LỚP:</span>
+                        <select id="classSelect" onchange="changeClass(this.value)" style="padding:3px 8px; border-radius:6px; font-weight:900; background:#0f172a; color:#facc15; border:1px solid #38bdf8; cursor:pointer;">
+                            <option value="3_2">Lớp 3/2</option>
+                            <option value="3_3">Lớp 3/3</option>
+                            <option value="3_4">Lớp 3/4</option>
+                            <option value="3_5" selected>Lớp 3/5</option>
+                            <option value="3_6">Lớp 3/6</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- THANH CHỌN SỐ ĐỘI THI ĐẤU -->
@@ -1061,13 +1136,17 @@
                     </div>
                 </div>
 
-                <div style="padding:6px 10px; background:#f1f5f9; display:flex; gap:6px; align-items:center; border-bottom:1px solid #e2e8f0;">
-                    <input type="text" id="search-student" placeholder="🔍 Gõ STT hoặc tên HS..." onkeyup="renderStudentRoster()"
-                        style="flex:1; padding:5px 10px; border-radius:8px; border:1px solid #cbd5e1; font-size:0.9rem;">
-                    <span id="slpStatsBadge" style="font-size:0.8rem; font-weight:900; color:#1e3a8a;">0/41</span>
+                <!-- DÀN MÁY CỦA CÁC ĐỘI (DYNAMIC RACKS - CHUYỂN QUA ĐÂY) -->
+                <div class="teams-rack-container" id="teamsRackContainer">
+                    <!-- Sẽ render tự động qua JS theo số đội được chọn -->
                 </div>
 
-                <div class="src-list" id="studentRosterContainer"></div>
+                <!-- NÚT ĐIỀU HƯỚNG NHANH -->
+                <div style="padding:8px 10px; background:#0b1120; border-top:1px solid #334155;">
+                    <button class="btn warning" style="width:100%; font-size:0.88rem; padding:7px 12px; font-weight:900;" onclick="passTurnToNextAliveTeam()">
+                        ⏭ Chuyển Lượt Sang Tổ Kế
+                    </button>
+                </div>
             </div>
         </aside>
     </div>
@@ -1254,25 +1333,26 @@
                 currentTurnTeam = teamId;
                 currentStudent = null;
                 updateRacksLive();
-                renderStudentRoster();
+                renderStudentDropdown();
                 toast(`🎯 Đã chuyển sang lượt của ${teamsData[teamId].name}!`, 'ok');
             }
         }
 
         function renderTeamsRacks() {
             const container = document.getElementById('teamsRackContainer');
-            container.style.gridTemplateColumns = `repeat(${Math.min(teamCount, 4)}, 1fr)`;
+            if (!container) return;
 
             const wireColors = ['#ef4444', '#f59e0b', '#38bdf8', '#10b981', '#a855f7', '#ec4899'];
 
             container.innerHTML = Object.values(teamsData).map(t => {
-                const isTurn = t.id === currentTurnTeam;
+                const isTurn = t.id === currentTurnTeam && t.cables > 0;
                 const isDead = t.cables <= 0;
                 return `
                     <div class="team-rig-box ${isTurn ? 'turn-active' : ''} ${isDead ? 'dead-team' : ''}" id="rigCard${t.id}" onclick="onSelectTeamRig(${t.id})" style="cursor:pointer;" title="Nháy để chuyển lượt sang ${t.name}">
                         <div class="rig-top-bar">
-                            <div class="rig-title-pill" style="color:${t.lightColor};">
+                            <div class="rig-title-pill" style="color:${t.lightColor}; display:flex; align-items:center; gap:6px;">
                                 <span>🖥️ ${t.name}</span>
+                                ${isTurn ? '<span class="turn-indicator-badge">👉 LƯỢT NÀY</span>' : ''}
                             </div>
                             <span class="shield-badge" id="shieldBadge${t.id}" style="${t.hasShield ? 'display:inline-block;' : ''}">🛡️ CÓ KHIÊN</span>
                         </div>
@@ -1312,8 +1392,10 @@
                 const lives = document.getElementById(`rigLivesText${t.id}`);
                 if (!card) return;
 
-                card.classList.toggle('turn-active', t.id === currentTurnTeam);
-                card.classList.toggle('dead-team', t.cables <= 0);
+                const isTurn = t.id === currentTurnTeam && t.cables > 0;
+                const isDead = t.cables <= 0;
+                card.classList.toggle('turn-active', isTurn);
+                card.classList.toggle('dead-team', isDead);
                 if (shield) {
                     shield.style.display = t.hasShield ? 'inline-block' : 'none';
                     shield.textContent = '🛡️ CÓ KHIÊN';
@@ -1323,6 +1405,19 @@
                 for (let c = 1; c <= initialCables; c++) {
                     const item = document.getElementById(`cable_${t.id}_${c}`);
                     if (item) item.classList.toggle('severed', c > t.cables);
+                }
+
+                const pill = card.querySelector('.rig-title-pill');
+                let turnBadge = card.querySelector('.turn-indicator-badge');
+                if (isTurn) {
+                    if (!turnBadge && pill) {
+                        turnBadge = document.createElement('span');
+                        turnBadge.className = 'turn-indicator-badge';
+                        turnBadge.textContent = '👉 LƯỢT NÀY';
+                        pill.appendChild(turnBadge);
+                    }
+                } else if (turnBadge) {
+                    turnBadge.remove();
                 }
             });
 
@@ -1336,7 +1431,7 @@
                 if (currentStudent) {
                     studentBadge.textContent = `👤 [SỐ ${String(currentStudent.stt).padStart(2, '0')}] ${currentStudent.name.toUpperCase()}`;
                 } else {
-                    studentBadge.textContent = `(Nháy tên học sinh trong danh sách)`;
+                    studentBadge.textContent = `(Chưa chọn học sinh)`;
                 }
             }
         }
@@ -1383,6 +1478,7 @@
         function renderCurrentQuestion() {
             document.getElementById('questionStageBox').style.display = 'flex';
             document.getElementById('tacticalChoiceView').style.display = 'none';
+            renderStudentDropdown();
             if (gameEnded) {
                 document.getElementById('qVisualArea').textContent = '🏁 Ván đấu đã kết thúc. Mời xem Bảng Vàng hoặc đổi số tổ để chơi lại.';
                 document.getElementById('qInteractionArea').innerHTML = '';
@@ -1699,15 +1795,17 @@
         function ensureStudentSelected() {
             if (!currentStudent) {
                 soundDuckHorn();
-                toast('⚠️ Thầy/Cô vui lòng nháy chọn 1 học sinh trong Danh sách lớp trước!', 'bad');
-                const roster = document.querySelector('.students-roster-card');
-                if (roster) {
-                    roster.style.outline = '4px solid #ef4444';
-                    roster.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.6)';
+                toast('⚠️ Thầy/Cô vui lòng chọn 1 học sinh ở ô Chọn học sinh trước khi trả lời!', 'bad');
+                const sel = document.getElementById('questionStudentSelect');
+                const wrap = document.getElementById('studentSelectWrapper') || sel;
+                if (wrap) {
+                    wrap.style.outline = '3px solid #ef4444';
+                    wrap.style.boxShadow = '0 0 16px rgba(239, 68, 68, 0.8)';
+                    if (sel) sel.focus();
                     setTimeout(() => {
-                        roster.style.outline = 'none';
-                        roster.style.boxShadow = '';
-                    }, 1200);
+                        wrap.style.outline = '';
+                        wrap.style.boxShadow = '';
+                    }, 1400);
                 }
                 return false;
             }
@@ -2157,58 +2255,85 @@
             renderCurrentQuestion();
         }
 
+        function onStudentSelectChange(name) {
+            if (!name) {
+                currentStudent = null;
+                updateRacksLive();
+                return;
+            }
+            selectStudentFromList(name);
+            if (currentStudent) {
+                toast(`👤 Đã chọn: [Số ${String(currentStudent.stt).padStart(2, '0')}] ${currentStudent.name} cho ${teamsData[currentTurnTeam].name}!`, 'ok');
+            }
+        }
+
         function selectStudentFromList(name) {
             if (!studentData[name]) return;
             const target = studentData[name];
+            if (target.played) {
+                toast(`⚠️ Học sinh ${target.name} đã tham gia rồi!`, 'bad');
+                renderStudentDropdown();
+                return;
+            }
             currentStudent = target;
             // Gán em vào tổ đang giữ lượt
             target.team = currentTurnTeam;
-            renderStudentRoster();
+            renderStudentDropdown();
             updateRacksLive();
         }
 
         function randomPickAnyStudent() {
             const all = classStudents.map(s => studentData[s.name]);
             const unplayed = all.filter(r => !r.played);
-            const pool = unplayed.length > 0 ? unplayed : all;
-            if (pool.length === 0) return;
-            const picked = pool[Math.floor(Math.random() * pool.length)];
+            if (unplayed.length === 0) {
+                toast('⚠️ Tất cả học sinh trong lớp đều đã tham gia!', 'bad');
+                return;
+            }
+            const picked = unplayed[Math.floor(Math.random() * unplayed.length)];
             if (picked) {
                 selectStudentFromList(picked.name);
-                toast(`🎲 Bốc thăm: [Số ${String(picked.stt).padStart(2, '0')}] ${picked.name} trả lời cho ${teamsData[currentTurnTeam].name}!`, 'ok');
+                toast(`🎲 Bốc thăm: [Số ${String(picked.stt).padStart(2, '0')}] ${picked.name} đại diện cho ${teamsData[currentTurnTeam].name}!`, 'ok');
+            }
+        }
+
+        function renderStudentDropdown() {
+            const select = document.getElementById('questionStudentSelect');
+            if (!select) return;
+
+            const all = classStudents.map(s => studentData[s.name]);
+            const doneCount = all.filter(r => r.played).length;
+            const badge = document.getElementById('slpStatsBadge');
+            if (badge) {
+                badge.textContent = `Đã lên: ${doneCount}/${all.length}`;
+            }
+
+            const curTeam = teamsData[currentTurnTeam];
+            const teamName = curTeam ? curTeam.name : `Tổ ${currentTurnTeam}`;
+            const unplayedCount = all.length - doneCount;
+
+            let html = `<option value="">-- Chọn học sinh đại diện [${teamName}] (${unplayedCount} bạn chưa lên) --</option>`;
+
+            const sorted = [...all].sort((a, b) => a.stt - b.stt);
+            sorted.forEach(r => {
+                const isDone = r.played;
+                const isSelected = currentStudent && currentStudent.name === r.name;
+                const disabledAttr = isDone ? 'disabled' : '';
+                const selectedAttr = isSelected ? 'selected' : '';
+                const sttStr = String(r.stt).padStart(2, '0');
+                const doneTag = isDone ? (r.team ? ` (✓ Đã lên - Tổ ${r.team})` : ' (✓ Đã lên)') : '';
+                html += `<option value="${r.name.replace(/"/g, '&quot;')}" ${disabledAttr} ${selectedAttr}>#${sttStr} - ${r.name}${doneTag}</option>`;
+            });
+
+            select.innerHTML = html;
+            if (currentStudent) {
+                select.value = currentStudent.name;
+            } else {
+                select.value = "";
             }
         }
 
         function renderStudentRoster() {
-            const container = document.getElementById('studentRosterContainer');
-            if (!container) return;
-            const q = (document.getElementById('search-student')?.value || '').toLowerCase().trim();
-            const all = classStudents.map(s => studentData[s.name]);
-            const doneCount = all.filter(r => r.played).length;
-            const badge = document.getElementById('slpStatsBadge');
-            if (badge) badge.textContent = `Đã lên: ${doneCount}/${all.length}`;
-
-            const sorted = [...all].sort((a, b) => a.stt - b.stt);
-            const filtered = q ? sorted.filter(r => r.name.toLowerCase().includes(q) || String(r.stt).includes(q)) : sorted;
-
-            container.innerHTML = filtered.map(r => {
-                const isActive = currentStudent && currentStudent.name === r.name;
-                const cls = isActive ? 'is-active' : (r.played ? 'is-done' : '');
-                const safeName = r.name.replace(/'/g, "\\'");
-                const teamPal = r.team ? TEAM_PALETTES[(r.team - 1) % TEAM_PALETTES.length] : null;
-                return `
-                    <div class="student-item-row ${cls}" onclick="selectStudentFromList('${safeName}')">
-                        <div style="display:flex; align-items:center; gap:6px; overflow:hidden;">
-                            ${teamPal ? `<span class="team-pill-badge" style="background:${teamPal.color};">Tổ ${r.team}</span>` : ''}
-                            <span style="font-weight:900; font-size:0.82rem; color:#475569;">#${String(r.stt).padStart(2, '0')}</span>
-                            <span style="font-weight:800; font-size:0.92rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.name}</span>
-                        </div>
-                        <span style="font-weight:900; font-size:0.8rem; color:${r.played ? '#16a34a' : '#2563eb'}; flex-shrink:0;">
-                            ${r.played ? '✓ Đã lên' : (isActive ? '👉 Đang chọn' : '+ Chọn')}
-                        </span>
-                    </div>
-                `;
-            }).join('');
+            renderStudentDropdown();
         }
 
         function changeClass(cid) { loadClassData(cid); }
