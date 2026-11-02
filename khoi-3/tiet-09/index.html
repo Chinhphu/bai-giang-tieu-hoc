@@ -612,15 +612,7 @@
             gap: 10px;
             position: sticky;
             top: 8px;
-            max-height: calc(100vh - 16px);
-        }
-
-        .active-student-card {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            border: 3px solid #38bdf8;
-            border-radius: 16px;
-            padding: 12px 14px;
-            color: #fff;
+            height: calc(100vh - 16px);
         }
 
         .students-roster-card {
@@ -631,7 +623,8 @@
             display: flex;
             flex-direction: column;
             flex: 1;
-            min-height: 330px;
+            height: 100%;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
         }
 
         .src-header {
@@ -648,8 +641,7 @@
         .src-list {
             flex: 1;
             overflow-y: auto;
-            max-height: 380px;
-            padding: 6px;
+            padding: 8px 6px;
             display: flex;
             flex-direction: column;
             gap: 4px;
@@ -835,7 +827,7 @@
                         <div class="center-stage-header">
                             <div class="turn-banner-text" id="turnBannerText">
                                 <span>🎯 LƯỢT CỦA [TỔ 1]:</span>
-                                <span style="color:#fde047;" id="currentTurnStudentName">ĐỖ NHẬT ANH</span>
+                                <span style="color:#fde047;" id="currentTurnStudentName">(Nháy tên học sinh trong danh sách)</span>
                             </div>
                             <div style="display:flex; gap:6px;">
                                 <button class="btn warning" style="padding:4px 10px; font-size:0.85rem;" onclick="passTurnToNextAliveTeam()">
@@ -878,22 +870,27 @@
                             </p>
 
                             <div class="tactical-buttons-grid">
-                                <button class="btn-tactic-action attack" onclick="chooseTacticalPath('attack')">
+                                <button class="btn-tactic-action attack" id="btnTacticAttack" onclick="chooseTacticalPath('attack')">
                                     <span style="font-size:2.2rem;">✂️</span>
                                     <span>TẤN CÔNG ĐỐI THỦ</span>
-                                    <span style="font-size:0.82rem; opacity:0.9;">(Gacha cắt cáp nhà hàng xóm)</span>
+                                    <span style="font-size:0.82rem; opacity:0.9;">(Gacha cắt cáp đối phương)</span>
                                 </button>
-                                <button class="btn-tactic-action defense" onclick="chooseTacticalPath('defense')">
+                                <button class="btn-tactic-action defense" id="btnTacticDefense" onclick="chooseTacticalPath('defense')">
                                     <span style="font-size:2.2rem;">🛡️</span>
-                                    <span>PHÒNG THỦ / HỒI MÁU</span>
-                                    <span style="font-size:0.82rem; opacity:0.9;">(Nối lại 1 cáp đã đứt cho tổ)</span>
+                                    <span id="btnDefenseTitle">PHÒNG THỦ / BẬT KHIÊN</span>
+                                    <span id="btnDefenseSubtitle" style="font-size:0.82rem; opacity:0.9;">(Hồi phục 1 cáp / Đầy 5 cáp bật Khiên)</span>
                                 </button>
                             </div>
 
                             <!-- Bảng Gacha Cắt Cáp (hiện ra khi bấm Tấn Công) -->
                             <div class="gacha-cords-selection" id="gachaCordsSelection">
-                                <div style="font-size:1.15rem; font-weight:900; color:#f87171;" id="victimPromptHeading">
-                                    👉 Chọn 1 tổ đối thủ còn cáp (và không có khiên) để cắt:
+                                <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:620px; gap:8px; flex-wrap:wrap;">
+                                    <div style="font-size:1.15rem; font-weight:900; color:#f87171;" id="victimPromptHeading">
+                                        👉 Chọn 1 tổ đối thủ còn cáp để cắt:
+                                    </div>
+                                    <button class="btn" style="background:#334155; color:#facc15; padding:5px 12px; font-size:0.85rem; border-radius:8px;" onclick="cancelAttackAndBackToDefense()">
+                                        ◀ Đổi ý: Chọn Phòng Thủ
+                                    </button>
                                 </div>
                                 <div class="victim-list-row" id="victimListRow"></div>
                                 <div id="victimCablesDetailArea" style="display:none; margin-top:10px;">
@@ -985,42 +982,16 @@
 
         <!-- ==================== CỘT PHẢI ==================== -->
         <aside class="sidebar">
-            <div class="active-student-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="background:#16a34a; padding:3px 10px; border-radius:99px; font-size:0.78rem; font-weight:900;">
-                        🙋 ƯU TIÊN XUNG PHONG (1 LẦN/EM)
-                    </span>
-                    <button class="btn" style="padding:4px 9px; font-size:0.78rem; background:#38bdf8; color:#0f172a;"
-                        onclick="gachaPickStudentForActiveTeam()" title="Bốc ngẫu nhiên học sinh chưa lên của Tổ đang giữ lượt">
-                        🎲 Gacha Tổ Này
-                    </button>
-                </div>
-
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <div style="font-size:1.25rem; font-weight:900; color:#facc15;" id="ascStudentName">Chưa chọn</div>
-                        <div style="font-size:0.82rem; color:#94a3b8; font-weight:700;" id="ascStudentClass">Nháy tên bên dưới khi HS giơ tay</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="font-size:1.2rem; font-weight:900; color:#4ade80;" id="ascTeamStatusText">Đang sẵn sàng</div>
-                        <div style="font-size:0.75rem; color:#cbd5e1; font-weight:800;" id="ascErrorsText">Chưa lên bảng</div>
-                    </div>
-                </div>
-
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:10px;">
-                    <button class="btn" style="background:#dc2626; color:#fff; padding:6px 2px; font-size:0.82rem;" onclick="recordWrongIdentity()">
-                        🚫 Sai STT
-                    </button>
-                    <button class="btn" style="background:#2563eb; color:#fff; padding:6px 2px; font-size:0.82rem;" onclick="passTurnToNextAliveTeam()">
-                        ⏭ Bỏ qua lượt
-                    </button>
-                </div>
-            </div>
-
             <!-- Danh Sách Học Sinh -->
             <div class="students-roster-card">
                 <div class="src-header">
-                    <span>👥 DANH SÁCH LỚP</span>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span>👥 DANH SÁCH LỚP</span>
+                        <button class="btn" style="padding:2px 8px; font-size:0.75rem; background:#38bdf8; color:#0f172a; border-radius:6px;"
+                            onclick="randomPickAnyStudent()" title="Bốc ngẫu nhiên một bạn trong lớp cho tổ đang giữ lượt">
+                            🎲 Bốc thăm
+                        </button>
+                    </div>
                     <select id="classSelect" onchange="changeClass(this.value)" style="padding:3px 8px; border-radius:6px; font-weight:900;">
                         <option value="3_2">Lớp 3/2</option>
                         <option value="3_3">Lớp 3/3</option>
@@ -1030,7 +1001,7 @@
                     </select>
                 </div>
 
-                <div style="padding:6px 10px; background:#f1f5f9; display:flex; gap:6px; align-items:center;">
+                <div style="padding:6px 10px; background:#f1f5f9; display:flex; gap:6px; align-items:center; border-bottom:1px solid #e2e8f0;">
                     <input type="text" id="search-student" placeholder="🔍 Gõ STT hoặc tên HS..." onkeyup="renderStudentRoster()"
                         style="flex:1; padding:5px 10px; border-radius:8px; border:1px solid #cbd5e1; font-size:0.9rem;">
                     <span id="slpStatsBadge" style="font-size:0.8rem; font-weight:900; color:#1e3a8a;">0/41</span>
@@ -1175,6 +1146,13 @@
             [800, 300, 100, 60].forEach((f, i) => setTimeout(() => playTone(f, 0.15, 'sawtooth', 0.4), i * 40));
             triggerScreenFlash();
         }
+        function soundShieldActivate() {
+            [400, 600, 850, 1150].forEach((f, i) => setTimeout(() => playTone(f, 0.16, 'sine', 0.35), i * 60));
+        }
+        function soundShieldBreak() {
+            [1100, 800, 500, 250, 120].forEach((f, i) => setTimeout(() => playTone(f, 0.14, 'sawtooth', 0.45), i * 45));
+            triggerScreenFlash();
+        }
         function triggerScreenFlash() {
             const fl = document.getElementById('sparkFlashOverlay');
             fl.style.display = 'block';
@@ -1206,6 +1184,21 @@
             renderTeamsRacks();
         }
 
+        function onSelectTeamRig(teamId) {
+            if (gameEnded) return;
+            if (teamsData[teamId].cables <= 0) {
+                toast(`⚠️ ${teamsData[teamId].name} đã sập nguồn!`, 'bad');
+                return;
+            }
+            if (currentTurnTeam !== teamId) {
+                currentTurnTeam = teamId;
+                currentStudent = null;
+                updateRacksLive();
+                renderStudentRoster();
+                toast(`🎯 Đã chuyển sang lượt của ${teamsData[teamId].name}!`, 'ok');
+            }
+        }
+
         function renderTeamsRacks() {
             const container = document.getElementById('teamsRackContainer');
             container.style.gridTemplateColumns = `repeat(${Math.min(teamCount, 4)}, 1fr)`;
@@ -1216,12 +1209,12 @@
                 const isTurn = t.id === currentTurnTeam;
                 const isDead = t.cables <= 0;
                 return `
-                    <div class="team-rig-box ${isTurn ? 'turn-active' : ''} ${isDead ? 'dead-team' : ''}" id="rigCard${t.id}">
+                    <div class="team-rig-box ${isTurn ? 'turn-active' : ''} ${isDead ? 'dead-team' : ''}" id="rigCard${t.id}" onclick="onSelectTeamRig(${t.id})" style="cursor:pointer;" title="Nháy để chuyển lượt sang ${t.name}">
                         <div class="rig-top-bar">
                             <div class="rig-title-pill" style="color:${t.lightColor};">
                                 <span>🖥️ ${t.name}</span>
                             </div>
-                            <span class="shield-badge" id="shieldBadge${t.id}" style="${t.hasShield ? 'display:inline-block;' : ''}">🛡️ BẬT KHIÊN</span>
+                            <span class="shield-badge" id="shieldBadge${t.id}" style="${t.hasShield ? 'display:inline-block;' : ''}">🛡️ CÓ KHIÊN</span>
                         </div>
 
                         <!-- Các cọng cáp neon phát sáng -->
@@ -1244,8 +1237,8 @@
                         </div>
 
                         <div class="rig-actions-mini">
-                            <button class="btn-mini-tool heal" onclick="teacherHealCable(${t.id})">💚 +1 Cáp</button>
-                            <button class="btn-mini-tool penalty" onclick="teacherCutCable(${t.id})">⚡ Phạt Ồn (-1)</button>
+                            <button class="btn-mini-tool heal" onclick="event.stopPropagation(); teacherHealCable(${t.id})">💚 +1 Cáp</button>
+                            <button class="btn-mini-tool penalty" onclick="event.stopPropagation(); teacherCutCable(${t.id})">⚡ Phạt Ồn (-1)</button>
                         </div>
                     </div>
                 `;
@@ -1261,7 +1254,10 @@
 
                 card.classList.toggle('turn-active', t.id === currentTurnTeam);
                 card.classList.toggle('dead-team', t.cables <= 0);
-                if (shield) shield.style.display = t.hasShield ? 'inline-block' : 'none';
+                if (shield) {
+                    shield.style.display = t.hasShield ? 'inline-block' : 'none';
+                    shield.textContent = '🛡️ CÓ KHIÊN';
+                }
                 if (lives) lives.textContent = t.cables > 0 ? `⚡ Còn ${t.cables}/${initialCables} Cáp` : `💥 SẬP NGUỒN`;
 
                 for (let c = 1; c <= initialCables; c++) {
@@ -1276,8 +1272,12 @@
             if (teamLabel && teamsData[currentTurnTeam]) {
                 teamLabel.textContent = `🎯 LƯỢT CỦA [${teamsData[currentTurnTeam].name.toUpperCase()}]:`;
             }
-            if (studentBadge && currentStudent) {
-                studentBadge.textContent = `[SỐ ${String(currentStudent.stt).padStart(2, '0')}] ${currentStudent.name.toUpperCase()}`;
+            if (studentBadge) {
+                if (currentStudent) {
+                    studentBadge.textContent = `👤 [SỐ ${String(currentStudent.stt).padStart(2, '0')}] ${currentStudent.name.toUpperCase()}`;
+                } else {
+                    studentBadge.textContent = `(Nháy tên học sinh trong danh sách)`;
+                }
             }
         }
 
@@ -1780,8 +1780,8 @@
 
             if (currentStudent) {
                 currentStudent.played = true;
+                if (!currentStudent.team) currentStudent.team = currentTurnTeam;
             }
-            updateActiveStudentCard();
             renderStudentRoster();
 
             toast(`🎉 CHÍNH XÁC! ${teamsData[currentTurnTeam].name} đoạt quyền chọn CHIẾN THUẬT!`, 'ok');
@@ -1798,8 +1798,8 @@
             if (currentStudent) {
                 currentStudent.wrongClicks++;
                 currentStudent.played = true;
+                if (!currentStudent.team) currentStudent.team = currentTurnTeam;
             }
-            updateActiveStudentCard();
             renderStudentRoster();
             updateRacksLive();
 
@@ -1814,24 +1814,60 @@
             document.getElementById('gachaCordsSelection').style.display = 'none';
             document.getElementById('victimCablesDetailArea').style.display = 'none';
 
+            const curTeam = teamsData[currentTurnTeam];
             document.getElementById('tacticalVictorHeading').textContent =
-                `🏆 ${teamsData[currentTurnTeam].name.toUpperCase()} TRẢ LỜI RẤT XUẤT SẮC!`;
+                `🏆 ${curTeam.name.toUpperCase()} TRẢ LỜI RẤT XUẤT SẮC!`;
+
+            const defTitle = document.getElementById('btnDefenseTitle');
+            const defSub = document.getElementById('btnDefenseSubtitle');
+            if (defTitle && defSub) {
+                if (curTeam.cables >= initialCables) {
+                    if (curTeam.hasShield) {
+                        defTitle.textContent = 'ĐANG CÓ KHIÊN BẢO VỆ';
+                        defSub.textContent = '(Đã có Khiên sẵn sàng - Nên chọn Tấn Công!)';
+                    } else {
+                        defTitle.textContent = 'BẬT KHIÊN BẢO VỆ';
+                        defSub.textContent = '(Đã đầy 5 Cáp: Kích hoạt Khiên đỡ 1 đòn)';
+                    }
+                } else {
+                    defTitle.textContent = 'HỒI PHỤC (+1 CÁP)';
+                    defSub.textContent = `(Nối lại 1 cáp: ${curTeam.cables}/${initialCables} Cáp · Đầy 5 cáp mới bật Khiên)`;
+                }
+            }
+        }
+
+        function cancelAttackAndBackToDefense() {
+            document.getElementById('gachaCordsSelection').style.display = 'none';
+            document.getElementById('victimCablesDetailArea').style.display = 'none';
+            chooseTacticalPath('defense');
         }
 
         function chooseTacticalPath(tactic) {
-            if (gameEnded || tacticResolved) return;
-            tacticResolved = true;
-            if (tactic === 'defense') {
-                // PHÒNG THỦ: NỐI LẠI 1 CÁP CHO TỔ HOẶC BẬT KHIÊN
-                playTone(880, 0.2, 'sine', 0.3);
-                teamsData[currentTurnTeam].cables = Math.min(initialCables, teamsData[currentTurnTeam].cables + 1);
-                teamsData[currentTurnTeam].hasShield = true; // Bật khiên siêu cấp
-                updateRacksLive();
+            if (gameEnded) return;
 
-                toast(`🛡️ PHÒNG THỦ THÀNH CÔNG! ${teamsData[currentTurnTeam].name} nối lại 1 cáp và bật Khiên Bảo Vệ!`, 'ok');
+            if (tactic === 'defense') {
+                const curTeam = teamsData[currentTurnTeam];
+                if (curTeam.cables >= initialCables) {
+                    // Đầy máu (5/5) -> Cho phép bật khiên bảo vệ
+                    if (curTeam.hasShield) {
+                        toast(`🛡️ ${curTeam.name} đang có Khiên bảo vệ sẵn sàng rồi! Hãy chọn Tấn công nhé!`, 'ok');
+                        return;
+                    }
+                    curTeam.hasShield = true;
+                    soundShieldActivate();
+                    toast(`🛡️ BẬT KHIÊN THÀNH CÔNG! ${curTeam.name} đầy 5 Cáp đã kích hoạt Khiên bảo vệ (chặn 1 đòn đánh)!`, 'ok');
+                } else {
+                    // Chưa đầy máu (< 5) -> Nối 1 cáp hồi phục, không bật khiên
+                    curTeam.cables = Math.min(initialCables, curTeam.cables + 1);
+                    playTone(660, 0.2, 'sine', 0.3);
+                    toast(`💚 HỒI PHỤC NGUỒN! ${curTeam.name} nối lại 1 cáp (Hiện có ${curTeam.cables}/${initialCables} Cáp · Đầy 5 cáp mới bật Khiên)!`, 'ok');
+                }
+
+                tacticResolved = true;
+                updateRacksLive();
                 schedulePhaseAction(passTurnToNextAliveTeam, 2000);
             } else {
-                // TẤN CÔNG: ĐI CẮT CÁP ĐỐI THỦ
+                // TẤN CÔNG: Cho chọn đối thủ, KHÔNG khóa tacticResolved để nếu đổi ý vẫn chọn Phòng thủ / Bật khiên được!
                 showAttackVictimSelection();
             }
         }
@@ -1840,31 +1876,33 @@
             document.getElementById('gachaCordsSelection').style.display = 'flex';
             document.getElementById('victimCablesDetailArea').style.display = 'none';
 
-            // Lọc các tổ đối thủ còn cáp (>0) VÀ KHÔNG CÓ KHIÊN BẢO VỆ
-            const eligibleVictims = Object.values(teamsData).filter(t => t.id !== currentTurnTeam && t.cables > 0 && !t.hasShield);
+            // Lọc các tổ đối thủ còn cáp (>0). Tổ có khiên VẪN TẤN CÔNG ĐƯỢC (để đánh bể khiên)!
+            const eligibleVictims = Object.values(teamsData).filter(t => t.id !== currentTurnTeam && t.cables > 0);
 
             const victimRow = document.getElementById('victimListRow');
             if (eligibleVictims.length === 0) {
-                victimRow.innerHTML = `<div style="color:#fde047; font-size:1.1rem; font-weight:900;">⚠️ Các tổ đối thủ đều đã có Khiên hoặc đã sập nguồn! Không thể cắt lượt này!</div>`;
+                victimRow.innerHTML = `<div style="color:#fde047; font-size:1.1rem; font-weight:900;">⚠️ Các tổ đối thủ đều đã sập nguồn!</div>`;
                 schedulePhaseAction(passTurnToNextAliveTeam, 2200);
                 return;
             }
 
             victimRow.innerHTML = eligibleVictims.map(t => `
-                <button class="btn" style="background:#1e293b; color:#fff; border:3px solid ${t.color}; padding:10px 16px; border-radius:12px; font-weight:900; font-size:1.1rem;" onclick="selectVictimToCut(${t.id})">
+                <button class="btn" style="background:#1e293b; color:#fff; border:3px solid ${t.hasShield ? '#38bdf8' : t.color}; padding:10px 16px; border-radius:12px; font-weight:900; font-size:1.05rem; display:flex; flex-direction:column; align-items:center; gap:4px;" onclick="selectVictimToCut(${t.id})">
                     <span>🎯 Cắt Cáp ${t.name}</span>
-                    <span style="font-size:0.8rem; color:#facc15;">(Còn ${t.cables} cáp)</span>
+                    <span style="font-size:0.8rem; color:${t.hasShield ? '#38bdf8' : '#facc15'};">
+                        ${t.hasShield ? '🛡️ Có Khiên (Đánh để vỡ khiên)' : `(Còn ${t.cables}/${initialCables} cáp)`}
+                    </span>
                 </button>
             `).join('');
         }
 
         function selectVictimToCut(victimId) {
             selectedVictimTeam = victimId;
-            document.getElementById('victimCablesDetailArea').style.display = 'block';
-
             const victim = teamsData[victimId];
-            const colors = ['#ef4444', '#f59e0b', '#38bdf8', '#10b981', '#ec4899'];
+            const detailArea = document.getElementById('victimCablesDetailArea');
+            detailArea.style.display = 'block';
 
+            const colors = ['#ef4444', '#f59e0b', '#38bdf8', '#10b981', '#ec4899'];
             const rack = document.getElementById('cordsCutRack');
             rack.innerHTML = Array.from({ length: Math.min(victim.cables, 3) }).map((_, idx) => `
                 <button class="btn-cut-cord-giant" onclick="executeCutGacha(${idx + 1})">
@@ -1872,34 +1910,48 @@
                     <span>✂️ Cáp ${idx + 1}</span>
                 </button>
             `).join('');
+
+            if (victim.hasShield) {
+                toast(`🛡️ Chú ý: ${victim.name} đang có Khiên bảo vệ! Rút trúng Cáp Thật sẽ phá vỡ khiên trước!`, 'ok');
+            }
         }
 
         /* GACHA: 60% Cáp Thật, 20% Cáp Giả, 20% Phản Đòn */
         function executeCutGacha(cordNum) {
             if (gameEnded || attackResolved) return;
             attackResolved = true;
+            tacticResolved = true;
             const rand = Math.random() * 100;
             const attacker = currentTurnTeam;
             const victim = selectedVictimTeam;
+            const victimTeam = teamsData[victim];
+            const attackerTeam = teamsData[attacker];
 
             if (rand < 60) {
-                // 1. TRÚNG CÁP THẬT (60%) -> Đứt cáp, trừ mạng đối thủ + KÍCH HOẠT KHIÊN BẢO VỆ CHO ĐỐI THỦ
-                soundCableSnap();
-                teamsData[victim].cables = Math.max(0, teamsData[victim].cables - 1);
-                teamsData[victim].hasShield = true; // Kích hoạt khiên chống bị đè dí ở lượt tiếp theo!
-                updateRacksLive();
-
-                toast(`💥 TRÚNG CÁP THẬT! Cáp của ${teamsData[victim].name} đứt phựt (-1 Cáp)! ${teamsData[victim].name} nhận Khiên Bảo Vệ 1 Lượt!`, 'ok');
+                // 1. TRÚNG CÁP THẬT (60%)
+                if (victimTeam.hasShield) {
+                    // Khiên bảo vệ đỡ được 1 lần và VỠ VỤN!
+                    soundShieldBreak();
+                    victimTeam.hasShield = false; // BỂ KHIÊN!
+                    updateRacksLive();
+                    toast(`🛡️💥 BỂ KHIÊN! Khiên của ${victimTeam.name} đã vỡ tan để đỡ đòn! ${victimTeam.name} bảo toàn cáp, nhưng hiện tại đã mất khiên bảo vệ!`, 'ok');
+                } else {
+                    // Không có khiên -> Đứt 1 cáp nguồn
+                    soundCableSnap();
+                    victimTeam.cables = Math.max(0, victimTeam.cables - 1);
+                    updateRacksLive();
+                    toast(`💥 TRÚNG CÁP THẬT! Cáp của ${victimTeam.name} đứt phựt (-1 Cáp)!`, 'ok');
+                }
             } else if (rand < 80) {
                 // 2. TRÚNG CÁP GIẢ / DÂY NHỬ (20%) -> Đối thủ thoát nạn, cả lớp cười ồ
                 soundDuckHorn();
-                toast(`🦆 TRÚNG CÁP GIẢ (DÂY NHỬ)! ${teamsData[victim].name} thoát nạn trong gang tấc! Cả lớp cười ồ!`, 'bad');
+                toast(`🦆 TRÚNG CÁP GIẢ (DÂY NHỬ)! ${victimTeam.name} thoát nạn trong gang tấc! Cả lớp cười ồ!`, 'bad');
             } else {
                 // 3. TRÚNG CÁP PHẢN ĐÒN (20%) -> Điện giật ngược làm chính tổ đi cắt bị nổ mất 1 mạng!
                 soundThunderZap();
-                teamsData[attacker].cables = Math.max(0, teamsData[attacker].cables - 1);
+                attackerTeam.cables = Math.max(0, attackerTeam.cables - 1);
                 updateRacksLive();
-                toast(`⚡ CÁP PHẢN ĐÒN! Điện giật ngược lại làm chính ${teamsData[attacker].name} bị nổ mất 1 mạng!`, 'bad');
+                toast(`⚡ CÁP PHẢN ĐÒN! Điện giật ngược lại làm chính ${attackerTeam.name} bị nổ mất 1 mạng!`, 'bad');
             }
 
             schedulePhaseAction(passTurnToNextAliveTeam, 2400);
@@ -1915,12 +1967,6 @@
             answerResolved = true;
             if (aliveTeams.length === 1) {
                 currentTurnTeam = aliveTeams[0].id;
-                const student = classStudents.find(s => studentData[s.name].team === currentTurnTeam);
-                if (student) {
-                    currentStudent = studentData[student.name];
-                    updateActiveStudentCard();
-                    renderStudentRoster();
-                }
                 updateRacksLive();
             }
             document.getElementById('questionStageBox').style.display = 'none';
@@ -1929,7 +1975,7 @@
             toast(
                 aliveTeams.length === 1
                     ? `🏆 ${aliveTeams[0].name} là tổ cuối cùng còn cáp!`
-                    : '🤝 Tất cả các tổ đã hết cáp. Ván đấu hòa!',
+                    : '🤝 Tất cả các tổ đã sập nguồn. Ván đấu hòa!',
                 aliveTeams.length === 1 ? 'ok' : 'bad'
             );
             return true;
@@ -1938,10 +1984,6 @@
         function passTurnToNextAliveTeam() {
             clearPendingPhaseActions();
             if (gameEnded) return;
-            // Tắt khiên của tổ hiện tại khi bắt đầu lượt mới của tổ đó
-            if (teamsData[currentTurnTeam]) {
-                teamsData[currentTurnTeam].hasShield = false;
-            }
 
             if (finishArenaIfDecided()) return;
 
@@ -1958,36 +2000,35 @@
             answerResolved = false;
             tacticResolved = false;
             attackResolved = false;
+            currentStudent = null; // Đặt lại để gọi HS mới cho tổ mới
 
-            autoPickNextStudentForActiveTeam();
             updateRacksLive();
+            renderStudentRoster();
             renderCurrentQuestion();
         }
 
-        /* ================= QUẢN LÝ HỌC SINH (ƯU TIÊN XUNG PHONG 1 LẦN/EM) ================= */
+        /* ================= QUẢN LÝ HỌC SINH (DANH SÁCH LỚP) ================= */
         function loadClassData(classId) {
             currentClassID = classId;
-            document.getElementById('classSelect').value = classId;
+            const selectEl = document.getElementById('classSelect');
+            if (selectEl) selectEl.value = classId;
             const names = FALLBACK_STUDENTS[classId] || [];
 
             classStudents = names.map((name, idx) => ({ id: idx + 1, name }));
             studentData = {};
 
-            classStudents.forEach((s, idx) => {
-                const assignedTeam = (idx % teamCount) + 1;
+            classStudents.forEach((s) => {
                 studentData[s.name] = {
                     stt: s.id,
                     name: s.name,
-                    team: assignedTeam,
+                    team: null, // KHÔNG tự gán tổ trước!
                     played: false,
                     wrongClicks: 0
                 };
             });
 
-            const p1 = classStudents.find(s => studentData[s.name].team === currentTurnTeam);
-            currentStudent = p1 ? studentData[p1.name] : studentData[names[0]];
+            currentStudent = null;
 
-            updateActiveStudentCard();
             renderStudentRoster();
             updateRacksLive();
             renderCurrentQuestion();
@@ -1996,88 +2037,51 @@
         function selectStudentFromList(name) {
             if (!studentData[name]) return;
             const target = studentData[name];
-            if (target.played) {
-                toast(`ℹ️ [Số ${target.stt}] ${target.name} đã lên bảng rồi! Ưu tiên bạn chưa lên nhé!`, 'bad');
-            }
             currentStudent = target;
-            currentTurnTeam = target.team;
-            updateActiveStudentCard();
+            // Gán em vào tổ đang giữ lượt
+            target.team = currentTurnTeam;
             renderStudentRoster();
             updateRacksLive();
-            renderCurrentQuestion();
         }
 
-        function gachaPickStudentForActiveTeam() {
-            const teamMembers = classStudents.map(s => studentData[s.name]).filter(r => r.team === currentTurnTeam);
-            const unplayed = teamMembers.filter(r => !r.played);
-
-            if (unplayed.length === 0) {
-                toast(`🎉 Tất cả học sinh trong ${teamsData[currentTurnTeam].name} đều đã được lên bảng!`, 'ok');
-                const picked = teamMembers[Math.floor(Math.random() * teamMembers.length)];
-                if (picked) selectStudentFromList(picked.name);
-                return;
+        function randomPickAnyStudent() {
+            const all = classStudents.map(s => studentData[s.name]);
+            const unplayed = all.filter(r => !r.played);
+            const pool = unplayed.length > 0 ? unplayed : all;
+            if (pool.length === 0) return;
+            const picked = pool[Math.floor(Math.random() * pool.length)];
+            if (picked) {
+                selectStudentFromList(picked.name);
+                toast(`🎲 Bốc thăm: [Số ${String(picked.stt).padStart(2, '0')}] ${picked.name} trả lời cho ${teamsData[currentTurnTeam].name}!`, 'ok');
             }
-
-            const picked = unplayed[Math.floor(Math.random() * unplayed.length)];
-            if (picked) selectStudentFromList(picked.name);
-        }
-
-        function autoPickNextStudentForActiveTeam() {
-            const teamMembers = classStudents.map(s => studentData[s.name]).filter(r => r.team === currentTurnTeam);
-            const unplayed = teamMembers.filter(r => !r.played);
-            if (unplayed.length > 0) {
-                currentStudent = unplayed[0];
-            } else {
-                currentStudent = teamMembers[0] || currentStudent;
-            }
-            updateActiveStudentCard();
-            renderStudentRoster();
-        }
-
-        function updateActiveStudentCard() {
-            if (!currentStudent) return;
-            const sttPad = String(currentStudent.stt).padStart(2, '0');
-
-            document.getElementById('ascStudentName').textContent = `[Số ${sttPad}] ${currentStudent.name}`;
-            document.getElementById('ascStudentClass').textContent = `Lớp ${currentClassID.replace('_', '/')} · Thuộc Tổ ${currentStudent.team}`;
-            document.getElementById('ascTeamStatusText').textContent = `Còn ${teamsData[currentStudent.team]?.cables || 0} Cáp`;
-            document.getElementById('ascErrorsText').textContent = currentStudent.played
-                ? `✅ Đã lên 1 lần (${currentStudent.wrongClicks} lỗi)`
-                : `Chưa lên bảng (${currentStudent.wrongClicks} lỗi)`;
-        }
-
-        function recordWrongIdentity() {
-            soundThunderZap();
-            toast(`🚫 SAI SỐ THỨ TỰ! Mời đúng bạn SỐ ${String(currentStudent.stt).padStart(2, '0')} - ${currentStudent.name} bước lên!`, 'bad');
         }
 
         function renderStudentRoster() {
             const container = document.getElementById('studentRosterContainer');
+            if (!container) return;
             const q = (document.getElementById('search-student')?.value || '').toLowerCase().trim();
             const all = classStudents.map(s => studentData[s.name]);
             const doneCount = all.filter(r => r.played).length;
-            document.getElementById('slpStatsBadge').textContent = `Đã lên: ${doneCount}/${all.length}`;
+            const badge = document.getElementById('slpStatsBadge');
+            if (badge) badge.textContent = `Đã lên: ${doneCount}/${all.length}`;
 
-            const sorted = [...all].sort((a, b) => {
-                if (a.played !== b.played) return a.played ? 1 : -1;
-                return a.stt - b.stt;
-            });
-
+            const sorted = [...all].sort((a, b) => a.stt - b.stt);
             const filtered = q ? sorted.filter(r => r.name.toLowerCase().includes(q) || String(r.stt).includes(q)) : sorted;
+
             container.innerHTML = filtered.map(r => {
                 const isActive = currentStudent && currentStudent.name === r.name;
                 const cls = isActive ? 'is-active' : (r.played ? 'is-done' : '');
                 const safeName = r.name.replace(/'/g, "\\'");
-                const teamPal = TEAM_PALETTES[(r.team - 1) % TEAM_PALETTES.length];
+                const teamPal = r.team ? TEAM_PALETTES[(r.team - 1) % TEAM_PALETTES.length] : null;
                 return `
                     <div class="student-item-row ${cls}" onclick="selectStudentFromList('${safeName}')">
                         <div style="display:flex; align-items:center; gap:6px; overflow:hidden;">
-                            <span class="team-pill-badge" style="background:${teamPal.color};">Tổ ${r.team}</span>
-                            <span style="font-weight:900; font-size:0.8rem; color:#475569;">#${String(r.stt).padStart(2, '0')}</span>
+                            ${teamPal ? `<span class="team-pill-badge" style="background:${teamPal.color};">Tổ ${r.team}</span>` : ''}
+                            <span style="font-weight:900; font-size:0.82rem; color:#475569;">#${String(r.stt).padStart(2, '0')}</span>
                             <span style="font-weight:800; font-size:0.92rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.name}</span>
                         </div>
-                        <span style="font-weight:900; font-size:0.82rem; color:${r.played ? '#16a34a' : '#2563eb'};">
-                            ${r.played ? '✓ Đã lên' : '🙋 Gọi lên'}
+                        <span style="font-weight:900; font-size:0.8rem; color:${r.played ? '#16a34a' : '#2563eb'}; flex-shrink:0;">
+                            ${r.played ? '✓ Đã lên' : (isActive ? '👉 Đang chọn' : '+ Chọn')}
                         </span>
                     </div>
                 `;
@@ -2100,31 +2104,74 @@
             if (currentSlide === 3) renderFinalRankings();
         }
 
+        /* ================= BẢNG XẾP HẠNG (CƠ CHẾ ĐỒNG HẠNG) ================= */
         function renderFinalRankings() {
             const sortedTeams = Object.values(teamsData).sort((a, b) => b.cables - a.cables);
             const aliveTeams = sortedTeams.filter(t => t.cables > 0);
 
-            document.getElementById('finalWinnerBanner').textContent =
-                aliveTeams.length === 0
-                    ? '🤝 TẤT CẢ CÁC TỔ ĐÃ SẬP NGUỒN — VÁN ĐẤU HÒA!'
-                    : aliveTeams.length === 1
-                        ? `🏆 CHÚC MỪNG ${aliveTeams[0].name.toUpperCase()} LÀ TỔ CUỐI CÙNG CÒN CÁP! 🏆`
-                        : `🏆 ${sortedTeams[0].name.toUpperCase()} ĐANG DẪN ĐẦU ĐẤU TRƯỜNG! 🏆`;
+            // Nhóm theo số cáp để xử lý cơ chế đồng hạng
+            const cableGroups = [];
+            sortedTeams.forEach(t => {
+                let g = cableGroups.find(x => x.cables === t.cables);
+                if (!g) {
+                    g = { cables: t.cables, teams: [] };
+                    cableGroups.push(g);
+                }
+                g.teams.push(t);
+            });
 
-            document.getElementById('finalTeamsRanking').innerHTML = sortedTeams.map((t, idx) => `
-                <div style="background:#fff; color:#0f172a; padding:16px 20px; border-radius:16px; border:3px solid ${idx === 0 ? '#facc15' : '#cbd5e1'}; min-width:180px;">
-                    <div style="font-size:2rem;">${idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '🎗️'}</div>
-                    <div style="font-weight:900; font-size:1.25rem; color:${t.color};">${t.name}</div>
-                    <div style="font-size:1.6rem; font-weight:900; color:#16a34a; margin:4px 0;">⚡ ${t.cables}/${initialCables} Cáp</div>
-                    <div style="font-size:0.85rem; font-weight:800; color:#64748b;">${t.cables > 0 ? 'Còn nguồn hoạt động' : 'Đã sập nguồn'}</div>
-                </div>
-            `).join('');
+            const rankNames = ['Nhất', 'Nhì', 'Ba', 'Khuyến Khích', 'Khuyến Khích', 'Khuyến Khích'];
+            const medals = ['🥇', '🥈', '🥉', '🎗️', '🎗️', '🎗️'];
+            const borderColors = ['#facc15', '#94a3b8', '#d97706', '#64748b', '#64748b', '#64748b'];
+
+            const bannerEl = document.getElementById('finalWinnerBanner');
+            if (aliveTeams.length === 0) {
+                bannerEl.textContent = '🤝 TẤT CẢ CÁC TỔ ĐÃ SẬP NGUỒN — VÁN ĐẤU HÒA!';
+            } else {
+                const topGroup = cableGroups[0];
+                if (topGroup.teams.length > 1) {
+                    bannerEl.textContent = `🏆 ĐỒNG QUÁN QUÂN: ${topGroup.teams.map(t => t.name.toUpperCase()).join(' & ')} (CÙNG CÒN ${topGroup.cables} CÁP)! 🏆`;
+                } else {
+                    bannerEl.textContent = `🏆 CHÚC MỪNG ${topGroup.teams[0].name.toUpperCase()} LÀ TỔ QUÁN QUÂN (${topGroup.cables} CÁP)! 🏆`;
+                }
+            }
+
+            let rankHtml = '';
+            cableGroups.forEach((g, gIdx) => {
+                const isDead = g.cables === 0;
+                const isTie = g.teams.length > 1;
+                const rankName = rankNames[Math.min(gIdx, rankNames.length - 1)];
+                const rankLabel = isDead
+                    ? (isTie ? '💥 Đồng Sập Nguồn' : '💥 Sập Nguồn')
+                    : (isTie ? `Đồng Hạng ${rankName}` : `Hạng ${rankName}`);
+                const medal = isDead ? '💥' : medals[Math.min(gIdx, medals.length - 1)];
+                const border = isDead ? '#ef4444' : borderColors[Math.min(gIdx, borderColors.length - 1)];
+
+                g.teams.forEach(t => {
+                    rankHtml += `
+                        <div style="background:#fff; color:#0f172a; padding:16px 20px; border-radius:16px; border:3px solid ${border}; min-width:185px; box-shadow:0 6px 18px rgba(0,0,0,0.25); text-align:center;">
+                            <div style="font-size:2.2rem; margin-bottom:4px;">${medal}</div>
+                            <div style="font-size:0.85rem; font-weight:900; color:${isDead ? '#ef4444' : '#1d4ed8'}; background:#f1f5f9; padding:2px 10px; border-radius:99px; display:inline-block; margin-bottom:6px;">
+                                ${rankLabel}
+                            </div>
+                            <div style="font-weight:900; font-size:1.3rem; color:${t.color};">${t.name}</div>
+                            <div style="font-size:1.6rem; font-weight:900; color:${t.cables > 0 ? '#16a34a' : '#ef4444'}; margin:6px 0;">
+                                ⚡ ${t.cables}/${initialCables} Cáp
+                            </div>
+                            <div style="font-size:0.85rem; font-weight:800; color:#64748b;">
+                                ${t.cables > 0 ? (t.hasShield ? '🛡️ Còn cáp & có khiên' : 'Còn nguồn hoạt động') : 'Đã sập nguồn'}
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+            document.getElementById('finalTeamsRanking').innerHTML = rankHtml;
 
             const all = classStudents.map(s => studentData[s.name]);
-            const topStudents = all.filter(r => r.played && r.wrongClicks === 0).slice(0, 6);
+            const topStudents = all.filter(r => r.played && r.wrongClicks === 0).slice(0, 8);
             document.getElementById('finalTopStudents').innerHTML = (topStudents.length > 0 ? topStudents : all.slice(0, 4)).map(r => `
                 <div style="background:#0f172a; color:#fff; padding:8px 16px; border-radius:12px; border:2px solid #38bdf8; font-weight:800;">
-                    ⭐ [Số ${r.stt}] ${r.name} - Tổ ${r.team}
+                    ⭐ [Số ${String(r.stt).padStart(2, '0')}] ${r.name}${r.team ? ` - Tổ ${r.team}` : ''}
                 </div>
             `).join('');
         }
@@ -2132,21 +2179,59 @@
         function exportToExcel() {
             const classDisplay = currentClassID.replace('_', '/');
             const fileName = `KetQua_TinHoc3_Bai04_Tiet3_Lop_${currentClassID}.csv`;
-            const rows = [
-                ['STT Danh sách', 'Họ và tên học sinh', 'Lớp', 'Tổ', 'Trạng thái', 'Số lỗi thao tác', 'Mức đánh giá (TT27)', 'Nhận xét chi tiết từng cá nhân (Căn cứ đánh giá)']
+
+            // 1. BẢNG XẾP HẠNG TỔ (TÍNH ĐỒNG HẠNG)
+            const sortedTeams = Object.values(teamsData).sort((a, b) => b.cables - a.cables);
+            const rankNames = ['Nhất', 'Nhì', 'Ba', 'Khuyến Khích', 'Khuyến Khích', 'Khuyến Khích'];
+            const cableGroups = [];
+            sortedTeams.forEach(t => {
+                let g = cableGroups.find(x => x.cables === t.cables);
+                if (!g) { g = { cables: t.cables, teams: [] }; cableGroups.push(g); }
+                g.teams.push(t);
+            });
+
+            const teamRankRows = [
+                ['Xếp Hạng', 'Tổ Thi Đấu', 'Số Cáp Còn Lại', 'Trạng Thái', 'Khiên Bảo Vệ']
+            ];
+            cableGroups.forEach((g, gIdx) => {
+                const isDead = g.cables === 0;
+                const isTie = g.teams.length > 1;
+                const rankName = rankNames[Math.min(gIdx, rankNames.length - 1)];
+                const rankLabel = isDead
+                    ? (isTie ? 'Đồng Sập Nguồn' : 'Sập Nguồn')
+                    : (isTie ? `Đồng Hạng ${rankName}` : `Hạng ${rankName}`);
+
+                g.teams.forEach(t => {
+                    teamRankRows.push([
+                        rankLabel,
+                        t.name,
+                        `${t.cables}/${initialCables} Cáp`,
+                        t.cables > 0 ? 'Còn nguồn hoạt động' : 'Đã sập nguồn',
+                        t.hasShield ? 'Có khiên' : 'Không có khiên'
+                    ]);
+                });
+            });
+
+            // 2. DANH SÁCH CHI TIẾT HỌC SINH
+            const studentRows = [
+                ['STT Danh Sách', 'Họ Và Tên Học Sinh', 'Lớp', 'Tổ Tham Gia', 'Trạng Thái', 'Số Lỗi Thao Tác', 'Mức Đánh Giá (TT27)', 'Nhận Xét Đánh Giá Tiết Học']
             ];
 
             classStudents.forEach(s => {
                 const r = studentData[s.name];
                 const status = r.played ? 'Đã tham gia đấu trường' : 'Theo dõi tại chỗ';
                 const tt27 = !r.played ? 'Hoàn thành' : (r.wrongClicks === 0 ? 'Hoàn thành tốt' : 'Hoàn thành');
+                const teamText = r.team ? `Tổ ${r.team}` : 'Chưa phân tổ';
                 const comment = r.played
                     ? `Nắm vững quy trình tắt máy tính đúng cách (Start ➔ Power ➔ Shut down) và các quy tắc bảo vệ thiết bị an toàn (${r.wrongClicks} lỗi).`
                     : `Viết bài đầy đủ, chú ý theo dõi màn hình bài học và tích cực hỗ trợ đồng đội trong Đấu trường cắt cáp.`;
-                rows.push([r.stt, r.name, classDisplay, `Tổ ${r.team}`, status, r.wrongClicks, tt27, comment]);
+                studentRows.push([r.stt, r.name, classDisplay, teamText, status, r.wrongClicks, tt27, comment]);
             });
 
-            const sections = [['Chi Tiết Học Sinh', rows]];
+            const sections = [
+                ['Bảng Xếp Hạng Đấu Trường (Đồng Hạng)', teamRankRows],
+                ['Chi Tiết Học Sinh', studentRows]
+            ];
             if (typeof uploadCsvToDrive === 'function') { uploadCsvToDrive(sections, fileName); return; }
             if (window.LessonExport) { LessonExport.download(sections, fileName); }
         }
