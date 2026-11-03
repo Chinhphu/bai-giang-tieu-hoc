@@ -95,22 +95,50 @@
         });
     };
 
-    // 3. TIỆN ÍCH CHẾ ĐỘ TOÀN MÀN HÌNH CHÉP BÀI (HỖ TRỢ CUỘN MƯỢT MÀ 100% TOÀN HỆ THỐNG)
-    window.toggleNotebookFullscreen = function (customTarget) {
-        let box = customTarget ? (typeof customTarget === 'string' ? document.querySelector(customTarget) : customTarget) : null;
-        if (!box) {
-            box = document.querySelector('.notebook.clean, .notebook-clean, #slide-2-notebook-box, .notebook.vo-main, .notebook-paper, .notebook, .notebook-box');
+    // 3. TIỆN ÍCH CHẾ ĐỘ TOÀN MÀN HÌNH CHÉP BÀI (PHÓNG TO DUY NHẤT KHU VỰC CHÉP BÀI, HỖ TRỢ CUỘN MƯỢT MÀ 100%)
+    window.toggleNotebookFullscreen = function (triggerOrTarget) {
+        let box = null;
+        
+        // 1. Nếu truyền vào selector hoặc HTMLElement
+        if (triggerOrTarget) {
+            if (typeof triggerOrTarget === 'string') {
+                box = document.querySelector(triggerOrTarget);
+            } else if (triggerOrTarget instanceof HTMLElement) {
+                // Nếu chính là container chép bài
+                if (triggerOrTarget.classList.contains('notebook') || 
+                    triggerOrTarget.classList.contains('notebook-paper') || 
+                    triggerOrTarget.classList.contains('notebook-box') || 
+                    triggerOrTarget.classList.contains('notebook-clean-wrapper') ||
+                    triggerOrTarget.classList.contains('blackboard') || 
+                    triggerOrTarget.id === 'boardWrap' ||
+                    triggerOrTarget.id === 'slide-2-notebook-box') {
+                    box = triggerOrTarget;
+                } else {
+                    // Nếu là nút bấm, tìm khung chép bài trong slide/section chứa nút bấm
+                    const parentSlide = triggerOrTarget.closest('.slide, .screen, section, main, body');
+                    if (parentSlide) {
+                        box = parentSlide.querySelector('.notebook.clean, .notebook-clean, #slide-2-notebook-box, .notebook-paper, .notebook-box, .notebook-clean-wrapper, .blackboard, .notebook-content, #boardWrap, .notebook');
+                    }
+                }
+            }
         }
+
+        // 2. Nếu chưa tìm được, tìm trong slide đang hiển thị (active/on)
+        if (!box) {
+            const activeSlide = document.querySelector('.slide.active, .slide.on, .screen.active, .screen.on, .slide:not([style*="display: none"]):not([style*="display:none"])');
+            if (activeSlide) {
+                box = activeSlide.querySelector('.notebook.clean, .notebook-clean, #slide-2-notebook-box, .notebook-paper, .notebook-box, .notebook-clean-wrapper, .blackboard, .notebook-content, #boardWrap, .notebook');
+            }
+        }
+
+        // 3. Fallback tìm phần tử notebook sạch đầu tiên
+        if (!box) {
+            box = document.querySelector('#slide-2-notebook-box, .notebook.clean, .notebook-clean, .notebook-paper, .notebook-box, .notebook-clean-wrapper, .blackboard, .notebook-content, #boardWrap, .notebook');
+        }
+
         if (!box) return;
 
-        const isFs = box.classList.toggle('fullscreen-mode');
-        
-        // Cập nhật text nút toggle
-        document.querySelectorAll('.btn-fs-toggle, [data-action="toggle-notebook-fs"]').forEach(btn => {
-            btn.innerHTML = isFs ? '✖ Thu nhỏ (Esc)' : '⛶ Chế độ toàn màn hình chép bài';
-        });
-
-        // Đảm bảo nút đóng luôn có mặt
+        // Đảm bảo nút đóng luôn có mặt bên trong box
         let closeBtn = box.querySelector('.btn-fs-close');
         if (!closeBtn) {
             closeBtn = document.createElement('button');
@@ -118,37 +146,72 @@
             closeBtn.className = 'btn-fs-close';
             closeBtn.title = 'Nhấn để thu nhỏ hoặc bấm phím Esc';
             closeBtn.innerHTML = '✖ Thu nhỏ (Esc)';
-            closeBtn.onclick = () => window.toggleNotebookFullscreen(box);
+            closeBtn.onclick = (e) => {
+                e.stopPropagation();
+                window.toggleNotebookFullscreen(box);
+            };
             box.prepend(closeBtn);
         }
 
-        if (isFs) {
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(() => {});
-            } else if (document.documentElement.webkitRequestFullscreen) {
-                document.documentElement.webkitRequestFullscreen();
-            }
-            box.scrollTop = 0;
-        } else {
-            if (document.fullscreenElement) {
-                document.exitFullscreen().catch(() => {});
-            }
-        }
-    };
+        const isCurrentlyFullscreen = document.fullscreenElement === box || 
+                                      document.webkitFullscreenElement === box || 
+                                      box.classList.contains('fullscreen-mode');
 
-    // Lắng nghe phím ESC và sự kiện fullscreenchange toàn hệ thống
-    document.addEventListener('fullscreenchange', () => {
-        if (!document.fullscreenElement) {
-            document.querySelectorAll('.fullscreen-mode').forEach(el => el.classList.remove('fullscreen-mode'));
+        if (!isCurrentlyFullscreen) {
+            // Thêm class fullscreen-mode làm fallback bao phủ màn hình
+            box.classList.add('fullscreen-mode');
+            document.body.classList.add('has-notebook-fullscreen');
+
+            // BẬT FULLSCREEN DUY NHẤT LÊN KHU VỰC CHÉP BÀI (box)
+            // TUYỆT ĐỐI KHÔNG BẬT LÊN document.documentElement (để tránh phóng to cả trang web)
+            if (box.requestFullscreen) {
+                box.requestFullscreen().catch(() => {});
+            } else if (box.webkitRequestFullscreen) {
+                box.webkitRequestFullscreen();
+            } else if (box.msRequestFullscreen) {
+                box.msRequestFullscreen();
+            }
+
+            box.scrollTop = 0;
+
+            document.querySelectorAll('.btn-fs-toggle, [data-action="toggle-notebook-fs"]').forEach(btn => {
+                btn.innerHTML = '✖ Thu nhỏ (Esc)';
+            });
+        } else {
+            // THU NHỎ QUAY VỀ BÌNH THƯỜNG
+            box.classList.remove('fullscreen-mode');
+            document.body.classList.remove('has-notebook-fullscreen');
+
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => {});
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+
             document.querySelectorAll('.btn-fs-toggle, [data-action="toggle-notebook-fs"]').forEach(btn => {
                 btn.innerHTML = '⛶ Chế độ toàn màn hình chép bài';
             });
         }
-    });
+    };
+
+    // Lắng nghe sự kiện fullscreenchange và ESC toàn hệ thống
+    const handleFsExit = () => {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            document.querySelectorAll('.fullscreen-mode').forEach(el => el.classList.remove('fullscreen-mode'));
+            document.body.classList.remove('has-notebook-fullscreen');
+            document.querySelectorAll('.btn-fs-toggle, [data-action="toggle-notebook-fs"]').forEach(btn => {
+                btn.innerHTML = '⛶ Chế độ toàn màn hình chép bài';
+            });
+        }
+    };
+    document.addEventListener('fullscreenchange', handleFsExit);
+    document.addEventListener('webkitfullscreenchange', handleFsExit);
 
     window.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            const fsBox = document.querySelector('.fullscreen-mode');
+            const fsBox = document.querySelector('.fullscreen-mode') || document.fullscreenElement || document.webkitFullscreenElement;
             if (fsBox) {
                 window.toggleNotebookFullscreen(fsBox);
             }
