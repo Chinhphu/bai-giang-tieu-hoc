@@ -16,6 +16,7 @@ Mọi mã nguồn do AI sinh ra hoặc chỉnh sửa BẮT BUỘC phải tuân t
   * Xuất CSV: Dùng thuần JavaScript có sẵn trong `shared/js/core.js`.
   * Hiệu ứng pháo hoa Confetti: Dùng Canvas HTML5 nội bộ (tham khảo mẫu Khối 2 Tiết 09).
   * Âm thanh (SFX): Dùng 100% Web Audio API synthesizer sinh sóng âm, không dùng file `.mp3` ngoài.
+  * Font chữ & Google Material Symbols: Lưu trữ 100% offline file `.woff2` tại `assets/fonts/` và nạp qua `shared/css/core.css`. Tuyệt đối không dùng CDN font ngoài và không để thiếu font làm rơi về font mặc định Segoe UI.
 
 ### 2. An toàn & Chống mất dữ liệu (`prevent-reload`)
 * Mọi file HTML của tiết học bắt buộc phải nhúng file bảo vệ trong thẻ `<head>`:
@@ -75,7 +76,7 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 
 | Khối | Font chữ Bắt buộc | Bảng màu chủ đạo | Bố cục chuẩn |
 | :--- | :--- | :--- | :--- |
-| **Khối 1** | `'Nunito', sans-serif` | Cam tươi (`#f97316`), Vàng chanh, Xanh lá | Sân khấu chính + Sidebar mini học sinh |
+| **Khối 1** | `'Baloo 2', 'Nunito', sans-serif` | Cam tươi (`#f97316`), Vàng chanh, Xanh lá | Sân khấu chính + Sidebar mini học sinh |
 | **Khối 2** | `'Nunito', sans-serif` | Xanh dương (`#0284c7`), Đỏ chiến đấu, Vàng sao | Slide cuộn flexbox + Bottom Navbar chân trang |
 | **Khối 3** | `'Quicksand', sans-serif` | Xanh tím (`#4361ee`), Vàng cam (`#ffb703`), Xám vỏ PC | 2 cột: Màn hình chính (`.main`) + Sidebar ráp PC |
 | **Khối 4** | `'Be Vietnam Pro', sans-serif`| Xanh Navy (`#14213d`), Trắng ngà, Cam đất | Header tab trên đỉnh + Grid 2 cột |

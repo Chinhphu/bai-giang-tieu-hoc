@@ -264,8 +264,8 @@ const Khoi1Gacha = (() => {
                 <button class="k1-btn k1-btn-coral k1-btn-sm" type="button" onclick="Khoi1Gacha.cancelByNoise()">
                   Mời về chỗ (Chưa trật tự)
                 </button>
-                <button class="k1-btn k1-btn-white k1-btn-sm" type="button" onclick="Khoi1Gacha.skipAbsent()">
-                  Vắng mặt / Quay lại
+                <button class="k1-btn k1-btn-amber k1-btn-sm" type="button" onclick="Khoi1Gacha.triggerAction()">
+                  🎲 Quay em khác
                 </button>
               </div>
             </div>
