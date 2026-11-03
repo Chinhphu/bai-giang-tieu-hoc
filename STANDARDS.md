@@ -15,7 +15,8 @@
 7. [Design System & Bản sắc Typography theo Khối](#7-design-system--bản-sắc-typography-theo-khối)
 8. [Hệ thống Âm thanh Web Audio API (Offline Synthesizer)](#8-hệ-thống-âm-thanh-web-audio-api-offline-synthesizer)
 9. [Cơ chế Lưu trữ Trạng thái LocalStorage](#9-cơ-chế-lưu-trữ-trạng-thái-localstorage)
-10. [Giao thức Cập nhật Quy chuẩn (Living Document Protocol)](#10-giao-thức-cập-nhật-quy-chuẩn-living-document-protocol)
+10. [Hệ thống Điểm Khởi Đầu 1000đ & Cơ Chế Xếp Rank Đồng Hạng (Tie-Ranking)](#10-hệ-thống-điểm-khởi-đầu-1000đ--cơ-chế-xếp-rank-đồng-hạng-tie-ranking)
+11. [Giao thức Cập nhật Quy chuẩn (Living Document Protocol)](#11-giao-thức-cập-nhật-quy-chuẩn-living-document-protocol)
 
 ---
 
@@ -212,9 +213,10 @@ KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}_Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s.
 Để mở trực tiếp trên Excel Tiếng Việt không bao giờ bị lỗi font và không cần SheetJS `.xlsx`:
 ```text
 "=== PHẦN 1: BẢNG XẾP HẠNG TỔ ==="
-"Xếp hạng","Tên Tổ","Điểm số","Linh kiện","Danh hiệu"
-"1","TỔ 1","120","4/4","Quán Quân"
-"2","TỔ 3","110","3/4","Á Quân"
+"Thứ Hạng","Huy Chương","Danh Hiệu","Tổ / Đội","Điểm Số","Đồng Hạng","Ghi Chú"
+"Hạng 1","🥇","ĐỒNG QUÁN QUÂN","TỔ 1","1100","Có (Đồng điểm)","Xuất sắc"
+"Hạng 1","🥇","ĐỒNG QUÁN QUÂN","TỔ 3","1100","Có (Đồng điểm)","Xuất sắc"
+"Hạng 3","🥉","HẠNG BA","TỔ 2","1050","Không","Hoàn thành tốt"
 
 "=== PHẦN 2: ĐÁNH GIÁ THEO DÕI HỌC SINH (TT27 / SMAS) ==="
 "STT","Họ và Tên","Lớp","Câu hỏi","Kết quả","Bấm trượt","Di chuột (s)","Đánh giá TT27","Nhận xét SMAS"
@@ -300,7 +302,100 @@ bgtieu_hoc_k{Khoi}_tiet_{Tiet}_{Lop}_state
 
 ---
 
-## 10. GIAO THỨC CẬP NHẬT QUY CHUẨN (LIVING DOCUMENT PROTOCOL)
+## 10. HỆ THỐNG ĐIỂM KHỞI ĐẦU (1000Đ) & CƠ CHẾ XẾP RANK ĐỒNG HẠNG (TIE-RANKING)
+
+### 10.1 Điểm Khởi Đầu Mặc Định 1000đ (Base Score)
+* **Phạm vi áp dụng:**
+  * Áp dụng cho các tiết học hoặc mini-game có hệ thống tính điểm thi đua: đấu tổ, trả lời trắc nghiệm/vấn đáp cộng-trừ điểm, đấu trường đối kháng, mô hình đầu tư/startup (ví dụ: Khối 5 Shark Tank IT, Khối 4 Đấu trường, Khối 3 Cắt cáp...).
+  * **KHÔNG** bắt buộc ở những tiết chỉ tính số lượng linh kiện thu thập được, đếm số màn chơi hoàn thành, hoặc câu hỏi checkbox Đạt / Chưa đạt.
+* **Cú pháp hằng số chuẩn:**
+  ```javascript
+  const STARTING_SCORE = 1000;
+  // Khởi tạo điểm cho các tổ
+  const initialTeams = [
+    { id: 1, name: 'Tổ 1', score: STARTING_SCORE, color: '#3b82f6' },
+    { id: 2, name: 'Tổ 2', score: STARTING_SCORE, color: '#10b981' },
+    { id: 3, name: 'Tổ 3', score: STARTING_SCORE, color: '#f59e0b' },
+    { id: 4, name: 'Tổ 4', score: STARTING_SCORE, color: '#ec4899' }
+  ];
+  ```
+* **Ý nghĩa sư phạm:**
+  1. **Tạo tâm thế tích cực ngay đầu giờ:** Học sinh không bắt đầu từ con số 0 tròn trĩnh mà bước vào giờ học với tâm lý hãnh diện vì mỗi đội đều đã sở hữu một số vốn khởi điểm 1000 điểm tài nguyên/năng lượng.
+  2. **Triệt tiêu nguy cơ điểm âm:** Khi học sinh trả lời sai hoặc bị trừ điểm trật tự (-20đ, -50đ, -100đ), tổng điểm vẫn là một số dương an toàn. Các em không bị cảm giác rơi vào "bế tắc" hay chán nản bỏ cuộc.
+  3. **Công cụ điều phối lớp học:** Giáo viên luôn có thanh công cụ can thiệp nhanh: các nút `+50đ`, `+100đ`, `-20đ`, `-50đ`, hoặc nút *Đặt lại sàn 1000đ* để điều tiết không khí sôi nổi của lớp.
+
+### 10.2 Cơ Chế Xếp Rank Đồng Hạng Chuẩn Sư Phạm (Tie-Ranking Algorithm)
+* **Triết lý Sư phạm cốt lõi:**
+  * Trẻ em tiểu học có lòng tự trọng và tinh thần thi đua rất cao nhưng cũng rất dễ bị tổn thương tâm lý.
+  * Khi hai hoặc nhiều tổ/học sinh cùng đạt điểm số ngang nhau (ví dụ: cả Tổ 1 và Tổ 3 cùng đạt 1150đ), việc xếp Tổ 1 đứng trên Tổ 3 chỉ vì số thứ tự hay thứ tự mảng JavaScript là hoàn toàn **thiếu công bằng**.
+  * Quy tắc bắt buộc: **Bằng điểm $\rightarrow$ Cùng thứ hạng, cùng danh hiệu, cùng nhận huy chương/cúp vinh danh**.
+
+* **Thuật toán Xếp hạng Tiêu chuẩn (Standard Competition Ranking):**
+  ```javascript
+  function calculateRankings(teamList) {
+    if (!teamList || !teamList.length) return [];
+
+    // 1. Sắp xếp điểm giảm dần
+    const sorted = [...teamList].sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
+
+    const rankTemplates = [
+      { rank: 1, medal: '🥇', title: 'QUÁN QUÂN', sharedTitle: 'ĐỒNG QUÁN QUÂN', themeClass: 'rank-1', border: '#facc15' },
+      { rank: 2, medal: '🥈', title: 'Á QUÂN', sharedTitle: 'ĐỒNG Á QUÂN', themeClass: 'rank-2', border: '#94a3b8' },
+      { rank: 3, medal: '🥉', title: 'HẠNG BA', sharedTitle: 'ĐỒNG HẠNG BA', themeClass: 'rank-3', border: '#d97706' },
+      { rank: 4, medal: '🌟', title: 'KHUYẾN KHÍCH', sharedTitle: 'KHUYẾN KHÍCH', themeClass: 'rank-4', border: '#3b82f6' },
+      { rank: 5, medal: '🎖️', title: 'NỖ LỰC', sharedTitle: 'NỖ LỰC', themeClass: 'rank-5', border: '#10b981' },
+      { rank: 6, medal: '🎗️', title: 'GẮN KẾT', sharedTitle: 'GẮN KẾT', themeClass: 'rank-6', border: '#64748b' }
+    ];
+
+    let currentRankIdx = 0;
+    return sorted.map((team, idx, arr) => {
+      const score = Number(team.score) || 0;
+
+      // Nếu bằng điểm đội trước đó: giữ nguyên thứ hạng
+      if (idx > 0 && score === (Number(arr[idx - 1].score) || 0)) {
+        // Cùng thứ hạng với đội trước
+      } else {
+        currentRankIdx = idx;
+      }
+
+      // Kiểm tra có đội khác cùng điểm hay không
+      const isShared = arr.filter(item => (Number(item.score) || 0) === score).length > 1;
+      const tpl = rankTemplates[currentRankIdx] || rankTemplates[rankTemplates.length - 1];
+      const title = isShared && currentRankIdx < 3 ? tpl.sharedTitle : tpl.title;
+
+      return {
+        ...team,
+        score,
+        rank: currentRankIdx + 1,
+        isShared,
+        medal: tpl.medal,
+        title: title,
+        border: tpl.border,
+        badgeText: isShared ? `Đồng Hạng ${tpl.rank}` : `Hạng ${tpl.rank}`
+      };
+    });
+  }
+  ```
+
+* **Hiển thị Vinh Danh trên Màn chiếu TV Lớp học:**
+  * **Banner chúc mừng chiến thắng (`winnerBanner`):**
+    * Khi có 1 đội nhất: `🏆 CHÚC MỪNG TỔ 1 LÀ QUÁN QUÂN (1200 ĐIỂM)! 🏆`
+    * Khi có từ 2 đội đồng điểm cao nhất: `🏆 ĐỒNG QUÁN QUÂN: TỔ 1 & TỔ 3 (CÙNG ĐẠT 1200 ĐIỂM)! 🏆`
+  * **Thẻ xếp hạng (`rank-card`):**
+    * Hiển thị cùng huy chương 🥇, cùng màu viền vàng `#facc15`, và huy hiệu ghi rõ: `👑 ĐỒNG QUÁN QUÂN` hoặc `Đồng Hạng Nhất`.
+
+* **Đồng bộ Dữ liệu Báo cáo CSV:**
+  * Phần bảng xếp hạng trong file CSV bắt buộc phản ánh chuẩn xác cơ chế đồng hạng:
+    ```csv
+    "Thứ Hạng","Huy Chương","Danh Hiệu","Tổ / Đội","Điểm Số","Đồng Hạng","Ghi Chú"
+    "Hạng 1","🥇","ĐỒNG QUÁN QUÂN","TỔ 1","1100","Có (Đồng điểm)","Xuất sắc"
+    "Hạng 1","🥇","ĐỒNG QUÁN QUÂN","TỔ 3","1100","Có (Đồng điểm)","Xuất sắc"
+    "Hạng 3","🥉","HẠNG BA","TỔ 2","1050","Không","Hoàn thành tốt"
+    ```
+
+---
+
+## 11. GIAO THỨC CẬP NHẬT QUY CHUẨN (LIVING DOCUMENT PROTOCOL)
 
 * Cả hai tài liệu **`AGENTS.md`** và **`STANDARDS.md`** đều là **Tài liệu sống (Living Documents)**.
 * Trong quá trình giảng dạy và phát triển bài giảng mới, khi Giáo viên phát hiện một quy tắc sư phạm mới, một mẹo hay hoặc muốn điều chỉnh bất kỳ thông số nào:

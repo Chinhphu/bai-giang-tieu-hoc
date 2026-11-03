@@ -7,7 +7,7 @@
 
 ## 🎯 1. NGUYÊN TẮC TỐI THƯỢNG (THE PRIME DIRECTIVES)
 
-Mọi mã nguồn do AI sinh ra hoặc chỉnh sửa BẮT BUỘC phải tuân thủ tuyệt đối 10 nguyên tắc sau:
+Mọi mã nguồn do AI sinh ra hoặc chỉnh sửa BẮT BUỘC phải tuân thủ tuyệt đối các nguyên tắc sau:
 
 ### 1. 100% "Offline-First" — TUYỆT ĐỐI CẤM CDN NGOÀI
 * **CẤM:** Không được nhúng bất kỳ thư viện bên ngoài nào qua CDN (ví dụ: `cdnjs`, `jsdelivr`, `unpkg`, `xlsx.full.min.js`, `canvas-confetti`, FontAwesome...).
@@ -105,6 +105,26 @@ Tuyệt đối không dùng tên chung chung như `state`, `game_data`, `tv_data
 * Trước khi xóa, cần xác nhận rõ thao tác; sau khi xóa, cập nhật giao diện/trạng thái phù hợp và thông báo kết quả.
 * Nếu dữ liệu lưu tự động, giao diện cần giúp giáo viên nhận biết rằng có dữ liệu phiên đang được lưu.
 
+### 12. Điểm Khởi Đầu Mặc Định 1000đ (Base Score)
+* **Phạm vi áp dụng:** Chỉ setup ở những tiết học hoặc mini-game có hệ thống tính điểm thi đua (đấu tổ, trả lời câu hỏi cộng/trừ điểm, đấu trường đối kháng, minigame cá cược/mua sắm...). KHÔNG áp dụng gượng ép cho các tiết thuần túy tích lũy linh kiện, checkbox hay bài tập đúng/sai không dùng thang điểm số.
+* **Giá trị mặc định:** `const STARTING_SCORE = 1000;` (mỗi tổ hoặc học sinh bắt đầu với 1000 điểm sàn).
+* **Mục đích sư phạm:**
+  * Tạo tâm lý phấn khởi, tự tin ngay từ đầu giờ học ("mỗi đội đều có sẵn vốn 1000 điểm năng lượng/khởi nghiệp").
+  * **Chống điểm âm:** Khi học sinh bị trừ điểm hoặc phạt vi phạm (-20đ, -50đ, -100đ...), tổng điểm vẫn giữ ở mức dương, không làm các em nản lòng hay tự ti.
+  * Giáo viên luôn có công cụ can thiệp nhanh (+/- điểm, reset về 1000đ) để điều tiết nhịp độ lớp học linh hoạt.
+
+### 13. Cơ Chế Xếp Rank Đồng Hạng & Vinh Danh Công Bằng (Tie-Ranking)
+* **Ý nghĩa sư phạm:** Học sinh tiểu học rất nhạy cảm với việc phân định thứ hạng. Khi các tổ hoặc học sinh bằng điểm nhau, **TUYỆT ĐỐI CẤM** dùng thứ tự ngẫu nhiên hoặc chỉ số mảng để ép một bên xuống hạng dưới.
+* **Quy chuẩn Xếp hạng & Vinh danh (Standard Competition Ranking):**
+  * Sắp xếp danh sách điểm giảm dần (`sort((a, b) => b.score - a.score)`).
+  * Nếu điểm của tổ hiện tại bằng điểm tổ trước đó $\to$ giữ nguyên thứ hạng (`rank`), không tăng thứ hạng giả tạo.
+  * Khi có từ 2 đội trở lên cùng điểm số, tự động chuyển danh hiệu vinh danh sang thể thức **ĐỒNG HẠNG**:
+    * Cùng điểm cao nhất: **"ĐỒNG QUÁN QUÂN"** (cùng nhận cúp vàng 🥇, banner vinh danh ghi rõ tên cả hai tổ: `🏆 ĐỒNG QUÁN QUÂN: TỔ 1 & TỔ 2 (CÙNG ĐẠT 1050 ĐIỂM)! 🏆`).
+    * Bằng điểm thứ nhì: **"ĐỒNG Á QUÂN"** 🥈.
+    * Bằng điểm thứ ba: **"ĐỒNG HẠNG BA"** 🥉.
+    * Các thứ hạng sau: **"KHUYẾN KHÍCH"** 🌟 / **"NỖ LỰC"** 🎖️.
+* **Đồng bộ Báo cáo CSV:** Bảng xếp hạng trong file CSV phải có cột *"Đồng Hạng"* (`Có (Đồng điểm)` / `Không`) và hiển thị thứ hạng chuẩn (`Hạng 1`, `Hạng 1`, `Hạng 3`...), tuyệt đối không phân biệt đối xử khi bằng điểm.
+
 ---
 
 ## 🛠️ 2. QUY TRÌNH 5 BƯỚC KHI TẠO HOẶC CHỈNH SỬA TIẾT HỌC MỚI
@@ -118,11 +138,12 @@ Khi nhận được yêu cầu viết tiết học mới từ người dùng (v�
 3. **Bước 3 — Nạp Dữ liệu Học sinh & Thiết lập Chế độ:**
    * Trỏ đúng file JSON `../../assets/data/students_{khoi}_2026_2027.json`.
    * Xác định tiết này là **Chế độ Toàn lớp cá nhân** (gacha tự động, bật full telemetry) hay **Chế độ Đấu theo tổ** (chọn tên thủ công, ghi log sư phạm).
+   * **Nếu tiết học có tính điểm:** Khởi tạo điểm sàn mặc định `STARTING_SCORE = 1000` và tích hợp hàm tính thứ hạng xử lý đồng hạng (`calculateRankings`).
 4. **Bước 4 — Thiết kế Nội dung Slide & Ghi bài chặng:**
    * Slide 1: Khung tiêu đề ngày tháng Tiếng Việt tự động + Tên bài.
    * Các slide khám phá/trò chơi: Nội dung sinh động, kích thước chữ lớn, chia các thẻ ghi nhớ nhỏ gọn (1-2 dòng) ở cuối mỗi phần.
 5. **Bước 5 — Tích hợp Xuất Báo cáo CSV:**
-   * Gắn nút xuất CSV / Đồng bộ Drive ở màn hình tổng kết sử dụng `window.LessonExport` hoặc `window.uploadCsvToDrive`.
+   * Gắn nút xuất CSV / Đồng bộ Drive ở màn hình tổng kết sử dụng `window.LessonExport` hoặc `window.uploadCsvToDrive` (đảm bảo bảng xếp hạng thể hiện đúng cơ chế đồng hạng).
 
 ---
 
@@ -135,6 +156,8 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Slide 1 có ngày tháng Tiếng Việt và không bị nhồi nhét quá nhiều chữ ghi bài?
 - [ ] Logic gọi tên có đảm bảo nguyên tắc: *Trả lời xong mới tính là hoàn thành* (Picked ≠ Done)?
 - [ ] Cảm biến đo thao tác (Telemetry) có đặt đúng ngữ cảnh (chỉ bật khi học sinh trực tiếp bấm máy)?
+- [ ] Điểm khởi đầu mặc định có được thiết lập 1000đ (đối với các tiết/game có hệ thống tính điểm) không?
+- [ ] Bảng xếp hạng và xuất CSV có cơ chế xử lý đồng hạng (bằng điểm $\to$ cùng hạng, cùng cúp/huy chương, danh hiệu "Đồng Quán quân / Đồng Á quân") không?
 - [ ] Tên file CSV xuất ra có đúng quy cách `KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}...` không?
 - [ ] Key LocalStorage có tiền tố `bgtieu_hoc_k{Khoi}_...` không?
 - [ ] Mọi nơi dùng LocalStorage/SessionStorage có nút xóa dữ liệu đúng phạm vi, có xác nhận và thông báo không?
