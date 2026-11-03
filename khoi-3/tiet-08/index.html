@@ -545,7 +545,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Quicksand', sans-serif;
             user-select: none;
         }
 
@@ -1040,7 +1040,7 @@
             justify-content: center;
             z-index: 200;
             color: #ffffff;
-            font-family: 'Segoe UI', -apple-system, sans-serif;
+            font-family: 'Quicksand', sans-serif;
             transition: background 0.25s ease;
         }
 
@@ -1631,6 +1631,7 @@
 </head>
 
 <body>
+<div class="nb-date" id="current-date-line" style="position:fixed; top:8px; right:16px; font-size:13px; font-weight:700; color:#94a3b8; z-index:9999; pointer-events:none;">Đang cập nhật ngày...</div>
 
     <!-- ══════════ SETUP SCREEN ══════════ -->
     <khoi3-setup heading="🖱️ OSU! CHUỘT – THỰC HÀNH SIÊU TỐC (BÀI 4)"
@@ -3780,8 +3781,19 @@
             const all = G.students.map(s => G.studentData[s.name]);
             const played = all.filter(s => s.played).sort((a, b) => getFinalTotalMs(a) - getFinalTotalMs(b));
             const unplayed = all.filter(s => !s.played).sort((a, b) => a.stt - b.stt);
-            played.forEach((s, idx) => { s.rank = idx + 1; });
-            unplayed.forEach(s => { s.rank = null; });
+            
+            let currentRank = 1;
+            played.forEach((s, idx, arr) => {
+                const ms = getFinalTotalMs(s);
+                if (idx > 0 && ms === getFinalTotalMs(arr[idx - 1])) {
+                    // Cùng thành tích ms: giữ nguyên thứ hạng
+                } else {
+                    currentRank = idx + 1;
+                }
+                s.rank = currentRank;
+                s.isShared = arr.filter(item => getFinalTotalMs(item) === ms).length > 1;
+            });
+            unplayed.forEach(s => { s.rank = null; s.isShared = false; });
             return { played, unplayed, combined: [...played, ...unplayed] };
         }
 
@@ -3858,8 +3870,8 @@
       <div class="top1-spotlight">
         <div class="top1-inner">
           <div class="top1-crown">👑</div>
-          <div class="top1-badge">⚡ QUÁN QUÂN TỐC ĐỘ CHUỘT – TOP 1 ⚡</div>
-          <div class="top1-name">${champ.name}</div>
+          <div class="top1-badge">${champ.isShared ? '⚡ ĐỒNG QUÁN QUÂN TỐC ĐỘ CHUỘT – TOP 1 ⚡' : '⚡ QUÁN QUÂN TỐC ĐỘ CHUỘT – TOP 1 ⚡'}</div>
+          <div class="top1-name">${played.filter(s => s.rank === 1).map(s => s.name).join(' & ')}</div>
           <div class="top1-time">⏱️ ${fmtSec(totalMs)}</div>
           <div class="top1-breakdown">
             <span class="top1-chip">⭐ Di chuyển: ${fmtSec(champ.skillMs.HOVER)}</span>

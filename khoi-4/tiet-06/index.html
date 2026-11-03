@@ -809,7 +809,8 @@
 
 <body>
     <header>
-        <h1>MẠNG NHỆN AN TOÀN</h1>
+    <div class="nb-date" id="current-date-line" style="font-size: 13px; font-weight: 700; color: #ffd84d; margin-right: 15px;">Đang cập nhật ngày...</div>
+    <h1>MẠNG NHỆN AN TOÀN</h1>
         <div id="turn"></div>
         <div class="header-btns">
             <button class="btn red" onclick="forceEnd()">Kết thúc / Quản lý HS</button>
@@ -1664,10 +1665,19 @@
             $('#mHead').innerHTML = `<div style="font-size:1.8rem; color:#ffd84d; margin-bottom: 5px">BẢNG XẾP HẠNG & QUẢN LÝ LỚP</div><small>Nắm kéo tên học sinh để điều chỉnh Tổ (Trạng thái tự động lưu)</small>`;
             $('#tw').style.visibility = 'hidden';
 
+            let currentR = 1;
             let endHtml = `<div class="rank-list" style="margin-bottom: 15px;">
-                ${ranks.map((r, idx) => `
+                ${ranks.map((r, idx, arr) => {
+                    if (idx > 0 && r.dist === arr[idx-1].dist && r.nodes === arr[idx-1].nodes) {
+                        // Bằng thành tích
+                    } else {
+                        currentR = idx + 1;
+                    }
+                    const isShared = arr.filter(item => item.dist === r.dist && item.nodes === r.nodes).length > 1;
+                    const rTitle = isShared ? `Đồng Hạng ${currentR}` : `Hạng ${currentR}`;
+                    return `
                     <div class="rank-item" style="border-color:${r.c}; padding: 10px 14px;">
-                        <b style="color:${r.c}">Hạng ${idx + 1}:${r.n}</b>
+                        <b style="color:${r.c}">${rTitle}: ${r.n}</b>
                         <span style="font-size:0.9rem">${r.dist === 9999 ? 'Cô lập' : 'Cách đích ' + r.dist + ' bước'} (${r.nodes} ô)</span>
                     </div>
                 `).join('')}

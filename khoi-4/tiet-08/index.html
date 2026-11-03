@@ -522,7 +522,7 @@
                 <!-- SCREEN 1: VỞ THỰC HÀNH (GHI BÀI THEO BẢNG) -->
                 <section class="screen active" data-screen="1" id="screen-notebook">
                     <div class="blackboard">
-                        <p class="blackboard-header" id="currentDateDisplay">Thứ ..., ngày ... tháng ... năm ...</p>
+                        <p class="blackboard-header nb-date" id="current-date-line" id="currentDateDisplay">Thứ ..., ngày ... tháng ... năm ...</p>
                         <p class="blackboard-subject">Môn: Tin học · Khối 4</p>
                         <h2 class="blackboard-title">Bài 4: Tìm kiếm thông tin trên Internet (Tiết 2: Thực hành)</h2>
 
@@ -788,7 +788,7 @@
                             </div>
                             <div>
                                 <label for="startScoreInput">Điểm đầu:</label>
-                                <input id="startScoreInput" type="number" min="0" step="10" value="0" style="width:60px; padding:3px 6px; font-weight:800; border-radius:6px; border:1px solid #cbd5e1; text-align:center;" onchange="changeStartScore(this.value)" />
+                                <input id="startScoreInput" type="number" min="0" step="10" value="1000" style="width:60px; padding:3px 6px; font-weight:800; border-radius:6px; border:1px solid #cbd5e1; text-align:center;" onchange="changeStartScore(this.value)" />
                             </div>
                         </div>
                     </div>
@@ -1063,7 +1063,7 @@
                     id: i,
                     name: `Tổ ${i + 1}`,
                     color: TEAM_COLORS[i % TEAM_COLORS.length],
-                    score: 0
+                    score: 1000
                 });
             }
             if (activeTeamIdx >= numTeams) activeTeamIdx = 0;
@@ -1071,7 +1071,8 @@
             renderTeamChipsTurnBar();
         }
 
-        let initialTeamScore = 0;
+        const STARTING_SCORE = 1000;
+        let initialTeamScore = STARTING_SCORE;
         function changeStartScore(val) {
             initialTeamScore = parseInt(val, 10) || 0;
             TEAMS.forEach(t => { t.score = initialTeamScore; });
@@ -1545,17 +1546,20 @@
 
         /* 10. Bảng vàng & Thống kê */
         function renderPodiumAndStats() {
-            const sorted = [...TEAMS].sort((a, b) => b.score - a.score);
+            const calcFn = window.calculateRankings || function(list) {
+                return [...list].sort((a, b) => b.score - a.score);
+            };
+            const ranked = calcFn(TEAMS);
             const container = document.getElementById('podiumContainer');
             container.innerHTML = '';
 
-            const medals = ['👑 QUÁN QUÂN', '🥈 Á QUÂN', '🥉 HẠNG BA', '🏅 KHUYẾN KHÍCH', '🏅 KHUYẾN KHÍCH', '🏅 KHUYẾN KHÍCH'];
-            sorted.forEach((t, rank) => {
+            ranked.forEach(t => {
                 const col = document.createElement('div');
                 col.className = 'podium-col';
-                col.style.borderColor = t.color;
+                col.style.borderColor = t.border || t.color;
+                const badgeTitle = `${t.medal || '🏅'} ${t.title || 'HOÀN THÀNH'}`;
                 col.innerHTML = `
-                    <div style="font-size:0.95rem; font-weight:900; color:var(--coral);">${medals[rank] || '🏅'}</div>
+                    <div style="font-size:0.95rem; font-weight:900; color:var(--coral);">${badgeTitle} (${t.badgeText || ('Hạng ' + t.rank)})</div>
                     <div style="font-size:1.35rem; font-weight:900; color:${t.color}; margin:4px 0;">${t.name}</div>
                     <div style="font-family:monospace; font-size:2.2rem; font-weight:900; color:var(--ink);">${t.score}</div>
                     <div style="font-size:0.8rem; font-weight:800; color:#64748b;">ĐIỂM TỔNG</div>

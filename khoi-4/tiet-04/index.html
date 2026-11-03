@@ -180,9 +180,10 @@
                 <div>
                     <h1>ĐẠI CHIẾN GÕ TIẾP SỨC (CÔNG BẰNG TUYỆT ĐỐI)</h1>
                     <p>Sân chơi gõ bàn phím tốc độ dành cho lớp 4</p>
+                    <div class="nb-date" id="current-date-line" style="font-size:13px; font-weight:700; color:#ffd84d; margin-top:4px;">Đang cập nhật ngày...</div>
                 </div>
             </div>
-            <button class="btn small" onclick="location.reload()" style="padding: 10px 20px; font-size: 1rem;">Cài đặt lại</button>
+            <button class="btn small" onclick="window.allowPageReload ? window.allowPageReload() : null; location.reload()" style="padding: 10px 20px; font-size: 1rem;">Cài đặt lại</button>
         </div>
 
         <!-- SCREEN 0: SETUP -->
@@ -254,7 +255,7 @@
                     <!-- JS sẽ điền kết quả vào đây -->
                 </div>
                 
-                <button class="btn yellow" style="margin-top: 30px;" onclick="location.reload()">Chơi Lại Từ Đầu</button>
+                <button class="btn yellow" style="margin-top: 30px;" onclick="window.allowPageReload ? window.allowPageReload() : null; location.reload()">Chơi Lại Từ Đầu</button>
             </div>
         </div>
     </div>
@@ -559,13 +560,23 @@
             const listDiv = document.getElementById('leaderboard-list');
             listDiv.innerHTML = "";
             
-            teams.forEach((res, idx) => {
+            let currentRank = 1;
+            teams.forEach((res, idx, arr) => {
+                if (idx > 0 && Math.round(res.time) === Math.round(arr[idx - 1].time)) {
+                    // Cùng thời gian
+                } else {
+                    currentRank = idx + 1;
+                }
+                const isShared = arr.filter(item => Math.round(item.time) === Math.round(res.time)).length > 1;
+                const medal = currentRank === 1 ? '🥇' : (currentRank === 2 ? '🥈' : (currentRank === 3 ? '🥉' : '🎖️'));
+                const rankTitle = currentRank === 1 ? (isShared ? 'ĐỒNG QUÁN QUÂN' : 'QUÁN QUÂN') : (isShared ? `Đồng Hạng ${currentRank}` : `Hạng ${currentRank}`);
+                
                 const item = document.createElement('div');
-                item.className = `rank-item ${idx === 0 ? 'rank-1' : ''}`;
+                item.className = `rank-item ${currentRank === 1 ? 'rank-1' : ''}`;
                 
                 let html = `
                     <div style="display: flex; align-items: center; gap: 20px;">
-                        <span class="rank-pos">#${idx + 1}</span>
+                        <span class="rank-pos">${medal} ${rankTitle}</span>
                         <span>ĐỘI ${res.id}</span>
                     </div>
                     <div>

@@ -693,6 +693,7 @@
     <!-- 1. THANH ĐIỀU HƯỚNG TOPBAR TIN GỌN                                    -->
     <!-- ===================================================================== -->
     <header class="topbar">
+      <div class="nb-date" id="current-date-line" style="font-size:13px; font-weight:800; color:#0284C7; margin-right:15px; display:inline-flex; align-items:center;">Đang cập nhật ngày...</div>
       <!-- 3 Màn hình theo đúng tiến trình sư phạm -->
       <div class="nav-tabs">
         <button class="nav-tab-btn active" id="tab-btn-0" type="button" onclick="AppManager.switchScreen(0)">
@@ -844,7 +845,7 @@
         <div class="podium-grid">
           <div class="honor-box">
             <div style="font-size:20px; font-weight:900; color:#0284C7;">
-              🎖️ HỌC SINH ĐÃ THỰC HÀNH HÔM NAY
+              🎖️ HỌC SINH ĐÃ THỰC HÀNH HÔM NAY (ĐỒNG HẠNG XUẤT SẮC - ĐỒNG QUÁN QUÂN)
             </div>
             <div id="podium-done-list" style="display:flex; flex-direction:column; gap:8px;"></div>
           </div>
@@ -1087,8 +1088,24 @@
           }
         }
 
-        // Tải danh sách mặc định
-        students = FALLBACK_NAMES.map((name, idx) => ({
+        // Tải danh sách học sinh từ file JSON chung của trường
+        let loadedNames = null;
+        try {
+          const paths = ['../../assets/data/students_1_2026_2027.json', '../assets/data/students_1_2026_2027.json'];
+          for (const p of paths) {
+            const res = await fetch(p);
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data[cls]) {
+                loadedNames = data[cls].map(item => typeof item === 'string' ? item : (item.name || item.hoTen));
+                break;
+              }
+            }
+          }
+        } catch (_) {}
+
+        const namesSource = (loadedNames && loadedNames.length > 0) ? loadedNames : FALLBACK_NAMES;
+        students = namesSource.map((name, idx) => ({
           id: idx + 1,
           code: `HS1_${String(idx + 1).padStart(2, '0')}`,
           name: name.trim(),

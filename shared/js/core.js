@@ -12,6 +12,9 @@
 (function initLessonCore() {
     if (typeof window === 'undefined') return;
 
+    // HẰNG SỐ ĐIỂM SÀN MẶC ĐỊNH TOÀN HỆ THỐNG (QUY CHUẨN 12)
+    window.STARTING_SCORE = 1000;
+
     // 1. TIỆN ÍCH NGÀY THÁNG TIẾNG VIỆT TỰ ĐỘNG
     window.updateVietnameseDate = function (targetId = 'current-date-line') {
         const now = new Date();
@@ -22,11 +25,74 @@
         const year = now.getFullYear();
 
         const dateStr = `${dayName}, ngày ${date} tháng ${month} năm ${year}`;
-        const target = document.getElementById(targetId) || document.getElementById('currentDateDisplay') || document.querySelector('.nb-date');
-        if (target) {
-            target.textContent = dateStr;
-        }
+        
+        // Cập nhật cho tất cả các phần tử ngày tháng tìm thấy
+        const selectors = [
+            `#${targetId}`,
+            '#currentDateDisplay',
+            '#current-date-line',
+            '#intro-date',
+            '#notebookDateDisplay',
+            '#date-display',
+            '.date-display',
+            '.nb-date',
+            '.date-header',
+            '.intro-date',
+            '.current-date-line',
+            '.lesson-date',
+            '.notebookDateDisplay',
+            '.date-badge',
+            '.date-line span'
+        ];
+        
+        const elements = document.querySelectorAll(selectors.join(', '));
+        elements.forEach(el => {
+            el.textContent = dateStr;
+        });
+
         return dateStr;
+    };
+
+    // 2. THUẬT TOÁN XẾP HẠNG ĐỒNG HẠNG CHUẨN SƯ PHẠM (QUY CHUẨN 13)
+    window.calculateRankings = function (teamList) {
+        if (!teamList || !teamList.length) return [];
+
+        const sorted = [...teamList].sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
+
+        const rankTemplates = [
+            { rank: 1, medal: '🥇', title: 'QUÁN QUÂN', sharedTitle: 'ĐỒNG QUÁN QUÂN', themeClass: 'rank-1', border: '#facc15' },
+            { rank: 2, medal: '🥈', title: 'Á QUÂN', sharedTitle: 'ĐỒNG Á QUÂN', themeClass: 'rank-2', border: '#94a3b8' },
+            { rank: 3, medal: '🥉', title: 'HẠNG BA', sharedTitle: 'ĐỒNG HẠNG BA', themeClass: 'rank-3', border: '#d97706' },
+            { rank: 4, medal: '🌟', title: 'KHUYẾN KHÍCH', sharedTitle: 'KHUYẾN KHÍCH', themeClass: 'rank-4', border: '#3b82f6' },
+            { rank: 5, medal: '🎖️', title: 'NỖ LỰC', sharedTitle: 'NỖ LỰC', themeClass: 'rank-5', border: '#10b981' },
+            { rank: 6, medal: '🎗️', title: 'GẮN KẾT', sharedTitle: 'GẮN KẾT', themeClass: 'rank-6', border: '#64748b' }
+        ];
+
+        let currentRankIdx = 0;
+        return sorted.map((team, idx, arr) => {
+            const score = Number(team.score) || 0;
+
+            if (idx > 0 && score === (Number(arr[idx - 1].score) || 0)) {
+                // Cùng thứ hạng với đội trước
+            } else {
+                currentRankIdx = idx;
+            }
+
+            const isShared = arr.filter(item => (Number(item.score) || 0) === score).length > 1;
+            const tpl = rankTemplates[currentRankIdx] || rankTemplates[rankTemplates.length - 1];
+            const title = isShared && currentRankIdx < 3 ? tpl.sharedTitle : tpl.title;
+
+            return {
+                ...team,
+                score,
+                rank: currentRankIdx + 1,
+                isShared,
+                medal: tpl.medal,
+                title: title,
+                border: tpl.border,
+                badgeText: isShared ? `Đồng Hạng ${tpl.rank}` : `Hạng ${tpl.rank}`
+            };
+        });
     };
 
     // Tự động kích hoạt khi DOM sẵn sàng
@@ -207,7 +273,8 @@
         tableToCsv,
         convertToCsv,
         download: downloadCsv,
-        uploadToDrive: uploadCsvToDrive
+        uploadToDrive: uploadCsvToDrive,
+        calculateRankings: window.calculateRankings
     };
 
     window.LessonExport = LessonExport;
