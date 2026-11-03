@@ -198,9 +198,6 @@ const Khoi5Tracker = (() => {
       ]);
     });
 
-    const wsRank = window.XLSX.utils.aoa_to_sheet(rankRows);
-    wsRank['!cols'] = [{ wch: 12 }, { wch: 12 }, { wch: 22 }, { wch: 18 }, { wch: 12 }, { wch: 16 }, { wch: 24 }];
-
     // ==========================================
     // SHEET 2: NHẬT KÝ CHI TIẾT DÒNG THỜI GIAN
     // ==========================================
@@ -228,19 +225,6 @@ const Khoi5Tracker = (() => {
         ]);
       });
     }
-
-    const wsLogs = window.XLSX.utils.aoa_to_sheet(logRows);
-    wsLogs['!cols'] = [
-      { wch: 6 },  // STT
-      { wch: 12 }, // Thời gian
-      { wch: 18 }, // Đội
-      { wch: 24 }, // Học sinh
-      { wch: 38 }, // Nội dung
-      { wch: 16 }, // Kết quả
-      { wch: 16 }, // Điểm biến động
-      { wch: 18 }, // Điểm sau sự kiện
-      { wch: 25 }  // Ghi chú
-    ];
 
     // ==========================================
     // SHEET 3: DANH SÁCH HỌC SINH & LỊCH SỬ PHÁT BIỂU
@@ -272,17 +256,6 @@ const Khoi5Tracker = (() => {
       ]);
       sIndex++;
     });
-
-    const wsStudents = window.XLSX.utils.aoa_to_sheet(studentRows);
-    wsStudents['!cols'] = [
-      { wch: 6 },
-      { wch: 10 },
-      { wch: 26 },
-      { wch: 10 },
-      { wch: 18 },
-      { wch: 18 },
-      { wch: 60 }
-    ];
 
     const sections = [
       ['Bảng Xếp Hạng Thi Đua', rankRows],
@@ -319,4 +292,3 @@ const Khoi5Tracker = (() => {
 
 // Đưa ra window
 window.Khoi5Tracker = Khoi5Tracker;
-

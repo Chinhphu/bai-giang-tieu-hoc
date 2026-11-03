@@ -290,6 +290,12 @@ bgtieu_hoc_k{Khoi}_tiet_{Tiet}_{Lop}_state
 }
 ```
 
+### 9.3 Nút xóa dữ liệu đã lưu
+* Mọi bài học/mini-game có lưu dữ liệu vào `localStorage` hoặc `sessionStorage` phải cung cấp nút **Xóa dữ liệu đã lưu** cho giáo viên.
+* Nút cần dễ tìm, có xác nhận trước khi xóa và thông báo rõ khi hoàn tất; giao diện phải đồng bộ lại với trạng thái sau khi xóa.
+* Chỉ xóa các key thuộc bài học/mini-game hiện tại. Tuyệt đối không dùng `localStorage.clear()` hay `sessionStorage.clear()` vì có thể xóa dữ liệu của bài khác.
+* Với lưu tự động, nên chỉ rõ cho giáo viên biết trạng thái đang được lưu; sau khi xóa, dữ liệu mới chỉ được tạo lại theo thao tác tiếp theo của người dùng.
+
 ---
 
 ## 10. GIAO THỨC CẬP NHẬT QUY CHUẨN (LIVING DOCUMENT PROTOCOL)
@@ -299,4 +305,3 @@ bgtieu_hoc_k{Khoi}_tiet_{Tiet}_{Lop}_state
   1. Giáo viên chỉ cần đưa ra yêu cầu: *"Cập nhật vào quy chuẩn: [nội dung mới]..."*.
   2. AI Agent có nhiệm vụ ngay lập tức cập nhật, hiệu đính và bổ sung vào đúng các mục tương ứng trong cả `AGENTS.md` và `STANDARDS.md`.
   3. Mọi bài giảng được tạo sau thời điểm đó sẽ tự động tuân thủ theo phiên bản quy chuẩn mới nhất này.
-

@@ -1,7 +1,7 @@
 /**
  * KHOI 5 - CORE ALL-IN-ONE ENGINE
  * Bộ công cụ tiện ích dùng chung cho các bài giảng Khối 5:
- * Audio, Slides, Scoreboard, Students (JSON & Excel), Gacha, và Utils.
+ * Audio, Slides, Scoreboard, Students (JSON & CSV), Gacha, và Utils.
  * 
  * NGUYÊN TẮC THIẾT KẾ:
  * 1. KHÔNG tự động can thiệp DOM hoặc tự gắn phím tắt khi chưa được bài giảng yêu cầu.
@@ -802,9 +802,6 @@ const Khoi5Tracker = (() => {
       ]);
     });
 
-    const wsRank = window.XLSX.utils.aoa_to_sheet(rankRows);
-    wsRank['!cols'] = [{ wch: 12 }, { wch: 12 }, { wch: 22 }, { wch: 18 }, { wch: 12 }, { wch: 16 }, { wch: 24 }];
-
     // Sheet 2: Nhật Ký Chi Tiết
     const logRows = [
       ['NHẬT KÝ CHI TIẾT HOẠT ĐỘNG VÀ BIẾN ĐỘNG ĐIỂM SỐ THEO THỜI GIAN'],
@@ -830,9 +827,6 @@ const Khoi5Tracker = (() => {
         ]);
       });
     }
-
-    const wsLogs = window.XLSX.utils.aoa_to_sheet(logRows);
-    wsLogs['!cols'] = [{ wch: 6 }, { wch: 12 }, { wch: 18 }, { wch: 24 }, { wch: 38 }, { wch: 16 }, { wch: 16 }, { wch: 18 }, { wch: 25 }];
 
     // Sheet 3: Danh Sách Học Sinh
     const studentRows = [
@@ -862,9 +856,6 @@ const Khoi5Tracker = (() => {
       ]);
       sIndex++;
     });
-
-    const wsStudents = window.XLSX.utils.aoa_to_sheet(studentRows);
-    wsStudents['!cols'] = [{ wch: 6 }, { wch: 10 }, { wch: 26 }, { wch: 10 }, { wch: 18 }, { wch: 18 }, { wch: 60 }];
 
     const sections = [
       ['Bảng Xếp Hạng Thi Đua', rankRows],

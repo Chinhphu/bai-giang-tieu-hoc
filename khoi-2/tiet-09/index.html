@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bài 6: Vui học Toán cùng máy tính - Tin học Lớp 2</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+
+
     <link rel="stylesheet" href="../theme/style.css">
 
     <!-- Bộ chống reload và Helper xuất file CSV đồng bộ Google Drive chuẩn toàn hệ thống -->
@@ -1642,7 +1642,7 @@
         let isCallingStudent = false;
 
         function getStorageKey(cls) {
-            return `tiet09_b6_math_game_${cls}`;
+            return `bgtieu_hoc_k2_tiet_09_${String(cls).replace(/_/g, '-')}_state`;
         }
 
         function saveClassState() {
@@ -1656,7 +1656,16 @@
         }
 
         function loadClassState(cls) {
-            const raw = localStorage.getItem(getStorageKey(cls));
+            const storageKey = getStorageKey(cls);
+            let raw = localStorage.getItem(storageKey);
+            if (!raw) {
+                const legacyKey = `tiet09_b6_math_game_${cls}`;
+                raw = localStorage.getItem(legacyKey);
+                if (raw) {
+                    localStorage.setItem(storageKey, raw);
+                    localStorage.removeItem(legacyKey);
+                }
+            }
             const classList = studentData[cls] || FALLBACK_STUDENTS[cls] || [];
 
             if (raw) {
@@ -1712,7 +1721,14 @@
             if (!confirm(`Thầy/Cô có chắc chắn muốn XÓA SẠCH lịch sử lượt chơi và dữ liệu đánh giá của lớp ${classTitle} để bắt đầu lại từ đầu không?`)) {
                 return;
             }
-            localStorage.removeItem(getStorageKey(currentClass));
+            try {
+                localStorage.removeItem(getStorageKey(currentClass));
+                localStorage.removeItem(`tiet09_b6_math_game_${currentClass}`);
+            } catch (error) {
+                console.error('Không thể xóa dữ liệu đã lưu của Tiết 9.', error);
+                alert('Không thể xóa dữ liệu đã lưu trên trình duyệt này.');
+                return;
+            }
             loadClassState(currentClass);
             document.getElementById('heroNameText').innerHTML = `Đã xóa lịch sử! Sẵn sàng lượt chơi mới 🎲`;
             const alertEl = document.getElementById('battleStatusAlert');

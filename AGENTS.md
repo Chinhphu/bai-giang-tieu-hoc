@@ -98,6 +98,12 @@ const STORAGE_KEY = `bgtieu_hoc_k${grade}_tiet_${lesson}_${classId}_state`;
 ```
 Tuyệt đối không dùng tên chung chung như `state`, `game_data`, `tv_data` gây ghi đè dữ liệu giữa các bài giảng khác nhau.
 
+### 11. Quyền kiểm soát dữ liệu đã lưu
+* Bất kỳ bài học hoặc mini-game nào lưu dữ liệu học tập/trạng thái vào `localStorage` hoặc `sessionStorage` phải có nút **Xóa dữ liệu đã lưu** dễ tìm để giáo viên chủ động làm mới.
+* Nút phải chỉ xóa các key do chính bài học/game đó quản lý; không được gọi `localStorage.clear()` hoặc xóa dữ liệu của bài khác.
+* Trước khi xóa, cần xác nhận rõ thao tác; sau khi xóa, cập nhật giao diện/trạng thái phù hợp và thông báo kết quả.
+* Nếu dữ liệu lưu tự động, giao diện cần giúp giáo viên nhận biết rằng có dữ liệu phiên đang được lưu.
+
 ---
 
 ## 🛠️ 2. QUY TRÌNH 5 BƯỚC KHI TẠO HOẶC CHỈNH SỬA TIẾT HỌC MỚI
@@ -130,6 +136,7 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Cảm biến đo thao tác (Telemetry) có đặt đúng ngữ cảnh (chỉ bật khi học sinh trực tiếp bấm máy)?
 - [ ] Tên file CSV xuất ra có đúng quy cách `KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}...` không?
 - [ ] Key LocalStorage có tiền tố `bgtieu_hoc_k{Khoi}_...` không?
+- [ ] Mọi nơi dùng LocalStorage/SessionStorage có nút xóa dữ liệu đúng phạm vi, có xác nhận và thông báo không?
 
 ---
 
@@ -140,4 +147,3 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
   1. Lắng nghe và xác nhận chính xác ý định sư phạm / kỹ thuật của Giáo viên.
   2. Lập tức cập nhật trực tiếp vào cả hai tệp `AGENTS.md` và `STANDARDS.md`.
   3. Áp dụng quy chuẩn mới này cho các tác vụ tiếp theo mà không cần nhắc lại.
-

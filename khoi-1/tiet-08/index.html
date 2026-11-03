@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tin học 1 - Bài 7: Vui học bảng chữ cái cùng máy tính (Tiết 2)</title>
   <!-- Thư viện SheetJS xuất Excel SMAS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
   <link rel="stylesheet" href="../shared/style.css">
   <script src="../shared/gacha.js"></script>
   <script src="../shared/components.js"></script>
@@ -20,7 +20,7 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      font-family: var(--k1-font, 'Baloo 2', 'Nunito', 'Segoe UI', sans-serif);
+      font-family: var(--k1-font, 'Nunito', 'Segoe UI', Arial, sans-serif);
       background: #F1F5F9;
       user-select: none;
     }
@@ -684,6 +684,8 @@
       }
     }
   </style>
+    <script src="../../shared/js/prevent-reload.js"></script>
+    <script src="../../shared/js/core.js"></script>
 </head>
 <body>
   <div class="app-container">
@@ -980,7 +982,7 @@
         <button class="k1-close-circle" type="button" onclick="SettingsManager.close()">✕</button>
       </div>
 
-      <div style="padding:10px 22px; background:#F1F5F9; display:flex; align-items:center; justify-content:space-between;">
+      <div style="padding:10px 22px; background:#F1F5F9; display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
         <!-- Tabs lọc danh sách -->
         <div class="segmented-control">
           <button class="segmented-btn active" id="st-tab-waiting" type="button" onclick="SettingsManager.setFilter('waiting')">
@@ -994,9 +996,14 @@
           </button>
         </div>
 
-        <button class="k1-btn k1-btn-coral k1-btn-sm" type="button" onclick="SettingsManager.resetRound()">
-          🔄 Làm Mới Vòng Gọi Tên
-        </button>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <button class="k1-btn k1-btn-coral k1-btn-sm" type="button" onclick="SettingsManager.resetRound()">
+            🔄 Làm Mới Vòng Gọi Tên
+          </button>
+          <button class="k1-btn k1-btn-coral k1-btn-sm" type="button" onclick="SettingsManager.clearSavedData()">
+            🗑️ Xóa dữ liệu đã lưu
+          </button>
+        </div>
       </div>
 
       <!-- Danh sách học sinh có nút bấm chỉnh sửa thủ công -->
@@ -1018,7 +1025,7 @@
        1. QUẢN LÝ DỮ LIỆU HỌC SINH & LƯU TRỮ LOCALSTORAGE KỸ CÀNG
        ========================================================================== */
     const StudentStore = (() => {
-      const STORAGE_KEY_PREFIX = 'k1_tiet08_students_v3_';
+      const STORAGE_KEY_PREFIX = 'bgtieu_hoc_k1_tiet_08_';
       let currentClass = '1_6';
       let students = [];
       let activeStudent = null;
@@ -1036,6 +1043,10 @@
         "Mai Đức Vĩnh", "Danh Nguyễn Hoàng Yến"
       ];
 
+      function getStorageKey(cls = currentClass) {
+        return `${STORAGE_KEY_PREFIX}${String(cls).replace(/_/g, '-')}_state`;
+      }
+
       async function init(cls = '1_6') {
         currentClass = cls;
         await load();
@@ -1044,7 +1055,15 @@
       async function load() {
         let saved = null;
         try {
-          saved = localStorage.getItem(STORAGE_KEY_PREFIX + currentClass);
+          saved = localStorage.getItem(getStorageKey());
+          if (!saved) {
+            const legacyKey = `k1_tiet08_students_v3_${currentClass}`;
+            saved = localStorage.getItem(legacyKey);
+            if (saved) {
+              localStorage.setItem(getStorageKey(), saved);
+              localStorage.removeItem(legacyKey);
+            }
+          }
         } catch (error) {
           console.error('Không thể đọc dữ liệu đã lưu của Tiết 8.', error);
           Khoi1Components.showToast('Không đọc được dữ liệu đã lưu. Danh sách tạm thời sẽ được dùng.', true);
@@ -1086,7 +1105,7 @@
 
       function save() {
         try {
-          localStorage.setItem(STORAGE_KEY_PREFIX + currentClass, JSON.stringify({
+          localStorage.setItem(getStorageKey(), JSON.stringify({
             students,
             activeStudent,
             nextStudent
@@ -1159,9 +1178,36 @@
         AppManager.renderSummaryBoard();
       }
 
+      function clearSavedData() {
+        try {
+          localStorage.removeItem(getStorageKey());
+          localStorage.removeItem(`k1_tiet08_students_v3_${currentClass}`);
+        } catch (error) {
+          console.error('Không thể xóa dữ liệu học sinh đã lưu của Tiết 8.', error);
+          Khoi1Components.showToast('Không thể xóa dữ liệu đã lưu trên thiết bị này.', true);
+          return false;
+        }
+        students = FALLBACK_NAMES.map((name, idx) => ({
+          id: idx + 1,
+          code: `HS1_${String(idx + 1).padStart(2, '0')}`,
+          name: name.trim(),
+          status: 'waiting',
+          isPriority: false,
+          score: 0,
+          calledCount: 0
+        }));
+        activeStudent = null;
+        nextStudent = null;
+        updateHeaderActiveStudent();
+        SettingsManager.renderList();
+        AppManager.renderSummaryBoard();
+        return true;
+      }
+
       return {
         init, load, save, getStudents, getActive, getNext, setActive,
-        recordScore, toggleStudentStatus, toggleStudentStar, resetRound
+        recordScore, toggleStudentStatus, toggleStudentStar, resetRound, clearSavedData,
+        getCurrentClass: () => currentClass
       };
     })();
 
@@ -2238,6 +2284,14 @@
         }
       }
 
+      function clearSavedData() {
+        const currentClass = StudentStore.getCurrentClass().replace('_', '/');
+        if (!confirm(`Xóa dữ liệu đã lưu của lớp ${currentClass}?`)) return;
+        if (StudentStore.clearSavedData()) {
+          Khoi1Components.showToast(`Đã xóa dữ liệu đã lưu của lớp ${currentClass}.`);
+        }
+      }
+
       function exportExcel() {
         const students = StudentStore.getStudents();
         const currentClassKey = StudentStore.getCurrentClass();
@@ -2262,7 +2316,7 @@
         Khoi1Components.exportRows(rows, fileName, 'Danh_Gia_SMAS');
       }
 
-      return { open, close, setFilter, onClassChange, renderList, resetRound, exportExcel };
+      return { open, close, setFilter, onClassChange, renderList, resetRound, clearSavedData, exportExcel };
     })();
 
     /* KHỞI ĐỘNG HỆ THỐNG KHI TẢI TRANG */

@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bài 4: Hàng Phím Dưới - Lớp 2</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+
+
+
 
     <style>
         * {
@@ -16,7 +16,7 @@
         }
 
         body {
-            font-family: 'Baloo 2', cursive, sans-serif;
+            font-family: 'Nunito', 'Segoe UI', Arial, sans-serif;
             background-color: #e0f7fa;
             margin: 0;
             padding: 0;
@@ -126,7 +126,7 @@
 
         select,
         button {
-            font-family: 'Baloo 2', cursive;
+            font-family: 'Nunito', 'Segoe UI', Arial, sans-serif;
             font-weight: 700;
             border-radius: 10px;
             cursor: pointer;
@@ -679,6 +679,7 @@
         }
     </style>
     <script src="../../shared/js/prevent-reload.js"></script>
+    <script src="../../shared/js/core.js"></script>
 </head>
 
 <body>
@@ -880,7 +881,14 @@
                 console.log("Dùng danh sách dự phòng tích hợp sẵn.");
             }
 
-            const lastClass = localStorage.getItem("ech_b4_active_class");
+            let lastClass = localStorage.getItem("bgtieu_hoc_k2_tiet_07_active_class_state");
+            if (!lastClass) {
+                lastClass = localStorage.getItem("ech_b4_active_class");
+                if (lastClass) {
+                    localStorage.setItem("bgtieu_hoc_k2_tiet_07_active_class_state", lastClass);
+                    localStorage.removeItem("ech_b4_active_class");
+                }
+            }
             if (lastClass) {
                 selectedClass = lastClass;
                 document.getElementById("class-select").value = selectedClass;
@@ -888,7 +896,7 @@
         };
 
         function getStorageKey(cls) {
-            return `ech_b4_state_${cls}`;
+            return `bgtieu_hoc_k2_tiet_07_${String(cls).replace(/_/g, '-')}_state`;
         }
 
         function saveStateToLocal() {
@@ -904,12 +912,21 @@
                 curWordIdx,
                 currentStudent
             };
-            localStorage.setItem("ech_b4_active_class", selectedClass);
+            localStorage.setItem("bgtieu_hoc_k2_tiet_07_active_class_state", selectedClass);
             localStorage.setItem(getStorageKey(selectedClass), JSON.stringify(payload));
         }
 
         function loadStateFromLocal(cls) {
-            const raw = localStorage.getItem(getStorageKey(cls));
+            const storageKey = getStorageKey(cls);
+            let raw = localStorage.getItem(storageKey);
+            if (!raw) {
+                const legacyKey = `ech_b4_state_${cls}`;
+                raw = localStorage.getItem(legacyKey);
+                if (raw) {
+                    localStorage.setItem(storageKey, raw);
+                    localStorage.removeItem(legacyKey);
+                }
+            }
             if (!raw) return false;
             try {
                 const st = JSON.parse(raw);
@@ -943,8 +960,26 @@
 
         function clearSavedData() {
             if (!confirm(`Bạn có chắc muốn XÓA SẠCH điểm và lượt chơi của lớp ${selectedClass.replace('_', '/')} để bắt đầu lại từ đầu không?`)) return;
-            localStorage.removeItem(getStorageKey(selectedClass));
+            try {
+                localStorage.removeItem(getStorageKey(selectedClass));
+                localStorage.removeItem(`ech_b4_state_${selectedClass}`);
+                localStorage.removeItem("bgtieu_hoc_k2_tiet_07_active_class_state");
+                localStorage.removeItem("ech_b4_active_class");
+            } catch (error) {
+                console.error('Không thể xóa dữ liệu đã lưu của Tiết 7.', error);
+                alert('Không thể xóa dữ liệu đã lưu trên trình duyệt này.');
+                return;
+            }
             initFreshClass(selectedClass);
+            try {
+                localStorage.removeItem(getStorageKey(selectedClass));
+                localStorage.removeItem("bgtieu_hoc_k2_tiet_07_active_class_state");
+            } catch (error) {
+                console.error('Không thể xóa trạng thái khởi tạo lại của Tiết 7.', error);
+                alert('Trò chơi đã được làm mới nhưng không thể xóa trạng thái lưu tự động.');
+                return;
+            }
+            alert(`Đã xóa dữ liệu đã lưu của lớp ${selectedClass.replace('_', '/')}.`);
         }
 
         function enterGame() {

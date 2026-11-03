@@ -56,7 +56,13 @@
     let currentTab = 'waiting';
     let activeStudent = null;
     let nextStudent = null;
-    const KEY_PREFIX = 'k1_arcade_tracker_';
+    const lessonMatch = window.location.pathname.match(/tiet-(\d{2})/i);
+    const lessonId = lessonMatch ? lessonMatch[1] : '00';
+    const KEY_PREFIX = `bgtieu_hoc_k1_tiet_${lessonId}_`;
+
+    function getStorageKey(cls) {
+      return `${KEY_PREFIX}${String(cls).replace(/_/g, '-')}_state`;
+    }
 
     async function init(defaultClass = '1_6') {
       currentClass = defaultClass;
@@ -75,7 +81,16 @@
     async function loadStudents(cls) {
       let saved = null;
       try {
-        saved = localStorage.getItem(KEY_PREFIX + cls);
+        const storageKey = getStorageKey(cls);
+        saved = localStorage.getItem(storageKey);
+        if (!saved) {
+          const legacyKey = 'k1_arcade_tracker_' + cls;
+          saved = localStorage.getItem(legacyKey);
+          if (saved) {
+            localStorage.setItem(storageKey, saved);
+            localStorage.removeItem(legacyKey);
+          }
+        }
       } catch (error) {
         console.error('Không thể đọc dữ liệu lớp đã lưu.', error);
         showToast('Không đọc được dữ liệu lớp đã lưu. Danh sách tạm thời sẽ được dùng.', true);
@@ -137,7 +152,7 @@
 
     function save() {
       try {
-        localStorage.setItem(KEY_PREFIX + currentClass, JSON.stringify({
+        localStorage.setItem(getStorageKey(currentClass), JSON.stringify({
           students,
           activeStudent,
           nextStudent
@@ -226,6 +241,32 @@
       showToast('Đã mở vòng gọi tên mới cho cả lớp!');
     }
 
+    function clearSavedData() {
+      if (!window.confirm(`Xóa toàn bộ dữ liệu đã lưu của lớp ${currentClass.replace('_', '/')}?`)) return;
+      try {
+        localStorage.removeItem(getStorageKey(currentClass));
+        localStorage.removeItem(`k1_arcade_tracker_${currentClass}`);
+      } catch (error) {
+        console.error('Không thể xóa dữ liệu lớp đã lưu.', error);
+        showToast('Không thể xóa dữ liệu lớp đã lưu trên thiết bị này.', true);
+        return;
+      }
+
+      students = students.map(student => ({
+        ...student,
+        status: 'waiting',
+        isPriority: false,
+        calledCount: 0,
+        mouseSkill: 'Tốt',
+        score: 0
+      }));
+      activeStudent = null;
+      nextStudent = null;
+      currentTab = 'waiting';
+      renderSidebar();
+      showToast(`Đã xóa dữ liệu đã lưu của lớp ${currentClass.replace('_', '/')}.`);
+    }
+
     function setTab(tab) {
       currentTab = tab;
       renderSidebar();
@@ -304,6 +345,9 @@
               Xuất CSV
             </button>
           </div>
+          <button class="k1-btn k1-btn-coral k1-btn-sm" style="width:100%;" type="button" onclick="Khoi1Components.clearSavedData()">
+            🗑️ Xóa dữ liệu lớp
+          </button>
         </div>
       `;
     }
@@ -455,7 +499,7 @@
     return {
       init, setClass, setTab, getUncalledStudents, getActiveStudent, getAllStudents,
       setActiveTurn, markStudentDone, handleDiscipline, skipStudent, toggleStar,
-      resetNewRound, openMouseModal, closeMouseModal, rateMouse, exportCsv, exportExcel: exportCsv, exportRows, buildExportFileName: buildFileName, showToast
+      resetNewRound, clearSavedData, openMouseModal, closeMouseModal, rateMouse, exportCsv, exportExcel: exportCsv, exportRows, buildExportFileName: buildFileName, showToast
     };
   })();
 

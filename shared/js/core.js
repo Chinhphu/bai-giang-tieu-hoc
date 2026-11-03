@@ -206,17 +206,7 @@
 
     function convertToCsv(data) {
         if (typeof data === 'string') return data;
-        if (!Array.isArray(data) || data.length === 0) {
-            if (data && data.SheetNames && data.Sheets && typeof window.XLSX !== 'undefined') {
-                const sections = data.SheetNames.map(sheetName => {
-                    const sheet = data.Sheets[sheetName];
-                    const sheetData = window.XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                    return [sheetName, sheetData];
-                });
-                return convertToCsv(sections);
-            }
-            return '';
-        }
+        if (!Array.isArray(data) || data.length === 0) return '';
 
         const isMultiSection = data.every(item => {
             if (Array.isArray(item) && item.length === 2 && typeof item[0] === 'string' && (Array.isArray(item[1]) || typeof item[1] === 'object')) return true;
@@ -341,4 +331,3 @@
         return uploadCsvToDrive(wbOrData, fileName);
     };
 })();
-

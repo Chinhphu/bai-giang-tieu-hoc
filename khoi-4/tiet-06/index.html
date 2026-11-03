@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mạng Nhện An Toàn - Chiếm Lõi Máy Chủ (Tin học 4)</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800;900&display=swap');
+
 
         :root {
             --tc: #2fa8ff
@@ -804,6 +804,7 @@
         }
     </style>
     <script src="../../shared/js/prevent-reload.js"></script>
+    <script src="../../shared/js/core.js"></script>
 </head>
 
 <body>
@@ -920,6 +921,46 @@
         let numT = 4;
         let TEAMS = [];
         let currentClassID = "4_1";
+        const STORAGE_KEY_PREFIX = "bgtieu_hoc_k4_tiet_06_";
+        const LEGACY_STORAGE_PREFIXES = {
+            gameState: 'gameState',
+            gameLog: 'gameLog',
+            cooldowns: 'cooldowns',
+            studentTeamMap: 'studentTeamMap',
+            extra_students: 'extra_students'
+        };
+
+        function getStorageKey(name) {
+            return `${STORAGE_KEY_PREFIX}${currentClassID.replace(/_/g, '-')}_${name}_state`;
+        }
+
+        function readSavedValue(name) {
+            const key = getStorageKey(name);
+            const saved = localStorage.getItem(key);
+            if (saved !== null) return saved;
+
+            const legacyPrefix = LEGACY_STORAGE_PREFIXES[name];
+            const legacyKey = `${legacyPrefix}_${currentClassID}`;
+            const legacyValue = localStorage.getItem(legacyKey);
+            if (legacyValue !== null) {
+                try {
+                    localStorage.setItem(key, legacyValue);
+                    localStorage.removeItem(legacyKey);
+                } catch (error) {
+                    console.error(`Không thể chuyển đổi dữ liệu ${name} đã lưu.`, error);
+                }
+            }
+            return legacyValue;
+        }
+
+        function saveValue(name, value) {
+            localStorage.setItem(getStorageKey(name), value);
+        }
+
+        function removeSavedValue(name) {
+            localStorage.removeItem(getStorageKey(name));
+            localStorage.removeItem(`${LEGACY_STORAGE_PREFIXES[name]}_${currentClassID}`);
+        }
         let classStudents = [];
         let studentTeamMap = {};
         let cooldowns = {};
@@ -1002,9 +1043,9 @@
             $('#setup').classList.remove('show');
 
             // Khôi phục bộ nhớ từ LocalStorage
-            const cdSaved = localStorage.getItem('cooldowns_' + currentClassID);
+            const cdSaved = readSavedValue('cooldowns');
             const savedCooldowns = cdSaved ? JSON.parse(cdSaved) : {};
-            const teamMapSaved = localStorage.getItem('studentTeamMap_' + currentClassID);
+            const teamMapSaved = readSavedValue('studentTeamMap');
             const savedStudentTeamMap = teamMapSaved ? JSON.parse(teamMapSaved) : {};
 
             // LOAD FILE CÂU HỎI
@@ -1033,7 +1074,7 @@
             }
 
             // Khôi phục HS bổ sung bằng tay
-            const extraStr = localStorage.getItem('extra_students_' + currentClassID);
+            const extraStr = readSavedValue('extra_students');
             if (extraStr) {
                 const extras = JSON.parse(extraStr);
                 extras.forEach(ex => {
@@ -1081,8 +1122,8 @@
                 over: over,
                 stuck: stuck
             };
-            localStorage.setItem('gameState_' + currentClassID, JSON.stringify(state));
-            localStorage.setItem('gameLog_' + currentClassID, JSON.stringify(gameLog));
+            saveValue('gameState', JSON.stringify(state));
+            saveValue('gameLog', JSON.stringify(gameLog));
         }
 
         /* ===== MAP N  BƯỚC ===== */
@@ -1260,7 +1301,7 @@
         function init(forceNew = false) {
             stopT(); $('#modal').classList.remove('show');
             zScale = 1; zPanX = 0; zPanY = 0; lastFocusKey = null; applyTransform(); selectedStudent = null;
-            const savedStateStr = localStorage.getItem('gameState_' + currentClassID);
+            const savedStateStr = readSavedValue('gameState');
             let state = null;
             if (savedStateStr && !forceNew) {
                 state = JSON.parse(savedStateStr);
@@ -1294,7 +1335,7 @@
                 over = state.over;
                 stuck = state.stuck;
 
-                const savedLog = localStorage.getItem('gameLog_' + currentClassID);
+                const savedLog = readSavedValue('gameLog');
                 gameLog = savedLog ? JSON.parse(savedLog) : [];
                 toast(`Đã khôi phục thành công bản đồ cũ của ${currentClassID.replace('_', '/')}.`, 'ok');
             } else {
@@ -1481,7 +1522,7 @@
                     classStudents.forEach(stu => {
                         if (studentTeamMap[stu.id] === t && cooldowns[stu.id] > 0) cooldowns[stu.id]--;
                     });
-                    localStorage.setItem('cooldowns_' + currentClassID, JSON.stringify(cooldowns));
+                    saveValue('cooldowns', JSON.stringify(cooldowns));
                     return;
                 }
                 if (paths[t].length > 1) {
@@ -1540,7 +1581,7 @@
 
             // LƯU GÁN TỔ CHO HỌC SINH VĨNH VIỄN
             studentTeamMap[selectedStudent] = turn;
-            localStorage.setItem('studentTeamMap_' + currentClassID, JSON.stringify(studentTeamMap));
+            saveValue('studentTeamMap', JSON.stringify(studentTeamMap));
 
             $('#tw').style.visibility = 'visible';
             [0, G1, G2, G3][g]();
@@ -1570,7 +1611,7 @@
 
                 // PHẠT COOLDOWN 3 LƯỢT CHÍNH TỔ ĐÓ
                 cooldowns[selectedStudent] = 3;
-                localStorage.setItem('cooldowns_' + currentClassID, JSON.stringify(cooldowns));
+                saveValue('cooldowns', JSON.stringify(cooldowns));
             }
 
             const expHtml = `<div class="exp-box" style="border-left: 5px solid ${win ? '#2fd16a' : '#ff5c6c'}">
@@ -1700,7 +1741,7 @@
                 } else {
                     studentTeamMap[studentId] = teamId;
                 }
-                localStorage.setItem('studentTeamMap_' + currentClassID, JSON.stringify(studentTeamMap));
+                saveValue('studentTeamMap', JSON.stringify(studentTeamMap));
                 // ĐÃ XÓA ALERT ĐỂ KHÔNG BỊ PHIỀN KHI KÉO THẢ
                 renderDD();
                 if (!over) renderStudents();
@@ -1713,10 +1754,10 @@
             if (name) {
 
                 // Lưu vào localstorage để nhớ vĩnh viễn HS bổ sung
-                const extraStr = localStorage.getItem('extra_students_' + currentClassID);
+                const extraStr = readSavedValue('extra_students');
                 let extras = extraStr ? JSON.parse(extraStr) : [];
                 extras.push({ name: name, teamIdx: -1 });
-                localStorage.setItem('extra_students_' + currentClassID, JSON.stringify(extras));
+                saveValue('extra_students', JSON.stringify(extras));
                 classStudents.push({ id: `hs-${classStudents.length + 1}`, name });
 
                 input.value = '';
@@ -1791,15 +1832,22 @@
 
         window.clearLocalData = function () {
             if (confirm("Xác nhận xóa trắng dữ liệu lớp " + currentClassID.replace('_', '/') + " (Bao gồm Bản đồ đang lưu, Danh sách tổ, Điểm số)?")) {
-                localStorage.removeItem('gameState_' + currentClassID);
-                localStorage.removeItem('gameLog_' + currentClassID);
-                localStorage.removeItem('cooldowns_' + currentClassID);
-                localStorage.removeItem('studentTeamMap_' + currentClassID);
-                localStorage.removeItem('extra_students_' + currentClassID);
+                try {
+                    removeSavedValue('gameState');
+                    removeSavedValue('gameLog');
+                    removeSavedValue('cooldowns');
+                    removeSavedValue('studentTeamMap');
+                    removeSavedValue('extra_students');
+                } catch (error) {
+                    console.error('Không thể xóa dữ liệu đã lưu của Tiết 6.', error);
+                    alert("Không thể xóa dữ liệu đã lưu trên trình duyệt này.");
+                    return;
+                }
                 cooldowns = {};
                 studentTeamMap = {};
                 gameLog = [];
                 alert("Đã xóa! Trò chơi quay về trạng thái rỗng hoàn toàn.");
+                if (typeof window.allowPageReload === 'function') window.allowPageReload();
                 location.reload();
             }
         }

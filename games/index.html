@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trưng Vương Game Hub</title>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="./shared/style.css"> <!-- Kéo CSS chung -->
+    <link rel="stylesheet" href="./shared/style.css"> <!-- Kéo CSS chung -->
     <style>
         body { padding: 40px 20px; }
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 50px; }
@@ -25,6 +24,8 @@
         .game-desc { font-weight: 600; color: #53617b; margin-bottom: 25px; flex-grow: 1;}
     </style>
     <script src="../shared/js/prevent-reload.js"></script>
+    <script src="../shared/js/core.js"></script>
+    <script src="./shared/common.js"></script>
 </head>
 <body>
 
@@ -52,8 +53,8 @@
             <h2 class="panel-title">⚙️ Nạp dữ liệu vào Game</h2>
             <div class="upload-area" id="dropZone">
                 <span class="upload-icon">📂</span>
-                <div style="font-size: 1.3rem; font-weight: 800; margin-bottom: 15px;">Kéo thả file CSV/Excel vào đây hoặc</div>
-                <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" style="display: none;" onchange="handleFileUpload(event)">
+                <div style="font-size: 1.3rem; font-weight: 800; margin-bottom: 15px;">Kéo thả file CSV vào đây hoặc</div>
+                <input type="file" id="fileInput" accept=".csv,text/csv" style="display: none;" onchange="handleFileUpload(event)">
                 <button class="btn yellow" onclick="document.getElementById('fileInput').click()">Tải Lên File Của Bạn</button>
             </div>
 
@@ -61,13 +62,14 @@
             
             <div style="margin-top: 30px; padding-top: 20px; border-top: 2px dashed #c8d6e8;">
                 <label style="font-weight: 900; font-size: 1.2rem; color: var(--purple); display: block; margin-bottom: 10px;">👥 Cài đặt chung: Số đội thi đấu</label>
-                <select id="hubTeamCount" onchange="localStorage.setItem('tv_team_count', this.value)" style="width: 100%; padding: 12px; border-radius: 12px; border: 2px solid var(--ink); font-weight: 700; font-size: 1.1rem;">
+                <select id="hubTeamCount" onchange="GameHubStorage.setTeamCount(this.value)" style="width: 100%; padding: 12px; border-radius: 12px; border: 2px solid var(--ink); font-weight: 700; font-size: 1.1rem;">
                     <option value="2">2 Đội (Chia 2 dãy)</option>
                     <option value="3" selected>3 Đội</option>
                     <option value="4">4 Đội</option>
                     <option value="5">5 Đội</option>
                     <option value="6">6 Đội</option>
                 </select>
+                <button class="btn coral" type="button" onclick="clearSavedGameData()" style="width:100%; margin-top:12px;">🗑️ Xóa dữ liệu đã lưu</button>
             </div>
         </div>
     </div>
@@ -128,36 +130,90 @@
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     }
-    const exportSampleExcel = exportSampleCsv;
-
-    function handleFileUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        processExcel(file);
-    }
-
-    function processExcel(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-                const validData = json.filter(row => row["NOI_DUNG"] !== undefined && row["NOI_DUNG"].toString().trim() !== "");
-
-                if(validData.length === 0) {
-                    alert("⚠️ Lỗi: Không tìm thấy dữ liệu. Hãy đảm bảo cột đầu tiên tên là NOI_DUNG.");
-                    return;
-                }
-
-                localStorage.setItem('tv_data', JSON.stringify(validData));
-                showDataStatus(validData.length);
-            } catch (error) {
-                alert("⚠️ Có lỗi xảy ra khi đọc file. Vui lòng kiểm tra lại định dạng file (CSV hoặc Excel).");
-            }
-        };
-        reader.readAsArrayBuffer(file);
-    }
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        processCsv(file);
+    }
+
+    function parseCsv(text) {
+        const rows = [];
+        let row = [];
+        let field = '';
+        let quoted = false;
+        const input = text.replace(/^\uFEFF/, '');
+
+        for (let index = 0; index < input.length; index += 1) {
+            const char = input[index];
+            if (quoted) {
+                if (char === '"' && input[index + 1] === '"') {
+                    field += '"';
+                    index += 1;
+                } else if (char === '"') {
+                    quoted = false;
+                } else {
+                    field += char;
+                }
+            } else if (char === '"' && field.length === 0) {
+                quoted = true;
+            } else if (char === ',') {
+                row.push(field);
+                field = '';
+            } else if (char === '\n' || char === '\r') {
+                if (char === '\r' && input[index + 1] === '\n') index += 1;
+                row.push(field);
+                rows.push(row);
+                row = [];
+                field = '';
+            } else {
+                field += char;
+            }
+        }
+
+        if (field.length || row.length) {
+            row.push(field);
+            rows.push(row);
+        }
+        return rows;
+    }
+
+    async function processCsv(file) {
+        try {
+            const rows = parseCsv(await file.text());
+            const headers = rows.shift();
+            if (!headers) throw new Error('Tệp CSV không có dòng tiêu đề.');
+            const normalizedHeaders = headers.map(header => String(header).trim().toUpperCase());
+            const contentIndex = normalizedHeaders.indexOf('NOI_DUNG');
+            if (contentIndex < 0) throw new Error('Không tìm thấy cột NOI_DUNG trong tệp CSV.');
+
+            const validData = rows
+                .filter(row => row[contentIndex] && row[contentIndex].trim())
+                .map(row => Object.fromEntries(normalizedHeaders.map((header, index) => [header, row[index] || ''])));
+
+            if (validData.length === 0) throw new Error('Không tìm thấy câu hỏi hợp lệ trong tệp CSV.');
+            GameHubStorage.setData(validData);
+            showDataStatus(validData.length);
+        } catch (error) {
+            console.error('Không thể đọc dữ liệu CSV của Game Hub.', error);
+            alert(`⚠️ Không thể đọc file CSV: ${error.message}`);
+        }
+    }
+
+    function clearSavedGameData() {
+        if (!confirm('Xóa dữ liệu câu hỏi và số đội đã lưu cho các mini-game?')) return;
+        try {
+            GameHubStorage.clear();
+        } catch (error) {
+            console.error('Không thể xóa dữ liệu mini-game đã lưu.', error);
+            alert('Không thể xóa dữ liệu đã lưu trên trình duyệt này.');
+            return;
+        }
+        document.getElementById('hubTeamCount').value = '3';
+        document.getElementById('fileInput').value = '';
+        document.getElementById('qCount').textContent = '0';
+        document.getElementById('dataStatus').style.display = 'none';
+        alert('Đã xóa dữ liệu mini-game đã lưu.');
+    }
 
     function showDataStatus(count) {
         document.getElementById('qCount').innerText = count;
@@ -165,14 +221,9 @@
     }
 
     window.onload = function() {
-        document.getElementById('hubTeamCount').value = localStorage.getItem('tv_team_count') || "3";
-        const existingData = localStorage.getItem('tv_data');
-        if(existingData) {
-            try {
-                const parsed = JSON.parse(existingData);
-                if(parsed.length > 0) showDataStatus(parsed.length);
-            } catch(e) {}
-        }
+        document.getElementById('hubTeamCount').value = GameHubStorage.getTeamCount() || "3";
+        const existingData = GameHubStorage.getData();
+        if (existingData && existingData.length > 0) showDataStatus(existingData.length);
     };
 
     const dropZone = document.getElementById('dropZone');
@@ -180,7 +231,7 @@
     dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('dragover'); });
     dropZone.addEventListener('drop', (e) => {
         e.preventDefault(); dropZone.classList.remove('dragover');
-        if (e.dataTransfer.files.length) processExcel(e.dataTransfer.files[0]);
+        if (e.dataTransfer.files.length) processCsv(e.dataTransfer.files[0]);
     });
 </script>
 </body>
