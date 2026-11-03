@@ -190,10 +190,10 @@
         const dd = pad(d.getDate());
         const mo = pad(d.getMonth() + 1);
         const yyyy = d.getFullYear();
-        const dateStr = `Ngay_${dd}-${mo}-${yyyy}`;
+        const sortDateStr = `Ngay_${yyyy}-${mo}-${dd}_${timeStr}`;
 
         const mainPrefix = prefix || `KetQua_TinHoc${g}`;
-        return `${mainPrefix}_Lop_${c}_Tiet_${l}_${timeStr}_${dateStr}.csv`;
+        return `${mainPrefix}_Lop_${c}_Tiet_${l}_${sortDateStr}.csv`;
     }
 
     function escapeCsv(val) {
