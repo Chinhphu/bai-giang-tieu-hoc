@@ -1,0 +1,420 @@
+/**
+ * Ngân hàng dữ liệu đồng bộ từ quests.json
+ * Hỗ trợ chạy 100% offline-first không lỗi CORS khi mở bằng file://
+ */
+window.QUESTS_DATA = {
+  "quests": [
+    {
+      "id": 1,
+      "file": "Ho-Than-tho.jpg",
+      "tier1": "1. Anh-Bai-tap-nhom",
+      "tier2": "An",
+      "icon": "🖼️",
+      "desc": "Tìm bức ảnh chụp Hồ Than Thở (Ho-Than-tho.jpg) do bạn An chụp cho nhóm."
+    },
+    {
+      "id": 2,
+      "file": "Tuyet-roi.jpg",
+      "tier1": "4. Anh-ca-nhan",
+      "tier2": "Minh",
+      "icon": "🖼️",
+      "desc": "Tìm bức ảnh Tuyết rơi (Tuyet-roi.jpg) nằm trong thư mục của bạn Minh."
+    },
+    {
+      "id": 3,
+      "file": "De-on-thi-Toan.docx",
+      "tier1": "2. goc-hoc-tap",
+      "tier2": "Mon-Toan",
+      "icon": "📄",
+      "desc": "Tìm tệp văn bản Đề ôn thi Toán (De-on-thi-Toan.docx) để chuẩn bị kiểm tra."
+    },
+    {
+      "id": 4,
+      "file": "Bai-4-Cay-thu-muc.pptx",
+      "tier1": "5. Tai-lieu-Tin-hoc",
+      "tier2": "Mon-Tin-hoc",
+      "icon": "📊",
+      "desc": "Tìm bài trình chiếu Bài 4 Cây thư mục (Bai-4-Cay-thu-muc.pptx) môn Tin học."
+    },
+    {
+      "id": 5,
+      "file": "Doraemon-tap-1.mp4",
+      "tier1": "3. Giai-tri-Ca-nhan",
+      "tier2": "Phim-Hoat-hinh",
+      "icon": "🎬",
+      "desc": "Tìm tệp video phim Doraemon tập 1 (Doraemon-tap-1.mp4) để xem giờ giải lao."
+    },
+    {
+      "id": 6,
+      "file": "Bui-phan.mp3",
+      "tier1": "6. Kho-am-nhac",
+      "tier2": "Nhac-Thieu-nhi",
+      "icon": "🎵",
+      "desc": "Tìm tệp âm thanh bài hát Bụi phấn (Bui-phan.mp3)."
+    }
+  ],
+  "challenges": [
+    {
+      "id": 1,
+      "section": 1,
+      "q": "Để mở một thư mục trên máy tính, em thực hiện thao tác chuột nào?",
+      "options": [
+        "Nháy đúp chuột vào biểu tượng thư mục",
+        "Nháy nút phải chuột một lần",
+        "Kéo thả thư mục vào thùng rác",
+        "Nháy nút cuộn chuột"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 2,
+      "section": 1,
+      "q": "Tệp có phần mở rộng là \".docx\" thường là loại tệp nào?",
+      "options": [
+        "Tệp văn bản Word",
+        "Tệp hình ảnh",
+        "Tệp bài hát âm thanh",
+        "Tệp video clip"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 3,
+      "section": 1,
+      "q": "Tệp có phần mở rộng \".jpg\" hoặc \".png\" thuộc loại dữ liệu nào?",
+      "options": [
+        "Hình ảnh",
+        "Bài hát",
+        "Trình chiếu",
+        "Bảng tính"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 4,
+      "section": 1,
+      "q": "Tệp có đuôi \".mp3\" là loại tệp gì?",
+      "options": [
+        "Tệp âm thanh / bài hát",
+        "Tệp văn bản",
+        "Tệp phim hoạt hình",
+        "Tệp chương trình cài đặt"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 5,
+      "section": 1,
+      "q": "Tệp có phần mở rộng \".pptx\" thường được tạo bởi phần mềm nào?",
+      "options": [
+        "PowerPoint (Trình chiếu)",
+        "Paint (Tập vẽ)",
+        "Word (Soạn thảo văn bản)",
+        "Calculator (Máy tính)"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 6,
+      "section": 1,
+      "q": "Tên thư mục và tệp nên đặt như thế nào để quản lí dữ liệu khoa học?",
+      "options": [
+        "Rõ ràng, thống nhất và gợi nhớ nội dung",
+        "Càng ngắn càng tốt, ví dụ: a, b, c",
+        "Đặt tên tiếng nước ngoài không dấu",
+        "Đặt tên tùy tiện lúc nào nhớ thì sửa"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 7,
+      "section": 1,
+      "q": "Trong một thư mục trên máy tính, ta có thể lưu trữ những gì?",
+      "options": [
+        "Cả các tệp tin và các thư mục con",
+        "Chỉ lưu được tệp văn bản",
+        "Chỉ lưu được tối đa 3 thư mục",
+        "Không thể chứa thư mục khác"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 8,
+      "section": 1,
+      "q": "Cấu trúc sắp xếp phân nhánh nhiều tầng của thư mục được gọi là gì?",
+      "options": [
+        "Cấu trúc cây (Cây thư mục)",
+        "Cấu trúc hàng ngang",
+        "Cấu trúc vòng tròn",
+        "Cấu trúc kim tự tháp"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 9,
+      "section": 1,
+      "q": "Tệp video clip thường có đuôi mở rộng nào sau đây?",
+      "options": [
+        ".mp4",
+        ".docx",
+        ".xlsx",
+        ".mp3"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 10,
+      "section": 1,
+      "q": "Việc tổ chức cây thư mục hợp lí mang lại lợi ích lớn nhất là gì?",
+      "options": [
+        "Dễ tìm kiếm, tiết kiệm thời gian và ngăn nắp",
+        "Làm máy tính chạy nhanh gấp 100 lần",
+        "Giúp máy tính không bị mất điện",
+        "Tự động làm bài tập giúp em"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 11,
+      "section": 2,
+      "q": "Khi sử dụng công cụ tìm kiếm trong File Explorer, sau khi gõ từ khóa em cần bấm phím gì?",
+      "options": [
+        "Phím Enter",
+        "Phím Shift",
+        "Phím Space (Cách)",
+        "Phím Esc"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 12,
+      "section": 2,
+      "q": "Ô tìm kiếm trong cửa sổ File Explorer / This PC nằm ở vị trí nào?",
+      "options": [
+        "Góc trên, bên phải cửa sổ",
+        "Góc dưới bên trái",
+        "Chính giữa thanh trạng thái",
+        "Bên trong thùng rác"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 13,
+      "section": 2,
+      "q": "Khi nào em nên sử dụng công cụ tìm kiếm trên máy tính?",
+      "options": [
+        "Khi chỉ nhớ tên tệp mà quên mất lưu ở thư mục nào",
+        "Khi máy tính bị hết pin",
+        "Khi muốn tắt máy tính nhanh",
+        "Khi muốn vẽ tranh trong phần mềm Paint"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 14,
+      "section": 2,
+      "q": "Sau khi nhập từ khóa tìm kiếm, kết quả thường hiển thị những mục nào?",
+      "options": [
+        "Các tệp và thư mục có tên phù hợp với từ khóa",
+        "Tất cả tệp trên Internet",
+        "Chỉ các tệp đã xóa",
+        "Chỉ thư mục đang mở, không có kết quả nào khác"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 15,
+      "section": 1,
+      "q": "Khi sắp xếp ảnh theo người chụp, cách nào giúp tìm ảnh của từng bạn dễ hơn?",
+      "options": [
+        "Tạo thư mục con riêng theo tên mỗi bạn",
+        "Để tất cả ảnh ngoài màn hình Desktop",
+        "Đổi mọi ảnh thành cùng một tên",
+        "Lưu ảnh vào thùng rác"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 16,
+      "section": 1,
+      "q": "Nếu đổi tên một thư mục, các tệp bên trong thường sẽ thế nào?",
+      "options": [
+        "Vẫn nằm trong thư mục, chỉ tên thư mục thay đổi",
+        "Tự động bị xóa",
+        "Tự chuyển thành tệp âm thanh",
+        "Bị gửi lên Internet"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 17,
+      "section": 1,
+      "q": "Trong cây thư mục, thư mục nằm bên trong một thư mục khác được gọi là gì?",
+      "options": [
+        "Thư mục con",
+        "Tệp gốc",
+        "Ổ đĩa",
+        "Phần mở rộng"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 18,
+      "section": 1,
+      "q": "Cấp cao nhất của cây thư mục trên một ổ đĩa là vị trí nào?",
+      "options": [
+        "Thư mục gốc của ổ đĩa",
+        "Thư mục con cuối cùng",
+        "Thùng rác",
+        "Thanh tìm kiếm"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 19,
+      "section": 1,
+      "q": "Muốn tìm bài trình chiếu môn Tin học, em nên mở thư mục nào trước?",
+      "options": [
+        "Tai-lieu-Tin-hoc",
+        "Kho-am-nhac",
+        "Anh-ca-nhan",
+        "Giai-tri-Ca-nhan"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 20,
+      "section": 1,
+      "q": "Nếu lưu nhiều loại tệp lẫn lộn trong một thư mục, điều gì dễ xảy ra?",
+      "options": [
+        "Khó tìm đúng tệp cần dùng",
+        "Các tệp tự đổi tên",
+        "Thư mục biến thành ổ đĩa",
+        "Máy tính tự tạo thêm bài tập"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 21,
+      "section": 1,
+      "q": "Dấu hiệu nào thường giúp phân biệt một thư mục với một tệp trong File Explorer?",
+      "options": [
+        "Biểu tượng và cách mở để xem nội dung",
+        "Màu nền màn hình",
+        "Tên ổ đĩa luôn giống nhau",
+        "Thư mục luôn có đuôi .mp3"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 22,
+      "section": 1,
+      "q": "Khi nháy đúp vào một tệp văn bản, điều gì thường xảy ra?",
+      "options": [
+        "Tệp được mở bằng chương trình phù hợp",
+        "Tệp tự chuyển vào thùng rác",
+        "Ổ đĩa bị khóa",
+        "Thư mục cha bị đóng vĩnh viễn"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 23,
+      "section": 1,
+      "q": "Cách nào giúp phân biệt tên hai bài tập khác nhau?",
+      "options": [
+        "Đặt tên gợi nội dung, ví dụ De-on-thi-Toan và De-on-thi-Tieng-Viet",
+        "Đặt cả hai tên là Tep-moi",
+        "Để trống tên cả hai tệp",
+        "Đổi cả hai phần mở rộng thành .mp3"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 24,
+      "section": 2,
+      "q": "Nếu chỉ nhớ một phần tên tệp, em có thể nhập gì vào ô tìm kiếm?",
+      "options": [
+        "Phần tên mà em còn nhớ",
+        "Tên một thư mục bất kì",
+        "Mật khẩu máy tính",
+        "Tên người đang sử dụng máy"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 25,
+      "section": 2,
+      "q": "Muốn lọc các tệp hình ảnh JPG trong ô tìm kiếm, em có thể nhập từ khóa nào?",
+      "options": [
+        ".jpg",
+        ".mp3",
+        ".docx",
+        ".pptx"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 26,
+      "section": 2,
+      "q": "Khi tìm kiếm trong một thư mục, kết quả thường gồm những tệp ở đâu?",
+      "options": [
+        "Thư mục đang mở và các thư mục con bên trong",
+        "Chỉ ngoài màn hình Desktop",
+        "Chỉ trong thùng rác",
+        "Chỉ trên Internet"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 27,
+      "section": 2,
+      "q": "Nếu kết quả tìm kiếm có nhiều tệp tên gần giống nhau, em nên làm gì?",
+      "options": [
+        "Kiểm tra tên, phần mở rộng và vị trí của từng tệp",
+        "Mở ngẫu nhiên một tệp bất kì",
+        "Xóa tất cả kết quả",
+        "Tắt máy tính"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 28,
+      "section": 2,
+      "q": "Muốn tìm tệp ở nhiều thư mục con trên ổ D:, em nên bắt đầu tìm ở đâu?",
+      "options": [
+        "Ổ đĩa D: hoặc thư mục bao quát các vị trí cần tìm",
+        "Một thư mục con không liên quan",
+        "Thùng rác",
+        "Thanh tiêu đề cửa sổ"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 29,
+      "section": 2,
+      "q": "Từ khóa tìm kiếm càng cụ thể thì thường giúp ích gì?",
+      "options": [
+        "Thu hẹp kết quả để dễ tìm đúng mục hơn",
+        "Tự đổi tên tất cả các tệp",
+        "Làm mất các thư mục con",
+        "Tắt File Explorer"
+      ],
+      "ans": 0
+    },
+    {
+      "id": 30,
+      "section": 2,
+      "q": "Tìm kiếm một tệp trong File Explorer có làm thay đổi hay xóa tệp đó không?",
+      "options": [
+        "Không, tìm kiếm chỉ giúp hiển thị các kết quả phù hợp",
+        "Có, mọi kết quả đều bị đổi tên",
+        "Có, tệp sẽ chuyển vào thùng rác",
+        "Có, nội dung tệp sẽ tự bị sửa"
+      ],
+      "ans": 0
+    }
+  ]
+};
+window.QUEST_LIST = window.QUESTS_DATA.quests;
+window.CHALLENGE_POOL = window.QUESTS_DATA.challenges;

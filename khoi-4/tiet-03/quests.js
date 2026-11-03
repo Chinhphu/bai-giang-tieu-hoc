@@ -1,0 +1,296 @@
+/**
+ * Ngân hàng dữ liệu đồng bộ từ quests.json
+ * Hỗ trợ chạy 100% offline-first không lỗi CORS khi mở bằng file://
+ */
+window.QUESTS_DATA = {
+  "title": "Tin học 4 - Bài 2: Gõ bàn phím đúng cách (Tiết 1)",
+  "quizData": [
+    {
+      "q": "Hai phím có gai F và J thuộc hàng phím nào?",
+      "a": [
+        "Hàng phím số",
+        "Hàng phím trên",
+        "Hàng phím cơ sở",
+        "Hàng phím dưới"
+      ],
+      "correct": 2
+    },
+    {
+      "q": "Khi ngồi gõ phím, tư thế lưng phải như thế nào?",
+      "a": [
+        "Cong lưng",
+        "Thẳng lưng",
+        "Nằm dài",
+        "Dựa hẳn vào ghế"
+      ],
+      "correct": 1
+    },
+    {
+      "q": "Phím cách (Space) do ngón tay nào phụ trách?",
+      "a": [
+        "Ngón cái",
+        "Ngón trỏ",
+        "Ngón giữa",
+        "Ngón út"
+      ],
+      "correct": 0
+    },
+    {
+      "q": "Gõ bàn phím bằng 10 ngón tay có lợi ích gì?",
+      "a": [
+        "Giúp bàn phím sáng hơn",
+        "Gõ nhanh, ít sai, không mỏi",
+        "Chơi game giỏi hơn",
+        "Chuột di chuyển nhanh hơn"
+      ],
+      "correct": 1
+    },
+    {
+      "q": "Khoảng cách từ mắt đến màn hình nên là bao nhiêu?",
+      "a": [
+        "10 - 20 cm",
+        "20 - 30 cm",
+        "50 - 80 cm",
+        "Trên 2 mét"
+      ],
+      "correct": 2
+    },
+    {
+      "q": "Sau khi gõ xong một phím số, em nên làm gì?",
+      "a": [
+        "Giữ nguyên tay ở phím số",
+        "Nhấc cả hai tay lên cao",
+        "Bỏ tay xuống bàn",
+        "Đưa ngón tay về phím cơ sở"
+      ],
+      "correct": 3
+    },
+    {
+      "q": "Nếu gõ phím sai cách trong thời gian dài sẽ bị gì?",
+      "a": [
+        "Máy tính nhanh hỏng",
+        "Đau lưng, mỏi cổ, cận thị",
+        "Tăng chiều cao",
+        "Mắt sáng hơn"
+      ],
+      "correct": 1
+    },
+    {
+      "q": "Ngón út của bàn tay trái đặt lên phím nào ở vị trí xuất phát?",
+      "a": [
+        "Phím A",
+        "Phím S",
+        "Phím D",
+        "Phím F"
+      ],
+      "correct": 0
+    },
+    {
+      "q": "Hàng phím trên nằm ở vị trí nào so với hàng phím cơ sở?",
+      "a": [
+        "Nằm bên phải",
+        "Nằm phía dưới",
+        "Nằm phía trên",
+        "Nằm bên trái"
+      ],
+      "correct": 2
+    },
+    {
+      "q": "Vì sao phím F và J lại có gai?",
+      "a": [
+        "Để trang trí cho đẹp",
+        "Làm mốc định vị cho 2 ngón trỏ",
+        "Để chống trơn trượt",
+        "Vì nhà sản xuất bị lỗi"
+      ],
+      "correct": 1
+    }
+  ],
+  "fingerData": [
+    {
+      "key": "1",
+      "finger": "Ngón út",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "Q",
+      "finger": "Ngón út",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "A",
+      "finger": "Ngón út",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "Z",
+      "finger": "Ngón út",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "2",
+      "finger": "Ngón áp út",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "W",
+      "finger": "Ngón áp út",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "S",
+      "finger": "Ngón áp út",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "X",
+      "finger": "Ngón áp út",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "3",
+      "finger": "Ngón giữa",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "E",
+      "finger": "Ngón giữa",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "D",
+      "finger": "Ngón giữa",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "C",
+      "finger": "Ngón giữa",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "4",
+      "finger": "Ngón trỏ",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "R",
+      "finger": "Ngón trỏ",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "F",
+      "finger": "Ngón trỏ",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "V",
+      "finger": "Ngón trỏ",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "5",
+      "finger": "Ngón trỏ",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "T",
+      "finger": "Ngón trỏ",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "G",
+      "finger": "Ngón trỏ",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "B",
+      "finger": "Ngón trỏ",
+      "hand": "Tay trái"
+    },
+    {
+      "key": "6",
+      "finger": "Ngón trỏ",
+      "hand": "Tay phải"
+    },
+    {
+      "key": "Y",
+      "finger": "Ngón trỏ",
+      "hand": "Tay phải"
+    },
+    {
+      "key": "H",
+      "finger": "Ngón trỏ",
+      "hand": "Tay phải"
+    },
+    {
+      "key": "N",
+      "finger": "Ngón trỏ",
+      "hand": "Tay phải"
+    },
+    {
+      "key": "7",
+      "finger": "Ngón trỏ",
+      "hand": "Tay phải"
+    },
+    {
+      "key": "U",
+      "finger": "Ngón trỏ",
+      "hand": "Tay phải"
+    },
+    {
+      "key": "J",
+      "finger": "Ngón trỏ",
+      "hand": "Tay phải"
+    },
+    {
+      "key": "M",
+      "finger": "Ngón trỏ",
+      "hand": "Tay phải"
+    },
+    {
+      "key": "8",
+      "finger": "Ngón giữa",
+      "hand": "Tay phải"
+    },
+    {
+      "key": "I",
+      "finger": "Ngón giữa",
+      "hand": "Tay phải"
+    },
+    {
+      "key": "K",
+      "finger": "Ngón giữa",
+      "hand": "Tay phải"
+    },
+    {
+      "key": "9",
+      "finger": "Ngón áp út",
+      "hand": "Tay phải"
+    },
+    {
+      "key": "O",
+      "finger": "Ngón áp út",
+      "hand": "Tay phải"
+    },
+    {
+      "key": "L",
+      "finger": "Ngón áp út",
+      "hand": "Tay phải"
+    },
+    {
+      "key": "0",
+      "finger": "Ngón út",
+      "hand": "Tay phải"
+    },
+    {
+      "key": "P",
+      "finger": "Ngón út",
+      "hand": "Tay phải"
+    },
+    {
+      "key": "Space",
+      "finger": "Ngón cái",
+      "hand": "Cả hai tay"
+    }
+  ]
+};

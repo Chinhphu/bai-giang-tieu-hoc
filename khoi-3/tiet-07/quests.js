@@ -1,0 +1,253 @@
+/**
+ * Ngân hàng dữ liệu đồng bộ từ quests.json
+ * Hỗ trợ chạy 100% offline-first không lỗi CORS khi mở bằng file://
+ */
+window.QUESTS_DATA = {
+  "title": "Bài 4: Làm việc với máy tính (Tiết 1)",
+  "description": "Soi lỗi tư thế ngồi, các bộ phận của chuột và thực hành 5 thao tác chuột cơ bản",
+  "postureSpots": [
+    {
+      "id": 1,
+      "spotName": "👀 Mắt dí quá sát màn hình",
+      "x": 49,
+      "y": 36,
+      "q": "Dấu hiệu 1: Bạn nhỏ đang dí mắt quá sát màn hình! Theo SGK, khoảng cách chuẩn từ mắt đến màn hình là bao nhiêu?",
+      "opts": [
+        {
+          "t": "A. Từ 10 cm đến 20 cm (Càng sát càng rõ)",
+          "ok": false
+        },
+        {
+          "t": "B. Từ 50 cm đến 80 cm (Khoảng một cánh tay)",
+          "ok": true
+        }
+      ],
+      "exp": "✅ Chuẩn! Mắt cần hướng ngang tầm màn hình và cách màn hình từ 50 cm đến 80 cm."
+    },
+    {
+      "id": 2,
+      "spotName": "🙇 Lưng cúi gập cong vòng",
+      "x": 31,
+      "y": 55,
+      "q": "Dấu hiệu 2: Ngồi cong lưng như thế này sẽ làm cột sống bị tổn thương. Tư thế ngồi đúng giúp em tránh nguy cơ mắc những bệnh nào?",
+      "opts": [
+        {
+          "t": "A. Bệnh Vẹo cột sống và Cận thị",
+          "ok": true
+        },
+        {
+          "t": "B. Bệnh Đau chân và Đau răng",
+          "ok": false
+        }
+      ],
+      "exp": "✅ Chuẩn! Ngồi thẳng lưng, vai thả lỏng giúp em tránh bệnh Vẹo cột sống và Cận thị."
+    },
+    {
+      "id": 3,
+      "spotName": "🪑 Ghế thấp, tay rướn cao",
+      "x": 30,
+      "y": 77,
+      "q": "Dấu hiệu 3: Ghế quá thấp khiến bạn nhỏ phải rướn tay mỏi nhừ! Tư thế đặt tay đúng khi dùng máy tính là gì?",
+      "opts": [
+        {
+          "t": "A. Giơ hai tay cao lên khỏi đầu",
+          "ok": false
+        },
+        {
+          "t": "B. Tay đặt ngang tầm với bàn phím, vai thả lỏng",
+          "ok": true
+        }
+      ],
+      "exp": "✅ Chuẩn! Cần chỉnh ghế vừa tầm để tay đặt ngang tầm với bàn phím."
+    },
+    {
+      "id": 4,
+      "spotName": "🦶 Hai chân co lơ lửng",
+      "x": 38,
+      "y": 84,
+      "q": "Dấu hiệu 4: Bạn nhỏ đang co chân lơ lửng không chạm đất! Khi ngồi làm việc với máy tính, hai bàn chân cần để ở đâu?",
+      "opts": [
+        {
+          "t": "A. Hai bàn chân đặt bằng phẳng, ngay ngắn trên mặt sàn",
+          "ok": true
+        },
+        {
+          "t": "B. Gác cả hai chân lên mặt bàn",
+          "ok": false
+        }
+      ],
+      "exp": "✅ Chuẩn! Hai bàn chân chạm sàn giúp cơ thể giữ thăng bằng và máu lưu thông tốt."
+    },
+    {
+      "id": 5,
+      "spotName": "☀️ Ánh nắng chiếu vào màn hình",
+      "x": 60,
+      "y": 39,
+      "q": "Dấu hiệu 5: Ánh nắng từ cửa sổ phía sau lưng chiếu thẳng vào màn hình gây chói! Cần đặt máy tính ở vị trí như thế nào?",
+      "opts": [
+        {
+          "t": "A. Để nắng chiếu thẳng vào màn hình cho sáng",
+          "ok": false
+        },
+        {
+          "t": "B. Nơi ánh sáng không chiếu trực tiếp vào màn hình",
+          "ok": true
+        }
+      ],
+      "exp": "✅ Chuẩn! Tránh để cửa sổ phía sau lưng chiếu thẳng vào màn hình gây chói."
+    },
+    {
+      "id": 6,
+      "spotName": "⏰ Ngồi máy tính suốt 2 giờ liền",
+      "x": 15,
+      "y": 19,
+      "q": "Dấu hiệu 6: Bạn nhỏ ngồi dán mắt vào máy tính suốt 2 tiếng! Theo SGK, em nên dừng lại nghỉ ngơi sau bao lâu?",
+      "opts": [
+        {
+          "t": "A. Dừng lại nghỉ ngơi và thư giãn sau mỗi 30 phút",
+          "ok": true
+        },
+        {
+          "t": "B. Ngồi chơi liên tục 5 tiếng mới được nghỉ",
+          "ok": false
+        }
+      ],
+      "exp": "✅ Chuẩn! Phải cho mắt và cơ thể nghỉ ngơi sau mỗi 30 phút sử dụng máy tính."
+    },
+    {
+      "id": 7,
+      "spotName": "🥤 Để ly nước sát bàn phím",
+      "x": 61,
+      "y": 53,
+      "q": "Dấu hiệu 7: Bạn nhỏ để ly nước ngay cạnh bàn phím! Điều gì sẽ xảy ra nếu vô tình làm đổ nước?",
+      "opts": [
+        {
+          "t": "A. Máy tính sẽ bị chập điện, hư hỏng và rất nguy hiểm",
+          "ok": true
+        },
+        {
+          "t": "B. Bàn phím sẽ được tắm mát và sạch sẽ hơn",
+          "ok": false
+        }
+      ],
+      "exp": "✅ Chuẩn! Tuyệt đối không để đồ ăn, thức uống gần thiết bị điện tử."
+    },
+    {
+      "id": 8,
+      "spotName": "🔌 Dây điện vướng víu dưới chân",
+      "x": 39,
+      "y": 88,
+      "q": "Dấu hiệu 8: Dây điện đang nằm lộn xộn ngay dưới chân bạn nhỏ! Cần làm gì để đảm bảo an toàn?",
+      "opts": [
+        {
+          "t": "A. Cứ để vậy, thỉnh thoảng lấy chân đá qua đá lại",
+          "ok": false
+        },
+        {
+          "t": "B. Sắp xếp dây điện gọn gàng, tránh xa khu vực để chân",
+          "ok": true
+        }
+      ],
+      "exp": "✅ Chuẩn! Dây điện lộn xộn có thể gây vấp ngã hoặc rò rỉ điện nguy hiểm."
+    },
+    {
+      "id": 9,
+      "spotName": "🌃 Tắt hết đèn phòng (Trời tối om)",
+      "x": 45,
+      "y": 17,
+      "q": "Dấu hiệu 9: Căn phòng tối om nhưng màn hình lại sáng rực! Môi trường ánh sáng thế nào là tốt cho mắt?",
+      "opts": [
+        {
+          "t": "A. Phòng phải có đủ ánh sáng, không dùng máy tính trong bóng tối",
+          "ok": true
+        },
+        {
+          "t": "B. Tắt hết đèn đi để tập trung vào màn hình",
+          "ok": false
+        }
+      ],
+      "exp": "✅ Chuẩn! Dùng máy tính trong bóng tối sẽ làm mắt bị điều tiết quá mức gây cận thị."
+    },
+    {
+      "id": 10,
+      "spotName": "🖱️ Để chuột quá xa tay",
+      "x": 77,
+      "y": 57,
+      "q": "Dấu hiệu 10: Chuột máy tính để tít ngoài xa khiến tay phải với rất mỏi! Vị trí để chuột đúng là ở đâu?",
+      "opts": [
+        {
+          "t": "A. Để ngay bên cạnh bàn phím, vừa tầm tay với",
+          "ok": true
+        },
+        {
+          "t": "B. Để dưới gầm bàn",
+          "ok": false
+        }
+      ],
+      "exp": "✅ Chuẩn! Bàn phím và chuột phải nằm ngang nhau và vừa tầm tay."
+    },
+    {
+      "id": 11,
+      "spotName": "🤕 Một tay chống cằm",
+      "x": 46,
+      "y": 44,
+      "q": "Dấu hiệu 11: Bạn nhỏ đang dùng một tay chống cằm khiến cổ bị vẹo sang một bên! Ngồi như vậy có sao không?",
+      "opts": [
+        {
+          "t": "A. Rất tốt vì đỡ mỏi cổ",
+          "ok": false
+        },
+        {
+          "t": "B. Không tốt, sẽ làm vẹo đốt sống cổ và cột sống lưng",
+          "ok": true
+        }
+      ],
+      "exp": "✅ Chuẩn! Phải ngồi ngay ngắn, hai vai cân bằng, không chống cằm hay nghiêng người."
+    },
+    {
+      "id": 12,
+      "spotName": "🖐️ Bàn tay gập cong khi gõ",
+      "x": 53,
+      "y": 59,
+      "q": "Dấu hiệu 12: Cổ tay bạn nhỏ đang bị bẻ gập cong lên mặt bàn rất đau! Cổ tay cần đặt như thế nào?",
+      "opts": [
+        {
+          "t": "A. Giữ cổ tay thẳng tự nhiên, ngang bằng với bàn phím",
+          "ok": true
+        },
+        {
+          "t": "B. Đè chặt cổ tay xuống cạnh bàn",
+          "ok": false
+        }
+      ],
+      "exp": "✅ Chuẩn! Giữ cổ tay thẳng tự nhiên giúp em không bị đau mỏi khi thao tác lâu."
+    }
+  ],
+  "mouseTasks": [
+    {
+      "id": 1,
+      "title": "Thao tác 1: Di chuyển chuột",
+      "desc": "Cầm chuột trượt nhẹ trên bàn để di chuyển con trỏ chuột chạm sáng cả 3 Ngôi Sao!"
+    },
+    {
+      "id": 2,
+      "title": "Thao tác 2: Nháy chuột (Click nút trái)",
+      "desc": "Dùng ngón trỏ nhấn NÚT TRÁI chuột 1 lần vào biểu tượng 'This PC' trên màn hình để chọn!"
+    },
+    {
+      "id": 3,
+      "title": "Thao tác 3: Nháy nút phải chuột",
+      "desc": "Dùng ngón giữa nhấn NÚT PHẢI chuột 1 lần vào biểu tượng 'Recycle Bin' để mở Bảng chọn!"
+    },
+    {
+      "id": 4,
+      "title": "Thao tác 4: Nháy đúp chuột (Double-click)",
+      "desc": "Dùng ngón trỏ nhấn NÚT TRÁI chuột NHANH 2 LẦN liên tiếp vào biểu tượng 'Word' để mở phần mềm!"
+    },
+    {
+      "id": 5,
+      "title": "Thao tác 5: Kéo thả chuột",
+      "desc": "Nhấn GIỮ NÚT TRÁI chuột vào biểu tượng 'Tệp Rác', kéo sang vị trí 'Thùng Rác' bên phải rồi thả tay!"
+    }
+  ]
+};

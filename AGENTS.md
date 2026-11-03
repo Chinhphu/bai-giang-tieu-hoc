@@ -27,10 +27,15 @@ Mọi mã nguồn do AI sinh ra hoặc chỉnh sửa BẮT BUỘC phải tuân t
 * Hệ thống tự động chặn: `F5`, `Ctrl+R`, `Alt+Mũi tên`, `Backspace` ngoài ô nhập, và chuột phải.
 * Khi giáo viên chủ động muốn làm lại/tải lại trang: Phải gọi hàm `window.allowPageReload()` trước khi gọi `location.reload()`.
 
-### 3. Quy chuẩn Ghi bài: Xé nhỏ theo từng chặng (Progressive Chunking)
-* **Slide 1 (Đầu giờ):** 
-  * Chỉ hiển thị **Khung tiêu đề tối giản** gồm: Thứ ngày tháng Tiếng Việt tự động (`updateVietnameseDate()`) + Môn: *Tin học* + *Tên bài học*.
-  * CẤM bắt học sinh ghi chép dài dòng vào đầu giờ. Học sinh chỉ ghi đúng 1 dòng thứ ngày và tên bài để ổn định lớp.
+### 3. Quy chuẩn Trang Ghi bài vào vở & Ghi bài chặng (Notebook Writing & Progressive Chunking)
+* **Trang Ghi bài vào vở (Notebook Writing Slide / Slide đầu giờ):**
+  * **Chữ phải đủ to:** Đảm bảo học sinh ngồi ở cuối lớp (khoảng cách 8–10m) nhìn rõ và chép kịp (Tựa bài $\ge 44\text{px} - 60\text{px}$, Thứ ngày $\ge 28\text{px} - 34\text{px}$, Nội dung ghi $\ge 30\text{px} - 38\text{px}$, in đậm từ khóa).
+  * **Thiết kế tối giản, sạch sẽ:** Nền trắng tinh khiết (`#ffffff`), TUYỆT ĐỐI CẤM trang trí cầu kỳ, không kẻ hoa văn/ô ly rườm rà gây rối mắt khi chiếu máy chiếu mờ, không bóng đổ phức tạp. Chữ có thể tô màu để phân cấp rõ ràng (Thứ ngày màu xám/xanh dịu, Môn học xanh dương, Tên bài đỏ/đậm).
+  * **BẮT BUỘC có nút Chế độ Toàn Màn Hình (Fullscreen Toggle):**
+    * Nút to, rõ ràng: `⛶ Chế độ toàn màn hình chép bài`.
+    * Khi kích hoạt: Khung ghi bài phóng to chiếm trọn 100% màn hình TV (`100vw x 100vh`), ẩn hoàn toàn sidebar và các thanh điều khiển gây phân tâm.
+    * Có nút thu nhỏ `✖ Thu nhỏ (Esc)` và hỗ trợ phím `Esc` để quay về bình thường.
+  * **Đầu giờ:** Chỉ ghi Thứ ngày Tiếng Việt tự động (`updateVietnameseDate()`) + Môn: *Tin học* + *Tên bài học*. CẤM bắt học sinh ghi chép dài dòng vào đầu giờ.
 * **Xuyên suốt tiết học (Sau mỗi hoạt động khám phá/thực hành):**
   * Tách nhỏ kiến thức cần nhớ thành các thẻ ghi nhớ ngắn gọn (`.memo-card` / `.note-box`).
   * Mỗi thẻ chỉ chứa **1–2 câu ngắn, in đậm từ khóa**. Học sinh thực hành xong mới mở thẻ này để ghi nhanh 1 dòng vào vở.
@@ -125,6 +130,22 @@ Tuyệt đối không dùng tên chung chung như `state`, `game_data`, `tv_data
     * Các thứ hạng sau: **"KHUYẾN KHÍCH"** 🌟 / **"NỖ LỰC"** 🎖️.
 * **Đồng bộ Báo cáo CSV:** Bảng xếp hạng trong file CSV phải có cột *"Đồng Hạng"* (`Có (Đồng điểm)` / `Không`) và hiển thị thứ hạng chuẩn (`Hạng 1`, `Hạng 1`, `Hạng 3`...), tuyệt đối không phân biệt đối xử khi bằng điểm.
 
+### 14. Màn Hình Chốt Kiến Thức / Ghi Nhớ Cuối Tiết (Summary Screen before Leaderboard)
+* **Vị trí bắt buộc:** Cuối bất cứ tiết học nào, **ngay trước slide Bảng vàng vinh danh**, BẮT BUỘC có một màn hình để chốt lại những kiến thức trọng tâm đã học của tiết đó (kiểu "Em ghi nhớ" / "Chốt kiến thức").
+* **Nguyên tắc thiết kế:**
+  * Design đơn giản, nền sạch sẽ, ít chữ, chữ rất lớn (nhìn rõ từ xa 8–10m).
+  * Bố cục lưới thẻ trực quan: Chia thành **2, 3 hoặc 4 card** (`.summary-card-grid.grid-2`, `.grid-3`, `.grid-4`) tùy thuộc số lượng ý trọng tâm cần nhớ của bài.
+  * Mỗi card chỉ gồm: Nhãn/Icon + Tiêu đề ngắn + 1 đến 2 câu chốt cô đọng, in đậm từ khóa quan trọng.
+* **Luồng chuyển slide:** Học sinh và giáo viên cùng đọc to chốt bài xong $\to$ Bấm nút *"🏆 Xem Bảng Vàng Vinh Danh ▶"* để sang màn hình vinh danh và kết thúc tiết.
+
+### 15. Tách Toàn Bộ Quests & Câu Hỏi Ra File JSON Bên Cạnh (Externalize Quests to JSON)
+* **CẤM:** Tuyệt đối KHÔNG nhúng cứng (hardcode) hàng chục hoặc hàng trăm dòng mảng dữ liệu câu hỏi, tình huống, vụ án, thẻ bài trực tiếp vào file HTML/JS của bài giảng khiến file phình to, khó tìm và khó sửa đổi nội dung.
+* **BẮT BUỘC:** Toàn bộ ngân hàng câu hỏi, thử thách, kịch bản phải được tách ra đặt ở file `quests.json` (hoặc `questions.json`) nằm ngay cạnh file `index.html` trong thư mục của tiết học.
+* **Cơ chế nạp 100% Offline-First:**
+  * HTML gọi hàm nạp tự động `fetch('quests.json')` khi chạy qua máy chủ (Live Server / HTTP).
+  * ĐỒNG THỜI luôn có file đồng bộ `quests.js` (hoặc `questions.js`) định nghĩa biến toàn cục (ví dụ: `window.QUESTS_DATA = ...`) nhúng qua thẻ `<script src="quests.js"></script>` để khi giáo viên mở file trực tiếp `file:///...` trong phòng máy không bị lỗi CORS chặn `fetch`.
+* **Lợi ích:** Giáo viên có thể mở ngay file `quests.json` / `quests.js` bên cạnh để chỉnh sửa, thêm bớt câu hỏi một cách trực quan, nhanh chóng mà không lo làm hỏng mã nguồn HTML/CSS/JS.
+
 ---
 
 ## 🛠️ 2. QUY TRÌNH 5 BƯỚC KHI TẠO HOẶC CHỈNH SỬA TIẾT HỌC MỚI
@@ -139,9 +160,11 @@ Khi nhận được yêu cầu viết tiết học mới từ người dùng (v�
    * Trỏ đúng file JSON `../../assets/data/students_{khoi}_2026_2027.json`.
    * Xác định tiết này là **Chế độ Toàn lớp cá nhân** (gacha tự động, bật full telemetry) hay **Chế độ Đấu theo tổ** (chọn tên thủ công, ghi log sư phạm).
    * **Nếu tiết học có tính điểm:** Khởi tạo điểm sàn mặc định `STARTING_SCORE = 1000` và tích hợp hàm tính thứ hạng xử lý đồng hạng (`calculateRankings`).
-4. **Bước 4 — Thiết kế Nội dung Slide & Ghi bài chặng:**
-   * Slide 1: Khung tiêu đề ngày tháng Tiếng Việt tự động + Tên bài.
-   * Các slide khám phá/trò chơi: Nội dung sinh động, kích thước chữ lớn, chia các thẻ ghi nhớ nhỏ gọn (1-2 dòng) ở cuối mỗi phần.
+   * **Quests & Câu hỏi:** Đặt toàn bộ ngân hàng câu hỏi/vụ án vào `quests.json` (kèm `quests.js` cho offline `file://`), không hardcode vào HTML.
+4. **Bước 4 — Thiết kế Nội dung Slide, Ghi bài chặng & Chốt kiến thức:**
+   * Slide ghi bài: Nền trắng tinh khiết, chữ siêu to, có nút phóng to 100% toàn màn hình (`⛶`).
+   * Các slide khám phá/trò chơi: Nội dung sinh động, chia thẻ ghi nhớ ngắn gọn ở cuối mỗi phần.
+   * Slide chốt kiến thức: Bắt buộc đặt ngay trước Slide Bảng vàng vinh danh (thiết kế 2-3-4 card to, rõ, ít chữ).
 5. **Bước 5 — Tích hợp Xuất Báo cáo CSV:**
    * Gắn nút xuất CSV / Đồng bộ Drive ở màn hình tổng kết sử dụng `window.LessonExport` hoặc `window.uploadCsvToDrive` (đảm bảo bảng xếp hạng thể hiện đúng cơ chế đồng hạng).
 
@@ -153,7 +176,9 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Không có link CDN bên ngoài nào (`cdnjs`, `jsdelivr`, `unpkg`,...) trong mã nguồn?
 - [ ] Đã nhúng `prevent-reload.js` và `core.js` chưa?
 - [ ] Font chữ có đúng chuẩn của Khối đó không?
-- [ ] Slide 1 có ngày tháng Tiếng Việt và không bị nhồi nhét quá nhiều chữ ghi bài?
+- [ ] Trang ghi bài vào vở có nền trắng tinh khiết, chữ đủ to cho học sinh cuối lớp và có nút toàn màn hình (`⛶`) không?
+- [ ] Trước bảng vinh danh đã có slide chốt kiến thức / ghi nhớ (2-3-4 card, ít chữ, chữ lớn) chưa?
+- [ ] Toàn bộ quests / câu hỏi đã được tách ra file `quests.json` (kèm `quests.js` offline) bên cạnh, không tích hợp vào HTML chưa?
 - [ ] Logic gọi tên có đảm bảo nguyên tắc: *Trả lời xong mới tính là hoàn thành* (Picked ≠ Done)?
 - [ ] Cảm biến đo thao tác (Telemetry) có đặt đúng ngữ cảnh (chỉ bật khi học sinh trực tiếp bấm máy)?
 - [ ] Điểm khởi đầu mặc định có được thiết lập 1000đ (đối với các tiết/game có hệ thống tính điểm) không?

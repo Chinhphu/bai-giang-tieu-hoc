@@ -1,0 +1,73 @@
+/**
+ * Ngân hàng dữ liệu đồng bộ từ quests.json
+ * Hỗ trợ chạy 100% offline-first không lỗi CORS khi mở bằng file://
+ */
+window.QUESTS_DATA = {
+  "title": "Tin Học 5 - Bài 2: Tìm kiếm thông tin trên website (Tiết 1)",
+  "v1_tasks": [
+    {
+      "text": "NÚT TÌM KIẾM 🔍",
+      "target": "search"
+    },
+    {
+      "text": "NÚT TRANG CHỦ 🏠 (Ngôi nhà / Logo)",
+      "target": "home"
+    },
+    {
+      "text": "VỊ TRÍ CÁC CHỦ ĐỀ 📋 (Thanh ngang)",
+      "target": "menu"
+    }
+  ],
+  "v2_questions": [
+    {
+      "text": "Tin tức: Sôi nổi giải bơi lội thanh thiếu nhi toàn quốc",
+      "ans": "Thể thao"
+    },
+    {
+      "text": "Tin tức: Lịch phát sóng phim hoạt hình Doraemon",
+      "ans": "Giải trí"
+    },
+    {
+      "text": "Sự kiện: Ngày hội Trạng Nguyên nhỏ tuổi năm 2026",
+      "ans": "Học đường"
+    },
+    {
+      "text": "Bản tin: Tình hình kẹt xe tại cổng trường sáng nay",
+      "ans": "Chuyển động"
+    },
+    {
+      "text": "Tin tức: Đội tuyển Việt Nam giành cúp Vô địch",
+      "ans": "Thể thao"
+    },
+    {
+      "text": "Sự kiện: Khai giảng năm học mới tại các trường Tiểu học",
+      "ans": "Học đường"
+    }
+  ],
+  "v3_questions": [
+    {
+      "text": "Sao chép dữ liệu vào USB",
+      "isFile": true
+    },
+    {
+      "text": "Gọi điện thoại bàn cho bạn",
+      "isFile": false
+    },
+    {
+      "text": "Gửi qua Thư điện tử (Email)",
+      "isFile": true
+    },
+    {
+      "text": "Nhắn tin qua Zalo / Facebook",
+      "isFile": true
+    },
+    {
+      "text": "Nói chuyện trực tiếp trên lớp",
+      "isFile": false
+    },
+    {
+      "text": "Chia sẻ qua Google Drive",
+      "isFile": true
+    }
+  ]
+};

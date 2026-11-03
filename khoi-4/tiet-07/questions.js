@@ -1,0 +1,632 @@
+/**
+ * Ngân hàng dữ liệu đồng bộ từ questions.json
+ * Hỗ trợ chạy 100% offline-first không lỗi CORS khi mở bằng file://
+ */
+window.QUESTS_DATA = [
+  {
+    "goal": "Tìm thông tin về các đời vua Hùng (SGK trang 19)",
+    "hint": "Giữ lại cụm từ chỉ đúng chủ đề lịch sử cần tìm, cắt bỏ hết lời kể chuyện và thời gian!",
+    "cards": [
+      {
+        "text": "Bạn Khoa ơi",
+        "type": "C",
+        "explanation": "Lời gọi bạn, không gõ vào máy tìm kiếm.",
+        "critical": false
+      },
+      {
+        "text": "hãy chỉ giúp mình",
+        "type": "C",
+        "explanation": "Lời nhờ vả thừa, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "cách tìm kiếm thông tin về",
+        "type": "C",
+        "explanation": "Cụm dẫn lời dài dòng, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "các đời vua Hùng",
+        "type": "K",
+        "explanation": "TỪ KHOÁ CHÍNH! Cắt dây này bom nổ ngay!",
+        "critical": true
+      },
+      {
+        "text": "trong lịch sử nước ta",
+        "type": "O",
+        "explanation": "Cụm bổ sung, cắt đi cho từ khoá ngắn gọn.",
+        "critical": false
+      },
+      {
+        "text": "để mình chép vào vở",
+        "type": "C",
+        "explanation": "Hành động cá nhân, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "hoàn thành bài tập về nhà",
+        "type": "C",
+        "explanation": "Mục đích làm bài, không phải từ khoá.",
+        "critical": false
+      },
+      {
+        "text": "môn Lịch sử và Địa lí",
+        "type": "O",
+        "explanation": "Tên môn học, có thể cắt bỏ cho gọn.",
+        "critical": false
+      },
+      {
+        "text": "vào buổi sáng ngày mai",
+        "type": "C",
+        "explanation": "Thời gian học trên lớp, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "trước khi trống trường điểm",
+        "type": "C",
+        "explanation": "Chi tiết thừa, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "thật nhanh chóng",
+        "type": "C",
+        "explanation": "Từ cảm thán không giúp tìm đúng kết quả.",
+        "critical": false
+      },
+      {
+        "text": "nhé bạn thân ơi",
+        "type": "C",
+        "explanation": "Lời nhắn nhủ cuối câu, bắt buộc cắt bỏ.",
+        "critical": false
+      }
+    ]
+  },
+  {
+    "goal": "Tìm thông tin về Bảo tàng Dân tộc học Việt Nam (Luyện tập SGK trang 20)",
+    "hint": "Tên riêng đầy đủ của bảo tàng là dây lõi duy nhất không được cắt!",
+    "cards": [
+      {
+        "text": "Tối hôm qua",
+        "type": "C",
+        "explanation": "Thời điểm kể chuyện, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "bố mẹ có nhờ em",
+        "type": "C",
+        "explanation": "Hoàn cảnh gia đình, không gõ vào Google.",
+        "critical": false
+      },
+      {
+        "text": "lên mạng Internet",
+        "type": "C",
+        "explanation": "Cụm từ thừa, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "tìm hiểu thông tin về",
+        "type": "C",
+        "explanation": "Cụm dẫn lời, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "Bảo tàng Dân tộc học Việt Nam",
+        "type": "K",
+        "explanation": "TỪ KHOÁ CHÍNH! Tên địa điểm cần tìm!",
+        "critical": true
+      },
+      {
+        "text": "nằm ở thủ đô Hà Nội",
+        "type": "O",
+        "explanation": "Địa danh phụ, có thể cắt để gọn từ khoá.",
+        "critical": false
+      },
+      {
+        "text": "xem mấy giờ mở cửa",
+        "type": "O",
+        "explanation": "Chi tiết phụ, có thể cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "và giá vé vào cổng",
+        "type": "O",
+        "explanation": "Chi tiết phụ, có thể cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "rồi ghi ra tờ giấy",
+        "type": "C",
+        "explanation": "Hành động ghi chép không liên quan.",
+        "critical": false
+      },
+      {
+        "text": "trước khi đi ngủ",
+        "type": "C",
+        "explanation": "Thời gian sinh hoạt cá nhân, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "để cuối tuần cả nhà đi chơi",
+        "type": "C",
+        "explanation": "Kế hoạch riêng của gia đình, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "cùng với ông bà ngoại",
+        "type": "C",
+        "explanation": "Thông tin cá nhân thừa, cần cắt bỏ.",
+        "critical": false
+      }
+    ]
+  },
+  {
+    "goal": "Tìm hình ảnh về Quốc kỳ Việt Nam (Vận dụng giáo án)",
+    "hint": "Giữ lại tên đối tượng cần tìm hình ảnh để giới thiệu trước lớp.",
+    "cards": [
+      {
+        "text": "Thầy giáo giao nhiệm vụ",
+        "type": "C",
+        "explanation": "Lời kể hoàn cảnh, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "cho tổ của chúng em",
+        "type": "C",
+        "explanation": "Thông tin nhóm học sinh, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "phải sưu tầm thật đẹp",
+        "type": "C",
+        "explanation": "Cụm từ cảm thán thừa, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "hình ảnh",
+        "type": "O",
+        "explanation": "Từ chỉ loại thông tin, có thể giữ hoặc cắt.",
+        "critical": false
+      },
+      {
+        "text": "Quốc kỳ Việt Nam",
+        "type": "K",
+        "explanation": "TỪ KHOÁ CHÍNH! Cắt là nổ bom ngay!",
+        "critical": true
+      },
+      {
+        "text": "lá cờ đỏ sao vàng",
+        "type": "O",
+        "explanation": "Mô tả bổ sung, có thể cắt cho gọn.",
+        "critical": false
+      },
+      {
+        "text": "để đưa vào bài trình chiếu",
+        "type": "C",
+        "explanation": "Mục đích sử dụng, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "giới thiệu trước cả lớp",
+        "type": "C",
+        "explanation": "Hoạt động trên lớp, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "trong giờ sinh hoạt dưới cờ",
+        "type": "C",
+        "explanation": "Thời điểm tổ chức, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "vào sáng thứ Hai tuần tới",
+        "type": "C",
+        "explanation": "Thời gian không cần gõ vào ô tìm kiếm.",
+        "critical": false
+      },
+      {
+        "text": "sao cho thật ấn tượng",
+        "type": "C",
+        "explanation": "Mong muốn cá nhân, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "và được thầy khen thưởng",
+        "type": "C",
+        "explanation": "Mục đích riêng, bắt buộc cắt bỏ.",
+        "critical": false
+      }
+    ]
+  },
+  {
+    "goal": "Tìm hiểu lịch sử Hồ Gươm",
+    "hint": "Giữ lại đúng chủ đề lịch sử và tên địa danh Hồ Gươm.",
+    "cards": [
+      {
+        "text": "Cô giáo chủ nhiệm dặn",
+        "type": "C",
+        "explanation": "Hoàn cảnh giao bài, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "chúng em về nhà",
+        "type": "C",
+        "explanation": "Cụm từ thừa, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "mở máy tính tìm hiểu",
+        "type": "C",
+        "explanation": "Hành động sử dụng máy, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "lịch sử Hồ Gươm",
+        "type": "K",
+        "explanation": "TỪ KHOÁ CHÍNH! Chủ đề và địa danh cần tìm!",
+        "critical": true
+      },
+      {
+        "text": "và truyền thuyết trả gươm báu",
+        "type": "O",
+        "explanation": "Chi tiết bổ sung, có thể cắt cho gọn.",
+        "critical": false
+      },
+      {
+        "text": "của vua Lê Lợi",
+        "type": "O",
+        "explanation": "Nhân vật liên quan, có thể cắt.",
+        "critical": false
+      },
+      {
+        "text": "để làm bài thuyết trình",
+        "type": "C",
+        "explanation": "Mục đích học tập, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "cùng các bạn trong nhóm",
+        "type": "C",
+        "explanation": "Thông tin làm việc nhóm, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "vào tiết học chiều mai",
+        "type": "C",
+        "explanation": "Thời gian học, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "trên màn hình tivi lớn",
+        "type": "C",
+        "explanation": "Thiết bị trình chiếu, không phải từ khoá.",
+        "critical": false
+      },
+      {
+        "text": "một cách thật tự tin",
+        "type": "C",
+        "explanation": "Thái độ trình bày, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "và đạt điểm mười",
+        "type": "C",
+        "explanation": "Mong muốn cá nhân, cần cắt bỏ.",
+        "critical": false
+      }
+    ]
+  },
+  {
+    "goal": "Tìm cách tiết kiệm nước trong gia đình",
+    "hint": "Giữ lại việc cần làm (tiết kiệm nước), cắt bỏ các từ kể lể.",
+    "cards": [
+      {
+        "text": "Em đang rất muốn",
+        "type": "C",
+        "explanation": "Từ mở đầu thừa, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "lên Google tra cứu",
+        "type": "C",
+        "explanation": "Không gõ chữ 'lên Google tra cứu' vào Google!",
+        "critical": false
+      },
+      {
+        "text": "những biện pháp",
+        "type": "O",
+        "explanation": "Từ dẫn, có thể cắt cho ngắn gọn.",
+        "critical": false
+      },
+      {
+        "text": "tiết kiệm nước",
+        "type": "K",
+        "explanation": "TỪ KHOÁ CHÍNH! Nội dung cốt lõi cần tìm!",
+        "critical": true
+      },
+      {
+        "text": "trong gia đình",
+        "type": "O",
+        "explanation": "Phạm vi áp dụng, có thể giữ hoặc cắt.",
+        "critical": false
+      },
+      {
+        "text": "khi rửa rau và tắm giặt",
+        "type": "O",
+        "explanation": "Ví dụ chi tiết, có thể cắt cho gọn.",
+        "critical": false
+      },
+      {
+        "text": "để bảo vệ tài nguyên",
+        "type": "O",
+        "explanation": "Mục đích bổ sung, có thể cắt.",
+        "critical": false
+      },
+      {
+        "text": "và giúp bố mẹ đỡ tốn tiền",
+        "type": "C",
+        "explanation": "Lý do cá nhân dài dòng, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "hàng tháng",
+        "type": "C",
+        "explanation": "Từ chỉ thời gian thừa, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "rồi viết vào sổ tay",
+        "type": "C",
+        "explanation": "Hành động cá nhân, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "dán lên tường nhà tắm",
+        "type": "C",
+        "explanation": "Hành động thực hiện, không phải từ khoá.",
+        "critical": false
+      },
+      {
+        "text": "ngay tối hôm nay",
+        "type": "C",
+        "explanation": "Thời gian cá nhân, bắt buộc cắt bỏ.",
+        "critical": false
+      }
+    ]
+  },
+  {
+    "goal": "[DỰ PHÒNG 1] Tìm hiểu vai trò của không khí đối với con người",
+    "hint": "Quả bom có 2 DÂY TỪ KHOÁ CHÍNH (vai trò của không khí + đối với con người)!",
+    "cards": [
+      {
+        "text": "Nhóm em cần tìm kiếm",
+        "type": "C",
+        "explanation": "Cụm dẫn lời thừa, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "tài liệu nói về",
+        "type": "C",
+        "explanation": "Từ nối không cần thiết, cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "vai trò của không khí",
+        "type": "K",
+        "explanation": "TỪ KHOÁ CHÍNH 1! Không được cắt!",
+        "critical": true
+      },
+      {
+        "text": "đối với con người",
+        "type": "K",
+        "explanation": "TỪ KHOÁ CHÍNH 2! Không được cắt!",
+        "critical": true
+      },
+      {
+        "text": "và các loài sinh vật",
+        "type": "O",
+        "explanation": "Ý mở rộng, có thể cắt cho đúng đề bài.",
+        "critical": false
+      },
+      {
+        "text": "trong đời sống hằng ngày",
+        "type": "O",
+        "explanation": "Cụm bổ sung, có thể cắt.",
+        "critical": false
+      },
+      {
+        "text": "để làm bài tập môn Khoa học",
+        "type": "C",
+        "explanation": "Mục đích học tập, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "ở lớp bốn của chúng em",
+        "type": "C",
+        "explanation": "Thông tin lớp học, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "vào tiết học sáng thứ Năm",
+        "type": "C",
+        "explanation": "Thời gian học, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "sao cho thật đầy đủ",
+        "type": "C",
+        "explanation": "Từ cảm thán thừa, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "rồi đọc cho cả lớp nghe",
+        "type": "C",
+        "explanation": "Hành động báo cáo, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "cùng cô giáo nhận xét",
+        "type": "C",
+        "explanation": "Hoạt động trên lớp, cần cắt bỏ.",
+        "critical": false
+      }
+    ]
+  },
+  {
+    "goal": "[DỰ PHÒNG 2] Tìm hiểu cách chơi trò FC Mobile",
+    "hint": "Giúp thầy giáo tìm hiểu cách chơi tựa game bóng đá FC Mobile!",
+    "cards": [
+      {
+        "text": "Thầy giáo Tin học",
+        "type": "C",
+        "explanation": "Người hỏi, không đưa vào ô tìm kiếm.",
+        "critical": false
+      },
+      {
+        "text": "chưa biết gì cả nên",
+        "type": "C",
+        "explanation": "Lời kể chuyện thừa, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "nhờ cả lớp lên Google tìm",
+        "type": "C",
+        "explanation": "Hành động nhờ vả, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "hướng dẫn cách chơi",
+        "type": "O",
+        "explanation": "Có thể giữ hoặc rút gọn.",
+        "critical": false
+      },
+      {
+        "text": "cách chơi FC Mobile",
+        "type": "K",
+        "explanation": "TỪ KHOÁ CHÍNH! Ngắn gọn và trúng đích!",
+        "critical": true
+      },
+      {
+        "text": "trên điện thoại thông minh",
+        "type": "O",
+        "explanation": "Thiết bị chơi, có thể cắt cho gọn.",
+        "critical": false
+      },
+      {
+        "text": "dành cho người mới bắt đầu",
+        "type": "O",
+        "explanation": "Phạm vi bổ sung, có thể cắt.",
+        "critical": false
+      },
+      {
+        "text": "để giải thích lại cho thầy",
+        "type": "C",
+        "explanation": "Mục đích giao tiếp trên lớp, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "ngay trong tiết học hôm nay",
+        "type": "C",
+        "explanation": "Thời điểm nói chuyện, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "ở phòng học của lớp bốn",
+        "type": "C",
+        "explanation": "Địa điểm lớp học, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "một cách thật dễ hiểu",
+        "type": "C",
+        "explanation": "Yêu cầu diễn đạt, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "và vui nhộn nhất",
+        "type": "C",
+        "explanation": "Từ cảm thán thừa, cần cắt bỏ.",
+        "critical": false
+      }
+    ]
+  },
+  {
+    "goal": "[DỰ PHÒNG 3] Tìm danh lam thắng cảnh ở Rạch Giá",
+    "hint": "Giữ lại cụm từ chỉ danh lam thắng cảnh và tên địa phương Rạch Giá!",
+    "cards": [
+      {
+        "text": "Dịp nghỉ lễ sắp tới",
+        "type": "C",
+        "explanation": "Thời gian dự kiến, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "gia đình em dự định",
+        "type": "C",
+        "explanation": "Kế hoạch riêng của gia đình, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "đi tham quan và chụp ảnh",
+        "type": "C",
+        "explanation": "Hành động đi chơi, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "các địa điểm du lịch",
+        "type": "O",
+        "explanation": "Cụm từ tương đương, có thể cắt cho gọn.",
+        "critical": false
+      },
+      {
+        "text": "danh lam thắng cảnh Rạch Giá",
+        "type": "K",
+        "explanation": "TỪ KHOÁ CHÍNH! Đúng nội dung và địa phương!",
+        "critical": true
+      },
+      {
+        "text": "nổi tiếng và đẹp nhất",
+        "type": "O",
+        "explanation": "Tính từ bổ sung, có thể cắt.",
+        "critical": false
+      },
+      {
+        "text": "để giới thiệu với bạn bè",
+        "type": "C",
+        "explanation": "Mục đích cá nhân, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "từ nơi xa mới đến chơi",
+        "type": "C",
+        "explanation": "Hoàn cảnh riêng, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "rồi làm thành cuốn album",
+        "type": "C",
+        "explanation": "Việc làm sau chuyến đi, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "kỉ niệm của cả lớp mình",
+        "type": "C",
+        "explanation": "Chi tiết không liên quan tới kết quả tìm.",
+        "critical": false
+      },
+      {
+        "text": "vào cuối năm học này",
+        "type": "C",
+        "explanation": "Thời gian thừa, cần cắt bỏ.",
+        "critical": false
+      },
+      {
+        "text": "thật là đáng nhớ",
+        "type": "C",
+        "explanation": "Cụm từ cảm thán, bắt buộc cắt bỏ.",
+        "critical": false
+      }
+    ]
+  }
+];
+window.QUESTION_BANK = window.QUESTS_DATA;
+window.QUEST_LIST = window.QUESTS_DATA;

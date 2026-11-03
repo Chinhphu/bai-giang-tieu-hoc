@@ -1,0 +1,327 @@
+/**
+ * Ngân hàng dữ liệu đồng bộ từ questions.json
+ * Hỗ trợ chạy 100% offline-first không lỗi CORS khi mở bằng file://
+ */
+window.QUESTS_DATA = {
+  "TF": [
+    {
+      "q": "Trên một trang web, văn bản, hình ảnh, âm thanh, video và siêu liên kết đều có thể là những loại thông tin em gặp.",
+      "a": true,
+      "exp": "Đúng. Trang web có thể chứa văn bản, hình ảnh, âm thanh, video và siêu liên kết."
+    },
+    {
+      "q": "Một trang web chỉ có thể chứa một loại thông tin; nếu có hình ảnh thì không thể có văn bản hoặc âm thanh.",
+      "a": false,
+      "exp": "Sai. Trang web có thể kết hợp nhiều loại thông tin như văn bản, hình ảnh, âm thanh và video."
+    },
+    {
+      "q": "Khi đưa con trỏ chuột đến một vị trí và con trỏ đổi thành hình bàn tay, đó có thể là dấu hiệu vị trí ấy chứa siêu liên kết.",
+      "a": true,
+      "exp": "Đúng. Dấu hiệu con trỏ đổi thành hình bàn tay giúp nhận biết vị trí có siêu liên kết."
+    },
+    {
+      "q": "Siêu liên kết trên trang web chỉ có tác dụng mở một trang web mới, không thể đưa em đến vị trí khác trong cùng trang.",
+      "a": false,
+      "exp": "Sai. Nháy vào siêu liên kết có thể mở trang web khác hoặc di chuyển đến một vị trí khác."
+    },
+    {
+      "q": "Văn bản chứa các loại thông tin như văn bản, hình ảnh, âm thanh, video và siêu liên kết được gọi là siêu văn bản; trang web là siêu văn bản.",
+      "a": true,
+      "exp": "Đúng. Siêu văn bản chứa nhiều dạng thông tin và siêu liên kết; trang web là siêu văn bản."
+    },
+    {
+      "q": "Một đoạn phim có hình ảnh chuyển động và tiếng nói chỉ được xếp là văn bản vì lời nói có thể được viết thành chữ.",
+      "a": false,
+      "exp": "Sai. Đoạn phim có hình ảnh chuyển động và tiếng nói là video; lời nói trong video không biến toàn bộ đoạn phim thành văn bản."
+    },
+    {
+      "q": "Hai trang web có thể cùng chứa ảnh và chữ, nhưng một trang có thêm vị trí nháy vào để chuyển sang nội dung khác. Vị trí đó là một loại thông tin riêng gọi là siêu liên kết.",
+      "a": true,
+      "exp": "Đúng. Siêu liên kết là loại thông tin trên trang web; nháy vào đó sẽ mở trang khác hoặc chuyển đến vị trí khác."
+    },
+    {
+      "q": "Nếu nháy vào một siêu liên kết mà nội dung mới xuất hiện ở phần khác của trang đang xem, thì vị trí ban đầu không phải siêu liên kết.",
+      "a": false,
+      "exp": "Sai. Siêu liên kết có thể đưa em đến một vị trí khác ngay trong trang đang xem."
+    },
+    {
+      "q": "Một bức ảnh tĩnh và một video có hình ảnh chuyển động đều thuộc dạng thông tin hình ảnh tĩnh.",
+      "a": false,
+      "exp": "Sai. Ảnh tĩnh là hình ảnh; đoạn phim chuyển động là video."
+    },
+    {
+      "q": "Nếu một trang web có đoạn ghi âm nhưng không có hình ảnh chuyển động, thông tin âm thanh vẫn có thể xuất hiện trên trang web.",
+      "a": true,
+      "exp": "Đúng. Âm thanh là một dạng thông tin có thể có trên trang web, không nhất thiết phải đi kèm hình ảnh chuyển động."
+    },
+    {
+      "q": "Một dòng chữ có thể đồng thời là văn bản và chứa siêu liên kết nếu con trỏ đổi thành hình bàn tay khi đưa đến dòng chữ đó.",
+      "a": true,
+      "exp": "Đúng. Chữ hiển thị là văn bản; nếu vị trí đó chứa liên kết thì nó đồng thời có chức năng siêu liên kết."
+    },
+    {
+      "q": "Chỉ cần trang web có hình ảnh vui nhộn hoặc nhiều màu sắc là đủ kết luận nội dung phù hợp với trẻ em.",
+      "a": false,
+      "exp": "Sai. Hình thức vui nhộn không chứng minh nội dung phù hợp; cần tránh trang không phù hợp và nhờ người lớn đồng hành."
+    },
+    {
+      "q": "Cố tình xem trang web không phù hợp có thể khiến trẻ hiểu sai nội dung, bị dụ dỗ hoặc bắt nạt, và lãng phí thời gian.",
+      "a": true,
+      "exp": "Đúng. Đây là những tác hại được nêu trong bài học."
+    },
+    {
+      "q": "Nếu thấy người lạ nhắn tin đe dọa trên trang web, em nên tự nhắn lại để giải quyết và không cần nói với người lớn.",
+      "a": false,
+      "exp": "Sai. Tin nhắn đe dọa có thể là bắt nạt trên mạng; em cần báo cho người lớn hoặc thầy cô."
+    },
+    {
+      "q": "Truy cập trang web không phù hợp chỉ gây lãng phí thời gian, không thể ảnh hưởng đến suy nghĩ hoặc khiến trẻ bị dụ dỗ, bắt nạt.",
+      "a": false,
+      "exp": "Sai. Ngoài lãng phí thời gian, trẻ còn có thể suy nghĩ lệch lạc, bị lừa đảo, dụ dỗ hoặc bắt nạt."
+    }
+  ],
+  "SIT": [
+    {
+      "s": "Em đưa con trỏ lần lượt đến một dòng chữ và một hình nhỏ trên trang web. Ở hình nhỏ, con trỏ đổi thành bàn tay; ở dòng chữ thì không đổi.",
+      "g": "Nhận biết hình nhỏ có dấu hiệu chứa siêu liên kết; chỉ nháy khi em biết liên kết phù hợp với mục đích",
+      "b": "Kết luận cả dòng chữ lẫn hình đều chắc chắn là siêu liên kết vì chúng nằm trên trang web",
+      "w": "Con trỏ đổi thành hình bàn tay là dấu hiệu vị trí có siêu liên kết. Không phải mọi chữ hoặc hình trên trang đều là liên kết."
+    },
+    {
+      "s": "Em nháy vào một dòng chữ có con trỏ hình bàn tay. Trang web cuộn xuống phần hướng dẫn ở phía dưới nhưng vẫn ở cùng trang.",
+      "g": "Nhận ra liên kết đã chuyển em đến một vị trí khác trong cùng trang",
+      "b": "Cho rằng thao tác thất bại vì siêu liên kết phải luôn mở trang web mới",
+      "w": "Siêu liên kết có thể mở trang web khác hoặc di chuyển đến một vị trí khác trong cùng trang."
+    },
+    {
+      "s": "Trang em xem có bài viết, ảnh minh họa, một đoạn đọc thành tiếng và video hướng dẫn. Bạn nói trang chỉ có một loại thông tin vì tất cả nằm chung một trang.",
+      "g": "Giải thích trang có thể kết hợp nhiều loại thông tin: văn bản, hình ảnh, âm thanh và video",
+      "b": "Đồng ý rằng một trang chỉ được tính là một loại thông tin",
+      "w": "Một trang web có thể kết hợp nhiều dạng thông tin; việc chúng cùng nằm trên một trang không làm chúng thành một loại."
+    },
+    {
+      "s": "Em thấy một từ được gạch chân. Khi đưa con trỏ đến từ đó, con trỏ đổi thành hình bàn tay.",
+      "g": "Dựa vào dấu hiệu con trỏ để nhận ra từ đó chứa siêu liên kết",
+      "b": "Chỉ dựa vào việc từ được gạch chân và khẳng định mọi từ gạch chân ở mọi trang đều là liên kết",
+      "w": "Dấu hiệu trong tình huống là con trỏ đổi thành hình bàn tay, cho biết vị trí có siêu liên kết."
+    },
+    {
+      "s": "Em nháy vào một hình trên trang web. Một trang khác mở ra với nội dung liên quan đến hình đó.",
+      "g": "Giải thích hình là vị trí chứa siêu liên kết và liên kết đã mở trang web khác",
+      "b": "Kết luận mọi hình ảnh trên web đều tự động là siêu liên kết",
+      "w": "Trong tình huống này hình có chứa siêu liên kết; không phải mọi hình ảnh trên trang web đều là liên kết."
+    },
+    {
+      "s": "Em thấy một đoạn nhạc phát trên trang web, nhưng không có hình ảnh chuyển động. Bạn bên cạnh cho rằng không thể gọi đó là thông tin trên trang web vì thiếu video.",
+      "g": "Nêu rằng âm thanh là một dạng thông tin trên trang web, không cần phải có video",
+      "b": "Đồng ý vì âm thanh chỉ được tính khi nằm trong video",
+      "w": "Âm thanh và video là những dạng thông tin có thể xuất hiện trên trang web; chúng không bắt buộc phải đi cùng nhau."
+    },
+    {
+      "s": "Bài viết trên trang có chữ, ảnh và nút dẫn đến phần giải thích ở cuối trang. Cô hỏi vì sao trang web được gọi là siêu văn bản.",
+      "g": "Vì trang web là văn bản có thể chứa nhiều loại thông tin và siêu liên kết",
+      "b": "Vì trang web chỉ có chữ viết và không chứa loại thông tin nào khác",
+      "w": "Siêu văn bản chứa các dạng thông tin như chữ, hình, âm thanh, video và siêu liên kết; trang web là siêu văn bản."
+    },
+    {
+      "s": "Em cần đọc một bài học nhưng trang đang mở có trò chơi bạo lực và nội dung không phù hợp. Một bạn đề nghị gửi đường dẫn cho cả nhóm để mọi người tự quyết định.",
+      "g": "Không chia sẻ; đóng trang và báo với người lớn hoặc thầy cô",
+      "b": "Gửi đường dẫn vào nhóm kèm lời nhắc mọi người đừng xem",
+      "w": "Không nên chia sẻ trang không phù hợp vì có thể khiến nhiều bạn tiếp cận nội dung đó. Hãy đóng trang và báo người lớn."
+    },
+    {
+      "s": "Một người lạ trên trang trò chuyện nói sẽ tặng quà nếu em làm theo hướng dẫn và giữ bí mật với gia đình.",
+      "g": "Không làm theo, dừng trò chuyện và báo ngay với người lớn",
+      "b": "Làm theo một bước trước để kiểm tra người đó có thật sự tặng quà không",
+      "w": "Lời hứa tặng quà kèm yêu cầu giữ bí mật có thể là hành vi dụ dỗ. Em cần nhờ người lớn giúp đỡ."
+    },
+    {
+      "s": "Bạn em nhận được nhiều tin nhắn chê bai, đe dọa trên một trang web và định im lặng vì sợ bị trêu thêm.",
+      "g": "Khuyên bạn báo cho bố mẹ hoặc thầy cô để được giúp đỡ",
+      "b": "Khuyên bạn giữ kín và tự nhắn tin cãi lại người gửi",
+      "w": "Tin nhắn chê bai, đe dọa có thể là bắt nạt trên mạng. Báo người lớn giúp bạn được hỗ trợ."
+    },
+    {
+      "s": "Em định tìm hình ảnh phục vụ bài tập nhưng một liên kết có tên hấp dẫn lại đưa đến trang trò chuyện không phù hợp lứa tuổi.",
+      "g": "Đóng trang đó, không tiếp tục trò chuyện và báo người lớn; sau đó tìm nguồn phù hợp",
+      "b": "Ở lại trò chuyện vì ban đầu em chỉ định tìm ảnh học tập",
+      "w": "Mục đích ban đầu tốt không làm trang không phù hợp trở nên an toàn. Hãy đóng trang và báo người lớn."
+    },
+    {
+      "s": "Em đang xem nội dung phù hợp nhưng đã hết thời gian truy cập đã thống nhất; video tiếp theo tự phát và trông rất hấp dẫn.",
+      "g": "Dừng xem theo thời gian đã định, quay lại hoạt động khác",
+      "b": "Xem tiếp không giới hạn vì video tự phát nên không tính là chủ động truy cập",
+      "w": "Cần sử dụng Internet trong thời gian hợp lý. Xem tiếp có thể làm lãng phí thời gian dành cho học tập và hoạt động khác."
+    },
+    {
+      "s": "Em vô tình mở trang có nội dung khiến em sợ. Bạn đề nghị chụp màn hình rồi gửi cho các bạn để hỏi xem có đáng sợ không.",
+      "g": "Đóng trang, không chia sẻ hình ảnh và báo người lớn hoặc thầy cô",
+      "b": "Gửi ảnh cho nhiều bạn để cùng đánh giá nội dung",
+      "w": "Không nên tiếp tục lan truyền nội dung không phù hợp. Hãy đóng trang và nhờ người lớn hỗ trợ."
+    },
+    {
+      "s": "Một trang web có giao diện thiếu nhi và có bài học hữu ích, nhưng em chưa biết trang có phù hợp hay không.",
+      "g": "Hỏi người lớn hoặc thầy cô kiểm tra cùng trước khi tiếp tục truy cập",
+      "b": "Tự kết luận trang an toàn chỉ vì giao diện có hình hoạt hình",
+      "w": "Hình thức trang không đủ để kết luận nội dung phù hợp. Người lớn có thể đồng hành, giúp em chọn trang an toàn."
+    },
+    {
+      "s": "Em thấy một tiêu đề được tô màu nổi bật, nhưng khi đưa con trỏ đến đó con trỏ không đổi thành hình bàn tay.",
+      "g": "Không kết luận đó là siêu liên kết chỉ vì chữ được tô màu; tìm dấu hiệu con trỏ hoặc hỏi người lớn",
+      "b": "Khẳng định chắc chắn là siêu liên kết vì chữ có màu khác",
+      "w": "Màu sắc nổi bật không phải dấu hiệu được nêu để nhận biết siêu liên kết; hãy chú ý con trỏ đổi thành hình bàn tay."
+    }
+  ],
+  "QZ": [
+    {
+      "q": "Đưa con trỏ chuột đến một vị trí trên trang web thấy con trỏ đổi thành hình bàn tay. Điều đó giúp em nhận biết điều gì?",
+      "a": [
+        "Vị trí đó có thể chứa siêu liên kết",
+        "Vị trí đó chắc chắn là một đoạn video",
+        "Trang web chỉ còn thông tin dạng văn bản",
+        "Máy tính không còn kết nối Internet"
+      ],
+      "exp": "Con trỏ đổi thành hình bàn tay là dấu hiệu vị trí có siêu liên kết."
+    },
+    {
+      "q": "Em nháy vào siêu liên kết. Kết quả nào có thể xảy ra theo bài học?",
+      "a": [
+        "Mở một trang web khác hoặc chuyển đến một vị trí khác",
+        "Luôn tải toàn bộ trang web về máy tính",
+        "Chỉ phát âm thanh, không thể chuyển nội dung",
+        "Xóa nội dung đang xem"
+      ],
+      "exp": "Siêu liên kết có thể mở trang web khác hoặc di chuyển đến một vị trí khác."
+    },
+    {
+      "q": "Trang có đoạn bài viết, ảnh tĩnh, bản ghi âm và phim hướng dẫn. Cách phân loại nào phù hợp nhất?",
+      "a": [
+        "Có văn bản, hình ảnh, âm thanh và video",
+        "Chỉ có văn bản vì mọi nội dung đều nằm trên trang",
+        "Chỉ có hình ảnh vì nội dung được hiển thị trên màn hình",
+        "Có văn bản và siêu liên kết, không có loại nào khác"
+      ],
+      "exp": "Một trang web có thể kết hợp nhiều dạng thông tin cùng lúc."
+    },
+    {
+      "q": "Một đoạn phim có hình chuyển động và tiếng nói được xếp phù hợp nhất vào dạng nào?",
+      "a": [
+        "Video",
+        "Văn bản",
+        "Hình ảnh tĩnh",
+        "Siêu liên kết"
+      ],
+      "exp": "Đoạn phim chuyển động là thông tin dạng video; video có thể kết hợp hình ảnh và âm thanh."
+    },
+    {
+      "q": "Đâu là mô tả chính xác nhất về trang web theo bài học?",
+      "a": [
+        "Trang web là siêu văn bản, có thể chứa nhiều dạng thông tin và siêu liên kết",
+        "Trang web chỉ là một trang giấy có chữ được đưa lên màn hình",
+        "Trang web chỉ gồm hình ảnh và không có văn bản",
+        "Trang web là tên gọi khác của một đoạn video"
+      ],
+      "exp": "Trang web là siêu văn bản, có thể chứa văn bản, hình ảnh, âm thanh, video và siêu liên kết."
+    },
+    {
+      "q": "Một dòng chữ vừa đọc được, vừa làm con trỏ đổi thành hình bàn tay khi rê chuột vào. Cách giải thích nào đúng?",
+      "a": [
+        "Dòng chữ là văn bản và vị trí đó đồng thời chứa siêu liên kết",
+        "Dòng chữ chỉ là hình ảnh vì con trỏ đổi dạng",
+        "Dòng chữ là video vì có thể nháy chuột",
+        "Dòng chữ không phải thông tin trên trang web"
+      ],
+      "exp": "Chữ hiển thị là văn bản; vị trí đó còn có chức năng liên kết nếu có dấu hiệu siêu liên kết."
+    },
+    {
+      "q": "Một bạn nháy vào liên kết và được đưa xuống mục khác trong cùng trang. Bạn kết luận liên kết bị lỗi vì không mở trang mới. Nhận xét nào đúng?",
+      "a": [
+        "Bạn kết luận sai; liên kết có thể chuyển đến vị trí khác trong cùng trang",
+        "Bạn kết luận đúng; liên kết chỉ hợp lệ khi mở cửa sổ mới",
+        "Bạn kết luận đúng; trang web không được phép có liên kết nội bộ",
+        "Không thể biết vì siêu liên kết chỉ dùng cho âm thanh"
+      ],
+      "exp": "Siêu liên kết có thể mở trang web khác hoặc di chuyển đến vị trí khác trong cùng trang."
+    },
+    {
+      "q": "Phát biểu nào phân biệt đúng hình ảnh tĩnh với video?",
+      "a": [
+        "Ảnh tĩnh là hình ảnh; đoạn phim chuyển động là video",
+        "Ảnh tĩnh và video đều luôn là văn bản",
+        "Video chỉ là âm thanh, còn ảnh tĩnh là siêu liên kết",
+        "Ảnh tĩnh luôn có âm thanh, video thì không"
+      ],
+      "exp": "Hình ảnh tĩnh và video là hai dạng thông tin khác nhau."
+    },
+    {
+      "q": "Em thấy một từ được gạch chân nhưng chưa rê chuột vào để kiểm tra. Kết luận nào thận trọng và đúng nhất?",
+      "a": [
+        "Chưa đủ căn cứ chỉ từ việc gạch chân; có thể kiểm tra dấu hiệu con trỏ hình bàn tay",
+        "Chắc chắn là siêu liên kết vì mọi từ gạch chân đều là liên kết",
+        "Chắc chắn là âm thanh vì từ được làm nổi bật",
+        "Chắc chắn không phải liên kết vì không phải hình ảnh"
+      ],
+      "exp": "Theo bài học, dấu hiệu nhận biết được nêu là con trỏ chuột đổi thành hình bàn tay."
+    },
+    {
+      "q": "An cố tình truy cập trang trò chuyện không phù hợp và nhận được tin nhắn đe dọa. Rắc rối nào phù hợp nhất với tình huống?",
+      "a": [
+        "An có nguy cơ bị bắt nạt trên mạng",
+        "An chắc chắn đã làm hỏng máy tính",
+        "An chỉ gặp vấn đề về loại thông tin hình ảnh",
+        "An không gặp rắc rối vì tin nhắn không phải trang web"
+      ],
+      "exp": "Tin nhắn đe dọa hoặc xúc phạm có thể khiến trẻ bị bắt nạt trên mạng."
+    },
+    {
+      "q": "Một trang có bài học hữu ích nhưng cũng có nội dung trò chuyện không phù hợp. Em nên chọn cách nào?",
+      "a": [
+        "Đóng phần không phù hợp và báo người lớn để được hướng dẫn chọn nội dung an toàn",
+        "Xem hết nội dung vì trang có một bài học hữu ích",
+        "Gửi liên kết cho bạn để bạn quyết định thay",
+        "Trò chuyện với người lạ để hỏi xem nội dung có an toàn không"
+      ],
+      "exp": "Một phần hữu ích không làm cho nội dung không phù hợp trở nên an toàn; hãy nhờ người lớn đồng hành."
+    },
+    {
+      "q": "Vì sao không nên gửi đường dẫn của trang web không phù hợp vào nhóm lớp, kể cả khi kèm lời nhắc đừng mở?",
+      "a": [
+        "Vì chia sẻ vẫn có thể khiến người khác tiếp cận nội dung không phù hợp",
+        "Vì mọi siêu liên kết đều tự động mở mà không cần nháy",
+        "Vì chia sẻ làm trang web biến thành video",
+        "Vì đường dẫn chỉ có thể gửi cho người lớn"
+      ],
+      "exp": "Không chia sẻ trang không phù hợp để tránh làm nội dung đó lan đến các bạn."
+    },
+    {
+      "q": "Người lạ hứa tặng quà và yêu cầu em làm theo hướng dẫn mà không kể với gia đình. Nguy cơ nào bài học khuyên em cần đề phòng?",
+      "a": [
+        "Bị lừa đảo hoặc dụ dỗ",
+        "Nhầm lẫn giữa văn bản và hình ảnh",
+        "Trang web tự chuyển đến vị trí khác",
+        "Bị lãng phí thời gian do xem video học tập"
+      ],
+      "exp": "Kẻ xấu có thể lừa đảo, dụ dỗ trẻ làm theo những việc không đúng."
+    },
+    {
+      "q": "Em dành thời gian đã định để tìm bài tập, nhưng sau đó tiếp tục xem các trang không liên quan đến tận khuya. Tác hại nào thể hiện rõ nhất?",
+      "a": [
+        "Lãng phí thời gian dành cho học tập và hoạt động bổ ích khác",
+        "Bị nhầm trang web với siêu văn bản",
+        "Mọi hình ảnh trên web biến thành video",
+        "Siêu liên kết không còn hoạt động"
+      ],
+      "exp": "Cố tình truy cập và xem nội dung không phù hợp có thể làm lãng phí thời gian."
+    },
+    {
+      "q": "Vì sao học sinh cần người lớn đồng hành khi truy cập Internet?",
+      "a": [
+        "Người lớn có thể giúp chọn nội dung phù hợp và hỗ trợ khi gặp trang hoặc người khiến em lo lắng",
+        "Người lớn có thể làm mọi siêu liên kết mở cùng một lúc",
+        "Chỉ người lớn mới phân biệt được văn bản với hình ảnh",
+        "Có người lớn thì mọi trang web đều tự động an toàn"
+      ],
+      "exp": "Người lớn giúp trẻ lựa chọn nội dung phù hợp và hỗ trợ khi gặp nguy cơ bị dụ dỗ, lừa đảo hoặc bắt nạt."
+    }
+  ]
+};

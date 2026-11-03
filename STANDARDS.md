@@ -8,7 +8,7 @@
 ## 📑 MỤC LỤC
 1. [Kiến trúc Tổng thể & Cấu trúc Thư mục](#1-kiến-trúc-tổng-thể--cấu-trúc-thư-mục)
 2. [Bộ Quy tắc An toàn Tiết học & Chống Reload](#2-bộ-quy-tắc-an-toàn-tiết-học--chống-reload)
-3. [Quy chuẩn Sư phạm: Nghi thức Đầu giờ & Ghi bài chặng](#3-quy-chuẩn-sư-phạm-nghi-thức-đầu-giờ--ghi-bài-chặng)
+3. [Quy chuẩn Sư phạm: Trang Ghi bài vào vở, Ghi bài chặng & Chốt kiến thức cuối tiết](#3-quy-chuẩn-sư-phạm-trang-ghi-bài-vào-vở-ghi-bài-chặng--chốt-kiến-thức-cuối-tiết)
 4. [Vòng đời Gọi tên (Turn Lifecycle) & Phân luồng Gacha](#4-vòng-đời-gọi-tên-turn-lifecycle--phân-luồng-gacha)
 5. [Hệ thống Đo lường Hành vi (Telemetry) & Đánh giá TT27 / SMAS](#5-hệ-thống-đo-lường-hành-vi-telemetry--đánh-giá-tt27--smas)
 6. [Hệ thống Báo cáo CSV Chuẩn UTF-8 BOM & Đồng bộ Drive](#6-hệ-thống-báo-cáo-csv-chuẩn-utf-8-bom--đồng-bộ-drive)
@@ -16,7 +16,8 @@
 8. [Hệ thống Âm thanh Web Audio API (Offline Synthesizer)](#8-hệ-thống-âm-thanh-web-audio-api-offline-synthesizer)
 9. [Cơ chế Lưu trữ Trạng thái LocalStorage](#9-cơ-chế-lưu-trữ-trạng-thái-localstorage)
 10. [Hệ thống Điểm Khởi Đầu 1000đ & Cơ Chế Xếp Rank Đồng Hạng (Tie-Ranking)](#10-hệ-thống-điểm-khởi-đầu-1000đ--cơ-chế-xếp-rank-đồng-hạng-tie-ranking)
-11. [Giao thức Cập nhật Quy chuẩn (Living Document Protocol)](#11-giao-thức-cập-nhật-quy-chuẩn-living-document-protocol)
+11. [Hệ thống Quản lý Quests & Câu hỏi Tách rời File JSON](#11-hệ-thống-quản-lý-quests--câu-hỏi-tách-rời-file-json)
+12. [Giao thức Cập nhật Quy chuẩn (Living Document Protocol)](#12-giao-thức-cập-nhật-quy-chuẩn-living-document-protocol)
 
 ---
 
@@ -83,19 +84,39 @@ location.reload();
 
 ---
 
-## 3. QUY CHUẨN SƯ PHẠM: NGHI THỨC ĐẦU GIỜ & GHI BÀI CHẶNG
+## 3. QUY CHUẨN SƯ PHẠM: TRANG GHI BÀI VÀO VỞ, GHI BÀI CHẶNG & CHỐT KIẾN THỨC CUỐI TIẾT
 
-### 3.1 Slide 1: Khung tiêu đề tối giản & Thứ ngày tháng Tiếng Việt tự động
-Không nhồi nhét nội dung bài học hay bắt học sinh chép nhiều chữ ở Slide 1. Chỉ hiển thị **Khung Vở Ghi Bài** tối giản:
+### 3.1 Trang Ghi bài vào vở (Notebook Writing Slide / Đầu giờ)
+Học sinh tiểu học cần nhìn rõ từ khoảng cách xa (8–10m cuối lớp) để hạ bút chép đúng tựa bài và kiến thức vào vở:
+* **Nền trắng tinh khiết (`#ffffff`):**
+  * TUYỆT ĐỐI CẤM trang trí rườm rà (không kẻ hoa văn, không kẻ ô ly gây rối mắt khi chiếu máy chiếu mờ, không đổ bóng lòe loẹt).
+  * Chữ có thể tô màu phân cấp nổi bật trên nền trắng (Thứ ngày: xám/xanh dịu, Môn học: xanh dương đậm, Tên bài: đỏ/cam nổi bật).
+* **Typography Siêu To (Super-sized Typography):**
+  * Thứ ngày tháng: `28px` – `34px` (đậm `700`).
+  * Tên môn học: `36px` – `44px` (đậm `900`, in hoa).
+  * Tựa đề bài học: `50px` – `64px` (đậm `900`, in hoa).
+  * Dòng ghi nhớ/tóm tắt: `30px` – `38px` (đậm `800`, giãn dòng `1.6`).
+* **BẮT BUỘC có nút Chế độ Toàn Màn Hình (Fullscreen Toggle):**
+  * Nút bấm to rõ: `⛶ Chế độ toàn màn hình chép bài`.
+  * Khi giáo viên bấm nút: Khung ghi bài phóng to chiếm trọn 100% màn hình TV (`100vw x 100vh`), ẩn hoàn toàn sidebar và các thanh điều khiển xung quanh.
+  * Có nút `✖ Thu nhỏ (Esc)` ở góc trên bên phải và hỗ trợ phím `Esc` để thoát chế độ toàn màn hình.
+
+Mẫu HTML chuẩn:
 ```html
-<div class="notebook-paper">
-    <div class="nb-date" id="current-date-line">Đang cập nhật ngày...</div>
-    <div class="nb-subject">Tin học</div>
-    <div class="nb-lesson">Bài X: [Tên Bài Học]</div>
+<div class="notebook clean" id="notebook-box">
+    <button type="button" class="btn-fs-close" onclick="toggleNotebookFullscreen()">
+        ✖ Thu nhỏ (Esc)
+    </button>
+    <div class="nb-date"><span class="notebookDateDisplay" id="current-date-line">Đang cập nhật ngày...</span></div>
+    <div class="nb-subject">Môn: Tin học [Khối]</div>
+    <div class="nb-title">BÀI X: [TÊN BÀI HỌC]</div>
+    <div class="nb-content">
+        ✍️ <b>Kiến thức cốt lõi:</b> [1-2 dòng ngắn gọn cần chép vào vở]
+    </div>
 </div>
 ```
 
-Script cập nhật ngày tháng Tiếng Việt chuẩn thời gian thực:
+Script cập nhật ngày tháng Tiếng Việt chuẩn thời gian thực & Fullscreen Toggle:
 ```javascript
 function updateVietnameseDate() {
     const now = new Date();
@@ -105,12 +126,21 @@ function updateVietnameseDate() {
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const year = now.getFullYear();
 
-    const dateEl = document.getElementById('current-date-line');
-    if (dateEl) {
-        dateEl.innerText = `${dayName}, ngày ${date} tháng ${month} năm ${year}`;
-    }
+    const dateStr = `${dayName}, ngày ${date} tháng ${month} năm ${year}`;
+    document.querySelectorAll('.currentDateDisplay, .notebookDateDisplay, #current-date-line').forEach(el => el.innerText = dateStr);
 }
 updateVietnameseDate();
+
+function toggleNotebookFullscreen() {
+    const target = document.getElementById('notebook-box');
+    if (!target) return;
+    const isFs = target.classList.toggle('fullscreen-mode');
+    const btn = document.getElementById('btn-toggle-fs');
+    if (btn) btn.innerHTML = isFs ? '✖ Thu nhỏ (Esc)' : '⛶ Chế độ toàn màn hình chép bài';
+    
+    if (isFs && target.requestFullscreen) target.requestFullscreen().catch(() => {});
+    else if (!isFs && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+}
 ```
 
 ### 3.2 Quy tắc "Ghi bài xé nhỏ" (Progressive Chunking)
@@ -125,6 +155,46 @@ updateVietnameseDate();
 </div>
 ```
 * Giáo viên cho học sinh thực hành/thảo luận xong mới bấm hiển thị thẻ này, các em hạ bút viết đúng 1-2 dòng vào vở rồi chuyển hoạt động.
+
+### 3.3 Màn Hình Chốt Kiến Thức / Ghi Nhớ Cuối Tiết (Trước Bảng Vinh Danh)
+* **Vị trí bắt buộc:** Liền trước slide Bảng vàng vinh danh (Slide kế cuối).
+* **Mục đích:** Giúp giáo viên chốt lại toàn bộ các ý trọng tâm trước khi chuyển sang phần tổng kết điểm số và trao thưởng.
+* **Nguyên tắc thiết kế:**
+  * Design tối giản, ít chữ, chữ lớn (tiêu đề `28px` – `34px`, nội dung `22px` – `26px`, in đậm).
+  * Phân bố dạng lưới **2, 3 hoặc 4 card** (`.summary-card-grid.grid-2`, `.grid-3`, `.grid-4`):
+```html
+<section class="slide fs" id="slide-summary">
+    <div class="tag" style="background:#10b981; color:#fff;">💡 Ghi nhớ bài học · Chốt kiến thức</div>
+    <h1>💡 EM GHI NHỚ ([X] QUY TẮC CỐT LÕI)</h1>
+
+    <div class="summary-card-grid grid-3">
+        <!-- Card 1 -->
+        <div class="summary-card" style="border-top-color: #d97706;">
+            <div class="sc-badge" style="background:#fef3c7; color:#b45309;">Ý 1</div>
+            <div class="sc-title" style="color:#b45309;">TIÊU ĐỀ NGẮN 1</div>
+            <div class="sc-desc">Nội dung 1-2 câu chốt, in đậm <b>từ khóa quan trọng</b>.</div>
+        </div>
+        <!-- Card 2 -->
+        <div class="summary-card" style="border-top-color: #2563eb;">
+            <div class="sc-badge" style="background:#dbeafe; color:#1d4ed8;">Ý 2</div>
+            <div class="sc-title" style="color:#1d4ed8;">TIÊU ĐỀ NGẮN 2</div>
+            <div class="sc-desc">Nội dung 1-2 câu chốt, in đậm <b>từ khóa quan trọng</b>.</div>
+        </div>
+        <!-- Card 3 -->
+        <div class="summary-card" style="border-top-color: #7c3aed;">
+            <div class="sc-badge" style="background:#ede9fe; color:#6d28d9;">Ý 3</div>
+            <div class="sc-title" style="color:#6d28d9;">TIÊU ĐỀ NGẮN 3</div>
+            <div class="sc-desc">Nội dung 1-2 câu chốt, in đậm <b>từ khóa quan trọng</b>.</div>
+        </div>
+    </div>
+
+    <div style="margin-top: 24px;">
+        <button class="btn-action mint" onclick="goSlide(1)">
+            🏆 XEM BẢNG VÀNG VINH DANH ▶
+        </button>
+    </div>
+</section>
+```
 
 ---
 
@@ -395,7 +465,50 @@ bgtieu_hoc_k{Khoi}_tiet_{Tiet}_{Lop}_state
 
 ---
 
-## 11. GIAO THỨC CẬP NHẬT QUY CHUẨN (LIVING DOCUMENT PROTOCOL)
+## 11. HỆ THỐNG QUẢN LÝ QUESTS & CÂU HỎI TÁCH RỜI FILE JSON (`quests.json` / `questions.json`)
+
+### 11.1 Nguyên tắc "Không nhồi nhét câu hỏi vào HTML"
+* **Vấn đề thực tế:** Khi ngân hàng câu hỏi, thử thách, tình huống vụ án dài hàng trăm dòng được nhúng trực tiếp vào giữa mã nguồn file `index.html`, Giáo viên gặp khó khăn rất lớn khi muốn đọc, tìm kiếm hoặc sửa đổi nhanh nội dung câu hỏi trước giờ lên lớp.
+* **Quy chuẩn bắt buộc:**
+  * Toàn bộ câu hỏi, vụ án, tình huống, bài tập trắc nghiệm bắt buộc phải được tách riêng thành file `quests.json` (hoặc `questions.json`) đặt cùng thư mục với `index.html`.
+  * File HTML chỉ giữ lại khung giao diện và logic điều khiển; toàn bộ dữ liệu câu hỏi được nạp động từ file JSON bên cạnh.
+
+### 11.2 Cơ chế Nạp 100% Offline-First (Tránh lỗi CORS khi mở `file:///`)
+Để đảm bảo bài giảng chạy mượt mà cả khi chạy qua local server (VS Code Live Server) lẫn khi mở trực tiếp file HTML bằng double-click trong Windows Explorer (`file:///...`):
+1. **File `quests.json` (hoặc `questions.json`):** Chứa cấu trúc JSON tiêu chuẩn để Giáo viên mở sửa dễ dàng.
+2. **File `quests.js` (hoặc `questions.js`):** Chứa đúng nội dung dữ liệu đó gán vào biến toàn cục:
+   ```javascript
+   window.QUESTS_DATA = { /* Cùng cấu trúc với quests.json */ };
+   ```
+3. **Mã nguồn trong `index.html`:**
+   Nhúng file JS trong thẻ `<head>`:
+   ```html
+   <script src="quests.js"></script>
+   ```
+   Hàm nạp linh hoạt ưu tiên `fetch` và fallback sang biến toàn cục:
+   ```javascript
+   let QUESTION_BANK = (window.QUESTS_DATA && window.QUESTS_DATA.cases) ? window.QUESTS_DATA.cases : [];
+
+   async function loadQuestsFromJSON() {
+       try {
+           const res = await fetch('quests.json');
+           if (res.ok) {
+               const data = await res.json();
+               if (Array.isArray(data.cases) && data.cases.length > 0) {
+                   QUESTION_BANK = data.cases;
+                   console.log('✅ Đã nạp thành công ngân hàng câu hỏi từ quests.json!');
+               }
+           }
+       } catch (err) {
+           console.warn('Đang dùng dữ liệu từ quests.js (offline file://):', err);
+       }
+   }
+   loadQuestsFromJSON();
+   ```
+
+---
+
+## 12. GIAO THỨC CẬP NHẬT QUY CHUẨN (LIVING DOCUMENT PROTOCOL)
 
 * Cả hai tài liệu **`AGENTS.md`** và **`STANDARDS.md`** đều là **Tài liệu sống (Living Documents)**.
 * Trong quá trình giảng dạy và phát triển bài giảng mới, khi Giáo viên phát hiện một quy tắc sư phạm mới, một mẹo hay hoặc muốn điều chỉnh bất kỳ thông số nào:

@@ -1129,6 +1129,7 @@
             display: none;
         }
     </style>
+    <script src="questions.js"></script>
 </head>
 
 <body>
@@ -1157,7 +1158,8 @@
         </h2>
 
         <!-- Khung vở ghi bài học sinh chuẩn Khối 2 -->
-        <div class="notebook-paper">
+        <div class="notebook-paper clean" style="background:#ffffff !important;">
+            <button type="button" class="btn-fs-toggle" onclick="toggleNotebookFullscreen()">⛶ Chế độ toàn màn hình chép bài</button>
             <div class="nb-date" id="current-date-line">Đang lấy thứ ngày tháng...</div>
             <div class="nb-subject">Tin học</div>
             <div class="nb-lesson">Bài 6: Vui học Toán cùng máy tính</div>
@@ -1254,6 +1256,37 @@
     <!-- ========================================== -->
     <!-- SLIDE 3: ĐẤU TRƯỜNG TOÁN HỌC & GAME CHÍNH -->
     <!-- ========================================== -->
+        <!-- SLIDE GHI NHỚ TRƯỚC TỔNG KẾT -->
+    <section class="slide" id="slide-summary">
+        <div class="section-badge" style="background:#0284c7; color:#fff;">💡 EM GHI NHỚ</div>
+        <h1 class="slide-title" style="font-size: 3.2rem; margin-top: 8px; color: #0284c7;">
+            CHỐT KIẾN THỨC CỐT LÕI
+        </h1>
+        <h2 class="slide-subtitle" style="font-size: 2rem; margin-bottom: 24px;">
+            Bài 6: Vui học Toán cùng máy tính
+        </h2>
+
+        <div class="summary-card-grid grid-2" style="max-width: 1000px; margin: 0 auto 30px;">
+            <div class="summary-card">
+                <div class="sc-icon">⌨️</div>
+                <div class="sc-title">1. GÕ SỐ TRÊN BÀN PHÍM</div>
+                <div class="sc-desc">Dùng <b>hàng phím số</b> (ở trên cùng) để gõ số đáp án nhanh và chính xác vào ô trả lời.</div>
+            </div>
+            <div class="summary-card">
+                <div class="sc-icon">🖱️</div>
+                <div class="sc-title">2. PHỐI HỢP PHÍM VÀ CHUỘT</div>
+                <div class="sc-desc">Tay gõ phím xong, tay cầm chuột nhấp nút <b>TẤN CÔNG</b>. Không nhầm sang nút chuột phải.</div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="btn-start-lesson" style="font-size: 1.6rem; padding: 14px 32px;" onclick="changeSlide(1)">
+                🎮 Tiếp tục: Vào Đấu Trường Toán Học ❯
+            </button>
+        </div>
+    </section>
+
+    <!-- SLIDE 3: ĐẤU TRƯỜNG TOÁN HỌC -->
     <section class="slide" id="slide-3">
         <!-- Thanh công cụ Giáo viên: Chọn lớp, gọi tên, quản lý xuất CSV & bộ nhớ -->
         <div class="teacher-toolbar">
@@ -1928,23 +1961,8 @@
         /* =========================================================================
            6. BỘ CÂU HỎI PHÉP TÍNH TOÁN LỚP 2
            ========================================================================= */
-        const MATH_QUESTIONS = [
-            { equation: "60 - 20 = <span class='math-unknown'>?</span>", answer: 40, hint: "Phép trừ tròn chục: 6 chục trừ 2 chục" },
-            { equation: "80 - 30 = <span class='math-unknown'>?</span>", answer: 50, hint: "8 chục trừ 3 chục bằng mấy chục?" },
-            { equation: "90 - 40 = <span class='math-unknown'>?</span>", answer: 50, hint: "9 chục trừ 4 chục bằng mấy chục?" },
-            { equation: "70 - 20 = <span class='math-unknown'>?</span>", answer: 50, hint: "7 chục trừ 2 chục" },
-            { equation: "50 - 30 = <span class='math-unknown'>?</span>", answer: 20, hint: "5 chục trừ 3 chục" },
-            { equation: "6 + <span class='math-unknown'>?</span> = 11", answer: 5, hint: "6 cộng với mấy để bằng 11?" },
-            { equation: "<span class='math-unknown'>?</span> + 8 = 15", answer: 7, hint: "Mấy cộng với 8 để bằng 15?" },
-            { equation: "9 + <span class='math-unknown'>?</span> = 14", answer: 5, hint: "9 cộng với mấy để bằng 14?" },
-            { equation: "7 + <span class='math-unknown'>?</span> = 12", answer: 5, hint: "7 cộng với mấy để bằng 12?" },
-            { equation: "14 - <span class='math-unknown'>?</span> = 6", answer: 8, hint: "14 trừ mấy để bằng 6?" },
-            { equation: "15 - 7 = <span class='math-unknown'>?</span>", answer: 8, hint: "15 trừ 7 bằng bao nhiêu?" },
-            { equation: "13 - 6 = <span class='math-unknown'>?</span>", answer: 7, hint: "13 trừ 6 bằng bao nhiêu?" },
-            { equation: "17 - 9 = <span class='math-unknown'>?</span>", answer: 8, hint: "17 trừ 9 bằng bao nhiêu?" },
-            { equation: "30 + 40 = <span class='math-unknown'>?</span>", answer: 70, hint: "3 chục cộng 4 chục bằng mấy chục?" },
-            { equation: "50 + 20 = <span class='math-unknown'>?</span>", answer: 70, hint: "5 chục cộng 2 chục bằng mấy chục?" },
-            { equation: "<span class='math-unknown'>?</span> - 20 = 50", answer: 70, hint: "Số tròn chục nào trừ 20 bằng 50?" }
+        let MATH_QUESTIONS = (window.QUESTS_DATA && window.QUESTS_DATA.length) ? window.QUESTS_DATA : [
+            { equation: "60 - 20 = <span class='math-unknown'>?</span>", answer: 40, hint: "Phép trừ tròn chục: 6 chục trừ 2 chục" }
         ];
 
         let currentQuestion = MATH_QUESTIONS[0];
