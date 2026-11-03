@@ -134,7 +134,7 @@
         }
 
         .score-input {
-            width: 68px;
+            width: 82px;
             font-weight: 900;
             font-size: 1.25rem;
             text-align: center;
@@ -855,7 +855,7 @@
         <h1>📁 Bài 5: Thao tác với tệp và thư mục (Tiết 2) – Tin học 4</h1>
         <label>Lớp <select id="cls"></select></label>
         <label>Số tổ <select id="nTeams"></select></label>
-        <label>Thời gian mỗi Combo:
+        <label>Mốc chuẩn mỗi Combo:
             <select id="selComboTime">
                 <option value="120">2 phút</option>
                 <option value="180" selected>3 phút (Chuẩn ⭐)</option>
@@ -995,17 +995,21 @@
                         <!-- KHỐI ĐỒNG HỒ & ĐIỀU KHIỂN -->
                         <div class="timer-card">
                             <div class="timer-header">
-                                <span style="font-weight:900;color:var(--ink);font-size:.95rem">⏱️ Đồng hồ 3 phút</span>
+                                <span style="font-weight:900;color:var(--ink);font-size:.95rem" id="timerTitle">⏱️ Bấm giờ xuôi (Mốc 3 phút)</span>
                                 <div style="display:flex;gap:4px">
-                                    <button class="sm" id="btnTimerMinus30" title="Giảm 30s">-30s</button>
-                                    <button class="sm" id="btnTimerPlus30" title="Cộng thêm 30s">+30s</button>
+                                    <button class="sm" id="btnTimerMinus30" title="Trừ 30s thời gian đã trôi">-30s</button>
+                                    <button class="sm" id="btnTimerPlus30" title="Cộng 30s thời gian đã trôi">+30s</button>
                                 </div>
                             </div>
 
-                            <div class="timer-display ready" id="timerClock">03:00</div>
+                            <div class="timer-display ready" id="timerClock" style="font-size:2.25rem;letter-spacing:1.5px">00:00.00</div>
 
                             <div class="timer-progress">
-                                <div class="timer-progress-bar" id="timerProgressBar"></div>
+                                <div class="timer-progress-bar" id="timerProgressBar" style="width:0%"></div>
+                            </div>
+
+                            <div id="timerBonusTag" style="font-weight:900;text-align:center;font-size:0.95rem;color:var(--green);min-height:1.25rem">
+                                ⚡ Thưởng tối đa khi hoàn thành: +100đ (chạy theo ms)
                             </div>
 
                             <!-- NÚT BẮT ĐẦU KHI HỌC SINH ĐÃ SẴN SÀNG -->
@@ -1014,7 +1018,7 @@
                             </button>
 
                             <div class="timer-controls">
-                                <button class="sm" id="btnTimerReset">🔄 Đặt lại 3:00</button>
+                                <button class="sm" id="btnTimerReset">🔄 Đặt lại 00:00.00</button>
                             </div>
 
                             <div style="border-top:2px dashed var(--line);padding-top:8px;margin-top:2px">
@@ -1079,7 +1083,7 @@
 
         <aside>
             <div class="card" style="padding:12px">
-                <div style="font-weight:900;margin-bottom:8px;font-size:1.05rem">🚩 Điểm thi đua các tổ (Sàn 100đ)</div>
+                <div style="font-weight:900;margin-bottom:8px;font-size:1.05rem">🚩 Điểm thi đua các tổ (Sàn 1000đ)</div>
                 <div id="teams"></div>
             </div>
         </aside>
@@ -1519,7 +1523,7 @@ pause
 
         let activeMissions = [];
         let mIdx = 0, mistakes = 0, totalMistakes = 0, doneCnt = 0;
-        let status = [], questDoer = [];
+        let status = [], questDoer = [], questTimes = [];
         let rootHandle = null, present = new Set(), curTree = null, lastWebkitFiles = null;
 
         const gMsg = (t, k = 'hint') => { $('#gMsg').textContent = t; $('#gMsg').className = 'msg ' + k; };
@@ -1527,31 +1531,72 @@ pause
         const has = p => present.has(p.toLowerCase());
         const nm = a => a.map(p => '"' + p.replace(/\/$/, '').split('/').pop() + '"').join(', ');
 
-        /* ===== 8. ĐỒNG HỒ ĐẾM NGƯỢC (3 PHÚT, CÓ NÚT SẴN SÀNG) ===== */
-        let totalTimerSeconds = 180;
-        let timerRemaining = 180;
-        let timerInterval = null;
+        /* ===== 8. ĐỒNG HỒ BẤM GIỜ XUÔI CHI TIẾT TỚI TỪNG MILI-GIÂY (MS) ===== */
+        let targetTimerMs = 180000;
+        let timerElapsedMs = 0;
+        let timerStartTimestamp = 0;
+        let timerAccumulatedMs = 0;
+        let timerAnimFrame = null;
         let timerRunning = false;
         let timerReady = true;
+        let lastSecBeep = -1;
+
+        // Tính điểm thưởng tốc độ suy giảm tuyến tính chi tiết tới từng mili-giây (Thang 100 điểm):
+        function calcSpeedBonusMs(elapsedMs, targetMs) {
+            if (elapsedMs <= 0) return 100;
+            if (elapsedMs >= targetMs) return 10; // Quá mốc chuẩn vẫn thưởng 10đ khuyến khích
+            const raw = Math.round(100 * ((targetMs - elapsedMs) / targetMs));
+            return Math.min(100, Math.max(10, raw));
+        }
+
+        function formatTimeMs(totalMs) {
+            if (!totalMs || totalMs <= 0) return '00:00.00';
+            const m = Math.floor(totalMs / 60000);
+            const s = Math.floor((totalMs % 60000) / 1000);
+            const cs = Math.floor((totalMs % 1000) / 10);
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(cs).padStart(2, '0')}`;
+        }
+
+        function formatTimeShortMs(totalMs) {
+            if (!totalMs || totalMs <= 0) return '0.00s';
+            const m = Math.floor(totalMs / 60000);
+            const s = Math.floor((totalMs % 60000) / 1000);
+            const cs = Math.floor((totalMs % 1000) / 10);
+            if (m > 0) return `${m}p ${s}.${String(cs).padStart(2, '0')}s`;
+            return `${s}.${String(cs).padStart(2, '0')}s`;
+        }
 
         function updateTimerUI() {
-            const m = Math.floor(timerRemaining / 60);
-            const s = timerRemaining % 60;
             const clockEl = $('#timerClock');
-            clockEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            clockEl.textContent = formatTimeMs(timerElapsedMs);
 
-            const pct = Math.max(0, Math.min(100, (timerRemaining / totalTimerSeconds) * 100));
+            const pct = Math.min(100, (timerElapsedMs / targetTimerMs) * 100);
             const bar = $('#timerProgressBar');
             bar.style.width = pct + '%';
+
+            const curBonus = calcSpeedBonusMs(timerElapsedMs, targetTimerMs);
+            const bonusTag = $('#timerBonusTag');
+            if (bonusTag) {
+                if (timerReady) {
+                    bonusTag.textContent = '⚡ Thưởng tối đa khi hoàn thành: +100đ (chạy theo ms)';
+                    bonusTag.style.color = 'var(--blue)';
+                } else if (timerElapsedMs >= targetTimerMs) {
+                    bonusTag.textContent = '🐢 Đã quá mốc chuẩn (Khuyến khích: +10đ)';
+                    bonusTag.style.color = 'var(--coral)';
+                } else {
+                    bonusTag.textContent = `⚡ Thưởng tốc độ lúc này: +${curBonus}đ (chạy theo ms)`;
+                    bonusTag.style.color = curBonus >= 70 ? 'var(--green)' : curBonus >= 40 ? '#d97706' : 'var(--coral)';
+                }
+            }
 
             clockEl.classList.remove('ready', 'warn', 'danger');
             if (timerReady) {
                 clockEl.classList.add('ready');
                 bar.style.backgroundColor = 'var(--blue)';
-            } else if (timerRemaining <= 20) {
+            } else if (timerElapsedMs >= targetTimerMs) {
                 clockEl.classList.add('danger');
                 bar.style.backgroundColor = 'var(--coral)';
-            } else if (timerRemaining <= Math.round(totalTimerSeconds * 0.4)) {
+            } else if (timerElapsedMs >= Math.round(targetTimerMs * 0.75)) {
                 clockEl.classList.add('warn');
                 bar.style.backgroundColor = '#d97706';
             } else {
@@ -1559,30 +1604,53 @@ pause
             }
         }
 
+        function timerLoop() {
+            if (!timerRunning) return;
+            const now = performance.now();
+            timerElapsedMs = Math.round(timerAccumulatedMs + (now - timerStartTimestamp));
+            updateTimerUI();
+
+            const curSec = Math.floor(timerElapsedMs / 1000);
+            const targetSec = Math.floor(targetTimerMs / 1000);
+
+            if (curSec === targetSec && lastSecBeep !== curSec) {
+                lastSecBeep = curSec;
+                playTimeUpSound();
+                gMsg(`⏰ ĐÃ ĐẠT MỐC CHUẨN ${Math.round(targetTimerMs / 60000)} PHÚT! Nhanh tay nộp bài nhé!`, 'warn');
+            } else if (curSec > 0 && curSec % 60 === 0 && lastSecBeep !== curSec) {
+                lastSecBeep = curSec;
+                playTickSound();
+            }
+
+            if (timerElapsedMs >= targetTimerMs + 60000) {
+                pauseTimer();
+                handleTimeUpAuto();
+                return;
+            }
+
+            timerAnimFrame = requestAnimationFrame(timerLoop);
+        }
+
         function startTimer() {
             if (timerRunning) return;
             timerReady = false;
             timerRunning = true;
+            timerStartTimestamp = performance.now();
             $('#btnTimerToggle').textContent = '⏸ Tạm dừng';
             $('#btnTimerToggle').className = 'btn-ready-start warn';
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                if (timerRemaining > 0) {
-                    timerRemaining--;
-                    updateTimerUI();
-                    if (timerRemaining > 0 && timerRemaining <= 5) playTickSound();
-                } else {
-                    pauseTimer();
-                    handleTimeUp();
-                }
-            }, 1000);
+            cancelAnimationFrame(timerAnimFrame);
+            timerAnimFrame = requestAnimationFrame(timerLoop);
         }
 
         function pauseTimer() {
+            if (timerRunning) {
+                timerAccumulatedMs += performance.now() - timerStartTimestamp;
+                timerElapsedMs = Math.round(timerAccumulatedMs);
+            }
             timerRunning = false;
-            clearInterval(timerInterval);
+            cancelAnimationFrame(timerAnimFrame);
             if (!timerReady) {
-                $('#btnTimerToggle').textContent = '▶ Tiếp tục';
+                $('#btnTimerToggle').textContent = '▶ Tiếp tục bấm giờ';
                 $('#btnTimerToggle').className = 'btn-ready-start go';
             }
         }
@@ -1590,18 +1658,28 @@ pause
         function resetTimer() {
             pauseTimer();
             timerReady = true;
-            totalTimerSeconds = +$('#selComboTime').value || 180;
-            timerRemaining = totalTimerSeconds;
+            timerElapsedMs = 0;
+            timerAccumulatedMs = 0;
+            lastSecBeep = -1;
+            const targetSec = +$('#selComboTime').value || 180;
+            targetTimerMs = targetSec * 1000;
+            const targetMin = Math.round(targetSec / 60);
+            const titleEl = $('#timerTitle');
+            if (titleEl) titleEl.textContent = `⏱️ Bấm giờ xuôi (Mốc ${targetMin} phút, chi tiết ms)`;
             $('#btnTimerToggle').textContent = '▶ BẮT ĐẦU TÍNH GIỜ (SẴN SÀNG)';
             $('#btnTimerToggle').className = 'btn-ready-start go';
+            $('#btnTimerReset').textContent = '🔄 Đặt lại 00:00.00';
             updateTimerUI();
         }
 
         function addTimerSeconds(sec) {
-            timerRemaining = Math.max(10, timerRemaining + sec);
-            totalTimerSeconds = Math.max(totalTimerSeconds, timerRemaining);
+            const deltaMs = sec * 1000;
+            timerAccumulatedMs = Math.max(0, timerAccumulatedMs + deltaMs);
+            if (timerRunning) timerStartTimestamp = performance.now();
+            timerElapsedMs = Math.round(timerAccumulatedMs);
             updateTimerUI();
-            gMsg(`⏱️ Đã điều chỉnh thời gian: ${timerRemaining}s còn lại`, 'hint');
+            const actionText = sec > 0 ? `Đã cộng thêm +${sec}s` : `Đã trừ bớt ${Math.abs(sec)}s`;
+            gMsg(`⏱️ ${actionText}: Hiện tại đang là ${formatTimeShortMs(timerElapsedMs)}`, 'hint');
         }
 
         $('#btnTimerToggle').onclick = () => {
@@ -1613,9 +1691,9 @@ pause
         $('#btnTimerMinus30').onclick = () => addTimerSeconds(-30);
         $('#selComboTime').onchange = resetTimer;
 
-        async function handleTimeUp() {
+        async function handleTimeUpAuto() {
             playTimeUpSound();
-            gMsg('⏰ ĐÃ HẾT GIỜ! Đang tự động quét cây thư mục để chấm điểm...', 'bad');
+            gMsg('⏰ ĐÃ QUÁ MỐC THỜI GIAN QUY ĐỊNH! Đang tự động quét cây thư mục để chấm điểm...', 'bad');
 
             setTimeout(async () => {
                 try {
@@ -1623,7 +1701,7 @@ pause
                     gradeCurrentMission(true);
                 } catch (e) {
                     beep(false);
-                    gMsg(`⏰ ĐÃ HẾT GIỜ! Hãy mở phần "Dự phòng dán cây từ Clipboard" bên dưới để hệ thống ghi nhận điểm của Tổ!`, 'bad');
+                    gMsg(`⏰ ĐÃ QUÁ MỐC THỜI GIAN! Hãy dán cây từ Clipboard để ghi nhận điểm của Tổ!`, 'bad');
                 }
             }, 400);
         }
@@ -1633,6 +1711,7 @@ pause
             activeMissions = generateMissions(numTeams, rounds);
             status = Array(activeMissions.length).fill('');
             questDoer = Array(activeMissions.length).fill(null);
+            questTimes = Array(activeMissions.length).fill(0);
             if (mIdx >= activeMissions.length) mIdx = 0;
         }
 
@@ -1940,14 +2019,18 @@ pause
             const stObj = students.find(s => s.id === stId);
             const stName = stObj ? stObj.name : `Đại diện Tổ ${teamIdx + 1}`;
 
-            // CƠ CHẾ ĐIỂM (Thang 30 điểm):
-            const ptsAccuracy = Math.round(20 * (res.accuracy / 100));
+            // CƠ CHẾ ĐIỂM (Thang 200 điểm: Thao tác 100đ + Tốc độ 100đ chi li theo ms):
+            const ptsAccuracy = Math.round(100 * (res.accuracy / 100));
 
+            // THƯỞNG TỐC ĐỘ THEO TỪNG MILI-GIÂY:
             let ptsSpeed = 0;
-            if (res.ok && !isAutoTimeUp && timerRemaining > 0 && !timerReady) {
-                ptsSpeed = Math.max(1, Math.round(10 * (timerRemaining / totalTimerSeconds)));
+            if (res.ok) {
+                if (!timerReady) {
+                    ptsSpeed = calcSpeedBonusMs(timerElapsedMs, targetTimerMs);
+                } else {
+                    ptsSpeed = 50;
+                }
             }
-
             const totalScore = ptsAccuracy + ptsSpeed;
 
             if (res.ok) {
@@ -1960,10 +2043,12 @@ pause
                 doneCnt++;
                 status[mIdx] = 'ok';
                 if (stId) questDoer[mIdx] = stId;
+                questTimes[mIdx] = timerElapsedMs;
 
                 drawGame();
 
-                const timeNotice = ptsSpeed > 0 ? ` | Tốc độ: Còn ${timerRemaining}s (+${ptsSpeed}đ thưởng)` : ` | Hết giờ (+0đ thưởng tốc độ)`;
+                const timeSpentStr = formatTimeShortMs(timerElapsedMs);
+                const timeNotice = ` | Thời gian: ${timeSpentStr} (+${ptsSpeed}đ tốc độ)`;
                 gMsg(`🎉 XUẤT SẮC! ${stName} (Tổ ${teamIdx + 1}) hoàn thành 100% Combo! Độ chuẩn: +${ptsAccuracy}đ${timeNotice} ➔ TỔNG: +${totalScore} ĐIỂM!${res.extraHint || ''}`, 'ok');
 
                 if (mIdx < activeMissions.length - 1) {
@@ -1980,8 +2065,9 @@ pause
                 treeBox.classList.add('tree-anim-error');
                 beep(false);
                 scores[teamIdx] += ptsAccuracy;
+                questTimes[mIdx] = timerElapsedMs;
                 drawGame();
-                gMsg(`⏰ HẾT GIỜ! Tổ ${teamIdx + 1} đạt ${res.accuracy}% tiến độ Combo (+${ptsAccuracy} điểm khuyến khích). Còn thiếu: ${res.why}`, 'bad');
+                gMsg(`⏰ HẾT THỜI GIAN! Tổ ${teamIdx + 1} đạt ${res.accuracy}% tiến độ Combo (+${ptsAccuracy} điểm khuyến khích). Còn thiếu: ${res.why}`, 'bad');
             } else {
                 treeBox.classList.add('tree-anim-error');
                 beep(false);
@@ -2004,8 +2090,8 @@ pause
             }
         };
 
-        /* ===== 10. QUẢN LÝ TỔ (2 ĐẾN 6 TỔ) & ĐIỂM SÀN 100 ĐIỂM ===== */
-        let numTeams = 4, scores = [100, 100, 100, 100], students = [];
+        /* ===== 10. QUẢN LÝ TỔ (2 ĐẾN 6 TỔ) & ĐIỂM SÀN 1000 ĐIỂM ===== */
+        let numTeams = 4, scores = [1000, 1000, 1000, 1000], students = [];
         const FALLBACK = [
             "Nguyễn Trung An", "Hồ Nhật Anh", "Lý Ngọc Hà Anh", "Tống Nguyễn Bảo Anh", "Trần Lưu Ngọc Anh",
             "Trần Mai Mỹ Anh", "Trần Ngọc Vy Anh", "Bùi Ngọc Bích", "Nguyễn Minh Châu", "Trần Bảo Châu",
@@ -2044,7 +2130,7 @@ pause
         function penalizeNoise(teamIdx) {
             const current = scores[teamIdx];
             if (current <= 0) return gMsg(`Tổ ${teamIdx + 1} đang có 0 điểm, nhắc nhở giữ trật tự!`, 'bad');
-            const pen = Math.max(5, Math.round(current * 0.10));
+            const pen = Math.max(20, Math.round(current * 0.05)); // Phạt 5% (~50đ trên base 1000)
             scores[teamIdx] = Math.max(0, current - pen);
             drawTeams(); beep(false);
             gMsg(`🔇 Phạt Tổ ${teamIdx + 1} mất trật tự: −${pen} điểm (còn ${scores[teamIdx]}đ)`, 'bad');
@@ -2058,20 +2144,26 @@ pause
         window.setTeamScore = setTeamScore;
 
         function drawTeams() {
-            $('#teams').innerHTML = scores.map((s, i) => `
+            $('#teams').innerHTML = scores.map((s, i) => {
+                const totalMs = activeMissions.reduce((acc, _, idx) => (turnTeam(idx) === i && status[idx] === 'ok' ? acc + (questTimes[idx] || 0) : acc), 0);
+                const timeText = totalMs > 0 ? `⏱️ ${formatTimeShortMs(totalMs)}` : '';
+                return `
                 <div class="team ${i === turnTeam(mIdx) ? 'turn' : ''}">
-                    <span class="n">Tổ ${i + 1}</span>
+                    <div style="display:flex;flex-direction:column">
+                        <span class="n">Tổ ${i + 1}</span>
+                        ${timeText ? `<small style="font-size:.76rem;font-weight:800;color:#0284c7">${timeText}</small>` : ''}
+                    </div>
                     <input type="number" class="score-input" value="${s}" min="0" onchange="setTeamScore(${i}, this.value)">
-                    <button class="noise-btn" data-pen="${i}">🔇 -10%</button>
+                    <button class="noise-btn" data-pen="${i}">🔇 -5%</button>
                 </div>
-            `).join('');
+            `}).join('');
             $$('#teams [data-pen]').forEach(b => b.onclick = () => penalizeNoise(+b.dataset.pen));
         }
 
         $('#cls').onchange = e => loadClass(e.target.value);
         $('#nTeams').onchange = e => {
             const n = +e.target.value;
-            scores = Array.from({ length: n }, (_, i) => scores[i] ?? 100);
+            scores = Array.from({ length: n }, (_, i) => scores[i] ?? 1000);
             numTeams = n;
             setPresent(getBaseTreePaths(numTeams));
             updateActiveMissions();
@@ -2085,20 +2177,26 @@ pause
             if (curTree) drawGame();
         };
 
-        /* ===== 11. BẢNG VÀNG CÓ CƠ CHẾ ĐỒNG HẠNG CHUẨN XÁC ===== */
+        /* ===== 11. BẢNG VÀNG CÓ CƠ CHẾ ĐUA RANK CHI TIẾT TỪNG MS ===== */
         function getRankedTeams() {
             const list = scores.map((s, i) => {
                 const okCnt = activeMissions.filter((_, idx) => turnTeam(idx) === i && status[idx] === 'ok').length;
-                return { i, s, okCnt };
+                const totalMs = activeMissions.reduce((acc, _, idx) => (turnTeam(idx) === i && status[idx] === 'ok' ? acc + (questTimes[idx] || 0) : acc), 0);
+                return { i, s, okCnt, totalMs };
             });
 
-            list.sort((a, b) => (b.s !== a.s ? b.s - a.s : b.okCnt - a.okCnt));
+            // Tiêu chí đua rank: 1. Điểm tổng cao hơn -> 2. Số combo đạt nhiều hơn -> 3. Tổng thời gian ít hơn tính tới từng mili-giây!
+            list.sort((a, b) => {
+                if (b.s !== a.s) return b.s - a.s;
+                if (b.okCnt !== a.okCnt) return b.okCnt - a.okCnt;
+                return a.totalMs - b.totalMs;
+            });
 
             for (let k = 0; k < list.length; k++) {
                 if (k > 0) {
                     const prev = list[k - 1];
                     const cur = list[k];
-                    if (cur.s === prev.s && cur.okCnt === prev.okCnt) {
+                    if (cur.s === prev.s && cur.okCnt === prev.okCnt && cur.totalMs === prev.totalMs) {
                         cur.rank = prev.rank;
                         cur.isTie = true;
                         prev.isTie = true;
@@ -2153,6 +2251,7 @@ pause
                         <div style="font-size:2.4rem">${team.icon}</div>
                         <div style="font-weight:900;font-size:1.2rem">Tổ ${team.i + 1}</div>
                         <div style="font-weight:900;font-size:1.7rem;color:var(--purple)">${team.s} điểm</div>
+                        <div style="font-weight:800;font-size:.86rem;color:#0369a1;margin:2px 0 4px">⏱️ ${formatTimeShortMs(team.totalMs)}</div>
                         <small style="font-weight:800;color:#64748b">${team.title}${team.isTie ? ' (Đồng hạng)' : ''}</small>
                     </div>`;
             }).join('');
@@ -2168,23 +2267,38 @@ pause
                 ['KẾT QUẢ THI ĐUA CÁC TỔ – BÀI 5: THAO TÁC VỚI TỆP VÀ THƯ MỤC (TIẾT 2)'],
                 [`Lớp: ${cl} – Ngày thực hành: ${day}`],
                 [],
-                ['Hạng', 'Tổ', 'Tổng điểm', 'Số Combo hoàn thành', 'Danh hiệu thi đua']
+                ['Hạng', 'Tổ', 'Tổng điểm', 'Số Combo hoàn thành', 'Tổng thời gian', 'Danh hiệu thi đua']
             ];
 
             getRankedTeams().forEach(x => {
                 const rankLabel = x.isTie ? `${x.rank} (Đồng hạng)` : `${x.rank}`;
-                teamRows.push([rankLabel, 'Tổ ' + (x.i + 1), x.s, x.okCnt, x.title]);
+                teamRows.push([rankLabel, 'Tổ ' + (x.i + 1), x.s, x.okCnt, formatTimeShortMs(x.totalMs), x.title]);
             });
 
             const stRows = [
                 [`DANH SÁCH HỌC SINH ĐẠI DIỆN THỰC HÀNH COMBO – LỚP ${cl} – NGÀY ${day}`],
                 [],
-                ['STT', 'Họ và tên', 'Lớp', 'Combo đã thực hiện', 'Mức độ', 'Nhận xét']
+                ['STT', 'Họ và tên', 'Lớp', 'Combo đã thực hiện', 'Thời gian làm bài', 'Mức độ', 'Nhận xét']
             ];
             students.forEach(s => {
                 const doneTasks = [];
-                questDoer.forEach((stId, qIdx) => { if (stId === s.id && status[qIdx] === 'ok') doneTasks.push(`Combo ${qIdx + 1}`); });
-                stRows.push([s.no, s.name, cl, doneTasks.length ? doneTasks.join(', ') : 'Tham gia thảo luận nhóm', doneTasks.length ? 'Hoàn thành xuất sắc' : 'Đạt', 'Thực hành tích cực']);
+                let studentTotalMs = 0;
+                questDoer.forEach((stId, qIdx) => {
+                    if (stId === s.id && status[qIdx] === 'ok') {
+                        const ms = questTimes[qIdx] || 0;
+                        studentTotalMs += ms;
+                        doneTasks.push(`Combo ${qIdx + 1} (${formatTimeShortMs(ms)})`);
+                    }
+                });
+                stRows.push([
+                    s.no,
+                    s.name,
+                    cl,
+                    doneTasks.length ? doneTasks.join(', ') : 'Tham gia thảo luận nhóm',
+                    studentTotalMs > 0 ? formatTimeShortMs(studentTotalMs) : '-',
+                    doneTasks.length ? 'Hoàn thành xuất sắc' : 'Đạt',
+                    'Thực hành tích cực'
+                ]);
             });
 
             const quizLogRows = [
@@ -2204,7 +2318,7 @@ pause
             const now = new Date();
             const d = String(now.getDate()).padStart(2, '0'), m = String(now.getMonth() + 1).padStart(2, '0'), y = now.getFullYear();
             const hh = String(now.getHours()).padStart(2, '0'), mm = String(now.getMinutes()).padStart(2, '0'), ss = String(now.getSeconds()).padStart(2, '0');
-            return `KetQua_TinHoc4_Lop_${cl}_Tiet_10_${hh}h${mm}p${ss}s_Ngay_${d}-${m}-${y}.csv`;
+            return `KetQua_TinHoc4_Lop_${cl}_Tiet_10_Ngay_${y}-${m}-${d}_${hh}h${mm}p${ss}s.csv`;
         }
 
         function exportCsvLocal() {
