@@ -7,14 +7,14 @@
 
 ## 🎯 1. QUY TẮC BẮT BUỘC (CRITICAL RULES)
 1. **100% Giao Diện Tiếng Việt:** Không một từ tiếng Anh trên nút bấm, nhãn, thông báo. Nút bấm kèm Emoji trực quan, cỡ chữ cực lớn, font tròn trịa dễ đọc (`'Baloo 2'`, `'Nunito'`, `'Segoe UI'`).
-2. **Ưu tiên hoạt động offline:**
+2. **100% Offline-First:**
    - Đồ họa vẽ bằng CSS3, SVG, HTML5 Canvas và Emoji.
    - Âm thanh được tổng hợp bằng **Web Audio API**.
-   - Một số chức năng tải danh sách lớp và xuất Excel cần truy cập tệp/thư viện ngoài; không đảm bảo mọi tính năng hoạt động khi mở trực tiếp bằng `file://`.
-   - Khi không tải được dữ liệu lớp, các trang dùng `components.js` có danh sách dự phòng.
+   - Không nạp thư viện, font hoặc tài nguyên qua CDN; báo cáo dùng CSV UTF-8 có BOM qua `shared/js/core.js`.
+   - Dữ liệu học sinh dùng JSON nội bộ khi chạy qua HTTP và danh sách dự phòng khi mở trực tiếp bằng `file://`.
 3. **Chặn Phím F5 Của Học Sinh:**
-   - Tự động chặn phím `F5`, `Ctrl+R`, `Ctrl+F5` với thông báo tiếng Việt: `"⚠️ Cấm bấm F5 tải lại trang!"`.
-   - **Chỉ khi giáo viên giữ `Shift + F5` mới cho phép tải lại trang.**
+   - Tự động chặn `F5`, `Ctrl+R`, `Alt + Mũi tên`, `Backspace` ngoài ô nhập và chuột phải.
+   - Khi giáo viên chủ động làm lại bài, gọi `window.allowPageReload()` trước `location.reload()`.
 
 Giao diện dùng chung hỗ trợ cuộn nội dung dài, bố cục màn hình nhỏ, phím điều hướng dễ nhận biết và giảm chuyển động khi người dùng bật chế độ hạn chế chuyển động.
 
@@ -69,8 +69,8 @@ Khi Gacha dừng lại, hệ thống hiển thị cùng lúc:
 ## 📊 5. XUẤT FILE BÁO CÁO CSV CUỐI TIẾT
 - Toàn bộ hệ thống xuất định dạng **CSV chuẩn UTF-8 có BOM (`\uFEFF`)**, đảm bảo mở trực tiếp bằng Microsoft Excel, Google Sheets mà không bị lỗi font Tiếng Việt.
 - **Quy cách đặt tên file chuẩn thống nhất:**
-  `KetQua_TinHoc1_Lop_{Lop}_Tiet_{Tiet}_{HH}h{MM}p{SS}s_Ngay_{DD}-{MM}-{YYYY}.csv`
-  *(Ví dụ: `KetQua_TinHoc1_Lop_1-6_Tiet_08_14h30p25s_Ngay_31-10-2026.csv`)*
+  `KetQua_TinHoc1_Lop_{Lop}_Tiet_{Tiet}_Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s.csv`
+  *(Ví dụ: `KetQua_TinHoc1_Lop_1-6_Tiet_08_Ngay_2026-10-31_14h30p25s.csv`)*
 - Cột thông tin chuẩn SMAS & Thông tư 27: STT, Mã học sinh, Họ và tên, Lớp, Trạng thái thực hành, Kỹ năng cầm chuột, Kỹ năng thao tác chuột, Kỷ luật phòng học, Xếp loại TT27 (T/H/C), Nhận xét tự động sư phạm.
 - Tích hợp hàm `buildExportFileName` và `exportRows` / `LessonExport` dùng chung.
 
@@ -78,14 +78,15 @@ Khi Gacha dừng lại, hệ thống hiển thị cùng lúc:
 
 ## 🚀 6. HƯỚNG DẪN TẠO TIẾT MỚI (VÍ DỤ `khoi-1/tiet-02/index.html`)
 
-Chỉ cần nhúng 3 file dùng chung:
+Nạp các tài nguyên nội bộ trong `<head>` (điều chỉnh đường dẫn theo độ sâu thư mục). Không nhúng CDN:
 ```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
   <title>Tin học 1 - Tiết 02</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="../../shared/js/prevent-reload.js"></script>
+  <script src="../../shared/js/core.js"></script>
   <link rel="stylesheet" href="../shared/style.css">
   <script src="../shared/gacha.js"></script>
   <script src="../shared/components.js"></script>

@@ -149,17 +149,30 @@ Tuyệt đối không dùng tên chung chung như `state`, `game_data`, `tv_data
 ### 16. Quy Chuẩn Tính Năng Ẩn: Cơ Chế "Phe Quỷ" / "Đấu Trường Ma Vương" (Shared Demon Mode)
 * **Bản chất Toàn Hệ Thống (Shared Mode / Component):** Đây là một **Chế độ chơi dùng chung toàn hệ thống** (`shared/js/demon-mode.js`), không phải tính năng tạm thời riêng lẻ của một tiết. Mọi tiết học ở tất cả các khối (1 - 5) đều có thể kích hoạt khi gặp lớp cá biệt.
 * **Bản chất Sư phạm:** Kích hoạt thủ công cho các lớp cá biệt có học sinh cố ý chống đối, phá bĩnh để kéo tụt điểm của cả tổ ("chết chùm"). Cơ chế này mượn chính sự háo thắng, sĩ diện tuổi mới lớn để ép học sinh tự kiểm soát kỷ luật lẫn nhau và bảo vệ các tổ bình thường.
+* **Bố cục Gọn gàng — Tích hợp Thẳng vào Tổ (Không chiếm Sidebar riêng):**
+  * Tổ Quỷ chính là **một Tổ ngang hàng** trong mảng danh sách tổ (`teams`) ở Sidebar, không được tạo thêm khối riêng chiếm diện tích màn hình TV.
+  * **Không hiển thị điểm tổ:** Thẻ Tổ Quỷ tuyệt đối **không show ô điểm số chung** (vì điểm là tài sản cá nhân bí mật của từng con quỷ để đấu tranh sinh tồn), mà **chỉ hiển thị danh sách tên các con quỷ** trong tổ kèm nhãn nhận diện.
 * **Quy tắc Cách ly & Sinh tồn (Quỷ ăn thịt Quỷ - Zero-Sum):**
   * Học sinh cá biệt bị trục xuất khỏi tổ gốc, gom vào **"Phe Quỷ" (Tổ Ma Vương)**. Điểm của Phe Quỷ được tính độc lập theo từng cá nhân con quỷ, không chia đều cho tổ.
   * **Hút điểm:** Trả lời đúng KHÔNG được máy cấp điểm mới mà trực tiếp hút điểm từ các con Quỷ khác đắp vào mình.
   * **Tịch thu điểm:** Mất trật tự, cố tình sai hoặc không chép bài sẽ bị hệ thống tịch thu điểm và chia đều cho những con Quỷ còn lại. (Nếu Phe Quỷ chỉ có 1 em duy nhất, điểm bị trừ sẽ chuyển thành Quỹ Cứu Trợ chia cho các tổ Loài Người).
-* **Vòng quay Lượt chơi & Gacha Quỷ:**
-  * Tổ Ma Vương có lượt chơi xoay vòng ngang hàng với các tổ Loài Người (`Tổ 1 ➔ Tổ 2 ➔ ... ➔ Tổ Quỷ`).
-  * **CẤM giơ tay tự do ở lượt Tổ Quỷ:** Bắt buộc Giáo viên bấm nút `🎲 Gacha Quỷ` để hệ thống tự động bốc ngẫu nhiên một con Quỷ lên bảng, chấm dứt tình trạng trốn tránh hoặc tranh giành ồn ào.
+* **Vòng đời Gacha — Mỗi con Quỷ đúng 1 lượt duy nhất (Single Turn per Round):**
+  * Nút Gacha của Tổ Quỷ đặt đồng bộ như các tổ khác và các tiết trước (`🎲 Gọi tên lên bảng`).
+  * **Chu trình gọi:** Mỗi con quỷ chỉ được gọi lên bảng **đúng 1 lượt duy nhất** trong một vòng xoay. Chỉ khi toàn bộ các con quỷ trong tổ đều đã lên bảng đủ 1 lượt thì hệ thống mới cho phép bắt đầu vòng mới.
+  * Gọi lên bảng bằng **Pop-up Alert Gọi Tên Khổng Lồ (`showBigStudentAlert`)** quen thuộc để cả lớp cùng thấy rõ em nào đang lên máy.
 * **Ngai vàng Quỷ Vương & Phần thưởng có điều kiện:**
   * Cá nhân Quỷ có điểm cao nhất cuối tiết đăng quang làm **Quỷ Vương**.
   * **Phần thưởng:** Được lên bục giảng cầm chuột điều khiển máy chiếu tiết học tuần sau.
   * **Điều kiện tiên quyết:** Vở phải chép đủ 100% bài học (Giáo viên duyệt vở trước khi cho lên máy).
+  * **Cơ chế Phân định Bằng Điểm (Tie-Breaking) & Ghi Rõ Lý Do Sắc Phong:**
+    * **BẮT BUỘC ghi rõ Lý do Sắc phong trên màn hình TV (.dk-reason-box):** Khi vinh danh Quỷ Vương trên Slide Chốt kiến thức (Summary) hoặc Bảng vàng (Leaderboard), hệ thống BẮT BUỘC phải hiện 1 khung nổi bật ghi rõ lý do em đó được trao vương miện (điểm cao nhất, thắng nhờ ít vi phạm, hoặc thắng sau vòng duyệt vở).
+    * **Quy trình Phân định 3 bậc khi các con Quỷ bằng điểm:**
+      1. **Bậc 1 — So Chỉ số Kỷ luật (iolations):** Nếu có từ 2 em trở lên cùng đạt điểm cao nhất, hệ thống tự động so số lần bị nhắc nhở vi phạm. Em nào **ít vi phạm hơn** sẽ chiến thắng đăng quang Quỷ Vương. Màn hình ghi rõ lý do: *'Đồng điểm cao nhất (X Xu), nhưng đăng quang nhờ Ý THỨC KỶ LUẬT TỐT HƠN (chỉ Y lần nhắc nhở, ít hơn Z lần của bạn B)!'*.
+      2. **Bậc 2 — Soi Vở Ghi Bài Trực Tiếp (Teacher Audit):** Nếu bằng cả điểm lẫn số lần vi phạm, màn hình hiện thông báo yêu cầu Giáo viên kiểm tra vở tại chỗ. Giáo viên bấm nút công nhận em có vở chép bài đạt 100% đầy đủ, sạch đẹp hơn. Màn hình cập nhật lý do: *'Chiến thắng sau vòng duyệt Vở Ghi Bài 100% sạch đẹp của Giáo viên!'*.
+      3. **Bậc 3 — Hòa tuyệt đối 100%:** Giáo viên được chọn giữa 2 hình thức:
+         - **Song Ma Vương (Đồng Hạng):** Cả 2 cùng lên bục giảng tuần sau, chia ca mỗi em quản trò 15 phút.
+         - **Vòng Quay Đoạt Vương (1 vs 1):** Bấm nút Gacha 1-1 để hệ thống bốc ngẫu nhiên chọn ra 1 Quỷ Vương, em còn lại nhận danh hiệu Tả Hữu Hộ Pháp.
+    * **Các thứ hạng dưới:** Áp dụng chuẩn Tie-ranking (Mục 1.13), xếp đồng hạng công bằng và ghi rõ trong CSV: Hạng X (Đồng điểm).
 * **Trừng phạt "Túi Kinh Nghiệm" (Loot Goblin) & Giáng cấp Slime:**
   * Nếu Quỷ Vương lên cầm máy mà lóng ngóng, quản trò lôm côm hoặc cố ý phá hoại: Giáo viên kích hoạt **Đòn Phản Phệ**.
   * Toàn bộ điểm tích lũy của Quỷ Vương phát nổ, trở thành "túi kinh nghiệm" chia đều cho các tổ Loài Người.

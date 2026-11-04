@@ -561,6 +561,15 @@ Khi một lớp chỉ có duy nhất 1 học sinh cá biệt bị đưa vào Phe
 * **Điều kiện Tiên quyết Khắt khe (The Iron Rule):**
   * Quỷ Vương chỉ chính thức được cầm máy nếu **Vở ghi bài được Giáo viên kiểm tra và đạt 100% đầy đủ nội dung bài học**.
   * Nếu thiếu dù chỉ 1 dòng ghi nhớ $\longrightarrow$ Tước vương miện ngay đầu giờ, chuyển quyền cho Quỷ xếp thứ hai hoặc hủy bỏ. Điều này ép các em cá biệt dù ngang bướng đến đâu cũng phải nghiêm túc hạ bút chép bài.
+* **Cơ Chế Xử Lý Khi Bằng Điểm (Tie-Breaking) & Ghi Rõ Lý Do Sắc Phong:**
+  * **BẮT BUỘC hiển thị Lý do Sắc phong trên màn hình:** Khung vinh danh Quỷ Vương (`.demon-king-spotlight`) phải có một hộp lý do nổi bật (`.dk-reason-box`), ghi rõ tường tận nguyên do sắc phong để cả lớp và cá nhân học sinh đều hiểu rõ và phục.
+  * **Bộ lọc 3 bậc phân định công bằng:**
+    1. **Bậc 1 — So Kỷ luật (`violations`):** Nếu có từ 2 con Quỷ bằng điểm cao nhất, hệ thống tự động so số lần nhắc nhở vi phạm. Em nào **ít bị phạt hơn** sẽ đăng quang. Màn hình ghi: *"Đồng điểm cao nhất (X Xu), nhưng đăng quang nhờ Ý THỨC KỶ LUẬT TỐT HƠN (chỉ Y lần nhắc nhở, ít hơn Z lần của bạn B)!"*.
+    2. **Bậc 2 — Giáo viên Soi Vở Ghi Bài tại chỗ:** Nếu hòa cả điểm lẫn số lần phạt, màn hình hiển thị lời nhắc Giáo viên kiểm tra trực tiếp vở chép bài. Giáo viên bấm nút xác nhận em có vở đạt 100% sạch đẹp hơn. Lý do cập nhật: *"Chiến thắng sau vòng duyệt Vở Ghi Bài 100% sạch đẹp của Giáo viên!"*.
+    3. **Bậc 3 — Hòa tuyệt đối 100%:** Giáo viên có 2 tùy chọn linh hoạt:
+       * **Song Ma Vương (Đồng Hạng):** Cả 2 cùng lên bục giảng tuần sau, mỗi em quản trò 15 phút.
+       * **Vòng Quay Đoạt Vương (1 vs 1):** Bấm nút Gacha 1-1 để máy bốc ngẫu nhiên 1 Quỷ Vương, em còn lại làm Tả Hữu Hộ Pháp.
+  * **Các thứ hạng khác trong Phe Quỷ:** Nếu bằng điểm nhau ở các bậc sau thì tính **Đồng Hạng** theo chuẩn Tie-ranking, ghi rõ trong CSV: `Hạng X (Đồng điểm)`.
 
 ### 12.6 Trừng Phạt "Túi Kinh Nghiệm" (Loot Goblin) & Giáng Cấp Slime Câm Lặng
 * **Hành vi Vi phạm khi cầm máy:**

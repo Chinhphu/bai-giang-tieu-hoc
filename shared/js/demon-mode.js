@@ -19,6 +19,7 @@
         students: [],
         allClassStudents: [],
         selectedPunishIdx: 0,
+        manualKingOverride: null,
         options: {
             startingScore: 1000,
             onScoreChange: null,
@@ -26,6 +27,9 @@
         },
 
         // Khởi tạo
+        calledNames: new Set(),
+        stagedStudent: null,
+
         init: function (opts = {}) {
             Object.assign(this.options, opts);
             if (opts.students && Array.isArray(opts.students)) {
@@ -35,13 +39,6 @@
             if (this.isActive) {
                 this.injectUI();
                 this.bindEvents();
-                // Khởi tạo 2 quỷ mẫu nếu chưa có ai
-                if (this.students.length === 0) {
-                    this.students = [
-                        { name: "Học sinh cá biệt 1", score: this.options.startingScore, violations: 0, status: 'alive' },
-                        { name: "Học sinh cá biệt 2", score: this.options.startingScore, violations: 0, status: 'alive' }
-                    ];
-                }
                 this.renderRoster();
             }
         },
@@ -66,10 +63,7 @@
             const root = document.createElement('div');
             root.id = 'demon-mode-root';
             root.innerHTML = `
-                <!-- Nút Trừng Phạt Nổi Góc Màn Hình -->
-                <button type="button" class="btn-punish-float active" id="btn-punish-float" onclick="window.DemonMode.openPunishModal()">
-                    ⚡ Trừng Phạt Quỷ
-                </button>
+                
 
                 <!-- Banner Sấm Sét Trừng Phạt -->
                 <div class="demon-strike-banner" id="demon-strike-banner"></div>
@@ -79,7 +73,7 @@
                     <div class="demon-modal-box">
                         <div class="demon-modal-title">
                             <span>⚡ BẢNG TRỪNG PHẠT MA GIỚI</span>
-                            <button type="button" class="btn-fs-close" style="position:static; display:inline-flex !important;" onclick="window.DemonMode.closePunishModal()">✖</button>
+                            <button type="button" class="btn-modal-close" onclick="window.DemonMode.closePunishModal()">✖</button>
                         </div>
                         <div style="font-size:14px; color:#cbd5e1; margin-bottom:8px; font-weight:700;">1. CHỌN CON QUỶ VI PHẠM:</div>
                         <div class="demon-pick-grid" id="punish-demon-list"></div>
@@ -98,6 +92,11 @@
                                 <b style="color:#f87171;">-150 Xu</b>
                             </button>
                         </div>
+                        <div style="margin-top:14px; display:flex; justify-content:flex-end;">
+                            <button type="button" class="btn-action" style="background:#334155; color:#f8fafc; font-size:14px; padding:7px 18px; border-color:#64748b;" onclick="window.DemonMode.closePunishModal()">
+                                ✖ Hủy / Đóng lại (Esc)
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -106,7 +105,7 @@
                     <div class="demon-modal-box" style="max-width:720px;">
                         <div class="demon-modal-title">
                             <span>😈 BẢNG QUẢN LÝ PHE QUỶ & ĐẤU TRƯỜNG MA VƯƠNG</span>
-                            <button type="button" class="btn-fs-close" style="position:static; display:inline-flex !important;" onclick="window.DemonMode.closeManagerModal()">✖</button>
+                            <button type="button" class="btn-modal-close" onclick="window.DemonMode.closeManagerModal()">✖</button>
                         </div>
                         <div style="font-size:14.5px; color:#cbd5e1; line-height:1.5; margin-bottom:12px;">
                             Chọn học sinh cá biệt để <b>Trục xuất sang Phe Quỷ</b> (chấm dứt tình trạng cố tình kéo tụt điểm của các tổ).
@@ -155,7 +154,23 @@
                     e.preventDefault();
                     if (!this.isActive) this.enable();
                     else this.openManagerModal();
+                    return;
                 }
+                if (e.key === 'Escape') {
+                    const openModal = document.querySelector('.demon-modal-overlay.open');
+                    if (openModal) {
+                        openModal.classList.remove('open');
+                    }
+                }
+            });
+
+            // Click backdrop đóng modal
+            document.querySelectorAll('.demon-modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        overlay.classList.remove('open');
+                    }
+                });
             });
         },
 
@@ -287,33 +302,33 @@
             this.renderRoster();
         },
 
-        // Gacha Quỷ
+        // Gacha Quỷ: Mỗi con quỷ 1 lượt duy nhất
         triggerGacha: function () {
             if (this.students.length === 0) {
                 this.openManagerModal();
                 return;
             }
-            const activeDemons = this.students.filter(d => d.status !== 'slime');
-            if (activeDemons.length === 0) {
-                this.showBanner('⚠️ Tất cả Quỷ đều đã bị phong ấn Slime!');
-                return;
+            let candidates = this.students.filter(d => !this.calledNames.has(d.name) && d.status !== 'slime');
+            if (candidates.length === 0) {
+                this.calledNames.clear();
+                candidates = this.students.filter(d => d.status !== 'slime');
+                if (candidates.length === 0) {
+                    this.showBanner('⚠️ Tất cả Quỷ đều đã bị phong ấn Slime!');
+                    return;
+                }
             }
 
-            const modal = document.getElementById('demon-gacha-modal');
-            if (modal) modal.classList.add('open');
-            const disp = document.getElementById('gacha-demon-display');
+            const picked = candidates[Math.floor(Math.random() * candidates.length)];
+            this.calledNames.add(picked.name);
+            this.stagedStudent = picked;
 
-            let count = 0;
-            const timer = setInterval(() => {
-                const rand = activeDemons[Math.floor(Math.random() * activeDemons.length)];
-                if (disp) disp.textContent = rand.name;
-                count++;
-                if (count > 15) {
-                    clearInterval(timer);
-                    const chosen = activeDemons[Math.floor(Math.random() * activeDemons.length)];
-                    if (disp) disp.textContent = '😈 ' + chosen.name + ' 😈';
-                }
-            }, 90);
+            // Bật Big Alert chuẩn nếu có
+            if (typeof window.showBigStudentAlert === 'function') {
+                window.showBigStudentAlert(picked.name, 'ĐẠI DIỆN TỔ QUỶ LÊN BẢNG:');
+            } else {
+                this.showBanner(`🎯 <b>ĐẠI DIỆN TỔ QUỶ LÊN BẢNG:</b> ${picked.name.toUpperCase()}!`);
+            }
+            this.renderRoster();
         },
 
         closeGachaModal: function () {
@@ -420,6 +435,105 @@
             this.curseSlimeIdx(bestIdx);
         },
 
+        // Đánh giá Quỷ Vương & Lý do sắc phong (Tie-Breaking 3 bậc)
+        evaluateKing: function () {
+            if (!this.students || this.students.length === 0) return null;
+            const valid = this.students.filter(d => d.status !== 'slime');
+            if (valid.length === 0) {
+                return {
+                    status: 'all_slime',
+                    title: 'TẤT CẢ QUỶ ĐÃ BỊ PHONG ẤN SLIME 🔇',
+                    name: 'Không có Quỷ Vương',
+                    scoreText: 'Toàn bộ Phe Quỷ đã bị giáng cấp Slime',
+                    reason: 'Không có học sinh nào đủ tư cách đăng quang do toàn bộ thành viên đều vi phạm kỷ luật nghiêm trọng!',
+                    tiedDemons: []
+                };
+            }
+
+            if (this.manualKingOverride) {
+                const found = valid.find(d => d.name === this.manualKingOverride.name);
+                const score = found ? found.score : 0;
+                const violations = found ? found.violations : 0;
+                return {
+                    status: 'decided',
+                    title: `👑 QUỶ VƯƠNG TIẾT NÀY: ${this.manualKingOverride.name} 👑`,
+                    name: this.manualKingOverride.name,
+                    scoreText: `Tổng điểm sinh tồn: ${score} Xu · Bị nhắc nhở: ${violations} lần`,
+                    reason: this.manualKingOverride.reason,
+                    tiedDemons: []
+                };
+            }
+
+            const maxScore = Math.max(...valid.map(d => d.score));
+            const topScorers = valid.filter(d => d.score === maxScore);
+
+            if (topScorers.length === 1) {
+                const k = topScorers[0];
+                let reason = `Đạt điểm sinh tồn cao nhất Phe Quỷ (${k.score} Xu)`;
+                if (k.violations === 0) {
+                    reason += ' và ý thức kỷ luật gương mẫu (0 lần vi phạm)!';
+                } else {
+                    reason += ` (số lần bị nhắc nhở vi phạm: ${k.violations} lần).`;
+                }
+                return {
+                    status: 'decided',
+                    title: `👑 QUỶ VƯƠNG TIẾT NÀY: ${k.name} 👑`,
+                    name: k.name,
+                    scoreText: `Tổng điểm sinh tồn: ${k.score} Xu · Bị nhắc nhở: ${k.violations} lần`,
+                    reason: reason,
+                    tiedDemons: []
+                };
+            }
+
+            const minViolations = Math.min(...topScorers.map(d => d.violations));
+            const bestDisciplined = topScorers.filter(d => d.violations === minViolations);
+
+            if (bestDisciplined.length === 1) {
+                const k = bestDisciplined[0];
+                const othersStr = topScorers.filter(d => d.name !== k.name)
+                    .map(d => `${d.name} (${d.violations} lần phạt)`).join(', ');
+                const reason = `Đồng điểm cao nhất (${k.score} Xu), nhưng xuất sắc đăng quang nhờ Ý THỨC KỶ LUẬT TỐT HƠN (chỉ bị nhắc nhở ${k.violations} lần, ít hơn ${othersStr})!`;
+                return {
+                    status: 'decided',
+                    title: `👑 QUỶ VƯƠNG TIẾT NÀY: ${k.name} 👑`,
+                    name: k.name,
+                    scoreText: `Tổng điểm sinh tồn: ${k.score} Xu · Bị nhắc nhở: ${k.violations} lần`,
+                    reason: reason,
+                    tiedDemons: []
+                };
+            }
+
+            const names = bestDisciplined.map(d => d.name).join(' & ');
+            const reason = `Đồng điểm sinh tồn cao nhất (${maxScore} Xu) và đồng kỷ luật (${minViolations} lần nhắc nhở). Danh hiệu: SONG MA VƯƠNG (chia đôi thời gian quản trò 15p - 15p tuần sau) HOẶC Giáo viên duyệt Vở chép bài để trao trọn vương miện!`;
+            return {
+                status: 'tied',
+                title: `👑 SONG MA VƯƠNG ĐỒNG HẠNG: ${names} 👑`,
+                name: names,
+                scoreText: `Cùng đạt: ${maxScore} Xu · Bị nhắc nhở: ${minViolations} lần`,
+                reason: reason,
+                tiedDemons: bestDisciplined
+            };
+        },
+
+        chooseKingByNotebook: function (name) {
+            this.manualKingOverride = {
+                name: name,
+                reason: 'Chiến thắng danh hiệu Quỷ Vương sau khi được Giáo viên kiểm tra và xác nhận Vở ghi bài đạt 100% đầy đủ, sạch đẹp nhất!'
+            };
+            this.showBanner(`👑 Đã sắc phong ${name} làm Quỷ Vương nhờ Vở sạch chữ đẹp!`);
+        },
+
+        acceptDualKings: function () {
+            const res = this.evaluateKing();
+            if (!res || !res.tiedDemons) return;
+            const names = res.tiedDemons.map(d => d.name).join(' & ');
+            this.manualKingOverride = {
+                name: `Song Ma Vương: ${names}`,
+                reason: `Đồng điểm và đồng kỷ luật! Được công nhận SONG MA VƯƠNG: Mỗi em sẽ quản trò 15 phút máy chiếu trong tiết sau.`
+            };
+            this.showBanner(`👑 Đã xác nhận danh hiệu Song Ma Vương cho ${names}!`);
+        },
+
         // Xuất Section Báo Cáo CSV chuẩn Anti-Sugarcoating
         exportCsvSection: function () {
             if (!this.students || this.students.length === 0) return null;
@@ -431,20 +545,31 @@
                 ['STT', 'Họ và Tên', 'Điểm Số (Xu)', 'Danh Hiệu Ma Giới', 'Số Lần Vi Phạm', 'Trạng Thái Máy', 'Đánh Giá TT27', 'Nhận Xét Sư Phạm Nghiêm Khắc']
             ];
 
-            const sorted = [...this.students].sort((a, b) => b.score - a.score);
+            const sorted = [...this.students].sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.violations - b.violations;
+            });
+
+            const kingEval = this.evaluateKing();
+
             sorted.forEach((d, idx) => {
                 let title = 'Quỷ Con';
                 let tt27 = 'C';
                 let comment = '';
 
+                const isCrownedKing = kingEval && (
+                    (kingEval.name === d.name) || 
+                    (kingEval.tiedDemons && kingEval.tiedDemons.some(td => td.name === d.name))
+                );
+
                 if (d.status === 'slime') {
                     title = 'Slime Xanh (Câm Lặng)';
                     tt27 = 'C';
                     comment = 'Ý thức kỷ luật kém, lơ là thiếu tập trung; bị tước quyền điều khiển máy và giáng cấp Slime, cần gia đình và GVCN phối hợp chấn chỉnh.';
-                } else if (idx === 0 && d.score >= this.options.startingScore) {
-                    title = 'Quỷ Vương (Tạm Quyền)';
+                } else if (isCrownedKing) {
+                    title = (kingEval.status === 'tied') ? 'Song Ma Vương (Đồng Hạng 1)' : 'Quỷ Vương (Tạm Quyền)';
                     tt27 = d.violations === 0 ? 'H' : 'C';
-                    comment = 'Có khả năng phản biện và điểm số cao trong Phe Quỷ nhưng ý thức kỷ luật chưa ổn định; cần hoàn thành 100% vở ghi bài mới đủ điều kiện công nhận.';
+                    comment = `SẮC PHONG: ${kingEval.reason} Cần hoàn thành 100% vở ghi bài trước giờ học tuần sau mới được cầm máy.`;
                 } else if (d.violations >= 2) {
                     title = 'Quỷ Con (Cá Biệt)';
                     tt27 = 'C';
@@ -455,8 +580,13 @@
                     comment = 'Bị cách ly sang Phe Quỷ; trong tiết có tiến bộ về kỷ luật nhưng cần tiếp tục cố gắng để được trở về tổ.';
                 }
 
+                let rankLabel = `Hạng ${idx + 1}`;
+                if (idx > 0 && d.score === sorted[idx - 1].score && d.violations === sorted[idx - 1].violations) {
+                    rankLabel = `Hạng ${idx} (Đồng điểm)`;
+                }
+
                 demonRows.push([
-                    idx + 1,
+                    rankLabel,
                     d.name,
                     d.score,
                     title,
