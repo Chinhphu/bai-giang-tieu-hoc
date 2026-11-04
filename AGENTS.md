@@ -31,10 +31,10 @@ Mọi mã nguồn do AI sinh ra hoặc chỉnh sửa BẮT BUỘC phải tuân t
 * **Trang Ghi bài vào vở (Notebook Writing Slide / Slide đầu giờ):**
   * **Chữ phải đủ to:** Đảm bảo học sinh ngồi ở cuối lớp (khoảng cách 8–10m) nhìn rõ và chép kịp (Tựa bài $\ge 44\text{px} - 60\text{px}$, Thứ ngày $\ge 28\text{px} - 34\text{px}$, Nội dung ghi $\ge 30\text{px} - 38\text{px}$, in đậm từ khóa).
   * **Thiết kế tối giản, sạch sẽ:** Nền trắng tinh khiết (`#ffffff`), TUYỆT ĐỐI CẤM trang trí cầu kỳ, không kẻ hoa văn/ô ly rườm rà gây rối mắt khi chiếu máy chiếu mờ, không bóng đổ phức tạp. Chữ có thể tô màu để phân cấp rõ ràng (Thứ ngày màu xám/xanh dịu, Môn học xanh dương, Tên bài đỏ/đậm).
-  * **BẮT BUỘC có nút Chế độ Toàn Màn Hình (Fullscreen Toggle):**
-    * Nút to, rõ ràng: `⛶ Chế độ toàn màn hình chép bài`.
-    * Khi kích hoạt: Khung ghi bài phóng to chiếm trọn 100% màn hình TV (`100vw x 100vh`), ẩn hoàn toàn sidebar và các thanh điều khiển gây phân tâm.
-    * Có nút thu nhỏ `✖ Thu nhỏ (Esc)` và hỗ trợ phím `Esc` để quay về bình thường.
+  * **BẮT BUỘC có nút Chế độ Toàn Màn Hình (Fullscreen Toggle) — Chuẩn 1 nút Zoom / 1 nút Tắt duy nhất:**
+    * **Khi bình thường:** Chỉ hiển thị **DUY NHẤT 1 NÚT ZOOM** `⛶ Chế độ toàn màn hình chép bài`. Nút tắt `✖ Thu nhỏ (Esc)` phải ẩn hoàn toàn (`display: none !important;`).
+    * **Khi phóng to:** Khung ghi bài phóng to chiếm trọn 100% màn hình TV (`100vw x 100vh`), ẩn hoàn toàn sidebar và các thanh điều khiển gây phân tâm. Chỉ hiển thị **DUY NHẤT 1 NÚT TẮT** `✖ Thu nhỏ (Esc)` ghim ở góc trên bên phải màn hình. Nút Zoom ban đầu tự động ẩn đi (`display: none !important;`), TUYỆT ĐỐI CẤM đổi tên nút zoom thành nút tắt thứ hai gây thừa thãi lặp lại.
+    * Hỗ trợ phím `Esc` để quay về bình thường bất cứ lúc nào.
   * **Đầu giờ:** Chỉ ghi Thứ ngày Tiếng Việt tự động (`updateVietnameseDate()`) + Môn: *Tin học* + *Tên bài học*. CẤM bắt học sinh ghi chép dài dòng vào đầu giờ.
 * **Xuyên suốt tiết học (Sau mỗi hoạt động khám phá/thực hành):**
   * Tách nhỏ kiến thức cần nhớ thành các thẻ ghi nhớ ngắn gọn (`.memo-card` / `.note-box`).
@@ -146,8 +146,9 @@ Tuyệt đối không dùng tên chung chung như `state`, `game_data`, `tv_data
   * ĐỒNG THỜI luôn có file đồng bộ `quests.js` (hoặc `questions.js`) định nghĩa biến toàn cục (ví dụ: `window.QUESTS_DATA = ...`) nhúng qua thẻ `<script src="quests.js"></script>` để khi giáo viên mở file trực tiếp `file:///...` trong phòng máy không bị lỗi CORS chặn `fetch`.
 * **Lợi ích:** Giáo viên có thể mở ngay file `quests.json` / `quests.js` bên cạnh để chỉnh sửa, thêm bớt câu hỏi một cách trực quan, nhanh chóng mà không lo làm hỏng mã nguồn HTML/CSS/JS.
 
-### 16. Quy Chuẩn Tính Năng Ẩn: Cơ Chế "Phe Quỷ" / "Đấu Trường Ma Vương" (Anti-Griefing & Peer-Policing Faction)
-* **Bản chất Sư phạm:** Đây là **tính năng ẩn kích hoạt thủ công**, chuyên dùng cho các lớp cá biệt có học sinh cố ý chống đối, phá bĩnh để kéo tụt điểm của cả tổ ("chết chùm"). Cơ chế này mượn chính sự háo thắng, sĩ diện tuổi mới lớn để ép học sinh tự kiểm soát kỷ luật lẫn nhau và bảo vệ các tổ bình thường.
+### 16. Quy Chuẩn Tính Năng Ẩn: Cơ Chế "Phe Quỷ" / "Đấu Trường Ma Vương" (Shared Demon Mode)
+* **Bản chất Toàn Hệ Thống (Shared Mode / Component):** Đây là một **Chế độ chơi dùng chung toàn hệ thống** (`shared/js/demon-mode.js`), không phải tính năng tạm thời riêng lẻ của một tiết. Mọi tiết học ở tất cả các khối (1 - 5) đều có thể kích hoạt khi gặp lớp cá biệt.
+* **Bản chất Sư phạm:** Kích hoạt thủ công cho các lớp cá biệt có học sinh cố ý chống đối, phá bĩnh để kéo tụt điểm của cả tổ ("chết chùm"). Cơ chế này mượn chính sự háo thắng, sĩ diện tuổi mới lớn để ép học sinh tự kiểm soát kỷ luật lẫn nhau và bảo vệ các tổ bình thường.
 * **Quy tắc Cách ly & Sinh tồn (Quỷ ăn thịt Quỷ - Zero-Sum):**
   * Học sinh cá biệt bị trục xuất khỏi tổ gốc, gom vào **"Phe Quỷ" (Tổ Ma Vương)**. Điểm của Phe Quỷ được tính độc lập theo từng cá nhân con quỷ, không chia đều cho tổ.
   * **Hút điểm:** Trả lời đúng KHÔNG được máy cấp điểm mới mà trực tiếp hút điểm từ các con Quỷ khác đắp vào mình.

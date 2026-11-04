@@ -174,8 +174,9 @@
 
             box.scrollTop = 0;
 
+            // ẨN HOÀN TOÀN NÚT TOGGLE KHI ĐANG FULLSCREEN ĐỂ CHỈ CÒN DUY NHẤT 1 NÚT TẮT Ở GÓC TRÊN
             document.querySelectorAll('.btn-fs-toggle, [data-action="toggle-notebook-fs"]').forEach(btn => {
-                btn.innerHTML = '✖ Thu nhỏ (Esc)';
+                btn.style.display = 'none';
             });
         } else {
             // THU NHỎ QUAY VỀ BÌNH THƯỜNG
@@ -190,7 +191,9 @@
                 }
             }
 
+            // HIỆN LẠI DUY NHẤT 1 NÚT ZOOM BAN ĐẦU
             document.querySelectorAll('.btn-fs-toggle, [data-action="toggle-notebook-fs"]').forEach(btn => {
+                btn.style.display = '';
                 btn.innerHTML = '⛶ Chế độ toàn màn hình chép bài';
             });
         }
@@ -201,7 +204,9 @@
         if (!document.fullscreenElement && !document.webkitFullscreenElement) {
             document.querySelectorAll('.fullscreen-mode').forEach(el => el.classList.remove('fullscreen-mode'));
             document.body.classList.remove('has-notebook-fullscreen');
+            // HIỆN LẠI DUY NHẤT 1 NÚT ZOOM BAN ĐẦU
             document.querySelectorAll('.btn-fs-toggle, [data-action="toggle-notebook-fs"]').forEach(btn => {
+                btn.style.display = '';
                 btn.innerHTML = '⛶ Chế độ toàn màn hình chép bài';
             });
         }

@@ -97,10 +97,10 @@ Học sinh tiểu học cần nhìn rõ từ khoảng cách xa (8–10m cuối l
   * Tên môn học: `36px` – `44px` (đậm `900`, in hoa).
   * Tựa đề bài học: `50px` – `64px` (đậm `900`, in hoa).
   * Dòng ghi nhớ/tóm tắt: `30px` – `38px` (đậm `800`, giãn dòng `1.6`).
-* **BẮT BUỘC có nút Chế độ Toàn Màn Hình (Fullscreen Toggle):**
-  * Nút bấm to rõ: `⛶ Chế độ toàn màn hình chép bài`.
-  * Khi giáo viên bấm nút: Khung ghi bài phóng to chiếm trọn 100% màn hình TV (`100vw x 100vh`), ẩn hoàn toàn sidebar và các thanh điều khiển xung quanh.
-  * Có nút `✖ Thu nhỏ (Esc)` ở góc trên bên phải và hỗ trợ phím `Esc` để thoát chế độ toàn màn hình.
+* **BẮT BUỘC có nút Chế độ Toàn Màn Hình (Fullscreen Toggle) — Quy Chuẩn 1 Nút Zoom / 1 Nút Tắt Duy Nhất:**
+  * **Trạng thái bình thường:** Chỉ hiển thị **DUY NHẤT 1 NÚT ZOOM** `⛶ Chế độ toàn màn hình chép bài` (`.btn-fs-toggle`). Nút tắt `btn-fs-close` bắt buộc ẩn hoàn toàn (`display: none !important;`).
+  * **Trạng thái toàn màn hình:** Khung ghi bài phóng to chiếm trọn 100% màn hình TV (`100vw x 100vh`), ẩn hoàn toàn sidebar và các thanh điều hướng. Chỉ hiển thị **DUY NHẤT 1 NÚT TẮT** `✖ Thu nhỏ (Esc)` (`.btn-fs-close`) ghim cố định ở góc trên bên phải màn hình (`position: fixed; top: 20px; right: 28px; z-index: 1000000;`).
+  * **TUYỆT ĐỐI CẤM:** Không được đổi tên nút Zoom thành nút tắt thứ hai (`btn.innerHTML = '✖ Thu nhỏ'`). Khi ở chế độ phóng to, nút Zoom ban đầu bắt buộc phải tự động ẩn đi (`display: none !important;`) để trên màn hình không bao giờ xuất hiện 2 nút tắt thừa thãi.
 
 Mẫu HTML chuẩn:
 ```html
@@ -509,9 +509,13 @@ bgtieu_hoc_k{Khoi}_tiet_{Tiet}_{Lop}_state
 
 ---
 
-## 12. HỆ THỐNG TÍNH NĂNG ẨN: CƠ CHẾ "PHE QUỶ" / "ĐẤU TRƯỜNG MA VƯƠNG" (DEMON FACTION & ANTI-GRIEFING MECHANISM)
+## 12. HỆ THỐNG CHẾ ĐỘ CHƠI DÙNG CHUNG: CƠ CHẾ "PHE QUỶ" / "ĐẤU TRƯỜNG MA VƯƠNG" (SHARED DEMON MODE)
 
-### 12.1 Bối cảnh Sư phạm & Triết lý Thiết kế
+### 12.1 Bản chất Toàn Hệ Thống (Shared Mode / Component)
+* **Không phải tính năng riêng lẻ tạm thời:** Cơ chế Phe Quỷ là một **chế độ chơi dùng chung toàn hệ thống** được đóng gói tại `shared/js/demon-mode.js` và CSS tại `shared/css/core.css`.
+* **Phạm vi áp dụng:** Bất kỳ tiết học nào thuộc bất kỳ khối lớp nào (Khối 1 - Khối 5) đều có thể nạp và kích hoạt khi lớp học có học sinh cá biệt (qua query URL `?mode=mavuong`, sessionStorage hoặc phím tắt `Ctrl + Alt + D`).
+
+### 12.2 Bối cảnh Sư phạm & Triết lý Thiết kế
 * **Nỗi đau thực tế trong lớp học (Hiện tượng "Griefing / Trolling"):**
   * Trong các hoạt động thi đua theo tổ, ở các lớp cá biệt (đặc biệt lứa tuổi Khối 4, Khối 5 bước vào giai đoạn tiền dậy thì), thường có 1 hoặc vài học sinh có tâm lý chống đối hoặc mặc cảm tự ti.
   * Các em này thường tìm kiếm sự chú ý tiêu cực (*Negative Attention*) bằng cách: cố tình phá bĩnh, nói leo, làm ồn hoặc cố tình chọn đáp án sai bét nhè để "kéo cả tổ chết chùm".
