@@ -1261,7 +1261,7 @@
 
         function selectStudentForTurn(st) {
             selectedStudent = st;
-            calledStudentIds.add(st.id);
+            // Picked ≠ Done: Bốc thăm/chọn chỉ là Staged, không tính là đã hoàn thành lượt!
             updateActiveStudentDisplay();
             renderStudentListUI(document.getElementById('searchStudentInput').value);
             showToast(`Đã chọn em: [STT ${st.index}] ${st.name}`, 'ok');
@@ -1270,7 +1270,10 @@
         function pickRandomStudentForTurn() {
             const uncalled = classStudents.filter(s => !calledStudentIds.has(s.id));
             const pool = uncalled.length > 0 ? uncalled : classStudents;
-            const chosen = pool[Math.floor(Math.random() * pool.length)];
+            // Nếu bấm lại Gacha, đổi sang bạn khác chưa làm (Picked ≠ Done)
+            const alternatePool = (selectedStudent && pool.length > 1) ? pool.filter(s => s.id !== selectedStudent.id) : pool;
+            const finalPool = alternatePool.length > 0 ? alternatePool : pool;
+            const chosen = finalPool[Math.floor(Math.random() * finalPool.length)];
             selectStudentForTurn(chosen);
         }
 
@@ -1487,6 +1490,9 @@
 
             // Ghi nhận chi tiết cho học sinh để xuất Excel
             const stu = selectedStudent || classStudents[0];
+            if (stu) {
+                calledStudentIds.add(stu.id);
+            }
             const enteredKw = document.getElementById('inputActualKeyword').value.trim() || activeQuest.keywords;
             const timeSpent = Math.max(1, turnTimeLimit - speedrunRemaining);
 

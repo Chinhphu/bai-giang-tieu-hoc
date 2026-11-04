@@ -1899,13 +1899,21 @@
                 shuffleArray(remainingStudents);
             }
 
+            // Nếu đổi em khác trước khi hoàn thành: trả bạn cũ về hàng chờ để không mất lượt (Picked ≠ Done)
+            if (currentSession && currentSession.studentName && !playedStudents.includes(currentSession.studentName)) {
+                if (!remainingStudents.includes(currentSession.studentName)) {
+                    remainingStudents.push(currentSession.studentName);
+                }
+            }
+
             // Lấy bạn tiếp theo từ hàng đợi (HIỂN THỊ THẲNG TÊN, KHÔNG CÓ ANIMATION QUAY SỐ)
             let selectedStudent = remainingStudents.shift();
             if (!selectedStudent) {
                 selectedStudent = classList[Math.floor(Math.random() * classList.length)];
             }
 
-            playedStudents.push(selectedStudent);
+            // Picked ≠ Done: Tuyệt đối không thêm vào playedStudents ở đây!
+            // Học sinh chỉ chính thức hoàn thành tại finishStudentTurn() sau khi tấn công / nộp bài.
             saveClassState();
 
             const nameEl = document.getElementById('heroNameText');
