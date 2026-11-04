@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -709,6 +709,7 @@
             gap: 6px;
             color: #fff;
             transition: all 0.15s ease;
+            position: relative;
         }
 
         .btn-tactic-action.attack {
@@ -725,6 +726,29 @@
             transform: scale(1.04);
         }
 
+        .btn-tactic-action.selected,
+        .btn-tactic-action.active {
+            border-color: #facc15 !important;
+            box-shadow: 0 0 25px rgba(250, 204, 21, 0.85), inset 0 0 10px rgba(250, 204, 21, 0.3) !important;
+            transform: scale(1.04);
+        }
+
+        .btn-tactic-action.selected::after,
+        .btn-tactic-action.active::after {
+            content: "✓ ĐANG CHỌN";
+            position: absolute;
+            top: -12px;
+            right: 12px;
+            background: #facc15;
+            color: #0f172a;
+            font-size: 0.75rem;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 99px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            letter-spacing: 0.5px;
+        }
+
         /* BẢNG CHỌN CẮT CÁP ĐỐI THỦ */
         .gacha-cords-selection {
             display: none;
@@ -737,9 +761,72 @@
 
         .victim-list-row {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
             flex-wrap: wrap;
+        }
+
+        .victim-team-btn {
+            background: #1e293b;
+            color: #fff;
+            border: 3px solid var(--team-col, #334155);
+            padding: 10px 16px;
+            border-radius: 14px;
+            font-weight: 900;
+            font-size: 1.05rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            min-width: 170px;
+        }
+
+        .victim-team-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .victim-team-btn.active-victim {
+            background: #0f172a;
+            border-color: #facc15 !important;
+            box-shadow: 0 0 24px rgba(250, 204, 21, 0.8), inset 0 0 12px rgba(250, 204, 21, 0.25) !important;
+            transform: scale(1.06);
+            z-index: 2;
+        }
+
+        .victim-status-tag {
+            font-size: 0.72rem;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 99px;
+            background: rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            letter-spacing: 0.5px;
+        }
+
+        .victim-team-btn.active-victim .victim-status-tag {
+            background: #facc15;
+            color: #0f172a;
+            box-shadow: 0 0 10px rgba(250, 204, 21, 0.6);
+            animation: pulseTurn 0.8s infinite alternate;
+        }
+
+        .victim-name-title {
+            font-size: 1.05rem;
+            font-weight: 900;
+        }
+
+        .victim-cables-info {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: #94a3b8;
+        }
+
+        .victim-team-btn.active-victim .victim-cables-info {
+            color: #fde047;
         }
 
         .cords-cut-rack {
@@ -1143,20 +1230,16 @@
                             <!-- Bảng Gacha Cắt Cáp (hiện ra khi bấm Tấn Công) -->
                             <div class="gacha-cords-selection" id="gachaCordsSelection">
                                 <div
-                                    style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:620px; gap:8px; flex-wrap:wrap;">
-                                    <div style="font-size:1.15rem; font-weight:900; color:#f87171;"
+                                    style="display:flex; justify-content:center; align-items:center; width:100%; max-width:620px; gap:8px;">
+                                    <div style="font-size:1.25rem; font-weight:900; color:#f87171;"
                                         id="victimPromptHeading">
-                                        👉 Chọn 1 tổ đối thủ còn cáp để cắt:
+                                        👉 Hãy nháy chọn 1 tổ đối thủ để nhắm cắt cáp:
                                     </div>
-                                    <button class="btn"
-                                        style="background:#334155; color:#facc15; padding:5px 12px; font-size:0.85rem; border-radius:8px;"
-                                        onclick="cancelAttackAndBackToDefense()">
-                                        ◀ Đổi ý: Chọn Phòng Thủ
-                                    </button>
                                 </div>
                                 <div class="victim-list-row" id="victimListRow"></div>
                                 <div id="victimCablesDetailArea" style="display:none; margin-top:10px;">
-                                    <div style="font-size:1.05rem; font-weight:800; color:#cbd5e1; margin-bottom:6px;">
+                                    <div style="font-size:1.15rem; font-weight:800; color:#cbd5e1; margin-bottom:8px;"
+                                        id="victimCablesTitle">
                                         Nháy chọn 1 cọng cáp để rút (60% Thật, 20% Giả, 20% Phản đòn):
                                     </div>
                                     <div class="cords-cut-rack" id="cordsCutRack"></div>
@@ -1536,6 +1619,7 @@
             answerResolved = false;
             tacticResolved = false;
             attackResolved = false;
+            selectedVictimTeam = null;
             gameEnded = false;
             teamsData = {};
             for (let i = 1; i <= teamCount; i++) {
@@ -2314,12 +2398,25 @@
             toast(customMsg || 'Chưa chính xác rồi! Em hãy suy nghĩ và thử lại nhé! 💪', 'bad');
         }
 
-        /* ================= PHA CHIẾN THUẬT: TẤN CÔNG HOẶC PHÒNG THỦ ================= */
+        /* ================= PHA CHIẾN THUẬT: TẤN CÔNG HOẶC HỒI PHỤC/BẬT KHIÊN ================= */
         function showTacticalChoiceView() {
             document.getElementById('questionStageBox').style.display = 'none';
             document.getElementById('tacticalChoiceView').style.display = 'flex';
             document.getElementById('gachaCordsSelection').style.display = 'none';
             document.getElementById('victimCablesDetailArea').style.display = 'none';
+            selectedVictimTeam = null;
+
+            // Reset trạng thái chọn của các nút chiến thuật
+            const btnAtk = document.getElementById('btnTacticAttack');
+            const btnDef = document.getElementById('btnTacticDefense');
+            if (btnAtk) {
+                btnAtk.disabled = false;
+                btnAtk.classList.remove('selected', 'active');
+            }
+            if (btnDef) {
+                btnDef.disabled = false;
+                btnDef.classList.remove('selected', 'active');
+            }
 
             const curTeam = teamsData[currentTurnTeam];
             document.getElementById('tacticalVictorHeading').textContent =
@@ -2328,61 +2425,82 @@
             const defTitle = document.getElementById('btnDefenseTitle');
             const defSub = document.getElementById('btnDefenseSubtitle');
             if (defTitle && defSub) {
-                if (curTeam.cables >= initialCables) {
-                    if (curTeam.hasShield) {
-                        defTitle.textContent = 'ĐANG CÓ KHIÊN BẢO VỆ';
-                        defSub.textContent = '(Đã có Khiên sẵn sàng - Nên chọn Tấn Công!)';
-                    } else {
-                        defTitle.textContent = 'BẬT KHIÊN BẢO VỆ';
-                        defSub.textContent = '(Đã đầy 5 Cáp: Kích hoạt Khiên đỡ 1 đòn)';
-                    }
-                } else {
+                if (curTeam.cables < initialCables) {
                     defTitle.textContent = 'HỒI PHỤC (+1 CÁP)';
                     defSub.textContent = `(Nối lại 1 cáp: ${curTeam.cables}/${initialCables} Cáp · Đầy 5 cáp mới bật Khiên)`;
+                } else if (!curTeam.hasShield) {
+                    defTitle.textContent = 'BẬT KHIÊN BẢO VỆ';
+                    defSub.textContent = '(Đã đầy 5 Cáp: Kích hoạt Khiên đỡ 1 đòn)';
+                } else {
+                    defTitle.textContent = 'BẢO TOÀN LỰC LƯỢNG';
+                    defSub.textContent = '(Đang có Khiên & 5 Cáp: Giữ vững an toàn)';
                 }
             }
         }
 
-        function cancelAttackAndBackToDefense() {
-            document.getElementById('gachaCordsSelection').style.display = 'none';
-            document.getElementById('victimCablesDetailArea').style.display = 'none';
-            chooseTacticalPath('defense');
-        }
-
         function chooseTacticalPath(tactic) {
-            if (gameEnded) return;
+            if (gameEnded || tacticResolved) return;
             if (!ensureStudentSelected()) return;
 
             if (tactic === 'defense') {
-                const curTeam = teamsData[currentTurnTeam];
-                if (curTeam.cables >= initialCables) {
-                    // Đầy máu (5/5) -> Cho phép bật khiên bảo vệ
-                    if (curTeam.hasShield) {
-                        toast(`🛡️ ${curTeam.name} đang có Khiên bảo vệ sẵn sàng rồi! Hãy chọn Tấn công nhé!`, 'ok');
-                        return;
-                    }
-                    curTeam.hasShield = true;
-                    soundShieldActivate();
-                    toast(`🛡️ BẬT KHIÊN THÀNH CÔNG! ${curTeam.name} đầy 5 Cáp đã kích hoạt Khiên bảo vệ (chặn 1 đòn đánh)!`, 'ok');
-                } else {
-                    // Chưa đầy máu (< 5) -> Nối 1 cáp hồi phục, không bật khiên
-                    curTeam.cables = Math.min(initialCables, curTeam.cables + 1);
-                    playTone(660, 0.2, 'sine', 0.3);
-                    toast(`💚 HỒI PHỤC NGUỒN! ${curTeam.name} nối lại 1 cáp (Hiện có ${curTeam.cables}/${initialCables} Cáp · Đầy 5 cáp mới bật Khiên)!`, 'ok');
-                }
-
-                tacticResolved = true;
-                updateRacksLive();
-                schedulePhaseAction(passTurnToNextAliveTeam, 2000);
+                executeDefenseChoice();
             } else {
-                // TẤN CÔNG: Cho chọn đối thủ, KHÔNG khóa tacticResolved để nếu đổi ý vẫn chọn Phòng thủ / Bật khiên được!
+                // TẤN CÔNG: Đánh dấu nút tấn công là đang chọn, mở bảng chọn tổ đối thủ
+                const btnAtk = document.getElementById('btnTacticAttack');
+                const btnDef = document.getElementById('btnTacticDefense');
+                if (btnAtk) btnAtk.classList.add('selected', 'active');
+                if (btnDef) btnDef.classList.remove('selected', 'active');
                 showAttackVictimSelection();
             }
         }
 
-        function showAttackVictimSelection() {
-            document.getElementById('gachaCordsSelection').style.display = 'flex';
+        /* Khi bấm Hồi phục / Bật khiên: Thực hiện ngay lập tức và hoàn thành lượt */
+        function executeDefenseChoice() {
+            if (gameEnded || tacticResolved) return;
+            tacticResolved = true;
+
+            const curTeam = teamsData[currentTurnTeam];
+            const btnAtk = document.getElementById('btnTacticAttack');
+            const btnDef = document.getElementById('btnTacticDefense');
+
+            // Ẩn vùng chọn cắt cáp nếu đang mở, reset tổ đối thủ
+            document.getElementById('gachaCordsSelection').style.display = 'none';
             document.getElementById('victimCablesDetailArea').style.display = 'none';
+            selectedVictimTeam = null;
+
+            // Highlight nút phòng thủ và khóa các nút để tránh bấm nhiều lần
+            if (btnDef) {
+                btnDef.classList.add('selected', 'active');
+                btnDef.disabled = true;
+            }
+            if (btnAtk) {
+                btnAtk.classList.remove('selected', 'active');
+                btnAtk.disabled = true;
+            }
+
+            if (curTeam.cables < initialCables) {
+                // Chưa đầy máu (< 5) -> Nối 1 cáp hồi phục
+                curTeam.cables = Math.min(initialCables, curTeam.cables + 1);
+                playTone(660, 0.2, 'sine', 0.3);
+                toast(`💚 HỒI PHỤC NGUỒN! ${curTeam.name} đã nối lại 1 cáp nguồn (Hiện có ${curTeam.cables}/${initialCables} Cáp)!`, 'ok');
+            } else if (!curTeam.hasShield) {
+                // Đầy máu (5/5) và chưa có khiên -> Bật khiên bảo vệ
+                curTeam.hasShield = true;
+                soundShieldActivate();
+                toast(`🛡️ BẬT KHIÊN THÀNH CÔNG! ${curTeam.name} đầy 5 Cáp đã kích hoạt Khiên bảo vệ (chặn 1 đòn đánh)!`, 'ok');
+            } else {
+                // Đầy máu (5/5) và đã có khiên -> Giữ vững phòng tuyến an toàn
+                soundShieldActivate();
+                toast(`🛡️ BẢO TOÀN LỰC LƯỢNG! ${curTeam.name} giữ vững Khiên chắn và toàn bộ 5 Cáp an toàn!`, 'ok');
+            }
+
+            updateRacksLive();
+            schedulePhaseAction(passTurnToNextAliveTeam, 2000);
+        }
+
+        function showAttackVictimSelection() {
+            const gachaSelection = document.getElementById('gachaCordsSelection');
+            gachaSelection.style.display = 'flex';
 
             // Lọc các tổ đối thủ còn cáp (>0). Tổ có khiên VẪN TẤN CÔNG ĐƯỢC (để đánh bể khiên)!
             const eligibleVictims = Object.values(teamsData).filter(t => t.id !== currentTurnTeam && t.cables > 0);
@@ -2394,21 +2512,57 @@
                 return;
             }
 
-            victimRow.innerHTML = eligibleVictims.map(t => `
-                <button class="btn" style="background:#1e293b; color:#fff; border:3px solid ${t.hasShield ? '#38bdf8' : t.color}; padding:10px 16px; border-radius:12px; font-weight:900; font-size:1.05rem; display:flex; flex-direction:column; align-items:center; gap:4px;" onclick="selectVictimToCut(${t.id})">
-                    <span>🎯 Cắt Cáp ${t.name}</span>
-                    <span style="font-size:0.8rem; color:${t.hasShield ? '#38bdf8' : '#facc15'};">
-                        ${t.hasShield ? '🛡️ Có Khiên (Đánh để vỡ khiên)' : `(Còn ${t.cables}/${initialCables} cáp)`}
-                    </span>
-                </button>
-            `).join('');
+            // Nếu victim đã chọn trước đó không còn hợp lệ thì reset
+            if (selectedVictimTeam && !eligibleVictims.some(t => t.id === selectedVictimTeam)) {
+                selectedVictimTeam = null;
+                document.getElementById('victimCablesDetailArea').style.display = 'none';
+            }
+
+            renderVictimButtons(eligibleVictims);
         }
 
+        /* Hiển thị danh sách các tổ đối thủ, làm nổi bật rõ ràng tổ đang chọn */
+        function renderVictimButtons(eligibleVictims) {
+            if (!eligibleVictims) {
+                eligibleVictims = Object.values(teamsData).filter(t => t.id !== currentTurnTeam && t.cables > 0);
+            }
+            const victimRow = document.getElementById('victimListRow');
+            victimRow.innerHTML = eligibleVictims.map(t => {
+                const isSelected = (selectedVictimTeam === t.id);
+                const borderColor = isSelected ? '#facc15' : (t.hasShield ? '#38bdf8' : t.color);
+                return `
+                    <button class="victim-team-btn ${isSelected ? 'active-victim' : ''}"
+                        style="--team-col:${borderColor};"
+                        onclick="selectVictimToCut(${t.id})">
+                        <div class="victim-status-tag">${isSelected ? '🎯 ĐANG CHỌN' : '⚡ BẤM ĐỂ CHỌN'}</div>
+                        <div class="victim-name-title">Cắt Cáp ${t.name}</div>
+                        <div class="victim-cables-info">
+                            ${t.hasShield ? '🛡️ Có Khiên (Đánh để vỡ khiên)' : `🔌 Còn ${t.cables}/${initialCables} cáp`}
+                        </div>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        /* Chọn hoặc đổi sang tổ đối thủ khác chỉ bằng việc bấm vào */
         function selectVictimToCut(victimId) {
+            if (gameEnded || attackResolved || tacticResolved) return;
             selectedVictimTeam = victimId;
             const victim = teamsData[victimId];
+            if (!victim || victim.cables <= 0) return;
+
+            playTone(520, 0.08, 'sine', 0.2);
+
+            // Cập nhật lại các nút tổ để thể hiện rõ tổ nào đang được chọn
+            renderVictimButtons();
+
             const detailArea = document.getElementById('victimCablesDetailArea');
             detailArea.style.display = 'block';
+
+            const cablesTitle = document.getElementById('victimCablesTitle');
+            if (cablesTitle) {
+                cablesTitle.innerHTML = `👉 Đang nhắm: <span style="color:#facc15; font-weight:900;">${victim.name.toUpperCase()}</span> (${victim.hasShield ? '🛡️ Đang có Khiên bảo vệ' : `Còn ${victim.cables}/${initialCables} Cáp`}) · Hãy nháy chọn 1 cọng cáp để rút:`;
+            }
 
             const colors = ['#ef4444', '#f59e0b', '#38bdf8', '#10b981', '#ec4899'];
             const rack = document.getElementById('cordsCutRack');
@@ -2429,6 +2583,15 @@
             if (gameEnded || attackResolved) return;
             attackResolved = true;
             tacticResolved = true;
+
+            // Vô hiệu hóa các nút trên màn hình để tránh spam click khi đang chạy hiệu ứng
+            const btnAtk = document.getElementById('btnTacticAttack');
+            const btnDef = document.getElementById('btnTacticDefense');
+            if (btnAtk) btnAtk.disabled = true;
+            if (btnDef) btnDef.disabled = true;
+            const interactiveBtns = document.querySelectorAll('#cordsCutRack button, .victim-team-btn');
+            interactiveBtns.forEach(b => b.disabled = true);
+
             const rand = Math.random() * 100;
             const attacker = currentTurnTeam;
             const victim = selectedVictimTeam;
@@ -2508,6 +2671,7 @@
             answerResolved = false;
             tacticResolved = false;
             attackResolved = false;
+            selectedVictimTeam = null;
             currentStudent = null; // Đặt lại để gọi HS mới cho tổ mới
 
             updateRacksLive();
