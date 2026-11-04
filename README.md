@@ -37,18 +37,20 @@ Slide bài giảng HTML/CSS/JS cho khối 1, 2, 3, 4, 5 và Kho mini-games.
 
 Toàn bộ hệ thống bài giảng (tất cả các khối 1, 2, 3, 4, 5 và games) chuyển đổi toàn diện sang định dạng **CSV chuẩn UTF-8 có BOM (`\uFEFF`)** thay cho định dạng `.xlsx`:
 
-### 1. Quy cách đặt tên file chuẩn thống nhất:
+### 1. Quy cách đặt tên file chuẩn thống nhất (Đưa Ngày lên trước Giờ để tự động sort theo tên):
 ```text
-KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}_{HH}h{MM}p{SS}s_Ngay_{DD}-{MM}-{YYYY}.csv
+KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}_Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s.csv
 ```
 - **Khối**: `1`, `2`, `3`, `4`, `5`.
 - **Lớp**: Ký tự `/` hoặc `_` được chuẩn hóa thành `-` an toàn (ví dụ: `3/2` hay `3_2` thành `3-2`).
 - **Tiết**: Định dạng 2 chữ số (ví dụ: `Tiet_06`, `Tiet_08`).
-- **Thời gian**: Giờ, phút, giây 24h đầy đủ: `{HH}h{MM}p{SS}s` (ví dụ: `14h30p25s`).
-- **Ngày**: Ngày, tháng, năm đầy đủ: `Ngay_{DD}-{MM}-{YYYY}` (ví dụ: `Ngay_31-10-2026`).
+- **Ngày (Năm-Tháng-Ngày ISO)**: `Ngay_{YYYY}-{MM}-{DD}` (ví dụ: `Ngay_2026-10-31`, `Ngay_2026-11-03`).
+- **Thời gian (Giờ-Phút-Giây 24h)**: `{HH}h{MM}p{SS}s` (ví dụ: `14h30p25s`, `16h45p10s`).
+- *Lợi ích:* Tên file tự động sắp xếp theo thứ tự thời gian từ cũ đến mới (hoặc mới đến cũ) khi sắp xếp theo Tên (Name) trong Windows File Explorer hoặc Google Drive.
 - *Ví dụ mẫu:*
-  - `KetQua_TinHoc3_Lop_3-2_Tiet_06_14h30p25s_Ngay_31-10-2026.csv`
-  - `KetQua_TinHoc5_Lop_5-1_Tiet_07_09h15p40s_Ngay_31-10-2026.csv`
+  - `KetQua_TinHoc2_Lop_2-2_Tiet_09_Ngay_2026-11-03_16h45p10s.csv`
+  - `KetQua_TinHoc3_Lop_3-2_Tiet_06_Ngay_2026-10-31_14h30p25s.csv`
+  - `KetQua_TinHoc5_Lop_5-1_Tiet_07_Ngay_2026-10-31_09h15p40s.csv`
 
 ### 2. Các hàm dùng chung (Đã tích hợp trong `shared/js/core.js`, `shared/js/prevent-reload.js` và `components.js` của từng khối):
 - **`window.buildExportFileName({ grade, classId, lesson, prefix, ext })`**: Sinh tên file chuẩn theo quy cách trên.

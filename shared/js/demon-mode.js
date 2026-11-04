@@ -255,20 +255,18 @@
             target.score = Math.max(0, target.score - delta);
             target.violations += 1;
 
-            const others = this.students.filter((_, idx) => idx !== this.selectedPunishIdx && _.status !== 'slime');
+            // Khóa "Chiến thuật Namikaze" (Cấm tiệt đường hiến máu nhân đạo):
+            // Điểm phạt tuyệt đối KHÔNG chia cho các con Quỷ khác.
+            // Điểm phạt được HỦY DIỆT (bay vào Hư Vô) hoặc chuyển thẳng vào Quỹ Cứu Trợ cho tổ Loài Người thấp điểm nhất!
             let splitMsg = '';
-
-            if (others.length > 0) {
-                const share = Math.floor(delta / others.length);
-                others.forEach(d => { d.score += share; });
-                splitMsg = `<br><span style="font-size:16px; color:#fef08a;">✨ ${delta} Xu bị phạt đã chia đều +${share} Xu cho các con Quỷ còn lại!</span>`;
+            if (window.teams && window.teams.length > 0) {
+                const humanTeams = window.teams.filter(t => !t.isDemon);
+                const candidates = humanTeams.length > 0 ? humanTeams : window.teams;
+                const sortedT = [...candidates].sort((a, b) => a.score - b.score);
+                sortedT[0].score += delta;
+                splitMsg = `<br><span style="font-size:16px; color:#a7f3d0;">🎁 Điểm phạt (-${delta} Xu) chuyển thẳng vào Quỹ Cứu Trợ cho ${sortedT[0].name}! (Cấm nuôi Quỷ)</span>`;
             } else {
-                // Quỹ Cứu Trợ Loài Người
-                if (window.teams && window.teams.length > 0) {
-                    const sortedT = [...window.teams].sort((a, b) => a.score - b.score);
-                    sortedT[0].score += delta;
-                    splitMsg = `<br><span style="font-size:16px; color:#a7f3d0;">🎁 Điểm phạt được chuyển vào Quỹ Cứu Trợ cho ${sortedT[0].name}!</span>`;
-                }
+                splitMsg = `<br><span style="font-size:16px; color:#fca5a5;">💥 Điểm phạt (-${delta} Xu) đã tan biến vào Hư Vô! (Triệt tiêu mưu đồ bơm điểm)</span>`;
             }
 
             let faultLabel = 'Mất trật tự';
@@ -570,6 +568,10 @@
                     title = (kingEval.status === 'tied') ? 'Song Ma Vương (Đồng Hạng 1)' : 'Quỷ Vương (Tạm Quyền)';
                     tt27 = d.violations === 0 ? 'H' : 'C';
                     comment = `SẮC PHONG: ${kingEval.reason} Cần hoàn thành 100% vở ghi bài trước giờ học tuần sau mới được cầm máy.`;
+                } else if (d.score < 800) {
+                    title = 'Quỷ Con (Dưới Mốc Sàn 800 Xu)';
+                    tt27 = 'C';
+                    comment = `Tổng điểm cuối tiết (${d.score} Xu < 800 Xu sàn) do vi phạm kỷ luật (${d.violations} lần); bị phạt chép phạt nội dung bài học, cần GVCN và gia đình nhắc nhở.`;
                 } else if (d.violations >= 2) {
                     title = 'Quỷ Con (Cá Biệt)';
                     tt27 = 'C';

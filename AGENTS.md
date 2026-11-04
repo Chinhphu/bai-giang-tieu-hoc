@@ -154,8 +154,16 @@ Tuyệt đối không dùng tên chung chung như `state`, `game_data`, `tv_data
   * **Không hiển thị điểm tổ:** Thẻ Tổ Quỷ tuyệt đối **không show ô điểm số chung** (vì điểm là tài sản cá nhân bí mật của từng con quỷ để đấu tranh sinh tồn), mà **chỉ hiển thị danh sách tên các con quỷ** trong tổ kèm nhãn nhận diện.
 * **Quy tắc Cách ly & Sinh tồn (Quỷ ăn thịt Quỷ - Zero-Sum):**
   * Học sinh cá biệt bị trục xuất khỏi tổ gốc, gom vào **"Phe Quỷ" (Tổ Ma Vương)**. Điểm của Phe Quỷ được tính độc lập theo từng cá nhân con quỷ, không chia đều cho tổ.
-  * **Hút điểm:** Trả lời đúng KHÔNG được máy cấp điểm mới mà trực tiếp hút điểm từ các con Quỷ khác đắp vào mình.
-  * **Tịch thu điểm:** Mất trật tự, cố tình sai hoặc không chép bài sẽ bị hệ thống tịch thu điểm và chia đều cho những con Quỷ còn lại. (Nếu Phe Quỷ chỉ có 1 em duy nhất, điểm bị trừ sẽ chuyển thành Quỹ Cứu Trợ chia cho các tổ Loài Người).
+  * **Hút điểm khi Trả lời Đúng (Kỹ năng Steal duy nhất — Độc đạo làm giàu):** Chỉ khi một con Quỷ lên bảng trả lời **ĐÚNG** câu hỏi, nó mới được kích hoạt kỹ năng Hút máu (Steal) rút điểm từ túi của những con Quỷ khác (đang ồn ào/thấp điểm hơn) đắp vào mình. Không được máy in cấp thêm điểm mới. Muốn tích điểm để tranh ngôi Quỷ Vương BẮT BUỘC phải tự giác học bài và trả lời đúng!
+  * **Hủy diệt điểm phạt kỷ luật / Khóa chặt "Chiến thuật Namikaze" (Cấm tiệt đường hiến máu nhân đạo):**
+    * Khi một con Quỷ làm ồn, vi phạm kỷ luật, không chép bài hoặc trả lời sai: Bị phạt trừ điểm (`-100đ`).
+    * **TUYỆT ĐỐI CẤM chia điểm phạt này cho các con Quỷ khác** (triệt tiêu hoàn toàn kịch bản liên minh/thông đồng ngầm: 2-3 em cố tình quậy phá và chọn sai để "bơm điểm nuôi" 1 em lên Quỷ Vương).
+    * Số điểm bị phạt này sẽ bị **HỦY DIỆT (bay vào Hư Vô)** HOẶC chuyển thẳng vào **"Quỹ Cứu Trợ"** cho tổ Loài Người có điểm số thấp nhất. Quậy phá chỉ làm hại bản thân và biếu quà cho đối thủ!
+* **Khóa Chặn "Lối Thoát Tự Nguyện Sang Phe Quỷ" (Cửa vào dễ, cái giá cực đắt):**
+  * Tuyệt đối cấm học sinh bình thường tự ý "xin sang Phe Quỷ cho vui / ngầu".
+  * **Mất toàn bộ bảo hộ đồng đội:** Sang Phe Quỷ là chiến đấu đơn độc, không ai được phép nhắc bài hay hỗ trợ.
+  * **Hồ sơ kỷ luật riêng gửi GVCN & Phụ huynh:** Toàn bộ học sinh Phe Quỷ cuối tiết bị xuất vào bảng theo dõi kỷ luật riêng, nhận xét kỷ luật sắc bén, trung thực gửi thẳng cho GVCN và phụ huynh.
+  * **Ngưỡng phạt rớt sàn (< 800 Xu):** Bất kỳ con Quỷ nào kết thúc tiết với tổng điểm **dưới mốc sàn 800 Xu** (hoặc âm điểm) sẽ bị xếp loại TT27 là **C (Chưa hoàn thành)**, bị phạt chép phạt nội dung bài học 3–5 lần, dọn vệ sinh phòng máy hoặc đứng góc lớp/mất quyền dùng máy tính ở tiết học sau! Chỉ duy nhất 1 Quỷ Vương (đạt điểm cao nhất và chép đủ 100% vở) mới được vinh danh cầm máy điều khiển.
 * **Vòng đời Gacha — Mỗi con Quỷ đúng 1 lượt duy nhất (Single Turn per Round):**
   * Nút Gacha của Tổ Quỷ đặt đồng bộ như các tổ khác và các tiết trước (`🎲 Gọi tên lên bảng`).
   * **Chu trình gọi:** Mỗi con quỷ chỉ được gọi lên bảng **đúng 1 lượt duy nhất** trong một vòng xoay. Chỉ khi toàn bộ các con quỷ trong tổ đều đã lên bảng đủ 1 lượt thì hệ thống mới cho phép bắt đầu vòng mới.
@@ -167,7 +175,7 @@ Tuyệt đối không dùng tên chung chung như `state`, `game_data`, `tv_data
   * **Cơ chế Phân định Bằng Điểm (Tie-Breaking) & Ghi Rõ Lý Do Sắc Phong:**
     * **BẮT BUỘC ghi rõ Lý do Sắc phong trên màn hình TV (.dk-reason-box):** Khi vinh danh Quỷ Vương trên Slide Chốt kiến thức (Summary) hoặc Bảng vàng (Leaderboard), hệ thống BẮT BUỘC phải hiện 1 khung nổi bật ghi rõ lý do em đó được trao vương miện (điểm cao nhất, thắng nhờ ít vi phạm, hoặc thắng sau vòng duyệt vở).
     * **Quy trình Phân định 3 bậc khi các con Quỷ bằng điểm:**
-      1. **Bậc 1 — So Chỉ số Kỷ luật (iolations):** Nếu có từ 2 em trở lên cùng đạt điểm cao nhất, hệ thống tự động so số lần bị nhắc nhở vi phạm. Em nào **ít vi phạm hơn** sẽ chiến thắng đăng quang Quỷ Vương. Màn hình ghi rõ lý do: *'Đồng điểm cao nhất (X Xu), nhưng đăng quang nhờ Ý THỨC KỶ LUẬT TỐT HƠN (chỉ Y lần nhắc nhở, ít hơn Z lần của bạn B)!'*.
+      1. **Bậc 1 — So Chỉ số Kỷ luật (`violations`):** Nếu có từ 2 em trở lên cùng đạt điểm cao nhất, hệ thống tự động so số lần bị nhắc nhở vi phạm. Em nào **ít vi phạm hơn** sẽ chiến thắng đăng quang Quỷ Vương. Màn hình ghi rõ lý do: *'Đồng điểm cao nhất (X Xu), nhưng đăng quang nhờ Ý THỨC KỶ LUẬT TỐT HƠN (chỉ Y lần nhắc nhở, ít hơn Z lần của bạn B)!'*.
       2. **Bậc 2 — Soi Vở Ghi Bài Trực Tiếp (Teacher Audit):** Nếu bằng cả điểm lẫn số lần vi phạm, màn hình hiện thông báo yêu cầu Giáo viên kiểm tra vở tại chỗ. Giáo viên bấm nút công nhận em có vở chép bài đạt 100% đầy đủ, sạch đẹp hơn. Màn hình cập nhật lý do: *'Chiến thắng sau vòng duyệt Vở Ghi Bài 100% sạch đẹp của Giáo viên!'*.
       3. **Bậc 3 — Hòa tuyệt đối 100%:** Giáo viên được chọn giữa 2 hình thức:
          - **Song Ma Vương (Đồng Hạng):** Cả 2 cùng lên bục giảng tuần sau, chia ca mỗi em quản trò 15 phút.

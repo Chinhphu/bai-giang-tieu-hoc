@@ -137,7 +137,7 @@ function toggleNotebookFullscreen() {
     if (!target) return;
     const isFs = target.classList.toggle('fullscreen-mode');
     const btn = document.getElementById('btn-toggle-fs');
-    if (btn) btn.innerHTML = isFs ? '✖ Thu nhỏ (Esc)' : '⛶ Chế độ toàn màn hình chép bài';
+    if (btn) btn.style.display = isFs ? 'none' : 'inline-flex';
     
     if (isFs && target.requestFullscreen) target.requestFullscreen().catch(() => {});
     else if (!isFs && document.fullscreenElement) document.exitFullscreen().catch(() => {});
@@ -524,21 +524,29 @@ bgtieu_hoc_k{Khoi}_tiet_{Tiet}_{Lop}_state
   * Thay vì trách phạt nặng nề hay dán nhãn tiêu cực công khai, hệ thống thiết kế cơ chế **"Phe Quỷ" / "Đấu Trường Ma Vương"** dưới dạng một tính năng game hóa thú vị.
   * Đánh trúng tâm lý **háo thắng, sĩ diện, thích làm tâm điểm** của tuổi mới lớn: Gom các cá nhân chống đối vào một phe riêng biệt để các em tự cạnh tranh sinh tồn và **tự kiềm chế, kiểm soát lẫn nhau** (*Quỷ kiểm soát Quỷ*).
 
-### 12.2 Cơ chế Cách ly & Cạnh tranh Sinh tồn (Zero-Sum Cannibalism: "Quỷ ăn thịt Quỷ")
+### 12.3 Cơ chế Cách ly & Cạnh tranh Sinh tồn (Zero-Sum Cannibalism: "Quỷ ăn thịt Quỷ")
 * **Trục xuất và bảo vệ Loài Người:**
   * Học sinh quậy phá bị chuyển ra khỏi tổ gốc, đưa vào danh sách **"Phe Quỷ" (Tổ Ma Vương)**.
   * Các tổ bình thường (Loài Người: Tổ 1, 2, 3, 4...) ngay lập tức được giải tỏa áp lực, không còn lo bị bạn kéo tụt điểm số.
 * **Bảng điểm Cá nhân Độc lập:**
   * Khác với các tổ Loài Người (điểm số là tài sản chung của tổ), Phe Quỷ là **tập hợp của các cá nhân độc lập**. Mỗi con Quỷ có một thanh điểm riêng (bắt đầu sàn `1000đ`).
-* **Quy luật Trả lời Đúng (Hút điểm sinh tồn):**
-  * Trả lời đúng **KHÔNG** được hệ thống tự in thêm điểm.
-  * Số điểm thưởng (+100đ) sẽ được **trực tiếp rút/hút từ quỹ điểm của những con Quỷ còn lại** chia đều (Zero-Sum). Càng trả lời đúng nhiều, con Quỷ đó càng trở nên hùng mạnh trên nỗi đau của các đồng bọn.
-* **Quy luật Vi phạm & Phạt trật tự (Tịch thu & Chia đều):**
-  * Nếu một con Quỷ làm ồn, vi phạm kỷ luật, không chép bài hoặc cố ý trả lời sai: Giáo viên bấm phạt `-100đ`.
-  * Số điểm bị phạt này **ngay lập tức được chia đều cho những con Quỷ còn lại** trong Phe Quỷ.
-  * *Tác động sư phạm thần kỳ:* Khi bạn mình làm sai mà mình được điểm hời, các con Quỷ khác sẽ lập tức gây áp lực đồng đẳng (*Peer Pressure*), tự giác nhắc nhở và quản thúc bạn: *"Ngồi yên chép bài đi, đừng làm trò lố nữa!"*. Giáo viên không cần tốn lời la mắng.
+* **Quy luật Trả lời Đúng (Hút điểm sinh tồn — Độc Đạo Làm Giàu):**
+  * Trả lời đúng **KHÔNG** được hệ thống tự in thêm điểm mới.
+  * Số điểm thưởng (+100đ) sẽ được **trực tiếp rút/hút từ quỹ điểm của những con Quỷ còn lại** chia đều (Zero-Sum). Càng trả lời đúng nhiều, con Quỷ đó càng trở nên hùng mạnh trên nỗi đau của các đồng bọn. Muốn giàu chỉ có con đường tự giác học bài và trả lời đúng!
+* **Quy luật Vi phạm & Phạt trật tự (Hủy Diệt Điểm — Khóa Chặt "Chiến Thuật Namikaze"):**
+  * **Cấm tiệt đường "Hiến máu nhân đạo":** Nếu một con Quỷ làm ồn, vi phạm kỷ luật, không chép bài hoặc cố ý trả lời sai: Giáo viên bấm phạt `-100đ` (hoặc `-50đ`, `-200đ`).
+  * **TUYỆT ĐỐI CẤM chia điểm phạt này cho những con Quỷ còn lại:** Triệt tiêu hoàn toàn kịch bản liên minh/thông đồng ngầm (2–3 em cố tình quậy phá và chọn sai để "bơm điểm" nuôi 1 em lên Quỷ Vương).
+  * **Hủy diệt điểm vào Hư Vô hoặc Chuyển vào Quỹ Cứu Trợ:** Toàn bộ số điểm bị phạt này sẽ bị **HỦY DIỆT (bay vào Hư Vô)** HOẶC chuyển thẳng vào **"Quỹ Cứu Trợ"** cho tổ Loài Người có điểm số thấp nhất. Kẻ quậy phá chỉ làm hại chính mình và "tiếp tế quà" cho đối thủ!
 
-### 12.3 Vòng Xoay Lượt Chơi & Gacha Bắt Buộc (Turn Rotation & Enforced Gacha)
+### 12.4 Khóa Chặn "Lối Thoát Tự Nguyện Sang Phe Quỷ" (Anti-Voluntary Defection — "Cửa Vào Dễ, Cái Giá Cực Đắt")
+* **Không phải khu vui chơi / giải trí:** Học sinh thường thấy Phe Quỷ có giao diện ngầu, hiệu ứng sấm sét bắt mắt nên tò mò xin: *"Thầy cho con qua Tổ 5 luôn đi!"*. Giáo viên và hệ thống phải lập tức quán triệt luật sắt để dập tắt tư tưởng này.
+* **Mất toàn bộ quyền bảo hộ đồng đội:** Sang Phe Quỷ là trở thành cá nhân độc lập chiến đấu sinh tồn, không còn tổ đội chở che, không ai được phép nhắc bài, sai là tự chịu phạt một mình.
+* **Hồ sơ đen gửi thẳng GVCN & Phụ huynh:** Cuối tiết, toàn bộ danh sách Phe Quỷ bị đưa vào sheet theo dõi kỷ luật riêng trong file CSV (`=== PHẦN 3: HỒ SƠ THEO DÕI HÀNH VI & KỶ LUẬT (PHE QUỶ) ===`), xếp loại TT27 mặc định C/H kèm ghi nhận chi tiết hành vi gửi GVCN và phụ huynh.
+* **Ngưỡng phạt rớt sàn (< 800 Xu):**
+  * Đứa nào ở Phe Quỷ mà tổng điểm cuối tiết **dưới mốc sàn 800 Xu** (hoặc bị điểm âm): Bị xếp loại TT27 là **C (Chưa hoàn thành)**, nhận hình phạt kỷ luật nghiêm khắc (chép phạt bài học 3–5 lần, đứng góc lớp tiết sau, hoặc dọn vệ sinh phòng máy / mất quyền chạm máy tính tiết sau).
+  * Chỉ duy nhất 1 Quỷ Vương (vừa điểm cao nhất, vừa phải chép vở 100% đầy đủ) mới được vinh danh cầm máy điều khiển. Tất cả những con Quỷ còn lại đều phải chịu sự giám sát kỷ luật chặt chẽ!
+
+### 12.5 Vòng Xoay Lượt Chơi & Gacha Bắt Buộc (Turn Rotation & Enforced Gacha)
 * **Xếp lượt ngang hàng:**
   * Tổ Ma Vương được xếp như một tổ thi đấu ngang hàng trong vòng quay câu hỏi:
     $$\text{Tổ 1} \longrightarrow \text{Tổ 2} \longrightarrow \text{Tổ 3} \longrightarrow \text{Tổ 4} \longrightarrow \mathbf{\text{Tổ Ma Vương (Phe Quỷ)}} \longrightarrow \dots$$
@@ -547,13 +555,13 @@ bgtieu_hoc_k{Khoi}_tiet_{Tiet}_{Lop}_state
   * Hệ thống khóa quyền xung phong tự do để triệt tiêu tình trạng lẩn trốn hoặc tranh giành ồn ào.
   * Giáo viên bắt buộc bấm nút `🎲 Gacha Quỷ Vương` để hệ thống tự động bốc ngẫu nhiên một con Quỷ trong danh sách lên sàn đấu.
 
-### 12.4 Xử Lý Trường Hợp Lớp Chỉ Có 1 Con Quỷ (Độc Hành Ma Thần)
+### 12.6 Xử Lý Trường Hợp Lớp Chỉ Có 1 Con Quỷ (Độc Hành Ma Thần)
 Khi một lớp chỉ có duy nhất 1 học sinh cá biệt bị đưa vào Phe Quỷ:
 * **Cơ chế "Boss Hư Vô":** Khi trả lời đúng, em hút điểm từ "Hệ thống AI / Boss Ảo" (khởi tạo 1000đ).
 * **Quỹ Cứu Trợ Loài Người:** Nếu em vi phạm hoặc trả lời sai, toàn bộ số điểm bị trừ sẽ biến thành **"Quỹ Cứu Trợ"** chuyển thẳng cho tổ Loài Người có điểm số thấp nhất.
 * *Tác động:* Em cá biệt sẽ không dám cố tình quậy phá, vì hành vi phá hoại lúc này trực tiếp biến mình thành "người biếu quà" cho chính những tổ mà mình đang đối đầu.
 
-### 12.5 Ngai Vàng Quỷ Vương & Điều Kiện Tiên Quyết (100% Chép Bài)
+### 12.7 Ngai Vàng Quỷ Vương & Điều Kiện Tiên Quyết (100% Chép Bài)
 * **Đăng quang Quỷ Vương:**
   * Cuối tiết học, con Quỷ tích lũy được số điểm cá nhân cao nhất sẽ được hệ thống xướng tên đăng quang **"Quỷ Vương Tiết Học"** 👑😈.
 * **Đặc quyền Tối Thượng:**
@@ -571,7 +579,7 @@ Khi một lớp chỉ có duy nhất 1 học sinh cá biệt bị đưa vào Phe
        * **Vòng Quay Đoạt Vương (1 vs 1):** Bấm nút Gacha 1-1 để máy bốc ngẫu nhiên 1 Quỷ Vương, em còn lại làm Tả Hữu Hộ Pháp.
   * **Các thứ hạng khác trong Phe Quỷ:** Nếu bằng điểm nhau ở các bậc sau thì tính **Đồng Hạng** theo chuẩn Tie-ranking, ghi rõ trong CSV: `Hạng X (Đồng điểm)`.
 
-### 12.6 Trừng Phạt "Túi Kinh Nghiệm" (Loot Goblin) & Giáng Cấp Slime Câm Lặng
+### 12.8 Trừng Phạt "Túi Kinh Nghiệm" (Loot Goblin) & Giáng Cấp Slime Câm Lặng
 * **Hành vi Vi phạm khi cầm máy:**
   * Nếu Quỷ Vương được trao quyền cầm máy mà thao tác lóng ngóng, bấm linh tinh, quản trò lôm côm hoặc cố tình phá hoại tiết dạy:
 * **Kích hoạt Đòn Phản Phệ:**
@@ -580,7 +588,7 @@ Khi một lớp chỉ có duy nhất 1 học sinh cá biệt bị đưa vào Phe
   * **Giáng cấp thành Slime:** Quỷ Vương bị giáng thẳng xuống danh hiệu **"Slime Xanh Nhầy Nhụa" (Green Slime)**.
   * **Hiệu ứng Câm Lặng (Silence Curse):** Giao diện khóa avatar với biểu tượng chiếc khóa mồm `🔇 Câm Lặng`: Tước mọi quyền phát biểu, hủy tư cách Quỷ Vương và trục xuất vĩnh viễn khỏi bàn giáo viên trong tiết học đó.
 
-### 12.7 Con Đường Hoàn Lương / Thanh Tẩy (Redemption & Purification)
+### 12.9 Con Đường Hoàn Lương / Thanh Tẩy (Redemption & Purification)
 * **Ý nghĩa Nhân văn:** Không bao giờ dán nhãn tiêu cực vĩnh viễn cho học sinh tiểu học. Mọi lỗi lầm đều phải có con đường phục thiện để quay về.
 * **Nghi thức Thanh Tẩy:**
   * Nếu một con Quỷ hoàn thành xuất sắc vai trò Quỷ Vương (quản trò nghiêm túc, vở sạch chữ đẹp) HOẶC đạt chuỗi 3 tiết học liên tiếp không bị trừ điểm kỷ luật:
@@ -588,7 +596,7 @@ Khi một lớp chỉ có duy nhất 1 học sinh cá biệt bị đưa vào Phe
     1. Tiếp tục giữ Ngai Vàng để dẫn dắt Phe Quỷ.
     2. Kích hoạt **"Thanh Tẩy / Chuyển Sinh Làm Người"**: Trở về tổ cũ với danh hiệu **"Hiệp Sĩ Hoàn Lương"**, mang theo 200 điểm tài trợ tặng lại cho tổ cũ trong tiếng vỗ tay chào đón của cả lớp.
 
-### 12.8 Kiến Trúc Kỹ Thuật & Phương Thức Kích Hoạt Ẩn
+### 12.10 Kiến Trúc Kỹ Thuật & Phương Thức Kích Hoạt Ẩn
 Để đảm bảo mã nguồn gọn gàng, không bị nhân bản code và dễ dàng bảo trì:
 1. **Truy cập trực tiếp qua GitHub Pages (`index-mavuong.html`):**
    * Trong thư mục tiết học (ví dụ: `khoi-5/tiet-10/`), tạo file phụ `index-mavuong.html` siêu nhẹ đóng vai trò redirect/bridge:
@@ -618,7 +626,7 @@ Khi một lớp chỉ có duy nhất 1 học sinh cá biệt bị đưa vào Phe
      * Bảng danh sách chọn nhanh các em cần "Trục xuất sang Phe Quỷ" hoặc "Thanh tẩy trở về".
      * Nút kích hoạt đòn phản phệ `💥 Phản Phệ Slime`.
 
-### 12.9 Báo Cáo CSV Riêng Biệt & Hệ Thống Nhận Xét Nghiêm Khắc (Anti-Sugarcoating)
+### 12.11 Báo Cáo CSV Riêng Biệt & Hệ Thống Nhận Xét Nghiêm Khắc (Anti-Sugarcoating)
 * **Nguyên tắc "Không tô hồng" (Zero Sugarcoating):**
   * Những học sinh bị đưa vào Phe Quỷ đã có những hành vi phá bĩnh, cố ý trả lời sai hoặc làm mất trật tự nghiêm trọng. Do đó, trong file báo cáo CSV xuất ra, **TUYỆT ĐỐI CẤM** áp dụng các câu khen ngợi tích cực sáo rỗng thông thường (*"Ngoan ngoãn", "Chăm chỉ", "Nhanh nhẹn", "Hoàn thành tốt"*...).
   * Dữ liệu phải phản ánh trung thực và khách quan hiện trạng hành vi để Giáo viên bộ môn có bằng chứng xác thực làm việc với Giáo viên Chủ nhiệm (GVCN) và Phụ huynh học sinh.
@@ -639,10 +647,13 @@ Khi một lớp chỉ có duy nhất 1 học sinh cá biệt bị đưa vào Phe
   2. **Quỷ Con (Nhiều lần bị phạt trừ điểm / Không chép bài):**
      * Đánh giá TT27: **C (Chưa hoàn thành)**.
      * Nhận xét: *"Chưa tập trung chú ý nghe giảng, còn hiện tượng nói chuyện và quậy phá làm ảnh hưởng đến tổ; chưa hoàn thành việc ghi bài vào vở."*
-  3. **Quỷ Vương nhưng không chép đủ bài:**
+  3. **Quỷ Con rớt dưới mốc sàn (< 800 Xu):**
+     * Đánh giá TT27: **C (Chưa hoàn thành)**.
+     * Nhận xét: *"Tổng điểm cuối tiết dưới mức sàn 800 Xu do vi phạm kỷ luật hoặc không học bài; chưa hoàn thành yêu cầu tiết học, phạt chép phạt nội dung bài học và cần gia đình phối hợp nhắc nhở."*
+  4. **Quỷ Vương nhưng không chép đủ bài:**
      * Đánh giá TT27: **H (Hoàn thành)**.
      * Nhận xét: *"Có tiến bộ về mặt kiến thức và điểm số nhưng chưa rèn được tính cẩn thận; chưa chép bài đầy đủ vào vở theo yêu cầu của giáo viên."*
-  4. **Có biểu hiện cố ý trả lời sai để phá bĩnh:**
+  5. **Có biểu hiện cố ý trả lời sai để phá bĩnh:**
      * Đánh giá TT27: **C (Chưa hoàn thành)**.
      * Nhận xét: *"Thái độ học tập chưa nghiêm túc, có biểu hiện cố tình chọn sai đáp án gây mất đoàn kết nội bộ tổ; cần rèn luyện tinh thần tập thể."*
 
