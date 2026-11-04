@@ -18,6 +18,7 @@
 
     <script src="../shared/components.js"></script>
     <script src="../../shared/js/prevent-reload.js"></script>
+    <script src="quests.js"></script>
 
     <style>
         /* ================= QUY ĐỊNH STYLE VÀ TYPOGRAPHY ĐỒNG BỘ KHỐI 5 ================= */
@@ -1875,13 +1876,19 @@
                 if (!candidates.length) candidates = basePool;
             }
 
-            const picked = candidates[Math.floor(Math.random() * candidates.length)];
+            // Đổi sang bạn khác nếu bấm Gacha lại khi đang chọn (Picked ≠ Done)
+            const currentSelectedIdx = (sel.value !== '' && !isNaN(sel.value)) ? +sel.value : -1;
+            const alternateCandidates = candidates.filter(item => item.idx !== currentSelectedIdx);
+            const finalPool = alternateCandidates.length > 0 ? alternateCandidates : candidates;
+
+            const picked = finalPool[Math.floor(Math.random() * finalPool.length)];
             sel.value = picked.idx;
             sel.classList.remove('need');
             sel.style.background = '#fef08a';
             setTimeout(() => sel.style.background = '', 800);
 
-            markStudentCalled(picked.idx);
+            // Gacha chỉ chọn học sinh (Staged), làm xong mới tính (Picked ≠ Done)
+            refreshSelects();
             showBigStudentAlert(studentDisplayName(picked.s), `Đại diện ${t.name}:`);
         }
 
@@ -2010,13 +2017,19 @@
                 if (!candidates.length) candidates = students.map((s, idx) => ({ s, idx }));
             }
 
-            const picked = candidates[Math.floor(Math.random() * candidates.length)];
+            // Đổi sang bạn khác nếu bấm Gacha lại khi đang chọn (Picked ≠ Done)
+            const currentSelectedIdx = (sel.value !== '' && !isNaN(sel.value)) ? +sel.value : -1;
+            const alternateCandidates = candidates.filter(item => item.idx !== currentSelectedIdx);
+            const finalPool = alternateCandidates.length > 0 ? alternateCandidates : candidates;
+
+            const picked = finalPool[Math.floor(Math.random() * finalPool.length)];
             sel.value = picked.idx;
             sel.classList.remove('need');
             sel.style.background = '#fef08a';
             setTimeout(() => sel.style.background = '', 700);
 
-            markStudentCalled(picked.idx);
+            // Gacha chỉ chọn học sinh (Staged), làm xong mới tính (Picked ≠ Done)
+            refreshSelects();
             showBigStudentAlert(studentDisplayName(picked.s), 'Mời học sinh trả lời:');
         }
 
@@ -2295,9 +2308,14 @@
             }
         ];
 
-        /* Nạp quests.json nếu có server, tự động dùng dữ liệu tích hợp sẵn nếu chạy file:// */
+        /* Nạp quests.json nếu có server, tự động dùng quests.js (window.QUESTS_DATA) nếu chạy file:// */
         async function loadQuestsFromJSON() {
             try {
+                if (window.QUESTS_DATA) {
+                    if (Array.isArray(window.QUESTS_DATA.stage1) && window.QUESTS_DATA.stage1.length > 0) SCENARIOS_CH1 = window.QUESTS_DATA.stage1;
+                    if (Array.isArray(window.QUESTS_DATA.stage2) && window.QUESTS_DATA.stage2.length > 0) SCENARIOS_CH2 = window.QUESTS_DATA.stage2;
+                    if (Array.isArray(window.QUESTS_DATA.stage3) && window.QUESTS_DATA.stage3.length > 0) SCENARIOS_CH3 = window.QUESTS_DATA.stage3;
+                }
                 const res = await fetch('quests.json');
                 if (res.ok) {
                     const data = await res.json();
