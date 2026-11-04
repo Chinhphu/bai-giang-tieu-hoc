@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -1602,7 +1602,8 @@
 
                 case 'visual_spot':
                     let svgHtml = '';
-                    if (q.svgData === 'plug_pull') {
+                    const spotType = q.spotTarget || q.svgData;
+                    if (spotType === 'plug' || spotType === 'plug_pull') {
                         svgHtml = `
                             <svg width="340" height="170" viewBox="0 0 340 170">
                                 <!-- Ổ cắm tường -->
@@ -1633,7 +1634,7 @@
                                 <text x="170" y="160" fill="#ef4444" font-weight="900" font-size="13" text-anchor="middle">⚠️ RÚT PHÍCH CẮM KHI MÁY ĐANG CHẠY!</text>
                             </svg>
                         `;
-                    } else if (q.svgData === 'case_press') {
+                    } else if (spotType === 'case_btn' || spotType === 'case_press') {
                         svgHtml = `
                             <svg width="340" height="170" viewBox="0 0 340 170">
                                 <!-- Thùng máy Case -->
@@ -1660,7 +1661,7 @@
                                 <text x="170" y="163" fill="#ef4444" font-weight="900" font-size="13" text-anchor="middle">🛑 ĐÈ NÚT THÙNG MÁY GÂY HỎNG Ổ CỨNG!</text>
                             </svg>
                         `;
-                    } else if (q.svgData === 'shake_monitor') {
+                    } else if (spotType === 'shake_hands' || spotType === 'shake_monitor') {
                         svgHtml = `
                             <svg width="340" height="170" viewBox="0 0 340 170">
                                 <path d="M75 25 Q70 30 75 35 T75 45" stroke="#facc15" stroke-width="3" fill="none"/>
@@ -1866,9 +1867,26 @@
         }
 
         /* Xử lý tương tác Desktop ảo */
+        let wordClickTimer = null;
+
+        function handleDesktopThisPCClick(ev) {
+            ev.stopPropagation();
+            if (!ensureStudentSelected()) return;
+            const currentQ = (window.QUESTION_BANK || [])[curQIdx % ((window.QUESTION_BANK && window.QUESTION_BANK.length) || 1)];
+            if (!currentQ || currentQ.desktopTask !== 'right_click_thispc') {
+                toast('💡 Đây là biểu tượng This PC, không phải mục tiêu của câu hỏi này!', 'bad');
+                return;
+            }
+            onAnswerWrong('Nháy nút chuột trái rồi! Em hãy dùng ngón giữa bấm NÚT PHẢI CHUỘT vào This PC nhé!');
+        }
+
         function handleDesktopRightClick(ev) {
             ev.preventDefault(); ev.stopPropagation();
             if (!ensureStudentSelected()) return;
+            const currentQ = (window.QUESTION_BANK || [])[curQIdx % ((window.QUESTION_BANK && window.QUESTION_BANK.length) || 1)];
+            if (!currentQ || currentQ.desktopTask !== 'right_click_thispc') {
+                return;
+            }
             const menu = document.getElementById('miniContextMenu');
             if (menu) {
                 menu.style.display = 'block';
@@ -1877,18 +1895,30 @@
             }
         }
 
-        function handleDesktopWrongClick(msg) {
-            if (!ensureStudentSelected()) return;
-            onAnswerWrong(msg);
-        }
-
         function handleDesktopWordSingleClick() {
             if (!ensureStudentSelected()) return;
-            onAnswerWrong('💡 Nháy đúp chuột là nhấn nhanh 2 lần liên tiếp nhé! Thử lại nào!');
+            const currentQ = (window.QUESTION_BANK || [])[curQIdx % ((window.QUESTION_BANK && window.QUESTION_BANK.length) || 1)];
+            if (!currentQ || currentQ.desktopTask !== 'double_click_word') {
+                toast('💡 Hãy tập trung vào nhiệm vụ của câu hỏi nhé!', 'bad');
+                return;
+            }
+            if (wordClickTimer) clearTimeout(wordClickTimer);
+            wordClickTimer = setTimeout(() => {
+                onAnswerWrong('💡 Em chỉ mới nháy 1 lần! Nháy đúp chuột là nhấn nút trái chuột NHANH 2 LẦN LIÊN TIẾP nhé!');
+                wordClickTimer = null;
+            }, 350);
         }
 
         function handleDesktopWordDblClick() {
             if (!ensureStudentSelected()) return;
+            const currentQ = (window.QUESTION_BANK || [])[curQIdx % ((window.QUESTION_BANK && window.QUESTION_BANK.length) || 1)];
+            if (!currentQ || currentQ.desktopTask !== 'double_click_word') {
+                return;
+            }
+            if (wordClickTimer) {
+                clearTimeout(wordClickTimer);
+                wordClickTimer = null;
+            }
             playTone(800, 0.1);
             const win = document.getElementById('simulatedWordWindow');
             if (win) {
@@ -1912,38 +1942,66 @@
         function startDragMiniTrash(ev) {
             ev.preventDefault();
             if (!ensureStudentSelected()) return;
+            const currentQ = (window.QUESTION_BANK || [])[curQIdx % ((window.QUESTION_BANK && window.QUESTION_BANK.length) || 1)];
+            if (!currentQ || currentQ.desktopTask !== 'drag_icon') {
+                toast('💡 Câu hỏi này không yêu cầu kéo thả Thùng rác!', 'bad');
+                return;
+            }
+
             const trash = document.getElementById('iconTrash');
             const box = document.getElementById('miniDesktopArena');
+            if (!trash || !box) return;
+
             const rect = box.getBoundingClientRect();
+            let hasMoved = false;
+
+            function getClientPos(e) {
+                if (e.touches && e.touches.length > 0) {
+                    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+                return { x: e.clientX, y: e.clientY };
+            }
 
             function onMove(e) {
-                let x = e.clientX - rect.left - 40;
-                let y = e.clientY - rect.top - 30;
+                hasMoved = true;
+                const pos = getClientPos(e);
+                let x = pos.x - rect.left - 40;
+                let y = pos.y - rect.top - 30;
                 x = Math.max(0, Math.min(rect.width - 80, x));
                 y = Math.max(0, Math.min(rect.height - 70, y));
-                trash.style.left = `${x}px`;
-                trash.style.top = `${y}px`;
+                trash.style.left = ${x}px;
+                trash.style.top = ${y}px;
             }
 
             function onUp(e) {
                 document.removeEventListener('mousemove', onMove);
                 document.removeEventListener('mouseup', onUp);
+                document.removeEventListener('touchmove', onMove);
+                document.removeEventListener('touchend', onUp);
 
-                const dropTarget = document.getElementById('dropMiniTarget').getBoundingClientRect();
+                if (!hasMoved) return; // Chỉ click nhẹ không tính là kéo trượt
+
+                const dropTarget = document.getElementById('dropMiniTarget');
+                if (!dropTarget) return;
+                const targetRect = dropTarget.getBoundingClientRect();
                 const trashRect = trash.getBoundingClientRect();
                 const cx = trashRect.left + trashRect.width / 2;
                 const cy = trashRect.top + trashRect.height / 2;
 
-                if (cx >= dropTarget.left && cx <= dropTarget.right && cy >= dropTarget.top && cy <= dropTarget.bottom) {
+                if (cx >= targetRect.left && cx <= targetRect.right && cy >= targetRect.top && cy <= targetRect.bottom) {
                     toast('🎉 Kéo thả thành công!', 'ok');
                     onAnswerCorrect();
                 } else {
-                    onAnswerWrong('Kéo thả chưa trúng đích rồi, em hãy thử kéo lại nhé!');
+                    trash.style.left = '250px';
+                    trash.style.top = '15px';
+                    onAnswerWrong('Kéo thả chưa trúng ô vàng rồi, icon đã quay về chỗ cũ để em kéo lại nhé! 💪');
                 }
             }
 
             document.addEventListener('mousemove', onMove);
             document.addEventListener('mouseup', onUp);
+            document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('touchend', onUp);
         }
 
         /* Xử lý tương tác Ghép Cặp */
@@ -2196,11 +2254,11 @@
             }
             document.getElementById('questionStageBox').style.display = 'none';
             document.getElementById('tacticalChoiceView').style.display = 'none';
-            showSlide(3);
+            showSlide(2);
             toast(
                 aliveTeams.length === 1
-                    ? `🏆 ${aliveTeams[0].name} là tổ cuối cùng còn cáp!`
-                    : '🤝 Tất cả các tổ đã sập nguồn. Ván đấu hòa!',
+                    ? `🏆 ${aliveTeams[0].name} là tổ cuối cùng còn cáp! Cả lớp cùng đọc to Ghi nhớ trước khi nhận cúp nhé!`
+                    : '🤝 Tất cả các tổ đã sập nguồn! Cả lớp cùng ôn lại kiến thức trước khi xem Bảng Vàng!',
                 aliveTeams.length === 1 ? 'ok' : 'bad'
             );
             return true;
@@ -2352,7 +2410,14 @@
                 if (tab) tab.classList.toggle('active', s === currentSlide);
             }
 
-            if (currentSlide === 1) renderCurrentQuestion();
+            if (currentSlide === 1) {
+                if (answerResolved && !tacticResolved && !attackResolved && !gameEnded) {
+                    document.getElementById('questionStageBox').style.display = 'none';
+                    document.getElementById('tacticalChoiceView').style.display = 'flex';
+                } else if (!gameEnded) {
+                    renderCurrentQuestion();
+                }
+            }
             if (currentSlide === 3) renderFinalRankings();
         }
 
@@ -2430,7 +2495,7 @@
 
         function exportToExcel() {
             const classDisplay = currentClassID.replace('_', '/');
-            const fileName = `KetQua_TinHoc3_Bai04_Tiet3_Lop_${currentClassID}.csv`;
+            const fileName = typeof buildExportFileName === 'function' ? buildExportFileName({ grade: '3', classId: currentClassID, lesson: '09' }) : `KetQua_TinHoc3_Lop_${currentClassID}_Tiet_09.csv`;
 
             // 1. BẢNG XẾP HẠNG TỔ (TÍNH ĐỒNG HẠNG)
             const sortedTeams = Object.values(teamsData).sort((a, b) => b.cables - a.cables);
@@ -2536,8 +2601,11 @@
         window.addEventListener('DOMContentLoaded', () => {
             const d = new Date();
             const days = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-            document.getElementById('lessonDateDisplay').textContent =
-                `${days[d.getDay()]}, ngày ${String(d.getDate()).padStart(2, '0')} tháng ${String(d.getMonth() + 1).padStart(2, '0')} năm ${d.getFullYear()}`;
+            const dateStr = `${days[d.getDay()]}, ngày ${String(d.getDate()).padStart(2, '0')} tháng ${String(d.getMonth() + 1).padStart(2, '0')} năm ${d.getFullYear()}`;
+            const dateDisplay = document.getElementById('lessonDateDisplay');
+            if (dateDisplay) dateDisplay.textContent = dateStr;
+            const dateLine = document.getElementById('current-date-line');
+            if (dateLine) dateLine.textContent = dateStr;
 
             initTeamsData(4);
             loadClassData('3_5');
