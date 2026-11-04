@@ -2358,10 +2358,13 @@ pause
             reportData().forEach(([t, rows]) => {
                 out += `=== ${t.toUpperCase()} ===\r\n` + rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n') + '\r\n\r\n';
             });
+            const fileName = buildExportName();
             const a = document.createElement('a');
             a.href = URL.createObjectURL(new Blob([out], { type: 'text/csv;charset=utf-8' }));
-            a.download = buildExportName();
+            a.download = fileName;
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+            return fileName;
         }
 
         $('#csvDriveBtn').onclick = async () => {
@@ -2369,23 +2372,60 @@ pause
             const origText = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = '⏳ Đang bắn file lên Google Drive...';
+            const fileName = buildExportName();
             try {
+                const data = reportData();
+                let res = null;
+
                 if (typeof window.uploadCsvToDrive === 'function') {
-                    await window.uploadCsvToDrive(reportData(), buildExportName());
+                    const uploadPromise = window.uploadCsvToDrive(data, fileName);
+                    const timeoutPromise = new Promise((_, reject) =>
+                        setTimeout(() => reject(new Error('Hết thời gian chờ kết nối Google Drive (Quá 8 giây)')), 8000)
+                    );
+                    try {
+                        res = await Promise.race([uploadPromise, timeoutPromise]);
+                    } catch (timeoutErr) {
+                        console.warn('Google Drive timeout:', timeoutErr);
+                        exportCsvLocal();
+                        res = null;
+                    }
                 } else if (typeof window.uploadExcelToDrive === 'function') {
-                    await window.uploadExcelToDrive(reportData(), buildExportName());
+                    res = await window.uploadExcelToDrive(data, fileName);
                 } else {
                     exportCsvLocal();
+                }
+
+                if (res && res.status === 'success') {
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('✅ Đã lưu vào Drive (Thư mục Log tiết học)!', 'ok');
+                    }
+                    alert(`✅ ĐÃ BẮN FILE LÊN GOOGLE DRIVE THÀNH CÔNG!\n\n📁 Tên file: ${fileName}\n☁️ Trạng thái: Đã lưu an toàn vào Thư mục Log tiết học trên Google Drive.`);
+                } else {
+                    if (typeof window.showToast === 'function') {
+                        window.showToast(`⚠️ Không kết nối được Drive. Đã tự động lưu file CSV về máy!`, 'warn');
+                    }
+                    alert(`⚠️ KHÔNG KẾT NỐI ĐƯỢC GOOGLE DRIVE (hoặc máy đang ngoại tuyến/mất mạng).\n\n📥 Hệ thống đã TỰ ĐỘNG TẢI FILE CSV VỀ MÁY giáo viên an toàn!\n📁 Tên file: ${fileName}`);
                 }
             } catch (e) {
                 console.error('Lỗi khi lưu lên Google Drive:', e);
                 exportCsvLocal();
+                if (typeof window.showToast === 'function') {
+                    window.showToast(`⚠️ Lỗi kết nối Drive. Đã lưu file CSV về máy!`, 'warn');
+                }
+                alert(`⚠️ KHÔNG THỂ KẾT NỐI GOOGLE DRIVE: ${e.message || e}\n\n📥 Hệ thống đã TỰ ĐỘNG TẢI FILE CSV VỀ MÁY giáo viên an toàn!\n📁 Tên file: ${fileName}`);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = origText;
             }
         };
-        $('#csvLocalBtn').onclick = exportCsvLocal;
+
+        $('#csvLocalBtn').onclick = () => {
+            const fileName = exportCsvLocal();
+            if (typeof window.showToast === 'function') {
+                window.showToast(`📥 Đã tải file CSV về máy: ${fileName}`, 'ok');
+            }
+            alert(`📥 ĐÃ TẢI FILE CSV VỀ MÁY THÀNH CÔNG!\n\n📁 Tên file: ${fileName}`);
+        };
 
         /* ===== 12. KHỞI TẠO BAN ĐẦU ===== */
         loadClass('4_1');
