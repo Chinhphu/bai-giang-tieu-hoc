@@ -146,6 +146,33 @@ Tuyệt đối không dùng tên chung chung như `state`, `game_data`, `tv_data
   * ĐỒNG THỜI luôn có file đồng bộ `quests.js` (hoặc `questions.js`) định nghĩa biến toàn cục (ví dụ: `window.QUESTS_DATA = ...`) nhúng qua thẻ `<script src="quests.js"></script>` để khi giáo viên mở file trực tiếp `file:///...` trong phòng máy không bị lỗi CORS chặn `fetch`.
 * **Lợi ích:** Giáo viên có thể mở ngay file `quests.json` / `quests.js` bên cạnh để chỉnh sửa, thêm bớt câu hỏi một cách trực quan, nhanh chóng mà không lo làm hỏng mã nguồn HTML/CSS/JS.
 
+### 16. Quy Chuẩn Tính Năng Ẩn: Cơ Chế "Phe Quỷ" / "Đấu Trường Ma Vương" (Anti-Griefing & Peer-Policing Faction)
+* **Bản chất Sư phạm:** Đây là **tính năng ẩn kích hoạt thủ công**, chuyên dùng cho các lớp cá biệt có học sinh cố ý chống đối, phá bĩnh để kéo tụt điểm của cả tổ ("chết chùm"). Cơ chế này mượn chính sự háo thắng, sĩ diện tuổi mới lớn để ép học sinh tự kiểm soát kỷ luật lẫn nhau và bảo vệ các tổ bình thường.
+* **Quy tắc Cách ly & Sinh tồn (Quỷ ăn thịt Quỷ - Zero-Sum):**
+  * Học sinh cá biệt bị trục xuất khỏi tổ gốc, gom vào **"Phe Quỷ" (Tổ Ma Vương)**. Điểm của Phe Quỷ được tính độc lập theo từng cá nhân con quỷ, không chia đều cho tổ.
+  * **Hút điểm:** Trả lời đúng KHÔNG được máy cấp điểm mới mà trực tiếp hút điểm từ các con Quỷ khác đắp vào mình.
+  * **Tịch thu điểm:** Mất trật tự, cố tình sai hoặc không chép bài sẽ bị hệ thống tịch thu điểm và chia đều cho những con Quỷ còn lại. (Nếu Phe Quỷ chỉ có 1 em duy nhất, điểm bị trừ sẽ chuyển thành Quỹ Cứu Trợ chia cho các tổ Loài Người).
+* **Vòng quay Lượt chơi & Gacha Quỷ:**
+  * Tổ Ma Vương có lượt chơi xoay vòng ngang hàng với các tổ Loài Người (`Tổ 1 ➔ Tổ 2 ➔ ... ➔ Tổ Quỷ`).
+  * **CẤM giơ tay tự do ở lượt Tổ Quỷ:** Bắt buộc Giáo viên bấm nút `🎲 Gacha Quỷ` để hệ thống tự động bốc ngẫu nhiên một con Quỷ lên bảng, chấm dứt tình trạng trốn tránh hoặc tranh giành ồn ào.
+* **Ngai vàng Quỷ Vương & Phần thưởng có điều kiện:**
+  * Cá nhân Quỷ có điểm cao nhất cuối tiết đăng quang làm **Quỷ Vương**.
+  * **Phần thưởng:** Được lên bục giảng cầm chuột điều khiển máy chiếu tiết học tuần sau.
+  * **Điều kiện tiên quyết:** Vở phải chép đủ 100% bài học (Giáo viên duyệt vở trước khi cho lên máy).
+* **Trừng phạt "Túi Kinh Nghiệm" (Loot Goblin) & Giáng cấp Slime:**
+  * Nếu Quỷ Vương lên cầm máy mà lóng ngóng, quản trò lôm côm hoặc cố ý phá hoại: Giáo viên kích hoạt **Đòn Phản Phệ**.
+  * Toàn bộ điểm tích lũy của Quỷ Vương phát nổ, trở thành "túi kinh nghiệm" chia đều cho các tổ Loài Người.
+  * Quỷ Vương bị giáng cấp thẳng xuống làm **Slime Xanh Nhầy Nhụa** kèm hiệu ứng **"Câm Lặng" (Silence)**: tước mọi quyền phát biểu, hủy tư cách Quỷ Vương và phong ấn vĩnh viễn khỏi bàn giáo viên trong tiết đó.
+* **Cơ chế Hoàn Lương (Redemption):** Quỷ Vương hoàn thành xuất sắc nhiệm vụ có quyền chọn giữ ngai vàng hoặc "chuyển sinh" trở về làm Người ở tổ cũ với tư cách Anh Hùng mang điểm thưởng cho tổ.
+* **Báo cáo CSV Riêng Biệt & Nhận Xét Nghiêm Khắc (Anti-Sugarcoating):**
+  * **TUYỆT ĐỐI CẤM** dùng các câu khen ngợi tích cực sáo rỗng ("Hoàn thành tốt", "Chăm chỉ", "Nhanh nhẹn"...) cho học sinh thuộc Phe Quỷ.
+  * Tách riêng một bảng danh sách trong file CSV: `=== THEO DÕI HÀNH VI & KỶ LUẬT (PHE QUỶ) ===`.
+  * Xếp loại Thông tư 27: Mặc định là **C (Chưa hoàn thành)** hoặc **H (Hoàn thành nhưng cần rèn luyện thêm ý thức)**.
+  * Hệ thống tự sinh câu nhận xét khách quan, nghiêm khắc để Giáo viên dùng làm việc với GVCN/Phụ huynh: ghi rõ số lần vi phạm kỷ luật, tình trạng không chép bài, hiện tượng cố tình làm ảnh hưởng tổ, trạng thái bị phong ấn Slime.
+* **Phương thức kích hoạt ẩn (Zero Overhead):**
+  * Hỗ trợ URL kích hoạt trực tiếp trên GitHub Pages: `tiet-X/index-mavuong.html` (file wrapper chuyển tiếp `index.html?mode=mavuong`).
+  * Hoặc phím tắt ẩn của Giáo viên (`Ctrl + Alt + D` hoặc click 4 lần vào logo) ngay trong `index.html`. Không nhân bản code trùng lặp để đảm bảo tính nhất quán khi bảo trì.
+
 ---
 
 ## 🛠️ 2. QUY TRÌNH 5 BƯỚC KHI TẠO HOẶC CHỈNH SỬA TIẾT HỌC MỚI
