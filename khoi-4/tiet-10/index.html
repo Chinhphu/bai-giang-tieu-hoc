@@ -1095,6 +1095,7 @@
             <section class="screen" id="s4">
                 <div class="card" style="text-align:center">
                     <h2 style="font-size:2rem">🏆 Bảng Vàng Danh Dự (Tiết 2)</h2>
+                    <div id="podiumBanner" style="font-size:1.35rem;font-weight:900;color:#b45309;background:#fef3c7;border:3px solid #f59e0b;border-radius:14px;padding:12px 20px;margin:12px auto 18px;max-width:850px;display:none;"></div>
                     <div class="podium" id="podium"></div>
                     <div class="stats">
                         <div class="stat"><b id="stN">0</b>Sĩ số học sinh</div>
@@ -2224,22 +2225,14 @@ pause
                 return a.totalMs - b.totalMs;
             });
 
+            // Gán thứ hạng chuẩn thi đấu (Standard Competition Ranking - Quy chuẩn 13): Bằng điểm nhau thì cùng thứ hạng
+            let curRank = 1;
             for (let k = 0; k < list.length; k++) {
-                if (k > 0) {
-                    const prev = list[k - 1];
-                    const cur = list[k];
-                    if (cur.s === prev.s && cur.okCnt === prev.okCnt && cur.totalMs === prev.totalMs) {
-                        cur.rank = prev.rank;
-                        cur.isTie = true;
-                        prev.isTie = true;
-                    } else {
-                        cur.rank = k + 1;
-                        cur.isTie = false;
-                    }
-                } else {
-                    list[0].rank = 1;
-                    list[0].isTie = false;
+                if (k > 0 && list[k].s < list[k - 1].s) {
+                    curRank = k + 1;
                 }
+                list[k].rank = curRank;
+                list[k].isTie = list.filter(item => item.s === list[k].s).length > 1;
             }
 
             list.forEach(item => {
@@ -2253,7 +2246,7 @@ pause
                     item.title = item.isTie ? 'Đồng Hạng ba' : 'Hạng ba';
                     item.icon = '🥉';
                 } else {
-                    item.title = 'Khuyến khích';
+                    item.title = item.isTie ? `Đồng Hạng ${item.rank}` : `Hạng ${item.rank}`;
                     item.icon = '⭐';
                 }
             });
@@ -2263,16 +2256,61 @@ pause
 
         function drawPodium() {
             const ranked = getRankedTeams();
-            const topTeams = ranked.filter(t => t.rank <= 3);
-            let displayOrder = [...topTeams];
-            const hasTie1 = topTeams.filter(t => t.rank === 1).length > 1;
 
-            if (!hasTie1 && topTeams.length >= 2) {
-                const r1 = topTeams.find(t => t.rank === 1);
-                const r2 = topTeams.find(t => t.rank === 2);
-                const r3 = topTeams.find(t => t.rank === 3);
-                displayOrder = [r2, r1, r3].filter(Boolean);
+            // Banner vinh danh Quán quân / Đồng Quán quân chuẩn Quy tắc 13
+            const banner = $('#podiumBanner');
+            if (banner) {
+                const r1Teams = ranked.filter(t => t.rank === 1);
+                if (r1Teams.length > 1) {
+                    const names = r1Teams.map(t => `TỔ ${t.i + 1}`).join(' & ');
+                    banner.innerHTML = `🎉 ĐỒNG QUÁN QUÂN: ${names} (CÙNG ĐẠT ${r1Teams[0].s} ĐIỂM)! 🏆`;
+                    banner.style.display = 'block';
+                } else if (r1Teams.length === 1) {
+                    const champ = r1Teams[0];
+                    const r2Teams = ranked.filter(t => t.rank === 2);
+                    if (r2Teams.length > 1) {
+                        const r2Names = r2Teams.map(t => `TỔ ${t.i + 1}`).join(' & ');
+                        banner.innerHTML = `🏆 QUÁN QUÂN: TỔ ${champ.i + 1} (${champ.s} ĐIỂM) — ĐỒNG Á QUÂN: ${r2Names} (${r2Teams[0].s} ĐIỂM)! 🥈`;
+                    } else {
+                        banner.innerHTML = `🏆 QUÁN QUÂN XUẤT SẮC: TỔ ${champ.i + 1} (ĐẠT ${champ.s} ĐIỂM)! 🥇`;
+                    }
+                    banner.style.display = 'block';
+                } else {
+                    banner.style.display = 'none';
+                }
             }
+
+            // Tách các nhóm thứ hạng để bố trí bục vinh danh đối xứng, TUYỆT ĐỐI KHÔNG BỎ SÓT TỔ NÀO
+            const r1 = ranked.filter(t => t.rank === 1);
+            const r2 = ranked.filter(t => t.rank === 2);
+            const r3 = ranked.filter(t => t.rank === 3);
+            const rOthers = ranked.filter(t => t.rank > 3);
+
+            let displayOrder = [];
+
+            if (r1.length === 1 && r2.length === 1 && r3.length === 1) {
+                // Chuẩn Olympic: Hạng 2 (trái) - Hạng 1 (giữa, nhô cao) - Hạng 3 (phải) - Các hạng sau
+                displayOrder = [r2[0], r1[0], r3[0], ...rOthers];
+            } else if (r1.length === 1 && r2.length === 2) {
+                // 1 Quán quân ở giữa, 2 Đồng Á quân đối xứng hai bên
+                displayOrder = [r2[0], r1[0], r2[1], ...r3, ...rOthers];
+            } else if (r1.length === 1 && r2.length === 1 && r3.length > 1) {
+                // 1 Quán quân ở giữa, 1 Á quân bên trái, các Đồng Hạng ba bên phải
+                displayOrder = [r2[0], r1[0], ...r3, ...rOthers];
+            } else if (r1.length > 1) {
+                // Đồng Quán quân: Đặt tất cả các Quán quân cạnh nhau ở vị trí danh dự nhất
+                displayOrder = [...r1, ...r2, ...r3, ...rOthers];
+            } else {
+                // Mọi tình huống đồng hạng khác: Hiển thị đầy đủ tất cả các tổ theo thứ tự hạng
+                displayOrder = [...r1, ...r2, ...r3, ...rOthers];
+            }
+
+            // BẢO HIỂM 100%: Tuyệt đối không bao giờ bỏ sót bất kỳ tổ nào!
+            ranked.forEach(t => {
+                if (!displayOrder.some(d => d.i === t.i)) {
+                    displayOrder.push(t);
+                }
+            });
 
             $('#podium').innerHTML = displayOrder.map(team => {
                 const isRank1 = team.rank === 1;
@@ -2299,12 +2337,13 @@ pause
                 ['KẾT QUẢ THI ĐUA CÁC TỔ – BÀI 5: THAO TÁC VỚI TỆP VÀ THƯ MỤC (TIẾT 2)'],
                 [`Lớp: ${cl} – Ngày thực hành: ${day}`],
                 [],
-                ['Hạng', 'Tổ', 'Tổng điểm', 'Số Combo hoàn thành', 'Tổng thời gian', 'Danh hiệu thi đua']
+                ['Thứ Hạng', 'Tổ', 'Tổng Điểm', 'Số Combo Hoàn Thành', 'Tổng Thời Gian', 'Đồng Hạng', 'Danh Hiệu Thi Đua']
             ];
 
             getRankedTeams().forEach(x => {
-                const rankLabel = x.isTie ? `${x.rank} (Đồng hạng)` : `${x.rank}`;
-                teamRows.push([rankLabel, 'Tổ ' + (x.i + 1), x.s, x.okCnt, formatTimeShortMs(x.totalMs), x.title]);
+                const rankLabel = `Hạng ${x.rank}`;
+                const tieLabel = x.isTie ? 'Có (Đồng điểm)' : 'Không';
+                teamRows.push([rankLabel, 'Tổ ' + (x.i + 1), x.s, x.okCnt, formatTimeShortMs(x.totalMs), tieLabel, x.title]);
             });
 
             const stRows = [
