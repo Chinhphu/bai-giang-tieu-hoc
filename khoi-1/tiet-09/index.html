@@ -179,6 +179,41 @@
       background: #dbeafe;
     }
 
+    .saved-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .35em;
+      font-size: .68em;
+      font-weight: 800;
+      color: #15803d;
+      background: #dcfce7;
+      border: 1.5px solid #86efac;
+      padding: .2em .55em;
+      border-radius: .8em;
+      white-space: nowrap;
+    }
+
+    .saved-badge::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #16a34a;
+      box-shadow: 0 0 5px #16a34a;
+    }
+
+    .tool.trash {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #dc2626;
+      font-weight: 800;
+    }
+
+    .tool.trash:hover {
+      background: #fee2e2;
+      border-color: #fca5a5;
+    }
+
     .tools {
       display: flex;
       align-items: center;
@@ -1278,6 +1313,8 @@
           <option value="1_5">Lớp 1/5</option>
           <option value="1_6" selected>Lớp 1/6</option>
         </select>
+        <span class="saved-badge" id="savedBadge" style="display:none" title="Dữ liệu phiên của lớp này đang được lưu">Đã lưu</span>
+        <button class="tool trash" id="bClearTop" type="button" title="Xóa dữ liệu đã lưu của lớp này">🗑️ Xóa dữ liệu</button>
         <button class="tool" id="bPause" type="button" title="Phím P">⏸ Tạm dừng</button>
         <button class="tool" id="bSkip" type="button" title="Phím N">⏭ Đổi đội</button>
         <button class="tool red" id="bRed" type="button" title="Phím 1-5">🔴 Đèn đỏ</button>
@@ -1324,7 +1361,7 @@
         <button class="tool" id="bBack" type="button">⬅ Quay lại game</button>
         <button class="tool" id="bCsv" type="button" style="background:#f97316;color:#fff;border-color:#ea580c">📥 Xuất
           CSV</button>
-        <button class="tool" id="bReset" type="button">🔄 Làm mới dữ liệu</button>
+        <button class="tool trash" id="bReset" type="button">🗑️ Xóa dữ liệu đã lưu</button>
       </div>
     </div>
     <div class="podium" id="podium"></div>
@@ -1490,6 +1527,7 @@
           v: 2, round, turn, arrived, log,
           teams: teams.map(t => ({ id: t.id, score: t.score, steps: t.steps }))
         }));
+        updateSavedIndicator();
       } catch (e) { }
     }
     function restore() {
@@ -1924,10 +1962,42 @@
         toast('📥 Đã xuất file CSV: ' + name);
       }
     }
-    function resetAll() {
-      if (!confirm('Làm mới toàn bộ điểm số và nhật ký của lớp này?')) return;
-      try { localStorage.removeItem(storageKey()); } catch (e) { }
-      newTeams(); round = 1; buildTracks(); renderBoard(); toast('Đã làm mới dữ liệu tiết học!');
+    function hasSavedData() {
+      try {
+        return !!localStorage.getItem(storageKey());
+      } catch (e) { return false; }
+    }
+
+    function updateSavedIndicator() {
+      const el = $('savedBadge');
+      const has = hasSavedData();
+      if (el) el.style.display = has ? 'inline-flex' : 'none';
+      const cName = cls.replace('_', '/');
+      const tip = has
+        ? `Đang lưu dữ liệu học tập của Lớp ${cName}. Bấm để xóa sạch dữ liệu.`
+        : `Lớp ${cName} chưa có dữ liệu lưu.`;
+      if ($('bClearTop')) $('bClearTop').title = tip;
+      if ($('bReset')) $('bReset').title = tip;
+    }
+
+    function clearSavedData() {
+      const cName = cls.replace('_', '/');
+      const has = hasSavedData();
+      const msg = has
+        ? `Thầy/Cô có chắc chắn muốn XÓA TOÀN BỘ DỮ LIỆU ĐÃ LƯU của Lớp ${cName}?\n\n• Điểm số và tiến độ đoàn tàu sẽ được đặt lại từ đầu.\n• Nhật ký và xếp loại TT27 của Lớp ${cName} sẽ được làm mới.\n• Dữ liệu các lớp khác hoàn toàn KHÔNG bị ảnh hưởng.`
+        : `Làm mới lại toàn bộ điểm số và nhật ký của Lớp ${cName}?`;
+      if (!confirm(msg)) return;
+      try {
+        localStorage.removeItem(storageKey());
+      } catch (e) { }
+      newTeams();
+      round = 1;
+      turn = 0;
+      buildTracks();
+      if (boardOpen) renderBoard();
+      showIdle();
+      updateSavedIndicator();
+      toast(`🗑️ Đã xóa dữ liệu đã lưu của Lớp ${cName}!`);
     }
 
     // ---------- PHÁO HOA ----------
@@ -1964,7 +2034,9 @@
       $('redMenu').onclick = e => { const b = e.target.closest('button'); if (b) { redLight(+b.dataset.i); $('redMenu').classList.remove('on'); } };
       document.addEventListener('click', e => { if (!e.target.closest('#redMenu,#bRed')) $('redMenu').classList.remove('on'); const b = e.target.closest('button'); if (b) b.blur(); });
       $('clsSel').onchange = async e => { clearAll(); cls = e.target.value; await initClass(); };
-      $('bBack').onclick = closeBoard; $('bCsv').onclick = exportCsv; $('bReset').onclick = resetAll;
+      $('bBack').onclick = closeBoard; $('bCsv').onclick = exportCsv;
+      $('bReset').onclick = clearSavedData;
+      $('bClearTop').onclick = clearSavedData;
       document.addEventListener('pointerdown', () => Snd.unlock(), { once: true });
       window.addEventListener('keydown', e => {
         if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
@@ -1983,7 +2055,7 @@
     async function initClass() {
       if (!restore()) newTeams();
       $('clsSel').value = cls;
-      buildTracks(); showIdle();
+      buildTracks(); showIdle(); updateSavedIndicator();
     }
     window.addEventListener('DOMContentLoaded', async () => {
       await loadQuests(); bind(); updateButtons(); await initClass();
