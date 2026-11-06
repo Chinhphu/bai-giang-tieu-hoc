@@ -1074,7 +1074,7 @@
           <option value="1_6" selected>Lớp 1/6</option>
         </select>
         <button class="tool" id="bPause" type="button" title="Phím P">⏸ Tạm dừng</button>
-        <button class="tool" id="bSkip" type="button" title="Phím N">⏭ Vắng</button>
+        <button class="tool" id="bSkip" type="button" title="Phím N">⏭ Đổi đội</button>
         <button class="tool red" id="bRed" type="button" title="Phím 1-5">🔴 Đèn đỏ</button>
         <button class="tool" id="bAuto" type="button">⏱ Tự đếm 3-2-1</button>
         <button class="tool" id="bSnd" type="button">🔊</button>
@@ -1094,7 +1094,7 @@
 
     <footer class="foot">
       <div id="nextLine">Tiếp theo: …</div>
-      <div><kbd>Space</kbd> bắt đầu · <kbd>P</kbd> tạm dừng · <kbd>N</kbd> bạn vắng · <kbd>1</kbd>–<kbd>5</kbd> đèn đỏ
+      <div><kbd>Space</kbd> bắt đầu · <kbd>P</kbd> tạm dừng · <kbd>N</kbd> đổi đội · <kbd>1</kbd>–<kbd>5</kbd> đèn đỏ
         đội</div>
     </footer>
   </div>
@@ -1117,7 +1117,7 @@
           <thead>
             <tr>
               <th>STT</th>
-              <th>Họ và tên</th>
+              <th>Đại diện</th>
               <th>Đội</th>
               <th>Vòng</th>
               <th>Nội dung</th>
@@ -1164,17 +1164,8 @@
     };
     const NUM_WORDS = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín', 'mười', 'mười một', 'mười hai'];
 
-    const FALLBACK_STUDENTS = {
-      "1_6": ["Lê Nguyễn Thảo An", "Dương Quỳnh Anh", "Nguyễn Duy Anh", "Nguyễn Trần Bảo Anh", "Tô Tuệ Anh", "Trần Nguyễn Phương Anh", "Danh Trần Gia Bảo", "Trần Tuyết Băng", "Nguyễn Hoàng Dũng", "Phạm Quang Đạt", "Nguyễn Phúc Hậu", "Huỳnh Minh Huy", "Phạm Khắc Huy", "Phạm Minh Ken", "Thái Phát Khang", "Lâm Hoàng Gia Khương", "Nguyễn Tuấn Kiệt", "Đỗ Ngọc Thiên Kim", "Nguyễn Ngọc Thiên Kim", "Đặng Bảo Linh", "Danh Nguyễn Trà My", "Hà Tiểu My", "Nguyễn Cẩm Ngọc", "Nguyễn Hoàng Bảo Ngọc", "Nguyễn Phan Kim Nguyên", "Lưu Nguyệt Nhân", "Lương Huỳnh An Nhiên", "Huỳnh Minh Phát", "Lê Hoàng Phát", "Lưu Vương Thành Phát", "Đàm Tâm Phú", "Huỳnh Ngọc Như Phúc", "Ngô Anh Quốc", "Đặng Phi Thiên", "Nguyễn Hoàng Thiện", "Danh Minh Thuận", "Tô Minh Trí", "Đặng Bảo Trúc", "Phan Nhật Trường", "Võ Huỳnh Khánh Vân", "Mai Đức Vĩnh", "Danh Nguyễn Hoàng Yến"],
-      "1_1": ["Nguyễn Văn An", "Trần Thị Bé", "Lê Hoàng Cường", "Phạm Mỹ Duyên", "Vũ Minh Đức"],
-      "1_2": ["Đỗ Gia Huy", "Bùi Mai Hương", "Lý Tuấn Kiệt", "Hoàng Thảo Linh", "Ngô Minh Nhật"],
-      "1_3": ["Dương Phúc Nguyên", "Võ Kim Ngân", "Trương Phát Đạt", "Phan Cẩm Tú", "Đinh Tuấn Tú"],
-      "1_4": ["Hà Bảo Châu", "Lâm Trọng Hiếu", "Châu Khả Doanh", "Cao Thái Sơn", "Tạ Quỳnh Như"],
-      "1_5": ["Quách Ngọc Trâm", "Đoàn Tấn Lộc", "Mai Thanh Trúc", "Lưu Gia Phúc", "Đặng Hoàng Yến"]
-    };
-
     // ---------- TRẠNG THÁI ----------
-    let cls = '1_6', round = 1, roster = [], teams = [], log = [];
+    let cls = '1_6', round = 1, teams = [], log = [];
     let turn = 0;                 // chỉ số đội đang có lượt
     let phase = 'idle';           // idle | count | wait | play | hi5 | red | paused
     let autoStart = true, muted = false, boardOpen = false;
@@ -1193,7 +1184,6 @@
     function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } return a; }
     function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
     function setPhase(p) { phase = p; document.body.dataset.phase = p; updateButtons(); }
-    const kidOf = t => t.queue[t.si % t.queue.length];
 
     function toast(msg, ms) {
       const el = $('toast'); if (!el) return;
@@ -1269,37 +1259,18 @@
       const i = decks[r].pop(); decks['last' + r] = i; return list[i];
     }
 
-    // ---------- DANH SÁCH LỚP & LƯU TRỮ ----------
-    async function loadRoster(c) {
-      if (location.protocol.startsWith('http')) {
-        try {
-          const r = await fetch('../../assets/data/students_1_2026_2027.json');
-          if (r.ok) {
-            const d = await r.json(), arr = d && d[c];
-            if (Array.isArray(arr) && arr.length) {
-              const names = arr.map(x => typeof x === 'string' ? x : (x && (x.name || x.hoTen || x.fullName)) || '').filter(Boolean);
-              if (names.length) return names;
-            }
-          }
-        } catch (e) { }
-      }
-      return FALLBACK_STUDENTS[c] || FALLBACK_STUDENTS['1_6'];
-    }
+    // ---------- KHỞI TẠO ĐỘI & LƯU TRỮ ----------
     function newTeams() {
-      teams = TEAMS.map((cfg, i) => {
-        const q = roster.filter((_, k) => k % 5 === i);
-        return {
-          ...cfg, score: START_SCORE, steps: { 1: 0, 2: 0, 3: 0 }, si: 0, red: 0,
-          queue: q.length ? q : [`Bé ${cfg.name} 1`, `Bé ${cfg.name} 2`]
-        };
-      });
+      teams = TEAMS.map(cfg => ({
+        ...cfg, score: START_SCORE, steps: { 1: 0, 2: 0, 3: 0 }, red: 0
+      }));
       log = []; arrived = {}; turn = 0;
     }
     function save() {
       try {
         localStorage.setItem(storageKey(), JSON.stringify({
           v: 2, round, turn, arrived, log,
-          teams: teams.map(t => ({ id: t.id, score: t.score, steps: t.steps, si: t.si, queue: t.queue }))
+          teams: teams.map(t => ({ id: t.id, score: t.score, steps: t.steps }))
         }));
       } catch (e) { }
     }
@@ -1308,8 +1279,7 @@
         const p = JSON.parse(localStorage.getItem(storageKey()) || 'null');
         if (!p || p.v !== 2 || !Array.isArray(p.teams) || p.teams.length !== 5) return false;
         teams = TEAMS.map((cfg, i) => ({
-          ...cfg, score: p.teams[i].score, steps: p.teams[i].steps || { 1: 0, 2: 0, 3: 0 },
-          si: p.teams[i].si || 0, red: 0, queue: (p.teams[i].queue && p.teams[i].queue.length) ? p.teams[i].queue : [`Bé ${cfg.name} 1`]
+          ...cfg, score: p.teams[i].score, steps: p.teams[i].steps || { 1: 0, 2: 0, 3: 0 }, red: 0
         }));
         round = [1, 2, 3].includes(p.round) ? p.round : 1; turn = Math.min(4, Math.max(0, p.turn || 0));
         arrived = p.arrived || {}; log = Array.isArray(p.log) ? p.log : [];
@@ -1342,9 +1312,9 @@
     function renderTurnbar() {
       const t = teams[turn], bar = $('turnbar');
       bar.style.setProperty('--c', t.color);
-      bar.innerHTML = `<div class="who"><span>${t.icon} Đội ${esc(t.name)}</span><span>· 👤 ${esc(kidOf(t))}</span></div>
+      bar.innerHTML = `<div class="who"><span>${t.icon} Đội ${esc(t.name)}</span></div>
                    <div class="rd">${ROUNDS[round].icon} Vòng ${round}</div>`;
-      const nx = [1, 2, 3].map(k => { const n = teams[(turn + k) % 5]; return `${n.icon} ${esc(kidOf(n))}`; });
+      const nx = [1, 2, 3].map(k => { const n = teams[(turn + k) % 5]; return `${n.icon} Đội ${esc(n.name)}`; });
       $('nextLine').innerHTML = 'Tiếp theo: ' + nx.join(' ➜ ');
       document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.r == round && !boardOpen || (b.dataset.r === 'board' && boardOpen)));
     }
@@ -1366,7 +1336,7 @@
          <div class="cv-title">VÒNG ${round}: ${r.title}</div>
          <div class="cv-sub">${r.how}</div>
          ${round === 2 ? '<div class="legend"><b>🐜 Kiến bé xíu = số NHỎ NHẤT</b><b>🐘 Voi to đùng = số LỚN NHẤT</b></div>' : ''}
-         <div class="cv-sub" style="margin-top:.6em">Lượt đầu tiên: <span class="chip" style="--c:${t.color}">${t.icon} ${esc(t.name)}</span></div>
+         <div class="cv-sub" style="margin-top:.6em">Lượt đầu tiên: <span class="chip" style="--c:${t.color}">${t.icon} Đội ${esc(t.name)}</span></div>
          <button class="cv-btn" type="button" id="btnGo">▶ BẮT ĐẦU</button>`);
       $('btnGo').onclick = () => { Snd.unlock(); startTurn(); };
       renderTurnbar(); updateTracks();
@@ -1387,12 +1357,13 @@
     }
     function readyBanner() {
       const t = teams[turn];
-      return `<div class="cv-sub">Mời bạn lên vạch xuất phát</div>
-          <div class="chip" style="--c:${t.color}">${t.icon} ${esc(kidOf(t))}</div>`;
+      return `<div class="cv-sub">Lượt của đội</div>
+          <div class="chip" style="--c:${t.color}">${t.icon} Đội ${esc(t.name)}</div>
+          <div class="cv-sub" style="font-size:min(3.2vh,2.2vw);color:#64748b;margin-top:.2em">Bạn nào lên cũng được nè! ✨</div>`;
     }
     function showWait() {
       cover(`${readyBanner()}<button class="cv-btn" type="button" id="btnGo2">▶ SẴN SÀNG!</button>
-         <div class="cv-sub">Cả hàng đứng thẳng, trật tự rồi mới bấm nhé</div>`);
+         <div class="cv-sub">Bé bước lên máy rồi bấm sẵn sàng nhé</div>`);
       $('btnGo2').onclick = () => { Snd.unlock(); go(); };
     }
     function countdown(n) {
@@ -1503,7 +1474,7 @@
     // ---------- HOÀN THÀNH LƯỢT ----------
     function complete(desc, coverDelay) {
       setPhase('hi5');
-      const t = teams[turn], kid = kidOf(t);
+      const t = teams[turn];
       const sec = Math.max(1, Math.round((performance.now() - cur.t0) / 1000));
       const limit = round === 1 ? 6 + cur.q.target : 10;
       const grade = (sec <= limit && cur.mistakes <= 1) ? 'T' : 'H';
@@ -1514,8 +1485,8 @@
       t.steps[round] = Math.min(MAX_STEPS, (t.steps[round] || 0) + 1);
       if (t.steps[round] >= MAX_STEPS && !arrived[round]) { arrived[round] = t.id; gain += ARRIVE_BONUS; msg = `🏁 Đội ${t.name} về ga đầu tiên! +${ARRIVE_BONUS}`; }
       t.score += gain;
-      log.push({ student: kid, team: t.name, icon: t.icon, round, desc, sec, mistakes: cur.mistakes, grade, comment });
-      t.si++;
+      const rep = `Lượt ${t.steps[round]}`;
+      log.push({ student: rep, team: t.name, icon: t.icon, round, desc, sec, mistakes: cur.mistakes, grade, comment });
       save(); updateTracks();
       Snd.fanfare(); confetti();
       if (msg) toast(msg, 3200);
@@ -1524,9 +1495,9 @@
       later(() => {
         cover(`<div class="hands"><span class="l">🤚</span><span class="r">✋</span></div>
            <div class="cv-title" style="color:#15803d">ĐẬP TAY TIẾP SỨC!</div>
-           <div class="cv-sub">${esc(kid)} giỏi quá! ⭐ +${gain} điểm</div>
-           <div class="cv-sub">Mời bạn kế tiếp:</div>
-           <div class="chip" style="--c:${next.color}">${next.icon} ${esc(kidOf(next))}</div>`, 'hi5');
+           <div class="cv-sub">Đội ${esc(t.name)} giỏi quá! ⭐ +${gain} điểm</div>
+           <div class="cv-sub">Mời lượt tiếp theo:</div>
+           <div class="chip" style="--c:${next.color}">${next.icon} Đội ${esc(next.name)}</div>`, 'hi5');
       }, coverDelay);
       later(() => { turn = (turn + 1) % 5; save(); startTurn(); }, coverDelay + 2200);
     }
@@ -1572,10 +1543,12 @@
       if (phase !== 'paused') return;
       cur.t0 += performance.now() - cur._pausedAt; uncover(); setPhase('play');
     }
-    function skipKid() {
+    function skipTurn() {
       if (boardOpen || phase === 'hi5' || phase === 'red') return;
-      const t = teams[turn]; const who = kidOf(t);
-      t.si++; toast(`😷 ${who} vắng/bỏ qua. Mời bạn tiếp theo của đội ${t.name}.`);
+      const t = teams[turn];
+      turn = (turn + 1) % 5;
+      save();
+      toast(`⏭ Chuyển sang lượt của Đội ${teams[turn].name}.`);
       if (phase === 'idle') { renderTurnbar(); showIdle(); }
       else startTurn();
     }
@@ -1635,7 +1608,7 @@
       ranked().forEach(t => rows.push([t.rank, t.name, t.score, t.isShared ? 'Có' : 'Không', t.title]));
       rows.push([]);
       rows.push(['=== NHẬT KÝ THỰC HÀNH VÀ XẾP LOẠI TT27 (T: Tốt, H: Hoàn thành) ===']);
-      rows.push(['STT', 'Họ và tên', 'Đội', 'Vòng', 'Nội dung', 'Thời gian (giây)', 'Số lần bấm nhầm', 'Xếp loại', 'Nhận xét']);
+      rows.push(['STT', 'Đại diện', 'Đội', 'Vòng', 'Nội dung', 'Thời gian (giây)', 'Số lần bấm nhầm', 'Xếp loại', 'Nhận xét']);
       log.forEach((l, i) => rows.push([i + 1, l.student, l.team, 'Vòng ' + l.round, l.desc, l.sec, l.mistakes, l.grade, l.comment]));
       const csv = rows.map(r => r.map(csvCell).join(',')).join('\r\n');   // KHÔNG thêm BOM ở đây: core.js tự thêm
       if (typeof window.uploadCsvToDrive === 'function') window.uploadCsvToDrive(csv, name);
@@ -1673,7 +1646,7 @@
     // ---------- GẮN NÚT & PHÍM ----------
     function bind() {
       document.querySelectorAll('.tab').forEach(b => b.onclick = () => { if (b.dataset.r === 'board') openBoard(); else setRound(+b.dataset.r); });
-      $('bPause').onclick = togglePause; $('bSkip').onclick = skipKid;
+      $('bPause').onclick = togglePause; $('bSkip').onclick = skipTurn;
       $('bAuto').onclick = () => { autoStart = !autoStart; updateButtons(); toast(autoStart ? 'Tự đếm 3-2-1 rồi bé làm' : 'Chờ thầy/cô bấm "Sẵn sàng" mỗi lượt'); };
       $('bSnd').onclick = () => { muted = !muted; updateButtons(); if (muted) { try { speechSynthesis.cancel(); } catch (e) { } } };
       $('bFull').onclick = () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); } catch (e) { } };
@@ -1690,12 +1663,11 @@
         if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); primary(); }
         else if (/^[1-5]$/.test(e.key)) redLight(+e.key - 1);
         else if (e.key === 'p' || e.key === 'P') togglePause();
-        else if (e.key === 'n' || e.key === 'N') skipKid();
+        else if (e.key === 'n' || e.key === 'N') skipTurn();
       });
     }
 
     async function initClass() {
-      roster = await loadRoster(cls);
       if (!restore()) newTeams();
       $('clsSel').value = cls;
       buildTracks(); showIdle();
