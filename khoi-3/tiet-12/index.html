@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 5: Sử dụng bàn phím (Tiết 3) – Đại Hội Typing Siêu Tốc (WPM Grand Prix) | Tin học 3</title>
+
+    <link rel="stylesheet" href="../shared/style.css">
+    <script src="../../shared/js/confetti.js"></script>
+    <script src="questions.js"></script>
+    <script src="../../shared/js/prevent-reload.js"></script>
+    <script src="../../shared/js/core.js"></script>
+
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            color: #0f172a;
+            background: #060913;
+            font-family: 'Quicksand', system-ui, -apple-system, sans-serif;
+            font-size: 16px;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        button, input, select {
+            font-family: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            border: 0;
+            touch-action: manipulation;
+        }
+
+        button:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .layout-container {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) clamp(350px, 24vw, 420px);
+            gap: 12px;
+            max-width: 1920px;
+            margin: 0 auto;
+            padding: 8px 12px 140px;
+            min-height: 100vh;
+            align-items: start;
+        }
+
+        .slide-screen {
+            display: none;
+            animation: fadeIn .22s ease forwards;
+        }
+
+        .slide-screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-panel {
+            background: #ffffff;
+            border-radius: 18px;
+            border: 3px solid #334155;
+            padding: 16px 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Top Navbar */
+        .top-navbar-strip {
+            background: #0f172a;
+            border-radius: 14px;
+            padding: 8px 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff;
+            flex-wrap: wrap;
+            gap: 8px;
+            border: 1px solid #1e293b;
+        }
+
+        .nav-tab-btn {
+            background: #1e293b;
+            color: #cbd5e1;
+            padding: 7px 14px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.92rem;
+            transition: all 0.15s ease;
+        }
+
+        .nav-tab-btn.active {
+            background: #4361ee;
+            color: #fff;
+            box-shadow: 0 0 14px rgba(67, 97, 238, 0.6);
+        }
+
+        /* Notebook Slide 0 */
+        .notebook-clean-wrapper {
+            background: #ffffff !important;
+            border: 4px solid #334155;
+            border-left: 22px solid #ef4444;
+            border-radius: 20px;
+            padding: 40px 32px;
+            text-align: center;
+            min-height: 480px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .notebook-line-date {
+            font-size: clamp(1.8rem, 2.5vw, 2.3rem);
+            font-weight: 800;
+            color: #475569;
+            margin-bottom: 20px;
+        }
+
+        .notebook-line-subject {
+            font-size: clamp(2.4rem, 3.4vw, 3.2rem);
+            font-weight: 900;
+            color: #1e293b;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .notebook-line-title {
+            font-size: clamp(2.8rem, 4.2vw, 3.8rem);
+            font-weight: 900;
+            color: #2563eb;
+            line-height: 1.35;
+        }
+
+        .btn-fs-toggle {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: #0f172a;
+            color: #facc15;
+            border-radius: 99px;
+            padding: 8px 18px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Màn Soi Lỗi Bài 1 SGK */
+        .hand-detective-box {
+            background: #f1f5f9;
+            border: 3px solid #cbd5e1;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin: 14px 0;
+        }
+
+        .detective-fingers-display {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+
+        .detective-finger-card {
+            background: #ffffff;
+            border: 3px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 12px 16px;
+            min-width: 110px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.06);
+        }
+
+        .detective-finger-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 14px rgba(0,0,0,0.12);
+        }
+
+        .detective-finger-card.error-found {
+            background: #fef2f2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .detective-finger-card.correct-found {
+            background: #f0fdf4;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        /* Đấu Trường Đua Xe Typing (Grand Prix) */
+        .racing-arena {
+            background: #0f172a;
+            border: 3px solid #334155;
+            border-radius: 16px;
+            padding: 18px;
+            color: #fff;
+            margin: 14px 0;
+        }
+
+        .race-track {
+            background: #1e293b;
+            border: 2px dashed #475569;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            position: relative;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .race-finish-line {
+            position: absolute;
+            right: 20px;
+            top: 0;
+            bottom: 0;
+            width: 14px;
+            background-image: repeating-linear-gradient(45deg, #fff, #fff 6px, #000 6px, #000 12px);
+        }
+
+        .race-car {
+            position: absolute;
+            left: 10px;
+            font-size: 2.2rem;
+            transition: left 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .race-car-label {
+            font-size: 0.82rem;
+            font-weight: 900;
+            background: #0f172a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .racing-prompt-container {
+            font-size: 2.3rem;
+            font-weight: 900;
+            letter-spacing: 6px;
+            color: #fde047;
+            background: #1e293b;
+            border: 2px solid #475569;
+            border-radius: 12px;
+            padding: 14px;
+            margin: 14px 0;
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .racing-char-span {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            transition: all 0.1s;
+        }
+
+        .racing-char-span.active {
+            background: #3b82f6;
+            color: #fff;
+            animation: pulse 0.6s infinite alternate;
+        }
+
+        .racing-char-span.done {
+            background: #065f46;
+            color: #a7f3d0;
+        }
+
+        .racing-char-span.error {
+            background: #881337;
+            color: #fecdd3;
+        }
+
+        /* Dashboard So Sánh 2 Lượt Gõ (Bài 2 SGK) */
+        .comparison-table-wrapper {
+            background: #f8fafc;
+            border: 3px solid #cbd5e1;
+            border-radius: 16px;
+            padding: 18px;
+            margin: 14px 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .comparison-table th {
+            background: #1e293b;
+            color: #facc15;
+            padding: 10px;
+            border: 2px solid #334155;
+        }
+
+        .comparison-table td {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            font-weight: 800;
+        }
+
+        /* Memo Card */
+        .memo-card {
+            background: #fffbeb;
+            border: 3px solid #f59e0b;
+            border-left: 12px solid #f59e0b;
+            border-radius: 14px;
+            padding: 12px 18px;
+            margin: 14px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .memo-card-icon { font-size: 2rem; }
+        .memo-card-text { font-size: 1.15rem; font-weight: 800; color: #78350f; line-height: 1.45; }
+
+        /* Summary Card Grid */
+        .summary-card-grid {
+            display: grid;
+            gap: 14px;
+            margin: 20px 0;
+        }
+
+        .summary-card-grid.grid-4 { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+
+        .summary-card {
+            background: #f8fafc;
+            border: 3px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .summary-card .sc-icon { font-size: 2.6rem; margin-bottom: 8px; }
+        .summary-card .sc-title { font-size: 1.2rem; font-weight: 900; color: #1e3a8a; margin-bottom: 6px; }
+        .summary-card .sc-desc { font-size: 1rem; font-weight: 700; color: #475569; line-height: 1.45; }
+
+        /* Đấu trường đố vui */
+        .quiz-stage-box {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 20px;
+            color: #fff;
+            margin-bottom: 14px;
+            border: 2px solid #334155;
+        }
+
+        .quiz-q-title {
+            font-size: 1.45rem;
+            font-weight: 900;
+            color: #fde047;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .quiz-options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .quiz-opt-btn {
+            background: #1e293b;
+            color: #f8fafc;
+            border: 2px solid #475569;
+            border-radius: 12px;
+            padding: 14px 18px;
+            text-align: left;
+            font-size: 1.15rem;
+            font-weight: 800;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quiz-opt-btn:hover {
+            background: #334155;
+            border-color: #60a5fa;
+            transform: translateY(-2px);
+        }
+
+        .quiz-opt-btn.correct {
+            background: #065f46 !important;
+            border-color: #34d399 !important;
+            color: #ecfdf5 !important;
+        }
+
+        .quiz-opt-btn.wrong {
+            background: #881337 !important;
+            border-color: #f87171 !important;
+            color: #fff1f2 !important;
+        }
+
+        /* Sidebar Styling */
+        .sidebar-right {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .teams-rack {
+            background: #0f172a;
+            border: 3px solid #334155;
+            border-radius: 16px;
+            padding: 14px;
+            color: #fff;
+        }
+
+        .team-row-card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 8px solid #3b82f6;
+            transition: all 0.2s ease;
+        }
+
+        .team-row-card.active-turn {
+            box-shadow: 0 0 16px rgba(250, 204, 21, 0.6);
+            border-color: #facc15;
+            background: #283548;
+        }
+
+        .team-score-badge {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #facc15;
+            background: #0f172a;
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+
+        .btn-score-ctrl {
+            background: #334155;
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 2px;
+        }
+
+        /* Modal Gọi Tên Siêu To */
+        .giant-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            animation: fadeIn .2s ease;
+        }
+
+        .giant-modal-content {
+            background: #0f172a;
+            border: 6px solid #facc15;
+            border-radius: 28px;
+            padding: 36px 48px;
+            text-align: center;
+            color: #fff;
+            max-width: 650px;
+            box-shadow: 0 0 60px rgba(250, 204, 21, 0.5);
+            animation: popUp .25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popUp {
+            from { transform: scale(0.7); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .giant-student-name {
+            font-size: 3.2rem;
+            font-weight: 900;
+            color: #fde047;
+            margin: 16px 0;
+            text-shadow: 0 4px 20px rgba(250, 204, 21, 0.6);
+        }
+
+        .toast-msg {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 99px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            z-index: 100000;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            border: 2px solid #38bdf8;
+            animation: slideUp .2s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translate(-50%, 20px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout-container">
+        <!-- CỘT CHÍNH: CÁC SLIDE BÀI HỌC -->
+        <main class="main-content">
+            <!-- THANH ĐIỀU HƯỚNG NHANH CỦA GIÁO VIÊN -->
+            <nav class="top-navbar-strip">
+                <div style="font-weight:900; font-size:1.1rem; color:#fde047; display:flex; align-items:center; gap:8px;">
+                    <span>⌨️ TIN HỌC 3</span>
+                    <span style="color:#94a3b8; font-size:0.9rem;">| BÀI 5: SỬ DỤNG BÀN PHÍM (TIẾT 3)</span>
+                </div>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <button class="nav-tab-btn" id="tabBtn0" onclick="showSlide(0)">📝 Vở Ghi</button>
+                    <button class="nav-tab-btn active" id="tabBtn1" onclick="showSlide(1)">🔍 Soi Lỗi Bàn Tay</button>
+                    <button class="nav-tab-btn" id="tabBtn2" onclick="showSlide(2)">🏎️ Đua Xe Typing</button>
+                    <button class="nav-tab-btn" id="tabBtn3" onclick="showSlide(3)">📊 So Sánh 2 Lượt</button>
+                    <button class="nav-tab-btn" id="tabBtn4" onclick="showSlide(4)">⚔️ Đấu Trường Đố Vui</button>
+                    <button class="nav-tab-btn" id="tabBtn5" onclick="showSlide(5)">💡 Ghi Nhớ Toàn Bài</button>
+                    <button class="nav-tab-btn" id="tabBtn6" onclick="showSlide(6)">🏆 Bảng Vàng</button>
+                </div>
+            </nav>
+
+            <!-- ================= SLIDE 0: VỞ CHÉP BÀI VÀO ĐẦU GIỜ ================= -->
+            <section id="slide-0" class="slide-screen">
+                <div class="card-panel">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span style="background:#0f172a; color:#facc15; padding:6px 16px; border-radius:99px; font-weight:900; font-size:1rem;">
+                            ✍️ VỞ CHÉP BÀI (HỌC SINH VIẾT VÀO VỞ)
+                        </span>
+                        <button class="btn primary" style="background:#4361ee; color:#fff; padding:8px 18px; font-weight:800; border-radius:10px;" onclick="showSlide(1)">
+                            Chép xong ➔ Thử Thách 1 Soi Lỗi Bàn Tay ▶
+                        </button>
+                    </div>
+
+                    <div class="notebook-clean-wrapper">
+                        <button type="button" class="btn-fs-toggle" onclick="toggleNotebookFullscreen(this)">
+                            ⛶ Chế độ toàn màn hình chép bài
+                        </button>
+                        <div class="notebook-line-date" id="lessonDateDisplay">Thứ Hai, ngày 16 tháng 11 năm 2026</div>
+                        <div class="notebook-line-subject">Tin học</div>
+                        <div class="notebook-line-title">Bài 5: Sử dụng bàn phím (Tiết 3)</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 1: THỬ THÁCH 1 - THẦN THÁM SOI LỖI BÀN TAY (BÀI 1 SGK) ================= -->
+            <section id="slide-1" class="slide-screen active">
+                <div class="card-panel">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h2 style="margin:0; font-size:1.75rem; color:#1e3a8a;">🔍 THỬ THÁCH 1: SOI LỖI NGÓN TAY ĐẶT SAI (BÀI 1 SGK T29)</h2>
+                        <button class="btn info" style="background:#0284c7; color:#fff; padding:6px 14px; font-weight:800; border-radius:8px;" onclick="showSlide(2)">
+                            Vào Đua Xe Typing ➔
+                        </button>
+                    </div>
+                    <p style="font-size:1.15rem; color:#475569; font-weight:700; margin:0 0 10px;">
+                        👉 Trong hình minh họa dưới đây, một bạn đã đặt tay sai vị trí xuất phát. Hãy nháy chuột vào ngón tay đang bị SAI:
+                    </p>
+
+                    <div class="hand-detective-box">
+                        <div style="font-size:1.25rem; font-weight:900; color:#1e293b; margin-bottom:8px;">
+                            BÀN TAY TRÁI ĐẶT TRÊN HÀNG PHÍM CƠ SỞ:
+                        </div>
+                        <div class="detective-fingers-display">
+                            <div class="detective-finger-card" onclick="checkDetectiveFinger('pink', this)">
+                                <div style="font-size:2rem;">🤙</div>
+                                <div style="font-weight:900;">Ngón út</div>
+                                <div style="font-size:0.85rem; color:#64748b;">Đặt ở phím A</div>
+                            </div>
+                            <div class="detective-finger-card" onclick="checkDetectiveFinger('ring', this)">
+                                <div style="font-size:2rem;">💍</div>
+                                <div style="font-weight:900;">Ngón áp út</div>
+                                <div style="font-size:0.85rem; color:#64748b;">Đặt ở phím S</div>
+                            </div>
+                            <div class="detective-finger-card" onclick="checkDetectiveFinger('middle', this)">
+                                <div style="font-size:2rem;">🖕</div>
+                                <div style="font-weight:900;">Ngón giữa</div>
+                                <div style="font-size:0.85rem; color:#64748b;">Đặt ở phím D</div>
+                            </div>
+                            <div class="detective-finger-card" id="cardWrongFinger" onclick="checkDetectiveFinger('index_wrong', this)">
+                                <div style="font-size:2rem;">👉</div>
+                                <div style="font-weight:900; color:#dc2626;">Ngón trỏ</div>
+                                <div style="font-size:0.85rem; color:#dc2626; font-weight:800;">Đang đặt ở phím G!</div>
+                            </div>
+                            <div class="detective-finger-card" onclick="checkDetectiveFinger('thumb', this)">
+                                <div style="font-size:2rem;">👍</div>
+                                <div style="font-weight:900;">Ngón cái</div>
+                                <div style="font-size:0.85rem; color:#64748b;">Đặt phím Space</div>
+                            </div>
+                        </div>
+
+                        <div id="detectiveFeedback" style="font-size:1.2rem; font-weight:900; color:#1e40af; margin-top:12px;">
+                            💡 Hãy suy nghĩ: Ngón trỏ trái xuất phát chuẩn phải đặt ở phím nào?
+                        </div>
+                    </div>
+
+                    <!-- Thẻ ghi nhớ chặng 1 -->
+                    <div class="memo-card">
+                        <div class="memo-card-icon">📌</div>
+                        <div class="memo-card-text">
+                            <strong>Ghi nhớ chặng 1:</strong> Ngón trỏ trái <strong>phải đặt ở phím có gờ F</strong>, ngón trỏ phải <strong>phải đặt ở phím có gờ J</strong>. Tuyệt đối không đặt nhầm sang phím G hoặc H khi xuất phát!
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 2: THỬ THÁCH 2 - ĐẤU TRƯỜNG ĐUA XE TYPING (WPM GRAND PRIX) ================= -->
+            <section id="slide-2" class="slide-screen">
+                <div class="card-panel">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+                        <div>
+                            <span class="badge" style="background:#4361ee; color:#fff; font-size:1.1rem; padding:6px 14px; border-radius:99px;">
+                                🏎️ ĐẠI HỘI ĐUA XE TYPING (WPM GRAND PRIX)
+                            </span>
+                            <span id="currentRacerTeamText" style="font-weight:900; margin-left:10px; color:#1d4ed8; font-size:1.15rem;">
+                                Tay đua hiện tại: [Tổ 1]
+                            </span>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn" style="background:#f59e0b; color:#fff; font-weight:800; padding:6px 14px; border-radius:8px;" onclick="passRaceTurn()">
+                                ⏭ Lượt Đội Kế Tiếp
+                            </button>
+                            <button class="btn info" style="background:#0284c7; color:#fff; font-weight:800; padding:6px 14px; border-radius:8px;" onclick="showSlide(3)">
+                                Xem Bảng So Sánh 2 Lượt ➔
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Trường đua xe 4 tổ -->
+                    <div class="racing-arena">
+                        <!-- Đường đua 4 làn -->
+                        <div class="race-track" id="trackTeam1">
+                            <div class="race-finish-line"></div>
+                            <div class="race-car" id="carTeam1">
+                                <span>🏎️</span>
+                                <span class="race-car-label" style="color:#38bdf8;">Tổ 1</span>
+                            </div>
+                        </div>
+
+                        <div class="race-track" id="trackTeam2">
+                            <div class="race-finish-line"></div>
+                            <div class="race-car" id="carTeam2">
+                                <span>🏎️</span>
+                                <span class="race-car-label" style="color:#4ade80;">Tổ 2</span>
+                            </div>
+                        </div>
+
+                        <div class="race-track" id="trackTeam3">
+                            <div class="race-finish-line"></div>
+                            <div class="race-car" id="carTeam3">
+                                <span>🏎️</span>
+                                <span class="race-car-label" style="color:#facc15;">Tổ 3</span>
+                            </div>
+                        </div>
+
+                        <div class="race-track" id="trackTeam4">
+                            <div class="race-finish-line"></div>
+                            <div class="race-car" id="carTeam4">
+                                <span>🏎️</span>
+                                <span class="race-car-label" style="color:#f472b6;">Tổ 4</span>
+                            </div>
+                        </div>
+
+                        <!-- Vùng hiển thị từ cần gõ để xe chạy -->
+                        <div style="margin-top:14px; text-align:center;">
+                            <div style="font-size:1.1rem; color:#cbd5e1; font-weight:700;">
+                                🏁 Gõ phím trên bàn phím máy tính để tiếp nhiên liệu cho xe lao nhanh về đích:
+                            </div>
+                            <div class="racing-prompt-container" id="racingPromptBox">
+                                <!-- Ký tự gõ nạp từ JS -->
+                            </div>
+                            <div style="display:flex; justify-content:center; gap:20px; font-size:1.15rem; font-weight:900;">
+                                <span>⚡ Tốc độ: <strong style="color:#facc15;" id="raceWpmDisplay">0 WPM</strong></span>
+                                <span>🎯 Chuẩn xác: <strong style="color:#34d399;" id="raceAccDisplay">100%</strong></span>
+                                <span>🏁 Tiến trình chặng: <strong style="color:#38bdf8;" id="raceProgressDisplay">0/10</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thẻ ghi nhớ chặng 2 -->
+                    <div class="memo-card">
+                        <div class="memo-card-icon">⚡</div>
+                        <div class="memo-card-text">
+                            <strong>Bí quyết tăng tốc:</strong> Gõ bằng <strong>cả 10 ngón</strong>, ngón nào phím nấy giúp xe lao nhanh liên tục mà không bao giờ bị khựng lại!
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 3: BẢNG SO SÁNH 2 LƯỢT GÕ (BÀI 2 SGK TRANG 29) ================= -->
+            <section id="slide-3" class="slide-screen">
+                <div class="card-panel">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h2 style="margin:0; font-size:1.75rem; color:#1e3a8a;">📊 SO SÁNH KẾT QUẢ 2 LƯỢT LUYỆN TẬP (BÀI 2 SGK T29)</h2>
+                        <button class="btn warning" style="background:#f59e0b; color:#fff; padding:6px 14px; font-weight:800; border-radius:8px;" onclick="showSlide(4)">
+                            Vào Đấu Trường Đố Vui ➔
+                        </button>
+                    </div>
+                    <p style="font-size:1.15rem; color:#475569; font-weight:700; margin:0 0 10px;">
+                        👉 Bảng theo dõi sự tiến bộ giữa <strong>Lượt 1</strong> và <strong>Lượt 2</strong> về Tốc độ (WPM) và Độ chính xác (%):
+                    </p>
+
+                    <div class="comparison-table-wrapper">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Đội Thi Đấu</th>
+                                    <th>Lượt 1 (Tốc độ / Độ chính xác)</th>
+                                    <th>Lượt 2 (Tốc độ / Độ chính xác)</th>
+                                    <th>Mức Độ Tiến Bộ</th>
+                                    <th>Đánh Giá Khen Thưởng</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comparisonTableBody">
+                                <!-- Dữ liệu nạp từ JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Thẻ ghi nhớ chặng 3 -->
+                    <div class="memo-card">
+                        <div class="memo-card-icon">📈</div>
+                        <div class="memo-card-text">
+                            <strong>Đánh giá tiến bộ:</strong> Khi luyện tập nhiều lần, số từ gõ được trong một phút (<strong>WPM</strong>) và độ chính xác (<strong>Accuracy %</strong>) của em sẽ ngày càng tăng cao!
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 4: ĐẤU TRƯỜNG ĐỐ VUI (CỦNG CỐ TOÀN BÀI 5) ================= -->
+            <section id="slide-4" class="slide-screen">
+                <div class="card-panel">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                        <div>
+                            <span class="badge" style="background:#4361ee; color:#fff; font-size:1.1rem; padding:6px 14px; border-radius:99px;">
+                                ⚔️ ĐẤU TRƯỜNG ĐỐ VUI TỔNG KẾT BÀI 5
+                            </span>
+                            <span id="currentTurnTeamText" style="font-weight:900; margin-left:10px; color:#1d4ed8; font-size:1.15rem;">
+                                Lượt của: [Tổ 1]
+                            </span>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn" style="background:#f59e0b; color:#fff; font-weight:800; padding:6px 14px; border-radius:8px;" onclick="passQuizTurn()">
+                                ⏭ Đổi Tổ Kế Tiếp
+                            </button>
+                            <button class="btn" style="background:#10b981; color:#fff; font-weight:800; padding:6px 14px; border-radius:8px;" onclick="showSlide(5)">
+                                Chốt Ghi Nhớ Toàn Bài ➔
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Khu vực Câu hỏi -->
+                    <div class="quiz-stage-box" id="quizStageBox">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <span id="qBadge" style="background:#facc15; color:#0f172a; padding:4px 10px; border-radius:6px; font-weight:900; font-size:0.9rem;">
+                                CÂU HỎI 1/10
+                            </span>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <label style="font-weight:800; font-size:0.95rem; color:#93c5fd;">👤 Học sinh trả lời:</label>
+                                <select id="quizStudentSelect" style="background:#1e293b; color:#fff; border:1px solid #475569; padding:5px 10px; border-radius:6px; font-weight:700;">
+                                    <option value="">-- Chọn bạn lên bảng --</option>
+                                </select>
+                                <button class="btn primary" style="background:#3b82f6; color:#fff; padding:5px 12px; border-radius:6px; font-weight:800;" onclick="gachaPickStudent()">
+                                    🎲 Gacha
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="quiz-q-title" id="quizQuestionTitle">Đang nạp câu hỏi...</div>
+
+                        <div class="quiz-options-grid" id="quizOptionsGrid">
+                            <!-- Các đáp án nạp động từ js -->
+                        </div>
+
+                        <div id="quizExplainBox" style="display:none; margin-top:14px; background:#1e293b; border-left:6px solid #10b981; padding:12px; border-radius:8px; font-weight:700; color:#e2e8f0; font-size:1.05rem;">
+                        </div>
+
+                        <div style="text-align:center; margin-top:16px;">
+                            <button id="btnNextQuestion" class="btn" style="display:none; background:#4361ee; color:#fff; font-size:1.15rem; font-weight:900; padding:10px 28px; border-radius:10px;" onclick="nextQuestion()">
+                                Câu hỏi tiếp theo ➔
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 5: CHỐT KIẾN THỨC CỐT LÕI TOÀN BÀI 5 ================= -->
+            <section id="slide-5" class="slide-screen">
+                <div class="card-panel" style="text-align:center;">
+                    <span style="background:#4361ee; color:#fff; padding:6px 18px; border-radius:99px; font-weight:900; font-size:1.1rem;">
+                        💡 TỔNG KẾT BÀI 5: SỬ DỤNG BÀN PHÍM
+                    </span>
+                    <h1 style="color:#1e3a8a; font-size:2.2rem; margin:12px 0 16px;">4 ĐIỀU CỐT LÕI EM CẦN NHỚ</h1>
+
+                    <div class="summary-card-grid grid-4" style="max-width:1100px; margin:0 auto 20px;">
+                        <div class="summary-card">
+                            <div class="sc-icon">🗺️</div>
+                            <div class="sc-title">1. KHU VỰC CHÍNH</div>
+                            <div class="sc-desc">Có 5 hàng phím. Quan trọng nhất là <strong>Hàng phím cơ sở</strong> chứa 2 phím có gờ <strong>F</strong> và <strong>J</strong>.</div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="sc-icon">🖐️</div>
+                            <div class="sc-title">2. PHÂN CÔNG 10 NGÓN</div>
+                            <div class="sc-desc">Ngón trỏ đặt F và J, ngón cái đặt phím cách. Mỗi ngón gõ đúng nhóm phím phụ trách.</div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="sc-icon">🔄</div>
+                            <div class="sc-title">3. VƯƠN XONG LÙI VỀ</div>
+                            <div class="sc-desc">Khi gõ xong bất kỳ phím nào ở hàng trên hay hàng dưới, <strong>lập tức đưa ngón tay về hàng cơ sở</strong>.</div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="sc-icon">🧘‍♂️</div>
+                            <div class="sc-title">4. CÔNG THÁI HỌC</div>
+                            <div class="sc-desc">Ngồi thẳng lưng, 3 góc vuông 90°, mắt cách 50–60cm, nghỉ ngơi sau mỗi 20–30 phút.</div>
+                        </div>
+                    </div>
+
+                    <button class="btn success" style="background:#10b981; color:#fff; font-size:1.35rem; font-weight:900; padding:14px 36px; border-radius:14px; box-shadow:0 8px 20px rgba(16,185,129,0.4);" onclick="showSlide(6)">
+                        🏆 Vinh Danh Vô Địch Grand Prix Toàn Khóa ▶
+                    </button>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 6: BẢNG VÀNG GRAND PRIX & XUẤT CSV ================= -->
+            <section id="slide-6" class="slide-screen">
+                <div class="card-panel" style="text-align:center;">
+                    <div style="font-size:3.5rem; margin-bottom:6px;">👑🏎️🏆✨</div>
+                    <h1 style="color:#1e3a8a; font-size:2.4rem; margin:0 0 10px;" id="goldWinnerBanner">
+                        VINH DANH NHÀ VÔ ĐỊCH TYPING GRAND PRIX!
+                    </h1>
+                    <p style="font-size:1.2rem; color:#475569; font-weight:700; margin-bottom:20px;">
+                        Chúc mừng các tay đua bàn phím xuất sắc đã hoàn thành toàn diện Bài 5!
+                    </p>
+
+                    <!-- Bảng xếp hạng thi đua đồng hạng -->
+                    <div id="goldLeaderboardTable" style="max-width:750px; margin:0 auto 24px;"></div>
+
+                    <div style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap;">
+                        <button class="btn" style="background:#2563eb; color:#fff; font-weight:900; font-size:1.15rem; padding:12px 24px; border-radius:10px;" onclick="exportResultsCSV()">
+                            📥 Xuất Báo Cáo CSV (Đồng Bộ Drive)
+                        </button>
+                        <button class="btn" style="background:#64748b; color:#fff; font-weight:800; font-size:1.05rem; padding:12px 20px; border-radius:10px;" onclick="showSlide(0)">
+                            📝 Xem lại vở ghi
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- CỘT PHẢI: SIDEBAR ĐIỀU KHIỂN & ĐIỂM SỐ -->
+        <aside class="sidebar-right">
+            <!-- Khung Cài Đặt Lớp Học -->
+            <div class="card-panel" style="background:#0f172a; color:#fff; border-color:#334155; padding:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="font-weight:900; font-size:1.05rem; color:#facc15;">⚙️ THIẾT LẬP TIẾT DẠY</span>
+                    <button onclick="clearCurrentSession()" style="background:#ef4444; color:#fff; font-size:0.8rem; font-weight:800; padding:4px 8px; border-radius:6px;" title="Xóa dữ liệu để dạy lớp mới">
+                        🗑️ Xóa phiên
+                    </button>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <div>
+                        <label style="font-size:0.82rem; font-weight:700; color:#94a3b8;">Lớp học:</label>
+                        <select id="classSelect" onchange="changeClass(this.value)" style="width:100%; background:#1e293b; color:#fff; border:1px solid #475569; padding:6px; border-radius:6px; font-weight:800;">
+                            <option value="3_2">Lớp 3/2</option>
+                            <option value="3_3">Lớp 3/3</option>
+                            <option value="3_4">Lớp 3/4</option>
+                            <option value="3_5">Lớp 3/5</option>
+                            <option value="3_6">Lớp 3/6</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.82rem; font-weight:700; color:#94a3b8;">Số tổ thi đua:</label>
+                        <select id="teamsCountSelect" onchange="changeTeamsCount(this.value)" style="width:100%; background:#1e293b; color:#fff; border:1px solid #475569; padding:6px; border-radius:6px; font-weight:800;">
+                            <option value="4" selected>4 Tổ</option>
+                            <option value="2">2 Tổ</option>
+                            <option value="3">3 Tổ</option>
+                            <option value="5">5 Tổ</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Khung Điểm Các Tổ (Base 1000đ) -->
+            <div class="teams-rack">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="font-weight:900; font-size:1.05rem; color:#38bdf8;">🏁 ĐIỂM THI ĐUA (SÀN 1000Đ)</span>
+                    <button class="btn" style="background:#3b82f6; color:#fff; font-size:0.82rem; font-weight:800; padding:4px 10px; border-radius:6px;" onclick="gachaPickStudent()">
+                        🎲 Gọi tên
+                    </button>
+                </div>
+                <div id="teamsListRack"></div>
+            </div>
+
+            <!-- Khung Quản lý Phe Quỷ (Demon Mode) -->
+            <div class="card-panel" style="background:#1e1b4b; border-color:#4338ca; color:#fff; padding:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:900; font-size:0.95rem; color:#f472b6;">😈 PHE QUỶ (CÁ BIỆT)</span>
+                    <button onclick="toggleDemonMode()" style="background:#4338ca; color:#fff; font-size:0.78rem; font-weight:800; padding:3px 8px; border-radius:6px;">
+                        Kích hoạt
+                    </button>
+                </div>
+                <div id="demonModeContainer" style="display:none; margin-top:8px; font-size:0.85rem; color:#cbd5e1;">
+                    <div style="font-size:0.82rem; color:#fda4af; margin-bottom:4px;">Chuyển học sinh vi phạm sang Phe Quỷ:</div>
+                    <div style="display:flex; gap:4px;">
+                        <select id="banishSelect" style="flex:1; background:#0f172a; color:#fff; border:1px solid #6366f1; padding:4px; border-radius:4px; font-size:0.82rem;"></select>
+                        <button onclick="banishToDemon()" style="background:#e11d48; color:#fff; font-weight:800; padding:4px 8px; border-radius:4px; font-size:0.8rem;">Trục xuất</button>
+                    </div>
+                    <div id="demonMembersList" style="margin-top:6px; font-weight:700; color:#f43f5e;">Chưa có quỷ nào.</div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- MODAL GỌI TÊN HỌC SINH SIÊU TO -->
+    <div class="giant-modal-overlay" id="giantModal" style="display:none;" onclick="closeGiantModal()">
+        <div class="giant-modal-content" onclick="event.stopPropagation()">
+            <div style="font-size:2.8rem; margin-bottom:4px;">🎲⚡🔔</div>
+            <div style="font-size:1.4rem; font-weight:800; color:#94a3b8;" id="modalTeamLabel">ĐỘI ĐƯỢC CHỌN: TỔ 1</div>
+            <div class="giant-student-name" id="modalStudentName">NGUYỄN VĂN AN</div>
+            <p style="font-size:1.15rem; color:#e2e8f0; margin-bottom:20px;">
+                Mời em đứng dậy hoặc lên máy tính thực hiện nhiệm vụ!
+            </p>
+            <div style="display:flex; justify-content:center; gap:10px;">
+                <button class="btn" style="background:#10b981; color:#fff; font-size:1.15rem; font-weight:900; padding:10px 24px; border-radius:10px;" onclick="confirmStudentReady()">
+                    ✅ Sẵn sàng
+                </button>
+                <button class="btn" style="background:#475569; color:#fff; font-size:1.15rem; font-weight:800; padding:10px 18px; border-radius:10px;" onclick="gachaPickStudent()">
+                    🎲 Đổi bạn khác
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT ĐIỀU KHIỂN HOẠT ĐỘNG TOÀN DIỆN -->
+    <script>
+        // 1. CẤU HÌNH & LƯU TRỮ
+        const LESSON_GRADE = 3;
+        const LESSON_ID = 12;
+        const STARTING_SCORE = 1000;
+        let currentClass = '3_2';
+        let teamsCount = 4;
+        let currentSlide = 1;
+        let currentTurnTeamIndex = 0;
+        let currentQuestionIndex = 0;
+        let stagedStudent = null;
+        let demonModeActive = false;
+        let demonList = [];
+
+        // Mảng danh sách tổ và dữ liệu so sánh 2 lượt
+        let teams = [
+            { id: 1, name: 'Tổ 1', score: STARTING_SCORE, color: '#3b82f6', round1: { wpm: 16, acc: 88 }, round2: { wpm: 22, acc: 96 } },
+            { id: 2, name: 'Tổ 2', score: STARTING_SCORE, color: '#10b981', round1: { wpm: 15, acc: 85 }, round2: { wpm: 24, acc: 98 } },
+            { id: 3, name: 'Tổ 3', score: STARTING_SCORE, color: '#f59e0b', round1: { wpm: 18, acc: 90 }, round2: { wpm: 23, acc: 95 } },
+            { id: 4, name: 'Tổ 4', score: STARTING_SCORE, color: '#ec4899', round1: { wpm: 14, acc: 82 }, round2: { wpm: 20, acc: 92 } }
+        ];
+
+        const FALLBACK_STUDENTS = {
+            "3_2": [
+                "Nguyễn Khả Ái", "Nguyễn Đức Anh", "Nguyễn Quốc Anh", "Trịnh Gia Bảo",
+                "Ngô Hoàng Bảo Châu", "Nguyễn Doanh Doanh", "Phạm Đại Dương", "Danh Thành Đạt",
+                "Vũ Nghi Đình", "Võ Đoàn Nhã Hân", "Võ Hứa Chí Hiếu", "Nguyễn Trần Gia Huy",
+                "Đoàn Gia Hưng", "Nguyễn Phúc Hưng", "Đỗ Minh Khang", "Đặng Nguyễn Quốc Khởi",
+                "Đặng Lê Thiên Kim", "Trương Quân Kỳ", "Mai Hoàng Lam", "Lê Trúc Ly",
+                "Vũ Hoàng Ánh Minh", "Vương Lê Bảo Minh", "Đinh Kim Ngân", "Lý Gia Nghĩa"
+            ]
+        };
+
+        let studentsData = FALLBACK_STUDENTS;
+        let doneStudents = new Set();
+
+        // Trạng thái Đua Xe Typing
+        const RACE_WORDS = ["KHOA", "BAN", "PHIM", "MAY", "TINH", "CO", "SO", "F", "J", "SPACE"];
+        let currentRaceIndex = 0;
+        let raceCharIndex = 0;
+        let raceCarPositions = [10, 10, 10, 10]; // Vị trí pixel xe 4 tổ
+
+        // 2. TỔNG HỢP ÂM THANH WEB AUDIO SYNTHESIZER
+        let audioCtx = null;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playKeyClickSound() {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(700 + Math.random() * 200, ctx.currentTime);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.05);
+            } catch (e) {}
+        }
+
+        function playCarEngineSound() {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(120, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(320, ctx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.25, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.2);
+            } catch (e) {}
+        }
+
+        function playBrakeScreechSound() {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(950, ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(250, ctx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.18, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.25);
+            } catch (e) {}
+        }
+
+        function playCorrectSound() {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.08);
+                    gain.gain.setValueAtTime(0.2, now + i * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.25);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now + i * 0.08);
+                    osc.stop(now + i * 0.08 + 0.25);
+                });
+            } catch (e) {}
+        }
+
+        function playWrongSound() {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(80, ctx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.25);
+            } catch (e) {}
+        }
+
+        function playFanfareSound() {
+            try {
+                const ctx = getAudioContext();
+                const notes = [440, 554.37, 659.25, 880];
+                notes.forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.12);
+                    gain.gain.setValueAtTime(0.25, ctx.currentTime + idx * 0.12);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.12 + 0.4);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + idx * 0.12);
+                    osc.stop(ctx.currentTime + idx * 0.12 + 0.4);
+                });
+            } catch (e) {}
+        }
+
+        // 3. KHỞI TẠO & PHỤC HỒI (CRASH RECOVERY)
+        window.addEventListener('DOMContentLoaded', () => {
+            updateVietnameseDate();
+            loadStudentsList();
+            restoreLocalState();
+            renderTeamsRack();
+            renderQuestion();
+            renderRacingPrompt();
+            renderComparisonTable();
+            setupRacingTypingListener();
+        });
+
+        function updateVietnameseDate() {
+            const dateDisplay = document.getElementById('lessonDateDisplay');
+            if (!dateDisplay) return;
+            const now = new Date();
+            const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+            const dayName = days[now.getDay()];
+            const d = String(now.getDate()).padStart(2, '0');
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const y = now.getFullYear();
+            dateDisplay.textContent = `${dayName}, ngày ${d} tháng ${m} năm ${y}`;
+        }
+
+        function getStorageKey() {
+            return `bgtieu_hoc_k${LESSON_GRADE}_tiet_${LESSON_ID}_${currentClass}_state`;
+        }
+
+        function saveLocalState() {
+            try {
+                const state = {
+                    currentSlide,
+                    currentClass,
+                    teamsCount,
+                    teams,
+                    currentTurnTeamIndex,
+                    currentQuestionIndex,
+                    raceCarPositions,
+                    doneStudents: Array.from(doneStudents),
+                    demonList,
+                    demonModeActive
+                };
+                localStorage.setItem(getStorageKey(), JSON.stringify(state));
+            } catch (e) {}
+        }
+
+        function restoreLocalState() {
+            try {
+                const raw = localStorage.getItem(getStorageKey());
+                if (!raw) return;
+                const state = JSON.parse(raw);
+                if (state) {
+                    if (state.teams) teams = state.teams;
+                    if (state.currentTurnTeamIndex !== undefined) currentTurnTeamIndex = state.currentTurnTeamIndex;
+                    if (state.currentQuestionIndex !== undefined) currentQuestionIndex = state.currentQuestionIndex;
+                    if (state.raceCarPositions) {
+                        raceCarPositions = state.raceCarPositions;
+                        updateCarsVisual();
+                    }
+                    if (state.doneStudents) doneStudents = new Set(state.doneStudents);
+                    if (state.demonList) demonList = state.demonList;
+                    if (state.demonModeActive) demonModeActive = state.demonModeActive;
+                    showToast("⚡ Đã tự động khôi phục dữ liệu phiên học trước!");
+                }
+            } catch (e) {}
+        }
+
+        function clearCurrentSession() {
+            if (confirm("Thầy có chắc chắn muốn xóa dữ liệu đã lưu của tiết này để bắt đầu lớp mới không?")) {
+                localStorage.removeItem(getStorageKey());
+                teams.forEach(t => t.score = STARTING_SCORE);
+                raceCarPositions = [10, 10, 10, 10];
+                updateCarsVisual();
+                doneStudents.clear();
+                demonList = [];
+                currentQuestionIndex = 0;
+                saveLocalState();
+                renderTeamsRack();
+                renderQuestion();
+                showToast("✅ Đã làm mới tiết học thành công!");
+            }
+        }
+
+        // 4. CHUYỂN SLIDE & ĐIỀU HƯỚNG
+        function showSlide(index) {
+            document.querySelectorAll('.slide-screen').forEach((s, idx) => {
+                s.classList.toggle('active', idx === index);
+            });
+            document.querySelectorAll('.nav-tab-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === index);
+            });
+            currentSlide = index;
+            if (index === 6) {
+                renderLeaderboard();
+                playFanfareSound();
+                if (window.confetti) {
+                    window.confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+                }
+            }
+            saveLocalState();
+        }
+
+        function toggleNotebookFullscreen(btn) {
+            const wrapper = document.querySelector('.notebook-clean-wrapper');
+            const isFs = wrapper.classList.toggle('fullscreen-active');
+            if (isFs) {
+                btn.innerHTML = '✖ Thu nhỏ (Esc)';
+                btn.style.background = '#ef4444';
+                btn.style.color = '#fff';
+            } else {
+                btn.innerHTML = '⛶ Chế độ toàn màn hình chép bài';
+                btn.style.background = '#0f172a';
+                btn.style.color = '#facc15';
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const wrapper = document.querySelector('.notebook-clean-wrapper');
+                if (wrapper && wrapper.classList.contains('fullscreen-active')) {
+                    const btn = wrapper.querySelector('.btn-fs-toggle');
+                    toggleNotebookFullscreen(btn);
+                }
+            }
+        });
+
+        // 5. THỬ THÁCH 1: SOI LỖI BÀI 1 SGK T29
+        function checkDetectiveFinger(type, el) {
+            if (type === 'index_wrong') {
+                playCorrectSound();
+                el.classList.add('error-found');
+                document.getElementById('detectiveFeedback').innerHTML = `
+                    🎉 <strong>CHÍNH XÁC XUẤT SẮC!</strong><br>
+                    Ngón trỏ trái đang đặt ở <strong>phím G</strong> là SAI!<br>
+                    Vị trí xuất phát đúng bắt buộc phải là <strong>phím có gờ F</strong>.
+                `;
+                const activeTeam = teams[currentTurnTeamIndex];
+                activeTeam.score += 100;
+                renderTeamsRack();
+                saveLocalState();
+                showToast(`+100đ cho ${activeTeam.name} vì phát hiện đúng!`);
+                if (window.confetti) {
+                    window.confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 } });
+                }
+            } else {
+                playWrongSound();
+                el.classList.add('correct-found');
+                document.getElementById('detectiveFeedback').innerHTML = `
+                    ❌ Ngón tay này đặt <strong>ĐÚNG</strong> rồi, không bị sai. Hãy tìm ngón khác xem!
+                `;
+            }
+        }
+
+        // 6. THỬ THÁCH 2: ĐUA XE TYPING (WPM GRAND PRIX)
+        function renderRacingPrompt() {
+            const word = RACE_WORDS[currentRaceIndex] || "KHOA";
+            const box = document.getElementById('racingPromptBox');
+            box.innerHTML = '';
+            for (let i = 0; i < word.length; i++) {
+                const span = document.createElement('span');
+                span.className = `racing-char-span ${i === raceCharIndex ? 'active' : ''} ${i < raceCharIndex ? 'done' : ''}`;
+                span.textContent = word[i];
+                box.appendChild(span);
+            }
+            document.getElementById('raceProgressDisplay').textContent = `${currentRaceIndex + 1}/${RACE_WORDS.length}`;
+            document.getElementById('currentRacerTeamText').textContent = `Tay đua: [${teams[currentTurnTeamIndex].name}]`;
+        }
+
+        function setupRacingTypingListener() {
+            window.addEventListener('keydown', (e) => {
+                if (currentSlide !== 2) return; // Chỉ gõ khi ở slide đua xe
+                const word = RACE_WORDS[currentRaceIndex] || "KHOA";
+                const targetChar = word[raceCharIndex].toUpperCase();
+                const key = e.key.toUpperCase();
+
+                if (key === targetChar || (targetChar === 'SPACE' && e.code === 'Space')) {
+                    playKeyClickSound();
+                    playCarEngineSound();
+                    raceCharIndex++;
+
+                    // Đẩy xe tổ hiện tại lên phía trước
+                    const carIndex = currentTurnTeamIndex % 4;
+                    raceCarPositions[carIndex] = Math.min(550, raceCarPositions[carIndex] + 35);
+                    updateCarsVisual();
+
+                    if (raceCharIndex >= word.length) {
+                        playCorrectSound();
+                        currentRaceIndex = (currentRaceIndex + 1) % RACE_WORDS.length;
+                        raceCharIndex = 0;
+                        const activeTeam = teams[currentTurnTeamIndex];
+                        activeTeam.score += 80;
+                        renderTeamsRack();
+                        saveLocalState();
+                        showToast(`🚀 ${activeTeam.name} đã tăng tốc xuất sắc! (+80đ)`);
+
+                        // Cập nhật ngẫu nhiên tốc độ WPM
+                        const wpm = 20 + Math.floor(Math.random() * 12);
+                        document.getElementById('raceWpmDisplay').textContent = `${wpm} WPM`;
+                    }
+                    renderRacingPrompt();
+                } else if (e.key.length === 1 || e.code === 'Space') {
+                    playBrakeScreechSound();
+                    const spans = document.querySelectorAll('.racing-char-span');
+                    if (spans[raceCharIndex]) {
+                        spans[raceCharIndex].classList.add('error');
+                        setTimeout(() => spans[raceCharIndex].classList.remove('error'), 300);
+                    }
+                }
+            });
+        }
+
+        function updateCarsVisual() {
+            for (let i = 0; i < 4; i++) {
+                const car = document.getElementById(`carTeam${i + 1}`);
+                if (car) {
+                    car.style.left = `${raceCarPositions[i] || 10}px`;
+                }
+            }
+        }
+
+        function passRaceTurn() {
+            currentTurnTeamIndex = (currentTurnTeamIndex + 1) % teams.length;
+            raceCharIndex = 0;
+            renderRacingPrompt();
+            renderTeamsRack();
+            saveLocalState();
+        }
+
+        // 7. THỬ THÁCH 3: DASHBOARD SO SÁNH 2 LƯỢT (BÀI 2 SGK T29)
+        function renderComparisonTable() {
+            const tbody = document.getElementById('comparisonTableBody');
+            tbody.innerHTML = '';
+
+            teams.forEach(t => {
+                const r1 = t.round1 || { wpm: 15, acc: 85 };
+                const r2 = t.round2 || { wpm: 22, acc: 95 };
+                const diffWpm = r2.wpm - r1.wpm;
+                const diffAcc = r2.acc - r1.acc;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="color:${t.color}; font-size:1.15rem;">${t.name}</td>
+                    <td>${r1.wpm} WPM / ${r1.acc}%</td>
+                    <td style="color:#16a34a;">${r2.wpm} WPM / ${r2.acc}%</td>
+                    <td>
+                        <span style="color:#2563eb; font-weight:900;">+${diffWpm} WPM</span> & 
+                        <span style="color:#16a34a; font-weight:900;">+${diffAcc}%</span>
+                    </td>
+                    <td><span style="background:#dcfce7; color:#15803d; padding:4px 8px; border-radius:6px;">🌟 Tiến bộ vượt bậc</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 8. ĐẤU TRƯỜNG ĐỐ VUI (CÂU HỎI & CHẤM ĐIỂM)
+        function renderQuestion() {
+            const quests = window.QUESTS_DATA || [];
+            if (quests.length === 0) return;
+            if (currentQuestionIndex >= quests.length) {
+                currentQuestionIndex = 0;
+            }
+            const q = quests[currentQuestionIndex];
+            document.getElementById('qBadge').textContent = `CÂU HỎI ${currentQuestionIndex + 1}/${quests.length}`;
+            document.getElementById('quizQuestionTitle').textContent = q.title;
+
+            const grid = document.getElementById('quizOptionsGrid');
+            grid.innerHTML = '';
+            document.getElementById('quizExplainBox').style.display = 'none';
+            document.getElementById('btnNextQuestion').style.display = 'none';
+
+            q.options.forEach(opt => {
+                const b = document.createElement('button');
+                b.className = 'quiz-opt-btn';
+                b.innerHTML = `<strong>${opt.id}.</strong> ${opt.text}`;
+                b.onclick = () => answerQuestion(opt, b, q);
+                grid.appendChild(b);
+            });
+
+            const currentTeam = teams[currentTurnTeamIndex] || teams[0];
+            document.getElementById('currentTurnTeamText').textContent = `Lượt của: [${currentTeam.name}]`;
+        }
+
+        function answerQuestion(opt, btn, q) {
+            const allBtns = document.querySelectorAll('.quiz-opt-btn');
+            allBtns.forEach(b => b.disabled = true);
+
+            const activeTeam = teams[currentTurnTeamIndex];
+            const explainBox = document.getElementById('quizExplainBox');
+            explainBox.style.display = 'block';
+
+            if (opt.correct) {
+                btn.classList.add('correct');
+                playCorrectSound();
+                activeTeam.score += 100;
+                explainBox.innerHTML = `🎉 <strong>CHÍNH XÁC (+100Đ)!</strong> ${q.explain}`;
+                showToast(`+100 điểm cho ${activeTeam.name}!`);
+            } else {
+                btn.classList.add('wrong');
+                playWrongSound();
+                activeTeam.score = Math.max(0, activeTeam.score - 20);
+                explainBox.innerHTML = `❌ <strong>CHƯA ĐÚNG (-20Đ)!</strong> ${q.explain}`;
+                allBtns.forEach(b => {
+                    if (b.textContent.includes(q.options.find(o => o.correct).id + '.')) {
+                        b.classList.add('correct');
+                    }
+                });
+            }
+
+            if (stagedStudent) {
+                doneStudents.add(stagedStudent);
+                stagedStudent = null;
+            }
+
+            renderTeamsRack();
+            saveLocalState();
+            document.getElementById('btnNextQuestion').style.display = 'inline-block';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            passQuizTurn();
+            renderQuestion();
+        }
+
+        function passQuizTurn() {
+            currentTurnTeamIndex = (currentTurnTeamIndex + 1) % teams.length;
+            const currentTeam = teams[currentTurnTeamIndex];
+            document.getElementById('currentTurnTeamText').textContent = `Lượt của: [${currentTeam.name}]`;
+            renderTeamsRack();
+            saveLocalState();
+        }
+
+        // 9. GACHA & QUẢN LÝ HỌC SINH
+        function loadStudentsList() {
+            fetch('../../assets/data/students_3_2026_2027.json')
+                .then(res => res.json())
+                .then(data => {
+                    studentsData = data;
+                    populateStudentDropdown();
+                })
+                .catch(() => {
+                    populateStudentDropdown();
+                });
+        }
+
+        function populateStudentDropdown() {
+            const list = studentsData[currentClass] || FALLBACK_STUDENTS['3_2'];
+            const select = document.getElementById('quizStudentSelect');
+            const banish = document.getElementById('banishSelect');
+            select.innerHTML = '<option value="">-- Chọn bạn lên bảng --</option>';
+            banish.innerHTML = '';
+
+            list.forEach(name => {
+                const isDone = doneStudents.has(name) ? ' (Đã lên)' : '';
+                select.innerHTML += `<option value="${name}">${name}${isDone}</option>`;
+                banish.innerHTML += `<option value="${name}">${name}</option>`;
+            });
+        }
+
+        function gachaPickStudent() {
+            playKeyClickSound();
+            const list = studentsData[currentClass] || FALLBACK_STUDENTS['3_2'];
+            const available = list.filter(s => !doneStudents.has(s));
+            const pickPool = available.length > 0 ? available : list;
+            const picked = pickPool[Math.floor(Math.random() * pickPool.length)];
+
+            stagedStudent = picked;
+            const activeTeam = teams[currentTurnTeamIndex];
+
+            document.getElementById('modalTeamLabel').textContent = `ĐỘI ĐƯỢC CHỌN: ${activeTeam.name.toUpperCase()}`;
+            document.getElementById('modalStudentName').textContent = picked.toUpperCase();
+            document.getElementById('giantModal').style.display = 'flex';
+        }
+
+        function closeGiantModal() {
+            document.getElementById('giantModal').style.display = 'none';
+        }
+
+        function confirmStudentReady() {
+            closeGiantModal();
+            if (stagedStudent) {
+                document.getElementById('quizStudentSelect').value = stagedStudent;
+                showToast(`👤 ${stagedStudent} đang sẵn sàng thực hiện!`);
+            }
+        }
+
+        // 10. RENDER SIDEBAR ĐIỀU KHIỂN & ĐIỂM SỐ
+        function renderTeamsRack() {
+            const rack = document.getElementById('teamsListRack');
+            rack.innerHTML = '';
+            teams.forEach((team, idx) => {
+                const card = document.createElement('div');
+                card.className = `team-row-card ${idx === currentTurnTeamIndex ? 'active-turn' : ''}`;
+                card.style.borderLeftColor = team.color;
+                card.innerHTML = `
+                    <div style="font-weight:900; font-size:1.1rem; color:#fff;">
+                        ${team.name} ${idx === currentTurnTeamIndex ? '⚡' : ''}
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <button class="btn-score-ctrl" onclick="adjustScore(${idx}, -50)">-</button>
+                        <span class="team-score-badge">${team.score}đ</span>
+                        <button class="btn-score-ctrl" onclick="adjustScore(${idx}, 50)">+</button>
+                    </div>
+                `;
+                rack.appendChild(card);
+            });
+        }
+
+        function adjustScore(teamIdx, amount) {
+            teams[teamIdx].score = Math.max(0, teams[teamIdx].score + amount);
+            renderTeamsRack();
+            saveLocalState();
+        }
+
+        function changeClass(val) {
+            currentClass = val;
+            doneStudents.clear();
+            populateStudentDropdown();
+            restoreLocalState();
+            saveLocalState();
+        }
+
+        function changeTeamsCount(count) {
+            teamsCount = parseInt(count);
+            teams = [];
+            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
+            for (let i = 1; i <= teamsCount; i++) {
+                teams.push({
+                    id: i,
+                    name: `Tổ ${i}`,
+                    score: STARTING_SCORE,
+                    color: colors[(i - 1) % colors.length],
+                    round1: { wpm: 15, acc: 85 },
+                    round2: { wpm: 22, acc: 95 }
+                });
+            }
+            currentTurnTeamIndex = 0;
+            renderTeamsRack();
+            renderComparisonTable();
+            saveLocalState();
+        }
+
+        // 11. BẢNG VÀNG VINH DANH & XUẤT CSV
+        function renderLeaderboard() {
+            const sorted = [...teams].sort((a, b) => b.score - a.score);
+            const container = document.getElementById('goldLeaderboardTable');
+            let html = `
+                <div style="background:#0f172a; border-radius:16px; padding:16px; color:#fff; border:2px solid #334155;">
+                    <table style="width:100%; border-collapse:collapse; font-size:1.15rem;">
+                        <thead>
+                            <tr style="border-bottom:2px solid #334155; color:#94a3b8;">
+                                <th style="padding:10px; text-align:left;">Hạng</th>
+                                <th style="padding:10px; text-align:left;">Tên Tổ</th>
+                                <th style="padding:10px; text-align:right;">Điểm Số</th>
+                                <th style="padding:10px; text-align:center;">Danh Hiệu Grand Prix</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            let currentRank = 1;
+            sorted.forEach((team, idx) => {
+                if (idx > 0 && team.score < sorted[idx - 1].score) currentRank = idx + 1;
+                const isTie = sorted.filter(t => t.score === team.score).length > 1;
+                let title = 'Nỗ Lực 🌟';
+                let medal = '🎖️';
+                if (currentRank === 1) { title = isTie ? 'ĐỒNG QUÁN QUÂN 🏆' : 'QUÁN QUÂN 🏆'; medal = '🥇'; }
+                else if (currentRank === 2) { title = isTie ? 'ĐỒNG Á QUÂN 🥈' : 'Á QUÂN 🥈'; medal = '🥈'; }
+                else if (currentRank === 3) { title = isTie ? 'ĐỒNG HẠNG BA 🥉' : 'HẠNG BA 🥉'; medal = '🥉'; }
+
+                html += `
+                    <tr style="border-bottom:1px solid #1e293b;">
+                        <td style="padding:12px 10px; font-weight:900; color:#facc15;">${medal} Hạng ${currentRank}</td>
+                        <td style="padding:12px 10px; font-weight:900;">${team.name}</td>
+                        <td style="padding:12px 10px; font-weight:900; text-align:right; color:#38bdf8;">${team.score}đ</td>
+                        <td style="padding:12px 10px; text-align:center; font-weight:800; color:#fde047;">${title}</td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table></div>`;
+            container.innerHTML = html;
+
+            const topScore = sorted[0].score;
+            const topTeams = sorted.filter(t => t.score === topScore);
+            const winnerBanner = document.getElementById('goldWinnerBanner');
+            if (topTeams.length > 1) {
+                winnerBanner.textContent = `🏆 ĐỒNG QUÁN QUÂN: ${topTeams.map(t => t.name).join(' & ')} (${topScore} ĐIỂM)! 🏆`;
+            } else {
+                winnerBanner.textContent = `🏆 QUÁN QUÂN: ${topTeams[0].name} ĐẠT ${topScore} ĐIỂM! 🏆`;
+            }
+        }
+
+        function exportResultsCSV() {
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const hh = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+            const fileName = `KetQua_TinHoc3_Lop_${currentClass}_Tiet_12_Ngay_${yyyy}-${mm}-${dd}_${hh}h${min}p${ss}s.csv`;
+
+            let csv = '\uFEFF';
+            csv += `=== KẾT QUẢ TIẾT DẠY TIN HỌC 3: BÀI 5 - SỬ DỤNG BÀN PHÍM (TIẾT 3) ===\n`;
+            csv += `Lớp,${currentClass}\n`;
+            csv += `Thời gian,${now.toLocaleString('vi-VN')}\n\n`;
+
+            csv += `=== BẢNG XẾP HẠNG THI ĐUA CÁC TỔ ===\n`;
+            csv += `Hạng,Tổ,Điểm Số,Đồng Hạng,Danh Hiệu\n`;
+
+            const sorted = [...teams].sort((a, b) => b.score - a.score);
+            let currentRank = 1;
+            sorted.forEach((team, idx) => {
+                if (idx > 0 && team.score < sorted[idx - 1].score) currentRank = idx + 1;
+                const isTie = sorted.filter(t => t.score === team.score).length > 1;
+                const title = currentRank === 1 ? (isTie ? 'ĐỒNG QUÁN QUÂN' : 'QUÁN QUÂN') : (currentRank === 2 ? 'Á QUÂN' : 'HOÀN THÀNH TỐT');
+                csv += `Hạng ${currentRank},"${team.name}",${team.score},"${isTie ? 'Có' : 'Không'}","${title}"\n`;
+            });
+
+            csv += `\n=== DANH SÁCH HỌC SINH THI ĐUA TYPING ===\n`;
+            csv += `STT,Họ và Tên,Thành Tích,Đánh Giá TT27\n`;
+            Array.from(doneStudents).forEach((stu, i) => {
+                csv += `${i + 1},"${stu}","Hoàn thành chặng đua Typing & so sánh WPM","T (Hoàn thành tốt)"\n`;
+            });
+
+            if (window.uploadCsvToDrive) {
+                window.uploadCsvToDrive(csv, fileName);
+            } else {
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName;
+                link.click();
+            }
+            showToast("📥 Đã xuất báo cáo CSV thành công!");
+        }
+
+        // 12. TIỆN ÍCH HỖ TRỢ
+        function showToast(msg) {
+            const old = document.querySelector('.toast-msg');
+            if (old) old.remove();
+            const toast = document.createElement('div');
+            toast.className = 'toast-msg';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3200);
+        }
+
+        function toggleDemonMode() {
+            demonModeActive = !demonModeActive;
+            document.getElementById('demonModeContainer').style.display = demonModeActive ? 'block' : 'none';
+            showToast(demonModeActive ? "⚠️ Đã kích hoạt Chế độ Phe Quỷ!" : "Đã tắt Phe Quỷ");
+            saveLocalState();
+        }
+
+        function banishToDemon() {
+            const name = document.getElementById('banishSelect').value;
+            if (!name || demonList.includes(name)) return;
+            demonList.push(name);
+            document.getElementById('demonMembersList').textContent = `Quỷ: ${demonList.join(', ')}`;
+            showToast(`⚡ Đã trục xuất ${name} sang Phe Quỷ!`);
+            saveLocalState();
+        }
+    </script>
+</body>
+
+</html>

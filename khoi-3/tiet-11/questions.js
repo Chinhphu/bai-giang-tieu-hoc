@@ -1,0 +1,146 @@
+/**
+ * Ngân hàng dữ liệu câu hỏi Tiết 11 Khối 3: Bài 5 - Sử dụng bàn phím (Tiết 2)
+ * Chạy 100% Offline-first, chống lỗi CORS khi mở bằng file://
+ */
+window.QUESTS_DATA = [
+  {
+    "id": "q1",
+    "type": "choice",
+    "badge": "🏥 CÔNG THÁI HỌC (NLS 4.3.CB1a)",
+    "title": "Tư thế ngồi gõ bàn phím nào sau đây là ĐÚNG để bảo vệ cột sống và mắt của em?",
+    "options": [
+      { "id": "A", "text": "Ngồi cong lưng, ghé sát mắt cách màn hình 10cm", "correct": false },
+      { "id": "B", "text": "Lưng thẳng tựa ghế, mắt cách màn hình 50-60cm, tay thả lỏng vuông góc", "correct": true },
+      { "id": "C", "text": "Nằm bò ra bàn, một tay gõ một tay chống cằm", "correct": false },
+      { "id": "D", "text": "Ngồi vắt chéo chân, màn hình để lệch hẳn sang một bên", "correct": false }
+    ],
+    "hint": "Quy tắc 3 góc vuông 90 độ và khoảng cách mắt bằng một sải tay (50-60cm)!",
+    "explain": "Đáp án B: Ngồi thẳng lưng, mắt cách màn hình 50-60cm giúp bảo vệ cột sống và không bị cận thị."
+  },
+  {
+    "id": "q2",
+    "type": "choice",
+    "badge": "💻 QUY TRÌNH KIRAN'S - BƯỚC 1",
+    "title": "Sau khi khởi động phần mềm Kiran's Typing Tutor, việc đầu tiên em cần làm ở màn hình chính là gì?",
+    "options": [
+      { "id": "A", "text": "Nháy đúp chuột vào nút tắt máy tính", "correct": false },
+      { "id": "B", "text": "Nhập tên của em vào ô User Name (hoặc chọn tên đã lưu)", "correct": true },
+      { "id": "C", "text": "Bấm liên tục vào bàn phím để thử âm thanh", "correct": false },
+      { "id": "D", "text": "Rút dây chuột máy tính ra", "correct": false }
+    ],
+    "hint": "Cần khai báo tên để phần mềm ghi nhận thành tích của em!",
+    "explain": "Đáp án B: Bước 1 là nhập tên vào ô User Name để phần mềm lưu lại kết quả luyện tập."
+  },
+  {
+    "id": "q3",
+    "type": "choice",
+    "badge": "💻 QUY TRÌNH KIRAN'S - BƯỚC 2",
+    "title": "Để bắt đầu bài tập luyện gõ phím với các hàng phím trong Kiran's Typing Tutor, em nháy chọn mục nào?",
+    "options": [
+      { "id": "A", "text": "Typing Practice (Luyện gõ phím)", "correct": true },
+      { "id": "B", "text": "Exit (Thoát)", "correct": false },
+      { "id": "C", "text": "Shut down (Tắt máy)", "correct": false },
+      { "id": "D", "text": "Delete User (Xóa người dùng)", "correct": false }
+    ],
+    "hint": "Chữ 'Practice' trong tiếng Anh nghĩa là 'Luyện tập'!",
+    "explain": "Đáp án A: Chọn Typing Practice để vào màn hình luyện tập các hàng phím."
+  },
+  {
+    "id": "q4",
+    "type": "choice",
+    "badge": "💻 QUY TRÌNH KIRAN'S - BƯỚC 3",
+    "title": "Trong mục Course của Kiran's Typing Tutor, lựa chọn 'Home Row' có nghĩa là luyện tập hàng phím nào?",
+    "options": [
+      { "id": "A", "text": "Hàng phím số", "correct": false },
+      { "id": "B", "text": "Hàng phím cơ sở (nơi đặt các ngón xuất phát)", "correct": true },
+      { "id": "C", "text": "Hàng phím trên", "correct": false },
+      { "id": "D", "text": "Hàng phím dưới", "correct": false }
+    ],
+    "hint": "'Home' nghĩa là ngôi nhà / căn cứ xuất phát!",
+    "explain": "Đáp án B: Home Row chính là Hàng phím cơ sở (ASDF JKL;)."
+  },
+  {
+    "id": "q5",
+    "type": "choice",
+    "badge": "💻 QUY TRÌNH KIRAN'S - BƯỚC 3",
+    "title": "Để luyện tập hàng phím TRÊN (chứa Q, W, E, R, T...), trong mục Course em sẽ chọn mục nào?",
+    "options": [
+      { "id": "A", "text": "Home Row", "correct": false },
+      { "id": "B", "text": "Top Row", "correct": true },
+      { "id": "C", "text": "Bottom Row", "correct": false },
+      { "id": "D", "text": "Numbers", "correct": false }
+    ],
+    "hint": "'Top' trong tiếng Anh có nghĩa là ở trên đỉnh/phía trên!",
+    "explain": "Đáp án B: Top Row là bài luyện tập dành riêng cho Hàng phím trên."
+  },
+  {
+    "id": "q6",
+    "type": "choice",
+    "badge": "🖐️ THAO TÁC VƯƠN NGÓN TAY",
+    "title": "Khi đang ở vị trí xuất phát (hàng cơ sở), để gõ phím R ở hàng phím trên, ngón tay nào sẽ vươn lên gõ?",
+    "options": [
+      { "id": "A", "text": "Ngón trỏ bàn tay trái (đang đặt ở phím F)", "correct": true },
+      { "id": "B", "text": "Ngón cái bàn tay trái", "correct": false },
+      { "id": "C", "text": "Ngón trỏ bàn tay phải", "correct": false },
+      { "id": "D", "text": "Ngón út bàn tay trái", "correct": false }
+    ],
+    "hint": "Phím R nằm ngay phía trên phím F, cùng thuộc lãnh thổ ngón trỏ trái!",
+    "explain": "Đáp án A: Ngón trỏ trái vươn từ phím F lên gõ phím R rồi lập tức rút về phím F."
+  },
+  {
+    "id": "q7",
+    "type": "choice",
+    "badge": "🖐️ THAO TÁC HẠ NGÓN TAY",
+    "title": "Khi gõ phím M ở hàng phím dưới, ngón tay nào sẽ hạ xuống gõ?",
+    "options": [
+      { "id": "A", "text": "Ngón trỏ bàn tay phải (đang đặt ở phím J)", "correct": true },
+      { "id": "B", "text": "Ngón giữa bàn tay phải (đang đặt ở phím K)", "correct": false },
+      { "id": "C", "text": "Ngón trỏ bàn tay trái", "correct": false },
+      { "id": "D", "text": "Ngón út bàn tay phải", "correct": false }
+    ],
+    "hint": "Phím M nằm ở hàng dưới, do ngón trỏ phải (phím J) phụ trách!",
+    "explain": "Đáp án A: Ngón trỏ phải vươn xuống gõ phím M rồi lùi về phím J."
+  },
+  {
+    "id": "q8",
+    "type": "choice",
+    "badge": "⏰ NLS 4.3.CB1a - NGHỈ NGƠI HỢP LÝ",
+    "title": "Theo lời khuyên y tế, sau khoảng bao nhiêu phút ngồi gõ máy tính thì em nên dừng lại chớp mắt và thả lỏng ngón tay?",
+    "options": [
+      { "id": "A", "text": "Gõ liên tục 5 tiếng không nghỉ", "correct": false },
+      { "id": "B", "text": "Sau mỗi 20-30 phút nên nghỉ ngơi, nhìn ra xa và xoa bóp cổ tay", "correct": true },
+      { "id": "C", "text": "Chỉ khi nào đau mắt chảy nước mắt mới nghỉ", "correct": false },
+      { "id": "D", "text": "Không bao giờ cần nghỉ ngơi", "correct": false }
+    ],
+    "hint": "Quy tắc 20-20-20 giúp mắt và cơ bắp thư giãn, chống mỏi mệt!",
+    "explain": "Đáp án B: Sau 20-30 phút ngồi máy tính, em nên giải lao, nhìn xa và xoa bóp tay."
+  },
+  {
+    "id": "q9",
+    "type": "choice",
+    "badge": "📊 KẾT QUẢ KIRAN'S",
+    "title": "Trong bảng kết quả của Kiran's Typing Tutor, chỉ số 'Accuracy' thể hiện điều gì?",
+    "options": [
+      { "id": "A", "text": "Thời gian gõ bài", "correct": false },
+      { "id": "B", "text": "Độ chính xác (tính theo phần trăm %)", "correct": true },
+      { "id": "C", "text": "Số phím bấm hỏng", "correct": false },
+      { "id": "D", "text": "Tên máy tính", "correct": false }
+    ],
+    "hint": "'Accuracy' nghĩa là độ chuẩn xác khi gõ phím!",
+    "explain": "Đáp án B: Accuracy thể hiện độ chính xác, tỷ lệ gõ đúng càng cao thì điểm càng tốt."
+  },
+  {
+    "id": "q10",
+    "type": "choice",
+    "badge": "🔄 QUY TẮC RÚT TAY",
+    "title": "Điều quan trọng nhất cần nhớ sau khi ngón tay vươn lên hàng trên hoặc hạ xuống hàng dưới để gõ là gì?",
+    "options": [
+      { "id": "A", "text": "Giữ nguyên ngón tay ở đó luôn, không cần rút về", "correct": false },
+      { "id": "B", "text": "Lập tức đưa ngón tay trở về vị trí xuất phát trên hàng phím cơ sở", "correct": true },
+      { "id": "C", "text": "Nhấc cả hai bàn tay lên trời", "correct": false },
+      { "id": "D", "text": "Bấm thêm 5 lần phím Space", "correct": false }
+    ],
+    "hint": "Căn cứ địa xuất phát chính là nhà của các ngón tay!",
+    "explain": "Đáp án B: Sau khi gõ xong, phải lập tức rút ngón tay về hàng cơ sở."
+  }
+];
