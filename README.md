@@ -58,3 +58,25 @@ KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}_Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s.
 - **`window.uploadCsvToDrive(data, fileName, options)`**: Gửi Base64 CSV đồng bộ về Google Apps Script Web App và Google Drive, tự động fallback tải file về máy giáo viên nếu offline.
 - **`window.uploadExcelToDrive`**: Bridge tương thích ngược, tự động gọi `uploadCsvToDrive` để đảm bảo không gãy code cũ.
 - **Báo cáo nhiều bảng/sheet**: Được phân chia tự động và trực quan bằng tiêu đề `=== TÊN PHẦN ===`, mở tốt trên mọi phần mềm bảng tính.
+
+---
+
+## ⚡ Hệ thống Tự Động Lưu LocalStorage & Phục Hồi Khi Cúp Điện (Crash Recovery)
+
+Phòng máy tính tiểu học thường xuyên gặp sự cố cúp điện đột ngột hoặc học sinh/giáo viên lỡ tắt tab trình duyệt. Hệ thống giải quyết triệt để:
+1. **100% file HTML tự động lưu (Auto-Save)**:
+   - Điểm số của từng tổ/học sinh, chuỗi thắng (dây streak), tiến trình slide/câu hỏi, danh sách học sinh đã gọi / còn lại, nhật ký telemetry được lưu ngay vào `localStorage` mỗi khi có thay đổi.
+   - Cú pháp key độc nhất: `bgtieu_hoc_k{Khoi}_tiet_{Tiet}_{Lop}_state` (hoặc `bgtieu_hoc_game_{GameId}_state`).
+2. **Tự động khôi phục (Resume Session)**:
+   - Khi mở lại file HTML sau khi có điện lại hoặc mở lại trình duyệt, hệ thống tự động nhận diện phiên học dở dang và khôi phục toàn vẹn dữ liệu kèm Toast thông báo.
+3. **Nút "Xóa dữ liệu phiên" (Clear Session) an toàn**:
+   - Mọi file HTML đều có nút xóa dữ liệu đặt tại vị trí trực quan, có hộp thoại `confirm()` xác nhận trước khi xóa, và chỉ xóa đúng key của tiết đó (tuyệt đối không làm ảnh hưởng bài khác).
+
+---
+
+## ✏️ Cơ Chế Can Thiệp Sửa Điểm, Dây Thắng (Streak) Khi Bấm Nhầm
+
+Để tránh tâm lý ức chế cho học sinh khi bấm nhầm chuột hoặc giáo viên cộng nhầm điểm:
+1. **Sửa nhanh tại chỗ (Click-to-Edit)**: Nhấp trực tiếp vào số điểm hoặc chuỗi dây streak để nhập con số mong muốn.
+2. **Bộ nút tăng/giảm nhanh**: Các nút `+50`, `+100`, `-50`, `-100` và nút reset về sàn 1000đ.
+3. **Đồng bộ tự động tức thì**: Bảng xếp hạng (Rank, Đồng hạng Tie-Ranking), LocalStorage và báo cáo CSV tự động tính toán lại ngay khi điểm số được điều chỉnh.

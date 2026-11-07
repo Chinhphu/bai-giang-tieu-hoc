@@ -96,19 +96,25 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 * **Chân trang:** Bắt buộc có khoảng đệm chân trang (`padding-bottom: 120px` đến `140px`) để không bao giờ bị thanh điều hướng che khuất nội dung.
 * **Tỷ lệ:** Thiết kế co giãn linh hoạt (responsive flex), tối ưu cho tỷ lệ 16:9 của TV lớp học (độ phân giải 1366x768 hoặc 1920x1080).
 
-### 10. Chuẩn đặt tên LocalStorage — Tránh xung đột
-Key lưu trạng thái tiết học vào `localStorage` phải tuân theo cú pháp an toàn:
-```javascript
-const STORAGE_KEY = `bgtieu_hoc_k${grade}_tiet_${lesson}_${classId}_state`;
-// Ví dụ: bgtieu_hoc_k2_tiet_09_2-2_state
-```
-Tuyệt đối không dùng tên chung chung như `state`, `game_data`, `tv_data` gây ghi đè dữ liệu giữa các bài giảng khác nhau.
+### 10. Bắt Buộc Lưu Trạng Thái Vào LocalStorage (Auto-Save & Phục Hồi Khi Cúp Điện / Sập Nguồn)
+* **100% File HTML / Tiết học / Mini-game BẮT BUỘC tự động lưu trạng thái (Auto-Save):**
+  * Trong phòng máy tính trường tiểu học, sự cố cúp điện đột ngột, sập aptomat, vấp dây nguồn máy tính hoặc học sinh/giáo viên vô tình tắt nhầm tab/trình duyệt xảy ra rất thường xuyên.
+  * Mọi biến động trạng thái (điểm số các tổ/cá nhân, chuỗi thắng/dây streak, tiến trình slide/câu hỏi hiện tại, danh sách học sinh đã gọi / còn lại, nhật ký telemetry) **phải được tự động ghi ngay vào `localStorage`**.
+  * **Cơ chế Tự Động Phục Hồi (Crash Recovery):** Khi mở lại file HTML (sau khi có điện trở lại hoặc mở lại trình duyệt), hệ thống tự động kiểm tra `localStorage`. Nếu thấy có phiên học đang dở dang, lập tức khôi phục chính xác toàn bộ trạng thái và hiện Toast thông báo màu xanh ngọc: *"⚡ Đã tự động khôi phục dữ liệu phiên học trước do sự cố tắt máy/cúp điện!"*.
+* **Cú pháp Key an toàn — Tránh xung đột giữa các bài:**
+  ```javascript
+  const STORAGE_KEY = `bgtieu_hoc_k${grade}_tiet_${lesson}_${classId}_state`;
+  // Ví dụ: bgtieu_hoc_k2_tiet_09_2-2_state hoặc bgtieu_hoc_game_caro_state
+  ```
+  Tuyệt đối không dùng tên chung chung như `state`, `game_data`, `tv_data` gây ghi đè dữ liệu giữa các bài giảng khác nhau.
 
-### 11. Quyền kiểm soát dữ liệu đã lưu
-* Bất kỳ bài học hoặc mini-game nào lưu dữ liệu học tập/trạng thái vào `localStorage` hoặc `sessionStorage` phải có nút **Xóa dữ liệu đã lưu** dễ tìm để giáo viên chủ động làm mới.
-* Nút phải chỉ xóa các key do chính bài học/game đó quản lý; không được gọi `localStorage.clear()` hoặc xóa dữ liệu của bài khác.
-* Trước khi xóa, cần xác nhận rõ thao tác; sau khi xóa, cập nhật giao diện/trạng thái phù hợp và thông báo kết quả.
-* Nếu dữ liệu lưu tự động, giao diện cần giúp giáo viên nhận biết rằng có dữ liệu phiên đang được lưu.
+### 11. Bắt Buộc Nút Xóa Dữ Liệu Tiết Học (Clear Session Button) Cho Mọi File HTML
+* **Phạm vi áp dụng:** BẮT BUỘC có mặt trên **100% file HTML của bài học và mini-game**.
+* **Vị trí & Thiết kế:**
+  * Nút đặt ở vị trí trực quan, dễ tìm (Sidebar, thanh công cụ Giáo viên hoặc góc trên màn hình), có nhãn rõ ràng: `🗑️ Xóa dữ liệu phiên` hoặc `🔄 Làm mới tiết học`.
+  * **Cơ chế xác nhận an toàn:** Khi bấm, BẮT BUỘC hiển thị hộp thoại xác nhận `confirm()`: *"Bạn có chắc chắn muốn xóa dữ liệu đã lưu của tiết này để bắt đầu lớp mới không?"*.
+  * **Xóa đúng phạm vi:** Chỉ xóa đúng key `STORAGE_KEY` của chính bài học/game đó; sau đó reset trạng thái và thông báo *"✅ Đã xóa dữ liệu phiên học thành công!"*.
+  * **TUYỆT ĐỐI CẤM:** Không được gọi `localStorage.clear()` hoặc xóa dữ liệu của bài học khác trên cùng máy tính.
 
 ### 12. Điểm Khởi Đầu Mặc Định 1000đ (Base Score)
 * **Phạm vi áp dụng:** Chỉ setup ở những tiết học hoặc mini-game có hệ thống tính điểm thi đua (đấu tổ, trả lời câu hỏi cộng/trừ điểm, đấu trường đối kháng, minigame cá cược/mua sắm...). KHÔNG áp dụng gượng ép cho các tiết thuần túy tích lũy linh kiện, checkbox hay bài tập đúng/sai không dùng thang điểm số.
@@ -195,6 +201,18 @@ Tuyệt đối không dùng tên chung chung như `state`, `game_data`, `tv_data
   * Hỗ trợ URL kích hoạt trực tiếp trên GitHub Pages: `tiet-X/index-mavuong.html` (file wrapper chuyển tiếp `index.html?mode=mavuong`).
   * Hoặc phím tắt ẩn của Giáo viên (`Ctrl + Alt + D` hoặc click 4 lần vào logo) ngay trong `index.html`. Không nhân bản code trùng lặp để đảm bảo tính nhất quán khi bảo trì.
 
+### 17. Cơ Chế Can Thiệp Sửa Điểm, Dây Thắng (Streak) & Xếp Hạng Thủ Công Khi Bấm Nhầm (Manual Score & Streak Override)
+* **Ý nghĩa sư phạm:** Trong giờ học thực tế, học sinh hoặc giáo viên rất dễ bấm nhầm: học sinh lỡ tay nhấp nhầm đáp án, giáo viên bấm nhầm nút cộng/trừ điểm hoặc chấm nhầm tổ, chuột bị double-click, v.v. Nếu hệ thống cứng nhắc không cho sửa, học sinh sẽ ức chế, tranh cãi, làm gián đoạn tiết học.
+* **Quy tắc bắt buộc:**
+  * Mọi chỉ số quyết định thứ hạng thi đua (Điểm số của tổ, Điểm cá nhân, Chuỗi thắng/dây streak, Số sao/huy hiệu) **BẮT BUỘC phải cho phép Giáo viên can thiệp chỉnh sửa nhanh chóng**.
+  * **Hình thức can thiệp trực quan:**
+    * **Chỉnh sửa nhanh trực tiếp (Click-to-Edit):** Cho phép Giáo viên nhấp vào con số điểm/streak (hoặc nút icon sửa `✏️`) để mở popup hoặc hộp thoại nhập lại giá trị chính xác.
+    * **Bộ nút điều chỉnh nhanh (+/-):** Cung cấp các nút bấm tăng/giảm nhanh (`+50`, `+100`, `-50`, `-100`, `Đặt lại sàn 1000đ`).
+  * **Tự động tính toán lại và đồng bộ tức thì:**
+    * Ngay sau khi can thiệp sửa giá trị: Hàm tính toán thứ hạng (`calculateRankings`) phải chạy lại ngay, tự động cập nhật lại danh hiệu (Quán quân, Đồng hạng, huy chương 🥇🥈🥉).
+    * Tự động lưu giá trị mới vào `localStorage` ngay lập tức để bảo vệ dữ liệu nếu cúp điện.
+    * Đồng bộ số liệu chính xác vào dữ liệu xuất file CSV cuối tiết.
+
 ---
 
 ## 🛠️ 2. QUY TRÌNH 5 BƯỚC KHI TẠO HOẶC CHỈNH SỬA TIẾT HỌC MỚI
@@ -208,7 +226,8 @@ Khi nhận được yêu cầu viết tiết học mới từ người dùng (v�
 3. **Bước 3 — Nạp Dữ liệu Học sinh & Thiết lập Chế độ:**
    * Trỏ đúng file JSON `../../assets/data/students_{khoi}_2026_2027.json`.
    * Xác định tiết này là **Chế độ Toàn lớp cá nhân** (gacha tự động, bật full telemetry) hay **Chế độ Đấu theo tổ** (chọn tên thủ công, ghi log sư phạm).
-   * **Nếu tiết học có tính điểm:** Khởi tạo điểm sàn mặc định `STARTING_SCORE = 1000` và tích hợp hàm tính thứ hạng xử lý đồng hạng (`calculateRankings`).
+   * **Nếu tiết học có tính điểm:** Khởi tạo điểm sàn mặc định `STARTING_SCORE = 1000` và tích hợp hàm tính thứ hạng xử lý đồng hạng (`calculateRankings`). Đồng thời cung cấp công cụ sửa điểm/chuỗi streak khi bấm nhầm.
+   * **Tự động lưu LocalStorage & Nút Clear:** Thiết lập cơ chế tự động lưu trạng thái (Auto-Save) vào LocalStorage với key chuẩn để phục hồi sau khi cúp điện, kèm nút Xóa dữ liệu phiên có xác nhận `confirm()`.
    * **Quests & Câu hỏi:** Đặt toàn bộ ngân hàng câu hỏi/vụ án vào `quests.json` (kèm `quests.js` cho offline `file://`), không hardcode vào HTML.
 4. **Bước 4 — Thiết kế Nội dung Slide, Ghi bài chặng & Chốt kiến thức:**
    * Slide ghi bài: Nền trắng tinh khiết, chữ siêu to, có nút phóng to 100% toàn màn hình (`⛶`).
@@ -231,10 +250,11 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Logic gọi tên có đảm bảo nguyên tắc: *Trả lời xong mới tính là hoàn thành* (Picked ≠ Done)?
 - [ ] Cảm biến đo thao tác (Telemetry) có đặt đúng ngữ cảnh (chỉ bật khi học sinh trực tiếp bấm máy)?
 - [ ] Điểm khởi đầu mặc định có được thiết lập 1000đ (đối với các tiết/game có hệ thống tính điểm) không?
+- [ ] Đã có công cụ cho phép Giáo viên sửa điểm, sửa chuỗi dây (streak) hoặc thứ hạng khi bấm nhầm chưa?
 - [ ] Bảng xếp hạng và xuất CSV có cơ chế xử lý đồng hạng (bằng điểm $\to$ cùng hạng, cùng cúp/huy chương, danh hiệu "Đồng Quán quân / Đồng Á quân") không?
 - [ ] Tên file CSV xuất ra có đúng quy cách `KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}...` không?
-- [ ] Key LocalStorage có tiền tố `bgtieu_hoc_k{Khoi}_...` không?
-- [ ] Mọi nơi dùng LocalStorage/SessionStorage có nút xóa dữ liệu đúng phạm vi, có xác nhận và thông báo không?
+- [ ] 100% file HTML đã có cơ chế tự động lưu LocalStorage (Auto-Save) phòng cúp điện/sập nguồn chưa?
+- [ ] 100% file HTML đã có nút Xóa dữ liệu phiên (Clear Session Button) có xác nhận confirm và thông báo chưa?
 
 ---
 

@@ -223,6 +223,114 @@
         }
     });
 
+    // 4. TIỆN ÍCH CAN THIỆP SỬA ĐIỂM / DÂY STREAK THỦ CÔNG KHI BẤM NHẦM (QUY CHUẨN 17)
+    window.quickEditNumber = function (currentVal, label = 'con số', onUpdate) {
+        const val = Number(currentVal) || 0;
+        const promptText = `✏️ Nhập giá trị mới cho ${label}:\n(Hiện tại: ${val})`;
+        const input = prompt(promptText, String(val));
+        if (input === null) return null; // Người dùng bấm Hủy
+        const newNum = parseInt(input.trim(), 10);
+        if (isNaN(newNum)) {
+            alert('⚠️ Vui lòng nhập một số nguyên hợp lệ!');
+            return null;
+        }
+        if (typeof onUpdate === 'function') {
+            onUpdate(newNum);
+        }
+        return newNum;
+    };
+
+    // 5. TRÌNH QUẢN LÝ TRẠNG THÁI LOCALSTORAGE & PHỤC HỒI KHI CÚP ĐIỆN (QUY CHUẨN 10 & 11)
+    window.createSessionStateManager = function ({
+        storageKey,
+        defaultState = {},
+        onRestore = null,
+        onClear = null,
+        autoRestoreMsg = '⚡ Đã tự động khôi phục dữ liệu phiên học trước do sự cố tắt máy/cúp điện!'
+    }) {
+        if (!storageKey) {
+            console.error('createSessionStateManager: Cần cung cấp storageKey duy nhất!');
+            return null;
+        }
+
+        const notify = (msg, type = 'info') => {
+            if (typeof window.showToast === 'function') {
+                window.showToast(msg, type);
+            } else if (typeof window.toast === 'function') {
+                const bg = (type === 'ok' || type === 'success') ? '#16a34a' :
+                           (type === 'warn' || type === 'warning') ? '#d97706' :
+                           (type === 'bad' || type === 'error') ? '#dc2626' : '#2563eb';
+                window.toast(msg, 3500, bg);
+            } else {
+                console.log(`[SessionState] ${msg}`);
+            }
+        };
+
+        const save = (state) => {
+            try {
+                const payload = {
+                    ...state,
+                    __savedAt: new Date().toISOString()
+                };
+                localStorage.setItem(storageKey, JSON.stringify(payload));
+            } catch (err) {
+                console.warn('Lỗi khi lưu SessionState vào LocalStorage:', err);
+            }
+        };
+
+        const load = () => {
+            try {
+                const raw = localStorage.getItem(storageKey);
+                if (!raw) return null;
+                return JSON.parse(raw);
+            } catch (err) {
+                console.warn('Lỗi khi đọc SessionState từ LocalStorage:', err);
+                return null;
+            }
+        };
+
+        const restore = () => {
+            const saved = load();
+            if (saved) {
+                if (typeof onRestore === 'function') {
+                    onRestore(saved);
+                }
+                if (autoRestoreMsg) {
+                    setTimeout(() => notify(autoRestoreMsg, 'ok'), 300);
+                }
+                return saved;
+            }
+            return null;
+        };
+
+        const clear = (confirmMsg = '⚠️ Bạn có chắc chắn muốn xóa dữ liệu đã lưu của tiết này để bắt đầu lớp mới không?') => {
+            if (confirm(confirmMsg)) {
+                try {
+                    localStorage.removeItem(storageKey);
+                    notify('✅ Đã xóa dữ liệu phiên học thành công!', 'ok');
+                    if (typeof onClear === 'function') {
+                        onClear();
+                    } else {
+                        setTimeout(() => {
+                            if (typeof window.allowPageReload === 'function') window.allowPageReload();
+                            location.reload();
+                        }, 500);
+                    }
+                } catch (err) {
+                    console.warn('Lỗi khi xóa SessionState:', err);
+                }
+            }
+        };
+
+        return {
+            key: storageKey,
+            save,
+            load,
+            restore,
+            clear
+        };
+    };
+
     // Tự động kích hoạt khi DOM sẵn sàng
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => window.updateVietnameseDate());

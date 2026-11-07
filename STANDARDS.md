@@ -14,8 +14,8 @@
 6. [Hệ thống Báo cáo CSV Chuẩn UTF-8 BOM & Đồng bộ Drive](#6-hệ-thống-báo-cáo-csv-chuẩn-utf-8-bom--đồng-bộ-drive)
 7. [Design System & Bản sắc Typography theo Khối](#7-design-system--bản-sắc-typography-theo-khối)
 8. [Hệ thống Âm thanh Web Audio API (Offline Synthesizer)](#8-hệ-thống-âm-thanh-web-audio-api-offline-synthesizer)
-9. [Cơ chế Lưu trữ Trạng thái LocalStorage](#9-cơ-chế-lưu-trữ-trạng-thái-localstorage)
-10. [Hệ thống Điểm Khởi Đầu 1000đ & Cơ Chế Xếp Rank Đồng Hạng (Tie-Ranking)](#10-hệ-thống-điểm-khởi-đầu-1000đ--cơ-chế-xếp-rank-đồng-hạng-tie-ranking)
+9. [Hệ thống Lưu trữ LocalStorage Bắt Buộc & Phục Hồi Khi Cúp Điện (Crash Recovery & Auto-Save)](#9-hệ-thống-lưu-trữ-localstorage-bắt-buộc--phục-hồi-khi-cúp-điện-crash-recovery--auto-save)
+10. [Hệ thống Điểm Khởi Đầu 1000đ, Xếp Rank Đồng Hạng & Can Thiệp Sửa Điểm/Chuỗi Dây Khi Thao Tác Nhầm](#10-hệ-thống-điểm-khởi-đầu-1000đ-xếp-rank-đồng-hạng--can-thiệp-sửa-điểmchuỗi-dây-khi-thao-tác-nhầm)
 11. [Hệ thống Quản lý Quests & Câu hỏi Tách rời File JSON](#11-hệ-thống-quản-lý-quests--câu-hỏi-tách-rời-file-json)
 12. [Hệ thống Tính Năng Ẩn: Cơ Chế "Phe Quỷ" / "Đấu Trường Ma Vương" (Demon Faction & Anti-Griefing Mechanism)](#12-hệ-thống-tính-năng-ẩn-cơ-chế-phe-quỷ--đấu-trường-ma-vương-demon-faction--anti-griefing-mechanism)
 13. [Giao thức Cập nhật Quy chuẩn (Living Document Protocol)](#13-giao-thức-cập-nhật-quy-chuẩn-living-document-protocol)
@@ -335,24 +335,42 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 
 ---
 
-## 9. CƠ CHẾ LƯU TRỮ TRẠNG THÁI LOCALSTORAGE
+## 9. HỆ THỐNG LƯU TRỮ LOCALSTORAGE BẮT BUỘC & PHỤC HỒI KHI CÚP ĐIỆN (CRASH RECOVERY & AUTO-SAVE)
 
-### 9.1 Quy ước cấu trúc Key
-Mọi dữ liệu lưu phiên làm việc trên trình duyệt bắt buộc phải có tiền tố định danh đầy đủ:
+### 9.1 Nguyên tắc "100% HTML Auto-Save & Crash Recovery"
+* **Bối cảnh thực tế tại trường tiểu học:** Phòng máy vi tính tại trường tiểu học thường xuyên đối mặt với sự cố cúp điện đột ngột, aptomat tự ngắt khi quá tải, học sinh vấp dây nguồn làm sập máy, hoặc vô tình tắt nhầm tab/trình duyệt. Nếu dữ liệu điểm số, danh sách học sinh và tiến trình đang học bị mất sạch, Giáo viên và học sinh sẽ vô cùng hụt hẫng và tiết học bị đổ vỡ.
+* **Quy chuẩn bắt buộc:**
+  * **100% file HTML của bài học và mini-game** BẮT BUỘC phải cài đặt cơ chế tự động lưu trữ (Auto-Save) vào `localStorage`.
+  * Mỗi khi có bất kỳ sự thay đổi trạng thái nào (điểm số các tổ/cá nhân, chuỗi dây streak thắng, slide hiện tại, học sinh đã được gọi, câu hỏi đã hoàn thành, telemetry), hệ thống phải tự động serialize và ghi ngay vào `localStorage`.
+  * Khi trang web được mở lại (sau khi có điện trở lại hoặc mở lại trình duyệt), hệ thống tự động kiểm tra `localStorage`. Nếu phát hiện phiên học đang dang dở, hệ thống **tự động phục hồi nguyên trạng thái (Restore Session)** và hiển thị Toast màu xanh ngọc:
+    ```text
+    ⚡ Đã tự động khôi phục dữ liệu phiên học trước do sự cố tắt máy/cúp điện!
+    ```
+
+### 9.2 Quy ước cấu trúc Key
+Mọi dữ liệu lưu phiên làm việc trên trình duyệt bắt buộc phải có tiền tố định danh đầy đủ, tuyệt đối không dùng tên chung chung (`state`, `game_data`) gây ghi đè chéo:
 ```text
 bgtieu_hoc_k{Khoi}_tiet_{Tiet}_{Lop}_state
 ```
-*Ví dụ:* `bgtieu_hoc_k2_tiet_09_2-2_state`, `bgtieu_hoc_k3_tiet_06_3-1_state`.
+*Ví dụ:* `bgtieu_hoc_k2_tiet_09_2-2_state`, `bgtieu_hoc_k3_tiet_06_3-1_state`, `bgtieu_hoc_game_caro_state`.
 
-### 9.2 Schema dữ liệu lưu trữ
+### 9.3 Schema dữ liệu lưu trữ tiêu chuẩn
 ```json
 {
   "grade": "2",
   "lesson": "09",
   "classId": "2_2",
   "updatedAt": "2026-11-03T16:30:00.000Z",
+  "currentSlideIndex": 3,
+  "teams": [
+    { "id": 1, "name": "Tổ 1", "score": 1150, "streak": 2 },
+    { "id": 2, "name": "Tổ 2", "score": 1050, "streak": 0 },
+    { "id": 3, "name": "Tổ 3", "score": 1150, "streak": 1 },
+    { "id": 4, "name": "Tổ 4", "score": 1000, "streak": 0 }
+  ],
   "playedStudents": ["Nguyễn Văn A", "Trần Thị B"],
   "remainingStudents": ["Lê Văn C", "Phạm Thị D"],
+  "completedQuests": [1, 2],
   "telemetryRecords": [
     {
       "studentName": "Nguyễn Văn A",
@@ -365,15 +383,90 @@ bgtieu_hoc_k{Khoi}_tiet_{Tiet}_{Lop}_state
 }
 ```
 
-### 9.3 Nút xóa dữ liệu đã lưu
-* Mọi bài học/mini-game có lưu dữ liệu vào `localStorage` hoặc `sessionStorage` phải cung cấp nút **Xóa dữ liệu đã lưu** cho giáo viên.
-* Nút cần dễ tìm, có xác nhận trước khi xóa và thông báo rõ khi hoàn tất; giao diện phải đồng bộ lại với trạng thái sau khi xóa.
-* Chỉ xóa các key thuộc bài học/mini-game hiện tại. Tuyệt đối không dùng `localStorage.clear()` hay `sessionStorage.clear()` vì có thể xóa dữ liệu của bài khác.
-* Với lưu tự động, nên chỉ rõ cho giáo viên biết trạng thái đang được lưu; sau khi xóa, dữ liệu mới chỉ được tạo lại theo thao tác tiếp theo của người dùng.
+### 9.4 Bắt buộc Nút Xóa Dữ Liệu Phiên Học (Clear Session Button) Cho Mọi Trang HTML
+* **Phạm vi áp dụng:** BẮT BUỘC có mặt trên **100% file HTML** (bài giảng và mini-game).
+* **Vị trí & Thiết kế UI:**
+  * Nút đặt tại Sidebar, thanh điều khiển chân trang hoặc Menu công cụ Giáo viên (Teacher Toolbar).
+  * Nhãn nút rõ ràng: `🗑️ Xóa dữ liệu phiên` hoặc `🔄 Làm mới tiết học` (kèm tooltip giải thích: *"Xóa điểm và dữ liệu đã lưu để dạy lớp mới"*).
+* **Quy trình Xác nhận An toàn:**
+  1. Khi Giáo viên bấm nút, BẮT BUỘC hiển thị hộp thoại xác nhận `confirm()`:
+     ```javascript
+     if (confirm("⚠️ Bạn có chắc chắn muốn xóa toàn bộ điểm số và dữ liệu đã lưu của tiết này để bắt đầu lớp mới không?")) {
+         // Thực hiện xóa đúng key
+     }
+     ```
+  2. **Xóa chính xác phạm vi:** Chỉ xóa đúng key `STORAGE_KEY` của bài học/game đó (`localStorage.removeItem(STORAGE_KEY)`).
+  3. **TUYỆT ĐỐI CẤM:** Không được gọi `localStorage.clear()` vì sẽ xóa sạch dữ liệu của các bài học hoặc khối lớp khác đang lưu trên máy tính phòng máy.
+  4. Sau khi xóa, đặt lại trạng thái ban đầu (hoặc gọi `window.allowPageReload(); location.reload()`) và hiển thị thông báo: *"✅ Đã xóa dữ liệu phiên học thành công!"*.
+
+### 9.5 Mẫu Code Quản Lý State Chuẩn Hóa
+```javascript
+const STORAGE_KEY = `bgtieu_hoc_k${CURRENT_GRADE}_tiet_${CURRENT_LESSON}_${CURRENT_CLASS}_state`;
+
+// 1. Tự động lưu
+function saveSessionState() {
+    try {
+        const state = {
+            teams: STATE.teams,
+            playedStudents: STATE.playedStudents,
+            remainingStudents: STATE.remainingStudents,
+            currentSlide: STATE.currentSlideIndex,
+            telemetry: STATE.telemetryRecords,
+            updatedAt: new Date().toISOString()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+        console.warn('Không thể lưu LocalStorage:', e);
+    }
+}
+
+// 2. Tự động khôi phục khi cúp điện / mở lại trang
+function restoreSessionState() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        if (data && data.teams) {
+            STATE.teams = data.teams;
+            STATE.playedStudents = data.playedStudents || [];
+            STATE.remainingStudents = data.remainingStudents || [];
+            STATE.currentSlideIndex = data.currentSlide || 0;
+            STATE.telemetryRecords = data.telemetry || [];
+            
+            // Cập nhật giao diện
+            renderTeams();
+            goToSlide(STATE.currentSlideIndex);
+            
+            // Toast thông báo cho Giáo viên
+            if (typeof window.showToast === 'function') {
+                window.showToast('⚡ Đã tự động khôi phục dữ liệu phiên học trước do sự cố tắt máy/cúp điện!', 'ok');
+            }
+            return true;
+        }
+    } catch (e) {
+        console.warn('Lỗi khi nạp LocalStorage:', e);
+    }
+    return false;
+}
+
+// 3. Nút xóa dữ liệu an toàn
+function clearSessionData() {
+    if (confirm('⚠️ Bạn có chắc muốn xóa dữ liệu đã lưu của tiết học này để bắt đầu lớp mới không?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        if (typeof window.showToast === 'function') {
+            window.showToast('✅ Đã xóa dữ liệu phiên học thành công!', 'ok');
+        }
+        setTimeout(() => {
+            if (window.allowPageReload) window.allowPageReload();
+            location.reload();
+        }, 800);
+    }
+}
+```
 
 ---
 
-## 10. HỆ THỐNG ĐIỂM KHỞI ĐẦU (1000Đ) & CƠ CHẾ XẾP RANK ĐỒNG HẠNG (TIE-RANKING)
+## 10. HỆ THỐNG ĐIỂM KHỞI ĐẦU (1000Đ), XẾP RANK ĐỒNG HẠNG & CAN THIỆP SỬA ĐIỂM/CHUỖI DÂY KHI THAO TÁC NHẦM
 
 ### 10.1 Điểm Khởi Đầu Mặc Định 1000đ (Base Score)
 * **Phạm vi áp dụng:**
@@ -463,6 +556,41 @@ bgtieu_hoc_k{Khoi}_tiet_{Tiet}_{Lop}_state
     "Hạng 1","🥇","ĐỒNG QUÁN QUÂN","TỔ 3","1100","Có (Đồng điểm)","Xuất sắc"
     "Hạng 3","🥉","HẠNG BA","TỔ 2","1050","Không","Hoàn thành tốt"
     ```
+
+### 10.3 Cơ Chế Can Thiệp Sửa Điểm, Chuỗi Dây (Streak) & Thứ Hạng Khi Thao Tác Nhầm (Manual Score & Streak Correction)
+* **Ý nghĩa sư phạm & Thực tiễn lớp học:**
+  * Trong một tiết học sôi động với 30-40 học sinh tiểu học, việc xảy ra nhầm lẫn là điều khó tránh khỏi:
+    * Học sinh cuống tay bấm nhầm chuột vào ô đáp án sai hoặc trượt câu hỏi.
+    * Giáo viên bấm nhầm nút cộng điểm cho Tổ 2 thay vì Tổ 1.
+    * Nhấp đúp chuột vô tình kích hoạt cộng điểm 2 lần liên tiếp.
+    * Chuỗi thắng liên tục (dây streak / combo) bị đứt oan hoặc tăng nhầm.
+  * Nếu hệ thống không cho phép sửa điểm hay chuỗi thắng tại chỗ, học sinh sẽ có cảm giác bất công, ấm ức, làm phân tâm và gián đoạn không khí học tập.
+* **Quy chuẩn kỹ thuật bắt buộc:**
+  Mọi bài học có hệ thống tính điểm, xếp hạng hoặc chuỗi streak BẮT BUỘC phải cung cấp công cụ cho phép Giáo viên can thiệp nhanh:
+  1. **Click-to-Edit trực tiếp (Chỉnh sửa tại chỗ):**
+     * Cho phép Giáo viên nhấp trực tiếp vào con số điểm hoặc con số streak trên Sidebar (hoặc nút icon bút chì `✏️` cạnh điểm số).
+     * Bật hộp thoại `prompt` nhập số (hoặc pop-up chỉnh sửa):
+       ```javascript
+       function handleEditScore(teamId) {
+           const team = STATE.teams.find(t => t.id === teamId);
+           if (!team) return;
+           const input = prompt(`✏️ Nhập điểm mới cho ${team.name}:`, team.score);
+           if (input === null) return; // Người dùng bấm Hủy
+           const newScore = parseInt(input, 10);
+           if (!isNaN(newScore)) {
+               team.score = newScore;
+               onScoreUpdated();
+           }
+       }
+       ```
+  2. **Bộ nút điều chỉnh nhanh (+/-):**
+     * Thiết kế cụm nút nhỏ gọn: `+50`, `+100`, `-50`, `-100`, và nút reset về sàn 1000đ (`🔄 1000đ`).
+  3. **Tự động tính toán lại và đồng bộ tức thì:**
+     * Ngay khi điểm hoặc chuỗi streak được chỉnh sửa:
+       1. Gọi lại `window.calculateRankings(STATE.teams)` để cập nhật lại tức thì bảng xếp hạng, huy chương 🥇🥈🥉, và danh hiệu vinh danh.
+       2. Gọi `saveSessionState()` để tự động lưu ngay vào `localStorage` (đề phòng cúp điện).
+       3. Cập nhật dữ liệu chuẩn bị xuất file CSV cuối tiết.
+       4. Hiển thị Toast thông báo: *"✅ Đã cập nhật lại điểm số của [Tên Tổ] thành [X] điểm!"*.
 
 ---
 
