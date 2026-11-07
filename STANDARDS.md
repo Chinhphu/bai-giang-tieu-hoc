@@ -8,7 +8,7 @@
 ## 📑 MỤC LỤC
 1. [Kiến trúc Tổng thể & Cấu trúc Thư mục](#1-kiến-trúc-tổng-thể--cấu-trúc-thư-mục)
 2. [Bộ Quy tắc An toàn Tiết học & Chống Reload](#2-bộ-quy-tắc-an-toàn-tiết-học--chống-reload)
-3. [Quy chuẩn Sư phạm: Trang Ghi bài vào vở, Ghi bài chặng & Chốt kiến thức cuối tiết](#3-quy-chuẩn-sư-phạm-trang-ghi-bài-vào-vở-ghi-bài-chặng--chốt-kiến-thức-cuối-tiết)
+3. [Quy chuẩn Sư phạm: Flow Bài Dạy, UX Tiểu Học, Ghi Bài & Chốt Kiến Thức](#3-quy-chuẩn-sư-phạm-flow-bài-dạy-ux-tiểu-học-ghi-bài--chốt-kiến-thức)
 4. [Vòng đời Gọi tên (Turn Lifecycle) & Phân luồng Gacha](#4-vòng-đời-gọi-tên-turn-lifecycle--phân-luồng-gacha)
 5. [Hệ thống Đo lường Hành vi (Telemetry) & Đánh giá TT27 / SMAS](#5-hệ-thống-đo-lường-hành-vi-telemetry--đánh-giá-tt27--smas)
 6. [Hệ thống Báo cáo CSV Chuẩn UTF-8 BOM & Đồng bộ Drive](#6-hệ-thống-báo-cáo-csv-chuẩn-utf-8-bom--đồng-bộ-drive)
@@ -18,7 +18,8 @@
 10. [Hệ thống Điểm Khởi Đầu 1000đ, Xếp Rank Đồng Hạng & Can Thiệp Sửa Điểm/Chuỗi Dây Khi Thao Tác Nhầm](#10-hệ-thống-điểm-khởi-đầu-1000đ-xếp-rank-đồng-hạng--can-thiệp-sửa-điểmchuỗi-dây-khi-thao-tác-nhầm)
 11. [Hệ thống Quản lý Quests & Câu hỏi Tách rời File JSON](#11-hệ-thống-quản-lý-quests--câu-hỏi-tách-rời-file-json)
 12. [Hệ thống Tính Năng Ẩn: Cơ Chế "Phe Quỷ" / "Đấu Trường Ma Vương" (Demon Faction & Anti-Griefing Mechanism)](#12-hệ-thống-tính-năng-ẩn-cơ-chế-phe-quỷ--đấu-trường-ma-vương-demon-faction--anti-griefing-mechanism)
-13. [Giao thức Cập nhật Quy chuẩn (Living Document Protocol)](#13-giao-thức-cập-nhật-quy-chuẩn-living-document-protocol)
+13. [Hệ thống Dàn Dựng Bàn Phím Máy Tính Ảo Chuẩn Công Thái Học (Realistic ANSI Keyboard Layout)](#13-hệ-thống-dàn-dựng-bàn-phím-máy-tính-ảo-chuẩn-công-thái-học-realistic-ansi-keyboard-layout)
+14. [Giao thức Cập nhật Quy chuẩn (Living Document Protocol)](#14-giao-thức-cập-nhật-quy-chuẩn-living-document-protocol)
 
 ---
 
@@ -85,9 +86,28 @@ location.reload();
 
 ---
 
-## 3. QUY CHUẨN SƯ PHẠM: TRANG GHI BÀI VÀO VỞ, GHI BÀI CHẶNG & CHỐT KIẾN THỨC CUỐI TIẾT
+## 3. QUY CHUẨN SƯ PHẠM: FLOW BÀI DẠY, UX TIỂU HỌC, GHI BÀI & CHỐT KIẾN THỨC
+*(Áp dụng nhất quán cho toàn bộ 5 khối lớp từ Khối 1 đến Khối 5 và mọi chủ đề bài học)*
 
-### 3.1 Trang Ghi bài vào vở (Notebook Writing Slide / Đầu giờ)
+### 3.1 Khâu Khởi Động & Tạo Tâm Thế Học Tập (The Hook / Lead-in)
+* **Bản chất sư phạm:**
+  * Học sinh tiểu học chỉ tiếp thu tốt nhất khi trí tò mò được kích hoạt và có nhu cầu tự thân muốn tìm hiểu kiến thức mới.
+  * **TUYỆT ĐỐI CẤM:** Không được vừa bước vào tiết là mở slide bài mới, đọc tựa bài hoặc truyền thụ lý thuyết một chiều.
+* **Quy chuẩn thiết kế Slide Khởi động (Hook Slide):**
+  * BẮT BUỘC khởi đầu bằng một tình huống có vấn đề, câu đố gợi mở, hình ảnh so sánh đối lập, câu chuyện nhân vật hoặc minigame ngắn để học sinh *tự quan sát, tự phán đoán và tự gọi tên chủ đề/mục tiêu của bài học*.
+  * **Định hướng theo lứa tuổi:**
+    * *Khối 1 & Khối 2:* Nhân vật hoạt hình gặp tình huống rắc rối, câu đố hình ảnh, đoán bóng đồ vật, bài vần tương tác.
+    * *Khối 3:* Tình huống so sánh đúng/sai trong đời sống, thử thách phán đoán nhanh, câu đố logic trực quan.
+    * *Khối 4 & Khối 5:* Vụ án công nghệ thực tế, tình huống giả định cần giải cứu/tối ưu hệ thống, nghịch lý an toàn mạng hoặc bài toán cần công cụ tin học giải quyết.
+
+### 3.2 Cầu Nối Chuyển Tiếp Sư Phạm Giữa Các Hoạt Động (Seamless Pedagogical Transitions)
+* **Bản chất sư phạm:**
+  * Duy trì dòng chảy nhận thức xuyên suốt (Flow state), tránh để bài học bị "gãy khúc" hoặc tạo cảm giác rời rạc giữa các phần.
+* **Quy chuẩn chuyển tiếp:**
+  * Giữa các chặng trong tiết học (từ Khám phá sang Luyện tập, từ Thao tác cá nhân sang Thi đua tổ đội, từ Lý thuyết sang Thực hành máy), slide và kịch bản sư phạm BẮT BUỘC có **1–2 câu dẫn mang tính nhân quả/logic phát triển kiến thức**.
+  * Câu chuyển tiếp phải trả lời được cho học sinh: *Tại sao sau khi biết kiến thức A, chúng mình lại cần khám phá tiếp kỹ năng B? Hoạt động trước đã giúp ích gì để giải quyết thử thách tiếp theo?*
+
+### 3.3 Trang Ghi bài vào vở — Tối Giản Tải Nhận Thức & Chuẩn UX Màn Chiếu
 Học sinh tiểu học cần nhìn rõ từ khoảng cách xa (8–10m cuối lớp) để hạ bút chép đúng tựa bài và kiến thức vào vở:
 * **Nền trắng tinh khiết (`#ffffff`):**
   * TUYỆT ĐỐI CẤM trang trí rườm rà (không kẻ hoa văn, không kẻ ô ly gây rối mắt khi chiếu máy chiếu mờ, không đổ bóng lòe loẹt).
@@ -97,6 +117,12 @@ Học sinh tiểu học cần nhìn rõ từ khoảng cách xa (8–10m cuối l
   * Tên môn học: `36px` – `44px` (đậm `900`, in hoa).
   * Tựa đề bài học: `50px` – `64px` (đậm `900`, in hoa).
   * Dòng ghi nhớ/tóm tắt: `30px` – `38px` (đậm `800`, giãn dòng `1.6`).
+* **Ghi chép tối giản — Chắt lọc từ khóa cốt lõi:**
+  * Sách giáo khoa đã in đầy đủ nội dung bài học. Học sinh tiểu học viết chữ rất chậm, nếu ép chép đoạn văn dài sẽ ngốn hết thời gian thực hành máy tính và biến giờ Tin học thành giờ chép chính tả.
+  * Chỉ cho học sinh ghi chép những từ khóa, công thức hành động hoặc quy tắc thật sự cốt lõi cần nhớ lâu dài.
+* **TUYỆT ĐỐI CẤM đặt Đồng hồ đếm ngược (Timer) khi học sinh chép bài:**
+  * Cấm kỵ tuyệt đối việc ra khẩu lệnh: *"Các em có đúng 3 phút chép bài"* kèm widget đồng hồ đếm ngược tích tắc nhảy giây trên màn hình.
+  * Áp lực thời gian khiến vỏ não trẻ bị ức chế, học sinh hoảng sợ cắm đầu chép vội chép vàng cho kịp giờ, chữ viết nguệch ngoạc và hoàn toàn triệt tiêu khả năng ghi nhớ dài hạn. Giáo viên điều phối nhịp độ chép bài bằng cách quan sát thực tế trong lớp.
 * **BẮT BUỘC có nút Chế độ Toàn Màn Hình (Fullscreen Toggle) — Quy Chuẩn 1 Nút Zoom / 1 Nút Tắt Duy Nhất:**
   * **Trạng thái bình thường:** Chỉ hiển thị **DUY NHẤT 1 NÚT ZOOM** `⛶ Chế độ toàn màn hình chép bài` (`.btn-fs-toggle`). Nút tắt `btn-fs-close` bắt buộc ẩn hoàn toàn (`display: none !important;`).
   * **Trạng thái toàn màn hình:** Khung ghi bài phóng to chiếm trọn 100% màn hình TV (`100vw x 100vh`), ẩn hoàn toàn sidebar và các thanh điều hướng. Chỉ hiển thị **DUY NHẤT 1 NÚT TẮT** `✖ Thu nhỏ (Esc)` (`.btn-fs-close`) ghim cố định ở góc trên bên phải màn hình (`position: fixed; top: 20px; right: 28px; z-index: 1000000;`).
@@ -144,23 +170,66 @@ function toggleNotebookFullscreen() {
 }
 ```
 
-### 3.2 Quy tắc "Ghi bài xé nhỏ" (Progressive Chunking)
-* Học sinh tiểu học sẽ rất chán nản nếu bắt chép một đoạn văn dài.
+### 3.4 Quy tắc "Ghi bài xé nhỏ" (Progressive Chunking)
+* Học sinh tiểu học sẽ rất chán nản nếu bắt chép một đoạn văn dài một lần.
 * Sau mỗi phần hoạt động/khám phá kiến thức mới, chỉ xuất hiện **1 thẻ ghi nhớ nhỏ** (`.memo-card`):
 ```html
 <div class="memo-card">
     <div class="memo-badge">✍️ Em ghi nhớ:</div>
     <p class="memo-text">
-        Phím <b>Space (phím Cách)</b> là phím dài nhất trên bàn phím, dùng để tạo khoảng cách giữa các từ.
+        [1-2 câu cô đọng, in đậm <b>từ khóa quan trọng</b>]
     </p>
 </div>
 ```
 * Giáo viên cho học sinh thực hành/thảo luận xong mới bấm hiển thị thẻ này, các em hạ bút viết đúng 1-2 dòng vào vở rồi chuyển hoạt động.
 
-### 3.3 Màn Hình Chốt Kiến Thức / Ghi Nhớ Cuối Tiết (Trước Bảng Vinh Danh)
+### 3.5 Nguyên Lý Trực Quan Hóa Khái Niệm & Kỹ Năng (Concrete over Abstract)
+* **Bản chất tâm lý học lứa tuổi:**
+  * Học sinh tiểu học (6–11 tuổi) đang ở giai đoạn tư duy thao tác cụ thể (Jean Piaget). Các em không thể tiếp thu tốt các khái niệm thông qua số đo cơ học trừu tượng, thông số kỹ thuật khô khan hay định nghĩa hàn lâm.
+* **Chiến lược chuyển thể trực quan:**
+  1. **Ẩn dụ đời sống quen thuộc (Real-world Analogies):**
+     * Thư mục $\rightarrow$ Ngăn kéo tủ đựng tài liệu có dán nhãn.
+     * Tệp (file) $\rightarrow$ Từng cuốn vở/bức tranh bỏ vào ngăn kéo.
+     * Dung lượng (MB, GB) $\rightarrow$ Kích thước bình chứa nước/balo đi học.
+     * Thuật toán $\rightarrow$ Công thức từng bước làm bánh hoặc cách pha một ly sữa.
+     * Mạng Internet $\rightarrow$ Mạng lưới đường giao thông kết nối các ngôi nhà.
+  2. **Thị giác hóa & Mã màu (Color-coding & Visual Landmarks):**
+     * Dùng màu sắc và biểu tượng trực quan thay cho việc gọi tên khô khan (ví dụ: gán mã màu cho phím, dán sticker màu phân biệt nút thiết bị, dùng icon minh họa chức năng phần mềm).
+  3. **Thao tác mẫu thực tế & Đối chiếu hành vi (Visual Demonstration):**
+     * Thay vì đưa ra các con số khoảng cách trừu tượng (như `20cm`, `50cm`), giáo viên dùng thước đo cơ thể gần gũi (gang tay, sải tay, tầm mắt) hoặc làm mẫu trực quan hành vi đúng và hành vi sai để học sinh tự quan sát và phân tích tại chỗ.
+
+### 3.6 Nguyên Tắc Kết Hợp Đa Phương Tiện & Sách Giáo Khoa (Multimodal SGK Scaffolding)
+* **Bản chất sư phạm:**
+  * Slide màn chiếu TV giải quyết tính tương tác, dẫn dắt câu chuyện và trò chơi hóa (gamification).
+  * Sách giáo khoa (SGK) trên bàn học sinh là điểm tựa tri thức chuẩn mực và bền vững.
+* **Quy chuẩn đối chiếu:**
+  * Trong điều kiện phòng máy tính rộng hoặc màn hình TV bị lóa sáng ban ngày, học sinh ngồi xa sẽ khó nhìn rõ các chi tiết nhỏ hoặc sơ đồ phức tạp.
+  * Bất cứ khi nào xuất hiện sơ đồ chi tiết, bảng dữ liệu, văn bản đọc hiểu hoặc nhiệm vụ thực hành: Slide luôn có badge hoặc dòng nhắc đối chiếu rõ ràng:
+    ```html
+    <div class="sgk-pill">📖 Xem Hình X - Trang Y (SGK)</div>
+    ```
+  * Giáo viên rèn luyện cho học sinh thói quen kết hợp nhịp nhàng giữa quan sát màn hình chung và tự đối chiếu trên tài liệu cá nhân.
+
+### 3.7 Quản Lý Lớp & Khai Thác Tài Nguyên Tương Tác 100% Đồng Loạt
+* **Chống mô hình thụ động "1 em trả lời — cả lớp ngồi xem":**
+  * Trong giờ học tương tác, nếu giáo viên chỉ gọi từng em phát biểu thì 30–35 em còn lại sẽ dễ mất tập trung, nói chuyện riêng hoặc chơi game ngoài luồng.
+* **Tương tác 100% đồng loạt qua Đồ dùng học tập (DCHT) — Khuyến khích & Ưu tiên:**
+  * **Tính chất:** Ưu tiên khai thác khi phòng máy/lớp học có sẵn trang bị, KHÔNG bắt buộc cứng nhắc nếu lớp không có.
+  * *Khi lớp có sẵn đồ dùng (bông hoa xoay trắc nghiệm ABCD, bảng con, thẻ màu tín hiệu...):* Yêu cầu cả lớp cùng suy nghĩ và đồng loạt giơ đáp án $\rightarrow$ 100% học sinh đều phải động não. Giáo viên chỉ mất 3 giây quét mắt quanh phòng là nắm bắt chính xác mức độ hiểu bài của toàn bộ học sinh (Formative Assessment).
+  * *Khi lớp không có đồ dùng:* Giáo viên linh hoạt thay thế bằng hình thức giơ tay, hô đáp án đồng thanh hoặc tương tác trực tiếp qua câu hỏi trên màn chiếu TV.
+* **Khuếch đại trực quan bằng công nghệ lớp học (nếu có trang bị):**
+  * Tận dụng Đèn chiếu vật thể (Document Camera) hoặc tính năng chia sẻ màn hình máy chủ để chiếu phóng to các thao tác mẫu tinh vi (thao tác ngón tay trên phím/chuột, cấu tạo linh kiện phần cứng, mẫu sản phẩm đồ họa/Scratch/soạn thảo) lên màn hình lớn cho toàn bộ lớp quan sát rõ nét.
+* **Nghệ thuật Khẩu lệnh Sư phạm Dứt khoát (Decisive Directives):**
+  * Giáo viên là người làm chủ không gian phòng máy. Khẩu lệnh đưa ra phải ngắn gọn, dứt khoát và định hướng hành động rõ ràng (*"Hành động + Đối tượng + Thời điểm"*, ví dụ: *"Cả lớp mở sách trang 20"*, *"Hai tay đặt lên bàn phím"*).
+  * **TUYỆT ĐỐI CẤM** dùng những câu hỏi ngược lại học sinh mang tính do dự, nước đôi (*"Hình này phải không các em?", "Làm vậy đúng không ta?"*). Slide và kịch bản sư phạm phải dùng các câu khẳng định chuẩn xác, truyền sự tự tin cho học sinh.
+
+### 3.8 Màn Hình Chốt Kiến Thức & Quy Trình 5 Phút Vàng (Consolidation Flow)
 * **Vị trí bắt buộc:** Liền trước slide Bảng vàng vinh danh (Slide kế cuối).
-* **Mục đích:** Giúp giáo viên chốt lại toàn bộ các ý trọng tâm trước khi chuyển sang phần tổng kết điểm số và trao thưởng.
-* **Nguyên tắc thiết kế:**
+* **Quy trình Sư phạm 5 Phút Vàng Cuối Tiết:**
+  * BẮT BUỘC dành trọn vẹn 5 phút cuối giờ để củng cố kiến thức, tuyệt đối không dạy lấn giờ hoặc cắt xén phần này.
+  * **Quy tắc: Học sinh tự nhớ lại trước (Active Recall) $\rightarrow$ Giáo viên bổ sung & Chốt lại sau:** Giáo viên đặt câu hỏi mở gợi ý để học sinh tự tóm tắt lại 2–3 bài học/kỹ năng quan trọng nhất hôm nay (ví dụ: *"Hôm nay chúng mình đã khám phá được những bí kíp quan trọng nào?"*). Khi học sinh nêu đúng và đủ, cả lớp vỗ tay; nếu còn thiếu, giáo viên gợi mở cho bạn khác bổ sung rồi mới bấm hiển thị các thẻ ghi nhớ trên màn hình.
+  * **Đủ câu hỏi lấy điểm thi đua cho TẤT CẢ các tổ:** Nếu phần chốt bài có lồng ghép các câu hỏi củng cố / ghi nhớ lấy điểm thi đua, **BẮT BUỘC phải chuẩn bị đủ số lượng câu hỏi/lượt củng cố cho TẤT CẢ các tổ đang tham gia** (ví dụ lớp có 4 tổ thì có tối thiểu 4 câu hỏi, chia đều mỗi tổ 1 lượt). Đảm bảo mọi tổ đều có cơ hội cộng điểm công bằng trước khi tổng kết bảng vàng chung cuộc.
+* **Nguyên tắc thiết kế Slide chốt:**
   * Design tối giản, ít chữ, chữ lớn (tiêu đề `28px` – `34px`, nội dung `22px` – `26px`, in đậm).
   * Phân bố dạng lưới **2, 3 hoặc 4 card** (`.summary-card-grid.grid-2`, `.grid-3`, `.grid-4`):
 ```html
@@ -219,6 +288,14 @@ $$\text{1. Chờ (Waiting)} \xrightarrow[\text{Bấm Gacha lại để quay ti�
 2. **Chế độ Thi đua Theo Tổ (Nhóm ráp PC, Trắc nghiệm đồng đội):**
    * **Vẫn hỗ trợ dùng Gacha bình thường:** Do giáo viên không thể nhớ hết danh sách từng em thuộc tổ nào, giáo viên có thể bấm nút Gacha liên tục cho đến khi hiện ra tên một em thuộc **Tổ đang đến lượt** thì chốt em đó lên bảng.
    * Hoặc giáo viên có thể chọn trực tiếp từ danh sách tổ nếu có em xung phong giơ tay.
+
+### 4.3 Bố Trí Widget Chọn Học Sinh & Phân Tách Điểm Số (Logging vs Team Scoring)
+* **Widget Chọn Học Sinh Ở MỌI Vị Trí Phát Biểu:**
+  * Bất cứ hoạt động nào cần học sinh giơ tay phát biểu (Khởi động, Khám phá kiến thức mới, Vấn đáp gợi mở, Chốt bài hay Minigame): BẮT BUỘC luôn bố trí cụm Widget:
+    * Ô chọn tên nhanh (Dropdown/Select hoặc Input autocomplete) + Nút `🎲 Gacha` quay ngẫu nhiên.
+* **Phân Tách Rạch Ròi: Log Telemetry Cá Nhân vs Điểm Số Tổ Thi Đua:**
+  * **1. Khi phát biểu tự do (Khởi động, Khám phá, Vấn đáp giữa giờ, Chốt bài):** Thao tác chọn học sinh và ghi nhận câu trả lời **CHỈ DÙNG ĐỂ GHI NHẬN (LOG) VÀO TELEMETRY CÁ NHÂN** (ghi nhận em đó đã phát biểu, đúng/sai, xếp loại TT27 để xuất file CSV cuối tiết). **TUYỆT ĐỐI KHÔNG tự động cộng/trừ điểm vào Tổ** để giữ cho thang điểm thi đua không bị loãng hoặc mất cân bằng.
+  * **2. Chỉ khi bước vào VÒNG ĐẤU GAME / THỬ THÁCH CHÍNH THỨC:** Điểm số câu trả lời mới được kích hoạt cộng/trừ vào điểm số của Tổ thi đua!
 
 ---
 
@@ -787,7 +864,103 @@ Khi một lớp chỉ có duy nhất 1 học sinh cá biệt bị đưa vào Phe
 
 ---
 
-## 13. GIAO THỨC CẬP NHẬT QUY CHUẨN (LIVING DOCUMENT PROTOCOL)
+## 13. HỆ THỐNG DÀN DỰNG BÀN PHÍM MÁY TÍNH ẢO CHUẨN CÔNG THÁI HỌC (REALISTIC ANSI KEYBOARD LAYOUT)
+
+### 13.1 Tầm Quan Trọng Sư Phạm & Thị Giác
+* Trong chương trình Tin học Tiểu học (đặc biệt Khối 1, Khối 2, Khối 3), việc nhận biết khu vực bàn phím, phân biệt các hàng phím (Hàng số, Hàng phím chữ trên, Hàng phím cơ sở, Hàng phím chữ dưới) và rèn luyện kỹ năng gõ 10 ngón là nội dung cốt lõi.
+* Nếu giao diện bàn phím mô phỏng trên HTML/CSS bị dựng sai lệch (các phím xếp thẳng tưng như bảng tính Excel, hoặc các hàng phím thò thụt lồi lõm không đều), học sinh sẽ hình thành nhận thức thị giác sai lệch so với bàn phím vật lý thực tế trước mặt.
+
+### 13.2 Quy Chuẩn Độ Thụt Lùi Hàng Phím Tiêu Chuẩn (Physical Key Staggering - Chuẩn ANSI)
+Mỗi hàng phím trên bàn phím máy tính thực tế đều có tỷ lệ đơn vị (Unit - $1\text{U}$ tương ứng độ rộng 1 phím chữ tiêu chuẩn). Tổng độ rộng của mỗi hàng là $15\text{U}$:
+
+1. **Hàng 1 (Hàng phím số):**
+   * Bắt đầu bằng phím `~` ($1\text{U}$), các phím số `1` đến `0`, `-`, `=` (mỗi phím $1\text{U}$).
+   * Kết thúc bằng phím `Backspace` rộng **$2\text{U}$** để khép kín hàng ($13 \times 1\text{U} + 2\text{U} = 15\text{U}$).
+2. **Hàng 2 (Hàng phím chữ trên - QWERTY Row):**
+   * Bắt đầu bằng phím `Tab` rộng **$1.5\text{U}$** $\rightarrow$ Độ rộng $1.5\text{U}$ này tự động đẩy phím `Q` **thụt vào trong** so với phím `1`.
+   * Tiếp theo là 12 phím chữ/ký tự: `Q W E R T Y U I O P [ ] \` ($12 \times 1\text{U}$).
+   * Phím `\` ở cuối rộng $1.5\text{U}$ để vừa khít $15\text{U}$ ($1.5\text{U} + 12\text{U} + 1.5\text{U} = 15\text{U}$).
+3. **Hàng 3 (Hàng phím cơ sở - Home Row ASDF):**
+   * Bắt đầu bằng phím `Caps Lock` rộng **$1.75\text{U}$** $\rightarrow$ Độ rộng $1.75\text{U}$ đẩy phím `A` **thụt sâu hơn** phím `Q`.
+   * Tiếp theo là 11 phím: `A S D F G H J K L ; '` ($11 \times 1\text{U}$). Hai phím `F` và `J` có gờ định vị ngón trỏ.
+   * Kết thúc bằng phím `Enter` rộng **$2.25\text{U}$** khép kín mép phải ($1.75\text{U} + 11\text{U} + 2.25\text{U} = 15\text{U}$).
+4. **Hàng 4 (Hàng phím chữ dưới - Bottom Row ZXCV):**
+   * Bắt đầu bằng phím `Shift Trái` rộng **$2.25\text{U}$** $\rightarrow$ Độ rộng $2.25\text{U}$ đẩy phím `Z` **thụt sâu hơn** phím `A`.
+   * Tiếp theo là 10 phím: `Z X C V B N M , . /` ($10 \times 1\text{U}$).
+   * Kết thúc bằng phím `Shift Phải` rộng **$2.75\text{U}$** khép kín mép phải ($2.25\text{U} + 10\text{U} + 2.75\text{U} = 15\text{U}$).
+5. **Hàng 5 (Hàng phím chức năng đáy - Spacebar Row):**
+   * Cụm phím trái: `Ctrl` ($1.25\text{U}$), `Win` ($1.25\text{U}$), `Alt` ($1.25\text{U}$).
+   * Phím `Space (Phím Cách)` ở giữa: Rộng **$6.25\text{U}$**.
+   * Cụm phím phải: `Alt` ($1.25\text{U}$), `Win` ($1.25\text{U}$), `Menu` ($1.25\text{U}$), `Ctrl` ($1.25\text{U}$).
+   * Tổng cộng: $3 \times 1.25\text{U} + 6.25\text{U} + 4 \times 1.25\text{U} = 15\text{U}$.
+
+### 13.3 Canh Đều Tuyệt Đối 2 Mép Biên (Justified Flat Edges - 100% Width)
+* **CẤM:** Tuyệt đối không để bàn phím có mép trái hoặc mép phải bị thò thụt zíc zắc xộc xệch.
+* **Kỹ thuật CSS Flexbox tiêu chuẩn:**
+  * Mỗi hàng phím `.kb-row` sử dụng `display: flex; width: 100%; gap: 6px;`.
+  * Mỗi phím `.key` sử dụng `flex: var(--u, 1);` để tự động chia tỷ lệ chính xác và co giãn hoàn hảo theo độ phân giải màn hình.
+
+Mẫu CSS chuẩn:
+```css
+.virtual-keyboard {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 16px;
+    background: #1e293b;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.kb-row {
+    display: flex;
+    width: 100%;
+    gap: 6px;
+}
+
+.key {
+    position: relative;
+    flex: var(--u, 1);
+    height: 52px;
+    background: #334155;
+    color: #f8fafc;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    box-shadow: 0 3px 0 #0f172a;
+    user-select: none;
+    transition: all 0.1s ease;
+}
+
+.key.u-1-25 { --u: 1.25; }
+.key.u-1-5  { --u: 1.5; }
+.key.u-1-75 { --u: 1.75; }
+.key.u-2    { --u: 2; }
+.key.u-2-25 { --u: 2.25; }
+.key.u-2-75 { --u: 2.75; }
+.key.u-space{ --u: 6.25; }
+
+/* Hai phím có gờ định vị F & J */
+.key.has-bump::after {
+    content: '';
+    position: absolute;
+    bottom: 6px;
+    width: 12px;
+    height: 3px;
+    background: #94a3b8;
+    border-radius: 2px;
+}
+```
+
+---
+
+## 14. GIAO THỨC CẬP NHẬT QUY CHUẨN (LIVING DOCUMENT PROTOCOL)
 
 * Cả hai tài liệu **`AGENTS.md`** và **`STANDARDS.md`** đều là **Tài liệu sống (Living Documents)**.
 * Trong quá trình giảng dạy và phát triển bài giảng mới, khi Giáo viên phát hiện một quy tắc sư phạm mới, một mẹo hay hoặc muốn điều chỉnh bất kỳ thông số nào:

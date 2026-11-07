@@ -31,6 +31,10 @@ Mọi mã nguồn do AI sinh ra hoặc chỉnh sửa BẮT BUỘC phải tuân t
 * **Trang Ghi bài vào vở (Notebook Writing Slide / Slide đầu giờ):**
   * **Chữ phải đủ to:** Đảm bảo học sinh ngồi ở cuối lớp (khoảng cách 8–10m) nhìn rõ và chép kịp (Tựa bài $\ge 44\text{px} - 60\text{px}$, Thứ ngày $\ge 28\text{px} - 34\text{px}$, Nội dung ghi $\ge 30\text{px} - 38\text{px}$, in đậm từ khóa).
   * **Thiết kế tối giản, sạch sẽ:** Nền trắng tinh khiết (`#ffffff`), TUYỆT ĐỐI CẤM trang trí cầu kỳ, không kẻ hoa văn/ô ly rườm rà gây rối mắt khi chiếu máy chiếu mờ, không bóng đổ phức tạp. Chữ có thể tô màu để phân cấp rõ ràng (Thứ ngày màu xám/xanh dịu, Môn học xanh dương, Tên bài đỏ/đậm).
+  * **Ghi chép tối giản (Chắt lọc từ khóa quan trọng):** Sách giáo khoa đã có đầy đủ kiến thức. Học sinh tiểu học viết chữ rất chậm, nếu cho chép dài sẽ chiếm hết thời gian thực hành. Chỉ cho học sinh ghi những từ khóa cốt lõi nhất.
+  * **TUYỆT ĐỐI CẤM đặt Đồng hồ đếm ngược (Timer) khi học sinh chép bài:**
+    * Cấm ra lệnh kiểu: *"Các em có 3 phút chép bài"* kèm đồng hồ đếm ngược tích tắc trên màn hình.
+    * Tiếng chuông đếm ngược khiến học sinh hoảng loạn, cắm đầu chép vội chép vàng, nét chữ xấu và không đọng lại được kiến thức gì vào đầu. Hãy để học sinh chép với nhịp độ tự nhiên dưới sự quan sát của giáo viên.
   * **BẮT BUỘC có nút Chế độ Toàn Màn Hình (Fullscreen Toggle) — Chuẩn 1 nút Zoom / 1 nút Tắt duy nhất:**
     * **Khi bình thường:** Chỉ hiển thị **DUY NHẤT 1 NÚT ZOOM** `⛶ Chế độ toàn màn hình chép bài`. Nút tắt `✖ Thu nhỏ (Esc)` phải ẩn hoàn toàn (`display: none !important;`).
     * **Khi phóng to:** Khung ghi bài phóng to chiếm trọn 100% màn hình TV (`100vw x 100vh`), ẩn hoàn toàn sidebar và các thanh điều khiển gây phân tâm. Chỉ hiển thị **DUY NHẤT 1 NÚT TẮT** `✖ Thu nhỏ (Esc)` ghim ở góc trên bên phải màn hình. Nút Zoom ban đầu tự động ẩn đi (`display: none !important;`), TUYỆT ĐỐI CẤM đổi tên nút zoom thành nút tắt thứ hai gây thừa thãi lặp lại.
@@ -47,6 +51,11 @@ $$\text{Chờ (Waiting)} \xrightarrow{\text{Bốc thăm Gacha / Chọn}} \text{L
   * Gacha bản chất là thao tác chọn (select) ngẫu nhiên một em và **bật Pop-up siêu to (Giant Modal)** lên màn chiếu để cả lớp cùng thấy và hào hứng.
   * **KHÔNG tạo thêm nút "Đổi em khác" rườm rà:** Nếu học sinh được gọi vắng mặt, chưa sẵn sàng, hoặc chưa thuộc tổ đang đến lượt: Giáo viên chỉ cần **bấm lại nút Gacha** để hệ thống quay tiếp ra tên em khác.
   * Việc bấm Gacha nhiều lần không làm mất lượt của học sinh. Học sinh chỉ chính thức chuyển sang danh sách **Đã hoàn thành (Done)** và ghi nhận vào lịch sử / CSV khi đã **nhập đáp án, tấn công, hoàn thành bài, hoặc giáo viên bấm Xác nhận**.
+* **BẮT BUỘC Có Ô Chọn Học Sinh + Gacha Ở MỌI Phân Đoạn Có Phát Biểu:**
+  * Bất cứ chỗ nào trong tiết học cần học sinh giơ tay phát biểu (Khởi động, Khám phá kiến thức, Vấn đáp gợi mở, Chốt bài hay Game): **LUÔN PHẢI CÓ Ô CHỌN TÊN HỌC SINH + NÚT GACHA** để giáo viên chủ động chọn đúng em hoặc quay ngẫu nhiên.
+* **Phân Tách Rạch Ròi: Log Telemetry Cá Nhân vs Điểm Số Thi Đua Của Tổ:**
+  * **1. Khi phát biểu tự do (Khởi động, Khám phá, Vấn đáp giữa giờ, Chốt bài):** Thao tác chọn học sinh **CHỈ DÙNG ĐỂ GHI NHẬN (LOG) DỮ LIỆU CÁ NHÂN** (ghi nhận em đó đã tham gia, đúng/sai, xếp loại TT27 để xuất CSV cuối tiết). **TUYỆT ĐỐI KHÔNG tự động cộng/trừ điểm vào Tổ** để tránh làm loãng hoặc mất cân bằng bảng điểm thi đua.
+  * **2. Chỉ khi bước vào VÒNG ĐẤU GAME / THỬ THÁCH CHÍNH THỨC:** Điểm số câu trả lời mới được kích hoạt cộng/trừ vào điểm số của Tổ thi đua!
 * **Ứng dụng linh hoạt theo chế độ:**
   * **Chế độ Toàn lớp / Cá nhân:** Bấm Gacha để quay ngẫu nhiên cả lớp, ưu tiên em chưa tham gia.
   * **Chế độ Thi đua Theo Tổ:** Vẫn cho dùng Gacha bình thường. Giáo viên bấm nút Gacha liên tục cho đến khi quay trúng tên một em thuộc Tổ đang tới lượt thì dừng lại và chốt em đó lên bảng.
@@ -138,6 +147,10 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 
 ### 14. Màn Hình Chốt Kiến Thức / Ghi Nhớ Cuối Tiết (Summary Screen before Leaderboard)
 * **Vị trí bắt buộc:** Cuối bất cứ tiết học nào, **ngay trước slide Bảng vàng vinh danh**, BẮT BUỘC có một màn hình để chốt lại những kiến thức trọng tâm đã học của tiết đó (kiểu "Em ghi nhớ" / "Chốt kiến thức").
+* **Quy trình Sư phạm 5 Phút Vàng Cuối Tiết (Active Recall & Consolidation Flow):**
+  * **Bắt buộc dành trọn 5 phút cuối tiết** cho khâu củng cố, tuyệt đối không dạy lấn giờ hoặc cắt xén phần này.
+  * **Học sinh tự nhớ lại trước (Active Recall) $\rightarrow$ Giáo viên bổ sung & Chốt lại sau:** Giáo viên đặt câu hỏi gợi mở để học sinh tự tóm tắt lại 2–3 bài học/kỹ năng quan trọng nhất hôm nay (ví dụ: *"Hôm nay chúng mình đã khám phá được những bí kíp quan trọng nào?"*). Chỉ khi học sinh tự nói ra và các bạn cùng lớp bổ sung đầy đủ, giáo viên mới bấm mở các thẻ tóm tắt trên slide để khắc sâu kiến thức.
+  * **Đủ câu hỏi lấy điểm công bằng cho TẤT CẢ các tổ:** Nếu khâu chốt kiến thức có phần câu hỏi củng cố / ghi nhớ lấy điểm thi đua, **BẮT BUỘC phải thiết kế đủ số lượng câu hỏi/lượt củng cố cho TẤT CẢ các tổ đang chơi** (ví dụ lớp có 4 tổ thì có tối thiểu 4 câu hoặc mỗi tổ 1 lượt), đảm bảo mọi tổ đều có cơ hội ghi điểm công bằng trước khi tổng kết bảng vàng vinh danh.
 * **Nguyên tắc thiết kế:**
   * Design đơn giản, nền sạch sẽ, ít chữ, chữ rất lớn (nhìn rõ từ xa 8–10m).
   * Bố cục lưới thẻ trực quan: Chia thành **2, 3 hoặc 4 card** (`.summary-card-grid.grid-2`, `.grid-3`, `.grid-4`) tùy thuộc số lượng ý trọng tâm cần nhớ của bài.
@@ -213,6 +226,49 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
     * Tự động lưu giá trị mới vào `localStorage` ngay lập tức để bảo vệ dữ liệu nếu cúp điện.
     * Đồng bộ số liệu chính xác vào dữ liệu xuất file CSV cuối tiết.
 
+### 18. Khung Kiến Trúc Sư Phạm & Thiết Kế Trải Nghiệm Học Sinh Tiểu Học (Universal Primary Pedagogy & UX - Khối 1 đến Khối 5)
+Áp dụng cho 100% tiết học ở tất cả các chủ đề (Lý thuyết, Phần cứng, Luyện kỹ năng, Ứng dụng văn phòng, Lập trình Scratch, Đồ họa, An toàn số):
+
+* **1. Khâu Khởi động & Tạo tâm thế (The Hook / Lead-in) — CẤM vào bài trực diện:**
+  * **Mục đích:** Kích hoạt trí tò mò tự nhiên và tâm thế chủ động của học sinh trước khi tiếp cận tri thức mới.
+  * **Quy chuẩn:** Mọi bài học bắt buộc khởi đầu bằng 1 tình huống có vấn đề trong đời sống, câu chuyện/nhân vật dẫn dắt, hình ảnh so sánh đối lập, câu đố gợi mở hoặc minigame ngắn để học sinh *tự khám phá và tự phát biểu mục tiêu bài học*. Cấm tuyệt đối mở đầu áp đặt một chiều: *"Hôm nay chúng ta học bài..."*.
+* **2. Cầu nối Chuyển tiếp Sư phạm (Seamless Pedagogical Transitions):**
+  * **Mục đích:** Đảm bảo tính mạch lạc, liền mạch và phát triển nhận thức tự nhiên của học sinh tiểu học.
+  * **Quy chuẩn:** Giữa các chặng/hoạt động (từ Khám phá sang Luyện tập, từ Thao tác sang Vận dụng, từ Lý thuyết sang Thực hành), kịch bản slide và lời dẫn giáo viên bắt buộc có **câu nối mang tính nhân quả/logic sư phạm**. Tuyệt đối không chuyển slide đột ngột khiến học sinh bị hẫng và đứt mạch tư duy.
+* **3. Nguyên lý Trực quan hóa Khái niệm & Kỹ năng (Concrete over Abstract):**
+  * **Mục đích:** Phù hợp với đặc điểm tâm lý lứa tuổi tiểu học (giai đoạn tư duy thao tác cụ thể — Jean Piaget).
+  * **Quy chuẩn:**
+    * **Cấm:** Không dùng các thông số kỹ thuật khô khan, số đo cơ học trừu tượng, hay định nghĩa mang tính giáo điều hàn lâm.
+    * **Giải pháp chuyển thể:**
+      * *Khái niệm trừu tượng:* Cụ thể hóa bằng phép ẩn dụ đời sống quen thuộc (ví dụ: Thư mục như ngăn kéo tủ, Dung lượng như bình chứa nước, Thuật toán như công thức làm bánh, Mạng Internet như mạng lưới đường giao thông).
+      * *Kỹ năng & Thao tác vật lý:* Cụ thể hóa bằng vật thể trực quan (thước đo cơ thể như sải tay/gang tay thay vì số đo cm; mã màu/nhãn dán thị giác trên phím và thiết bị thay vì chỉ gọi tên; làm mẫu trực quan hành vi đúng/sai để học sinh tự so sánh).
+* **4. Nguyên tắc Kết hợp Đa phương tiện & Sách giáo khoa (Multimodal SGK Scaffolding):**
+  * **Mục đích:** Khắc phục rào cản phòng máy (màn hình xa, lóa sáng) và rèn thói quen sử dụng tài liệu học tập chuẩn.
+  * **Quy chuẩn:** Slide màn chiếu đóng vai trò trực quan hóa và gamification, không thay thế hoàn toàn SGK. Khi xuất hiện sơ đồ chi tiết, hình ảnh giải phẫu, văn bản dài hoặc bài thực hành: Slide luôn có badge đối chiếu rõ ràng: `📖 Xem Hình X - Trang Y (SGK)` để học sinh kết hợp nhịp nhàng giữa màn chiếu lớn và sách in trên bàn.
+* **5. Khai thác Tài nguyên Lớp học & Tương tác 100% Đồng loạt (Ưu tiên / Khuyến khích):**
+  * **Mục đích:** Triệt tiêu hoàn toàn mô hình thụ động "1 em được gọi trả lời, cả lớp ngồi nhìn/mất trật tự".
+  * **Tính chất:** **ƯU TIÊN & KHUYẾN KHÍCH (Tùy điều kiện thực tế của từng phòng máy / lớp học — KHÔNG bắt buộc cứng nhắc):**
+    * *Khi lớp có sẵn đồ dùng:* Khai thác bộ hoa xoay trắc nghiệm ABCD, bảng con, thẻ tín hiệu... để 100% học sinh cùng tư duy và giơ đáp án đồng loạt, giúp giáo viên nắm bắt tỷ lệ hiểu bài của cả lớp chỉ trong 3 giây.
+    * *Khi lớp không có đồ dùng:* Giáo viên linh hoạt thay thế bằng hình thức giơ tay, hô đáp án đồng thanh hoặc tương tác trực tiếp qua slide mà không bị gò bó.
+    * *Khuếch đại trực quan (nếu có thiết bị):* Tận dụng Đèn chiếu vật thể hoặc chia sẻ màn hình máy chủ để chiếu phóng to các thao tác mẫu tinh vi (cầm nắm thiết bị, phím tắt, linh kiện phần cứng, sản phẩm vẽ/Scratch/soạn thảo).
+* **6. Nghệ thuật Khẩu lệnh Sư phạm Dứt khoát (Decisive Classroom Directives):**
+  * **Mục đích:** Thiết lập kỷ luật tích cực và sự tập trung cao độ trong phòng máy.
+  * **Quy chuẩn:** Giáo viên là người làm chủ và điều phối nhịp độ. Khẩu lệnh đưa ra phải ngắn gọn, mang tính định hướng hành động dứt khoát (*"Hành động + Đối tượng + Thời điểm"*). Tuyệt đối tránh các câu hỏi đuôi do dự, hỏi ngược nước đôi ("phải không?"). Nội dung hiển thị trên slide phải là các câu khẳng định chuẩn xác, truyền cảm hứng.
+
+### 19. Quy Chuẩn Dàn Dựng Bàn Phím Máy Tính Ảo Chuẩn Công Thái Học (Realistic ANSI Keyboard Layout)
+* **Phạm vi áp dụng:** Bất kỳ bài học nào (đặc biệt Khối 1, 2, 3 làm quen bàn phím, gõ 10 ngón, nhận diện các hàng phím) hoặc mini-game luyện gõ phím có giao diện bàn phím mô phỏng trên HTML/CSS.
+* **1. ĐÚNG CHUẨN ĐỘ THỤT HÀNG THỰC TẾ (Standard Key Staggering):**
+  * TUYỆT ĐỐI CẤM xếp các phím thẳng tưng như bảng tính Excel hoặc lộn xộn khiến học sinh hiểu sai cấu tạo bàn phím thật.
+  * Các hàng phím BẮT BUỘC phải thụt lùi chuẩn xác theo công thái học bàn phím vật lý tiêu chuẩn (ANSI):
+    * **Hàng 1 (Hàng phím số):** Bắt đầu bằng `~`, `1` đến `0`, `-`, `=`, kết thúc bằng phím `Backspace` rộng ($2\text{U}$).
+    * **Hàng 2 (Hàng phím chữ trên - QWERTY):** Bắt đầu bằng phím `Tab` rộng ($1.5\text{U}$) $\rightarrow$ đẩy phím `Q` **thụt vào trong** so với phím `1`.
+    * **Hàng 3 (Hàng phím cơ sở - Home Row ASDF):** Bắt đầu bằng phím `Caps Lock` rộng ($1.75\text{U}$) $\rightarrow$ đẩy phím `A` **thụt sâu hơn** phím `Q`. Phím `Enter` lớn ($2.25\text{U}$) ở cuối hàng.
+    * **Hàng 4 (Hàng phím chữ dưới - Bottom Row ZXCV):** Bắt đầu bằng phím `Shift Trái` rộng ($2.25\text{U}$) $\rightarrow$ đẩy phím `Z` **thụt sâu hơn** phím `A`. Phím `Shift Phải` lớn ($2.75\text{U}$) ở cuối hàng.
+    * **Hàng 5 (Hàng phím chức năng đáy - Spacebar):** Bắt đầu bằng `Ctrl` ($1.25\text{U}$), `Win` ($1.25\text{U}$), `Alt` ($1.25\text{U}$), phím `Space` dài ở giữa ($6.25\text{U}$), khép lại bằng `Alt`, `Win`, `Menu`, `Ctrl`.
+* **2. CANH ĐỀU TUYỆT ĐỐI 2 BÊN MÉP (Justified Flat Edges - 100% Width):**
+  * **CẤM:** Không được để mép ngoài của các hàng phím thò thụt, lồi lõm xộc xệch kỳ lạ.
+  * **Quy chuẩn CSS:** Mỗi hàng phím (`.kb-row`) phải có tổng tỷ lệ phím tương đương chính xác 15 units ($15\text{U}$) và luôn chiếm trọn `width: 100%` (dùng Flexbox với `flex: var(--u, 1)` hoặc CSS Grid tỷ lệ). Mép trái thẳng tắp và mép phải phẳng tắp 100%!
+
 ---
 
 ## 🛠️ 2. QUY TRÌNH 5 BƯỚC KHI TẠO HOẶC CHỈNH SỬA TIẾT HỌC MỚI
@@ -226,13 +282,15 @@ Khi nhận được yêu cầu viết tiết học mới từ người dùng (v�
 3. **Bước 3 — Nạp Dữ liệu Học sinh & Thiết lập Chế độ:**
    * Trỏ đúng file JSON `../../assets/data/students_{khoi}_2026_2027.json`.
    * Xác định tiết này là **Chế độ Toàn lớp cá nhân** (gacha tự động, bật full telemetry) hay **Chế độ Đấu theo tổ** (chọn tên thủ công, ghi log sư phạm).
+   * **Bố trí Widget chọn học sinh:** Bất kỳ slide/hoạt động nào có học sinh phát biểu đều bố trí dropdown chọn tên + nút Gacha (chỉ log telemetry, không cộng điểm tổ khi phát biểu tự do; chỉ cộng điểm khi vào game chính thức).
    * **Nếu tiết học có tính điểm:** Khởi tạo điểm sàn mặc định `STARTING_SCORE = 1000` và tích hợp hàm tính thứ hạng xử lý đồng hạng (`calculateRankings`). Đồng thời cung cấp công cụ sửa điểm/chuỗi streak khi bấm nhầm.
    * **Tự động lưu LocalStorage & Nút Clear:** Thiết lập cơ chế tự động lưu trạng thái (Auto-Save) vào LocalStorage với key chuẩn để phục hồi sau khi cúp điện, kèm nút Xóa dữ liệu phiên có xác nhận `confirm()`.
    * **Quests & Câu hỏi:** Đặt toàn bộ ngân hàng câu hỏi/vụ án vào `quests.json` (kèm `quests.js` cho offline `file://`), không hardcode vào HTML.
-4. **Bước 4 — Thiết kế Nội dung Slide, Ghi bài chặng & Chốt kiến thức:**
-   * Slide ghi bài: Nền trắng tinh khiết, chữ siêu to, có nút phóng to 100% toàn màn hình (`⛶`).
-   * Các slide khám phá/trò chơi: Nội dung sinh động, chia thẻ ghi nhớ ngắn gọn ở cuối mỗi phần.
-   * Slide chốt kiến thức: Bắt buộc đặt ngay trước Slide Bảng vàng vinh danh (thiết kế 2-3-4 card to, rõ, ít chữ).
+4. **Bước 4 — Thiết kế Flow Bài Dạy Sư Phạm & Ghi Bài Chặng:**
+   * **Khởi động (Hook Slide):** Bắt đầu bằng tình huống/câu đố gợi mở, không áp đặt dạy bài mới ngay.
+   * **Slide ghi bài đầu giờ:** Nền trắng tinh khiết, chữ siêu to, có nút phóng to 100% toàn màn hình (`⛶`), KHÔNG đặt đồng hồ đếm ngược (Timer), nội dung ghi tối giản chắt lọc từ khóa.
+   * **Hoạt động Khám phá & Thực hành:** Có câu chuyển tiếp mượt mà giữa các chặng, có badge đối chiếu `📖 Hình X - Trang Y SGK`, chuyển hóa khái niệm/kỹ năng thành hình ảnh trực quan đời sống. Nếu có bàn phím ảo phải canh đều 2 mép và thụt hàng ANSI chuẩn. Chia thẻ ghi nhớ ngắn gọn ở cuối mỗi hoạt động.
+   * **Chốt kiến thức 5 phút cuối:** Bắt buộc đặt ngay trước Slide Bảng vàng vinh danh (thiết kế 2-3-4 card to, rõ, ít chữ; quy trình Active Recall: học sinh tự nhớ lại trước, giáo viên bổ sung sau; thiết kế đủ câu hỏi cho tất cả các tổ tham gia thi đua).
 5. **Bước 5 — Tích hợp Xuất Báo cáo CSV:**
    * Gắn nút xuất CSV / Đồng bộ Drive ở màn hình tổng kết sử dụng `window.LessonExport` hoặc `window.uploadCsvToDrive` (đảm bảo bảng xếp hạng thể hiện đúng cơ chế đồng hạng).
 
@@ -244,8 +302,16 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Không có link CDN bên ngoài nào (`cdnjs`, `jsdelivr`, `unpkg`,...) trong mã nguồn?
 - [ ] Đã nhúng `prevent-reload.js` và `core.js` chưa?
 - [ ] Font chữ có đúng chuẩn của Khối đó không?
+- [ ] Mọi chỗ có học sinh phát biểu đều có ô chọn học sinh + nút Gacha chưa? (Chỉ log telemetry, không cộng điểm tổ khi phát biểu tự do)
+- [ ] Có Slide khởi động (Hook) khơi gợi tò mò đầu giờ chưa? (Không mở đầu áp đặt một chiều)
+- [ ] Có câu chuyển tiếp logic, mượt mà giữa các hoạt động/chặng trong bài chưa?
 - [ ] Trang ghi bài vào vở có nền trắng tinh khiết, chữ đủ to cho học sinh cuối lớp và có nút toàn màn hình (`⛶`) không?
-- [ ] Trước bảng vinh danh đã có slide chốt kiến thức / ghi nhớ (2-3-4 card, ít chữ, chữ lớn) chưa?
+- [ ] TUYỆT ĐỐI KHÔNG có đồng hồ đếm ngược (Timer) ở phần chép bài? Nội dung chép có chắt lọc từ khóa tối giản chưa?
+- [ ] Có badge đối chiếu tài liệu Sách giáo khoa (`📖 SGK Trang...`) ở các nội dung chi tiết không?
+- [ ] Khái niệm trừu tượng/kỹ năng có được trực quan hóa gần gũi với lứa tuổi (so sánh đời sống, mã màu, làm mẫu) thay vì số liệu khô khan không?
+- [ ] Nếu có bàn phím ảo: Đã canh đều phẳng 2 bên mép và đúng độ thụt hàng công thái học ANSI (Q thụt so với 1, A thụt so với Q, Z thụt so với A) chưa?
+- [ ] Khẩu lệnh và lời dẫn sư phạm có dứt khoát, mang tính định hướng hành động rõ ràng không? (Không hỏi ngược nước đôi)
+- [ ] Trước bảng vinh danh đã có slide chốt kiến thức / ghi nhớ (2-3-4 card, ít chữ, chữ lớn, dành trọn 5 phút cuối cho học sinh Active Recall) chưa? Có đủ câu hỏi củng cố cho tất cả các tổ tham gia không?
 - [ ] Toàn bộ quests / câu hỏi đã được tách ra file `quests.json` (kèm `quests.js` offline) bên cạnh, không tích hợp vào HTML chưa?
 - [ ] Logic gọi tên có đảm bảo nguyên tắc: *Trả lời xong mới tính là hoàn thành* (Picked ≠ Done)?
 - [ ] Cảm biến đo thao tác (Telemetry) có đặt đúng ngữ cảnh (chỉ bật khi học sinh trực tiếp bấm máy)?

@@ -80,3 +80,27 @@ Phòng máy tính tiểu học thường xuyên gặp sự cố cúp điện đ�
 1. **Sửa nhanh tại chỗ (Click-to-Edit)**: Nhấp trực tiếp vào số điểm hoặc chuỗi dây streak để nhập con số mong muốn.
 2. **Bộ nút tăng/giảm nhanh**: Các nút `+50`, `+100`, `-50`, `-100` và nút reset về sàn 1000đ.
 3. **Đồng bộ tự động tức thì**: Bảng xếp hạng (Rank, Đồng hạng Tie-Ranking), LocalStorage và báo cáo CSV tự động tính toán lại ngay khi điểm số được điều chỉnh.
+
+---
+
+## 🎓 Khung Kiến Trúc Sư Phạm & Trải Nghiệm Học Sinh Tiểu Học (Universal Primary Pedagogy & UX)
+
+Áp dụng đồng bộ cho toàn bộ 5 khối (Khối 1 đến Khối 5) và 100% chủ đề bài học:
+1. **Flow bài dạy 4 pha chuẩn mực**:
+   - **Pha 1 — Khởi động & Tạo tâm thế (The Hook)**: Bắt đầu bằng tình huống có vấn đề, câu chuyện, câu đố hoặc minigame ngắn để học sinh *tự khám phá và phát biểu mục tiêu bài*, tuyệt đối không áp đặt lý thuyết ngay đầu giờ.
+   - **Pha 2 & 3 — Khám phá & Thực hành có Chuyển tiếp mượt mà (Transitions)**: Bắt buộc có câu nối mang tính nhân quả/logic giữa các chặng bài học, duy trì dòng chảy nhận thức tự nhiên của trẻ.
+   - **Pha 4 — Chốt kiến thức 5 phút cuối (Active Recall)**: Dành trọn 5 phút cuối tiết để học sinh tự nhớ lại và nói ra các bài học cốt lõi trước, giáo viên bổ sung và chốt thẻ ghi nhớ trước khi vinh danh. Luôn chuẩn bị đủ số lượng câu hỏi/lượt củng cố cho **TẤT CẢ các tổ đang chơi** để đảm bảo công bằng điểm số.
+2. **Ghi chép tối giản nhận thức & CẤM Timer khi chép bài**:
+   - Chỉ chép các từ khóa/công thức hành động cốt lõi nhất (sách giáo khoa đã in đầy đủ).
+   - **TUYỆT ĐỐI CẤM** đặt đồng hồ đếm ngược (Timer) khi học sinh chép bài để tránh ức chế tâm lý và hoảng loạn.
+   - Khung chép bài nền trắng tinh khiết, chữ siêu to, chuẩn 1 nút Zoom / 1 nút Tắt duy nhất.
+3. **Nguyên lý Trực quan hóa (Concrete over Abstract) & Đối chiếu SGK**:
+   - Cụ thể hóa mọi khái niệm trừu tượng thành ẩn dụ đời sống quen thuộc (thư mục như ngăn kéo, thuật toán như công thức bánh...); cụ thể hóa thao tác vật lý bằng so sánh cơ thể và mã màu thị giác, tránh dùng số liệu cơ học khô khan.
+   - Luôn gắn badge đối chiếu tài liệu `📖 Xem Hình X - Trang Y (SGK)` ở các nội dung chi tiết để học sinh kết hợp màn chiếu lớn và sách in trên bàn.
+4. **Tương tác, Widget Gọi tên & Khẩu lệnh Sư phạm Dứt khoát**:
+   - **Widget chọn học sinh ở MỌI vị trí phát biểu:** Bố trí ô chọn tên + nút Gacha ở mọi hoạt động. Phân định rõ: phát biểu tự do chỉ log Telemetry cá nhân (không cộng điểm tổ); chỉ khi vào Game/Đấu trường chính thức mới tính điểm vào Tổ thi đua.
+   - **Đồ dùng học tập (DCHT):** Ưu tiên khuyến khích khai thác khi phòng máy có sẵn (hoa xoay ABCD, bảng con...); linh hoạt thay thế nếu lớp không có.
+   - **Khẩu lệnh giáo viên rõ ràng, dứt khoát** (*"Hành động + Đối tượng + Thời điểm"*); cấm câu hỏi ngược do dự ("phải không?").
+5. **Dàn dựng Bàn phím Máy tính Ảo Chuẩn Công Thái Học (Realistic ANSI Layout)**:
+   - Khi dựng bàn phím trên HTML/CSS: Bắt buộc đúng chuẩn độ thụt lùi hàng thực tế (Q thụt so với 1, A thụt so với Q, Z thụt so với A).
+   - Canh đều tuyệt đối 2 bên mép (mép trái phẳng tắp, mép phải phẳng tắp 100%, tỷ lệ tổng $15\text{U}$ mỗi hàng).
