@@ -20,8 +20,92 @@ window.QUESTS_DATA = [
   {
     "id": "q2",
     "type": "choice",
+    "badge": "⌨️ 4 KHU VỰC PHÍM",
+    "title": "Bàn phím máy tính đầy đủ (Full layout) thường được chia thành mấy khu vực phím chức năng?",
+    "options": [
+      { "id": "A", "text": "2 khu vực", "correct": false },
+      { "id": "B", "text": "3 khu vực", "correct": false },
+      { "id": "C", "text": "4 khu vực (Phím chức năng, Khu vực chính, Phím điều khiển, Phím số)", "correct": true },
+      { "id": "D", "text": "6 khu vực", "correct": false }
+    ],
+    "hint": "Gồm: Phím chức năng, Khu vực chính, Phím điều hướng/điều khiển và Khu vực phím số!",
+    "explain": "Đáp án đúng là C: Bàn phím máy tính đầy đủ được chia làm 4 khu vực phím chính."
+  },
+  {
+    "id": "q3",
+    "type": "choice",
+    "badge": "⚡ KHU VỰC PHÍM CHỨC NĂNG",
+    "title": "Phím Esc, dãy phím từ F1 đến F12 cùng các phím Print Screen, Scroll Lock, Pause Break thuộc khu vực nào?",
+    "options": [
+      { "id": "A", "text": "Khu vực phím chức năng (Function keys)", "correct": true },
+      { "id": "B", "text": "Khu vực phím số (Numeric keypad)", "correct": false },
+      { "id": "C", "text": "Khu vực phím điều khiển (Navigation keys)", "correct": false },
+      { "id": "D", "text": "Khu vực phím cơ sở", "correct": false }
+    ],
+    "hint": "Các phím F1, F2... đến F12 nằm ở hàng trên cùng của bàn phím!",
+    "explain": "Đáp án đúng là A: Dãy phím F1 - F12 và phím Esc thuộc Khu vực phím chức năng."
+  },
+  {
+    "id": "q4",
+    "type": "choice",
+    "badge": "🔤 KHU VỰC CHÍNH",
+    "title": "Khu vực nào trên bàn phím được sử dụng NHIỀU NHẤT để soạn thảo văn bản, nhập liệu chữ viết và ký hiệu?",
+    "options": [
+      { "id": "A", "text": "Khu vực phím số", "correct": false },
+      { "id": "B", "text": "Khu vực phím cơ sở / Khu vực chính (Alphanumeric keys)", "correct": true },
+      { "id": "C", "text": "Khu vực phím chức năng", "correct": false },
+      { "id": "D", "text": "Khu vực phím điều hướng", "correct": false }
+    ],
+    "hint": "Khu vực này có diện tích lớn nhất, chứa toàn bộ các chữ cái A - Z và các chữ số 0 - 9!",
+    "explain": "Đáp án đúng là B: Khu vực phím cơ sở / Khu vực chính là nơi em dùng nhiều nhất để gõ văn bản."
+  },
+  {
+    "id": "q5",
+    "type": "choice",
+    "badge": "🧭 KHU VỰC ĐIỀU KHIỂN & ĐIỀU HƯỚNG",
+    "title": "Cụm 4 phím mũi tên (Lên, Xuống, Trái, Phải) và các phím Insert, Delete, Home, End... có chức năng chính là gì?",
+    "options": [
+      { "id": "A", "text": "Dùng để gõ chữ in hoa", "correct": false },
+      { "id": "B", "text": "Dùng để di chuyển con trỏ soạn thảo, cuộn trang web hoặc điều khiển nhân vật chơi game", "correct": true },
+      { "id": "C", "text": "Dùng để tắt nguồn điện máy tính", "correct": false },
+      { "id": "D", "text": "Dùng để tính toán cộng trừ nhân chia", "correct": false }
+    ],
+    "hint": "Các phím mũi tên giúp em lái con trỏ chạy lên chạy xuống trong trang văn bản!",
+    "explain": "Đáp án đúng là B: Khu vực phím điều hướng dùng để di chuyển con trỏ soạn thảo hoặc điều khiển trong trò chơi."
+  },
+  {
+    "id": "q6",
+    "type": "choice",
+    "badge": "🔢 KHU VỰC PHÍM SỐ",
+    "title": "Khu vực phím số (Numeric keypad) có phím bật/tắt Num Lock được bố trí tương tự thiết bị nào?",
+    "options": [
+      { "id": "A", "text": "Máy nghe nhạc", "correct": false },
+      { "id": "B", "text": "Bàn phím điện thoại bàn cổ", "correct": false },
+      { "id": "C", "text": "Máy tính cầm tay (Calculator / Casio)", "correct": true },
+      { "id": "D", "text": "Đồng hồ đeo tay", "correct": false }
+    ],
+    "hint": "Thiết bị dùng để tính toán cộng, trừ, nhân, chia bằng một tay rất nhanh!",
+    "explain": "Đáp án đúng là C: Khu vực phím số bố trí giống máy tính cầm tay giúp nhập số và tính toán bằng một tay."
+  },
+  {
+    "id": "q7",
+    "type": "choice",
+    "badge": "🗺️ BẢN ĐỒ KHU VỰC CHÍNH",
+    "title": "Khu vực chính của bàn phím máy tính gồm có mấy hàng phím?",
+    "options": [
+      { "id": "A", "text": "3 hàng phím", "correct": false },
+      { "id": "B", "text": "4 hàng phím", "correct": false },
+      { "id": "C", "text": "5 hàng phím (Hàng số, hàng trên, hàng cơ sở, hàng dưới, hàng phím cách)", "correct": true },
+      { "id": "D", "text": "6 hàng phím", "correct": false }
+    ],
+    "hint": "Đếm từ trên xuống: Hàng số, Hàng trên, Hàng cơ sở, Hàng dưới, Hàng phím cách!",
+    "explain": "Đáp án đúng là C: Khu vực chính gồm 5 hàng phím."
+  },
+  {
+    "id": "q8",
+    "type": "choice",
     "badge": "📍 SGK TRANG 26 - CÂU HỎI CỦNG CỐ",
-    "title": "Hai phím đặc biệt F và J có gờ nổi thuộc hàng phím nào trên bàn phím?",
+    "title": "Hai phím đặc biệt F và J có gờ nổi mốc thuộc hàng phím nào trên bàn phím?",
     "options": [
       { "id": "A", "text": "Hàng phím trên", "correct": false },
       { "id": "B", "text": "Hàng phím cơ sở", "correct": true },
@@ -29,66 +113,24 @@ window.QUESTS_DATA = [
       { "id": "D", "text": "Hàng phím số", "correct": false }
     ],
     "hint": "Hàng phím này nằm ở chính giữa, là nơi đặt các ngón tay ở vị trí xuất phát!",
-    "explain": "Đáp án B: Hai phím F và J là hai phím có gờ nằm trên hàng phím cơ sở."
+    "explain": "Đáp án đúng là B: Hai phím F và J là hai phím có gờ nổi nằm trên hàng phím cơ sở."
   },
   {
-    "id": "q3",
-    "type": "choice",
-    "badge": "📍 SGK TRANG 26 - QUY TẮC VÀNG",
-    "title": "Khi gõ xong một phím bất kỳ, các ngón tay của em phải đưa về hàng phím nào?",
-    "options": [
-      { "id": "A", "text": "Hàng phím trên", "correct": false },
-      { "id": "B", "text": "Hàng phím cơ sở (vị trí xuất phát)", "correct": true },
-      { "id": "C", "text": "Hàng phím dưới", "correct": false },
-      { "id": "D", "text": "Nhấc hẳn tay ra khỏi bàn phím", "correct": false }
-    ],
-    "hint": "Căn cứ địa xuất phát chính là nơi ngón tay luôn quay về nghỉ ngơi!",
-    "explain": "Đáp án B: Mỗi khi gõ xong, em phải đưa ngón tay về vị trí xuất phát trên hàng phím cơ sở."
-  },
-  {
-    "id": "q4",
-    "type": "choice",
-    "badge": "🖐️ PHÂN CÔNG 10 NGÓN TAY",
-    "title": "Hai ngón tay nào dùng để đặt và bấm phím Dấu Cách (Space - phím dài nhất)?",
-    "options": [
-      { "id": "A", "text": "Hai ngón út", "correct": false },
-      { "id": "B", "text": "Hai ngón trỏ", "correct": false },
-      { "id": "C", "text": "Hai ngón cái", "correct": true },
-      { "id": "D", "text": "Hai ngón giữa", "correct": false }
-    ],
-    "hint": "Hai ngón to và ngắn nhất ở phía dưới bàn tay!",
-    "explain": "Đáp án C: Hai ngón cái phụ trách phím dấu cách (Space)."
-  },
-  {
-    "id": "q5",
-    "type": "choice",
-    "badge": "🗺️ BẢN ĐỒ KHU VỰC CHÍNH",
-    "title": "Khu vực chính của bàn phím máy tính gồm có mấy hàng phím?",
-    "options": [
-      { "id": "A", "text": "3 hàng phím", "correct": false },
-      { "id": "B", "text": "4 hàng phím", "correct": false },
-      { "id": "C", "text": "5 hàng phím", "correct": true },
-      { "id": "D", "text": "6 hàng phím", "correct": false }
-    ],
-    "hint": "Đếm từ trên xuống: Hàng số, Hàng trên, Hàng cơ sở, Hàng dưới, Hàng phím cách!",
-    "explain": "Đáp án C: Khu vực chính gồm 5 hàng phím."
-  },
-  {
-    "id": "q6",
+    "id": "q9",
     "type": "choice",
     "badge": "🔍 NHẬN DIỆN PHÍM CƠ SỞ",
-    "title": "Các phím nào sau đây CÙNG THUỘC hàng phím cơ sở?",
+    "title": "Dãy phím nào sau đây CÙNG THUỘC hàng phím cơ sở?",
     "options": [
-      { "id": "A", "text": "Q, W, E, R, T", "correct": false },
+      { "id": "A", "text": "Q, W, E, R, T, Y", "correct": false },
       { "id": "B", "text": "A, S, D, F, G, H, J, K, L, ;", "correct": true },
       { "id": "C", "text": "Z, X, C, V, B, N, M", "correct": false },
       { "id": "D", "text": "1, 2, 3, 4, 5, 6, 7, 8, 9, 0", "correct": false }
     ],
-    "hint": "Hàng phím chứa hai phím có gờ F và J!",
-    "explain": "Đáp án B: Dãy A S D F G H J K L ; thuộc hàng phím cơ sở."
+    "hint": "Hàng phím chứa hai phím mốc có gờ là F và J!",
+    "explain": "Đáp án đúng là B: Dãy A, S, D, F, G, H, J, K, L, ; thuộc hàng phím cơ sở."
   },
   {
-    "id": "q7",
+    "id": "q10",
     "type": "choice",
     "badge": "🖐️ VỊ TRÍ XUẤT PHÁT",
     "title": "Ở vị trí xuất phát, ngón trỏ bàn tay TRÁI và ngón trỏ bàn tay PHẢI đặt lên phím nào?",
@@ -98,39 +140,53 @@ window.QUESTS_DATA = [
       { "id": "C", "text": "Ngón trỏ trái đặt phím F, ngón trỏ phải đặt phím J", "correct": true },
       { "id": "D", "text": "Ngón trỏ trái đặt phím G, ngón trỏ phải đặt phím H", "correct": false }
     ],
-    "hint": "Hai phím này có gờ nổi để em nhận biết mà không cần nhìn bàn phím!",
-    "explain": "Đáp án C: Ngón trỏ trái đặt phím F, ngón trỏ phải đặt phím J."
+    "hint": "Hai phím này có gờ nổi giúp em nhận biết bằng xúc giác mà không cần nhìn!",
+    "explain": "Đáp án đúng là C: Ngón trỏ trái đặt phím F, ngón trỏ phải đặt phím J."
   },
   {
-    "id": "q8",
+    "id": "q11",
     "type": "choice",
-    "badge": "🔎 PHÁT HIỆN LỖI SAI",
-    "title": "Khi quan sát bạn Nam gõ chữ, thầy giáo thấy Nam dùng ngón trỏ phải để gõ phím D. Nam đã làm sai điều gì?",
+    "badge": "🖐️ PHÂN CÔNG 10 NGÓN TAY",
+    "title": "Hai ngón tay nào dùng để đặt và bấm phím Dấu Cách (Space - phím dài nhất bàn phím)?",
     "options": [
-      { "id": "A", "text": "Phím D phải do ngón giữa bàn tay trái phụ trách", "correct": true },
-      { "id": "B", "text": "Phím D phải do ngón cái gõ", "correct": false },
-      { "id": "C", "text": "Phím D thuộc hàng phím số", "correct": false },
-      { "id": "D", "text": "Nam làm đúng, không sai", "correct": false }
+      { "id": "A", "text": "Hai ngón út", "correct": false },
+      { "id": "B", "text": "Hai ngón trỏ", "correct": false },
+      { "id": "C", "text": "Hai ngón cái", "correct": true },
+      { "id": "D", "text": "Hai ngón giữa", "correct": false }
     ],
-    "hint": "Phím D nằm bên tay trái: A (ngón út), S (ngón áp út), D (ngón giữa)!",
-    "explain": "Đáp án A: Phím D thuộc lãnh thổ tay trái, do ngón giữa tay trái phụ trách."
+    "hint": "Hai ngón to và ngắn nhất ở phía dưới bàn tay!",
+    "explain": "Đáp án đúng là C: Hai ngón cái phụ trách phím dấu cách (Spacebar)."
   },
   {
-    "id": "q9",
+    "id": "q12",
+    "type": "choice",
+    "badge": "📍 SGK TRANG 26 - QUY TẮC VÀNG",
+    "title": "Khi gõ xong một phím bất kỳ, các ngón tay của em phải lập tức đưa về hàng phím nào?",
+    "options": [
+      { "id": "A", "text": "Hàng phím trên", "correct": false },
+      { "id": "B", "text": "Hàng phím cơ sở (vị trí xuất phát)", "correct": true },
+      { "id": "C", "text": "Hàng phím dưới", "correct": false },
+      { "id": "D", "text": "Nhấc hẳn tay ra khỏi bàn phím", "correct": false }
+    ],
+    "hint": "Căn cứ địa xuất phát chính là nơi ngón tay luôn quay về nghỉ ngơi!",
+    "explain": "Đáp án đúng là B: Mỗi khi gõ xong bất kỳ phím nào, phải lập tức đưa ngón tay về hàng cơ sở."
+  },
+  {
+    "id": "q13",
     "type": "choice",
     "badge": "💡 LỢI ÍCH 10 NGÓN",
-    "title": "Tác dụng của hai cái GỜ NỔI trên phím F và J là gì?",
+    "title": "Tác dụng quan trọng nhất của hai cái GỜ NỔI trên phím F và J là gì?",
     "options": [
       { "id": "A", "text": "Để trang trí cho bàn phím đẹp hơn", "correct": false },
-      { "id": "B", "text": "Giúp ngón tay cảm nhận đúng vị trí xuất phát mà không cần nhìn bàn phím", "correct": true },
+      { "id": "B", "text": "Giúp ngón tay cảm nhận đúng vị trí xuất phát mà không cần cúi xuống nhìn bàn phím", "correct": true },
       { "id": "C", "text": "Để chống trơn trượt khi tay ra mồ hôi", "correct": false },
-      { "id": "D", "text": "Để bấm phím kêu to hơn", "correct": false }
+      { "id": "D", "text": "Để bấm phím phát ra tiếng kêu to hơn", "correct": false }
     ],
-    "hint": "Cảm giác xúc giác giúp người gõ không cần cúi xuống nhìn bàn phím!",
-    "explain": "Đáp án B: Gờ nổi giúp định vị 2 ngón trỏ vào vị trí xuất phát mà không cần nhìn."
+    "hint": "Cảm giác xúc giác ở đầu ngón tay giúp người gõ phím không cần nhìn!",
+    "explain": "Đáp án đúng là B: Gờ nổi giúp định vị 2 ngón trỏ vào vị trí xuất phát mà không cần nhìn."
   },
   {
-    "id": "q10",
+    "id": "q14",
     "type": "choice",
     "badge": "🎯 THỰC TẾ PHÒNG MÁY",
     "title": "Hàng phím nào nằm ngay PHÍA TRÊN hàng phím cơ sở?",
@@ -141,6 +197,34 @@ window.QUESTS_DATA = [
       { "id": "D", "text": "Hàng phím chứa phím cách", "correct": false }
     ],
     "hint": "Hàng phím này nằm kẹp giữa hàng phím số và hàng phím cơ sở!",
-    "explain": "Đáp án B: Ngay phía trên hàng phím cơ sở là Hàng phím trên."
+    "explain": "Đáp án đúng là B: Ngay phía trên hàng phím cơ sở là Hàng phím trên."
+  },
+  {
+    "id": "q15",
+    "type": "choice",
+    "badge": "🔎 PHÁT HIỆN LỖI SAI",
+    "title": "Khi quan sát bạn Nam gõ chữ, thầy giáo thấy Nam dùng ngón trỏ phải để gõ phím D. Nam đã làm sai điều gì?",
+    "options": [
+      { "id": "A", "text": "Phím D phải do ngón giữa bàn tay TRÁI phụ trách", "correct": true },
+      { "id": "B", "text": "Phím D phải do ngón cái gõ", "correct": false },
+      { "id": "C", "text": "Phím D thuộc hàng phím số", "correct": false },
+      { "id": "D", "text": "Nam làm đúng, không sai", "correct": false }
+    ],
+    "hint": "Phím D nằm bên tay trái: A (ngón út), S (ngón áp út), D (ngón giữa)!",
+    "explain": "Đáp án đúng là A: Phím D thuộc lãnh thổ tay trái, do ngón giữa tay trái phụ trách."
+  },
+  {
+    "id": "q16",
+    "type": "choice",
+    "badge": "⏪ PHÍM ĐIỀU KHIỂN & BỔ TRỢ",
+    "title": "Phím xóa lùi (Backspace ⌫) và dãy phím số từ 1 đến 0 thuộc hàng phím nào của khu vực chính?",
+    "options": [
+      { "id": "A", "text": "Hàng phím số", "correct": true },
+      { "id": "B", "text": "Hàng phím trên", "correct": false },
+      { "id": "C", "text": "Hàng phím cơ sở", "correct": false },
+      { "id": "D", "text": "Hàng phím cách", "correct": false }
+    ],
+    "hint": "Hàng phím nằm ở tầng cao nhất của Khu vực chính!",
+    "explain": "Đáp án đúng là A: Dãy số 1 đến 0 và phím Backspace thuộc Hàng phím số."
   }
 ];

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bài 5: Sử dụng bàn phím (Tiết 1) – Mật Vụ Bàn Phím & Căn Cứ Gờ F-J | Tin học 3</title>
+    <title>Bài 5: Sử dụng bàn phím (Tiết 1) – Khám Phá 4 Khu Vực & Căn Cứ Gờ F-J | Tin học 3</title>
 
     <link rel="stylesheet" href="../shared/style.css">
     <script src="../../shared/js/confetti.js"></script>
@@ -95,11 +95,16 @@
         .nav-tab-btn {
             background: #1e293b;
             color: #cbd5e1;
-            padding: 7px 15px;
+            padding: 7px 13px;
             border-radius: 10px;
             font-weight: 800;
             font-size: 0.95rem;
             transition: all 0.15s ease;
+        }
+
+        .nav-tab-btn:hover {
+            background: #334155;
+            color: #fff;
         }
 
         .nav-tab-btn.active {
@@ -122,6 +127,19 @@
             justify-content: center;
             align-items: center;
             position: relative;
+        }
+
+        .notebook-clean-wrapper.fullscreen-active {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 999999 !important;
+            border-radius: 0 !important;
+            padding: 60px 40px !important;
+            border: none !important;
+            border-left: 30px solid #ef4444 !important;
         }
 
         .notebook-line-date {
@@ -163,24 +181,358 @@
             gap: 6px;
         }
 
-        /* Bàn phím ảo mô phỏng 5 tầng */
-        .keyboard-sim-wrapper {
+        /* =========================================================
+           SLIDE 1: LAYOUT BÀN PHÍM FULL VỚI 4 KHU VỰC
+           ========================================================= */
+        .areas-selector-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+            margin: 10px 0 14px;
+        }
+
+        .area-tab-card {
+            background: #f8fafc;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 10px 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .area-tab-card:hover {
+            transform: translateY(-2px);
+            border-color: #38bdf8;
+        }
+
+        .area-tab-card.active {
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+        }
+
+        .area-tab-card.area-1.active { background: #4f46e5; border-color: #818cf8; }
+        .area-tab-card.area-2.active { background: #2563eb; border-color: #60a5fa; }
+        .area-tab-card.area-3.active { background: #d97706; border-color: #fbbf24; }
+        .area-tab-card.area-4.active { background: #059669; border-color: #34d399; }
+        .area-tab-card.area-all.active { background: #0f172a; border-color: #94a3b8; }
+
+        .area-badge-icon {
+            font-size: 1.5rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.06);
+            flex-shrink: 0;
+        }
+
+        .area-tab-card.active .area-badge-icon {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Khung Chassis Bàn Phím Toàn Cảnh (Full 104-key) */
+        .full-kb-wrapper {
             background: #0f172a;
-            border: 3px solid #334155;
+            border: 4px solid #334155;
+            border-radius: 18px;
+            padding: 14px 16px;
+            box-shadow: inset 0 0 24px rgba(0,0,0,0.6), 0 10px 25px rgba(0,0,0,0.3);
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .full-kb-chassis {
+            display: grid;
+            grid-template-columns: minmax(560px, 4.3fr) minmax(130px, 1fr) minmax(190px, 1.4fr);
+            gap: 14px;
+            min-width: 900px;
+            align-items: start;
+        }
+
+        /* Phím bấm chung của Full Keyboard */
+        .fkb-key {
+            background: #1e293b;
+            color: #e2e8f0;
+            border: 1px solid #475569;
+            border-bottom: 3px solid #0f172a;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2px;
+            transition: all 0.12s ease;
+            cursor: pointer;
+            line-height: 1.1;
+        }
+
+        .fkb-key:hover {
+            border-color: #93c5fd;
+            transform: translateY(-1px);
+        }
+
+        .fkb-key:active, .fkb-key.key-active {
+            transform: translateY(2px);
+            border-bottom-width: 1px;
+            background: #3b82f6 !important;
+            color: #fff !important;
+        }
+
+        /* Highlight theo từng khu vực trên Full KB */
+        .fkb-key.zone-k1 { border-color: #6366f1; }
+        .fkb-key.zone-k2 { border-color: #3b82f6; }
+        .fkb-key.zone-k3 { border-color: #f59e0b; }
+        .fkb-key.zone-k4 { border-color: #10b981; }
+
+        /* Trạng thái khi chọn 1 khu vực: các khu vực khác mờ đi, khu vực chọn sáng rực */
+        .full-kb-wrapper.focus-k1 .fkb-key:not(.zone-k1) { opacity: 0.25; filter: grayscale(80%); }
+        .full-kb-wrapper.focus-k2 .fkb-key:not(.zone-k2) { opacity: 0.25; filter: grayscale(80%); }
+        .full-kb-wrapper.focus-k3 .fkb-key:not(.zone-k3) { opacity: 0.25; filter: grayscale(80%); }
+        .full-kb-wrapper.focus-k4 .fkb-key:not(.zone-k4) { opacity: 0.25; filter: grayscale(80%); }
+
+        .full-kb-wrapper.focus-k1 .fkb-key.zone-k1 {
+            background: #4338ca;
+            color: #e0e7ff;
+            border-color: #a5b4fc;
+            box-shadow: 0 0 10px rgba(129, 140, 248, 0.7);
+        }
+
+        .full-kb-wrapper.focus-k2 .fkb-key.zone-k2 {
+            background: #1d4ed8;
+            color: #dbeafe;
+            border-color: #93c5fd;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.7);
+        }
+
+        .full-kb-wrapper.focus-k3 .fkb-key.zone-k3 {
+            background: #b45309;
+            color: #fef3c7;
+            border-color: #fde68a;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.7);
+        }
+
+        .full-kb-wrapper.focus-k4 .fkb-key.zone-k4 {
+            background: #047857;
+            color: #d1fae5;
+            border-color: #6ee7b7;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+        }
+
+        /* Section A: Main Block */
+        .fkb-main-block {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .fkb-f-row {
+            display: grid;
+            grid-template-columns: 1fr 0.3fr 1fr 1fr 1fr 1fr 0.3fr 1fr 1fr 1fr 1fr 0.3fr 1fr 1fr 1fr 1fr;
+            gap: 4px;
+            height: 32px;
+            margin-bottom: 6px;
+        }
+
+        .fkb-f-row .fkb-key { height: 100%; font-size: 0.72rem; }
+        .fkb-gap { pointer-events: none; }
+
+        .fkb-alpha-row {
+            display: grid;
+            gap: 4px;
+            height: 38px;
+        }
+
+        .fkb-alpha-r1 { grid-template-columns: repeat(13, 1fr) 1.8fr; }
+        .fkb-alpha-r2 { grid-template-columns: 1.4fr repeat(12, 1fr) 1.4fr; }
+        .fkb-alpha-r3 { grid-template-columns: 1.7fr repeat(11, 1fr) 2.1fr; }
+        .fkb-alpha-r4 { grid-template-columns: 2.2fr repeat(10, 1fr) 2.6fr; }
+        .fkb-alpha-r5 { grid-template-columns: 1.3fr 1.1fr 1.3fr 6fr 1.3fr 1.1fr 1.1fr 1.3fr; }
+
+        .fkb-key.has-bump::after {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 2px;
+            background: #facc15;
+            border-radius: 1px;
+            margin-top: 2px;
+        }
+
+        /* Section B: Navigation Block */
+        .fkb-nav-block {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .fkb-sys-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            height: 32px;
+            margin-bottom: 6px;
+        }
+
+        .fkb-sys-row .fkb-key { height: 100%; font-size: 0.65rem; }
+
+        .fkb-nav6-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 38px);
+            gap: 4px;
+        }
+
+        .fkb-nav6-grid .fkb-key { font-size: 0.7rem; }
+
+        .fkb-nav-spacer { height: 38px; }
+
+        .fkb-arrows-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 38px);
+            gap: 4px;
+        }
+
+        .fkb-arrows-grid .fkb-key { font-size: 1rem; font-weight: 900; }
+
+        /* Section C: Numpad Block */
+        .fkb-numpad-block {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .fkb-leds-strip {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 32px;
+            margin-bottom: 6px;
+            background: #1e293b;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            padding: 0 8px;
+        }
+
+        .led-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #94a3b8;
+        }
+
+        .led-bulb {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #334155;
+            transition: all 0.2s;
+        }
+
+        .led-bulb.active {
+            background: #22c55e;
+            box-shadow: 0 0 8px #22c55e;
+        }
+
+        .fkb-numpad-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(5, 38px);
+            gap: 4px;
+        }
+
+        .fkb-num-plus {
+            grid-column: 4;
+            grid-row: 2 / span 2;
+        }
+
+        .fkb-num-enter {
+            grid-column: 4;
+            grid-row: 4 / span 2;
+            background: #1e3a8a;
+        }
+
+        .fkb-num-zero {
+            grid-column: 1 / span 2;
+        }
+
+        /* Thẻ giải thích chi tiết khu vực đang chọn */
+        .area-info-panel {
+            background: #f8fafc;
+            border: 3px solid #cbd5e1;
             border-radius: 16px;
-            padding: 18px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-            margin: 14px 0;
+            padding: 16px 20px;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            transition: all 0.2s ease;
+        }
+
+        .area-info-title {
+            font-size: 1.45rem;
+            font-weight: 900;
+            margin: 0 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .area-info-keys-box {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            font-size: 1.15rem;
+            line-height: 1.6;
+            color: #1e293b;
+        }
+
+        .area-info-func-box {
+            background: #eff6ff;
+            border: 2px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 1.2rem;
+            line-height: 1.5;
+            color: #1e40af;
+            font-weight: 800;
+        }
+
+        /* =========================================================
+           SLIDE 2: BÀN PHÍM ANSI 60 CỘT CỦA KHU VỰC CHÍNH
+           ========================================================= */
+        .windows-keyboard {
+            background: #0f172a;
+            border: 4px solid #334155;
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: inset 0 0 24px rgba(0,0,0,0.6);
+            margin: 12px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
         }
 
         .kb-row {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(60, 1fr);
             gap: 6px;
-            justify-content: center;
-            margin-bottom: 8px;
-            transition: all 0.25s ease;
+            width: 100%;
             padding: 4px;
             border-radius: 10px;
+            transition: all 0.22s ease;
         }
 
         .kb-row.highlighted {
@@ -189,32 +541,84 @@
             border: 2px dashed #60a5fa;
         }
 
-        .kb-key {
+        .key {
             background: #1e293b;
-            color: #e2e8f0;
+            color: #f8fafc;
+            height: 54px;
             border-radius: 8px;
-            min-width: 46px;
-            height: 48px;
+            border: 2px solid #334155;
+            border-bottom: 4px solid #0b0f19;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
-            font-size: 1.15rem;
-            border: 2px solid #334155;
-            box-shadow: 0 4px 0 #0b0f19;
-            transition: all 0.12s ease;
+            font-weight: 900;
+            font-size: 1.25rem;
             position: relative;
+            cursor: pointer;
+            transition: transform 0.08s ease, background-color 0.12s ease;
+            line-height: 1.1;
         }
 
-        .kb-key.wide-tab { min-width: 65px; font-size: 0.85rem; }
-        .kb-key.wide-caps { min-width: 75px; font-size: 0.85rem; }
-        .kb-key.wide-shift { min-width: 95px; font-size: 0.85rem; }
-        .kb-key.wide-back { min-width: 75px; font-size: 0.85rem; }
-        .kb-key.wide-enter { min-width: 85px; font-size: 0.85rem; }
-        .kb-key.wide-space { min-width: 280px; }
+        .key:hover {
+            border-color: #38bdf8;
+            transform: translateY(-2px);
+        }
 
-        .kb-key.has-bump::after {
+        .key:active, .key.pressed, .key.key-active {
+            transform: translateY(3px);
+            border-bottom-width: 2px;
+            background: #2563eb !important;
+            color: #fff !important;
+        }
+
+        /* Phím 2 tầng ký tự (dual) */
+        .key.dual {
+            font-size: 1.05rem;
+            gap: 1px;
+        }
+
+        .key.dual .top {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .key.dual .bot {
+            font-size: 1.15rem;
+            font-weight: 900;
+        }
+
+        /* Các lớp span tỷ lệ bàn phím Windows chuẩn ANSI (Tổng mỗi hàng = 60 cột) */
+        .span-4  { grid-column: span 4; }  /* 1.0u (Phím chuẩn) */
+        .span-5  { grid-column: span 5; }  /* 1.25u (Ctrl, Win, Alt) */
+        .span-6  { grid-column: span 6; }  /* 1.5u (Tab, \) */
+        .span-7  { grid-column: span 7; }  /* 1.75u (Caps Lock) */
+        .span-8  { grid-column: span 8; }  /* 2.0u (Backspace) */
+        .span-9  { grid-column: span 9; }  /* 2.25u (Shift Trái, Enter) */
+        .span-11 { grid-column: span 11; } /* 2.75u (Shift Phải) */
+        .span-25 { grid-column: span 25; } /* 6.25u (Spacebar) */
+
+        .key-func {
+            background: #273549;
+            color: #e2e8f0;
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .key-enter {
+            background: #1e3a8a;
+            color: #bfdbfe;
+            border-color: #3b82f6;
+            font-size: 1.1rem;
+        }
+
+        .key-space {
+            font-size: 1.05rem;
+            color: #f1f5f9;
+            background: #334155;
+        }
+
+        .key.bump::after {
             content: '';
             position: absolute;
             bottom: 5px;
@@ -222,15 +626,10 @@
             height: 3px;
             background: #facc15;
             border-radius: 2px;
-            box-shadow: 0 0 6px #facc15;
+            box-shadow: 0 0 8px #facc15;
         }
 
-        .kb-key.key-active {
-            transform: translateY(3px);
-            box-shadow: 0 1px 0 #0b0f19;
-        }
-
-        /* Màu phân vùng 10 ngón */
+        /* Màu phân vùng 10 ngón cho Slide 2 & 3 */
         .zone-pink { background: #831843 !important; border-color: #ec4899 !important; color: #fbcfe8 !important; }
         .zone-orange { background: #7c2d12 !important; border-color: #f97316 !important; color: #fed7aa !important; }
         .zone-yellow { background: #713f12 !important; border-color: #eab308 !important; color: #fef08a !important; }
@@ -238,10 +637,10 @@
         .zone-green { background: #064e3b !important; border-color: #10b981 !important; color: #a7f3d0 !important; }
         .zone-purple { background: #581c87 !important; border-color: #a855f7 !important; color: #e9d5ff !important; }
 
-        /* Nút tầng phím */
+        /* Nút chọn 5 hàng phím */
         .rows-selector-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 10px;
             margin: 12px 0;
         }
@@ -301,6 +700,7 @@
             color: #fff;
             box-shadow: 0 4px 6px rgba(0,0,0,0.15);
             transition: all 0.15s;
+            cursor: pointer;
         }
 
         .finger-pill:hover, .finger-pill.active {
@@ -332,7 +732,7 @@
             margin: 20px 0;
         }
 
-        .summary-card-grid.grid-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+        .summary-card-grid.grid-3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 
         .summary-card {
             background: #f8fafc;
@@ -344,8 +744,8 @@
         }
 
         .summary-card .sc-icon { font-size: 2.6rem; margin-bottom: 8px; }
-        .summary-card .sc-title { font-size: 1.25rem; font-weight: 900; color: #1e3a8a; margin-bottom: 6px; }
-        .summary-card .sc-desc { font-size: 1.05rem; font-weight: 700; color: #475569; line-height: 1.45; }
+        .summary-card .sc-title { font-size: 1.22rem; font-weight: 900; color: #1e3a8a; margin-bottom: 6px; }
+        .summary-card .sc-desc { font-size: 1.05rem; font-weight: 700; color: #475569; line-height: 1.45; text-align: left; }
 
         /* Đấu trường đố vui */
         .quiz-stage-box {
@@ -534,11 +934,12 @@
                 </div>
                 <div style="display:flex; gap:6px; flex-wrap:wrap;">
                     <button class="nav-tab-btn" id="tabBtn0" onclick="showSlide(0)">📝 Vở Ghi</button>
-                    <button class="nav-tab-btn active" id="tabBtn1" onclick="showSlide(1)">🗺️ 5 Hàng Phím</button>
-                    <button class="nav-tab-btn" id="tabBtn2" onclick="showSlide(2)">🖐️ 10 Ngón & Gờ F-J</button>
-                    <button class="nav-tab-btn" id="tabBtn3" onclick="showSlide(3)">⚔️ Đấu Trường Đố Vui</button>
-                    <button class="nav-tab-btn" id="tabBtn4" onclick="showSlide(4)">💡 Ghi Nhớ SGK</button>
-                    <button class="nav-tab-btn" id="tabBtn5" onclick="showSlide(5)">🏆 Bảng Vàng</button>
+                    <button class="nav-tab-btn active" id="tabBtn1" onclick="showSlide(1)">⌨️ 4 Khu Vực Phím</button>
+                    <button class="nav-tab-btn" id="tabBtn2" onclick="showSlide(2)">🗺️ 5 Hàng Phím</button>
+                    <button class="nav-tab-btn" id="tabBtn3" onclick="showSlide(3)">🖐️ 10 Ngón & Gờ F-J</button>
+                    <button class="nav-tab-btn" id="tabBtn4" onclick="showSlide(4)">⚔️ Đấu Trường Đố Vui</button>
+                    <button class="nav-tab-btn" id="tabBtn5" onclick="showSlide(5)">💡 Ghi Nhớ SGK</button>
+                    <button class="nav-tab-btn" id="tabBtn6" onclick="showSlide(6)">🏆 Bảng Vàng</button>
                 </div>
             </nav>
 
@@ -550,7 +951,7 @@
                             ✍️ VỞ CHÉP BÀI (HỌC SINH VIẾT VÀO VỞ)
                         </span>
                         <button class="btn primary" style="background:#4361ee; color:#fff; padding:8px 18px; font-weight:800; border-radius:10px;" onclick="showSlide(1)">
-                            Chép xong ➔ Khám phá Bản đồ 5 Tầng ▶
+                            Chép xong ➔ Khám phá 4 Khu Vực Bàn Phím ▶
                         </button>
                     </div>
 
@@ -565,14 +966,279 @@
                 </div>
             </section>
 
-            <!-- ================= SLIDE 1: BẢN ĐỒ 5 HÀNG PHÍM CỦA KHU VỰC CHÍNH ================= -->
+            <!-- ================= SLIDE 1: LAYOUT BÀN PHÍM FULL VỚI 4 KHU VỰC PHÍM ================= -->
             <section id="slide-1" class="slide-screen active">
                 <div class="card-panel">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <h2 style="margin:0; font-size:1.75rem; color:#1e3a8a;">🗺️ KHU VỰC CHÍNH CỦA BÀN PHÍM (5 HÀNG PHÍM)</h2>
-                        <button class="btn info" style="background:#0284c7; color:#fff; padding:6px 14px; font-weight:800; border-radius:8px;" onclick="showSlide(2)">
-                            Sang Phần 10 Ngón & Gờ F-J ➔
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+                        <div>
+                            <span style="background:#4338ca; color:#e0e7ff; padding:4px 12px; border-radius:999px; font-weight:900; font-size:0.85rem; text-transform:uppercase;">
+                                🔍 TOÀN CẢNH BÀN PHÍM 104 PHÍM
+                            </span>
+                            <h2 style="margin:6px 0 0; font-size:1.75rem; color:#1e3a8a;">⌨️ 4 KHU VỰC PHÍM CHÍNH TRÊN BÀN PHÍM MÁY TÍNH</h2>
+                        </div>
+                        <button class="btn info" style="background:#0284c7; color:#fff; padding:8px 16px; font-weight:800; border-radius:8px;" onclick="showSlide(2)">
+                            Khám phá Chi Tiết 5 Hàng Phím ➔
                         </button>
+                    </div>
+
+                    <p style="font-size:1.15rem; color:#475569; font-weight:700; margin:0 0 10px;">
+                        👉 Bấm chọn từng <strong>Khu vực</strong> bên dưới để xem vị trí sáng đèn trên bàn phím và tìm hiểu chức năng tương ứng:
+                    </p>
+
+                    <!-- Thanh chọn 4 khu vực tương tác -->
+                    <div class="areas-selector-bar">
+                        <div class="area-tab-card area-1 active" onclick="selectKbArea(1, this)">
+                            <div class="area-badge-icon">⚡</div>
+                            <div>
+                                <div style="font-size:0.85rem; font-weight:700; opacity:0.85;">KHU VỰC 1</div>
+                                <div style="font-size:1.05rem; font-weight:900;">Phím chức năng</div>
+                            </div>
+                        </div>
+
+                        <div class="area-tab-card area-2" onclick="selectKbArea(2, this)">
+                            <div class="area-badge-icon">🔤</div>
+                            <div>
+                                <div style="font-size:0.85rem; font-weight:700; opacity:0.85;">KHU VỰC 2</div>
+                                <div style="font-size:1.05rem; font-weight:900;">Khu vực cơ sở / chính</div>
+                            </div>
+                        </div>
+
+                        <div class="area-tab-card area-3" onclick="selectKbArea(3, this)">
+                            <div class="area-badge-icon">🧭</div>
+                            <div>
+                                <div style="font-size:0.85rem; font-weight:700; opacity:0.85;">KHU VỰC 3</div>
+                                <div style="font-size:1.05rem; font-weight:900;">Phím điều khiển / hướng</div>
+                            </div>
+                        </div>
+
+                        <div class="area-tab-card area-4" onclick="selectKbArea(4, this)">
+                            <div class="area-badge-icon">🔢</div>
+                            <div>
+                                <div style="font-size:0.85rem; font-weight:700; opacity:0.85;">KHU VỰC 4</div>
+                                <div style="font-size:1.05rem; font-weight:900;">Khu vực phím số</div>
+                            </div>
+                        </div>
+
+                        <div class="area-tab-card area-all" onclick="selectKbArea('all', this)">
+                            <div class="area-badge-icon">🌐</div>
+                            <div>
+                                <div style="font-size:0.85rem; font-weight:700; opacity:0.85;">TOÀN BỘ</div>
+                                <div style="font-size:1.05rem; font-weight:900;">Xem cả 4 khu vực</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MÔ PHỎNG BÀN PHÍM FULL 104 PHÍM CHUẨN PC -->
+                    <div class="full-kb-wrapper focus-k1" id="fullKbWrapper">
+                        <div class="full-kb-chassis">
+                            <!-- KHỐI A: KHỐI CHÍNH (Esc, F1-F12 + 5 Hàng Alphanumeric) -->
+                            <div class="fkb-main-block">
+                                <!-- Dãy F1-F12 (Khu vực 1) -->
+                                <div class="fkb-f-row">
+                                    <div class="fkb-key zone-k1" data-key="Escape">Esc</div>
+                                    <div class="fkb-gap"></div>
+                                    <div class="fkb-key zone-k1" data-key="F1">F1</div>
+                                    <div class="fkb-key zone-k1" data-key="F2">F2</div>
+                                    <div class="fkb-key zone-k1" data-key="F3">F3</div>
+                                    <div class="fkb-key zone-k1" data-key="F4">F4</div>
+                                    <div class="fkb-gap"></div>
+                                    <div class="fkb-key zone-k1" data-key="F5">F5</div>
+                                    <div class="fkb-key zone-k1" data-key="F6">F6</div>
+                                    <div class="fkb-key zone-k1" data-key="F7">F7</div>
+                                    <div class="fkb-key zone-k1" data-key="F8">F8</div>
+                                    <div class="fkb-gap"></div>
+                                    <div class="fkb-key zone-k1" data-key="F9">F9</div>
+                                    <div class="fkb-key zone-k1" data-key="F10">F10</div>
+                                    <div class="fkb-key zone-k1" data-key="F11">F11</div>
+                                    <div class="fkb-key zone-k1" data-key="F12">F12</div>
+                                </div>
+
+                                <!-- 5 Hàng phím Khu vực chính (Khu vực 2) -->
+                                <!-- Hàng 1: Hàng phím số -->
+                                <div class="fkb-alpha-row fkb-alpha-r1">
+                                    <div class="fkb-key zone-k2" data-key="`">~<br>`</div>
+                                    <div class="fkb-key zone-k2" data-key="1">!<br>1</div>
+                                    <div class="fkb-key zone-k2" data-key="2">@<br>2</div>
+                                    <div class="fkb-key zone-k2" data-key="3">#<br>3</div>
+                                    <div class="fkb-key zone-k2" data-key="4">$<br>4</div>
+                                    <div class="fkb-key zone-k2" data-key="5">%<br>5</div>
+                                    <div class="fkb-key zone-k2" data-key="6">^<br>6</div>
+                                    <div class="fkb-key zone-k2" data-key="7">&<br>7</div>
+                                    <div class="fkb-key zone-k2" data-key="8">*<br>8</div>
+                                    <div class="fkb-key zone-k2" data-key="9">(<br>9</div>
+                                    <div class="fkb-key zone-k2" data-key="0">)<br>0</div>
+                                    <div class="fkb-key zone-k2" data-key="-">_<br>-</div>
+                                    <div class="fkb-key zone-k2" data-key="=">+<br>=</div>
+                                    <div class="fkb-key zone-k2" data-key="Backspace" style="font-size:0.68rem;">Backspace ⌫</div>
+                                </div>
+
+                                <!-- Hàng 2: Hàng phím trên -->
+                                <div class="fkb-alpha-row fkb-alpha-r2">
+                                    <div class="fkb-key zone-k2" data-key="Tab" style="font-size:0.7rem;">Tab ⇥</div>
+                                    <div class="fkb-key zone-k2" data-key="Q">Q</div>
+                                    <div class="fkb-key zone-k2" data-key="W">W</div>
+                                    <div class="fkb-key zone-k2" data-key="E">E</div>
+                                    <div class="fkb-key zone-k2" data-key="R">R</div>
+                                    <div class="fkb-key zone-k2" data-key="T">T</div>
+                                    <div class="fkb-key zone-k2" data-key="Y">Y</div>
+                                    <div class="fkb-key zone-k2" data-key="U">U</div>
+                                    <div class="fkb-key zone-k2" data-key="I">I</div>
+                                    <div class="fkb-key zone-k2" data-key="O">O</div>
+                                    <div class="fkb-key zone-k2" data-key="P">P</div>
+                                    <div class="fkb-key zone-k2" data-key="[">{<br>[</div>
+                                    <div class="fkb-key zone-k2" data-key="]">}<br>]</div>
+                                    <div class="fkb-key zone-k2" data-key="\">|<br>\</div>
+                                </div>
+
+                                <!-- Hàng 3: Hàng phím cơ sở -->
+                                <div class="fkb-alpha-row fkb-alpha-r3">
+                                    <div class="fkb-key zone-k2" data-key="CapsLock" style="font-size:0.68rem;">Caps Lock</div>
+                                    <div class="fkb-key zone-k2" data-key="A">A</div>
+                                    <div class="fkb-key zone-k2" data-key="S">S</div>
+                                    <div class="fkb-key zone-k2" data-key="D">D</div>
+                                    <div class="fkb-key zone-k2 has-bump" data-key="F" title="Phím F có gờ nổi">F</div>
+                                    <div class="fkb-key zone-k2" data-key="G">G</div>
+                                    <div class="fkb-key zone-k2" data-key="H">H</div>
+                                    <div class="fkb-key zone-k2 has-bump" data-key="J" title="Phím J có gờ nổi">J</div>
+                                    <div class="fkb-key zone-k2" data-key="K">K</div>
+                                    <div class="fkb-key zone-k2" data-key="L">L</div>
+                                    <div class="fkb-key zone-k2" data-key=";">:<br>;</div>
+                                    <div class="fkb-key zone-k2" data-key="'">"<br>'</div>
+                                    <div class="fkb-key zone-k2" data-key="Enter" style="font-size:0.75rem; background:#1e3a8a;">Enter ↵</div>
+                                </div>
+
+                                <!-- Hàng 4: Hàng phím dưới -->
+                                <div class="fkb-alpha-row fkb-alpha-r4">
+                                    <div class="fkb-key zone-k2" data-key="ShiftLeft" style="font-size:0.7rem;">Shift ⇧</div>
+                                    <div class="fkb-key zone-k2" data-key="Z">Z</div>
+                                    <div class="fkb-key zone-k2" data-key="X">X</div>
+                                    <div class="fkb-key zone-k2" data-key="C">C</div>
+                                    <div class="fkb-key zone-k2" data-key="V">V</div>
+                                    <div class="fkb-key zone-k2" data-key="B">B</div>
+                                    <div class="fkb-key zone-k2" data-key="N">N</div>
+                                    <div class="fkb-key zone-k2" data-key="M">M</div>
+                                    <div class="fkb-key zone-k2" data-key=","><br>,</div>
+                                    <div class="fkb-key zone-k2" data-key=".">><br>.</div>
+                                    <div class="fkb-key zone-k2" data-key="/">?<br>/</div>
+                                    <div class="fkb-key zone-k2" data-key="ShiftRight" style="font-size:0.7rem;">Shift ⇧</div>
+                                </div>
+
+                                <!-- Hàng 5: Hàng phím cách -->
+                                <div class="fkb-alpha-row fkb-alpha-r5">
+                                    <div class="fkb-key zone-k2" data-key="ControlLeft">Ctrl</div>
+                                    <div class="fkb-key zone-k2" data-key="MetaLeft">⊞ Win</div>
+                                    <div class="fkb-key zone-k2" data-key="AltLeft">Alt</div>
+                                    <div class="fkb-key zone-k2" data-key="Space" style="font-size:0.8rem; background:#334155; color:#f8fafc;">Phím Dấu Cách (Spacebar)</div>
+                                    <div class="fkb-key zone-k2" data-key="AltRight">Alt</div>
+                                    <div class="fkb-key zone-k2" data-key="MetaRight">⊞ Win</div>
+                                    <div class="fkb-key zone-k2" data-key="ContextMenu">☰ Menu</div>
+                                    <div class="fkb-key zone-k2" data-key="ControlRight">Ctrl</div>
+                                </div>
+                            </div>
+
+                            <!-- KHỐI B: KHỐI ĐIỀU KHIỂN & ĐIỀU HƯỚNG (Navigation Block) -->
+                            <div class="fkb-nav-block">
+                                <!-- Hàng phím điều khiển hệ thống (Print Screen, Scroll Lock, Pause Break) -> Thuộc Khu vực 1 -->
+                                <div class="fkb-sys-row">
+                                    <div class="fkb-key zone-k1" data-key="PrintScreen">PrtScn<br><small>SysRq</small></div>
+                                    <div class="fkb-key zone-k1" data-key="ScrollLock">Scroll<br><small>Lock</small></div>
+                                    <div class="fkb-key zone-k1" data-key="Pause">Pause<br><small>Break</small></div>
+                                </div>
+
+                                <!-- Cụm 6 phím điều hướng văn bản -> Thuộc Khu vực 3 -->
+                                <div class="fkb-nav6-grid">
+                                    <div class="fkb-key zone-k3" data-key="Insert">Insert</div>
+                                    <div class="fkb-key zone-k3" data-key="Home">Home</div>
+                                    <div class="fkb-key zone-k3" data-key="PageUp">PgUp</div>
+                                    <div class="fkb-key zone-k3" data-key="Delete">Delete</div>
+                                    <div class="fkb-key zone-k3" data-key="End">End</div>
+                                    <div class="fkb-key zone-k3" data-key="PageDown">PgDn</div>
+                                </div>
+
+                                <div class="fkb-nav-spacer"></div>
+
+                                <!-- Cụm 4 phím mũi tên -> Thuộc Khu vực 3 -->
+                                <div class="fkb-arrows-grid">
+                                    <div></div>
+                                    <div class="fkb-key zone-k3" data-key="ArrowUp">↑</div>
+                                    <div></div>
+                                    <div class="fkb-key zone-k3" data-key="ArrowLeft">←</div>
+                                    <div class="fkb-key zone-k3" data-key="ArrowDown">↓</div>
+                                    <div class="fkb-key zone-k3" data-key="ArrowRight">→</div>
+                                </div>
+                            </div>
+
+                            <!-- KHỐI C: KHỐI PHÍM SỐ (Numeric Keypad - Khu vực 4) -->
+                            <div class="fkb-numpad-block">
+                                <!-- Đèn tín hiệu bàn phím -->
+                                <div class="fkb-leds-strip">
+                                    <div class="led-indicator">
+                                        <span class="led-bulb active" id="ledNum"></span>
+                                        <span>Num</span>
+                                    </div>
+                                    <div class="led-indicator">
+                                        <span class="led-bulb" id="ledCaps"></span>
+                                        <span>Caps</span>
+                                    </div>
+                                    <div class="led-indicator">
+                                        <span class="led-bulb" id="ledScroll"></span>
+                                        <span>Scroll</span>
+                                    </div>
+                                </div>
+
+                                <!-- Lưới phím Numpad -->
+                                <div class="fkb-numpad-grid">
+                                    <div class="fkb-key zone-k4" data-key="NumLock">Num<br><small>Lock</small></div>
+                                    <div class="fkb-key zone-k4" data-key="NumpadDivide">/</div>
+                                    <div class="fkb-key zone-k4" data-key="NumpadMultiply">*</div>
+                                    <div class="fkb-key zone-k4" data-key="NumpadSubtract">-</div>
+
+                                    <div class="fkb-key zone-k4" data-key="Numpad7">7<br><small>Home</small></div>
+                                    <div class="fkb-key zone-k4" data-key="Numpad8">8<br><small>▲</small></div>
+                                    <div class="fkb-key zone-k4" data-key="Numpad9">9<br><small>PgUp</small></div>
+                                    <div class="fkb-key zone-k4 fkb-num-plus" data-key="NumpadAdd">+</div>
+
+                                    <div class="fkb-key zone-k4" data-key="Numpad4">4<br><small>◀</small></div>
+                                    <div class="fkb-key zone-k4 has-bump" data-key="Numpad5" title="Phím 5 có gờ nổi">5</div>
+                                    <div class="fkb-key zone-k4" data-key="Numpad6">6<br><small>▶</small></div>
+
+                                    <div class="fkb-key zone-k4" data-key="Numpad1">1<br><small>End</small></div>
+                                    <div class="fkb-key zone-k4" data-key="Numpad2">2<br><small>▼</small></div>
+                                    <div class="fkb-key zone-k4" data-key="Numpad3">3<br><small>PgDn</small></div>
+                                    <div class="fkb-key zone-k4 fkb-num-enter" data-key="NumpadEnter">Enter</div>
+
+                                    <div class="fkb-key zone-k4 fkb-num-zero" data-key="Numpad0">0<br><small>Ins</small></div>
+                                    <div class="fkb-key zone-k4" data-key="NumpadDecimal">.<br><small>Del</small></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- THẺ THÔNG TIN CHI TIẾT KHU VỰC ĐANG CHỌN -->
+                    <div class="area-info-panel" id="areaInfoPanel">
+                        <!-- Nội dung render động qua JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 2: BẢN ĐỒ 5 HÀNG PHÍM CỦA KHU VỰC CHÍNH ================= -->
+            <section id="slide-2" class="slide-screen">
+                <div class="card-panel">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+                        <div>
+                            <span style="background:#2563eb; color:#fff; padding:4px 12px; border-radius:999px; font-weight:900; font-size:0.85rem; text-transform:uppercase;">
+                                🔤 ĐI SÂU VÀO KHU VỰC 2
+                            </span>
+                            <h2 style="margin:6px 0 0; font-size:1.75rem; color:#1e3a8a;">🗺️ 5 HÀNG PHÍM CỦA KHU VỰC CHÍNH (WINDOWS ANSI 60 CỘT)</h2>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn" style="background:#64748b; color:#fff; padding:6px 14px; font-weight:800; border-radius:8px;" onclick="showSlide(1)">
+                                ⬅ Xem 4 Khu Vực
+                            </button>
+                            <button class="btn info" style="background:#0284c7; color:#fff; padding:6px 14px; font-weight:800; border-radius:8px;" onclick="showSlide(3)">
+                                Sang 10 Ngón & Gờ F-J ➔
+                            </button>
+                        </div>
                     </div>
                     <p style="font-size:1.15rem; color:#475569; font-weight:700; margin:0 0 10px;">
                         👉 Bấm vào từng hàng phím bên dưới để xem vị trí sáng đèn trên bàn phím:
@@ -597,86 +1263,87 @@
                         </button>
                     </div>
 
-                    <!-- Bàn phím ảo mô phỏng -->
-                    <div class="keyboard-sim-wrapper" id="kbSimulator">
-                        <!-- Hàng 1: Hàng phím số -->
+                    <!-- Bàn phím ảo mô phỏng chuẩn ANSI 60 cột so le đều 2 bên -->
+                    <div class="windows-keyboard" id="kbSimulator">
+                        <!-- HÀNG 1: HÀNG PHÍM SỐ (Tổng 60 cột) -->
                         <div class="kb-row" id="kbRow1">
-                            <div class="kb-key">`</div>
-                            <div class="kb-key zone-pink">1</div>
-                            <div class="kb-key zone-orange">2</div>
-                            <div class="kb-key zone-yellow">3</div>
-                            <div class="kb-key zone-blue">4</div>
-                            <div class="kb-key zone-blue">5</div>
-                            <div class="kb-key zone-green">6</div>
-                            <div class="kb-key zone-green">7</div>
-                            <div class="kb-key zone-yellow">8</div>
-                            <div class="kb-key zone-orange">9</div>
-                            <div class="kb-key zone-pink">0</div>
-                            <div class="kb-key zone-pink">-</div>
-                            <div class="kb-key zone-pink">=</div>
-                            <div class="kb-key wide-back">Backspace</div>
+                            <div class="key span-4 dual"><span class="top">~</span><span class="bot">`</span></div>
+                            <div class="key span-4 dual zone-pink"><span class="top">!</span><span class="bot">1</span></div>
+                            <div class="key span-4 dual zone-orange"><span class="top">@</span><span class="bot">2</span></div>
+                            <div class="key span-4 dual zone-yellow"><span class="top">#</span><span class="bot">3</span></div>
+                            <div class="key span-4 dual zone-blue"><span class="top">$</span><span class="bot">4</span></div>
+                            <div class="key span-4 dual zone-blue"><span class="top">%</span><span class="bot">5</span></div>
+                            <div class="key span-4 dual zone-green"><span class="top">^</span><span class="bot">6</span></div>
+                            <div class="key span-4 dual zone-green"><span class="top">&</span><span class="bot">7</span></div>
+                            <div class="key span-4 dual zone-yellow"><span class="top">*</span><span class="bot">8</span></div>
+                            <div class="key span-4 dual zone-orange"><span class="top">(</span><span class="bot">9</span></div>
+                            <div class="key span-4 dual zone-pink"><span class="top">)</span><span class="bot">0</span></div>
+                            <div class="key span-4 dual zone-pink"><span class="top">_</span><span class="bot">-</span></div>
+                            <div class="key span-4 dual zone-pink"><span class="top">+</span><span class="bot">=</span></div>
+                            <div class="key span-8 key-func">Backspace ⌫</div>
                         </div>
 
-                        <!-- Hàng 2: Hàng phím trên -->
+                        <!-- HÀNG 2: HÀNG PHÍM TRÊN (Tổng 60 cột) -->
                         <div class="kb-row" id="kbRow2">
-                            <div class="kb-key wide-tab">Tab</div>
-                            <div class="kb-key zone-pink">Q</div>
-                            <div class="kb-key zone-orange">W</div>
-                            <div class="kb-key zone-yellow">E</div>
-                            <div class="kb-key zone-blue">R</div>
-                            <div class="kb-key zone-blue">T</div>
-                            <div class="kb-key zone-green">Y</div>
-                            <div class="kb-key zone-green">U</div>
-                            <div class="kb-key zone-yellow">I</div>
-                            <div class="kb-key zone-orange">O</div>
-                            <div class="kb-key zone-pink">P</div>
-                            <div class="kb-key zone-pink">[</div>
-                            <div class="kb-key zone-pink">]</div>
-                            <div class="kb-key">\</div>
+                            <div class="key span-6 key-func">Tab ⇥</div>
+                            <div class="key span-4 zone-pink">Q</div>
+                            <div class="key span-4 zone-orange">W</div>
+                            <div class="key span-4 zone-yellow">E</div>
+                            <div class="key span-4 zone-blue">R</div>
+                            <div class="key span-4 zone-blue">T</div>
+                            <div class="key span-4 zone-green">Y</div>
+                            <div class="key span-4 zone-green">U</div>
+                            <div class="key span-4 zone-yellow">I</div>
+                            <div class="key span-4 zone-orange">O</div>
+                            <div class="key span-4 zone-pink">P</div>
+                            <div class="key span-4 dual zone-pink"><span class="top">{</span><span class="bot">[</span></div>
+                            <div class="key span-4 dual zone-pink"><span class="top">}</span><span class="bot">]</span></div>
+                            <div class="key span-6 dual key-func"><span class="top">|</span><span class="bot">\</span></div>
                         </div>
 
-                        <!-- Hàng 3: Hàng phím cơ sở (MẶC ĐỊNH HIGHLIGHT) -->
+                        <!-- HÀNG 3: HÀNG PHÍM CƠ SỞ (Tổng 60 cột - MẶC ĐỊNH HIGHLIGHT) -->
                         <div class="kb-row highlighted" id="kbRow3">
-                            <div class="kb-key wide-caps">Caps</div>
-                            <div class="kb-key zone-pink">A</div>
-                            <div class="kb-key zone-orange">S</div>
-                            <div class="kb-key zone-yellow">D</div>
-                            <div class="kb-key zone-blue has-bump" title="Phím F có gờ nổi">F</div>
-                            <div class="kb-key zone-blue">G</div>
-                            <div class="kb-key zone-green">H</div>
-                            <div class="kb-key zone-green has-bump" title="Phím J có gờ nổi">J</div>
-                            <div class="kb-key zone-yellow">K</div>
-                            <div class="kb-key zone-orange">L</div>
-                            <div class="kb-key zone-pink">;</div>
-                            <div class="kb-key zone-pink">'</div>
-                            <div class="kb-key wide-enter">Enter</div>
+                            <div class="key span-7 key-func">Caps Lock</div>
+                            <div class="key span-4 zone-pink">A</div>
+                            <div class="key span-4 zone-orange">S</div>
+                            <div class="key span-4 zone-yellow">D</div>
+                            <div class="key span-4 zone-blue bump has-bump" title="Phím F có gờ nổi mốc ngón trỏ trái">F</div>
+                            <div class="key span-4 zone-blue">G</div>
+                            <div class="key span-4 zone-green">H</div>
+                            <div class="key span-4 zone-green bump has-bump" title="Phím J có gờ nổi mốc ngón trỏ phải">J</div>
+                            <div class="key span-4 zone-yellow">K</div>
+                            <div class="key span-4 zone-orange">L</div>
+                            <div class="key span-4 dual zone-pink"><span class="top">:</span><span class="bot">;</span></div>
+                            <div class="key span-4 dual zone-pink"><span class="top">"</span><span class="bot">'</span></div>
+                            <div class="key span-9 key-enter">Enter ↵</div>
                         </div>
 
-                        <!-- Hàng 4: Hàng phím dưới -->
+                        <!-- HÀNG 4: HÀNG PHÍM DƯỚI (Tổng 60 cột) -->
                         <div class="kb-row" id="kbRow4">
-                            <div class="kb-key wide-shift">Shift</div>
-                            <div class="kb-key zone-pink">Z</div>
-                            <div class="kb-key zone-orange">X</div>
-                            <div class="kb-key zone-yellow">C</div>
-                            <div class="kb-key zone-blue">V</div>
-                            <div class="kb-key zone-blue">B</div>
-                            <div class="kb-key zone-green">N</div>
-                            <div class="kb-key zone-green">M</div>
-                            <div class="kb-key zone-yellow">,</div>
-                            <div class="kb-key zone-orange">.</div>
-                            <div class="kb-key zone-pink">/</div>
-                            <div class="kb-key wide-shift">Shift</div>
+                            <div class="key span-9 key-func">Shift ⇧</div>
+                            <div class="key span-4 zone-pink">Z</div>
+                            <div class="key span-4 zone-orange">X</div>
+                            <div class="key span-4 zone-yellow">C</div>
+                            <div class="key span-4 zone-blue">V</div>
+                            <div class="key span-4 zone-blue">B</div>
+                            <div class="key span-4 zone-green">N</div>
+                            <div class="key span-4 zone-green">M</div>
+                            <div class="key span-4 dual zone-yellow"><span class="top">&lt;</span><span class="bot">,</span></div>
+                            <div class="key span-4 dual zone-orange"><span class="top">&gt;</span><span class="bot">.</span></div>
+                            <div class="key span-4 dual zone-pink"><span class="top">?</span><span class="bot">/</span></div>
+                            <div class="key span-11 key-func">Shift ⇧</div>
                         </div>
 
-                        <!-- Hàng 5: Hàng phím cách -->
+                        <!-- HÀNG 5: HÀNG PHÍM CÁCH (Tổng 60 cột) -->
                         <div class="kb-row" id="kbRow5">
-                            <div class="kb-key">Ctrl</div>
-                            <div class="kb-key">Win</div>
-                            <div class="kb-key">Alt</div>
-                            <div class="kb-key wide-space zone-purple">Phím Dấu Cách (Space)</div>
-                            <div class="kb-key">Alt</div>
-                            <div class="kb-key">Fn</div>
-                            <div class="kb-key">Ctrl</div>
+                            <div class="key span-5 key-func">Ctrl</div>
+                            <div class="key span-5 key-func">⊞ Win</div>
+                            <div class="key span-5 key-func">Alt</div>
+                            <div class="key span-25 key-space zone-purple">Phím Dấu Cách (Spacebar)</div>
+                            <div class="key span-5 key-func">Alt</div>
+                            <div class="key span-5 key-func">⊞ Win</div>
+                            <div class="key span-5 key-func">☰ Menu</div>
+                            <div class="key span-5 key-func">Ctrl</div>
                         </div>
                     </div>
 
@@ -684,18 +1351,18 @@
                     <div class="memo-card">
                         <div class="memo-card-icon">📌</div>
                         <div class="memo-card-text">
-                            <strong>Ghi nhớ chặng 1:</strong> Khu vực chính của bàn phím gồm <strong>5 hàng phím</strong>. Hàng phím <strong>Cơ sở</strong> là quan trọng nhất, chứa hai phím có gờ là <strong>F</strong> và <strong>J</strong>!
+                            <strong>Ghi nhớ cốt lõi:</strong> Khu vực chính của bàn phím gồm <strong>5 hàng phím</strong>. Hàng phím <strong>Cơ sở</strong> là quan trọng nhất, chứa hai phím có gờ mốc là <strong>F</strong> và <strong>J</strong>!
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- ================= SLIDE 2: X-RAY 10 NGÓN TAY & CĂN CỨ F-J ================= -->
-            <section id="slide-2" class="slide-screen">
+            <!-- ================= SLIDE 3: X-RAY 10 NGÓN TAY & CĂN CỨ F-J ================= -->
+            <section id="slide-3" class="slide-screen">
                 <div class="card-panel">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
                         <h2 style="margin:0; font-size:1.75rem; color:#1e3a8a;">🖐️ PHÂN CÔNG 10 NGÓN TAY & 2 CĂN CỨ GỜ F - J</h2>
-                        <button class="btn warning" style="background:#f59e0b; color:#fff; padding:6px 14px; font-weight:800; border-radius:8px;" onclick="showSlide(3)">
+                        <button class="btn warning" style="background:#f59e0b; color:#fff; padding:6px 14px; font-weight:800; border-radius:8px;" onclick="showSlide(4)">
                             Vào Đấu Trường Đố Vui ➔
                         </button>
                     </div>
@@ -746,8 +1413,8 @@
                 </div>
             </section>
 
-            <!-- ================= SLIDE 3: ĐẤU TRƯỜNG ĐỐ VUI (CỦNG CỐ KIẾN THỨC) ================= -->
-            <section id="slide-3" class="slide-screen">
+            <!-- ================= SLIDE 4: ĐẤU TRƯỜNG ĐỐ VUI (CỦNG CỐ KIẾN THỨC) ================= -->
+            <section id="slide-4" class="slide-screen">
                 <div class="card-panel">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
                         <div>
@@ -762,7 +1429,7 @@
                             <button class="btn" style="background:#f59e0b; color:#fff; font-weight:800; padding:6px 14px; border-radius:8px;" onclick="passTurnNextTeam()">
                                 ⏭ Đổi Tổ Kế Tiếp
                             </button>
-                            <button class="btn" style="background:#10b981; color:#fff; font-weight:800; padding:6px 14px; border-radius:8px;" onclick="showSlide(4)">
+                            <button class="btn" style="background:#10b981; color:#fff; font-weight:800; padding:6px 14px; border-radius:8px;" onclick="showSlide(5)">
                                 Chốt Ghi Nhớ SGK ➔
                             </button>
                         </div>
@@ -770,9 +1437,9 @@
 
                     <!-- Khu vực Câu hỏi -->
                     <div class="quiz-stage-box" id="quizStageBox">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
                             <span id="qBadge" style="background:#facc15; color:#0f172a; padding:4px 10px; border-radius:6px; font-weight:900; font-size:0.9rem;">
-                                CÂU HỎI 1/10
+                                CÂU HỎI 1/16
                             </span>
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <label style="font-weight:800; font-size:0.95rem; color:#93c5fd;">👤 Học sinh trả lời:</label>
@@ -803,49 +1470,60 @@
                 </div>
             </section>
 
-            <!-- ================= SLIDE 4: CHỐT KIẾN THỨC CỐT LÕI (EM GHI NHỚ) ================= -->
-            <section id="slide-4" class="slide-screen">
+            <!-- ================= SLIDE 5: CHỐT KIẾN THỨC CỐT LÕI (EM GHI NHỚ) ================= -->
+            <section id="slide-5" class="slide-screen">
                 <div class="card-panel" style="text-align:center;">
                     <span style="background:#4361ee; color:#fff; padding:6px 18px; border-radius:99px; font-weight:900; font-size:1.1rem;">
                         💡 EM GHI NHỚ (SGK TRANG 26)
                     </span>
                     <h1 style="color:#1e3a8a; font-size:2.2rem; margin:12px 0 16px;">TÓM TẮT KIẾN THỨC CỐT LÕI TIẾT 1</h1>
 
-                    <div class="summary-card-grid grid-3" style="max-width:1050px; margin:0 auto 20px;">
+                    <div class="summary-card-grid grid-3" style="max-width:1150px; margin:0 auto 20px;">
                         <div class="summary-card">
-                            <div class="sc-icon">🗺️</div>
-                            <div class="sc-title">1. KHU VỰC CHÍNH (5 HÀNG)</div>
-                            <div class="sc-desc">Gồm: Hàng phím <strong>Số</strong>, hàng <strong>Trên</strong>, hàng <strong>Cơ sở</strong>, hàng <strong>Dưới</strong> và hàng phím <strong>Cách</strong>.</div>
+                            <div class="sc-icon">⌨️</div>
+                            <div class="sc-title">1. 4 KHU VỰC BÀN PHÍM</div>
+                            <div class="sc-desc">
+                                • <strong>Phím chức năng:</strong> Esc, F1 đến F12, PrtScn...<br>
+                                • <strong>Khu vực chính:</strong> Gõ chữ, số và ký hiệu nhiều nhất.<br>
+                                • <strong>Phím điều hướng:</strong> 4 phím mũi tên, Insert, Delete...<br>
+                                • <strong>Phím số:</strong> Bố trí như máy tính cầm tay.
+                            </div>
                         </div>
 
                         <div class="summary-card">
-                            <div class="sc-icon">📍</div>
-                            <div class="sc-title">2. HAI PHÍM CÓ GỜ F VÀ J</div>
-                            <div class="sc-desc">Thuộc <strong>Hàng phím cơ sở</strong>. Hai ngón trỏ đặt lên F và J để cảm nhận vị trí xuất phát mà không cần nhìn.</div>
+                            <div class="sc-icon">🗺️</div>
+                            <div class="sc-title">2. KHU VỰC CHÍNH (5 HÀNG)</div>
+                            <div class="sc-desc">
+                                • Gồm: Hàng phím <strong>Số</strong>, hàng <strong>Trên</strong>, hàng <strong>Cơ sở</strong>, hàng <strong>Dưới</strong> và hàng phím <strong>Cách</strong>.<br>
+                                • <strong>Hai phím có gờ:</strong> Phím <strong>F</strong> và <strong>J</strong> trên hàng cơ sở làm mốc xuất phát cho hai ngón trỏ!
+                            </div>
                         </div>
 
                         <div class="summary-card">
                             <div class="sc-icon">🔄</div>
                             <div class="sc-title">3. QUY TẮC LÙI VỀ XUẤT PHÁT</div>
-                            <div class="sc-desc">Mỗi ngón gõ đúng phím phụ trách. Khi gõ xong bất kỳ phím nào, <strong>lập tức đưa ngón tay về hàng cơ sở</strong>!</div>
+                            <div class="sc-desc">
+                                • Mỗi ngón tay phụ trách đúng các phím được phân công.<br>
+                                • <strong>Quy tắc vàng:</strong> Mỗi khi gõ xong bất kỳ phím nào, <strong>lập tức đưa ngón tay về hàng cơ sở</strong>!
+                            </div>
                         </div>
                     </div>
 
-                    <button class="btn success" style="background:#10b981; color:#fff; font-size:1.35rem; font-weight:900; padding:14px 36px; border-radius:14px; box-shadow:0 8px 20px rgba(16,185,129,0.4);" onclick="showSlide(5)">
+                    <button class="btn success" style="background:#10b981; color:#fff; font-size:1.35rem; font-weight:900; padding:14px 36px; border-radius:14px; box-shadow:0 8px 20px rgba(16,185,129,0.4);" onclick="showSlide(6)">
                         🏆 Xem Bảng Vàng Vinh Danh Các Tổ ▶
                     </button>
                 </div>
             </section>
 
-            <!-- ================= SLIDE 5: BẢNG VÀNG TỔNG KẾT & XUẤT CSV ================= -->
-            <section id="slide-5" class="slide-screen">
+            <!-- ================= SLIDE 6: BẢNG VÀNG TỔNG KẾT & XUẤT CSV ================= -->
+            <section id="slide-6" class="slide-screen">
                 <div class="card-panel" style="text-align:center;">
                     <div style="font-size:3.5rem; margin-bottom:6px;">👑🏆✨</div>
                     <h1 style="color:#1e3a8a; font-size:2.4rem; margin:0 0 10px;" id="goldWinnerBanner">
                         VINH DANH NHÀ VÔ ĐỊCH MẬT VỤ BÀN PHÍM!
                     </h1>
                     <p style="font-size:1.2rem; color:#475569; font-weight:700; margin-bottom:20px;">
-                        Chúc mừng các em đã xuất sắc làm chủ bản đồ bàn phím máy tính hôm nay!
+                        Chúc mừng các em đã xuất sắc làm chủ bản đồ 4 khu vực & 5 hàng phím hôm nay!
                     </p>
 
                     <!-- Bảng xếp hạng thi đua đồng hạng -->
@@ -963,6 +1641,72 @@
         let demonModeActive = false;
         let demonList = [];
 
+        // Dữ liệu 4 khu vực của bàn phím
+        const KEYBOARD_AREAS_DATA = {
+            1: {
+                id: 1,
+                name: "Khu vực phím chức năng",
+                enName: "Function keys",
+                icon: "⚡",
+                color: "#4f46e5",
+                keys: "Phím <strong>Esc</strong> (Escape), dãy phím chức năng từ <strong>F1 đến F12</strong>, cùng các phím điều khiển hệ thống ở góc phải như <strong>Print Screen / SysRq</strong>, <strong>Scroll Lock</strong>, và <strong>Pause / Break</strong>.",
+                func: "Thực hiện nhanh các lệnh/tính năng đặc biệt tùy theo từng phần mềm (ví dụ: <strong>F1</strong> mở trợ giúp, <strong>F5</strong> làm mới trang).",
+                tip: "👉 <em>Mẹo:</em> Dãy F1-F12 nằm ở hàng trên cùng của bàn phím, được chia thành từng nhóm 4 phím giúp em dễ nhận biết mà không cần đếm!"
+            },
+            2: {
+                id: 2,
+                name: "Khu vực phím cơ sở / Khu vực chính",
+                enName: "Alphanumeric keys",
+                icon: "🔤",
+                color: "#2563eb",
+                keys: `
+                    • <strong>Hàng phím số và ký tự đặc biệt:</strong> Dãy phím từ số <strong>1 đến 0</strong>, các dấu <strong>~, -, =, +</strong> và phím xóa lùi <strong>Backspace ⌫</strong>.<br>
+                    • <strong>Các hàng phím chữ:</strong> Gồm hàng phím trên (<strong>Q W E R T Y...</strong>), hàng phím cơ sở (<strong>A S D F G H J K L...</strong> với hai phím có gờ mốc là <strong>F</strong> và <strong>J</strong>), và hàng phím dưới (<strong>Z X C V B N M...</strong>).<br>
+                    • <strong>Các phím điều khiển & bổ trợ:</strong> <strong>Tab, Caps Lock, Shift, Ctrl, Alt</strong>, phím <strong>Windows (⊞)</strong>, phím <strong>menu/Fn</strong> và phím cách dài nhất bàn phím (<strong>Spacebar</strong>), cùng phím <strong>Enter ↵</strong>.
+                `,
+                func: "Khu vực dùng nhiều nhất để soạn thảo văn bản, nhập liệu chữ viết và ký hiệu.",
+                tip: "👉 <em>Đây là khu vực quan trọng nhất trong bài học hôm nay! Em sẽ được học chi tiết 5 hàng phím của khu vực này ở Slide tiếp theo.</em>",
+                hasAction: true
+            },
+            3: {
+                id: 3,
+                name: "Khu vực phím điều khiển / Phím điều hướng",
+                enName: "Navigation keys",
+                icon: "🧭",
+                color: "#d97706",
+                keys: `
+                    • <strong>4 phím mũi tên:</strong> Lên (<strong>↑</strong>), Xuống (<strong>↓</strong>), Trái (<strong>←</strong>), Phải (<strong>→</strong>).<br>
+                    • <strong>Cụm 6 phím điều hướng văn bản bên trên:</strong> <strong>Insert, Delete, Home, End, Page Up, Page Down</strong>.
+                `,
+                func: "Dùng để di chuyển con trỏ soạn thảo văn bản, cuộn trang web hoặc điều khiển nhân vật trong trò chơi.",
+                tip: "👉 <em>4 phím mũi tên được xếp thành hình chữ T ngược, giúp em thuận tiện điều khiển bằng 3 ngón tay!</em>"
+            },
+            4: {
+                id: 4,
+                name: "Khu vực phím số",
+                enName: "Numeric keypad",
+                icon: "🔢",
+                color: "#059669",
+                keys: `
+                    • <strong>Phím bật/tắt vùng số:</strong> <strong>Num Lock</strong>.<br>
+                    • <strong>Các phím số:</strong> Từ <strong>0 đến 9</strong> và dấu chấm thập phân (<strong>.</strong>).<br>
+                    • <strong>Các phím phép tính cơ bản:</strong> chia (<strong>/</strong>), nhân (<strong>*</strong>), trừ (<strong>-</strong>), cộng (<strong>+</strong>) và một phím <strong>Enter phụ</strong>.
+                `,
+                func: "Bố trí tương tự bàn phím máy tính cầm tay, giúp người dùng gõ số và nhập liệu phép tính kế toán một cách nhanh chóng bằng một tay.",
+                tip: "👉 <em>Nhớ bấm phím Num Lock để đèn sáng lên thì mới gõ được các phím số ở khu vực này nhé!</em>"
+            },
+            all: {
+                id: 'all',
+                name: "Toàn bộ bàn phím máy tính (4 Khu vực)",
+                enName: "Full Keyboard Layout",
+                icon: "🌐",
+                color: "#0f172a",
+                keys: "Bàn phím máy tính đầy đủ kết hợp cả 4 khu vực: <strong>1. Phím chức năng</strong> (tím), <strong>2. Khu vực chính</strong> (xanh dương), <strong>3. Phím điều khiển/điều hướng</strong> (cam), và <strong>4. Khu vực phím số</strong> (xanh lá).",
+                func: "Tất cả các khu vực kết hợp nhịp nhàng giúp người dùng điều khiển máy tính, nhập văn bản, tính toán và giải trí.",
+                tip: "👉 <em>Thầy/Cô có thể bấm vào từng phím trên bàn phím ảo hoặc bấm phím thật để nghe tiếng gõ phím!</em>"
+            }
+        };
+
         // Mảng danh sách tổ
         let teams = [
             { id: 1, name: 'Tổ 1', score: STARTING_SCORE, color: '#3b82f6', members: [] },
@@ -1076,6 +1820,7 @@
             restoreLocalState();
             renderTeamsRack();
             renderQuestion();
+            selectKbArea(1); // Mặc định mở Khu vực 1
             setupKeyboardSimulation();
         });
 
@@ -1153,7 +1898,7 @@
                 btn.classList.toggle('active', idx === index);
             });
             currentSlide = index;
-            if (index === 5) {
+            if (index === 6) {
                 renderLeaderboard();
                 playFanfareSound();
                 if (window.confetti) {
@@ -1188,10 +1933,68 @@
             }
         });
 
-        // 5. BẢN ĐỒ 5 TẦNG VÀ X-RAY 10 NGÓN TAY
+        // 5. SLIDE 1: CHỌN & HIGHLIGHT 4 KHU VỰC PHÍM
+        function selectKbArea(areaId, btn) {
+            playKeyClickSound();
+            const wrapper = document.getElementById('fullKbWrapper');
+            const panel = document.getElementById('areaInfoPanel');
+            const data = KEYBOARD_AREAS_DATA[areaId];
+            if (!data) return;
+
+            // Đổi class wrapper
+            wrapper.className = `full-kb-wrapper ${areaId === 'all' ? '' : 'focus-k' + areaId}`;
+
+            // Đổi active button
+            document.querySelectorAll('.area-tab-card').forEach(c => c.classList.remove('active'));
+            if (btn) {
+                btn.classList.add('active');
+            } else {
+                const targetCard = document.querySelector(`.area-tab-card.area-${areaId}`);
+                if (targetCard) targetCard.classList.add('active');
+            }
+
+            // Render nội dung giải thích chi tiết
+            panel.innerHTML = `
+                <div class="area-info-title" style="color: ${data.color};">
+                    <span style="font-size: 2rem;">${data.icon}</span>
+                    <div>
+                        <div>${data.name.toUpperCase()}</div>
+                        <small style="color: #64748b; font-size: 0.95rem; font-weight: 700;">Tên tiếng Anh: <em>${data.enName}</em></small>
+                    </div>
+                </div>
+
+                <div class="area-info-keys-box">
+                    <div style="font-weight: 900; color: #334155; margin-bottom: 6px; font-size: 1.15rem;">
+                        📋 Các phím gồm có:
+                    </div>
+                    <div>${data.keys}</div>
+                </div>
+
+                <div class="area-info-func-box">
+                    <div style="font-weight: 900; margin-bottom: 4px;">
+                        🎯 Chức năng chính:
+                    </div>
+                    <div>${data.func}</div>
+                </div>
+
+                <div style="margin-top: 10px; font-size: 1.05rem; color: #475569; font-weight: 700;">
+                    ${data.tip}
+                </div>
+
+                ${data.hasAction ? `
+                    <div style="margin-top: 14px; text-align: right;">
+                        <button class="btn" style="background: #2563eb; color: #fff; font-weight: 900; font-size: 1.15rem; padding: 10px 22px; border-radius: 10px;" onclick="showSlide(2)">
+                            Khám phá 5 Hàng Phím Của Khu Vực Chính ➔
+                        </button>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        // 6. SLIDE 2: BẢN ĐỒ 5 TẦNG VÀ X-RAY 10 NGÓN TAY
         function highlightKbRow(rowNum, btn) {
             playKeyClickSound();
-            document.querySelectorAll('.kb-row').forEach((r, idx) => {
+            document.querySelectorAll('#kbSimulator .kb-row').forEach((r, idx) => {
                 r.classList.toggle('highlighted', idx + 1 === rowNum);
             });
             document.querySelectorAll('.row-tab-card').forEach(b => b.classList.remove('active'));
@@ -1200,10 +2003,10 @@
 
         function filterFingerZone(colorClass) {
             playKeyClickSound();
-            document.querySelectorAll('.kb-key').forEach(k => {
+            document.querySelectorAll('.key').forEach(k => {
                 if (k.classList.contains(`zone-${colorClass}`)) {
                     k.classList.add('key-active');
-                    setTimeout(() => k.classList.remove('key-active'), 300);
+                    setTimeout(() => k.classList.remove('key-active'), 350);
                 }
             });
             showToast(`👉 Ngón tay đang phụ trách nhóm phím màu này!`);
@@ -1211,25 +2014,47 @@
 
         function simulateFeelBump() {
             playCorrectSound();
-            const fKey = document.querySelector('.kb-key:contains("F"), .kb-key.has-bump:first-of-type');
-            const jKey = document.querySelector('.kb-key:contains("J"), .kb-key.has-bump:last-of-type');
             alert("✨ CẢ LỚP CÙNG SỜ THỬ:\n\nHãy dùng ngón trỏ TRÁI chạm phím F, ngón trỏ PHẢI chạm phím J.\nCác em có cảm nhận thấy 1 đường GỜ NỔI nhỏ xíu ở phía dưới 2 phím này không?\n\nĐó chính là CĂN CỨ ĐỊA để ngón tay luôn tìm về mà không cần cúi xuống nhìn!");
         }
 
+        // Lắng nghe bấm phím ảo & phím thật
         function setupKeyboardSimulation() {
+            // Click chuột vào phím ảo bất kỳ
+            document.addEventListener('click', (e) => {
+                const keyEl = e.target.closest('.fkb-key, .key');
+                if (keyEl) {
+                    playKeyClickSound();
+                    keyEl.classList.add('key-active');
+                    setTimeout(() => keyEl.classList.remove('key-active'), 140);
+                }
+            });
+
+            // Gõ phím vật lý
             window.addEventListener('keydown', (e) => {
-                const key = e.key.toUpperCase();
-                document.querySelectorAll('.kb-key').forEach(el => {
-                    if (el.textContent.trim().toUpperCase() === key || (e.code === 'Space' && el.classList.contains('wide-space'))) {
+                const k = e.key.toUpperCase();
+                const code = e.code;
+                playKeyClickSound();
+
+                // Sáng trên bàn phím Slide 1
+                document.querySelectorAll('.fkb-key').forEach(el => {
+                    if (el.dataset.key === e.key || el.dataset.key === code || el.textContent.trim().toUpperCase() === k) {
                         el.classList.add('key-active');
-                        playKeyClickSound();
-                        setTimeout(() => el.classList.remove('key-active'), 150);
+                        setTimeout(() => el.classList.remove('key-active'), 140);
+                    }
+                });
+
+                // Sáng trên bàn phím Slide 2
+                document.querySelectorAll('#kbSimulator .key').forEach(el => {
+                    const text = el.textContent.trim().toUpperCase();
+                    if (text === k || (code === 'Space' && el.classList.contains('key-space'))) {
+                        el.classList.add('key-active');
+                        setTimeout(() => el.classList.remove('key-active'), 140);
                     }
                 });
             });
         }
 
-        // 6. ĐẤU TRƯỜNG ĐỐ VUI (CÂU HỎI & CHẤM ĐIỂM)
+        // 7. ĐẤU TRƯỜNG ĐỐ VUI (CÂU HỎI & CHẤM ĐIỂM)
         function renderQuestion() {
             const quests = window.QUESTS_DATA || [];
             if (quests.length === 0) return;
@@ -1309,7 +2134,7 @@
             saveLocalState();
         }
 
-        // 7. GACHA & QUẢN LÝ HỌC SINH (PICKED ≠ DONE)
+        // 8. GACHA & QUẢN LÝ HỌC SINH (PICKED ≠ DONE)
         function loadStudentsList() {
             fetch('../../assets/data/students_3_2026_2027.json')
                 .then(res => res.json())
@@ -1363,7 +2188,7 @@
             }
         }
 
-        // 8. RENDER SIDEBAR ĐIỀU KHIỂN & ĐIỂM SỐ
+        // 9. RENDER SIDEBAR ĐIỀU KHIỂN & ĐIỂM SỐ
         function renderTeamsRack() {
             const rack = document.getElementById('teamsListRack');
             rack.innerHTML = '';
@@ -1417,7 +2242,7 @@
             saveLocalState();
         }
 
-        // 9. BẢNG VÀNG VINH DANH & XUẤT CSV CHUẨN STANDARDS
+        // 10. BẢNG VÀNG VINH DANH & XUẤT CSV CHUẨN STANDARDS
         function renderLeaderboard() {
             const sorted = [...teams].sort((a, b) => b.score - a.score);
             const container = document.getElementById('goldLeaderboardTable');
@@ -1516,7 +2341,7 @@
             showToast("📥 Đã xuất báo cáo CSV thành công!");
         }
 
-        // 10. TIỆN ÍCH HỖ TRỢ
+        // 11. TIỆN ÍCH HỖ TRỢ
         function showToast(msg) {
             const old = document.querySelector('.toast-msg');
             if (old) old.remove();
