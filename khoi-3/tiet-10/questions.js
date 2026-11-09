@@ -1,6 +1,6 @@
 /**
  * Ngân hàng dữ liệu câu hỏi Tiết 10 Khối 3: Bài 5 - Sử dụng bàn phím (Tiết 1)
- * Đấu trường đố vui cướp đất bàn phím ảo (Gồm Câu hỏi thường và Câu hỏi Thử thách)
+ * Đấu trường đố vui khám phá bàn phím ảo (Gồm Câu hỏi thường và Câu hỏi Thử thách)
  * Chạy 100% Offline-first, chống lỗi CORS khi mở bằng file://
  */
 window.QUESTS_DATA = [
@@ -38,7 +38,7 @@ window.QUESTS_DATA = [
     "id": "q3",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - PHÍM CHỨC NĂNG",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - PHÍM CHỨC NĂNG",
     "title": "Phím Esc, dãy phím từ F1 đến F12 cùng các phím Print Screen, Scroll Lock, Pause Break thuộc khu vực nào?",
     "options": [
       { "id": "A", "text": "Khu vực phím chức năng (Function keys)", "correct": true },
@@ -128,7 +128,7 @@ window.QUESTS_DATA = [
     "id": "q9",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - NHẬN DIỆN PHÍM",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - NHẬN DIỆN PHÍM",
     "title": "Dãy phím nào sau đây CÙNG THUỘC hàng phím cơ sở?",
     "options": [
       { "id": "A", "text": "Q, W, E, R, T, Y", "correct": false },
@@ -188,7 +188,7 @@ window.QUESTS_DATA = [
     "id": "q13",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - Ý NGHĨA GỜ NỔI",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - Ý NGHĨA GỜ NỔI",
     "title": "Tác dụng quan trọng nhất của hai cái GỜ NỔI trên phím F và J là gì?",
     "options": [
       { "id": "A", "text": "Để trang trí cho bàn phím đẹp hơn", "correct": false },
@@ -218,7 +218,7 @@ window.QUESTS_DATA = [
     "id": "q15",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - PHÁT HIỆN LỖI SAI",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - PHÁT HIỆN LỖI SAI",
     "title": "Khi quan sát bạn Nam gõ chữ, thầy giáo thấy Nam dùng ngón trỏ phải để gõ phím D. Nam đã làm sai điều gì?",
     "options": [
       { "id": "A", "text": "Phím D phải do ngón giữa bàn tay TRÁI phụ trách", "correct": true },
@@ -248,7 +248,7 @@ window.QUESTS_DATA = [
     "id": "q17",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - PHÂN BIỆT PHÍM XÓA",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - PHÂN BIỆT PHÍM XÓA",
     "title": "Phím Backspace (⌫) và phím Delete (Del) khác nhau như thế nào khi xóa ký tự trong văn bản?",
     "options": [
       { "id": "A", "text": "Backspace xóa ký tự bên TRÁI con trỏ, còn Delete xóa ký tự bên PHẢI con trỏ", "correct": true },
@@ -278,7 +278,7 @@ window.QUESTS_DATA = [
     "id": "q19",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - CHỮ IN HOA",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - CHỮ IN HOA",
     "title": "Muốn gõ một đoạn văn toàn bộ bằng CHỮ IN HOA liên tục, cách tiện lợi nhất là bật phím nào?",
     "options": [
       { "id": "A", "text": "Phím Num Lock", "correct": false },
@@ -308,7 +308,7 @@ window.QUESTS_DATA = [
     "id": "q21",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - KÝ HIỆU TRÊN",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - KÝ HIỆU TRÊN",
     "title": "Trên phím số 2 có ký hiệu @. Muốn gõ được ký hiệu @ vào màn hình, em làm thế nào?",
     "options": [
       { "id": "A", "text": "Chỉ cần bấm phím số 2", "correct": false },
@@ -353,7 +353,7 @@ window.QUESTS_DATA = [
     "id": "q24",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - PHÂN CÔNG TAY TRÁI",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - PHÂN CÔNG TAY TRÁI",
     "title": "Trên hàng phím cơ sở, các ngón của BÀN TAY TRÁI (từ ngón út đến ngón trỏ) phụ trách lần lượt các phím nào?",
     "options": [
       { "id": "A", "text": "A, S, D, F", "correct": true },
@@ -368,7 +368,7 @@ window.QUESTS_DATA = [
     "id": "q25",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - PHÂN CÔNG TAY PHẢI",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - PHÂN CÔNG TAY PHẢI",
     "title": "Trên hàng phím cơ sở, các ngón của BÀN TAY PHẢI (từ ngón trỏ đến ngón út) phụ trách lần lượt các phím nào?",
     "options": [
       { "id": "A", "text": "J, K, L, ;", "correct": true },
@@ -413,7 +413,7 @@ window.QUESTS_DATA = [
     "id": "q28",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - PHÍM G VÀ H",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - PHÍM G VÀ H",
     "title": "Hai phím G và H nằm ở giữa hàng phím cơ sở do hai ngón tay nào vươn sang gõ?",
     "options": [
       { "id": "A", "text": "Ngón trỏ trái vươn sang gõ phím G, ngón trỏ phải vươn sang gõ phím H", "correct": true },
@@ -443,7 +443,7 @@ window.QUESTS_DATA = [
     "id": "q30",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - PHÍM ESC",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - PHÍM ESC",
     "title": "Phím Esc (Escape) nằm ở vị trí nào và có chức năng chính là gì?",
     "options": [
       { "id": "A", "text": "Nằm ở góc trên cùng bên trái bàn phím, dùng để hủy bỏ một lệnh hoặc thoát chế độ toàn màn hình", "correct": true },
@@ -473,7 +473,7 @@ window.QUESTS_DATA = [
     "id": "q32",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - LỢI ÍCH 10 NGÓN",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - LỢI ÍCH 10 NGÓN",
     "title": "Tại sao các chuyên gia khuyên học sinh nên tập gõ bàn phím bằng 10 ngón ngay từ lớp 3?",
     "options": [
       { "id": "A", "text": "Gõ nhanh hơn, chính xác hơn, không cần nhìn bàn phím và giảm mỏi các ngón tay", "correct": true },
@@ -503,7 +503,7 @@ window.QUESTS_DATA = [
     "id": "q34",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - PHÂN CÔNG PHÍM B VÀ N",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - PHÂN CÔNG PHÍM B VÀ N",
     "title": "Ở hàng phím dưới, hai phím B và N do hai ngón tay nào phụ trách?",
     "options": [
       { "id": "A", "text": "Ngón trỏ trái gõ phím B, ngón trỏ phải gõ phím N", "correct": true },
@@ -533,7 +533,7 @@ window.QUESTS_DATA = [
     "id": "q36",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - PHÍM MŨI TÊN",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - PHÍM MŨI TÊN",
     "title": "Khu vực phím điều khiển có 4 phím mũi tên được sắp xếp theo hình dạng gì?",
     "options": [
       { "id": "A", "text": "Hình chữ T ngược (mũi tên lên ở trên, 3 mũi tên trái-xuống-phải ở dưới)", "correct": true },
@@ -563,7 +563,7 @@ window.QUESTS_DATA = [
     "id": "q38",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - TÌNH HUỐNG THỰC TẾ",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - TÌNH HUỐNG THỰC TẾ",
     "title": "Bạn Lan muốn gõ chữ 'TIN HỌC' nhưng màn hình lại hiện ra 'tin học'. Bạn Lan cần làm gì?",
     "options": [
       { "id": "A", "text": "Bấm phím Caps Lock để bật đèn in hoa rồi gõ lại", "correct": true },
@@ -653,7 +653,7 @@ window.QUESTS_DATA = [
     "id": "q44",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - PHÂN CÔNG NGÓN ÚT PHẢI",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - PHÂN CÔNG NGÓN ÚT PHẢI",
     "title": "Ngón út của bàn tay PHẢI ở vị trí xuất phát đặt lên phím nào trên hàng cơ sở?",
     "options": [
       { "id": "A", "text": "Phím dấu chấm phẩy và hai chấm ( ; và : )", "correct": true },
@@ -668,7 +668,7 @@ window.QUESTS_DATA = [
     "id": "q45",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - CỤM PHÍM F VÀ J",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - CỤM PHÍM F VÀ J",
     "title": "Vì sao nhà sản xuất chỉ tạo gờ nổi trên 2 phím F và J mà không tạo gờ trên tất cả các phím?",
     "options": [
       { "id": "A", "text": "Vì chỉ cần 2 phím mốc cho hai ngón trỏ là đủ để 8 ngón còn lại tự định vị đúng vị trí", "correct": true },
@@ -698,7 +698,7 @@ window.QUESTS_DATA = [
     "id": "q47",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - GÕ DẤU CHẤM HỎI",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - GÕ DẤU CHẤM HỎI",
     "title": "Trên bàn phím, dấu chấm hỏi (?) nằm chung phím với dấu gạch chéo (/). Để gõ dấu ?, em làm thế nào?",
     "options": [
       { "id": "A", "text": "Nhấn giữ phím Shift rồi bấm phím có dấu / ?", "correct": true },
@@ -728,7 +728,7 @@ window.QUESTS_DATA = [
     "id": "q49",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - PHÍM DELETE",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - PHÍM DELETE",
     "title": "Khi con trỏ soạn thảo đang đứng ở giữa từ 'HO|C', nếu bấm phím Delete thì chữ nào sẽ bị xóa?",
     "options": [
       { "id": "A", "text": "Chữ C bị xóa (chữ đứng bên phải con trỏ)", "correct": true },
@@ -743,7 +743,7 @@ window.QUESTS_DATA = [
     "id": "q50",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - PHÍM BACKSPACE",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - PHÍM BACKSPACE",
     "title": "Khi con trỏ soạn thảo đang đứng ở giữa từ 'HO|C', nếu bấm phím Backspace thì chữ nào sẽ bị xóa?",
     "options": [
       { "id": "A", "text": "Chữ O bị xóa (chữ đứng bên trái con trỏ)", "correct": true },
@@ -773,7 +773,7 @@ window.QUESTS_DATA = [
     "id": "q52",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - PHÍM CHỨC NĂNG F5",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - PHÍM CHỨC NĂNG F5",
     "title": "Trong phòng máy tính hoặc khi duyệt web, phím chức năng F5 thường có tác dụng quen thuộc gì?",
     "options": [
       { "id": "A", "text": "Tải lại trang web hoặc làm mới màn hình (Refresh / Reload)", "correct": true },
@@ -803,7 +803,7 @@ window.QUESTS_DATA = [
     "id": "q54",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - PHÂN CÔNG PHÍM C",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - PHÂN CÔNG PHÍM C",
     "title": "Khi gõ phím C (thuộc hàng phím dưới), em phải dùng ngón tay nào để gõ là chuẩn xác?",
     "options": [
       { "id": "A", "text": "Ngón giữa bàn tay TRÁI (vươn từ phím D xuống gõ phím C)", "correct": true },
@@ -818,7 +818,7 @@ window.QUESTS_DATA = [
     "id": "q55",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - PHÂN CÔNG PHÍM E",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - PHÂN CÔNG PHÍM E",
     "title": "Khi gõ phím E (thuộc hàng phím trên), em phải dùng ngón tay nào để gõ là đúng quy tắc?",
     "options": [
       { "id": "A", "text": "Ngón giữa bàn tay TRÁI (vươn từ phím D lên gõ phím E)", "correct": true },
@@ -833,7 +833,7 @@ window.QUESTS_DATA = [
     "id": "q56",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - CỘT PHÍM NGÓN GIỮA PHẢI",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - CỘT PHÍM NGÓN GIỮA PHẢI",
     "title": "Ngón giữa của BÀN TAY PHẢI phụ trách nhóm phím nào sau đây ở 3 hàng phím?",
     "options": [
       { "id": "A", "text": "Phím I (hàng trên) - Phím K (hàng cơ sở) - Phím dấu phẩy < , (hàng dưới)", "correct": true },
@@ -863,7 +863,7 @@ window.QUESTS_DATA = [
     "id": "q58",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - ĐÈN BÁO BÀN PHÍM",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - ĐÈN BÁO BÀN PHÍM",
     "title": "Ở góc trên bên phải của bàn phím thường có cụm 3 đèn LED nhỏ. Cụm đèn này dùng để báo trạng thái của những phím nào?",
     "options": [
       { "id": "A", "text": "Num Lock, Caps Lock, và Scroll Lock", "correct": true },
@@ -893,7 +893,7 @@ window.QUESTS_DATA = [
     "id": "q60",
     "isHard": true,
     "type": "choice",
-    "badge": "🔥 THỬ THÁCH CƯỚP ĐẤT - TỔNG KẾT VÀNG",
+    "badge": "⭐ CÂU HỎI THỬ THÁCH - TỔNG KẾT VÀNG",
     "title": "Câu tóm tắt nào sau đây thể hiện ĐẦY ĐỦ VÀ CHÍNH XÁC NHẤT bí kíp sử dụng bàn phím Tiết 1?",
     "options": [
       { "id": "A", "text": "Xuất phát tại hàng cơ sở với 2 mốc gờ F-J; phân công 10 ngón đúng vị trí; gõ xong lập tức đưa ngón tay về hàng cơ sở!", "correct": true },
