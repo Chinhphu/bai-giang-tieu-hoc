@@ -2616,6 +2616,14 @@
 
         function resetCalledStudents(silent = false) {
             calledStudentIndices.clear();
+            teams.forEach((t, i) => {
+                if (!t.isDemonTeam) {
+                    t.stagedStudent = null;
+                    const sel = $('sel-' + i);
+                    if (sel) sel.value = '';
+                    updateTeamStagedBadge(i);
+                }
+            });
             refreshSelects();
             if (typeof saveSessionState === 'function') saveSessionState();
             if (!silent) {
@@ -2642,9 +2650,26 @@
                 } else {
                     teams[teamIdx].stagedStudent = null;
                 }
+                updateTeamStagedBadge(teamIdx);
             }
             refreshSelects();
             if (typeof saveSessionState === 'function') saveSessionState();
+        }
+
+        function updateTeamStagedBadge(teamIdx) {
+            const teamEl = $('team-' + teamIdx);
+            if (!teamEl) return;
+            const badge = teamEl.querySelector('.staged-badge');
+            const t = teams[teamIdx];
+            if (badge) {
+                if (t && t.stagedStudent) {
+                    badge.innerHTML = `🎯 Lên bảng: <b>${esc(t.stagedStudent)}</b>`;
+                    badge.style.display = 'block';
+                } else {
+                    badge.innerHTML = '';
+                    badge.style.display = 'none';
+                }
+            }
         }
 
         function refreshSelects() {
@@ -2751,6 +2776,7 @@
             setTimeout(() => sel.style.background = '', 800);
 
             t.stagedStudent = picked.s.displayName;
+            updateTeamStagedBadge(teamIdx);
             refreshSelects();
             if (typeof saveSessionState === 'function') saveSessionState();
             showBigStudentAlert(studentDisplayName(picked.s), `Đại diện ${t.name}:`);
@@ -2779,16 +2805,14 @@
                 return;
             }
 
-            const numNormalTeams = teams.filter(t => !t.isDemonTeam).length || 4;
             lines.forEach((name) => {
                 const newId = ++nextStudentId;
-                const assignedTeam = (students.length) % numNormalTeams;
                 students.push({
                     id: newId,
                     name: name,
                     rawName: name,
                     displayName: name,
-                    team: assignedTeam,
+                    team: null,
                     actions: []
                 });
                 if (!allClassStudents.includes(name)) {
@@ -3604,7 +3628,7 @@
                     name: finalName,
                     rawName: trimmed,
                     displayName: finalName,
-                    team: index % n, // Chia đều học sinh vào các tổ ban đầu
+                    team: null, // Không sắp tổ sẵn! Mặc định null để học sinh có thể đại diện cho bất kỳ tổ nào hoặc giáo viên tự xếp
                     actions: []
                 };
             });
@@ -3616,7 +3640,8 @@
                 startupName: STARTUP_NAMES[i % STARTUP_NAMES.length],
                 field: STARTUP_FIELDS[i % STARTUP_FIELDS.length],
                 score: startScore,
-                color: TEAM_COLORS[i % TEAM_COLORS.length]
+                color: TEAM_COLORS[i % TEAM_COLORS.length],
+                stagedStudent: null
             }));
 
             // Nếu kích hoạt Chế độ Phe Quỷ: Tích hợp Tổ Quỷ trực tiếp vào danh sách Teams
@@ -3707,14 +3732,19 @@
                     if (target) {
                         const score = Number(st.score);
                         if (Number.isFinite(score)) target.score = Math.max(0, score);
-                        if (st.stagedStudent) target.stagedStudent = st.stagedStudent;
+                        target.stagedStudent = null; // Trạng thái Chờ (Waiting) - không chọn sẵn tên khi mở trang
                     }
                 });
 
                 if (Array.isArray(state.demonStudents)) {
                     demonStudents = state.demonStudents;
                 }
-                if (Array.isArray(state.students)) students = state.students;
+                if (Array.isArray(state.students)) {
+                    students = state.students.map(st => ({
+                        ...st,
+                        team: null // Đảm bảo học sinh không bị khóa vào bất kỳ tổ nào từ phiên cũ
+                    }));
+                }
                 if (Array.isArray(state.allClassStudents)) {
                     allClassStudents = state.allClassStudents;
                 } else {
@@ -3757,11 +3787,10 @@
 
                 renderTeams();
                 teams.forEach((team, idx) => {
-                    if (team.isDemonTeam || !team.stagedStudent) return;
+                    team.stagedStudent = null;
                     const select = $('sel-' + idx);
-                    if (!select) return;
-                    const studentIdx = students.findIndex(student => studentDisplayName(student) === team.stagedStudent);
-                    if (studentIdx >= 0) select.value = String(studentIdx);
+                    if (select) select.value = '';
+                    updateTeamStagedBadge(idx);
                 });
                 refreshSelects();
                 if (demonMode) renderDemonRoster();
@@ -3823,6 +3852,7 @@
             }
             if (index === slides.length - 1) {
                 renderRankings();
+                triggerConfetti();
             }
             saveSessionState();
         }
@@ -4034,8 +4064,8 @@
 
                 // THẺ TỔ THƯỜNG CÓ SELECT VÀ NÚT XÚC XẮC GỌI HỌC SINH TỪNG TỔ
                 const stagedInfo = t.stagedStudent
-                    ? `<div style="font-size:11.5px; font-weight:800; color:#0284c7; margin-top:2px;">🎯 Lên bảng: <b>${esc(t.stagedStudent)}</b></div>`
-                    : '';
+                    ? `<div class="staged-badge" style="font-size:11.5px; font-weight:800; color:#0284c7; margin-top:2px;">🎯 Lên bảng: <b>${esc(t.stagedStudent)}</b></div>`
+                    : '<div class="staged-badge" style="display:none; font-size:11.5px; font-weight:800; color:#0284c7; margin-top:2px;"></div>';
 
                 return `
                     <div class="team ${i === currentTurnIndex ? 'turn' : ''}" id="team-${i}" style="--tc:${t.color}" onclick="setTurn(${i})">
@@ -5206,6 +5236,16 @@
 
         function switchSupremeCase(roundNum, idx) {
             courtRounds[roundNum].currentIdx = idx;
+            // Xóa staging của các tổ khi chuyển đổi vụ án để bắt đầu vụ mới ở trạng thái Chờ (Waiting)
+            teams.forEach((t, i) => {
+                if (!t.isDemonTeam) {
+                    t.stagedStudent = null;
+                    const sel = $('sel-' + i);
+                    if (sel) sel.value = '';
+                    updateTeamStagedBadge(i);
+                }
+            });
+            refreshSelects();
             renderSupremeCourtArena(roundNum);
             if (typeof saveSessionState === 'function') saveSessionState();
         }
@@ -5285,6 +5325,17 @@
         function nextSupremeCase(roundNum) {
             const roundObj = courtRounds[roundNum];
             if (!roundObj) return;
+
+            // Xóa staging của các tổ để vụ án mới bắt đầu sạch sẽ ở trạng thái Chờ (Waiting)
+            teams.forEach((t, i) => {
+                if (!t.isDemonTeam) {
+                    t.stagedStudent = null;
+                    const sel = $('sel-' + i);
+                    if (sel) sel.value = '';
+                    updateTeamStagedBadge(i);
+                }
+            });
+            refreshSelects();
 
             if (roundObj.currentIdx < roundObj.cases.length - 1) {
                 roundObj.currentIdx++;
@@ -5381,6 +5432,17 @@
                     c.netizenVotes[k] = null;
                 });
             }
+
+            // Xóa staging của các tổ khi xét xử lại vụ án
+            teams.forEach((t, i) => {
+                if (!t.isDemonTeam) {
+                    t.stagedStudent = null;
+                    const sel = $('sel-' + i);
+                    if (sel) sel.value = '';
+                    updateTeamStagedBadge(i);
+                }
+            });
+            refreshSelects();
 
             renderSupremeCourtArena(roundNum);
             if (typeof saveSessionState === 'function') saveSessionState();
@@ -5505,12 +5567,16 @@
                     if (!team || team.isDemonTeam || !team.stagedStudent) return;
                     const selected = $('sel-' + teamIdx);
                     const stagedIndex = students.findIndex(student => studentDisplayName(student) === team.stagedStudent);
-                    const studentIndex = selected && selected.value !== '' ? Number(selected.value) : stagedIndex;
+                    const studentIndex = (selected && selected.value !== '') ? Number(selected.value) : stagedIndex;
                     if (Number.isInteger(studentIndex) && studentIndex >= 0 && studentIndex < students.length &&
                         !calledStudentIndices.has(studentIndex)) {
                         calledStudentIndices.add(studentIndex);
                         studentCallsChanged = true;
                     }
+                    // BẮT BUỘC: Reset học sinh sau khi đã hoàn thành vụ án (Picked ≠ Done: đã xử xong thì Done)
+                    team.stagedStudent = null;
+                    if (selected) selected.value = '';
+                    updateTeamStagedBadge(teamIdx);
                 });
                 if (studentCallsChanged) refreshSelects();
                 if (stagedDemon && calledDemonNames.has(stagedDemon.name)) stagedDemon = null;
@@ -5717,7 +5783,9 @@
                 `;
             }).join('');
 
-            triggerConfetti();
+            // TUYỆT ĐỐI KHÔNG GỌI triggerConfetti() TẠI ĐÂY!
+            // renderRankings() chạy mỗi khi có biến động điểm (kể cả trừ điểm, phạt).
+            // Pháo hoa chỉ kích hoạt khi sang slide Bảng Vàng vinh danh hoặc bấm nút Bắn pháo hoa.
             updateDemonKingSpotlights();
         }
 
