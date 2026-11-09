@@ -12,7 +12,7 @@ window.QUESTS_DATA = {
       "type": "VIOLATION",
       "lawTag": "Vi phạm Điều 1 & Điều 2 (Chưa xin phép + Tự ý xóa tên tác giả)",
       "rumor": "Dư luận phát hiện poster quảng cáo mới của <b>{dName} ({dStartup})</b> dùng bức tranh kỹ thuật số do <b>{pName} ({pStartup})</b> vẽ tuần trước.",
-      "knownFacts": "• <b>Về việc xin phép:</b> <b>{dName}</b> tải bức tranh trên trang cá nhân của <b>{pName}</b> về dùng mà <u>chưa từng nhắn tin hay hỏi ý kiến</u> <b>{pName}</b>.<br>• <b>Về cách ghi nguồn:</b> Trên bức tranh gốc có chữ ký của <b>{pName}</b>, nhưng <b>{dName}</b> đã cắt bỏ chữ ký đó và ghi dòng chữ dưới đây:",
+      "knownFacts": "• <b>Về việc xin phép:</b> <b>{dName}</b> tải bức tranh trên trang cá nhân của <b>{pName}</b> về dùng mà chưa từng nhắn tin hay hỏi ý kiến <b>{pName}</b>.<br>• <b>Về cách ghi nguồn:</b> Trên bức tranh gốc có chữ ký của <b>{pName}</b>, nhưng <b>{dName}</b> đã cắt bỏ chữ ký đó và ghi dòng chữ dưới đây:",
       "exhibitBox": "🖼️ [Vật chứng trên Poster của {dName}]: \"Minh họa: Nguồn Sưu tầm trên mạng\"",
       "cards": [
         { "id": "EXCUSE", "quote": "\"Tranh đăng lên mạng tụi em tải về rồi ghi chữ Nguồn Sưu tầm ở góc poster là đã tôn trọng Điều 2 rồi, không cần xin phép nữa!\"" },
@@ -57,7 +57,7 @@ window.QUESTS_DATA = {
       "type": "TRAP",
       "lawTag": "Hợp pháp đúng Điều 2 (Thơ dân gian khuyết danh ghi nguồn Sưu tầm)",
       "rumor": "Một số độc giả nghi ngờ tờ báo tường của <b>{dName} ({dStartup})</b> đạo nhái bài ca dao dân gian từng xuất hiện trong cuốn sổ tay văn học của <b>{pName}</b>!",
-      "knownFacts": "• <b>Nguồn gốc bài thơ:</b> Đây là bài ca dao truyền miệng từ xa xưa (cả <b>{pName}</b> và <b>{dName}</b> đều biết bài này <u>không rõ tên tác giả là ai</u>).<br>• <b>Trên tờ báo tường:</b> Ngay bên dưới bài ca dao, <b>{dName}</b> ghi rõ dòng chữ:",
+      "knownFacts": "• <b>Nguồn gốc bài thơ:</b> Đây là bài ca dao truyền miệng từ xa xưa (cả <b>{pName}</b> và <b>{dName}</b> đều biết bài này không rõ tên tác giả là ai).<br>• <b>Trên tờ báo tường:</b> Ngay bên dưới bài ca dao, <b>{dName}</b> ghi rõ dòng chữ:",
       "exhibitBox": "📰 [Vật chứng Báo tường của {dName}]: \"Công cha như núi Thái Sơn / Nghĩa mẹ như nước trong nguồn chảy ra... — Nguồn: Sưu tầm\"",
       "cards": [
         { "id": "LEGAL_DEFENSE", "quote": "\"Đây là bài ca dao dân gian không rõ tên tác giả, nên chúng em ghi nguồn là Sưu tầm đúng chuẩn Mẫu số 2 của Điều 2 SGK!\"" },
@@ -72,8 +72,8 @@ window.QUESTS_DATA = {
       "type": "VIOLATION",
       "lawTag": "Vi phạm Điều 3 (Đọc và kể lại nhật ký cá nhân khi chưa được phép)",
       "rumor": "Xảy ra tranh cãi gay gắt giữa <b>{pName} ({pStartup})</b> và <b>{dName} ({dStartup})</b> về việc lộ bí mật trong cuốn sổ nhật ký cá nhân!",
-      "knownFacts": "• <b>Diễn biến thực tế:</b> Thành viên <b>{pName}</b> sang bàn của <b>{dName}</b> thảo luận rồi vô tình để quên cuốn sổ nhật ký cá nhân (sổ đang mở sẵn trang viết dở).<br>• <b>Hành động của {dName}:</b> Thấy sổ mở sẵn, thành viên <b>{dName}</b> đã <u>cầm lên đọc to rồi đem kể lại nội dung trong nhật ký</u> cho nhiều bạn khác nghe.",
-      "exhibitBox": "📓 [Xác nhận tại hiện trường]: Cuốn sổ bìa xanh ghi rõ ngoài bìa \"Nhật ký riêng tư của {pName}\" — Chưa hề có sự đồng ý cho phép đọc.",
+      "knownFacts": "• <b>Diễn biến thực tế:</b> Thành viên <b>{pName}</b> sang bàn của <b>{dName}</b> thảo luận rồi vô tình để quên cuốn sổ nhật ký cá nhân (sổ đang mở sẵn trang viết dở).<br>• <b>Hành động của {dName}:</b> Thấy sổ mở sẵn, thành viên <b>{dName}</b> đã cầm lên đọc to rồi đem kể lại nội dung trong nhật ký cho nhiều bạn khác nghe.",
+      "exhibitBox": "📓 [Xác nhận tại hiện trường]: Cuốn sổ bìa xanh ngoài bìa ghi \"Nhật ký riêng tư của {pName}\" — Các trang viết đang mở trên bàn học.",
       "cards": [
         { "id": "EXCUSE", "quote": "\"Do bạn tự để quên cuốn sổ mở sẵn trên bàn của tổ em! Tụi em chỉ vô tình nhìn thấy chữ trên trang giấy rồi kể lại thôi nên không phạm luật!\"" },
         { "id": "APOLOGIZE", "quote": "\"Chúng em sai Điều 3 rồi! Nhật ký là thông tin riêng tư của mỗi người, dù bạn để quên mở sẵn thì đọc và kể lại khi chưa được phép vẫn là vi phạm. Xin lỗi bạn!\"" }
@@ -87,13 +87,103 @@ window.QUESTS_DATA = {
       "type": "VIOLATION",
       "lawTag": "Vi phạm Điều 1 (Đã xin phép nhưng không ghi rõ nguồn / tên tác giả)",
       "rumor": "<b>{pName} ({pStartup})</b> bức xúc tố cáo <b>{dName} ({dStartup})</b> đăng bài viết cảm xúc <i>\"Người mẹ thứ hai\"</i> của <b>{pName}</b> lên trang tin mà không thấy tên tác giả đâu!",
-      "knownFacts": "• <b>Về việc xin phép:</b> Hôm qua, <b>{dName}</b> <u>đã gặp trực tiếp xin phép</u> mượn bài viết và được <b>{pName}</b> vui vẻ gật đầu đồng ý.<br>• <b>Về việc ghi nguồn:</b> Khi đăng bài viết lên Bản tin điện tử của trường, <b>{dName}</b> để trống hoàn toàn phần tên người viết như sau:",
-      "exhibitBox": "📄 [Bản tin đã xuất bản của {dName}]: Bài viết \"Người mẹ thứ hai\" — (Cuối bài để trống, không ghi tên tác giả {pName})",
+      "knownFacts": "• <b>Về việc xin phép:</b> Hôm qua, <b>{dName}</b> đã gặp trực tiếp xin phép mượn bài viết và được <b>{pName}</b> vui vẻ gật đầu đồng ý.<br>• <b>Về việc ghi nguồn:</b> Khi đăng bài viết lên Bản tin điện tử của trường, <b>{dName}</b> để trống phần tên người viết như sau:",
+      "exhibitBox": "📄 [Bản tin đã xuất bản của {dName}]: Bài viết \"Người mẹ thứ hai\" — (Cuối bài để trống phần tên tác giả)",
       "cards": [
         { "id": "EXCUSE", "quote": "\"Hôm qua tụi em đã gặp mặt xin phép đàng hoàng và bạn cũng đồng ý cho dùng rồi thì cần gì phải ghi tên tác giả vào cuối bài nữa!\"" },
         { "id": "APOLOGIZE", "quote": "\"Chúng em nhận lỗi! Điều 1 bắt buộc phải đủ cả 2 vế là Xin phép VÀ Ghi rõ nguồn. Tụi em mới xin phép mà quên ghi tên tác giả là vi phạm Điều 1!\"" }
       ],
       "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Hộp kiến thức SGK trang 21 (Điều 1): Khi sử dụng nội dung thông tin của người khác cần <b>được cho phép VÀ ghi rõ nguồn</b>. Mới chỉ xin phép mà bỏ trống tên tác giả là thiếu vế thứ 2 ➔ <b>VI PHẠM ĐIỀU 1!</b>"
+    },
+    {
+      "id": "case_podcast",
+      "mockupType": "podcast",
+      "round": 1,
+      "type": "TRAP",
+      "lawTag": "Hợp pháp đúng Điều 1 (Đã xin phép + Giới thiệu rõ người chia sẻ)",
+      "rumor": "Kênh Podcast học đường của <b>{dName} ({dStartup})</b> bị nghi ngờ phát sóng đoạn ghi âm bài thuyết trình của <b>{pName} ({pStartup})</b> mà không xin phép!",
+      "knownFacts": "• <b>Sự thật giữa 2 tổ:</b> Trước khi thu âm số phát sóng mới, <b>{dName}</b> đã gửi tin nhắn xin phép và được <b>{pName}</b> đồng ý cho phát đoạn ghi âm bài thuyết trình.<br>• <b>Trên bản tin âm thanh:</b> Người dẫn chương trình của <b>{dName}</b> đã giới thiệu rõ ràng tên tác giả như sau:",
+      "exhibitBox": "🎙️ [Trích đoạn Podcast của {dName}]: \"Đoạn âm thanh thuyết trình vừa rồi được chia sẻ bởi bạn {pName} ({pStartup}) dưới sự đồng ý của tác giả.\"",
+      "cards": [
+        { "id": "LEGAL_DEFENSE", "quote": "\"Chúng em đã xin phép trước và trong tập podcast đã nói rõ tên tác giả bạn {pName} nên hoàn toàn đúng chuẩn Điều 1!\"" },
+        { "id": "CLUMSY", "quote": "\"Giọng nói hay thì tụi em cứ ghi âm phát lên mạng thôi chứ cần gì phải xin phép ai!\"" }
+      ],
+      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Đối chiếu Điều 1: <b>{dName}</b> đã thỏa mãn đủ cả 2 vế: <b>(1) Được sự đồng ý của tác giả</b> và <b>(2) Giới thiệu rõ tên tác giả</b> trên sản phẩm ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
+    },
+    {
+      "id": "case_sticker",
+      "mockupType": "sticker",
+      "round": 1,
+      "type": "VIOLATION",
+      "lawTag": "Vi phạm Điều 1 & Điều 2 (Tự ý lấy hình vẽ của bạn, xóa logo và nhận là người thiết kế)",
+      "rumor": "<b>{pName} ({pStartup})</b> bức xúc khi bộ Sticker hoạt hình do mình dày công vẽ trên máy tính bỗng xuất hiện trong bộ nhãn dán của <b>{dName} ({dStartup})</b>!",
+      "knownFacts": "• <b>Về việc xin phép:</b> <b>{dName}</b> thấy bộ nhãn dán của bạn đẹp liền chụp màn hình lưu lại, không hề nhắn tin hay xin phép <b>{pName}</b>.<br>• <b>Về ghi nhận tác quyền:</b> <b>{dName}</b> dùng công cụ chỉnh sửa để xóa logo chữ ký của <b>{pName}</b> ở góc hình và ghi tên tổ mình:",
+      "exhibitBox": "🎨 [Bộ nhãn dán công bố của {dName}]: Bộ Sticker 6 con vật — Dòng chú thích: \"Thiết kế bởi: {dName} ({dStartup})\"",
+      "cards": [
+        { "id": "EXCUSE", "quote": "\"Ảnh vẽ đăng lên mạng nhóm lớp là của chung, tụi em cắt viền lại rồi phát hành thì tổ em là người tạo ra bộ sticker mới này!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Tụi em nhận lỗi! Lấy hình vẽ của bạn chưa xin phép lại xóa chữ ký để tự nhận là của mình là vi phạm nghiêm trọng Điều 1 và Điều 2!\"" }
+      ],
+      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Tác phẩm đồ họa có quyền tác giả của <b>{pName}</b>. Hành vi tự ý lấy chưa xin phép (sai Điều 1) và xóa chữ ký nhận làm của mình (sai Điều 2) là <b>VI PHẠM BẢN QUYỀN!</b>"
+    },
+    {
+      "id": "case_recitation",
+      "mockupType": "recitation",
+      "round": 1,
+      "type": "TRAP",
+      "lawTag": "Hợp pháp đúng Điều 2 (Đọc bài thơ nổi tiếng và ghi rõ tác giả sáng tác)",
+      "rumor": "Có ý kiến cho rằng video ngâm thơ của <b>{dName} ({dStartup})</b> sao chép tác phẩm văn học của người khác để dự thi phong trào!",
+      "knownFacts": "• <b>Nội dung thể hiện:</b> <b>{dName}</b> tự đọc và thu âm bài thơ nổi tiếng <i>\"Quê hương\"</i> để làm video dự thi Tiếng hát tuổi thơ.<br>• <b>Trên khung hình và phần mô tả video:</b> <b>{dName}</b> trình bày thông tin tác quyền như sau:",
+      "exhibitBox": "📺 [Khung hình video của {dName}]: \"Bài thơ: Quê hương — Tác giả: Đỗ Trung Quân — Trình bày: {dName} ({dStartup})\"",
+      "cards": [
+        { "id": "LEGAL_DEFENSE", "quote": "\"Chúng em tự đọc thơ và đã ghi rõ ràng Tên bài thơ cùng Tên tác giả Đỗ Trung Quân đúng chuẩn quy định tôn trọng tác quyền Điều 2!\"" },
+        { "id": "CLUMSY", "quote": "\"Bài thơ này do tổ em tự sáng tác khi đi dã ngoại cuối tuần trước chứ không phải của ai khác!\"" }
+      ],
+      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Điều 2 SGK trang 21: Trình bày bài thơ của tác giả khác và ghi rõ tên bài thơ cùng tên tác giả là hoàn toàn đúng quy định tác quyền ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
+    },
+    {
+      "id": "case_gallery",
+      "mockupType": "gallery",
+      "round": 1,
+      "type": "VIOLATION",
+      "lawTag": "Vi phạm Điều 3 (Tự ý lấy ảnh chụp gia đình của bạn mang đi triển lãm công cộng)",
+      "rumor": "<b>{pName} ({pStartup})</b> bất ngờ khi thấy bức ảnh chụp cả gia đình mình đi nghỉ mát bị <b>{dName} ({dStartup})</b> in ra dán lên Bảng tin triển lãm trường!",
+      "knownFacts": "• <b>Nguồn gốc bức ảnh:</b> Bức ảnh chụp bố mẹ và <b>{pName}</b> được đăng trong album gia đình riêng tư trên trang cá nhân của <b>{pName}</b>.<br>• <b>Hành động của {dName}:</b> Thấy ảnh đẹp, <b>{dName}</b> đã tự tải về máy rồi in ra dán vào góc triển lãm ảnh mà chưa từng hỏi xin phép <b>{pName}</b> hay phụ huynh.",
+      "exhibitBox": "🖼️ [Bảng triển lãm trường]: Bức ảnh gia đình của {pName} — Dán kèm lời chú thích: \"Gia đình hạnh phúc tiêu biểu\"",
+      "cards": [
+        { "id": "EXCUSE", "quote": "\"Ảnh gia đình bạn rất đẹp nên tụi em dán lên bảng tin để khen ngợi gia đình bạn chứ đâu có nói xấu đâu mà bảo vi phạm!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Chúng em sai Điều 3 rồi! Ảnh gia đình là quyền riêng tư cá nhân, mang đi trưng bày công cộng khi chưa được phép là vi phạm quyền riêng tư. Tụi em xin gỡ ngay!\"" }
+      ],
+      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Điều 3 SGK: Hình ảnh gia đình và cá nhân là thông tin mang tính riêng tư. Dù với mục đích khen ngợi thì tự ý công khai khi chưa được phép vẫn là <b>VI PHẠM QUYỀN RIÊNG TƯ!</b>"
+    },
+    {
+      "id": "case_remix",
+      "mockupType": "remix",
+      "round": 1,
+      "type": "VIOLATION",
+      "lawTag": "Vi phạm Điều 1 (Tự ý phối lại bản nhạc của bạn khi chưa xin phép)",
+      "rumor": "<b>{pName} ({pStartup})</b> phát hiện đoạn nhạc bài hát tự sáng tác của mình bị <b>{dName} ({dStartup})</b> cắt ghép mang đi phối thành nhạc DJ sôi động!",
+      "knownFacts": "• <b>Về việc xin phép:</b> <b>{dName}</b> tải tệp âm thanh bài hát gốc của <b>{pName}</b> về máy rồi đưa vào phần mềm phối nhạc mà chưa từng hỏi ý kiến tác giả.<br>• <b>Về cách ghi nguồn:</b> Trong phần thông tin bản nhạc mới, <b>{dName}</b> có ghi dòng chữ:",
+      "exhibitBox": "🎧 [Bản nhạc remix của {dName}]: \"Nhạc cổ động thể thao Remix (Giai điệu gốc của tác giả: {pName})\"",
+      "cards": [
+        { "id": "EXCUSE", "quote": "\"Tụi em đã ghi tên bạn là tác giả giai điệu gốc rồi, tụi em chỉ phối lại tiết tấu nhanh hơn thôi thì không cần phải xin phép!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Tụi em nhận lỗi! Điều 1 yêu cầu phải được tác giả cho phép trước khi sử dụng và chỉnh sửa tác phẩm. Tụi em chưa xin phép là sai Điều 1!\"" }
+      ],
+      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Điều 1 (Hộp kiến thức SGK trang 21): Khi sử dụng hoặc sửa đổi tác phẩm của người khác bắt buộc phải <b>ĐƯỢC CHO PHÉP</b>. Có ghi tên tác giả nhưng chưa xin phép vẫn là <b>VI PHẠM BẢN QUYỀN!</b>"
+    },
+    {
+      "id": "case_parody",
+      "mockupType": "parody",
+      "round": 1,
+      "type": "TRAP",
+      "lawTag": "Hợp pháp đúng Điều 2 (Kịch bản dựa trên truyện cổ tích có ghi rõ Phỏng theo)",
+      "rumor": "Một số khán giả thắc mắc vở kịch hội diễn của <b>{dName} ({dStartup})</b> có cốt truyện chàng dũng sĩ diệt quái vật giống truyện cổ tích <i>\"Thạch Sanh\"</i> trong sách của <b>{pName}</b>!",
+      "knownFacts": "• <b>Cách xây dựng kịch bản:</b> <b>{dName}</b> dựa trên tích truyện dân gian Thạch Sanh, tự sáng tác lại toàn bộ lời thoại và lời dẫn chuyện mới cho các vai diễn.<br>• <b>Trên tờ rơi phát cho khán giả:</b> <b>{dName}</b> ghi dòng chú thích nguồn như sau:",
+      "exhibitBox": "🎭 [Tờ rơi vở kịch của {dName}]: \"Vở kịch thiếu nhi: Người Hùng Rừng Xanh — Phỏng theo truyện cổ tích dân gian Thạch Sanh\"",
+      "cards": [
+        { "id": "LEGAL_DEFENSE", "quote": "\"Chúng em diễn đạt lại truyện bằng lời thoại kịch bản mới của tổ mình và đã ghi nguồn Phỏng theo truyện Thạch Sanh chuẩn Mẫu số 3 Điều 2 SGK!\"" },
+        { "id": "CLUMSY", "quote": "\"Nhân vật Thạch Sanh là do tổ em tự sáng tác hôm qua chứ không phải truyện cổ tích của ai hết!\"" }
+      ],
+      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Điều 2 SGK trang 21: Khi diễn đạt lại nội dung truyện cổ tích bằng ngôn ngữ kịch bản mới, ghi nguồn <b>\"Phỏng theo truyện...\"</b> là hoàn toàn đúng luật ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
     },
     {
       "id": "case_clapper",
@@ -117,8 +207,8 @@ window.QUESTS_DATA = {
       "type": "VIOLATION",
       "lawTag": "Vi phạm Điều 3 (Tự ý sao chép tệp trong máy tính của bạn khi chưa xin phép)",
       "rumor": "<b>{pName} ({pStartup})</b> phát hiện trong USB của <b>{dName} ({dStartup})</b> có chứa tệp bài trình chiếu dự thi của tổ mình!",
-      "knownFacts": "• <b>Diễn biến tại phòng máy:</b> Giờ ra chơi, máy tính của <b>{pName}</b> vẫn bật màn hình (không đặt mật khẩu khóa máy).<br>• <b>Hành động của {dName}:</b> Thành viên <b>{dName}</b> đi ngang qua thấy tệp trình chiếu trên màn hình đẹp quá liền <u>cắm USB sao chép tệp đó về máy mình mà chưa hỏi ý kiến</u> <b>{pName}</b>.",
-      "exhibitBox": "💻 [Biên bản phòng máy]: Tệp \"DuAn_SangTao.pptx\" của {pName} bị sao chép sang USB của {dName} lúc 09:15 khi chủ máy vắng mặt.",
+      "knownFacts": "• <b>Diễn biến tại phòng máy:</b> Giờ ra chơi, máy tính của <b>{pName}</b> vẫn bật màn hình (không đặt mật khẩu khóa máy).<br>• <b>Hành động của {dName}:</b> Thành viên <b>{dName}</b> đi ngang qua thấy tệp trình chiếu trên màn hình đẹp quá liền cắm USB sao chép tệp đó về máy mình mà chưa hỏi ý kiến <b>{pName}</b>.",
+      "exhibitBox": "💻 [Biên bản phòng máy]: Tệp \"DuAn_SangTao.pptx\" của {pName} được sao chép sang USB của {dName} lúc 09:15 khi chủ máy vắng mặt.",
       "cards": [
         { "id": "EXCUSE", "quote": "\"Tại máy tính trong phòng thực hành của bạn mở sẵn không cài mật khẩu khóa máy, nghĩa là tài liệu công khai ai đi ngang chép cũng được!\"" },
         { "id": "APOLOGIZE", "quote": "\"Tụi em nhận lỗi! Theo Điều 3 SGK, sao chép tệp của bạn khi chưa có sự đồng ý là hành vi sai trái vi phạm đạo đức. Tụi em xin xóa tệp ngay!\"" }
@@ -132,8 +222,8 @@ window.QUESTS_DATA = {
       "type": "TRAP",
       "lawTag": "Hợp pháp đúng Điều 1 & 3 (Xin phép bạn trước khi sao chép tệp và ghi nguồn)",
       "rumor": "Có bạn báo tin trông thấy thành viên <b>{dName} ({dStartup})</b> cầm USB sang máy tính của <b>{pName} ({pStartup})</b> để chép tệp trình chiếu!",
-      "knownFacts": "• <b>Sự thật giữa 2 tổ:</b> Giống tình huống bạn Khoa và bạn Minh trong SGK, trước khi cắm USB, đại diện <b>{dName}</b> <u>đã hỏi xin phép trực tiếp</u> và được trưởng nhóm <b>{pName}</b> đồng ý cho chép tệp mẫu.<br>• <b>Trên slide sử dụng:</b> <b>{dName}</b> cũng ghi chú rõ tên tác giả tệp mẫu là <b>{pName}</b>.",
-      "exhibitBox": "🤝 [Xác nhận tại lớp]: Trưởng nhóm {pName} đã đồng ý cho {dName} sao chép tệp + Slide có ghi rõ \"Tệp mẫu: {pName}\"",
+      "knownFacts": "• <b>Sự thật giữa 2 tổ:</b> Giống tình huống bạn Khoa và bạn Minh trong SGK, trước khi cắm USB, đại diện <b>{dName}</b> đã hỏi xin phép trực tiếp và được trưởng nhóm <b>{pName}</b> đồng ý cho chép tệp mẫu.<br>• <b>Trên slide sử dụng:</b> <b>{dName}</b> cũng ghi chú rõ tên tác giả tệp mẫu là <b>{pName}</b>.",
+      "exhibitBox": "🤝 [Xác nhận tại lớp]: Trưởng nhóm {pName} đã đồng ý cho {dName} sao chép tệp + Slide có ghi rõ \"Tệp mẫu thiết kế: {pName}\"",
       "cards": [
         { "id": "LEGAL_DEFENSE", "quote": "\"Giống bạn Khoa trong câu hỏi SGK trang 22, chúng em đã xin phép tổ bạn trước khi sao chép tệp trình chiếu và ghi rõ nguồn nên hoàn toàn đúng luật!\"" },
         { "id": "CLUMSY", "quote": "\"Tụi em lén chép lúc bạn không để ý nhưng may quá không bị phát hiện!\"" }
@@ -147,8 +237,8 @@ window.QUESTS_DATA = {
       "type": "VIOLATION",
       "lawTag": "Vi phạm Điều 1 (Chỉ ghi tên tác giả nhưng chưa được tác giả cho phép)",
       "rumor": "<b>{pName} ({pStartup})</b> phát hiện bức tranh vẽ phong cảnh trên máy tính của mình bị <b>{dName} ({dStartup})</b> lấy in lên bìa tạp chí!",
-      "knownFacts": "• <b>Về việc xin phép:</b> Giống tình huống của Hoa và Minh trong SGK, <b>{dName}</b> tự lấy bức tranh của <b>{pName}</b> đưa vào tạp chí mà <u>chưa hề hỏi ý kiến</u> <b>{pName}</b>.<br>• <b>Về việc ghi nguồn:</b> Dưới bức tranh trên tạp chí, <b>{dName}</b> vẫn ghi dòng chữ tên tác giả rất to như sau:",
-      "exhibitBox": "🎨 [Bìa tạp chí của {dName}]: Có in dòng chữ \"Tranh vẽ bởi tác giả: {pName}\" — nhưng chưa từng xin phép {pName}.",
+      "knownFacts": "• <b>Về việc xin phép:</b> Giống tình huống của Hoa và Minh trong SGK, <b>{dName}</b> tự lấy bức tranh của <b>{pName}</b> đưa vào tạp chí mà chưa hề hỏi ý kiến <b>{pName}</b>.<br>• <b>Về việc ghi nguồn:</b> Dưới bức tranh trên tạp chí, <b>{dName}</b> vẫn ghi dòng chữ tên tác giả rất to như sau:",
+      "exhibitBox": "🎨 [Bìa tạp chí của {dName}]: Có in dòng chữ \"Tranh vẽ bởi tác giả: {pName}\" dưới bức tranh phong cảnh số.",
       "cards": [
         { "id": "EXCUSE", "quote": "\"Tụi em không hề ăn cắp nhé! Dưới bức tranh tụi em đã ghi rõ ràng Tên tác giả là tổ bạn rồi nên tụi em hoàn toàn đúng luật!\"" },
         { "id": "APOLOGIZE", "quote": "\"Chúng em sai Điều 1 rồi! Dù có ghi tên tác giả nhưng khi chưa hỏi ý kiến và chưa được bạn cho phép sử dụng thì vẫn là vi phạm bản quyền. Xin nhận lỗi!\"" }
@@ -177,13 +267,103 @@ window.QUESTS_DATA = {
       "type": "VIOLATION",
       "lawTag": "Vi phạm Điều 3 (Đọc tin nhắn trên điện thoại của người khác khi không được phép)",
       "rumor": "<b>{pName} ({pStartup})</b> tố cáo thành viên của <b>{dName} ({dStartup})</b> xâm phạm quyền riêng tư trên điện thoại di động!",
-      "knownFacts": "• <b>Diễn biến thực tế:</b> Điện thoại của đại diện <b>{pName}</b> để trên bàn học bỗng sáng màn hình báo có tin nhắn riêng từ gia đình gửi tới.<br>• <b>Hành động của {dName}:</b> Thành viên <b>{dName}</b> ngồi cạnh đã <u>tự ý cầm điện thoại lên đọc toàn bộ tin nhắn rồi chia sẻ chuyện đó</u> cho các bạn xung quanh.",
-      "exhibitBox": "📱 [Xác nhận sự việc]: Tin nhắn riêng tư trên điện thoại của {pName} bị thành viên {dName} tự ý đọc và chia sẻ khi chưa xin phép.",
+      "knownFacts": "• <b>Diễn biến thực tế:</b> Điện thoại của đại diện <b>{pName}</b> để trên bàn học bỗng sáng màn hình báo có tin nhắn riêng từ gia đình gửi tới.<br>• <b>Hành động của {dName}:</b> Thành viên <b>{dName}</b> ngồi cạnh đã tự ý cầm điện thoại lên đọc tin nhắn rồi chia sẻ chuyện đó cho các bạn xung quanh.",
+      "exhibitBox": "📱 [Xác nhận sự việc]: Tin nhắn riêng tư trên điện thoại của {pName} được thành viên {dName} đọc và chia sẻ lại trong lớp.",
       "cards": [
         { "id": "EXCUSE", "quote": "\"Tại tin nhắn tự hiện lên trên màn hình điện thoại để trên bàn, tụi em đâu có bẻ khóa mật khẩu đâu mà bảo tụi em phạm luật!\"" },
         { "id": "APOLOGIZE", "quote": "\"Theo mục Luyện tập 2 SGK trang 23, đọc tin nhắn trên điện thoại và chia sẻ thông tin riêng tư của người khác mà không được phép là sai trái. Chúng em xin lỗi!\"" }
       ],
       "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Luyện tập 2 (ý a và c) SGK trang 23: Đọc tin nhắn trên điện thoại của người khác và chia sẻ thông tin riêng tư mà không xin phép là hành vi vi phạm đạo đức và quyền riêng tư ➔ <b>VI PHẠM ĐIỀU 3!</b>"
+    },
+    {
+      "id": "case_cloud_folder",
+      "mockupType": "cloud_folder",
+      "round": 2,
+      "type": "VIOLATION",
+      "lawTag": "Vi phạm Điều 3 & Điều 2 (Tự ý tải bài làm trong thư mục riêng của bạn nộp bài cho tổ mình)",
+      "rumor": "<b>{pName} ({pStartup})</b> bức xúc tố cáo bài văn dự thi của mình lưu trong thư mục đám mây lớp học bị <b>{dName} ({dStartup})</b> lấy nộp cho tổ khác!",
+      "knownFacts": "• <b>Tình huống tại thư mục chung:</b> Link lưu trữ đám mây của lớp được mở để nộp bài tập, trong đó mỗi bạn có một thư mục cá nhân đặt tên riêng.<br>• <b>Hành động của {dName}:</b> <b>{dName}</b> đã mở thư mục cá nhân của <b>{pName}</b>, tải tệp <i>\"BaiVan_Diem10.docx\"</i> về máy rồi đổi tên tác giả thành tên tổ mình đem nộp.",
+      "exhibitBox": "☁️ [Nhật ký thao tác đám mây]: Tệp \"BaiVan_Diem10.docx\" trong thư mục riêng của {pName} bị tải về lúc 20:10 và nộp lại dưới tên {dName}.",
+      "cards": [
+        { "id": "EXCUSE", "quote": "\"Thư mục đám mây chia sẻ chung cho cả lớp thì tệp nào trong đó tụi em cũng được tải về sử dụng nộp bài!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Chúng em sai cả Điều 3 lẫn Điều 2 rồi! Tự ý vào thư mục riêng của bạn lấy tệp là sai Điều 3, lại đổi tên nhận bài của bạn là của mình là sai Điều 2. Xin nhận lỗi!\"" }
+      ],
+      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Chiếu theo Điều 3 & Điều 2 SGK trang 22: Tự ý truy cập tài liệu riêng của bạn khi chưa được phép là vi phạm quyền riêng tư, nhận bài của người khác là của mình là <b>HÀNH VI SAI TRÁI!</b>"
+    },
+    {
+      "id": "case_code_game",
+      "mockupType": "code_game",
+      "round": 2,
+      "type": "TRAP",
+      "lawTag": "Hợp pháp đúng Điều 1 & 2 (Dùng khối lệnh Scratch mở và ghi nhận tác giả trong Notes & Credits)",
+      "rumor": "Một số bạn nghi ngờ trò chơi lập trình Scratch mới của <b>{dName} ({dStartup})</b> sao chép mã lệnh di chuyển nhân vật từ dự án của <b>{pName} ({pStartup})</b>!",
+      "knownFacts": "• <b>Nguồn gốc tài nguyên:</b> <b>{pName}</b> chia sẻ khối lệnh điều khiển nhân vật lên cộng đồng Scratch với chế độ mở khuyến khích mọi người học tập.<br>• <b>Trong phần giới thiệu dự án:</b> <b>{dName}</b> điền đầy đủ thông tin tại ô <i>\"Notes and Credits\"</i> như sau:",
+      "exhibitBox": "🧩 [Mục Notes & Credits dự án Scratch của {dName}]: \"Mã điều khiển nhân vật bay tham khảo từ dự án mở của bạn {pName} ({pStartup}) — Xin chân thành cảm ơn tác giả!\"",
+      "cards": [
+        { "id": "LEGAL_DEFENSE", "quote": "\"Khối lệnh được tác giả chia sẻ mở cho cộng đồng học hỏi, chúng em đã ghi công tác giả ở mục Notes and Credits đúng chuẩn đạo đức số!\"" },
+        { "id": "CLUMSY", "quote": "\"Tất cả mọi khối lệnh lập trình trên thế giới đều do tổ em phát minh ra nên tụi em không cần ghi nhận ai cả!\"" }
+      ],
+      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Sử dụng tài nguyên mở phục vụ học tập và ghi nhận đầy đủ tên tác giả tại phần ghi chú nguồn là hành vi văn minh, tôn trọng bản quyền ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
+    },
+    {
+      "id": "case_avatar_hack",
+      "mockupType": "avatar_hack",
+      "round": 2,
+      "type": "VIOLATION",
+      "lawTag": "Vi phạm Điều 3 (Chụp trộm biểu cảm bạn bị ngã rồi đăng chế ảnh meme lên mạng xã hội)",
+      "rumor": "<b>{pName} ({pStartup})</b> buồn bã khi thấy hình ảnh biểu cảm hài hước của mình lúc vấp ngã bị <b>{dName} ({dStartup})</b> chế ảnh đăng lên nhóm mạng xã hội!",
+      "knownFacts": "• <b>Diễn biến tại sân trường:</b> Giờ ra chơi, <b>{pName}</b> vô tình vấp ngã làm rơi sách vở trên sân trường.<br>• <b>Hành động của {dName}:</b> <b>{dName}</b> dùng điện thoại chụp trộm khuôn mặt của <b>{pName}</b> rồi chèn câu chữ chế nhạo hài hước đăng lên nhóm chat công khai khi <b>{pName}</b> chưa hề đồng ý.",
+      "exhibitBox": "📲 [Bài đăng trên mạng xã hội của {dName}]: Ảnh chụp khuôn mặt ngã của {pName} — Kèm câu chế ảnh: \"Khi bạn cố gắng nhưng đời không như mơ 😂\"",
+      "cards": [
+        { "id": "EXCUSE", "quote": "\"Tụi em chỉ đăng ảnh chế cho vui trong nhóm bạn để giải trí thôi chứ không có ý thù ghét gì bạn cả nên không phạm luật!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Tụi em nhận lỗi! Theo Điều 3 SGK, chụp ảnh người khác khi chưa xin phép rồi chia sẻ lên mạng làm ảnh hưởng tâm lý của bạn là vi phạm đạo đức số. Tụi em xin xóa bài ngay!\"" }
+      ],
+      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Điều 3 SGK trang 22: Hình ảnh khuôn mặt của mỗi người là quyền riêng tư cá nhân. Chụp trộm và đăng lên mạng chế nhạo khi chưa được phép là <b>VI PHẠM QUYỀN RIÊNG TƯ!</b>"
+    },
+    {
+      "id": "case_science_report",
+      "mockupType": "science_report",
+      "round": 2,
+      "type": "TRAP",
+      "lawTag": "Hợp pháp đúng Điều 1 (Đã gửi thư xin phép và ghi nguồn chú thích biểu đồ nghiên cứu)",
+      "rumor": "Nhiều tổ thắc mắc khi thấy bài báo cáo khoa học STEM của <b>{dName} ({dStartup})</b> có biểu đồ thí nghiệm nhiệt độ giống hệt số liệu của <b>{pName} ({pStartup})</b>!",
+      "knownFacts": "• <b>Sự thật giữa 2 tổ:</b> Tuần trước, đại diện <b>{dName}</b> đã gửi thư xin phép mượn bảng số liệu biểu đồ và được nhóm trưởng <b>{pName}</b> gửi văn bản đồng ý.<br>• <b>Dưới biểu đồ trong bài báo cáo:</b> <b>{dName}</b> in rõ chú thích trích dẫn nguồn:",
+      "exhibitBox": "📊 [Trang báo cáo STEM của {dName}]: Biểu đồ đo nhiệt độ nước — Dòng chú thích: \"Số liệu thí nghiệm được phép trích dẫn từ nhóm nghiên cứu {pName} ({pStartup})\"",
+      "cards": [
+        { "id": "LEGAL_DEFENSE", "quote": "\"Chúng em đã làm đúng Điều 1 SGK: Có văn bản xin phép được tác giả đồng ý và ghi rõ nguồn nhóm nghiên cứu bên dưới biểu đồ!\"" },
+        { "id": "CLUMSY", "quote": "\"Thấy số liệu của bạn trên bàn là tụi em chép số vào bài mình luôn cho nhanh chứ xin phép làm gì!\"" }
+      ],
+      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Thực hiện đầy đủ 2 vế của Điều 1: Đã được tác giả đồng ý cho phép trích dẫn VÀ ghi rõ nguồn nhóm tác giả dưới biểu đồ ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
+    },
+    {
+      "id": "case_video_sub",
+      "mockupType": "video_sub",
+      "round": 2,
+      "type": "VIOLATION",
+      "lawTag": "Vi phạm Điều 1 & Điều 2 (Tải video của bạn về chèn phụ đề, xóa tên tác giả gốc)",
+      "rumor": "<b>{pName} ({pStartup})</b> phát hiện video bài giảng Tiếng Anh khoa học do tổ mình kỳ công tự quay và lồng tiếng bị <b>{dName} ({dStartup})</b> đăng lên kênh khác!",
+      "knownFacts": "• <b>Về việc xin phép:</b> <b>{dName}</b> tải trọn vẹn tệp video gốc của <b>{pName}</b> từ trên mạng về máy mà chưa từng hỏi ý kiến <b>{pName}</b>.<br>• <b>Về việc ghi nhận tác giả:</b> <b>{dName}</b> cắt bỏ đoạn giới thiệu tên tổ của <b>{pName}</b> ở đầu video, sau đó chèn thêm dòng chữ phụ đề tiếng Việt và nhận video là của mình:",
+      "exhibitBox": "🎬 [Video đăng tải bởi {dName}]: Video Khoa Học Tự Nhiên — Cắt bỏ intro tên {pName} — Dòng ghi nhận: \"Biên soạn & Sản xuất: {dName} ({dStartup})\"",
+      "cards": [
+        { "id": "EXCUSE", "quote": "\"Tổ em đã mất công dịch và chèn thêm dòng chữ phụ đề tiếng Việt vào video thì đây là sản phẩm mới do tổ em sở hữu bản quyền!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Chúng em sai rồi! Video của bạn mà tự ý tải về dùng không xin phép lại cắt intro xóa tên bạn là vi phạm cả Điều 1 và Điều 2!\"" }
+      ],
+      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Video thuộc quyền tác giả của <b>{pName}</b>. Việc chèn thêm phụ đề không biến video của người khác thành của mình khi <b>chưa được phép</b> và <b>xóa tên tác giả gốc</b> ➔ <b>VI PHẠM BẢN QUYỀN!</b>"
+    },
+    {
+      "id": "case_library_wiki",
+      "mockupType": "library_wiki",
+      "round": 2,
+      "type": "TRAP",
+      "lawTag": "Hợp pháp đúng Điều 2 & Vận dụng SGK (Trích dẫn định nghĩa từ Bách khoa toàn thư mở có dẫn nguồn)",
+      "rumor": "Có ý kiến cho rằng tài liệu Cẩm nang Tin học 5 của <b>{dName} ({dStartup})</b> sao chép nguyên văn định nghĩa từ mạng Internet mà không tự viết!",
+      "knownFacts": "• <b>Nội dung trích dẫn:</b> <b>{dName}</b> trích dẫn đoạn định nghĩa <i>\"Nội dung số là gì?\"</i> từ Bách khoa toàn thư mở Wikipedia (tài liệu cấp phép mở cho học tập).<br>• <b>Ngay cuối đoạn trích dẫn:</b> <b>{dName}</b> ghi chú nguồn thông tin đầy đủ:",
+      "exhibitBox": "📖 [Tài liệu Cẩm nang của {dName}]: Đoạn trích \"Nội dung số là sản phẩm dữ liệu...\" — Chú thích: \"Trích dẫn từ Bách khoa toàn thư mở Wikipedia (Giấy phép chia sẻ mở CC)\"",
+      "cards": [
+        { "id": "LEGAL_DEFENSE", "quote": "\"Theo phần Vận dụng SGK trang 23, chúng em sử dụng tài liệu chia sẻ mở phục vụ học tập và đã trích dẫn đầy đủ tên nguồn gốc tài liệu!\"" },
+        { "id": "CLUMSY", "quote": "\"Định nghĩa này do tổ em tự nghĩ ra từ năm ngoái chứ không hề có trên mạng đâu!\"" }
+      ],
+      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Chiếu theo mục Vận dụng SGK trang 23: Trích dẫn định nghĩa từ nguồn tài liệu tham khảo mở và ghi rõ tên nguồn là hành vi sử dụng thông tin hợp pháp và mẫu mực ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
     }
   ]
 };
