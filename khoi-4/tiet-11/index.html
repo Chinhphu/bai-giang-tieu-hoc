@@ -2083,6 +2083,7 @@
 
         // Cơ chế giảm giá cho sự cố đang diễn ra
         let activeDiscountPrice = null; // null = giá gốc, number = giá sau giảm
+        let isAudited = false; // Cờ kiểm tra đã thanh tra bản quyền cuối giờ (chống phạt kép / click nhiều lần)
 
         // Telemetry & Metrics
         let studentLogs = [];
@@ -2109,6 +2110,7 @@
                     roundTurnsPlayed,
                     maxPriceCeiling,
                     fundQuestionsCorrectCount,
+                    isAudited,
                     teams,
                     studentLogs,
                     tradeLogs,
@@ -2132,6 +2134,7 @@
                     roundTurnsPlayed = d.roundTurnsPlayed || 0;
                     maxPriceCeiling = d.maxPriceCeiling || 150;
                     fundQuestionsCorrectCount = d.fundQuestionsCorrectCount || 0;
+                    isAudited = d.isAudited || false;
                     teams = d.teams;
                     studentLogs = d.studentLogs || [];
                     tradeLogs = d.tradeLogs || [];
@@ -2149,6 +2152,7 @@
                 localStorage.removeItem(getStorageKey());
                 maxPriceCeiling = 150;
                 fundQuestionsCorrectCount = 0;
+                isAudited = false;
                 initTeams();
                 curRound = 1;
                 curCustomerIdx = 0;
@@ -2214,25 +2218,38 @@
         /* HELPER: GET VISUAL STATUS BADGE WITH EMOJI INSTEAD OF CRYPTIC (Lv1) */
         function getSoftwareStatusDisplay(team, softwareName) {
             const lvl = team.softwareLevels?.[softwareName] ?? 0;
+            if (softwareName === 'Photoshop' && lvl === 0) {
+                return { label: '🔴 Hết hạn thuê bao', isOwned: false, isCrack: false };
+            }
+            if (lvl === 0) {
+                if (['CapCut', 'Google Chrome', 'Bộ Gõ UniKey', "Kiran's Typing Tutor"].includes(softwareName)) {
+                    return { label: '⚪ Chưa cài', isOwned: false, isCrack: false };
+                }
+                return { label: '⚪ Chưa mua', isOwned: false, isCrack: false };
+            }
+
+            const isCrack = (team.softwareOrigins?.[softwareName] === 'crack')
+                || (team.infectedSoftwares?.includes(softwareName))
+                || (team.detonatedSoftwares?.includes(softwareName));
+            if (isCrack) {
+                return { label: '☠️ Hàng lậu (Crack)', isOwned: true, isCrack: true };
+            }
+
             if (softwareName === 'Photoshop') {
-                if (lvl === 0) return { label: '🔴 Hết hạn thuê bao', isOwned: false };
-                if (lvl === 1) return { label: '🟢 Đang thuê bao', isOwned: true };
-                return { label: '👑 Gói Cloud VIP', isOwned: true };
+                if (lvl === 1) return { label: '🟢 Đang thuê bao', isOwned: true, isCrack: false };
+                return { label: '👑 Gói Cloud VIP', isOwned: true, isCrack: false };
             }
             if (softwareName === 'CapCut') {
-                if (lvl === 0) return { label: '⚪ Chưa cài', isOwned: false };
-                if (lvl === 1) return { label: '🎬 Bản thường (Free)', isOwned: true };
-                return { label: '👑 Gói PRO 4K', isOwned: true };
+                if (lvl === 1) return { label: '🎬 Bản thường (Free)', isOwned: true, isCrack: false };
+                return { label: '👑 Gói PRO 4K', isOwned: true, isCrack: false };
             }
             if (['Google Chrome', 'Bộ Gõ UniKey', "Kiran's Typing Tutor"].includes(softwareName)) {
-                if (lvl === 0) return { label: '⚪ Chưa cài', isOwned: false };
-                if (lvl === 1) return { label: '🛡️ Bản chuẩn miễn phí', isOwned: true };
-                return { label: '👑 Cập nhật tối tân', isOwned: true };
+                if (lvl === 1) return { label: '🛡️ Bản chuẩn miễn phí', isOwned: true, isCrack: false };
+                return { label: '👑 Cập nhật tối tân', isOwned: true, isCrack: false };
             }
             // PowerPoint, Minecraft (Paid base)
-            if (lvl === 0) return { label: '⚪ Chưa mua', isOwned: false };
-            if (lvl === 1) return { label: '⭐ Bản gốc', isOwned: true };
-            return { label: '👑 Siêu cấp (AI/Server)', isOwned: true };
+            if (lvl === 1) return { label: '⭐ Bản gốc', isOwned: true, isCrack: false };
+            return { label: '👑 Siêu cấp (AI/Server)', isOwned: true, isCrack: false };
         }
 
         /* ================= 4. KHỞI TẠO CÁC TỔ & GÁN TẬP ĐOÀN ================= */
@@ -2261,10 +2278,13 @@
                     inventory: [],
                     softwareLevels: {},
                     softwareOrigins: {},
+                    timesChosenAsVendor: 0,
                     history: [{ month: 0, money: 1000 }],
                     infected: false,
                     infectedSoftwares: [],
+                    detonatedSoftwares: [],
                     hasDetonated: false,
+                    hadPiracyRecord: false,
                     revealed: true
                 });
             }
@@ -2340,8 +2360,11 @@
                 t.icon = corp.icon;
                 t.defaultPrice = Math.min(maxPriceCeiling, corp.basePrice || 100);
                 t.currentPrice = t.defaultPrice;
-                t.inventory = [corp.software];
-                t.softwareLevels = { [corp.software]: 1 };
+                t.inventory = [];
+                t.softwareLevels = {};
+                t.softwareOrigins = {};
+                t.timesChosenAsVendor = 0;
+                t.hadPiracyRecord = false;
                 t.revealed = true;
             });
             renderMysteryBoxes();
@@ -2546,7 +2569,10 @@
 
         async function loadStudentsData() {
             try {
-                const res = await fetch(`../../assets/data/students_k4_2026_2027.json`);
+                let res = await fetch(`../../assets/data/students_4_2026_2027.json`);
+                if (!res.ok) {
+                    res = await fetch(`../../assets/data/students_k4_2026_2027.json`);
+                }
                 if (res.ok) {
                     const data = await res.json();
                     const list = data[currentClassId] || data['4_1'] || FALLBACK_STUDENTS;
@@ -2560,11 +2586,31 @@
             updateStudentSelects();
         }
 
+        function updateStagedStudentDisplay(type = 'fund') {
+            if (type === 'fund') {
+                const sel = $('#selStudentFund');
+                const tag = $('#stagedFundTag');
+                if (tag) {
+                    const name = sel?.value?.trim();
+                    tag.textContent = name ? `🎯 Đang gọi: ${name}` : 'Chưa chọn học sinh';
+                }
+            } else if (type === 'cons') {
+                const sel = $('#selStudentCons');
+                const tag = $('#stagedConsTag');
+                if (tag) {
+                    const name = sel?.value?.trim();
+                    tag.textContent = name ? `🎯 Đang gọi: ${name}` : 'Chưa chọn học sinh';
+                }
+            }
+        }
+
         function updateStudentSelects() {
             const optsHtml = studentsList.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
             $('#selStudentFund').innerHTML = optsHtml;
             const selCons = $('#selStudentCons');
             if (selCons) selCons.innerHTML = optsHtml;
+            updateStagedStudentDisplay('fund');
+            updateStagedStudentDisplay('cons');
         }
 
         function renderFundQuiz() {
@@ -2600,7 +2646,7 @@
                     fb.style.background = isOk ? '#dcfce7' : '#fee2e2';
                     fb.style.color = isOk ? '#14532d' : '#991b1b';
                     fb.innerHTML = `
-                        <b>${isOk ? '🎉 CHÍNH XÁC!' : '❌ CHƯA ĐÚNG!'}</b> ${esc(q.exp)}
+                        <b>${isOk ? '🎉 CHÍNH XÁC!' : '❌ CHƯA ĐÚNG!'}</b> ${esc(q.exp || q.expl || '')}
                         ${isOk ? '<br>✨ <i>Cả lớp đã nâng trần giá bán / tài trợ thêm +$50!</i>' : ''}
                     `;
 
@@ -2656,17 +2702,20 @@
 
         function rollGiantGacha() {
             playSound('tick');
+            const calledSet = new Set(studentLogs.map(l => l.studentName));
+            let pool = studentsList.filter(s => !calledSet.has(s));
+            if (!pool.length) pool = [...studentsList];
+            if (!pool.length) pool = ['Học sinh'];
+
+            const picked = pool[Math.floor(Math.random() * pool.length)];
+            $('#giantStudentName').textContent = picked;
+
             const selId = gachaTargetType === 'fund' ? '#selStudentFund' : '#selStudentCons';
             const sel = $(selId);
-            if (sel && sel.options.length > 0) {
-                const randIdx = Math.floor(Math.random() * sel.options.length);
-                sel.selectedIndex = randIdx;
-                const picked = sel.value;
-                $('#giantStudentName').textContent = picked;
-            } else {
-                const randomStudent = studentsList[Math.floor(Math.random() * studentsList.length)] || 'Học sinh';
-                $('#giantStudentName').textContent = randomStudent;
+            if (sel) {
+                sel.value = picked;
             }
+            updateStagedStudentDisplay(gachaTargetType);
         }
 
         $('#btnGachaFund').onclick = () => openGiantGacha('fund');
@@ -2677,7 +2726,14 @@
         $('#btnGiantGachaConfirm').onclick = () => {
             $('#giantGachaModal').style.display = 'none';
             playSound('beep_ok');
+            updateStagedStudentDisplay(gachaTargetType);
         };
+
+        // Lắng nghe thay đổi học sinh trực tiếp từ dropdown
+        const selFundElem = $('#selStudentFund');
+        if (selFundElem) selFundElem.onchange = () => updateStagedStudentDisplay('fund');
+        const selConsElem = $('#selStudentCons');
+        if (selConsElem) selConsElem.onchange = () => updateStagedStudentDisplay('cons');
 
         /* ================= 8. GIAI ĐOẠN 2: THƯƠNG TRƯỜNG PHẦN MỀM (ARENA) ================= */
         function updateArena() {
@@ -2689,6 +2745,10 @@
 
         /* AUTO GACHA CHO LƯỢT KHÁCH HÀNG MỚI */
         function startAutoGachaForCustomer() {
+            // Khi tiếp tục quay lượt khách mới (hoặc chơi thêm tháng), tự động reset cờ thanh tra
+            isAudited = false;
+            teams.forEach(t => t.auditResult = null);
+
             const custTeam = teams[curCustomerIdx];
             updateArena();
             activeDiscountPrice = null; // reset giảm giá cho lượt mới
@@ -2710,6 +2770,11 @@
             const availableTeams = teams.filter(t => t.id !== custTeam.id);
             const pool = availableTeams.length > 0 ? availableTeams : teams;
 
+            // CƠ CHẾ BAG RNG (HỘP BỐC THĂM CÔNG BẰNG): Ưu tiên các tổ chưa được / ít được gọi bán hàng nhất
+            const minTimes = Math.min(...pool.map(t => t.timesChosenAsVendor || 0));
+            const leastChosenTeams = pool.filter(t => (t.timesChosenAsVendor || 0) === minTimes);
+            const finalChosen = leastChosenTeams[Math.floor(Math.random() * leastChosenTeams.length)];
+
             let spins = 0;
             const maxSpins = 14;
             const timer = setInterval(() => {
@@ -2721,11 +2786,11 @@
                 spins++;
                 if (spins >= maxSpins) {
                     clearInterval(timer);
-                    const chosen = pool[Math.floor(Math.random() * pool.length)];
+                    finalChosen.timesChosenAsVendor = (finalChosen.timesChosenAsVendor || 0) + 1;
                     playSound('beep_ok');
                     $('#gachaRollingBox').style.display = 'none';
                     $('#corpStageArea').style.display = 'block';
-                    setupEventForTarget(chosen);
+                    setupEventForTarget(finalChosen);
                 }
             }, 75);
         }
@@ -2738,9 +2803,13 @@
             infectedTeam.currentInterest = 0;
             infectedTeam.infected = false; // Bom đã nổ
             infectedTeam.hasDetonated = true;
+            infectedTeam.detonatedSoftwares = [...(infectedTeam.infectedSoftwares || [])];
             statCrackDisasterCount++;
 
-            const swList = infectedTeam.infectedSoftwares.join(', ') || 'phần mềm lậu';
+            const swList = (infectedTeam.infectedSoftwares && infectedTeam.infectedSoftwares.length > 0)
+                ? infectedTeam.infectedSoftwares.join(', ')
+                : 'phần mềm lậu';
+            infectedTeam.infectedSoftwares = []; // Xóa khỏi danh sách đang nhiễm để không bị phạt kép ở cuối giờ!
             $('#karmaModalDesc').innerHTML = `
                 <div style="background:#fef2f2; border:2px solid #ef4444; border-radius:12px; padding:16px; margin-bottom:14px; text-align:left;">
                     <div style="font-weight:900; font-size:1.2rem; color:#991b1b; margin-bottom:8px">
@@ -2981,6 +3050,7 @@
                 let badgeClass = 'neutral';
                 let badgeLabel = 'LỰA CHỌN';
                 let costHtml = '$0';
+                let descText = c.desc;
 
                 const isPayChoice = c.costType === 'pay_corp' || c.costType === 'pay_corp_fixed';
                 if (isPayChoice) {
@@ -2995,6 +3065,10 @@
                     badgeClass = 'vip';
                     badgeLabel = '⚡ BẢN VIP $0';
                     costHtml = `<span style="font-size:1.35rem; font-weight:900; color:var(--blue)">$0 · MIỄN PHÍ</span>`;
+                } else if (c.isTrap) {
+                    badgeClass = 'vip';
+                    badgeLabel = '⚡ BẢN MOD $0';
+                    costHtml = `<span style="font-size:1.35rem; font-weight:900; color:var(--blue)">$0 · MIỄN PHÍ</span>`;
                 } else if (c.key === 'skip') {
                     badgeClass = 'neutral';
                     badgeLabel = '🚫 TẠM BỎ QUA';
@@ -3002,7 +3076,16 @@
                 } else {
                     badgeClass = 'free';
                     badgeLabel = '🎁 MIỄN PHÍ';
-                    costHtml = `<span style="font-size:1.35rem; font-weight:900; color:var(--green)">$0 (Miễn phí 100%)</span>`;
+                    const isNewInstall = (custTeam.softwareLevels?.[ownerTeam.software] ?? 0) === 0;
+                    const dynamicSponsor = (ownerTeam.corpType !== 'paid' && isNewInstall && ownerTeam.currentPrice)
+                        ? ownerTeam.currentPrice
+                        : (c.corpReward || 0);
+                    costHtml = dynamicSponsor > 0
+                        ? `<span style="font-size:1.35rem; font-weight:900; color:var(--green)">$0 (Tài trợ +$${dynamicSponsor})</span>`
+                        : `<span style="font-size:1.35rem; font-weight:900; color:var(--green)">$0 (Miễn phí 100%)</span>`;
+                    if (isNewInstall && dynamicSponsor > 0 && descText) {
+                        descText = descText.replace(/\$\d+/g, '$' + dynamicSponsor);
+                    }
                 }
 
                 return `
@@ -3017,7 +3100,7 @@
                             </div>
                         </div>
                         <div style="font-size:0.98rem; font-weight:600; color:#475569; line-height:1.5; margin-top:8px">
-                            ${esc(c.desc)}
+                            ${esc(descText)}
                         </div>
                     </button>
                 `;
@@ -3169,9 +3252,34 @@
                 ownerTeam.baseInterest += choice.permInterestDelta;
                 ownerTeam.currentInterest += choice.permInterestDelta;
             }
+            let sponsorReward = 0;
             if (choice.corpReward) {
-                ownerTeam.money += choice.corpReward;
+                const isNewInstall = (custTeam.softwareLevels?.[ownerTeam.software] ?? 0) === 0;
+                if (ownerTeam.corpType !== 'paid' && isNewInstall && ownerTeam.currentPrice) {
+                    sponsorReward = ownerTeam.currentPrice;
+                } else {
+                    sponsorReward = choice.corpReward;
+                }
+                ownerTeam.money += sponsorReward;
                 statSafeCount++;
+            }
+
+            // CƠ CHẾ HOÀN LƯƠNG: Nếu tổ này từng dùng bản crack của phần mềm này và nay mua/dùng bản chính hãng
+            const wasCracked = (custTeam.infectedSoftwares && custTeam.infectedSoftwares.includes(ownerTeam.software)) ||
+                               (custTeam.softwareOrigins && custTeam.softwareOrigins[ownerTeam.software] === 'crack');
+            if (wasCracked) {
+                // Gỡ bỏ phần mềm lậu khỏi danh sách bom mã độc
+                if (custTeam.infectedSoftwares) {
+                    custTeam.infectedSoftwares = custTeam.infectedSoftwares.filter(s => s !== ownerTeam.software);
+                }
+                if (!custTeam.infectedSoftwares || custTeam.infectedSoftwares.length === 0) {
+                    custTeam.infected = false; // Hóa giải hoàn toàn quả bom!
+                }
+                custTeam.hadPiracyRecord = true; // Lưu vết nhơ tiền án xài lậu
+                logTrade(`🕊️ HOÀN LƯƠNG: ${custTeam.name} đã mua/dùng bản quyền chính hãng [${ownerTeam.software}], gỡ bỏ thành công bom mã độc!`);
+                if (typeof window.toast === 'function') {
+                    window.toast(`🕊️ HOÀN LƯƠNG: ${custTeam.name} đã dùng bản quyền chính hãng gỡ bỏ mã độc!`, 4000, '#0284c7');
+                }
             }
 
             if (!custTeam.softwareLevels) custTeam.softwareLevels = {};
@@ -3193,13 +3301,13 @@
                 choice.label,
                 -cost,
                 custTeam.money,
-                cost || (choice.corpReward || 0),
+                cost || sponsorReward,
                 ownerTeam.money,
-                choice.interestDelta ? `Lãi suất +${choice.interestDelta}%` : 'Bản quyền an toàn',
+                choice.interestDelta ? `Lãi suất +${choice.interestDelta}%` : (sponsorReward ? `Nhận tài trợ +$${sponsorReward}` : 'Bản quyền an toàn'),
                 'buy'
             );
 
-            logTrade(`✅ ${custTeam.name} chọn [${choice.label}]. Giao dịch với ${ownerTeam.name} (${ownerTeam.software}) thành công!`);
+            logTrade(`✅ ${custTeam.name} chọn [${choice.label}]. Giao dịch với ${ownerTeam.name} (${ownerTeam.software}) thành công! ${sponsorReward ? `(${ownerTeam.name} nhận +$${sponsorReward} tài trợ)` : ''}`);
 
             if (typeof window.toast === 'function') {
                 window.toast(`🎉 Giao dịch thành công! ${custTeam.name} đạt cấp độ mới đối với ${ownerTeam.software}!`, 3000, '#16a34a');
@@ -3209,19 +3317,24 @@
         }
 
         /* TIẾN TRÌNH KẾT THÚC LƯỢT & TỰ ĐỘNG CHỐT THÁNG NẾU HẾT CÁC TỔ */
+        let turnStepTimer = null;
         function finishTurnStep() {
+            if (turnStepTimer) {
+                clearTimeout(turnStepTimer);
+                turnStepTimer = null;
+            }
             drawTeams();
             saveState();
             roundTurnsPlayed++;
 
             if (roundTurnsPlayed >= numTeams) {
                 // TẤT CẢ CÁC TỔ ĐÃ HOÀN THÀNH LƯỢT TRONG THÁNG NÀY -> TỰ ĐỘNG CHỐT THÁNG!
-                setTimeout(() => {
+                turnStepTimer = setTimeout(() => {
                     autoSettleRound();
                 }, 1200);
             } else {
-                // Tự động chuyển lượt khách hàng tiếp theo sau 1.5 giây hoặc bấm nút
-                setTimeout(() => {
+                // Tự động chuyển lượt khách hàng tiếp theo sau 1.4 giây
+                turnStepTimer = setTimeout(() => {
                     advanceToNextCustomer();
                 }, 1400);
             }
@@ -3234,7 +3347,20 @@
         }
 
         $('#btnNextCustomer').onclick = () => {
-            advanceToNextCustomer();
+            if (turnStepTimer) {
+                clearTimeout(turnStepTimer);
+                turnStepTimer = null;
+            }
+            const custTeam = teams[curCustomerIdx];
+            logTrade(`⏭️ ${custTeam ? custTeam.name : 'Khách hàng'} đã bỏ qua lượt chơi.`);
+            roundTurnsPlayed++;
+            drawTeams();
+            saveState();
+            if (roundTurnsPlayed >= numTeams) {
+                autoSettleRound();
+            } else {
+                advanceToNextCustomer();
+            }
         };
 
         $('#btnEndRound').onclick = () => {
@@ -3682,33 +3808,73 @@
             const modal = $('#auditModal');
             const list = $('#auditResultsList');
 
+            if (!isAudited) {
+                isAudited = true;
+                teams.forEach(t => {
+                    const isCurrentlyInfected = (t.infectedSoftwares && t.infectedSoftwares.length > 0) || t.infected;
+                    if (isCurrentlyInfected) {
+                        // 1. Tổ xài lậu ngoan cố (bom chưa gỡ): Phạt -50% tài sản
+                        const penalty = Math.round(t.money * 0.5);
+                        t.money = Math.max(0, t.money - penalty);
+                        t.auditResult = { type: 'penalty', penalty, softwares: [...t.infectedSoftwares] };
+                    } else if (t.hadPiracyRecord || t.hasDetonated) {
+                        // 2. Tổ từng xài lậu nhưng đã mua bản quyền khắc phục (hoàn lương) hoặc đã nổ bom:
+                        // Miễn phạt nhưng KHÔNG ĐƯỢC THƯỞNG +$200
+                        t.auditResult = {
+                            type: 'reformed',
+                            reason: t.hasDetonated
+                                ? 'Đã từng chịu thảm họa mã độc tống tiền ở tháng trước'
+                                : 'Đã có ý thức mua/dùng bản quyền khắc phục hậu quả (từng có tiền án xài lậu)'
+                        };
+                    } else {
+                        // 3. Tổ 100% trong sạch từ đầu: Thưởng +$200 Doanh nghiệp uy tín
+                        t.money += 200;
+                        t.auditResult = { type: 'reward', bonus: 200 };
+                    }
+                });
+                drawTeams();
+                saveState();
+            }
+
             let auditHtml = '';
             teams.forEach(t => {
-                const hadCrack = (t.infectedSoftwares && t.infectedSoftwares.length > 0) || t.infected;
-                if (hadCrack) {
-                    const penalty = Math.round(t.money * 0.5);
-                    t.money = Math.max(0, t.money - penalty);
+                const res = t.auditResult || {};
+                if (res.type === 'penalty') {
+                    const swNames = (res.softwares && res.softwares.length > 0) ? res.softwares.join(', ') : 'Bản crack VIP';
                     auditHtml += `
                         <div style="background:#fee2e2; border:2px solid #dc2626; border-radius:12px; padding:14px; display:flex; justify-content:space-between; align-items:center;">
                             <div>
                                 <span style="font-weight:900; font-size:1.2rem; color:#991b1b">❌ ${esc(t.name)} (${esc(t.corpName)}): PHÁT HIỆN DÙNG PHẦN MỀM LẬU!</span>
                                 <div style="font-size:.95rem; font-weight:700; color:#b91c1c; margin-top:4px">
-                                    Các phần mềm bẻ khóa: <b>${esc(t.infectedSoftwares.join(', ') || 'Bản crack VIP')}</b>
+                                    Các phần mềm bẻ khóa chưa bị xử lý: <b>${esc(swNames)}</b>
                                 </div>
                             </div>
                             <span style="font-weight:900; font-size:1.25rem; color:#dc2626; background:#fff; padding:6px 14px; border-radius:8px">
-                                PHẠT -$${penalty}
+                                PHẠT -$${res.penalty}
+                            </span>
+                        </div>
+                    `;
+                } else if (res.type === 'reformed') {
+                    auditHtml += `
+                        <div style="background:#fffbeb; border:2px solid #f59e0b; border-radius:12px; padding:14px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <span style="font-weight:900; font-size:1.2rem; color:#b45309">⚠️ ${esc(t.name)} (${esc(t.corpName)}): ĐÃ CÓ Ý THỨC KHẮC PHỤC HẬU QUẢ!</span>
+                                <div style="font-size:.95rem; font-weight:700; color:#92400e; margin-top:4px">
+                                    ${esc(res.reason)} · Đoàn thanh tra miễn xử phạt nhưng không đạt danh hiệu Doanh nghiệp trong sạch!
+                                </div>
+                            </div>
+                            <span style="font-weight:900; font-size:1.15rem; color:#b45309; background:#fff; padding:6px 14px; border-radius:8px">
+                                KHẮC PHỤC ($0)
                             </span>
                         </div>
                     `;
                 } else {
-                    t.money += 200; // Thưởng tổ làm ăn lương thiện
                     auditHtml += `
                         <div style="background:#dcfce7; border:2px solid #16a34a; border-radius:12px; padding:14px; display:flex; justify-content:space-between; align-items:center;">
                             <div>
                                 <span style="font-weight:900; font-size:1.2rem; color:#14532d">✅ ${esc(t.name)} (${esc(t.corpName)}): DOANH NGHIỆP TRUNG THỰC & AN TOÀN!</span>
                                 <div style="font-size:.95rem; font-weight:700; color:#15803d; margin-top:4px">
-                                    100% phần mềm có bản quyền chính hãng · Máy tính sạch virus tuyệt đối!
+                                    100% phần mềm có bản quyền chính hãng từ đầu · Máy tính sạch virus tuyệt đối!
                                 </div>
                             </div>
                             <span style="font-weight:900; font-size:1.25rem; color:#15803d; background:#fff; padding:6px 14px; border-radius:8px">
@@ -3722,8 +3888,6 @@
             list.innerHTML = auditHtml;
             modal.style.display = 'flex';
             playSound('bad');
-            drawTeams();
-            saveState();
         }
 
         $('#btnTriggerAuditing').onclick = triggerAuditingProcess;

@@ -1,4 +1,4 @@
-/* QUESTS & CORPORATIONS DATA (OFFLINE-FIRST) */
+﻿/* QUESTS & CORPORATIONS DATA (OFFLINE-FIRST) */
 window.QUESTS_DATA = {
   "funding_quizzes": [
     {
@@ -12,6 +12,7 @@ window.QUESTS_DATA = {
       ],
       "ans": 0,
       "reward": 50,
+      "exp": "Phím tắt chuẩn: Ctrl + C là Copy (Sao chép), Ctrl + V là Paste (Dán tệp vào vị trí mới).",
       "expl": "Phím tắt chuẩn: Ctrl + C là Copy (Sao chép), Ctrl + V là Paste (Dán tệp vào vị trí mới)."
     },
     {
@@ -25,6 +26,7 @@ window.QUESTS_DATA = {
       ],
       "ans": 0,
       "reward": 50,
+      "exp": "Nhấp chuột phải chọn Rename (hoặc nhấn phím F2) để gõ tên mới rồi nhấn Enter để hoàn thành.",
       "expl": "Nhấp chuột phải chọn Rename (hoặc nhấn phím F2) để gõ tên mới rồi nhấn Enter để hoàn thành."
     },
     {
@@ -38,6 +40,7 @@ window.QUESTS_DATA = {
       ],
       "ans": 0,
       "reward": 50,
+      "exp": "Lệnh Cut (Cắt) dùng để di chuyển hẳn tệp đi, còn Copy sẽ nhân đôi tệp thành 2 bản.",
       "expl": "Lệnh Cut (Cắt) dùng để di chuyển hẳn tệp đi, còn Copy sẽ nhân đôi tệp thành 2 bản."
     },
     {
@@ -51,6 +54,7 @@ window.QUESTS_DATA = {
       ],
       "ans": 0,
       "reward": 50,
+      "exp": "Phím Delete (hoặc chuột phải chọn Delete) sẽ đưa tệp vào Thùng rác (Recycle Bin).",
       "expl": "Phím Delete (hoặc chuột phải chọn Delete) sẽ đưa tệp vào Thùng rác (Recycle Bin)."
     },
     {
@@ -64,6 +68,7 @@ window.QUESTS_DATA = {
       ],
       "ans": 0,
       "reward": 50,
+      "exp": "Phím Esc (Escape) dùng để hủy bỏ nhanh thao tác đổi tên đang dang dở.",
       "expl": "Phím Esc (Escape) dùng để hủy bỏ nhanh thao tác đổi tên đang dang dở."
     }
   ],
@@ -388,9 +393,9 @@ window.QUESTS_DATA = {
           "choices": [
             {
               "key": "free_download",
-              "label": "Tải Bản CapCut Miễn Phí Chính Hãng ()",
+              "label": "Tải Bản CapCut Miễn Phí Chính Hãng",
               "cost": 0,
-              "desc": "Khách dùng miễn phí an toàn. Tổ CapCut nhận  tiền tài trợ quảng cáo trong ứng dụng! Lên Level 1.",
+              "desc": "Khách dùng miễn phí an toàn. Tổ CapCut nhận $50 tiền tài trợ quảng cáo trong ứng dụng! Lên Level 1.",
               "interestDelta": 0,
               "corpReward": 50,
               "nextLevel": 1,
@@ -398,7 +403,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "trap_apk",
-              "label": "Tải Bản CapCut Mod APK Tối Ưu ($0)",
+              "label": "Tải Bản CapCut Mod APK Tối Ưu",
               "cost": 0,
               "desc": "Bản Mod APK chia sẻ trên diễn đàn quảng cáo mở khóa bộ lọc màu điện ảnh và xuất video siêu nhanh, nhận ngay Siêu Buff +30% Lãi suất!",
               "isTrap": false,
@@ -409,7 +414,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "skip",
-              "label": "Tạm Thời Không Làm Video ()",
+              "label": "Tạm Thời Không Làm Video",
               "cost": 0,
               "desc": "Không có video quảng cáo, công ty bị chậm chân so với đối thủ: Trừ 10% Lãi suất tháng.",
               "interestDelta": -10,
@@ -434,7 +439,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "crack",
-              "label": "Tải Bản CapCut PRO Mod APK Lậu ()",
+              "label": "Tải Bản CapCut PRO Mod APK Lậu",
               "cost": 0,
               "desc": "Tiết kiệm 100% chi phí! Xuất 4K không logo miễn phí, nhận ngay Siêu Buff +30% Lãi suất tháng!",
               "interestDelta": 30,
@@ -444,7 +449,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "skip",
-              "label": "Xuất Video Thường Có Logo Mờ ()",
+              "label": "Xuất Video Thường Có Logo Mờ",
               "cost": 0,
               "desc": "Video bị dính logo mờ, hình ảnh chất lượng thấp: Tụt 10% Lãi suất tháng.",
               "interestDelta": -10,
@@ -459,19 +464,19 @@ window.QUESTS_DATA = {
           "choices": [
             {
               "key": "upgrade",
-              "label": "Mua Gói Hiệu Ứng Tết Độc Quyền ()",
+              "label": "Mua Gói Hiệu Ứng Tết Độc Quyền",
               "costType": "pay_corp_fixed",
               "cost": 50,
-              "desc": "Video lên xu hướng số 1 mạng xã hội, đơn hàng nổ ầm ầm! Buff +10% Lãi suất tháng. CapCut nhận .",
+              "desc": "Video lên xu hướng số 1 mạng xã hội, đơn hàng nổ ầm ầm! Buff +10% Lãi suất tháng. CapCut nhận $50.",
               "interestDelta": 10,
               "nextLevel": 2,
               "sound": "cash"
             },
             {
               "key": "crack",
-              "label": "Tải Plugin Crack Hiệu Ứng Trên Web Đen ()",
+              "label": "Tải Plugin Crack Hiệu Ứng Trên Web Đen",
               "cost": 0,
-              "desc": "Tiết kiệm ! Không tốn một xu mà được mở khóa hiệu ứng Tết, kích hoạt Siêu Buff +30% Lãi suất tháng!",
+              "desc": "Tiết kiệm $50! Không tốn một xu mà được mở khóa hiệu ứng Tết, kích hoạt Siêu Buff +30% Lãi suất tháng!",
               "interestDelta": 30,
               "isCrackVIP": true,
               "nextLevel": 2,
@@ -479,7 +484,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "skip",
-              "label": "Không Dùng Hiệu Ứng Tết ()",
+              "label": "Không Dùng Hiệu Ứng Tết",
               "cost": 0,
               "desc": "Video đơn điệu không ai xem, hợp đồng bị hủy: Tụt 10% Lãi suất tháng.",
               "interestDelta": -10,
@@ -519,7 +524,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "trap_crack",
-              "label": "Tải Bản Chrome Mod 'Tăng Tốc 200%' ($0)",
+              "label": "Tải Bản Chrome Mod 'Tăng Tốc 200%'",
               "cost": 0,
               "desc": "Trang web lạ quảng cáo bản Chrome Mod này chặn sạch quảng cáo và tăng tốc độ duyệt web gấp đôi, nhận ngay Siêu Buff +30% Lãi suất!",
               "isTrap": false,
@@ -546,7 +551,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "trap_crack",
-              "label": "Cài Tiện Ích Chrome Mod VIP ($0)",
+              "label": "Cài Tiện Ích Chrome Mod VIP",
               "cost": 0,
               "desc": "Tiện ích trôi nổi hứa hẹn bẻ khóa mọi dịch vụ trả phí trên mạng hoàn toàn miễn phí, nhận ngay Siêu Buff +30% Lãi suất!",
               "isTrap": false,
@@ -588,7 +593,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "trap_crack",
-              "label": "Tải Bản UniKey 'Siêu Phông Chữ' VIP ($0)",
+              "label": "Tải Bản UniKey 'Siêu Phông Chữ' VIP",
               "cost": 0,
               "desc": "Link tải chia sẻ trên mạng hứa hẹn bản UniKey tích hợp sẵn 1000 phông chữ thư pháp độc lạ, nhận ngay Siêu Buff +30% Lãi suất!",
               "isTrap": false,
@@ -600,14 +605,15 @@ window.QUESTS_DATA = {
           ]
         },
         "level_1": {
-          "title": "Tập Đoàn Apple Xin Tích Hợp Lõi UniKey",
-          "desc": "Tập đoàn công nghệ Apple danh tiếng xin phép tác giả Phạm Kim Long tích hợp lõi gõ Tiếng Việt UniKey vào hệ điều hành iPhone mới!",
+          "title": "Tập Đoàn Apple Tích Hợp Lõi UniKey Toàn Cầu",
+          "desc": "Tập đoàn công nghệ Apple danh tiếng đã tích hợp lõi gõ Tiếng Việt UniKey vào hệ điều hành iPhone/Mac mới. Doanh nghiệp của bạn là đơn vị đầu tiên được trải nghiệm tính năng này!",
           "choices": [
             {
               "key": "auto_fame",
-              "label": "Đồng Ý Cho Sử Dụng Miễn Phí Toàn Cầu",
+              "label": "Đồng Ý Trải Nghiệm Ngay",
               "cost": 0,
-              "desc": "Tác giả UniKey vang danh toàn thế giới! Tinh thần cống hiến được tôn vinh: LÃI SUẤT CƠ BẢN CỦA TỔ UNIKEY TĂNG THÊM +10%/VÒNG VĨNH VIỄN!",
+              "desc": "Gõ tiếng Việt siêu mượt trên thiết bị Apple! Khách hàng nhận ngay Buff +5% Lãi suất tháng. Tác giả Chú Phạm Kim Long vang danh toàn cầu: Lãi suất cơ bản của tổ UniKey tăng vĩnh viễn +10%/vòng!",
+              "interestDelta": 5,
               "permInterestDelta": 10,
               "nextLevel": 2,
               "sound": "fanfare"
@@ -661,7 +667,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "trap_crack",
-              "label": "Tải Bản Mod Kiran Auto Gõ Phím 100 WPM ($0)",
+              "label": "Tải Bản Mod Kiran Auto Gõ Phím 100 WPM",
               "cost": 0,
               "desc": "Bản Mod tự động gõ phím thần tốc 100 từ/phút đạt điểm tối đa mọi bài kiểm tra, nhận ngay Siêu Buff +30% Lãi suất!",
               "isTrap": false,
@@ -688,7 +694,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "trap_crack",
-              "label": "Cài Tool Hack Điểm Gõ Phím VIP ($0)",
+              "label": "Cài Tool Hack Điểm Gõ Phím VIP",
               "cost": 0,
               "desc": "Tool can thiệp hệ thống giúp công ty luôn dẫn đầu bảng thành tích gõ phím, nhận ngay Siêu Buff +30% Lãi suất!",
               "isTrap": false,
