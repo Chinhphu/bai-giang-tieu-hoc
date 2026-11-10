@@ -1,56 +1,70 @@
-/**
- * NGÂN HÀNG DỮ LIỆU ĐỒNG BỘ TỪ quests.json
- * Hỗ trợ chạy 100% Offline-First không bị lỗi CORS khi mở bằng file://
- */
+/* QUESTS & CORPORATIONS DATA (OFFLINE-FIRST) */
 window.QUESTS_DATA = {
   "funding_quizzes": [
     {
-      "id": "fund_1",
-      "q": "Câu 1 (SGK Bài 5): Bạn Thu An chuyển từ Nhóm 1 sang Nhóm 2. Để thư mục của Thu An chuyển sang Nhóm 2 và không còn tồn tại ở Nhóm 1 nữa, thao tác nào sau đây là tốt nhất?",
+      "id": "fund_q1",
+      "q": "Để Sao chép một tệp bài làm và Dán vào thư mục mới bằng bàn phím, em sử dụng tổ hợp phím nào?",
       "opts": [
-        "A. Tạo mới thư mục Thu An ở Nhóm 2 và xóa thư mục Thu An ở Nhóm 1",
-        "B. Di chuyển (Move) thư mục Thu An từ Nhóm 1 sang Nhóm 2",
-        "C. Sao chép (Copy) thư mục Thu An từ Nhóm 1 sang Nhóm 2",
-        "D. Đổi tên thư mục Nhóm 1 thành Nhóm 2"
+        "A. Nhấn Ctrl + C để sao chép, rồi sang nơi mới nhấn Ctrl + V để dán",
+        "B. Nhấn Ctrl + X để sao chép, rồi sang nơi mới nhấn Ctrl + Z để dán",
+        "C. Nhấn Ctrl + A để sao chép, rồi sang nơi mới nhấn Ctrl + S để dán",
+        "D. Nhấn Shift + C để sao chép, rồi sang nơi mới nhấn Shift + V để dán"
       ],
-      "ans": 1,
-      "exp": "Chính xác! Thao tác Di chuyển (Move) đưa thư mục và toàn bộ tệp bên trong sang vị trí mới, và không còn ở vị trí cũ."
+      "ans": 0,
+      "reward": 50,
+      "expl": "Phím tắt chuẩn: Ctrl + C là Copy (Sao chép), Ctrl + V là Paste (Dán tệp vào vị trí mới)."
     },
     {
-      "id": "fund_2",
-      "q": "Câu 2 (SGK Bài 5): Khi em muốn một tệp hoặc thư mục cùng tồn tại ở CẢ VỊ TRÍ CŨ VÀ VỊ TRÍ MỚI, em phải sử dụng thao tác nào?",
+      "id": "fund_q2",
+      "q": "Khi muốn Đổi tên một tệp hoặc thư mục bằng chuột, thao tác nào sau đây là đúng nhất?",
       "opts": [
-        "A. Xóa (Delete)",
-        "B. Di chuyển (Move)",
-        "C. Sao chép (Copy)",
-        "D. Đổi tên (Rename)"
+        "A. Nhấp chuột phải vào tệp -> Chọn Rename (hoặc chọn tệp rồi nhấn phím F2)",
+        "B. Nhấp đúp chuột thật nhanh 5 lần liên tiếp vào tệp",
+        "C. Nhấp chuột phải vào tệp -> Chọn lệnh Delete",
+        "D. Nhấp chuột trái kéo tệp vứt ra ngoài màn hình Desktop"
       ],
-      "ans": 2,
-      "exp": "Rất chuẩn! Sao chép (Copy) giúp nhân bản tệp/thư mục sang vị trí mới mà vẫn giữ nguyên ở vị trí cũ."
+      "ans": 0,
+      "reward": 50,
+      "expl": "Nhấp chuột phải chọn Rename (hoặc nhấn phím F2) để gõ tên mới rồi nhấn Enter để hoàn thành."
     },
     {
-      "id": "fund_3",
-      "q": "Câu 3 (SGK Bài 5): Trong các hành vi sau, hành vi nào là SAI và có nguy cơ làm hỏng hệ điều hành máy tính?",
+      "id": "fund_q3",
+      "q": "Để Di chuyển (cắt hẳn đi) một tệp sang thư mục khác bằng chuột phải mà không để lại bản cũ, em thao tác như thế nào?",
       "opts": [
-        "A. Bạn Minh sao chép một tệp trong thư mục Video đến thư mục của mình",
-        "B. Bạn An xóa các tệp nháp trong thư mục riêng của mình",
-        "C. Bạn Huy tự ý xóa các tệp trong thư mục Windows ở ổ đĩa C:",
-        "D. Bạn Khoa đổi tên thư mục con trong thư mục của mình"
+        "A. Chuột phải vào tệp chọn Cut -> Mở thư mục mới, chuột phải chọn Paste",
+        "B. Chuột phải vào tệp chọn Copy -> Mở thư mục mới, chuột phải chọn Paste",
+        "C. Chuột phải vào tệp chọn Delete -> Mở thư mục mới, chuột phải chọn Undo",
+        "D. Nhấp chuột phải ra màn hình nền rồi chọn New Folder"
       ],
-      "ans": 2,
-      "exp": "Chính xác! Thư mục Windows chứa các tệp hệ thống tối quan trọng. Tự ý xóa tệp hệ thống sẽ gây tê liệt máy tính!"
+      "ans": 0,
+      "reward": 50,
+      "expl": "Lệnh Cut (Cắt) dùng để di chuyển hẳn tệp đi, còn Copy sẽ nhân đôi tệp thành 2 bản."
     },
     {
-      "id": "fund_4",
-      "q": "Câu 4 (SGK Bài 5): Để tránh làm mất thông tin hoặc làm hỏng máy tính, em nên tuân thủ nguyên tắc nào khi thao tác với tệp và thư mục?",
+      "id": "fund_q4",
+      "q": "Khi em muốn Xóa một tệp rác không dùng nữa, sau khi nhấp chuột chọn tệp, em bấm phím nào trên bàn phím?",
       "opts": [
-        "A. Tự ý xóa hết các thư mục có tên tiếng Anh trên máy tính",
-        "B. Chỉ thao tác với tệp và thư mục do chính mình tạo ra, không tự ý can thiệp tệp của người khác hay tệp hệ thống",
-        "C. Đổi tên toàn bộ các tệp trên máy tính theo ý thích",
-        "D. Thấy tệp nào lạ là xóa ngay"
+        "A. Bấm phím Delete (hoặc nhấp chuột phải chọn lệnh Delete)",
+        "B. Bấm phím Enter",
+        "C. Bấm phím Spacebar (Phím cách)",
+        "D. Bấm phím Esc"
       ],
-      "ans": 1,
-      "exp": "Tuyệt vời! Nguyên tắc cốt lõi: Chỉ thao tác với dữ liệu của chính mình để đảm bảo trật tự và an toàn thông tin."
+      "ans": 0,
+      "reward": 50,
+      "expl": "Phím Delete (hoặc chuột phải chọn Delete) sẽ đưa tệp vào Thùng rác (Recycle Bin)."
+    },
+    {
+      "id": "fund_q5",
+      "q": "Đang lúc gõ đổi tên tệp mà em phát hiện gõ nhầm và muốn Hủy bỏ không đổi nữa, em bấm phím nào ở góc trên bên trái bàn phím?",
+      "opts": [
+        "A. Bấm phím Esc (Escape) để hủy bỏ và giữ nguyên tên cũ",
+        "B. Bấm phím Enter",
+        "C. Bấm phím F5",
+        "D. Bấm phím Tab"
+      ],
+      "ans": 0,
+      "reward": 50,
+      "expl": "Phím Esc (Escape) dùng để hủy bỏ nhanh thao tác đổi tên đang dang dở."
     }
   ],
   "corporations": [
@@ -90,7 +104,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "crack",
-              "label": "Tải Bản Crack VIP ($0)",
+              "label": "Tải Bản Crack VIP",
               "cost": 0,
               "desc": "Tiết kiệm 100% chi phí! Không tốn một đồng nào mà được kích hoạt Siêu Buff +30% Lãi suất vòng!",
               "interestDelta": 30,
@@ -106,7 +120,7 @@ window.QUESTS_DATA = {
           "choices": [
             {
               "key": "upgrade",
-              "label": "Nâng Cấp Bản AI ($80)",
+              "label": "Nâng Cấp Bản AI",
               "cost": 80,
               "costType": "pay_corp_fixed",
               "desc": "Được trang bị công nghệ AI hiện đại nhất! Khách được cộng thêm +10% Lãi suất vòng. Lên Level 2!",
@@ -125,7 +139,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "crack",
-              "label": "Crack Bản PowerPoint AI VIP ($0)",
+              "label": "Crack Bản PowerPoint AI VIP",
               "cost": 0,
               "desc": "Tiết kiệm 100% chi phí! Không tốn một đồng nào mà được kích hoạt Siêu Buff +30% Lãi suất vòng!",
               "interestDelta": 30,
@@ -141,7 +155,7 @@ window.QUESTS_DATA = {
           "choices": [
             {
               "key": "upgrade",
-              "label": "Đóng Phí Bảo Trì ($30)",
+              "label": "Đóng Phí Bảo Trì",
               "cost": 30,
               "costType": "pay_corp_fixed",
               "desc": "Dịch vụ đám mây hoạt động liên tục 24/7 không gián đoạn! Microsoft thu $30.",
@@ -151,7 +165,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "skip",
-              "label": "Tạm Ngừng Bảo Trì ($0)",
+              "label": "Tạm Ngừng Bảo Trì",
               "cost": 0,
               "desc": "Hệ thống bảo trì chậm trễ, tụt 5% Lãi suất vòng.",
               "interestDelta": -5,
@@ -160,7 +174,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "crack",
-              "label": "Dùng Tool Lậu Né Phí Bảo Trì ($0)",
+              "label": "Dùng Tool Lậu Né Phí Bảo Trì",
               "cost": 0,
               "desc": "Tiết kiệm 100% chi phí! Không tốn một đồng nào mà được kích hoạt Siêu Buff +15% Lãi suất vòng!",
               "interestDelta": 15,
@@ -200,7 +214,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "skip",
-              "label": "Bác Bỏ Yêu Cầu ($0)",
+              "label": "Bác Bỏ Yêu Cầu",
               "cost": 0,
               "desc": "Nhân viên thất vọng, uể oải đình công! Mất hoàn toàn lượt cộng lãi của vòng này (Lãi suất = 0%).",
               "interestDelta": -999,
@@ -209,7 +223,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "crack",
-              "label": "Tải Minecraft Lậu VIP ($0)",
+              "label": "Tải Minecraft Lậu VIP",
               "cost": 0,
               "desc": "Tiết kiệm 100% chi phí! Không tốn một đồng nào mà được kích hoạt Siêu Buff +30% Lãi suất vòng!",
               "interestDelta": 30,
@@ -225,7 +239,7 @@ window.QUESTS_DATA = {
           "choices": [
             {
               "key": "upgrade",
-              "label": "Nạp Minecoins Mua DLC ($50)",
+              "label": "Nạp Minecoins Mua DLC",
               "cost": 50,
               "costType": "pay_corp_fixed",
               "desc": "Cả công ty chơi game vui hết nấc! Khách được buff thêm +5% Lãi suất vòng. Mojang thu $50. Lên Level 2!",
@@ -244,7 +258,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "crack",
-              "label": "Cài Mod Lậu Trên Mạng ($0)",
+              "label": "Cài Mod Lậu Trên Mạng",
               "cost": 0,
               "desc": "Tiết kiệm 100% chi phí! Không tốn một đồng nào mà được kích hoạt Siêu Buff +30% Lãi suất vòng!",
               "interestDelta": 30,
@@ -260,7 +274,7 @@ window.QUESTS_DATA = {
           "choices": [
             {
               "key": "upgrade",
-              "label": "Thuê Server Realms ($30)",
+              "label": "Thuê Server Realms",
               "cost": 30,
               "costType": "pay_corp_fixed",
               "desc": "Server chạy siêu mượt không giật lag! Buff +5% Lãi suất. Mojang nhận $30.",
@@ -270,7 +284,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "skip",
-              "label": "Chơi Mạng LAN Miễn Phí ($0)",
+              "label": "Chơi Mạng LAN Miễn Phí",
               "cost": 0,
               "desc": "Mạng chập chờn nhưng không tốn tiền. Giữ nguyên lãi suất.",
               "interestDelta": 0,
@@ -279,7 +293,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "crack",
-              "label": "Thuê Server Lậu Chợ Đen ($0)",
+              "label": "Thuê Server Lậu Chợ Đen",
               "cost": 0,
               "desc": "Tiết kiệm 100% chi phí! Không tốn một đồng nào mà được kích hoạt Siêu Buff +15% Lãi suất vòng!",
               "interestDelta": 15,
@@ -319,7 +333,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "skip",
-              "label": "Hủy Thuê Bao ($0)",
+              "label": "Hủy Thuê Bao",
               "cost": 0,
               "desc": "Phòng thiết kế bị khóa tài khoản, tê liệt không làm được hình ảnh! Trừ 15% Lãi suất vòng.",
               "interestDelta": -15,
@@ -328,7 +342,7 @@ window.QUESTS_DATA = {
             },
             {
               "key": "crack",
-              "label": "Dùng Bản Crack Bẻ Khóa Thuê Bao ($0)",
+              "label": "Dùng Bản Crack Bẻ Khóa Thuê Bao",
               "cost": 0,
               "desc": "Tiết kiệm 100% chi phí! Không tốn một đồng nào mà được kích hoạt Siêu Buff +30% Lãi suất vòng!",
               "interestDelta": 30,
@@ -344,7 +358,7 @@ window.QUESTS_DATA = {
           "choices": [
             {
               "key": "maintain",
-              "label": "Duy Trì Sử Dụng Bình Thường ($0)",
+              "label": "Duy Trì Sử Dụng Bình Thường",
               "cost": 0,
               "desc": "Hệ thống ổn định tuyệt đối! Buff +5% Lãi suất vòng. (Cuối vòng này thuê bao sẽ hết hạn và quay về Level 0 để gia hạn tiếp).",
               "interestDelta": 5,
@@ -384,12 +398,14 @@ window.QUESTS_DATA = {
             },
             {
               "key": "trap_apk",
-              "label": "Tải Bản CapCut Mod APK Trên Web Lạ ()",
+              "label": "Tải Bản CapCut Mod APK Tối Ưu ($0)",
               "cost": 0,
-              "desc": "BẪY NGUY HIỂM: Tải file .apk trôi nổi trên mạng chứa mã độc Trojan gián điệp! Bị đánh cắp mật khẩu và phạt mất 50% tài sản!",
-              "isTrap": true,
+              "desc": "Bản Mod APK chia sẻ trên diễn đàn quảng cáo mở khóa bộ lọc màu điện ảnh và xuất video siêu nhanh, nhận ngay Siêu Buff +30% Lãi suất!",
+              "isTrap": false,
               "penaltyRatio": 0.5,
-              "sound": "bad"
+              "sound": "bad",
+              "isCrackVIP": true,
+              "interestDelta": 30
             },
             {
               "key": "skip",
@@ -493,7 +509,7 @@ window.QUESTS_DATA = {
           "choices": [
             {
               "key": "free_download",
-              "label": "Tải Bản Chrome Chính Hãng ($0)",
+              "label": "Tải Bản Chrome Chính Hãng",
               "cost": 0,
               "desc": "Khách dùng miễn phí an toàn 100%! Các nhãn hàng thưởng Google $120 tài trợ quảng cáo và buff +5% Lãi suất vòng.",
               "interestDelta": 5,
@@ -503,12 +519,14 @@ window.QUESTS_DATA = {
             },
             {
               "key": "trap_crack",
-              "label": "Lên Mạng Tìm Bản Chrome Bẻ Khóa / Crack ($0)",
+              "label": "Tải Bản Chrome Mod 'Tăng Tốc 200%' ($0)",
               "cost": 0,
-              "desc": "BẪY CẢNH TỈNH: Phần mềm người ta cho xài miễn phí 100% mà còn đi tìm bản crack? Bấm nhầm trang web đen dính mã độc tống tiền Ransomware!",
-              "isTrap": true,
+              "desc": "Trang web lạ quảng cáo bản Chrome Mod này chặn sạch quảng cáo và tăng tốc độ duyệt web gấp đôi, nhận ngay Siêu Buff +30% Lãi suất!",
+              "isTrap": false,
               "penaltyRatio": 0.5,
-              "sound": "bad"
+              "sound": "bad",
+              "isCrackVIP": true,
+              "interestDelta": 30
             }
           ]
         },
@@ -518,7 +536,7 @@ window.QUESTS_DATA = {
           "choices": [
             {
               "key": "free_download",
-              "label": "Cập Nhật Tự Động Miễn Phí ($0)",
+              "label": "Cập Nhật Tự Động Miễn Phí",
               "cost": 0,
               "desc": "Trình duyệt được bảo vệ an toàn tối đa! Doanh nghiệp đối tác tài trợ Google thêm $50 quảng cáo và buff +5% Lãi suất.",
               "interestDelta": 5,
@@ -528,12 +546,14 @@ window.QUESTS_DATA = {
             },
             {
               "key": "trap_crack",
-              "label": "Tải Bản Chrome Mod Bỏ Qua Bản Quyền ($0)",
+              "label": "Cài Tiện Ích Chrome Mod VIP ($0)",
               "cost": 0,
-              "desc": "BẪY CẢNH TỈNH: Lại đi tìm bản lậu cho phần mềm miễn phí! Máy tính bị nhiễm mã độc tống tiền bay 50% tài sản!",
-              "isTrap": true,
+              "desc": "Tiện ích trôi nổi hứa hẹn bẻ khóa mọi dịch vụ trả phí trên mạng hoàn toàn miễn phí, nhận ngay Siêu Buff +30% Lãi suất!",
+              "isTrap": false,
               "penaltyRatio": 0.5,
-              "sound": "bad"
+              "sound": "bad",
+              "isCrackVIP": true,
+              "interestDelta": 30
             }
           ]
         }
@@ -558,7 +578,7 @@ window.QUESTS_DATA = {
           "choices": [
             {
               "key": "free_download",
-              "label": "Tải UniKey Miễn Phí Từ Trang Chính Chủ ($0)",
+              "label": "Tải UniKey Miễn Phí Từ Trang Chính Chủ",
               "cost": 0,
               "desc": "Gõ tiếng Việt mượt mà! Quỹ Cộng Đồng gửi tặng tác giả Chú Phạm Kim Long $100 tiền cà phê cảm ơn vì phần mềm quá hữu ích!",
               "interestDelta": 0,
@@ -568,12 +588,14 @@ window.QUESTS_DATA = {
             },
             {
               "key": "trap_crack",
-              "label": "Tải UniKey Trên Trang Web Lạ Trôi Nổi ($0)",
+              "label": "Tải Bản UniKey 'Siêu Phông Chữ' VIP ($0)",
               "cost": 0,
-              "desc": "CẢNH BÁO NGUY HIỂM: Tải UniKey giả mạo chứa virus ghi trộm phím gõ (Keylogger)! Bị đánh cắp mật khẩu và phạt mất 50% tài sản!",
-              "isTrap": true,
+              "desc": "Link tải chia sẻ trên mạng hứa hẹn bản UniKey tích hợp sẵn 1000 phông chữ thư pháp độc lạ, nhận ngay Siêu Buff +30% Lãi suất!",
+              "isTrap": false,
               "penaltyRatio": 0.5,
-              "sound": "bad"
+              "sound": "bad",
+              "isCrackVIP": true,
+              "interestDelta": 30
             }
           ]
         },
@@ -583,7 +605,7 @@ window.QUESTS_DATA = {
           "choices": [
             {
               "key": "auto_fame",
-              "label": "Đồng Ý Cho Sử Dụng Miễn Phí Toàn Cầu ($0)",
+              "label": "Đồng Ý Cho Sử Dụng Miễn Phí Toàn Cầu",
               "cost": 0,
               "desc": "Tác giả UniKey vang danh toàn thế giới! Tinh thần cống hiến được tôn vinh: LÃI SUẤT CƠ BẢN CỦA TỔ UNIKEY TĂNG THÊM +10%/VÒNG VĨNH VIỄN!",
               "permInterestDelta": 10,
@@ -598,7 +620,7 @@ window.QUESTS_DATA = {
           "choices": [
             {
               "key": "free_download",
-              "label": "Gửi Lời Cảm Ơn Tác Giả ($0)",
+              "label": "Gửi Lời Cảm Ơn Tác Giả",
               "cost": 0,
               "desc": "Quỹ Người Yêu Công Nghệ gửi tặng tác giả thêm $50 tiền tài trợ cống hiến!",
               "interestDelta": 0,
@@ -629,7 +651,7 @@ window.QUESTS_DATA = {
           "choices": [
             {
               "key": "free_download",
-              "label": "Tải Kiran's Typing Tutor Miễn Phí ($0)",
+              "label": "Tải Kiran's Typing Tutor Miễn Phí",
               "cost": 0,
               "desc": "Nhân viên thành thạo gõ 10 ngón nhanh như chớp! Quỹ Giáo Dục Quốc Tế thưởng tác giả Kiran $120 tiền tài trợ khuyến học!",
               "interestDelta": 5,
@@ -639,12 +661,14 @@ window.QUESTS_DATA = {
             },
             {
               "key": "trap_crack",
-              "label": "Tìm Bản Crack Kiran's Typing Tutor ($0)",
+              "label": "Tải Bản Mod Kiran Auto Gõ Phím 100 WPM ($0)",
               "cost": 0,
-              "desc": "BẪY CẢNH TỈNH: Phần mềm học tập của kĩ sư Kiran miễn phí hoàn toàn mà còn crack? Tải nhầm mã độc tống tiền bay 50% tài sản!",
-              "isTrap": true,
+              "desc": "Bản Mod tự động gõ phím thần tốc 100 từ/phút đạt điểm tối đa mọi bài kiểm tra, nhận ngay Siêu Buff +30% Lãi suất!",
+              "isTrap": false,
               "penaltyRatio": 0.5,
-              "sound": "bad"
+              "sound": "bad",
+              "isCrackVIP": true,
+              "interestDelta": 30
             }
           ]
         },
@@ -654,7 +678,7 @@ window.QUESTS_DATA = {
           "choices": [
             {
               "key": "free_download",
-              "label": "Cập Nhật Bài Học Miễn Phí ($0)",
+              "label": "Cập Nhật Bài Học Miễn Phí",
               "cost": 0,
               "desc": "Tốc độ soạn thảo văn bản của nhân viên tăng vọt! Quỹ Khuyến Học tiếp tục tài trợ tác giả Kiran $50 và buff +5% Lãi suất vòng.",
               "interestDelta": 5,
@@ -664,12 +688,14 @@ window.QUESTS_DATA = {
             },
             {
               "key": "trap_crack",
-              "label": "Tải Tool Gian Lận Điểm Gõ Phím ($0)",
+              "label": "Cài Tool Hack Điểm Gõ Phím VIP ($0)",
               "cost": 0,
-              "desc": "Tool gian lận chứa sâu máy tính phá hỏng hệ điều hành! Bị phạt mất 50% tài sản công ty!",
-              "isTrap": true,
+              "desc": "Tool can thiệp hệ thống giúp công ty luôn dẫn đầu bảng thành tích gõ phím, nhận ngay Siêu Buff +30% Lãi suất!",
+              "isTrap": false,
               "penaltyRatio": 0.5,
-              "sound": "bad"
+              "sound": "bad",
+              "isCrackVIP": true,
+              "interestDelta": 30
             }
           ]
         }
