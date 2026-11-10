@@ -1,0 +1,3755 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bài 6: Sử dụng phần mềm khi được phép (Tiết 11) – Tin học 4</title>
+
+    <!-- 100% OFFLINE-FIRST LIBRARIES & ASSETS -->
+    <link rel="stylesheet" href="../../shared/css/core.css">
+    <script src="../../shared/js/confetti.js"></script>
+    <script src="../../shared/js/prevent-reload.js"></script>
+    <script src="../shared/components.js"></script>
+    <script src="../../shared/js/core.js"></script>
+
+    <!-- QUESTS & CORPORATIONS DATA OFFLINE-FIRST -->
+    <script src="quests.js"></script>
+
+    <style>
+        :root {
+            --ink: #14213d;
+            --paper: #ffffff;
+            --bg: #f4efe6;
+            --navy: #14213d;
+            --coral: #e63946;
+            --green: #16a34a;
+            --yellow: #ffd23f;
+            --blue: #2563eb;
+            --purple: #6d4fd1;
+            --orange: #f97316;
+            --amber: #d97706;
+            --line: #cbd5e1;
+            --dark-card: #0f172a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        button,
+        select,
+        input {
+            font: inherit;
+        }
+
+        button {
+            font-weight: 800;
+            border: 2px solid var(--ink);
+            background: #fff;
+            border-radius: 10px;
+            padding: 8px 16px;
+            cursor: pointer;
+            color: var(--ink);
+            transition: all .15s ease;
+            user-select: none;
+        }
+
+        button:hover:enabled {
+            background: #fff3c4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+        }
+
+        button:active:enabled {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+
+        button:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .go {
+            background: var(--green);
+            color: #fff;
+            border-color: #14532d;
+        }
+
+        .go:hover:enabled {
+            background: #15803d;
+            color: #fff;
+        }
+
+        .warn {
+            background: var(--coral);
+            color: #fff;
+            border-color: #991b1b;
+        }
+
+        .warn:hover:enabled {
+            background: #b91c1c;
+            color: #fff;
+        }
+
+        .info {
+            background: #eff6ff;
+            color: var(--blue);
+            border-color: var(--blue);
+        }
+
+        .info:hover:enabled {
+            background: #dbeafe;
+        }
+
+        .amber-btn {
+            background: #fef3c7;
+            color: #b45309;
+            border-color: #f59e0b;
+        }
+
+        .amber-btn:hover:enabled {
+            background: #fde68a;
+        }
+
+        .noise-btn {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #ef4444;
+            font-size: .8rem;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-weight: 800;
+        }
+
+        .noise-btn:hover:enabled {
+            background: #fca5a5;
+        }
+
+        .sm {
+            padding: 5px 10px;
+            font-size: .88rem;
+            border-radius: 8px;
+        }
+
+        select,
+        input[type=text],
+        input[type=number] {
+            font-weight: 700;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 2px solid var(--ink);
+            background: #fff;
+        }
+
+        /* HEADER */
+        header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: var(--ink);
+            color: #fff;
+            flex-wrap: wrap;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        header h1 {
+            font-size: 1.15rem;
+            margin: 0;
+            flex: 1;
+            min-width: 280px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        header label {
+            font-size: .88rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* NAVIGATION TABS */
+        nav {
+            display: flex;
+            gap: 6px;
+            padding: 8px 16px 0;
+            background: var(--bg);
+            border-bottom: 2px solid #cbd5e1;
+            overflow-x: auto;
+        }
+
+        nav button {
+            border-radius: 12px 12px 0 0;
+            border-bottom: none;
+            padding: 10px 18px;
+            font-size: 1rem;
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        nav button.on {
+            background: var(--ink);
+            color: #fff;
+            border-color: var(--ink);
+        }
+
+        /* MAIN LAYOUT */
+        .layout {
+            flex: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 350px;
+            gap: 14px;
+            padding: 12px 16px 14px;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        main {
+            min-height: 0;
+            overflow-y: auto;
+            padding-right: 4px;
+            padding-bottom: 120px;
+        }
+
+        aside {
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            padding-bottom: 120px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.on {
+            display: block;
+        }
+
+        .card {
+            background: var(--paper);
+            border: 2px solid var(--ink);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 16px;
+        }
+
+        /* 1. VỞ GHI BÀI VÀO VỞ */
+        .notebook-clean {
+            background: #ffffff;
+            border: 3px solid var(--ink);
+            border-radius: 18px;
+            padding: 32px 36px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            position: relative;
+        }
+
+        .board-date {
+            font-size: 1.25rem;
+            font-style: italic;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        .board-subject {
+            font-size: 1.45rem;
+            font-weight: 900;
+            color: var(--coral);
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .board-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--ink);
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+
+        .board-content {
+            font-size: 1.35rem;
+            line-height: 1.7;
+            font-weight: 600;
+            color: #1e293b;
+            background: #f8fafc;
+            border-left: 6px solid var(--blue);
+            padding: 16px 22px;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .btn-fs-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1rem;
+            font-weight: 800;
+            background: #f1f5f9;
+            border: 2px solid #94a3b8;
+            border-radius: 10px;
+            padding: 8px 16px;
+            cursor: pointer;
+            color: #0f172a;
+        }
+
+        /* FULLSCREEN OVERLAY MODAL CHUẨN MỚI CHO VỞ GHI & SỔ CÁI (CUỘN ĐƯỢC, PADDING TRÊN LỚN) */
+        .fullscreen-notebook-modal {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #ffffff;
+            z-index: 9999999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 100px 40px 60px;
+            overflow-y: auto;
+            box-sizing: border-box;
+            animation: zoomModal .22s ease;
+        }
+
+        @keyframes zoomModal {
+            from { transform: scale(0.96); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-nb-content {
+            max-width: 1200px;
+            width: 95%;
+            text-align: center;
+        }
+
+        .modal-nb-date {
+            font-size: 2rem;
+            font-style: italic;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 14px;
+        }
+
+        .modal-nb-subject {
+            font-size: 2.3rem;
+            font-weight: 900;
+            color: var(--coral);
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+        }
+
+        .modal-nb-title {
+            font-size: 3.4rem;
+            font-weight: 900;
+            color: var(--ink);
+            line-height: 1.3;
+            margin-bottom: 28px;
+        }
+
+        .modal-nb-lines {
+            font-size: 2.2rem;
+            line-height: 1.8;
+            font-weight: 700;
+            color: #1e293b;
+            background: #f8fafc;
+            border-left: 10px solid var(--blue);
+            padding: 24px 36px;
+            border-radius: 0 20px 20px 0;
+            text-align: left;
+            margin: 0 auto;
+            max-width: 1100px;
+        }
+
+        .modal-nb-close {
+            position: fixed !important;
+            top: 24px !important;
+            right: 32px !important;
+            font-size: 1.35rem !important;
+            padding: 12px 28px !important;
+            background: var(--coral) !important;
+            color: #ffffff !important;
+            border: 3px solid #7f1d1d !important;
+            border-radius: 14px !important;
+            cursor: pointer !important;
+            z-index: 10000000 !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .modal-nb-close:hover {
+            background: #b91c1c !important;
+            transform: scale(1.05) !important;
+        }
+
+        /* SOFTWARE ICONS CONTAINER & FLUID IMAGES */
+        .sw-icon-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            border: 2px solid #cbd5e1;
+            border-radius: 14px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .sw-img-fluid {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .sw-fallback-emoji {
+            display: none;
+            line-height: 1;
+        }
+
+        /* KHỞI ĐỘNG: GỌI VỐN ĐẦU TƯ */
+        .gacha-call-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #eff6ff;
+            border: 2px dashed var(--blue);
+            padding: 12px 18px;
+            border-radius: 14px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .quiz-container {
+            background: #fff;
+            border: 2px solid var(--line);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 14px;
+        }
+
+        .quiz-q-title {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--navy);
+            margin-bottom: 16px;
+            line-height: 1.45;
+        }
+
+        .quiz-opts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .quiz-opt-btn {
+            text-align: left;
+            font-size: 1.15rem;
+            font-weight: 700;
+            padding: 14px 18px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 2px solid var(--line);
+            transition: all .15s ease;
+            cursor: pointer;
+            line-height: 1.4;
+        }
+
+        .quiz-opt-btn:hover:enabled {
+            background: #e0f2fe;
+            border-color: var(--blue);
+            transform: translateY(-2px);
+        }
+
+        .quiz-opt-btn.correct {
+            background: #dcfce7 !important;
+            border-color: var(--green) !important;
+            color: #14532d !important;
+            font-weight: 900;
+        }
+
+        .quiz-opt-btn.wrong {
+            background: #fee2e2 !important;
+            border-color: var(--coral) !important;
+            color: #991b1b !important;
+            font-weight: 900;
+        }
+
+        /* MYSTERY BOXES */
+        .mystery-box-card {
+            background: #fff;
+            border: 3px solid var(--ink);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: all .2s ease;
+        }
+
+        .mystery-box-card.wobble {
+            animation: wobbleBox .3s infinite;
+        }
+
+        @keyframes wobbleBox {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+
+        .corp-stamp {
+            font-size: 0.95rem;
+            font-weight: 900;
+            padding: 4px 12px;
+            border-radius: 8px;
+            text-transform: uppercase;
+            display: inline-block;
+            transform: rotate(-2deg);
+        }
+
+        .corp-stamp.paid {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+
+        .corp-stamp.free {
+            background: #dcfce7;
+            color: #16a34a;
+            border: 2px solid #22c55e;
+        }
+
+        /* SÀN NIÊM YẾT GIÁ BÁN & GIÁ TRẦN */
+        .ceiling-banner {
+            background: #eff6ff;
+            border: 2px solid var(--blue);
+            border-radius: 12px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .market-team-card {
+            background: #ffffff;
+            border: 3px solid var(--navy);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: all .2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .price-stepper-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .price-stepper-box button {
+            padding: 6px 14px;
+            font-size: 1.1rem;
+            font-weight: 900;
+        }
+
+        .price-stepper-box input {
+            width: 85px;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: var(--navy);
+        }
+
+        /* 3. THƯƠNG TRƯỜNG PHẦN MỀM: ARENA TOPBAR */
+        .arena-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--navy);
+            color: #fff;
+            padding: 14px 20px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .round-badge {
+            font-size: 1.25rem;
+            font-weight: 900;
+            background: #f59e0b;
+            color: #000;
+            padding: 6px 18px;
+            border-radius: 20px;
+        }
+
+        /* TỐI GIẢN UI SÂN KHẤU (CLEAN, FOCUSED, NO BLOAT) */
+        .arena-turn-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+            border: 3px solid var(--blue);
+            border-radius: 14px;
+            padding: 12px 18px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .turn-team-title {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .turn-team-stats {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #334155;
+        }
+
+        .arena-problem-strip {
+            background: #fff;
+            border: 3px solid #f59e0b;
+            border-left: 10px solid #f59e0b;
+            border-radius: 14px;
+            padding: 14px 18px;
+            margin-bottom: 12px;
+        }
+
+        .strip-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .strip-badge-warn {
+            font-size: 0.95rem;
+            font-weight: 900;
+            background: #fef3c7;
+            color: #b45309;
+            border: 1.5px solid #f59e0b;
+            padding: 2px 10px;
+            border-radius: 8px;
+        }
+
+        .strip-badge-status {
+            font-size: 0.92rem;
+            font-weight: 900;
+            background: #f1f5f9;
+            color: #334155;
+            border: 1.5px solid #cbd5e1;
+            padding: 2px 10px;
+            border-radius: 8px;
+        }
+
+        .strip-title {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--navy);
+            margin-bottom: 4px;
+        }
+
+        .strip-desc {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #334155;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .arena-solution-strip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            border: 3px solid var(--navy);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .sol-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .sol-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sol-name {
+            font-size: 1.55rem;
+            font-weight: 900;
+            color: var(--navy);
+        }
+
+        .sol-purpose {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .sol-owner {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .sol-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .sol-price-block {
+            background: #f8fafc;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 8px 16px;
+            text-align: right;
+            min-width: 150px;
+        }
+
+        .sol-price-lbl {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #64748b;
+        }
+
+        .discount-actions-box {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .arena-choices-wrap {
+            margin-top: 14px;
+        }
+
+        .choices-title {
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+
+        .choices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 14px;
+        }
+
+        .choice-btn {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 16px 18px;
+            border-radius: 16px;
+            border: 2.5px solid var(--ink);
+            background: #ffffff;
+            cursor: pointer;
+            text-align: left;
+            transition: all .15s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            min-height: 140px;
+        }
+
+        .choice-btn:hover:enabled {
+            background: #f8fafc;
+            border-color: var(--blue);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .c-badge-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            width: 100%;
+        }
+
+        .badge-opt {
+            font-size: 0.8rem;
+            font-weight: 900;
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-opt.official {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1.5px solid #22c55e;
+        }
+
+        .badge-opt.vip {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1.5px solid #0284c7;
+        }
+
+        .badge-opt.neutral {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1.5px solid #94a3b8;
+        }
+
+        .badge-opt.free {
+            background: #dcfce7;
+            color: #16a34a;
+            border: 1.5px solid #22c55e;
+        }
+
+        .corp-type-tag {
+            font-size: 0.9rem;
+            font-weight: 900;
+            padding: 3px 10px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            display: inline-block;
+        }
+
+        .corp-type-tag.paid {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1.5px solid #ef4444;
+        }
+
+        .corp-type-tag.free {
+            background: #dcfce7;
+            color: #16a34a;
+            border: 1.5px solid #22c55e;
+        }
+
+        .corp-type-tag.freemium {
+            background: #ffedd5;
+            color: #ea580c;
+            border: 1.5px solid #f97316;
+        }
+
+        /* MODAL OVERLAY CHUNG */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.88);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-card {
+            background: #fff;
+            border: 4px solid var(--ink);
+            border-radius: 22px;
+            padding: 28px;
+            max-width: 650px;
+            width: 92%;
+            text-align: center;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        /* ROUND REPORT FULLSCREEN MODAL */
+        .round-report-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .round-report-card {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 18px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: transform .2s ease;
+        }
+
+        .round-report-card:hover {
+            transform: translateY(-4px);
+            border-color: #f59e0b;
+        }
+
+        .growth-pill {
+            font-size: 0.92rem;
+            font-weight: 900;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .growth-pill.up {
+            background: #166534;
+            color: #4ade80;
+            border: 1.5px solid #22c55e;
+        }
+
+        .growth-pill.down {
+            background: #991b1b;
+            color: #fca5a5;
+            border: 1.5px solid #ef4444;
+        }
+
+        /* SVG MULTI-LINE FINANCIAL CHART */
+        .chart-container-box {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 18px;
+            padding: 16px 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .chart-legend-row {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .chart-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #cbd5e1;
+        }
+
+        .chart-legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+        }
+
+        /* LEDGER MODAL ROW CARDS */
+        .ledger-row-card {
+            display: grid;
+            grid-template-columns: 140px 1.2fr 1.6fr 1.2fr;
+            background: #ffffff;
+            border: 2px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 14px 18px;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        }
+
+        .lr-col {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .lr-time {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--blue);
+        }
+
+        .lr-time span {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .lr-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+        }
+
+        .lr-team {
+            font-weight: 900;
+            font-size: 1.05rem;
+            color: var(--navy);
+        }
+
+        .lr-delta {
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        .lr-delta.neg {
+            color: #dc2626;
+        }
+
+        .lr-delta.pos {
+            color: #16a34a;
+        }
+
+        .lr-delta.zero {
+            color: #64748b;
+        }
+
+        .lr-balance {
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .lr-interest-tag {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--blue);
+            margin-top: 2px;
+        }
+
+        /* FLYING COINS ANIMATION */
+        .flying-coin {
+            position: fixed;
+            font-size: 2.2rem;
+            z-index: 999999;
+            pointer-events: none;
+            transition: all .9s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* CSS SHAKE ON VIRUS INFECTION */
+        .shake-screen {
+            animation: shakeScreen .6s cubic-bezier(.36, .07, .19, .97) both;
+        }
+
+        @keyframes shakeScreen {
+            10%, 90% { transform: translate3d(-4px, 0, 0); }
+            20%, 80% { transform: translate3d(6px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-10px, 0, 0); }
+            40%, 60% { transform: translate3d(10px, 0, 0); }
+        }
+
+        /* SIDEBAR: TEAMS LIST & CONTROLS */
+        .team-card {
+            background: #fff;
+            border: 3px solid var(--ink);
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: all .2s ease;
+        }
+
+        .team-card.active-turn {
+            border-color: var(--blue);
+            background: #f0f7ff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+            transform: scale(1.02);
+        }
+
+        .team-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .team-name {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .team-score-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            background: #f8fafc;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .team-money {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--navy);
+        }
+
+        .team-rate {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--green);
+        }
+
+        .team-inventory {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .inv-chip {
+            font-size: .8rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        .inv-chip.owned {
+            background: #dbeafe;
+            color: #1e40af;
+            border-color: #93c5fd;
+        }
+
+        /* 4. MÀN HÌNH EM GHI NHỚ: SUMMARY CARDS */
+        .summary-card-grid {
+            display: grid;
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .summary-card-grid.grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+
+        .summary-card {
+            background: #fff;
+            border: 3px solid var(--navy);
+            border-radius: 16px;
+            padding: 22px;
+            text-align: left;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .summary-card .sc-badge {
+            font-size: .85rem;
+            font-weight: 900;
+            color: #fff;
+            background: var(--navy);
+            padding: 4px 12px;
+            border-radius: 6px;
+            align-self: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .summary-card .sc-title {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--navy);
+            margin-bottom: 10px;
+            line-height: 1.35;
+        }
+
+        .summary-card .sc-desc {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        /* 5. BẢNG VÀNG VINH DANH (PODIUM) */
+        .podium-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 16px;
+            margin: 32px 0 24px;
+            min-height: 240px;
+        }
+
+        .podium-pillar {
+            width: 170px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 16px 10px;
+            color: #fff;
+            font-weight: 900;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .podium-pillar.rank-1 {
+            height: 240px;
+            background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
+            border: 4px solid #fef3c7;
+            order: 2;
+        }
+
+        .podium-pillar.rank-2 {
+            height: 180px;
+            background: linear-gradient(180deg, #94a3b8 0%, #475569 100%);
+            border: 4px solid #f1f5f9;
+            order: 1;
+        }
+
+        .podium-pillar.rank-3 {
+            height: 140px;
+            background: linear-gradient(180deg, #d97706 0%, #78350f 100%);
+            border: 4px solid #fed7aa;
+            order: 3;
+        }
+
+        .podium-medal {
+            font-size: 2.8rem;
+            margin-bottom: 6px;
+        }
+
+        .podium-name {
+            font-size: 1.25rem;
+            font-weight: 900;
+        }
+
+        .podium-score {
+            font-size: 1.4rem;
+            margin-top: 4px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 2px 10px;
+            border-radius: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-top: 24px;
+        }
+
+        .stat-item {
+            background: #f8fafc;
+            border: 2px solid var(--line);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .stat-item b {
+            display: block;
+            font-size: 1.8rem;
+            color: var(--navy);
+            margin-bottom: 4px;
+        }
+
+        .stat-item span {
+            font-size: .95rem;
+            font-weight: 700;
+            color: #64748b;
+        }
+
+        /* GIANT GACHA MODAL CHO QUY CHUẨN 4 */
+        .giant-gacha-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.9);
+            z-index: 1000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+        }
+
+        .giant-gacha-content {
+            background: #fff;
+            border: 5px solid var(--navy);
+            border-radius: 28px;
+            padding: 36px 48px;
+            text-align: center;
+            max-width: 750px;
+            width: 90%;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            animation: zoomModal .2s ease;
+        }
+
+        .giant-student-name {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--navy);
+            margin: 20px 0;
+            padding: 16px;
+            background: #fef3c7;
+            border: 3px solid #f59e0b;
+            border-radius: 18px;
+            text-shadow: 1px 1px 0 #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="nb-date" id="current-date-line" style="font-size:13px; font-weight:700; color:#ffd84d; margin-right:12px;">Đang nạp ngày tháng...</div>
+        <h1>🎮 Bài 6: Sử Dụng Phần Mềm Khi Được Phép – Thương Trường Phần Mềm (Tiết 11)</h1>
+        <label>Lớp: <select id="selCls"></select></label>
+        <label>Số tổ: <select id="selTeams"></select></label>
+        <button type="button" class="warn sm" id="btnClearSession" title="Xóa dữ liệu phiên của bài này để bắt đầu lớp mới">
+            🗑️ Xóa phiên
+        </button>
+    </header>
+
+    <!-- NAVIGATION TABS -->
+    <nav>
+        <button type="button" data-go="1" class="on">✍️ Vở ghi</button>
+        <button type="button" data-go="2">💰 Khởi động: Gọi vốn đầu tư</button>
+        <button type="button" data-go="3">🏢 Thương Trường Phần Mềm</button>
+        <button type="button" data-go="4">💡 Em ghi nhớ</button>
+        <button type="button" data-go="5">🏆 Bảng vàng vinh danh</button>
+    </nav>
+
+    <!-- MAIN TWO-COLUMN LAYOUT -->
+    <div class="layout">
+        <main>
+            <!-- ================= SCREEN 1: VỞ GHI BÀI VÀO VỞ ================= -->
+            <section class="screen on" id="s1">
+                <div class="card">
+                    <div id="boardWrap" class="notebook-clean">
+                        <!-- NÚT DUY NHẤT THEO QUY CHUẨN 3 -->
+                        <button type="button" class="btn-fs-toggle" onclick="openNotebookModal()">
+                            ⛶ Chế độ toàn màn hình chép bài
+                        </button>
+
+                        <div class="board-date nb-date" id="boardDate">Thứ ..., ngày ... tháng ... năm ...</div>
+                        <div class="board-subject nb-subject">MÔN: TIN HỌC · LỚP 4</div>
+                        <div class="board-title nb-title">BÀI 6: SỬ DỤNG PHẦN MỀM KHI ĐƯỢC PHÉP</div>
+
+                        <div class="board-content nb-content">
+                            <div>• Mỗi phần mềm là <b>sản phẩm trí tuệ và tài sản</b> của tác giả (cá nhân hoặc tổ chức).</div>
+                            <div style="margin-top:8px">• Em chỉ được sử dụng phần mềm khi đã <b>được tác giả cho phép (có bản quyền)</b>.</div>
+                            <div style="margin-top:8px">• <b>Tuyệt đối không dùng phần mềm bẻ khóa (crack)</b> để tránh nguy cơ nhiễm virus, mất dữ liệu và vi phạm pháp luật.</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align:right; margin-top:16px">
+                        <button type="button" class="go" data-go="2" style="font-size:1.15rem; padding:10px 24px">
+                            Sang Khởi Động: Gọi Vốn Đầu Tư ▶
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SCREEN 2: GỌI VỐN ĐẦU TƯ ================= -->
+            <section class="screen" id="s2">
+                <div class="card">
+                    <h2>💰 Giai Đoạn 0 & 1: Bốc Thăm Tập Đoàn & Gọi Vốn Đầu Tư</h2>
+                    <p style="margin:0 0 14px; font-weight:700; color:#475569; font-size:1.15rem">
+                        Mỗi tổ đại diện cho 1 Tập đoàn công nghệ với vốn khởi nghiệp <b>$1.000</b>. Bấm bốc thăm 1 lần để nhận sản phẩm, cả lớp cùng trả lời câu hỏi Bài 5 để nâng trần giá bán và thiết lập giá chào hàng!
+                    </p>
+
+                    <!-- BƯỚC 1: BỐC THĂM ĐỊNH MỆNH (NHẬN TẬP ĐOÀN) - 1 LẦN DUY NHẤT -->
+                    <div style="background:#fff; border:2px solid var(--navy); border-radius:16px; padding:18px; margin-bottom:20px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px">
+                            <span style="font-weight:900; font-size:1.2rem; color:var(--navy)">
+                                🎁 Bước 1: Hộp Quà Bí Ẩn – Bốc Thăm Tập Đoàn (Bấm 1 Lần Duy Nhất)
+                            </span>
+                            <div style="display:flex; gap:8px">
+                                <button type="button" class="go" id="btnRevealAllCorps" style="font-size:1.05rem; padding:8px 20px">
+                                    🎲 Bốc Thăm Tập Đoàn Cả Lớp
+                                </button>
+                                <button type="button" class="sm" id="btnRerollCorps">🔄 Bốc Thăm Lại</button>
+                            </div>
+                        </div>
+                        <div id="mysteryBoxesGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- BƯỚC 2: THỬ THÁCH TRẮC NGHIỆM GỌI VỐN (BÀI 5: THAO TÁC VỚI TỆP VÀ THƯ MỤC) -->
+                    <div style="background:#fff; border:2px solid var(--navy); border-radius:16px; padding:18px; margin-bottom:20px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px">
+                            <div>
+                                <span style="font-weight:900; font-size:1.25rem; color:var(--navy)">
+                                    💰 Bước 2: Vượt Câu Hỏi Bài 5 – Nâng Trần Giá Bán Cho Cả Lớp!
+                                </span>
+                                <div style="font-size:0.95rem; font-weight:700; color:#475569; margin-top:4px">
+                                    Cả lớp cùng trả lời tự do (gọi cá nhân). Mỗi câu đúng sẽ cộng thêm <b>+$50</b> vào Trần giá bán / tài trợ cho tất cả các tổ!
+                                </div>
+                            </div>
+                            <div style="background:#dcfce7; border:2px solid #22c55e; border-radius:10px; padding:6px 14px; text-align:right">
+                                <div style="font-size:0.8rem; font-weight:800; color:#15803d">TRẦN GIÁ HIỆN TẠI:</div>
+                                <div id="lblCeilingBanner" style="font-size:1.35rem; font-weight:900; color:#14532d">$150</div>
+                            </div>
+                        </div>
+
+                        <!-- THANH GỌI HỌC SINH PHÁT BIỂU VỚI GACHA -->
+                        <div class="gacha-call-bar">
+                            <span style="font-weight:900; color:var(--navy); font-size:1.1rem">🎯 Học sinh trả lời:</span>
+                            <select id="selStudentFund" style="min-width:220px; font-weight:800;"></select>
+                            <button type="button" class="amber-btn" id="btnGachaFund">🎲 Bốc Thăm (Gacha)</button>
+                            <span id="stagedFundTag" style="font-weight:800; color:var(--blue); font-size:1.05rem">Chưa chọn học sinh</span>
+                        </div>
+
+                        <div class="quiz-container" style="margin-top:0">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px">
+                                <span id="fundQIndex" style="font-weight:900; color:var(--blue); font-size:1.1rem">CÂU HỎI 1 / 4 (BÀI 5 SGK)</span>
+                                <span id="fundRewardDesc" style="font-weight:800; color:var(--green); font-size:1.05rem">Quyền lợi: +$50 trần giá bán cho cả lớp</span>
+                            </div>
+                            <div class="quiz-q-title" id="fundQText">Nội dung câu hỏi...</div>
+                            <div class="quiz-opts-grid" id="fundQOpts"></div>
+                            <div id="fundQFeedback" style="display:none; margin-top:14px; font-size:1.15rem; font-weight:700; padding:12px 16px; border-radius:10px;"></div>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:18px; flex-wrap:wrap; gap:10px">
+                            <button type="button" id="btnPrevFundQ" class="sm">◀ Câu trước</button>
+                            <button type="button" id="btnNextFundQ" class="sm">Câu kế tiếp ▶</button>
+                        </div>
+                    </div>
+
+                    <!-- BƯỚC 3: SÀN GIAO DỊCH – CÔNG BỐ SẢN PHẨM & THIẾT LẬP GIÁ BÁN -->
+                    <div id="marketListingBox" style="background:#fff; border:2px solid var(--navy); border-radius:16px; padding:18px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px">
+                            <div>
+                                <span style="font-weight:900; font-size:1.25rem; color:var(--navy)">
+                                    🏛️ Bước 3: Sàn Giao Dịch – Niêm Yết Giá Bán (Tối Đa Không Vượt Trần)
+                                </span>
+                                <div style="font-size:0.95rem; font-weight:700; color:#475569; margin-top:4px">
+                                    Các tổ có quyền định giá bán sản phẩm từ $40 đến Trần quy định <b id="lblMaxCeilingSub">$150</b>!
+                                </div>
+                            </div>
+                            <button type="button" class="sm" id="btnResetAllPrices">↺ Đặt Lại Giá Chuẩn</button>
+                        </div>
+                        <div id="marketListingGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px">
+                            <!-- Populated dynamically with price controls for each team -->
+                        </div>
+
+                        <div style="text-align:right; margin-top:20px">
+                            <button type="button" class="go" data-go="3" style="font-size:1.2rem; padding:12px 32px">
+                                Bắt Đầu Tháng Thứ Nhất 🏁 ▶
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SCREEN 3: SÂN KHẤU THƯƠNG TRƯỜNG PHẦN MỀM ================= -->
+            <section class="screen" id="s3">
+                <div class="card">
+                    <!-- ARENA TOP BAR: THÁNG & LƯỢT -->
+                    <div class="arena-topbar">
+                        <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap">
+                            <span class="round-badge" id="lblRound">THÁNG THỨ 1</span>
+                            <span id="lblTurnCustomer" style="font-weight:800; font-size:1.25rem">Đang mở phiên giao dịch...</span>
+                        </div>
+                        <div style="font-size:1.05rem; font-weight:700; color:#cbd5e1">
+                            🏢 Thương Trường Phần Mềm Tin Học 4
+                        </div>
+                    </div>
+
+                    <!-- GACHA AUTO SPINNER BOX (HIỂN THỊ KHI ĐANG QUAY GACHA TỰ ĐỘNG) -->
+                    <div id="gachaRollingBox" style="text-align:center; padding:36px 20px; background:#fff; border:3px solid var(--navy); border-radius:18px; margin-bottom:16px; display:none">
+                        <div style="font-size:1.25rem; font-weight:900; color:var(--blue); margin-bottom:14px">
+                            🎰 HỆ THỐNG ĐANG BỐC THĂM SỰ CỐ & NHÀ CUNG CẤP...
+                        </div>
+                        <div id="gachaRollReel" style="display:inline-flex; align-items:center; gap:16px; background:#f8fafc; border:3px solid var(--navy); border-radius:20px; padding:16px 28px; box-shadow:0 8px 20px rgba(0,0,0,0.1)">
+                            <div id="gachaRollIconWrap"></div>
+                            <div style="text-align:left">
+                                <div id="gachaRollCorp" style="font-size:1.55rem; font-weight:900; color:var(--navy)">MICROSOFT</div>
+                                <div id="gachaRollSw" style="font-size:1.15rem; font-weight:700; color:#64748b">PowerPoint</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SÂN KHẤU SỰ CỐ TỐI GIẢN (KHÔNG BLOAT, THẲNG VÀO NỘI DUNG) -->
+                    <div id="corpStageArea">
+                        <!-- Rendered dynamically by setupEventForTarget -->
+                    </div>
+
+                    <!-- FOOTER ACTIONS: MANUAL NEXT TURN & MANUAL END ROUND -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:10px">
+                        <div style="font-size:0.95rem; font-weight:700; color:#64748b">
+                            💡 <i>Hệ thống sẽ tự động chốt tháng khi tất cả các tổ hoàn thành lượt!</i>
+                        </div>
+                        <div style="display:flex; gap:10px">
+                            <button type="button" id="btnNextCustomer" style="font-size:1.05rem">
+                                ➡️ Bỏ qua & Sang Lượt Tiếp
+                            </button>
+                            <button type="button" class="amber-btn sm" id="btnEndRound" title="Chốt tháng sớm nếu cần">
+                                🏁 Chốt Tháng Sớm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SCREEN 4: MÀN HÌNH EM GHI NHỚ ================= -->
+            <section class="screen" id="s4">
+                <div class="card" style="text-align:center">
+                    <div style="display:inline-block; background:var(--navy); color:#fff; padding:6px 22px; border-radius:24px; font-weight:900; margin-bottom:12px; font-size:1.05rem">
+                        💡 5 PHÚT VÀNG CỦNG CỐ TRƯỚC BẢNG VINH DANH
+                    </div>
+                    <h2 style="font-size:2.4rem; justify-content:center; color:var(--navy); margin-bottom:8px">
+                        CHỐT 3 BÀI HỌC THƯƠNG TRƯỜNG ĐẮT GIÁ
+                    </h2>
+                    <p style="font-size:1.2rem; font-weight:700; color:#475569; max-width:850px; margin:0 auto 24px">
+                        Không cần lý thuyết khô khan, qua các tháng buôn bán và đối mặt rủi ro, cả lớp chúng ta đã tự rút ra 3 bài học cốt lõi sau:
+                    </p>
+
+                    <div class="summary-card-grid grid-3" id="summaryCardsGrid">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- CÂU HỎI CỦNG CỐ LẤY ĐIỂM CHÓT CHO CÁC TỔ -->
+                    <div class="quiz-container" style="text-align:left; margin-top:24px">
+                        <!-- THANH GỌI HỌC SINH CỦNG CỐ VỚI GACHA -->
+                        <div class="gacha-call-bar" style="margin-bottom:14px">
+                            <span style="font-weight:900; color:var(--navy); font-size:1.1rem">🎯 Học sinh trả lời củng cố:</span>
+                            <select id="selStudentCons" style="min-width:220px; font-weight:800;"></select>
+                            <button type="button" class="amber-btn" id="btnGachaCons">🎲 Bốc Thăm (Gacha)</button>
+                            <span id="stagedConsTag" style="font-weight:800; color:var(--blue); font-size:1.05rem">Chưa chọn học sinh</span>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px">
+                            <span style="font-weight:900; color:var(--purple); font-size:1.15rem">🎯 VÒNG CỦNG CỐ LẤY ĐIỂM CHÓT TRƯỚC BẢNG VÀNG</span>
+                            <span id="consQTag" style="font-weight:800; color:var(--blue)">Câu hỏi 1 / 7</span>
+                        </div>
+                        <div class="quiz-q-title" id="consQText">Nội dung câu hỏi củng cố...</div>
+                        <div class="quiz-opts-grid" id="consQOpts"></div>
+                        <div id="consQFeedback" style="display:none; margin-top:12px; font-weight:800; font-size:1.15rem; padding:10px 16px; border-radius:8px"></div>
+                        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px">
+                            <button type="button" class="sm" id="btnNextConsQ">Đổi câu hỏi củng cố khác ▶</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:26px">
+                        <button type="button" class="go" id="btnTriggerAuditing" style="font-size:1.35rem; padding:14px 36px">
+                            🏆 Xem Bảng Vàng Vinh Danh & Nhận Cúp ▶
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SCREEN 5: BẢNG VÀNG VINH DANH ================= -->
+            <section class="screen" id="s5">
+                <div class="card" style="text-align:center">
+                    <h2 style="font-size:2.4rem; justify-content:center">🏆 Bảng Vàng Doanh Nhân Công Nghệ Khối 4</h2>
+                    <div id="podiumBanner" style="font-size:1.4rem; font-weight:900; color:#b45309; background:#fef3c7; border:3px solid #f59e0b; border-radius:16px; padding:14px 24px; margin:14px auto 20px; max-width:900px; display:none">
+                        🏆 ĐỒNG QUÁN QUÂN: TỔ 1 & TỔ 2 (CÙNG ĐẠT 1050 ĐIỂM)! 🏆
+                    </div>
+
+                    <div class="podium-container" id="podiumArea">
+                        <!-- Dynamic Podium Pillars -->
+                    </div>
+
+                    <!-- BIỂU ĐỒ TĂNG TRƯỞNG TÀI SẢN TOÀN BỘ CÁC THÁNG -->
+                    <div class="chart-container-box">
+                        <div style="font-size:1.2rem; font-weight:900; color:#ffd23f; margin-bottom:6px">
+                            📈 ĐƯỜNG ĐUA TÀI CHÍNH CÁC TỔ QUA TỪNG THÁNG
+                        </div>
+                        <div class="chart-legend-row" id="podiumChartLegends"></div>
+                        <div id="podiumChartSvgWrap"></div>
+                    </div>
+
+                    <!-- THỐNG KÊ CHI TIẾT -->
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <b id="statTotalMoney">$0</b>
+                            <span>Tổng tài sản lớp tạo ra</span>
+                        </div>
+                        <div class="stat-item">
+                            <b id="statSafeTransactions">0</b>
+                            <span>Giao dịch an toàn có bản quyền</span>
+                        </div>
+                        <div class="stat-item">
+                            <b id="statCrackDisasters" style="color:var(--coral)">0</b>
+                            <span>Số lần dính virus tống tiền</span>
+                        </div>
+                        <div class="stat-item">
+                            <b id="statActiveStudents">0</b>
+                            <span>Học sinh được gọi phát biểu</span>
+                        </div>
+                    </div>
+
+                    <!-- EXPORT CSV & GOOGLE DRIVE -->
+                    <div style="margin-top:28px; display:flex; justify-content:center; gap:12px; flex-wrap:wrap">
+                        <button type="button" class="go" id="btnExportDrive" style="font-size:1.15rem; padding:12px 28px">
+                            ☁️ Xuất CSV & Lưu Lên Google Drive
+                        </button>
+                        <button type="button" id="btnExportLocal" style="font-size:1.05rem; padding:12px 20px">
+                            📄 Tải Báo Cáo CSV Về Máy
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- SIDEBAR: BẢNG TỔ & VỐN KHỞI NGHIỆP -->
+        <aside>
+            <div class="card" style="padding:14px">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+                    <span style="font-weight:900; font-size:1.1rem; color:var(--navy)">🏢 Vốn & Lãi Suất Các Tổ</span>
+                    <span style="font-size:.8rem; font-weight:800; background:#e2e8f0; padding:2px 8px; border-radius:6px">Sàn $1000</span>
+                </div>
+                <div id="teamsListContainer">
+                    <!-- Teams rendered here -->
+                </div>
+            </div>
+
+            <!-- NHẬT KÝ THƯƠNG TRƯỜNG -->
+            <div class="card" style="padding:14px; flex:1; display:flex; flex-direction:column; min-height:220px">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+                    <span style="font-weight:900; font-size:1.05rem; color:var(--navy)">📜 Nhật Ký Giao Dịch</span>
+                    <button type="button" class="sm" onclick="openLedgerModal()" title="Mở sổ cái chi tiết toàn màn hình">
+                        🔍 Phóng to
+                    </button>
+                </div>
+                <div id="tradeLogList" style="flex:1; overflow-y:auto; font-size:.88rem; line-height:1.45; color:#334155; display:flex; flex-direction:column; gap:6px">
+                    <div style="color:#94a3b8; font-style:italic">Chưa có giao dịch nào diễn ra.</div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- FULLSCREEN NOTEBOOK OVERLAY MODAL (CHO PHÉP CUỘN & PADDING LỚN HƠN NÚT ĐÓNG) -->
+    <div id="notebookModal" class="fullscreen-notebook-modal" style="display:none">
+        <button type="button" class="modal-nb-close" onclick="closeNotebookModal()">
+            ✖ Thu nhỏ (Esc)
+        </button>
+        <div class="modal-nb-content">
+            <div class="modal-nb-date" id="modalBoardDate">Thứ ..., ngày ... tháng ... năm ...</div>
+            <div class="modal-nb-subject">MÔN: TIN HỌC · LỚP 4</div>
+            <div class="modal-nb-title">BÀI 6: SỬ DỤNG PHẦN MỀM KHI ĐƯỢC PHÉP</div>
+            <div class="modal-nb-lines">
+                <div>• Mỗi phần mềm là <b>sản phẩm trí tuệ và tài sản</b> của tác giả (cá nhân hoặc tổ chức).</div>
+                <div style="margin-top:14px">• Em chỉ được sử dụng phần mềm khi đã <b>được tác giả cho phép (có bản quyền)</b>.</div>
+                <div style="margin-top:14px">• <b>Tuyệt đối không dùng phần mềm bẻ khóa (crack)</b> để tránh nguy cơ nhiễm virus, mất dữ liệu và vi phạm pháp luật.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FULLSCREEN LEDGER OVERLAY MODAL (SỔ CÁI GIAO DỊCH PHÓNG TO) -->
+    <div id="ledgerModal" class="fullscreen-notebook-modal" style="display:none">
+        <button type="button" class="modal-nb-close" onclick="closeLedgerModal()">
+            ✖ Thu nhỏ (Esc)
+        </button>
+        <div style="max-width:1150px; width:95%; text-align:left">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px">
+                <div>
+                    <h2 style="font-size:2.2rem; font-weight:900; color:var(--navy); margin:0 0 6px">
+                        📜 SỔ CÁI GIAO DỊCH & BIẾN ĐỘNG TÀI CHÍNH CHI TIẾT
+                    </h2>
+                    <div style="font-size:1.1rem; font-weight:700; color:#475569">
+                        Theo dõi chi tiết số tiền biến động (+/-) và số dư ví của từng tổ sau mỗi quyết định bản quyền.
+                    </div>
+                </div>
+            </div>
+            <div id="ledgerCardsContainer" style="display:flex; flex-direction:column; gap:10px; margin-top:14px">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- FULLSCREEN MONTHLY FINANCIAL REPORT MODAL (BÁO CÁO TÀI CHÍNH CUỐI THÁNG CÓ BIỂU ĐỒ & NÚT END SỚM) -->
+    <div id="roundReportModal" class="fullscreen-notebook-modal" style="display:none; background:#0f172a; color:#fff;">
+        <div style="max-width:1150px; width:95%; text-align:center">
+            <div style="display:inline-block; background:#f59e0b; color:#000; padding:6px 22px; border-radius:24px; font-weight:900; font-size:1.15rem; margin-bottom:10px">
+                🏁 KẾT THÚC THÁNG THỨ <span id="reportRoundNum">1</span>
+            </div>
+            <h2 style="font-size:2.4rem; font-weight:900; color:#fff; margin:0 0 8px">
+                📊 BÁO CÁO TÀI CHÍNH & TĂNG TRƯỞNG TÀI SẢN CÁC TỔ
+            </h2>
+            <p style="font-size:1.15rem; font-weight:700; color:#94a3b8; margin:0 0 20px">
+                Tất cả các tổ đã hoàn thành lượt kinh doanh trong tháng! Lãi suất đã được tự động kết chuyển vào ví.
+            </p>
+
+            <div id="roundReportCardsGrid" class="round-report-grid">
+                <!-- Populated dynamically -->
+            </div>
+
+            <!-- BIỂU ĐỒ TĂNG TRƯỞNG MULTI-LINE SVG QUA CÁC THÁNG -->
+            <div class="chart-container-box">
+                <div style="font-size:1.2rem; font-weight:900; color:#ffd23f; margin-bottom:6px">
+                    📈 ĐƯỜNG ĐUA TÀI CHÍNH CÁC TỔ QUA CÁC THÁNG
+                </div>
+                <div class="chart-legend-row" id="reportChartLegends"></div>
+                <div id="reportChartSvgWrap"></div>
+            </div>
+
+            <!-- DUAL ACTION BUTTONS: TIẾP TỤC HOẶC KẾT THÚC SỚM BÀI HỌC -->
+            <div style="margin-top:28px; display:flex; justify-content:center; gap:16px; flex-wrap:wrap">
+                <button type="button" class="go" id="btnReportNextRound" style="font-size:1.3rem; padding:14px 36px; box-shadow:0 8px 24px rgba(22, 163, 74, 0.4)">
+                    🚀 Bắt Đầu Tháng Kế Tiếp ▶
+                </button>
+                <button type="button" class="warn" id="btnReportEarlyFinish" style="font-size:1.2rem; padding:14px 28px; background:#b91c1c; border-color:#7f1d1d" title="Kết thúc sớm và kích hoạt thanh tra bản quyền">
+                    🚨 Kết Thúc Sớm 🚨
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL INLINE SỬA TIỀN THỦ CÔNG (QUY CHUẨN 17 - FOOLPROOF 100%) -->
+    <div class="modal-overlay" id="editMoneyModal" style="display:none">
+        <div class="modal-card" style="max-width:480px">
+            <h3 style="font-size:1.5rem; font-weight:900; color:var(--navy); margin:0 0 12px" id="editMoneyTitle">
+                ✏️ Điều Chỉnh Tiền Cho Tổ
+            </h3>
+            <div style="margin:16px 0">
+                <input type="number" id="txtEditMoneyInput" style="font-size:1.8rem; font-weight:900; width:100%; text-align:center; padding:10px; border:3px solid var(--navy); border-radius:12px; color:var(--navy)">
+            </div>
+            <div style="display:flex; justify-content:center; gap:8px; margin-bottom:20px; flex-wrap:wrap">
+                <button type="button" class="sm info" onclick="adjustModalInput(-100)">-100</button>
+                <button type="button" class="sm info" onclick="adjustModalInput(100)">+100</button>
+                <button type="button" class="sm info" onclick="adjustModalInput(500)">+500</button>
+                <button type="button" class="sm amber-btn" onclick="setModalInput(1000)">Sàn $1000</button>
+            </div>
+            <div style="display:flex; justify-content:center; gap:12px">
+                <button type="button" class="go" id="btnSaveEditedMoney" style="font-size:1.15rem; padding:10px 24px">
+                    ✅ Lưu Số Tiền
+                </button>
+                <button type="button" class="sm" onclick="closeEditMoneyModal()">
+                    ✖ Hủy Bỏ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TỰ ĐẶT GIÁ KHUYẾN MÃI TỰ DO CHO TỔ BÁN -->
+    <div class="modal-overlay" id="customDiscountModal" style="display:none">
+        <div class="modal-card" style="max-width:480px">
+            <h3 style="font-size:1.45rem; font-weight:900; color:var(--navy); margin:0 0 8px">
+                🏷️ Tự Đặt Giá Khuyến Mãi Cho Khách
+            </h3>
+            <p style="font-size:0.98rem; font-weight:600; color:#475569; margin:0 0 14px" id="customDiscountDesc">
+                Giá gốc sự cố hiện tại là $150. Tổ bạn muốn hạ giá còn bao nhiêu để chốt đơn?
+            </p>
+            <div style="margin:16px 0">
+                <input type="number" id="txtCustomDiscountInput" style="font-size:1.8rem; font-weight:900; width:100%; text-align:center; padding:10px; border:3px solid var(--navy); border-radius:12px; color:#dc2626">
+            </div>
+            <div style="display:flex; justify-content:center; gap:12px">
+                <button type="button" class="go" id="btnApplyCustomDiscount" style="font-size:1.15rem; padding:10px 24px">
+                    🏷️ Áp Dụng Giá Ưu Đãi
+                </button>
+                <button type="button" class="sm" onclick="closeCustomDiscountModal()">
+                    ✖ Hủy Bỏ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL BÁO ỨNG KHẨN CẤP: RANSOMWARE BOM NỔ -->
+    <div class="modal-overlay" id="karmaModal" style="display:none">
+        <div class="modal-card" style="border-color:var(--coral); max-width:680px">
+            <div style="font-size:3.5rem; margin-bottom:6px">☠️</div>
+            <h3 style="font-size:2rem; font-weight:900; color:var(--coral); margin:0 0 10px">
+                BÁO ỨNG! MÃ ĐỘC TỐNG TIỀN THỨC TỈNH!
+            </h3>
+            <div id="karmaModalDesc" style="font-size:1.25rem; font-weight:700; line-height:1.6; color:#334155; margin-bottom:20px">
+                Quả bom hẹn giờ giấu trong bản crack hôm trước vừa phát nổ! Toàn bộ máy chủ công ty bị mã hóa tống tiền!
+            </div>
+            <div style="background:#fee2e2; border:2px dashed #dc2626; padding:16px; border-radius:14px; margin-bottom:20px; font-size:1.25rem; font-weight:900; color:#991b1b" id="karmaPenaltyText">
+                Hình phạt: Mất 50% tài sản + Lãi suất tháng về 0%!
+            </div>
+            <button type="button" class="warn" id="btnKarmaConfirm" style="font-size:1.2rem; padding:12px 30px">
+                Chấp Nhận Bài Học Đắt Giá 😭
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL THANH TRA BẢN QUYỀN TOÀN QUỐC (TRƯỚC BẢNG VÀNG) -->
+    <div class="modal-overlay" id="auditModal" style="display:none">
+        <div class="modal-card" style="max-width:850px; border-color:#d97706">
+            <div style="font-size:3.2rem; margin-bottom:4px">🚨⚖️</div>
+            <h3 style="font-size:2rem; font-weight:900; color:var(--navy); margin:0 0 8px">
+                ĐOÀN THANH TRA BẢN QUYỀN & AN NINH MẠNG QUỐC GIA
+            </h3>
+            <p style="font-size:1.15rem; font-weight:700; color:#475569; margin:0 0 16px">
+                Hệ thống đang quét toàn bộ State của các tổ để kiểm tra việc tuân thủ bản quyền phần mềm...
+            </p>
+
+            <div id="auditResultsList" style="text-align:left; max-height:360px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; margin-bottom:20px">
+                <!-- Audit cards populated here -->
+            </div>
+
+            <button type="button" class="go" id="btnAuditProceedToPodium" style="font-size:1.3rem; padding:14px 36px">
+                🏆 Tiến Vào Bục Vinh Danh Bảng Vàng ▶
+            </button>
+        </div>
+    </div>
+
+    <!-- GIANT GACHA MODAL CHO QUY CHUẨN 4 (PICKED ≠ DONE) -->
+    <div class="giant-gacha-modal" id="giantGachaModal" style="display:none">
+        <div class="giant-gacha-content">
+            <div style="font-size:1.2rem; font-weight:900; color:var(--blue); letter-spacing:1px">
+                🎉 GACHA ĐÃ GỌI TÊN HỌC SINH LÊN BẢNG 🎉
+            </div>
+            <div class="giant-student-name" id="giantStudentName">Nguyễn Văn A</div>
+            <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap">
+                <button type="button" class="amber-btn" id="btnGiantGachaReroll" style="font-size:1.15rem; padding:12px 24px">
+                    🎲 Bốc Lại (Nếu Vắng Mặt)
+                </button>
+                <button type="button" class="go" id="btnGiantGachaConfirm" style="font-size:1.15rem; padding:12px 28px">
+                    ✅ Chốt Em Này Lên Trả Lời!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC -->
+    <script>
+        'use strict';
+        const $ = s => document.querySelector(s);
+        const $$ = s => [...document.querySelectorAll(s)];
+        const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+        /* ================= 1. WEB AUDIO API SYNTHESIZER (100% OFFLINE) ================= */
+        let AC = null;
+        function getAudioContext() {
+            if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+            if (AC.state === 'suspended') AC.resume();
+            return AC;
+        }
+
+        function playSound(type) {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                if (type === 'beep_ok' || type === 'cash') {
+                    const osc1 = ctx.createOscillator(), osc2 = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc1.type = 'sine'; osc2.type = 'triangle';
+                    osc1.frequency.setValueAtTime(987.77, now);
+                    osc1.frequency.setValueAtTime(1318.51, now + 0.08);
+                    osc2.frequency.setValueAtTime(1318.51, now);
+                    osc2.frequency.setValueAtTime(1975.53, now + 0.08);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+                    osc1.connect(gain); osc2.connect(gain); gain.connect(ctx.destination);
+                    osc1.start(now); osc2.start(now);
+                    osc1.stop(now + 0.45); osc2.stop(now + 0.45);
+                } else if (type === 'neutral' || type === 'click') {
+                    const osc = ctx.createOscillator(), gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(540, now);
+                    osc.frequency.linearRampToValueAtTime(440, now + 0.12);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+                    osc.connect(gain); gain.connect(ctx.destination);
+                    osc.start(now); osc.stop(now + 0.14);
+                } else if (type === 'beep_wrong' || type === 'bad') {
+                    const osc = ctx.createOscillator(), gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.linearRampToValueAtTime(110, now + 0.35);
+                    gain.gain.setValueAtTime(0.22, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+                    osc.connect(gain); gain.connect(ctx.destination);
+                    osc.start(now); osc.stop(now + 0.38);
+                } else if (type === 'tick') {
+                    const osc = ctx.createOscillator(), gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(1100, now);
+                    gain.gain.setValueAtTime(0.06, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                    osc.connect(gain); gain.connect(ctx.destination);
+                    osc.start(now); osc.stop(now + 0.05);
+                } else if (type === 'fanfare') {
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                        const o = ctx.createOscillator(), g = ctx.createGain();
+                        o.type = 'triangle';
+                        o.frequency.setValueAtTime(freq, now + idx * 0.1);
+                        g.gain.setValueAtTime(0.18, now + idx * 0.1);
+                        g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.45);
+                        o.connect(gain); gain.connect(ctx.destination);
+                        o.start(now + idx * 0.1); o.stop(now + idx * 0.1 + 0.48);
+                    });
+                }
+            } catch (e) { }
+        }
+
+        /* ================= 2. DỮ LIỆU BÀI HỌC TỪ QUESTS.JS ================= */
+        const DB = window.QUESTS_DATA || {
+            funding_quizzes: [],
+            corporations: [],
+            summary_cards: [],
+            consolidation_quizzes: []
+        };
+
+        const FALLBACK_STUDENTS = [
+            "Nguyễn Trung An", "Hồ Nhựt Anh", "Lý Ngọc Hà Anh", "Tống Nguyễn Bảo Anh", "Trần Lưu Ngọc Anh",
+            "Trần Mai Mỹ Anh", "Trần Ngọc Vy Anh", "Bùi Ngọc Bách", "Nguyễn Minh Châu", "Trần Bảo Châu",
+            "Vũ Hoàng Kim Chi", "Đoàn Quang Trí Dũng", "Nguyễn Minh Đạt", "Hồ Minh Đức", "Hà Thu Hòa",
+            "Trần Anh Hòa", "Nguyễn Lê Khang", "Phạm Tuấn Khang", "Nguyễn Minh Khôi", "Huỳnh Nhật Ngọc Lâm",
+            "Ngô Hoàng Long", "Trần Minh Mẫn", "Dương Ngọc Quý Minh", "Nguyễn Dương Minh Minh", "Phạm Ngọc Khánh My",
+            "Dương Khánh Nam", "Phan Kim Ngân", "Huỳnh Phương Yến Ngọc", "Hoàng Phúc Nhã", "Phan Võ Minh Nhân",
+            "Lâm Thành Nhất", "Nguyễn Huỳnh Nhi", "Lăng Nguyễn Hồng Nhung", "Trần Đức Phát", "Quách Gia Phú",
+            "Ngô Quang Phúc", "Nguyễn Lê Đại Phúc", "Nguyễn Xuân Phúc", "Đặng Nguyễn Phương Quỳnh", "Tạ Anh Thy"
+        ];
+
+        /* ================= 3. TRẠNG THÁI TOÀN CỤC & LOCALSTORAGE ================= */
+        let currentClassId = '4_1';
+        let numTeams = 4;
+        let studentsList = [];
+        let curScreen = 1;
+        let curRound = 1; // Đại diện cho "Tháng"
+        let curCustomerIdx = 0;
+        let roundTurnsPlayed = 0;
+        let curTargetCorp = null;
+
+        // Cơ chế trần giá bán
+        let maxPriceCeiling = 150;
+        let fundQuestionsCorrectCount = 0;
+
+        // Cơ chế giảm giá cho sự cố đang diễn ra
+        let activeDiscountPrice = null; // null = giá gốc, number = giá sau giảm
+
+        // Telemetry & Metrics
+        let studentLogs = [];
+        let tradeLogs = [];
+        let tradeLedger = [];
+        let statSafeCount = 0;
+        let statCrackDisasterCount = 0;
+
+        // Teams array
+        let teams = [];
+
+        const TEAM_COLORS = ['#f97316', '#2563eb', '#16a34a', '#8b5cf6', '#dc2626', '#0284c7', '#d97706'];
+
+        function getStorageKey() {
+            return `bgtieu_hoc_k4_tiet_11_${currentClassId}_state`;
+        }
+
+        function saveState() {
+            try {
+                const data = {
+                    numTeams,
+                    curRound,
+                    curCustomerIdx,
+                    roundTurnsPlayed,
+                    maxPriceCeiling,
+                    fundQuestionsCorrectCount,
+                    teams,
+                    studentLogs,
+                    tradeLogs,
+                    tradeLedger,
+                    statSafeCount,
+                    statCrackDisasterCount
+                };
+                localStorage.setItem(getStorageKey(), JSON.stringify(data));
+            } catch (e) { }
+        }
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(getStorageKey());
+                if (!raw) return false;
+                const d = JSON.parse(raw);
+                if (d && Array.isArray(d.teams) && d.teams.length) {
+                    numTeams = d.numTeams || numTeams;
+                    curRound = d.curRound || 1;
+                    curCustomerIdx = d.curCustomerIdx || 0;
+                    roundTurnsPlayed = d.roundTurnsPlayed || 0;
+                    maxPriceCeiling = d.maxPriceCeiling || 150;
+                    fundQuestionsCorrectCount = d.fundQuestionsCorrectCount || 0;
+                    teams = d.teams;
+                    studentLogs = d.studentLogs || [];
+                    tradeLogs = d.tradeLogs || [];
+                    tradeLedger = d.tradeLedger || [];
+                    statSafeCount = d.statSafeCount || 0;
+                    statCrackDisasterCount = d.statCrackDisasterCount || 0;
+                    return true;
+                }
+            } catch (e) { }
+            return false;
+        }
+
+        function clearSession() {
+            if (confirm("Bạn có chắc muốn xóa dữ liệu phiên của bài này để bắt đầu lớp mới không?")) {
+                localStorage.removeItem(getStorageKey());
+                maxPriceCeiling = 150;
+                fundQuestionsCorrectCount = 0;
+                initTeams();
+                curRound = 1;
+                curCustomerIdx = 0;
+                roundTurnsPlayed = 0;
+                curTargetCorp = null;
+                activeDiscountPrice = null;
+                studentLogs = [];
+                tradeLogs = [];
+                tradeLedger = [];
+                statSafeCount = 0;
+                statCrackDisasterCount = 0;
+                updateCeilingUI();
+                renderMysteryBoxes();
+                renderMarketListing();
+                drawTeams();
+                renderTradeLog();
+                saveState();
+                if (typeof window.toast === 'function') {
+                    window.toast('✅ Đã xóa dữ liệu phiên học thành công!', 3000, '#16a34a');
+                }
+            }
+        }
+
+        $('#btnClearSession').onclick = clearSession;
+
+        /* HELPER: RENDER SOFTWARE ICON WITH PNG AND FALLBACK */
+        function renderSoftwareIcon(corp, size = 64) {
+            const imgSrc = `../../assets/images/minh-hoa/${corp.img || 'powerpoint.png'}`;
+            return `
+                <div class="sw-icon-wrap" style="width:${size}px; height:${size}px; min-width:${size}px; max-width:${size}px; border-radius:${Math.round(size * 0.22)}px;">
+                    <img src="${imgSrc}" alt="${esc(corp.software)}" class="sw-img-fluid" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';">
+                    <span class="sw-fallback-emoji" style="display:none; font-size:${Math.round(size * 0.48)}px;">${corp.icon || '💻'}</span>
+                </div>
+            `;
+        }
+
+        /* HELPER: GET VISUAL STATUS BADGE WITH EMOJI INSTEAD OF CRYPTIC (Lv1) */
+        function getSoftwareStatusDisplay(team, softwareName) {
+            const lvl = team.softwareLevels?.[softwareName] ?? 0;
+            if (softwareName === 'Photoshop') {
+                if (lvl === 0) return { label: '🔴 Hết hạn thuê bao', isOwned: false };
+                if (lvl === 1) return { label: '🟢 Đang thuê bao', isOwned: true };
+                return { label: '👑 Gói Cloud VIP', isOwned: true };
+            }
+            if (softwareName === 'CapCut') {
+                if (lvl === 0) return { label: '⚪ Chưa cài', isOwned: false };
+                if (lvl === 1) return { label: '🎬 Bản thường (Free)', isOwned: true };
+                return { label: '👑 Gói PRO 4K', isOwned: true };
+            }
+            if (['Google Chrome', 'Bộ Gõ UniKey', "Kiran's Typing Tutor"].includes(softwareName)) {
+                if (lvl === 0) return { label: '⚪ Chưa cài', isOwned: false };
+                if (lvl === 1) return { label: '🛡️ Bản chuẩn miễn phí', isOwned: true };
+                return { label: '👑 Cập nhật tối tân', isOwned: true };
+            }
+            // PowerPoint, Minecraft (Paid base)
+            if (lvl === 0) return { label: '⚪ Chưa mua', isOwned: false };
+            if (lvl === 1) return { label: '⭐ Bản gốc', isOwned: true };
+            return { label: '👑 Siêu cấp (AI/Server)', isOwned: true };
+        }
+
+        /* ================= 4. KHỞI TẠO CÁC TỔ & GÁN TẬP ĐOÀN ================= */
+        function initTeams() {
+            teams = [];
+            const corpPool = [...DB.corporations];
+            for (let i = 0; i < numTeams; i++) {
+                const corp = corpPool[i % corpPool.length];
+                teams.push({
+                    id: i,
+                    name: `Tổ ${i + 1}`,
+                    color: TEAM_COLORS[i % TEAM_COLORS.length],
+                    corpId: corp.id,
+                    corpName: corp.name,
+                    software: corp.software,
+                    img: corp.img || 'powerpoint.png',
+                    corpType: corp.type,
+                    typeLabel: corp.typeLabel,
+                    model: corp.model,
+                    icon: corp.icon,
+                    defaultPrice: Math.min(maxPriceCeiling, corp.basePrice || 100),
+                    currentPrice: Math.min(maxPriceCeiling, corp.basePrice || 100),
+                    money: 1000,
+                    baseInterest: 5,
+                    currentInterest: 5,
+                    inventory: [corp.software],
+                    softwareLevels: { [corp.software]: 1 },
+                    history: [{ month: 0, money: 1000 }],
+                    infected: false,
+                    infectedSoftwares: [],
+                    revealed: true
+                });
+            }
+        }
+
+        function renderMysteryBoxes() {
+            const grid = $('#mysteryBoxesGrid');
+            if (!grid) return;
+            grid.innerHTML = teams.map((t, idx) => {
+                if (t.revealed) {
+                    return `
+                        <div class="mystery-box-card" style="border-color:${t.corpType === 'paid' ? '#ef4444' : '#22c55e'}">
+                            <div style="font-weight:900; font-size:1.15rem; color:var(--navy)">${esc(t.name)}</div>
+                            <div style="margin:4px 0">${renderSoftwareIcon(t, 64)}</div>
+                            <div style="font-weight:900; font-size:1.15rem; color:var(--navy)">${esc(t.corpName)}</div>
+                            <div style="font-weight:800; font-size:.95rem; color:#475569">Phần mềm: ${esc(t.software)}</div>
+                            <div class="corp-stamp ${t.corpType}">${t.typeLabel}</div>
+                            <div style="font-size:.82rem; font-weight:700; color:#64748b; margin-top:4px">${esc(t.model || '')}</div>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="mystery-box-card" id="mysteryBoxCard_${idx}">
+                            <div style="font-weight:900; font-size:1.15rem; color:var(--navy)">${esc(t.name)}</div>
+                            <div class="mystery-gift-icon" style="font-size:3rem">🎁</div>
+                            <div style="font-weight:800; font-size:1rem; color:#64748b">Hộp Quà Bí Ẩn</div>
+                        </div>
+                    `;
+                }
+            }).join('');
+        }
+
+        /* BỐC THĂM 1 LẦN DUY NHẤT VỚI ANIMATION VUI NHỘN */
+        function revealAllCorpsAnimated() {
+            const grid = $('#mysteryBoxesGrid');
+            $$('.mystery-box-card').forEach(b => b.classList.add('wobble'));
+            playSound('tick');
+
+            let timerCount = 0;
+            const timer = setInterval(() => {
+                playSound('tick');
+                timerCount++;
+                if (timerCount >= 10) {
+                    clearInterval(timer);
+                    playSound('fanfare');
+                    fireConfetti();
+                    teams.forEach(t => t.revealed = true);
+                    renderMysteryBoxes();
+                    renderMarketListing();
+                    drawTeams();
+                    saveState();
+                    if (typeof window.toast === 'function') {
+                        window.toast('🎉 ĐÃ BỐC THĂM THÀNH CÔNG TẬP ĐOÀN CHO CẢ LỚP!', 3500, '#16a34a');
+                    }
+                }
+            }, 100);
+        }
+
+        function rerollCorps() {
+            if (!confirm('Bạn có muốn xáo trộn và bốc thăm lại Tập đoàn cho các tổ không?')) return;
+            const corpPool = [...DB.corporations].sort(() => Math.random() - 0.5);
+            teams.forEach((t, i) => {
+                const corp = corpPool[i % corpPool.length];
+                t.corpId = corp.id;
+                t.corpName = corp.name;
+                t.software = corp.software;
+                t.img = corp.img || 'powerpoint.png';
+                t.corpType = corp.type;
+                t.typeLabel = corp.typeLabel;
+                t.model = corp.model;
+                t.icon = corp.icon;
+                t.defaultPrice = Math.min(maxPriceCeiling, corp.basePrice || 100);
+                t.currentPrice = t.defaultPrice;
+                t.inventory = [corp.software];
+                t.softwareLevels = { [corp.software]: 1 };
+                t.revealed = true;
+            });
+            renderMysteryBoxes();
+            renderMarketListing();
+            drawTeams();
+            saveState();
+            playSound('tick');
+        }
+
+        $('#btnRevealAllCorps').onclick = revealAllCorpsAnimated;
+        $('#btnRerollCorps').onclick = rerollCorps;
+
+        /* ================= 5. SÀN GIAO DỊCH – NIÊM YẾT GIÁ BÁN & GIÁ TRẦN ================= */
+        function updateCeilingUI() {
+            const b = $('#lblCeilingBanner');
+            if (b) b.textContent = `$${maxPriceCeiling}`;
+            const sub = $('#lblMaxCeilingSub');
+            if (sub) sub.textContent = `$${maxPriceCeiling}`;
+        }
+
+        function renderMarketListing() {
+            const grid = $('#marketListingGrid');
+            if (!grid) return;
+            updateCeilingUI();
+
+            grid.innerHTML = teams.map((t, idx) => {
+                const isPaid = t.corpType === 'paid';
+                return `
+                    <div class="market-team-card">
+                        <div style="display:flex; align-items:center; gap:12px">
+                            ${renderSoftwareIcon(t, 56)}
+                            <div>
+                                <div style="font-weight:900; font-size:1.15rem; color:var(--navy)">${esc(t.name)}: ${esc(t.corpName)}</div>
+                                <div style="font-weight:800; font-size:.95rem; color:var(--blue)">Phần mềm: ${esc(t.software)}</div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px">
+                            <span class="corp-type-tag ${t.corpType}">${t.typeLabel}</span>
+                            <span style="font-size:.85rem; font-weight:700; color:#64748b">Vốn sàn: $${t.money}</span>
+                        </div>
+
+                        <div style="font-size:.85rem; font-weight:600; color:#475569; line-height:1.4">
+                            ${esc(t.model || '')}
+                        </div>
+
+                        ${isPaid ? `
+                            <div style="margin-top:8px; background:#f8fafc; border:2px solid #cbd5e1; border-radius:12px; padding:10px;">
+                                <div style="font-size:0.85rem; font-weight:800; color:#334155; text-align:center">
+                                    💰 NIÊM YẾT GIÁ (TỐI ĐA $${maxPriceCeiling}):
+                                </div>
+                                <div class="price-stepper-box">
+                                    <button type="button" class="sm" onclick="adjustTeamPrice(${idx}, -10)">-10</button>
+                                    <div style="display:flex; align-items:center; background:#fff; border:2px solid var(--navy); border-radius:8px; padding:2px 8px">
+                                        <span style="font-weight:900; color:var(--navy); font-size:1.1rem">$</span>
+                                        <input type="number" id="teamPriceInput_${idx}" value="${t.currentPrice}" min="40" max="${maxPriceCeiling}" step="10" onchange="setTeamPrice(${idx}, this.value)">
+                                    </div>
+                                    <button type="button" class="sm" onclick="adjustTeamPrice(${idx}, 10)">+10</button>
+                                </div>
+                                <div style="margin-top:6px; text-align:center">
+                                    <button type="button" class="amber-btn sm" onclick="setTeamPrice(${idx}, ${Math.min(maxPriceCeiling, t.defaultPrice)})" style="font-size:0.78rem; padding:2px 8px">
+                                        ↺ Giá chuẩn ($${Math.min(maxPriceCeiling, t.defaultPrice)})
+                                    </button>
+                                </div>
+                            </div>
+                        ` : `
+                            <div style="margin-top:8px; background:#f0fdf4; border:2px solid #86efac; border-radius:12px; padding:10px; text-align:center">
+                                <div style="font-size:0.92rem; font-weight:900; color:#16a34a">🎁 MIỄN PHÍ CHO NGƯỜI DÙNG: $0</div>
+                                <div style="font-size:0.85rem; font-weight:700; color:#15803d; margin-top:4px">
+                                    Tài trợ quảng cáo: <b>+$${t.currentPrice} / lượt</b> (Trần: $${maxPriceCeiling})
+                                </div>
+                            </div>
+                        `}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.adjustTeamPrice = function (idx, delta) {
+            if (!teams[idx]) return;
+            const newPrice = Math.max(40, Math.min(maxPriceCeiling, (teams[idx].currentPrice || 100) + delta));
+            teams[idx].currentPrice = newPrice;
+            playSound('tick');
+            renderMarketListing();
+            drawTeams();
+            saveState();
+        };
+
+        window.setTeamPrice = function (idx, val) {
+            if (!teams[idx]) return;
+            const n = parseInt(val, 10);
+            if (!isNaN(n)) {
+                teams[idx].currentPrice = Math.max(20, Math.min(maxPriceCeiling, n));
+                playSound('beep_ok');
+                renderMarketListing();
+                drawTeams();
+                saveState();
+            }
+        };
+
+        $('#btnResetAllPrices').onclick = () => {
+            teams.forEach(t => t.currentPrice = Math.min(maxPriceCeiling, t.defaultPrice));
+            playSound('tick');
+            renderMarketListing();
+            drawTeams();
+            saveState();
+        };
+
+        /* ================= 6. VỞ GHI BÀI VÀO VỞ & MODAL FULLSCREEN ================= */
+        function updateVietnameseDate() {
+            const now = new Date();
+            const days = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
+            const dayName = days[now.getDay()];
+            const dateStr = `${dayName}, ngày ${now.getDate()} tháng ${now.getMonth() + 1} năm ${now.getFullYear()}`;
+            const headerDate = $('#current-date-line');
+            if (headerDate) headerDate.textContent = dateStr;
+            const bDate = $('#boardDate');
+            if (bDate) bDate.textContent = dateStr;
+            const mDate = $('#modalBoardDate');
+            if (mDate) mDate.textContent = dateStr;
+        }
+
+        window.openNotebookModal = function () {
+            const modal = $('#notebookModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                playSound('tick');
+            }
+        };
+
+        window.closeNotebookModal = function () {
+            const modal = $('#notebookModal');
+            if (modal) {
+                modal.style.display = 'none';
+                playSound('neutral');
+            }
+        };
+
+        window.openLedgerModal = function () {
+            renderLedgerModalRows();
+            const modal = $('#ledgerModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                playSound('tick');
+            }
+        };
+
+        window.closeLedgerModal = function () {
+            const modal = $('#ledgerModal');
+            if (modal) {
+                modal.style.display = 'none';
+                playSound('neutral');
+            }
+        };
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                window.closeNotebookModal();
+                window.closeLedgerModal();
+                closeEditMoneyModal();
+                closeCustomDiscountModal();
+                const karma = $('#karmaModal');
+                if (karma) karma.style.display = 'none';
+                const audit = $('#auditModal');
+                if (audit) audit.style.display = 'none';
+                const rep = $('#roundReportModal');
+                if (rep) rep.style.display = 'none';
+            }
+        });
+
+        /* ================= 7. GIAI ĐOẠN 1: TRẮC NGHIỆM GỌI VỐN (BÀI 5 SGK) ================= */
+        let curFundQIdx = 0;
+
+        function initClasses() {
+            const sel = $('#selCls');
+            const classes = ['4_1', '4_2', '4_3', '4_4', '4_5'];
+            sel.innerHTML = classes.map(c => `<option value="${c}">Lớp ${c.replace('_', '/')}</option>`).join('');
+            sel.value = currentClassId;
+            sel.onchange = () => {
+                currentClassId = sel.value;
+                if (!loadState()) {
+                    initTeams();
+                    saveState();
+                }
+                renderMysteryBoxes();
+                renderMarketListing();
+                drawTeams();
+                loadStudentsData();
+            };
+
+            const selT = $('#selTeams');
+            selT.innerHTML = [3, 4, 5, 6, 7].map(n => `<option value="${n}">${n} tổ</option>`).join('');
+            selT.value = numTeams;
+            selT.onchange = () => {
+                numTeams = Number(selT.value);
+                initTeams();
+                renderMysteryBoxes();
+                renderMarketListing();
+                drawTeams();
+                saveState();
+            };
+        }
+
+        async function loadStudentsData() {
+            try {
+                const res = await fetch(`../../assets/data/students_k4_2026_2027.json`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const list = data[currentClassId] || data['4_1'] || FALLBACK_STUDENTS;
+                    studentsList = list;
+                } else {
+                    studentsList = FALLBACK_STUDENTS;
+                }
+            } catch (e) {
+                studentsList = FALLBACK_STUDENTS;
+            }
+            updateStudentSelects();
+        }
+
+        function updateStudentSelects() {
+            const optsHtml = studentsList.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+            $('#selStudentFund').innerHTML = optsHtml;
+            const selCons = $('#selStudentCons');
+            if (selCons) selCons.innerHTML = optsHtml;
+        }
+
+        function renderFundQuiz() {
+            const qList = DB.funding_quizzes || [];
+            if (!qList.length) return;
+            const q = qList[curFundQIdx];
+            $('#fundQIndex').textContent = `CÂU HỎI ${curFundQIdx + 1} / ${qList.length} (BÀI 5 SGK)`;
+            $('#fundQText').textContent = q.q;
+
+            const optsBox = $('#fundQOpts');
+            optsBox.innerHTML = q.opts.map((opt, idx) => `
+                <button type="button" class="quiz-opt-btn" data-idx="${idx}">
+                    ${esc(opt)}
+                </button>
+            `).join('');
+
+            const fb = $('#fundQFeedback');
+            fb.style.display = 'none';
+
+            $$('#fundQOpts .quiz-opt-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const chosen = Number(btn.dataset.idx);
+                    const isOk = chosen === q.ans;
+                    $$('#fundQOpts .quiz-opt-btn').forEach((b, i) => {
+                        b.disabled = true;
+                        if (i === q.ans) b.classList.add('correct');
+                        else if (i === chosen && !isOk) b.classList.add('wrong');
+                    });
+
+                    playSound(isOk ? 'beep_ok' : 'beep_wrong');
+
+                    fb.style.display = 'block';
+                    fb.style.background = isOk ? '#dcfce7' : '#fee2e2';
+                    fb.style.color = isOk ? '#14532d' : '#991b1b';
+                    fb.innerHTML = `
+                        <b>${isOk ? '🎉 CHÍNH XÁC!' : '❌ CHƯA ĐÚNG!'}</b> ${esc(q.exp)}
+                        ${isOk ? '<br>✨ <i>Cả lớp đã nâng trần giá bán / tài trợ thêm +$50!</i>' : ''}
+                    `;
+
+                    if (isOk) {
+                        maxPriceCeiling += 50;
+                        fundQuestionsCorrectCount++;
+                        updateCeilingUI();
+                        // Tăng giá các tổ tương ứng
+                        teams.forEach(t => {
+                            t.currentPrice = Math.min(maxPriceCeiling, t.currentPrice + 50);
+                        });
+                        renderMarketListing();
+                        drawTeams();
+                    }
+
+                    const stName = $('#selStudentFund').value;
+                    if (stName) {
+                        studentLogs.push({
+                            studentName: stName,
+                            activity: `Gọi vốn Bài 5 - Câu ${curFundQIdx + 1}`,
+                            isCorrect: isOk,
+                            note: isOk ? 'Nắm chắc kiến thức thao tác tệp và thư mục' : 'Cần ôn lại thao tác tệp và thư mục Bài 5',
+                            tt27: isOk ? 'T' : 'H'
+                        });
+                    }
+                    saveState();
+                };
+            });
+        }
+
+        $('#btnPrevFundQ').onclick = () => {
+            if (curFundQIdx > 0) {
+                curFundQIdx--;
+                renderFundQuiz();
+            }
+        };
+
+        $('#btnNextFundQ').onclick = () => {
+            if (curFundQIdx < (DB.funding_quizzes.length - 1)) {
+                curFundQIdx++;
+                renderFundQuiz();
+            }
+        };
+
+        /* GIANT GACHA MODAL LOGIC (QUY CHUẨN 4: PICKED ≠ DONE) */
+        let gachaTargetType = 'fund';
+
+        function openGiantGacha(type = 'fund') {
+            gachaTargetType = type;
+            rollGiantGacha();
+            $('#giantGachaModal').style.display = 'flex';
+        }
+
+        function rollGiantGacha() {
+            playSound('tick');
+            const randomStudent = studentsList[Math.floor(Math.random() * studentsList.length)] || 'Học sinh';
+            $('#giantStudentName').textContent = randomStudent;
+        }
+
+        $('#btnGachaFund').onclick = () => openGiantGacha('fund');
+        const btnGachaCons = $('#btnGachaCons');
+        if (btnGachaCons) btnGachaCons.onclick = () => openGiantGacha('cons');
+        $('#btnGiantGachaReroll').onclick = () => rollGiantGacha();
+
+        $('#btnGiantGachaConfirm').onclick = () => {
+            const picked = $('#giantStudentName').textContent;
+            if (gachaTargetType === 'fund') {
+                $('#selStudentFund').value = picked;
+                $('#stagedFundTag').textContent = `Đã chọn: ${picked}`;
+            } else if (gachaTargetType === 'cons') {
+                const selCons = $('#selStudentCons');
+                if (selCons) selCons.value = picked;
+                const staged = $('#stagedConsTag');
+                if (staged) staged.textContent = `Đã chọn: ${picked}`;
+            }
+            $('#giantGachaModal').style.display = 'none';
+            playSound('beep_ok');
+        };
+
+        /* ================= 8. GIAI ĐOẠN 2: THƯƠNG TRƯỜNG PHẦN MỀM (ARENA) ================= */
+        function updateArena() {
+            $('#lblRound').textContent = `THÁNG THỨ ${curRound}`;
+            const custTeam = teams[curCustomerIdx];
+            $('#lblTurnCustomer').textContent = `Lượt Khách: ${custTeam.name} (${custTeam.corpName})`;
+            drawTeams();
+        }
+
+        /* AUTO GACHA CHO LƯỢT KHÁCH HÀNG MỚI */
+        function startAutoGachaForCustomer() {
+            const custTeam = teams[curCustomerIdx];
+            updateArena();
+            activeDiscountPrice = null; // reset giảm giá cho lượt mới
+
+            // Ẩn nội dung tình huống cũ
+            $('#corpStageArea').style.display = 'none';
+            $('#gachaRollingBox').style.display = 'block';
+
+            // BÁO ỨNG CƠ CHẾ A: NỔ BẤT NGỜ Ở LƯỢT GACHA TỪ THÁNG 2 TRỞ ĐI
+            if (custTeam.infected && curRound >= 2 && Math.random() < 0.45) {
+                setTimeout(() => {
+                    $('#gachaRollingBox').style.display = 'none';
+                    triggerDelayedKarmaAttack(custTeam);
+                }, 700);
+                return;
+            }
+
+            // Gacha nhà cung cấp phần mềm khác với chính tổ này
+            const availableTeams = teams.filter(t => t.id !== custTeam.id);
+            const pool = availableTeams.length ? availableTeams : teams;
+
+            let spins = 0;
+            const maxSpins = 14;
+            const timer = setInterval(() => {
+                const temp = pool[Math.floor(Math.random() * pool.length)];
+                $('#gachaRollIconWrap').innerHTML = renderSoftwareIcon(temp, 64);
+                $('#gachaRollCorp').textContent = temp.corpName;
+                $('#gachaRollSw').textContent = temp.software;
+                playSound('tick');
+                spins++;
+                if (spins >= maxSpins) {
+                    clearInterval(timer);
+                    const chosen = pool[Math.floor(Math.random() * pool.length)];
+                    playSound('beep_ok');
+                    $('#gachaRollingBox').style.display = 'none';
+                    $('#corpStageArea').style.display = 'block';
+                    setupEventForTarget(chosen);
+                }
+            }, 75);
+        }
+
+        function triggerDelayedKarmaAttack(infectedTeam) {
+            playSound('bad');
+            triggerScreenShake();
+            const penalty = Math.round(infectedTeam.money * 0.5);
+            infectedTeam.money = Math.max(0, infectedTeam.money - penalty);
+            infectedTeam.currentInterest = 0;
+            infectedTeam.infected = false; // Bom đã nổ
+            statCrackDisasterCount++;
+
+            $('#karmaModalDesc').innerHTML = `
+                Mã độc Ransomware giấu trong bản crack <b>${infectedTeam.infectedSoftwares.join(', ') || 'phần mềm lậu'}</b> vừa thức tỉnh!<br>
+                Toàn bộ máy chủ công ty của <b>${infectedTeam.name}</b> bị khóa tống tiền!
+            `;
+            $('#karmaPenaltyText').textContent = `Hình phạt: Tước đoạt -$${penalty} (50% gia tài) + Lãi suất tháng về 0%!`;
+            $('#karmaModal').style.display = 'flex';
+
+            recordLedgerTrade(
+                `THÁNG ${curRound}`,
+                infectedTeam.name,
+                infectedTeam.corpName,
+                'AN NINH MẠNG',
+                'MÃ ĐỘC TỐNG TIỀN',
+                'Ransomware giấu trong bản crack thức tỉnh',
+                -penalty,
+                infectedTeam.money,
+                0,
+                0,
+                'Mất 50% tài sản · Lãi về 0%',
+                'trap'
+            );
+
+            logTrade(`☠️ BÁO ỨNG NỔ BOM: ${infectedTeam.name} bị mã độc crack tống tiền thức tỉnh! Mất -$${penalty} và lãi về 0%!`);
+            drawTeams();
+            saveState();
+        }
+
+        $('#btnKarmaConfirm').onclick = () => {
+            $('#karmaModal').style.display = 'none';
+            // Sau khi dính bom nổ, tiếp tục quay gacha bình thường
+            startAutoGachaForCustomer();
+        };
+
+        /* TÍNH GIÁ GỐC CỦA SỰ CỐ HIỆN TẠI (BẢN GỐC HOẶC NÂNG CẤP) */
+        function getCurrentEventBasePrice(ev, ownerTeam) {
+            const buyChoice = ev.choices.find(c => c.costType === 'pay_corp' || c.costType === 'pay_corp_fixed');
+            if (!buyChoice) return 0;
+            if (buyChoice.costType === 'pay_corp') return ownerTeam.currentPrice || 100;
+            return buyChoice.cost || 50;
+        }
+
+        /* THIẾT LẬP TÌNH HUỐNG SƯ PHẠM TỐI GIẢN (KHÔNG BLOAT) */
+        function setupEventForTarget(ownerTeam) {
+            curTargetCorp = ownerTeam;
+
+            const custTeam = teams[curCustomerIdx];
+            if (!custTeam.softwareLevels) custTeam.softwareLevels = {};
+            const curLevel = custTeam.softwareLevels[ownerTeam.software] || 0;
+            const statusObj = getSoftwareStatusDisplay(custTeam, ownerTeam.software);
+
+            const corpDef = DB.corporations.find(c => c.id === ownerTeam.corpId);
+            const levelKey = `level_${Math.min(2, curLevel)}`;
+            const ev = corpDef?.events?.[levelKey] || corpDef?.events?.level_0 || {
+                title: "Giao Dịch Thương Trường",
+                desc: "Đang mở phiên giao dịch...",
+                choices: []
+            };
+
+            const eventBasePrice = getCurrentEventBasePrice(ev, ownerTeam);
+            const isPaid = ownerTeam.corpType === 'paid' && eventBasePrice > 0;
+
+            // Giá niêm yết HTML
+            let priceDisplayHtml = '';
+            if (isPaid) {
+                if (activeDiscountPrice !== null) {
+                    priceDisplayHtml = `
+                        <del style="color:#94a3b8; font-size:1.05rem; margin-right:4px">$${eventBasePrice}</del>
+                        <span style="font-size:1.45rem; font-weight:900; color:#dc2626">$${activeDiscountPrice}</span>
+                        <span style="background:#fee2e2; color:#dc2626; font-size:0.75rem; font-weight:900; padding:2px 6px; border-radius:6px; margin-left:4px">ƯU ĐÃI</span>
+                    `;
+                } else {
+                    priceDisplayHtml = `<span style="font-size:1.45rem; font-weight:900; color:var(--navy)">$${eventBasePrice}</span>`;
+                }
+            } else {
+                priceDisplayHtml = `
+                    <div style="font-size:1.25rem; font-weight:900; color:var(--green)">MIỄN PHÍ ($0)</div>
+                    <div style="font-size:0.8rem; font-weight:700; color:#16a34a">Tài trợ: +$${ownerTeam.currentPrice || 100}</div>
+                `;
+            }
+
+            const choicesHtml = renderChoicesHtml(ev.choices, ownerTeam, custTeam, eventBasePrice);
+
+            $('#corpStageArea').innerHTML = `
+                <!-- DÒNG 1: THÔNG TIN LƯỢT HIỆN TẠI -->
+                <div class="arena-turn-banner">
+                    <div class="turn-team-title">
+                        🏢 LƯỢT DOANH NGHIỆP: <b>${esc(custTeam.name)}</b> (${esc(custTeam.corpName)})
+                    </div>
+                    <div class="turn-team-stats">
+                        💰 Số dư: <b style="color:var(--navy); font-size:1.3rem">$${custTeam.money.toLocaleString()}</b> | Lãi tháng: <b style="color:var(--green)">+${custTeam.currentInterest}%</b>
+                    </div>
+                </div>
+
+                <!-- DÒNG 2: VẤN ĐỀ KHẨN CẤP (NGẮN GỌN, SÚC TÍCH) -->
+                <div class="arena-problem-strip">
+                    <div class="strip-header">
+                        <span class="strip-badge-warn">⚠️ VẤN ĐỀ CỦA ${esc(custTeam.name)}</span>
+                        <span class="strip-badge-status">${statusObj.label}</span>
+                    </div>
+                    <div class="strip-title">${esc(ev.title)}</div>
+                    <div class="strip-desc">${esc(ev.desc)}</div>
+                </div>
+
+                <!-- DÒNG 3: GIẢI PHÁP, GIÁ VÀ CÔNG CỤ KHUYẾN MÃI -->
+                <div class="arena-solution-strip">
+                    <div class="sol-left">
+                        ${renderSoftwareIcon(ownerTeam, 64)}
+                        <div class="sol-info">
+                            <div class="sol-name">${esc(ownerTeam.software)}</div>
+                            <div class="sol-purpose">💡 <b>Công dụng:</b> ${esc(ownerTeam.model || 'Phần mềm chuyên dụng')}</div>
+                            <div class="sol-owner">🏢 <b>Bản quyền:</b> ${esc(ownerTeam.corpName)} (do <b>${esc(ownerTeam.name)}</b> sở hữu)</div>
+                        </div>
+                    </div>
+                    <div class="sol-right">
+                        <div class="sol-price-block">
+                            <span class="sol-price-lbl">GIÁ SỰ CỐ:</span>
+                            <div id="solPriceDisplay">${priceDisplayHtml}</div>
+                        </div>
+                        ${isPaid ? `
+                            <div class="discount-actions-box">
+                                <button type="button" class="warn sm" onclick="toggleFlashSale50(${eventBasePrice})">
+                                    ⚡ Giảm 50%
+                                </button>
+                                <button type="button" class="sm" onclick="openCustomDiscountModal(${eventBasePrice})">
+                                    🏷️ Tự Đặt Giá
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+
+                <!-- DÒNG 4: CÁC LỰA CHỌN CỦA KHÁCH HÀNG (BÌNH ĐẲNG, KHÔNG LỘ BẪY) -->
+                <div class="arena-choices-wrap">
+                    <div class="choices-title">👉 ${esc(custTeam.name)} hãy chọn phương án giải quyết:</div>
+                    <div class="choices-grid" id="choicesGrid">
+                        ${choicesHtml}
+                    </div>
+                </div>
+            `;
+
+            attachChoiceHandlers(ev.choices, ownerTeam, custTeam, eventBasePrice);
+        }
+
+        /* GIẢM GIÁ 50% TRÊN CHÍNH GIÁ CỦA SỰ CỐ HIỆN TẠI */
+        window.toggleFlashSale50 = function (basePrice) {
+            if (activeDiscountPrice === null) {
+                activeDiscountPrice = Math.max(10, Math.round(basePrice * 0.5));
+                playSound('cash');
+                if (typeof window.toast === 'function') {
+                    window.toast(`⚡ ĐÃ GIẢM GIÁ 50%: Chỉ còn $${activeDiscountPrice}!`, 2500, '#ef4444');
+                }
+            } else {
+                activeDiscountPrice = null;
+                playSound('tick');
+                if (typeof window.toast === 'function') {
+                    window.toast('Đã khôi phục giá gốc!', 2000, '#64748b');
+                }
+            }
+            refreshStageCurrentEvent();
+        };
+
+        /* TỰ ĐẶT GIÁ KHUYẾN MÃI TÙY Ý */
+        let currentDiscountModalBase = 100;
+        window.openCustomDiscountModal = function (basePrice) {
+            currentDiscountModalBase = basePrice;
+            $('#customDiscountDesc').textContent = `Giá gốc sự cố hiện tại là $${basePrice}. Tổ bạn muốn giảm còn bao nhiêu để chốt đơn?`;
+            $('#txtCustomDiscountInput').value = activeDiscountPrice !== null ? activeDiscountPrice : Math.round(basePrice * 0.7);
+            $('#customDiscountModal').style.display = 'flex';
+        };
+
+        window.closeCustomDiscountModal = function () {
+            $('#customDiscountModal').style.display = 'none';
+        };
+
+        $('#btnApplyCustomDiscount').onclick = () => {
+            const val = parseInt($('#txtCustomDiscountInput').value, 10);
+            if (!isNaN(val) && val >= 5) {
+                activeDiscountPrice = Math.min(currentDiscountModalBase, val);
+                playSound('cash');
+                closeCustomDiscountModal();
+                if (typeof window.toast === 'function') {
+                    window.toast(`🏷️ Đã áp dụng giá ưu đãi $${activeDiscountPrice}!`, 2500, '#16a34a');
+                }
+                refreshStageCurrentEvent();
+            }
+        };
+
+        function refreshStageCurrentEvent() {
+            if (curTargetCorp) {
+                setupEventForTarget(curTargetCorp);
+            }
+        }
+
+        function renderChoicesHtml(choices, ownerTeam, custTeam, eventBasePrice) {
+            return choices.map((c, idx) => {
+                let badgeClass = 'neutral';
+                let badgeLabel = 'LỰA CHỌN';
+                let costHtml = '$0';
+
+                const isPayChoice = c.costType === 'pay_corp' || c.costType === 'pay_corp_fixed';
+                if (isPayChoice) {
+                    badgeClass = 'official';
+                    badgeLabel = c.costType === 'pay_corp_fixed' ? '🚀 NÂNG CẤP' : '💎 CHÍNH HÃNG';
+                    if (activeDiscountPrice !== null) {
+                        costHtml = `<del style="color:#94a3b8; font-size:1.05rem">$${eventBasePrice}</del> <span style="color:#dc2626; font-weight:900; font-size:1.35rem">$${activeDiscountPrice}</span> <span style="background:#fee2e2; color:#dc2626; font-size:0.75rem; font-weight:900; padding:2px 6px; border-radius:6px; margin-left:4px">ƯU ĐÃI</span>`;
+                    } else {
+                        costHtml = `<span style="font-size:1.35rem; font-weight:900; color:var(--navy)">$${eventBasePrice}</span>`;
+                    }
+                } else if (c.isCrackVIP) {
+                    badgeClass = 'vip';
+                    badgeLabel = '⚡ BẢN VIP $0';
+                    costHtml = `<span style="font-size:1.35rem; font-weight:900; color:var(--blue)">$0 · MIỄN PHÍ</span>`;
+                } else if (c.key === 'skip') {
+                    badgeClass = 'neutral';
+                    badgeLabel = '🚫 TẠM BỎ QUA';
+                    costHtml = `<span style="font-size:1.35rem; font-weight:900; color:#64748b">$0</span>`;
+                } else {
+                    badgeClass = 'free';
+                    badgeLabel = '🎁 MIỄN PHÍ';
+                    costHtml = `<span style="font-size:1.35rem; font-weight:900; color:var(--green)">$0 (Miễn phí 100%)</span>`;
+                }
+
+                return `
+                    <button type="button" class="choice-btn" data-cidx="${idx}">
+                        <div>
+                            <div class="c-badge-row">
+                                <span class="badge-opt ${badgeClass}">${badgeLabel}</span>
+                                <div>${costHtml}</div>
+                            </div>
+                            <div style="font-size:1.2rem; font-weight:900; color:var(--navy); margin-bottom:6px">
+                                ${esc(c.label)}
+                            </div>
+                        </div>
+                        <div style="font-size:0.98rem; font-weight:600; color:#475569; line-height:1.5; margin-top:8px">
+                            ${esc(c.desc)}
+                        </div>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function attachChoiceHandlers(choices, ownerTeam, custTeam, eventBasePrice) {
+            $$('#choicesGrid .choice-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const c = choices[Number(btn.dataset.cidx)];
+                    handleChoiceAction(c, ownerTeam, custTeam, eventBasePrice);
+                };
+            });
+        }
+
+        function handleChoiceAction(choice, ownerTeam, custTeam, eventBasePrice) {
+            $$('#choicesGrid .choice-btn').forEach(b => b.disabled = true);
+
+            // 1. BẪY CRACK PHẦN MỀM MIỄN PHÍ
+            if (choice.isTrap) {
+                playSound('bad');
+                triggerScreenShake();
+                const penalty = Math.round(custTeam.money * (choice.penaltyRatio || 0.5));
+                custTeam.money = Math.max(0, custTeam.money - penalty);
+                statCrackDisasterCount++;
+
+                recordLedgerTrade(
+                    `THÁNG ${curRound}`,
+                    custTeam.name,
+                    custTeam.corpName,
+                    ownerTeam.name,
+                    `${ownerTeam.corpName} - ${ownerTeam.software}`,
+                    choice.label,
+                    -penalty,
+                    custTeam.money,
+                    0,
+                    ownerTeam.money,
+                    'BẪY CẢNH TỈNH: Phạt mất 50% tài sản',
+                    'trap'
+                );
+
+                logTrade(`❌ BẪY NGUY HIỂM: ${custTeam.name} đi tìm bản crack của ${ownerTeam.software} (vốn miễn phí)! Bị phạt -$${penalty}!`);
+                if (typeof window.toast === 'function') {
+                    window.toast(`☠️ BẪY CẢNH TỈNH: Phần mềm miễn phí mà đi crack! Bị phạt -$${penalty}!`, 4000, '#dc2626');
+                }
+                finishTurnStep();
+                return;
+            }
+
+            // 2. MỒI NHỬ SIÊU BUFF: CRACK TRÓT LỌT 100% + BOM HẸN GIỜ
+            if (choice.isCrackVIP) {
+                playSound('fanfare');
+                fireConfetti();
+                custTeam.currentInterest += (choice.interestDelta || 30);
+                custTeam.infected = true;
+                if (!custTeam.infectedSoftwares.includes(ownerTeam.software)) {
+                    custTeam.infectedSoftwares.push(ownerTeam.software);
+                }
+
+                if (!custTeam.softwareLevels) custTeam.softwareLevels = {};
+                custTeam.softwareLevels[ownerTeam.software] = choice.nextLevel ?? 1;
+                if (!custTeam.inventory.includes(ownerTeam.software)) {
+                    custTeam.inventory.push(ownerTeam.software);
+                }
+
+                recordLedgerTrade(
+                    `THÁNG ${curRound}`,
+                    custTeam.name,
+                    custTeam.corpName,
+                    ownerTeam.name,
+                    `${ownerTeam.corpName} - ${ownerTeam.software}`,
+                    choice.label,
+                    0,
+                    custTeam.money,
+                    0,
+                    ownerTeam.money,
+                    `Buff Siêu Lãi +${choice.interestDelta || 30}% (Đã gài Bom Hẹn Giờ)`,
+                    'crack'
+                );
+
+                logTrade(`😈 VINH QUANG GIẢ TẠO: ${custTeam.name} xài lậu VIP ${ownerTeam.software}! Hưởng Siêu Lãi Suất +${choice.interestDelta || 30}%!`);
+                if (typeof window.toast === 'function') {
+                    window.toast(`🎉 CÀI ĐẶT BẢN CRACK VIP THÀNH CÔNG! Tổ ${custTeam.name} được Siêu Buff +${choice.interestDelta || 30}% lãi suất!`, 4000, '#16a34a');
+                }
+                finishTurnStep();
+                return;
+            }
+
+            // 3. TỪ CHỐI / BỎ QUA (ÂM THANH DỊU NHẸ, KHÔNG BÁO FAIL)
+            if (choice.key === 'skip') {
+                playSound('neutral');
+                if (choice.interestDelta === -999) {
+                    custTeam.currentInterest = 0;
+                } else if (choice.interestDelta) {
+                    custTeam.currentInterest += choice.interestDelta;
+                }
+
+                recordLedgerTrade(
+                    `THÁNG ${curRound}`,
+                    custTeam.name,
+                    custTeam.corpName,
+                    ownerTeam.name,
+                    `${ownerTeam.corpName} - ${ownerTeam.software}`,
+                    choice.label,
+                    0,
+                    custTeam.money,
+                    0,
+                    ownerTeam.money,
+                    choice.interestDelta ? `Lãi suất ${choice.interestDelta}%` : 'Không đổi lãi',
+                    'skip'
+                );
+
+                logTrade(`🚫 ${custTeam.name} từ chối trang bị [${ownerTeam.software}].`);
+                if (typeof window.toast === 'function') {
+                    window.toast(`ℹ️ ${custTeam.name} đã tạm thời bỏ qua không mua phần mềm.`, 2500, '#64748b');
+                }
+                finishTurnStep();
+                return;
+            }
+
+            // 4. GIAO DỊCH CHÍNH HÃNG BẢN QUYỀN HOẶC MIỄN PHÍ
+            let cost = 0;
+            const isPayChoice = choice.costType === 'pay_corp' || choice.costType === 'pay_corp_fixed';
+            if (isPayChoice) {
+                cost = activeDiscountPrice !== null ? activeDiscountPrice : eventBasePrice;
+            }
+
+            if (cost > 0) {
+                if (custTeam.money < cost) {
+                    playSound('bad');
+                    if (typeof window.toast === 'function') {
+                        window.toast(`⚠️ ${custTeam.name} không đủ tiền trả $${cost}!`, 2500, '#ea580c');
+                    }
+                    $$('#choicesGrid .choice-btn').forEach(b => b.disabled = false);
+                    return;
+                }
+                custTeam.money -= cost;
+                ownerTeam.money += cost;
+                triggerCoinAnimation();
+                statSafeCount++;
+            }
+
+            if (choice.interestDelta) {
+                custTeam.currentInterest += choice.interestDelta;
+            }
+            if (choice.permInterestDelta) {
+                ownerTeam.baseInterest += choice.permInterestDelta;
+                ownerTeam.currentInterest += choice.permInterestDelta;
+            }
+            if (choice.corpReward) {
+                ownerTeam.money += choice.corpReward;
+                statSafeCount++;
+            }
+
+            if (!custTeam.softwareLevels) custTeam.softwareLevels = {};
+            custTeam.softwareLevels[ownerTeam.software] = choice.nextLevel ?? 1;
+            if (!custTeam.inventory.includes(ownerTeam.software)) {
+                custTeam.inventory.push(ownerTeam.software);
+            }
+
+            playSound(choice.sound || 'cash');
+
+            recordLedgerTrade(
+                `THÁNG ${curRound}`,
+                custTeam.name,
+                custTeam.corpName,
+                ownerTeam.name,
+                `${ownerTeam.corpName} - ${ownerTeam.software}`,
+                choice.label,
+                -cost,
+                custTeam.money,
+                cost || (choice.corpReward || 0),
+                ownerTeam.money,
+                choice.interestDelta ? `Lãi suất +${choice.interestDelta}%` : 'Bản quyền an toàn',
+                'buy'
+            );
+
+            logTrade(`✅ ${custTeam.name} chọn [${choice.label}]. Giao dịch với ${ownerTeam.name} (${ownerTeam.software}) thành công!`);
+
+            if (typeof window.toast === 'function') {
+                window.toast(`🎉 Giao dịch thành công! ${custTeam.name} đạt cấp độ mới đối với ${ownerTeam.software}!`, 3000, '#16a34a');
+            }
+
+            finishTurnStep();
+        }
+
+        /* TIẾN TRÌNH KẾT THÚC LƯỢT & TỰ ĐỘNG CHỐT THÁNG NẾU HẾT CÁC TỔ */
+        function finishTurnStep() {
+            drawTeams();
+            saveState();
+            roundTurnsPlayed++;
+
+            if (roundTurnsPlayed >= numTeams) {
+                // TẤT CẢ CÁC TỔ ĐÃ HOÀN THÀNH LƯỢT TRONG THÁNG NÀY -> TỰ ĐỘNG CHỐT THÁNG!
+                setTimeout(() => {
+                    autoSettleRound();
+                }, 1200);
+            } else {
+                // Tự động chuyển lượt khách hàng tiếp theo sau 1.5 giây hoặc bấm nút
+                setTimeout(() => {
+                    advanceToNextCustomer();
+                }, 1400);
+            }
+        }
+
+        function advanceToNextCustomer() {
+            curCustomerIdx = (curCustomerIdx + 1) % numTeams;
+            startAutoGachaForCustomer();
+            saveState();
+        }
+
+        $('#btnNextCustomer').onclick = () => {
+            advanceToNextCustomer();
+        };
+
+        $('#btnEndRound').onclick = () => {
+            if (confirm(`Bạn có muốn chốt Tháng ${curRound} ngay bây giờ không?`)) {
+                autoSettleRound();
+            }
+        };
+
+        /* TỰ ĐỘNG CHỐT THÁNG & BẬT POP-UP BÁO CÁO TÀI CHÍNH TOÀN MÀN HÌNH CÓ BIỂU ĐỒ */
+        function autoSettleRound() {
+            const finishedMonth = curRound;
+            let reportData = [];
+
+            teams.forEach(t => {
+                const prevMoney = t.money;
+                const interestEarned = Math.round(t.money * (t.currentInterest / 100));
+                t.money += interestEarned;
+                const totalGrowthPercent = Math.round(((t.money - 1000) / 1000) * 100);
+
+                // Lưu lịch sử tài chính từng tháng
+                if (!t.history) t.history = [{ month: 0, money: 1000 }];
+                t.history.push({ month: finishedMonth, money: t.money });
+
+                reportData.push({
+                    name: t.name,
+                    corpName: t.corpName,
+                    software: t.software,
+                    img: t.img,
+                    icon: t.icon,
+                    prevMoney,
+                    interestEarned,
+                    interestRate: t.currentInterest,
+                    newMoney: t.money,
+                    totalGrowthPercent
+                });
+
+                // Reset lãi suất về lãi suất cơ bản
+                t.currentInterest = t.baseInterest;
+
+                // Chu kỳ thuê bao: reset Photoshop về 0 và CapCut về 1
+                if (t.softwareLevels) {
+                    if (t.softwareLevels["Photoshop"] > 0) t.softwareLevels["Photoshop"] = 0;
+                    if (t.softwareLevels["CapCut"] > 1) t.softwareLevels["CapCut"] = 1;
+                }
+            });
+
+            curRound++;
+            roundTurnsPlayed = 0;
+            curCustomerIdx = 0;
+            curTargetCorp = null;
+
+            playSound('cash');
+            fireConfetti();
+
+            logTrade(`🏁 KẾT THÚC THÁNG ${finishedMonth}: Tất cả các tổ đã nhận lãi suất và kết chuyển sang Tháng ${curRound}!`);
+
+            // Hiển thị Pop-up Toàn Màn Hình Báo Cáo Tài Chính
+            $('#reportRoundNum').textContent = finishedMonth;
+            const grid = $('#roundReportCardsGrid');
+            grid.innerHTML = reportData.map(r => `
+                <div class="round-report-card">
+                    ${renderSoftwareIcon(r, 64)}
+                    <div style="font-size:1.35rem; font-weight:900; color:#fff; margin-top:4px">${esc(r.name)}</div>
+                    <div style="font-size:0.95rem; font-weight:700; color:#94a3b8">${esc(r.corpName)} (${esc(r.software)})</div>
+
+                    <div style="margin:8px 0; background:rgba(255,255,255,0.06); padding:10px; border-radius:12px; width:100%">
+                        <div style="font-size:0.9rem; color:#cbd5e1">Trước tháng: <b>$${r.prevMoney.toLocaleString()}</b></div>
+                        <div style="font-size:1.1rem; font-weight:900; color:#4ade80; margin:4px 0">
+                            + Tiền lãi (${r.interestRate}%): +$${r.interestEarned.toLocaleString()}
+                        </div>
+                        <div style="font-size:1.45rem; font-weight:900; color:#ffd23f">
+                            $${r.newMoney.toLocaleString()}
+                        </div>
+                    </div>
+
+                    <div>
+                        ${r.totalGrowthPercent >= 0 ?
+                            `<span class="growth-pill up">🚀 +${r.totalGrowthPercent}% SO VỚI BAN ĐẦU</span>` :
+                            `<span class="growth-pill down">📉 ${r.totalGrowthPercent}% SO VỚI BAN ĐẦU</span>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+
+            // Vẽ biểu đồ SVG lịch sử tài chính các tổ
+            renderFinancialChart('#reportChartSvgWrap', '#reportChartLegends');
+
+            $('#roundReportModal').style.display = 'flex';
+            drawTeams();
+            saveState();
+        }
+
+        $('#btnReportNextRound').onclick = () => {
+            $('#roundReportModal').style.display = 'none';
+            playSound('tick');
+            startAutoGachaForCustomer();
+        };
+
+        // NÚT KẾT THÚC BÀI HỌC SỚM Ở POP-UP CUỐI THÁNG
+        $('#btnReportEarlyFinish').onclick = () => {
+            if (confirm('Thầy/Cô có muốn kết thúc bài học ngay bây giờ để tiến hành Thanh tra bản quyền và tổng kết Bảng vàng không?')) {
+                $('#roundReportModal').style.display = 'none';
+                triggerAuditingProcess();
+            }
+        };
+
+        /* VẼ BIỂU ĐỒ ĐƯỜNG SVG (MULTI-LINE CHART) TRỰC QUAN */
+        function renderFinancialChart(targetSvgWrapId, targetLegendId) {
+            const wrap = $(targetSvgWrapId);
+            const legBox = $(targetLegendId);
+            if (!wrap || !teams.length) return;
+
+            // Render Legends
+            if (legBox) {
+                legBox.innerHTML = teams.map(t => `
+                    <div class="chart-legend-item">
+                        <span class="chart-legend-color" style="background:${t.color}"></span>
+                        <span>${esc(t.name)} (${esc(t.corpName)})</span>
+                    </div>
+                `).join('');
+            }
+
+            // Max month
+            let maxM = 0;
+            let maxVal = 1200;
+            let minVal = 0;
+            teams.forEach(t => {
+                const hist = t.history || [{ month: 0, money: 1000 }];
+                hist.forEach(h => {
+                    if (h.month > maxM) maxM = h.month;
+                    if (h.money > maxVal) maxVal = h.money;
+                });
+            });
+            maxVal = Math.ceil(maxVal / 200) * 200 + 200;
+
+            const W = 840, H = 220;
+            const padL = 60, padR = 40, padT = 20, padB = 40;
+            const chartW = W - padL - padR;
+            const chartH = H - padT - padB;
+
+            const getX = m => padL + (maxM === 0 ? chartW / 2 : (m / maxM) * chartW);
+            const getY = val => padT + chartH - ((val - minVal) / (maxVal - minVal)) * chartH;
+
+            // Grid lines
+            let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%; max-width:${W}px; height:auto; overflow:visible">`;
+
+            // Y grid
+            const ySteps = 4;
+            for (let i = 0; i <= ySteps; i++) {
+                const yVal = Math.round(minVal + (i / ySteps) * (maxVal - minVal));
+                const y = getY(yVal);
+                svg += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#334155" stroke-dasharray="3,3" />`;
+                svg += `<text x="${padL - 10}" y="${y + 4}" fill="#94a3b8" font-size="11" font-weight="700" text-anchor="end">$${yVal}</text>`;
+            }
+
+            // X grid
+            for (let m = 0; m <= maxM; m++) {
+                const x = getX(m);
+                svg += `<line x1="${x}" y1="${padT}" x2="${x}" y2="${padT + chartH}" stroke="#334155" stroke-opacity="0.4" />`;
+                svg += `<text x="${x}" y="${padT + chartH + 20}" fill="#94a3b8" font-size="12" font-weight="800" text-anchor="middle">${m === 0 ? 'Khởi nghiệp' : 'Tháng ' + m}</text>`;
+            }
+
+            // Lines for each team
+            teams.forEach(t => {
+                const hist = t.history || [{ month: 0, money: 1000 }];
+                const points = hist.map(h => `${getX(h.month)},${getY(h.money)}`).join(' ');
+                svg += `<polyline points="${points}" fill="none" stroke="${t.color}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />`;
+
+                hist.forEach(h => {
+                    const cx = getX(h.month);
+                    const cy = getY(h.money);
+                    svg += `<circle cx="${cx}" cy="${cy}" r="5" fill="${t.color}" stroke="#ffffff" stroke-width="2" />`;
+                    svg += `<text x="${cx}" y="${cy - 9}" fill="#ffffff" font-size="11" font-weight="900" text-anchor="middle">$${h.money}</text>`;
+                });
+            });
+
+            svg += `</svg>`;
+            wrap.innerHTML = svg;
+        }
+
+        function triggerScreenShake() {
+            document.body.classList.add('shake-screen');
+            setTimeout(() => document.body.classList.remove('shake-screen'), 700);
+        }
+
+        function triggerCoinAnimation() {
+            const coin = document.createElement('div');
+            coin.className = 'flying-coin';
+            coin.textContent = '💰';
+            coin.style.left = '45%';
+            coin.style.top = '50%';
+            document.body.appendChild(coin);
+            setTimeout(() => {
+                coin.style.transform = 'translateY(-140px) scale(1.6)';
+                coin.style.opacity = '0';
+            }, 50);
+            setTimeout(() => coin.remove(), 1000);
+        }
+
+        /* TRADE LOG & LEDGER */
+        function logTrade(msg) {
+            tradeLogs.unshift(`[${new Date().toLocaleTimeString('vi-VN')}] ${msg}`);
+            if (tradeLogs.length > 50) tradeLogs.pop();
+            renderTradeLog();
+        }
+
+        function recordLedgerTrade(round, custName, custCorp, sellerName, sellerCorp, actionTitle, custDelta, custBalance, sellerDelta, sellerBalance, interestEffect, type) {
+            tradeLedger.unshift({
+                time: new Date().toLocaleTimeString('vi-VN'),
+                round,
+                custName,
+                custCorp,
+                sellerName,
+                sellerCorp,
+                actionTitle,
+                custDelta,
+                custBalance,
+                sellerDelta,
+                sellerBalance,
+                interestEffect,
+                type
+            });
+            if (tradeLedger.length > 100) tradeLedger.pop();
+            renderLedgerModalRows();
+        }
+
+        function renderTradeLog() {
+            const container = $('#tradeLogList');
+            if (!tradeLogs.length) {
+                container.innerHTML = `<div style="color:#94a3b8; font-style:italic">Chưa có giao dịch nào diễn ra.</div>`;
+                return;
+            }
+            container.innerHTML = tradeLogs.map(item => `<div>${esc(item)}</div>`).join('');
+        }
+
+        function renderLedgerModalRows() {
+            const box = $('#ledgerCardsContainer');
+            if (!box) return;
+            if (!tradeLedger.length) {
+                box.innerHTML = `<div style="text-align:center; padding:30px; color:#94a3b8; font-style:italic">Chưa có giao dịch nào trong sổ cái.</div>`;
+                return;
+            }
+            box.innerHTML = tradeLedger.map(e => `
+                <div class="ledger-row-card">
+                    <div class="lr-col lr-time">
+                        <b>${esc(e.round)}</b>
+                        <span>${esc(e.time)}</span>
+                    </div>
+                    <div class="lr-col lr-cust">
+                        <span class="lr-label">BÊN MUA (KHÁCH HÀNG)</span>
+                        <span class="lr-team">${esc(e.custName)}</span>
+                        <span class="lr-delta ${e.custDelta < 0 ? 'neg' : 'zero'}">
+                            ${e.custDelta < 0 ? `-$${Math.abs(e.custDelta)}` : '$0'}
+                        </span>
+                        <span class="lr-balance">Số dư còn: <b>$${e.custBalance.toLocaleString()}</b></span>
+                    </div>
+                    <div class="lr-col lr-action">
+                        <span class="lr-label">HÀNH ĐỘNG / PHẦN MỀM</span>
+                        <div style="font-weight:900; font-size:1.1rem; color:var(--navy)">${esc(e.actionTitle)}</div>
+                        <div style="font-size:0.88rem; font-weight:700; color:#64748b">${esc(e.sellerCorp)}</div>
+                        <span class="lr-interest-tag">${esc(e.interestEffect)}</span>
+                    </div>
+                    <div class="lr-col lr-seller">
+                        <span class="lr-label">BÊN BÁN / ĐỐI TÁC</span>
+                        <span class="lr-team">${esc(e.sellerName)}</span>
+                        <span class="lr-delta ${e.sellerDelta > 0 ? 'pos' : 'zero'}">
+                            ${e.sellerDelta > 0 ? `+$${e.sellerDelta}` : '$0'}
+                        </span>
+                        <span class="lr-balance">Số dư lên: <b>$${e.sellerBalance.toLocaleString()}</b></span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /* ================= 9. VẼ DANH SÁCH TỔ (SIDEBAR) & SỬA ĐIỂM THỦ CÔNG ================= */
+        function drawTeams() {
+            const box = $('#teamsListContainer');
+            box.innerHTML = teams.map((t, idx) => `
+                <div class="team-card ${idx === curCustomerIdx ? 'active-turn' : ''}">
+                    <div class="team-header-row">
+                        <span class="team-name">
+                            ${renderSoftwareIcon(t, 28)}
+                            ${esc(t.name)}
+                        </span>
+                        <span class="team-corp-badge corp-type-tag ${t.corpType}" style="font-size:.78rem; padding:2px 8px">
+                            ${esc(t.corpName)}
+                        </span>
+                    </div>
+                    <div class="team-score-row">
+                        <span class="team-money">$${t.money.toLocaleString()}</span>
+                        <span class="team-rate">Lãi: +${t.currentInterest}%</span>
+                    </div>
+                    <div class="team-inventory">
+                        ${t.inventory.map(sw => {
+                            const statusObj = getSoftwareStatusDisplay(t, sw);
+                            return `<span class="inv-chip owned">✓ ${esc(sw)} ${statusObj.label}</span>`;
+                        }).join('')}
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px">
+                        <span style="font-size:.78rem; font-weight:700; color:#64748b">Giá bán: $${t.currentPrice}</span>
+                        <div style="display:flex; gap:4px">
+                            <button type="button" class="noise-btn" data-pen="${idx}" title="Trừ 5% điểm khi làm ồn">🔇 -5%</button>
+                            <button type="button" class="sm" data-edit="${idx}" title="Chỉnh sửa số tiền thủ công (Quy chuẩn 17)">✏️ Sửa</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            $$('#teamsListContainer [data-pen]').forEach(b => {
+                b.onclick = () => {
+                    const idx = Number(b.dataset.pen);
+                    const pen = Math.max(20, Math.round(teams[idx].money * 0.05));
+                    teams[idx].money = Math.max(0, teams[idx].money - pen);
+                    playSound('beep_wrong');
+                    drawTeams();
+                    saveState();
+                    if (typeof window.toast === 'function') {
+                        window.toast(`🔇 Đã trừ -$${pen} của ${teams[idx].name} do mất trật tự!`, 2500, '#dc2626');
+                    }
+                };
+            });
+
+            // SỬA ĐIỂM THỦ CÔNG QUA MODAL INLINE (QUY CHUẨN 17 - FOOLPROOF 100%)
+            $$('#teamsListContainer [data-edit]').forEach(b => {
+                b.onclick = () => {
+                    const idx = Number(b.dataset.edit);
+                    openEditMoneyModal(idx);
+                };
+            });
+        }
+
+        let editingTeamIdx = 0;
+        function openEditMoneyModal(idx) {
+            editingTeamIdx = idx;
+            $('#editMoneyTitle').textContent = `✏️ Điều Chỉnh Tiền Cho ${teams[idx].name}`;
+            $('#txtEditMoneyInput').value = teams[idx].money;
+            $('#editMoneyModal').style.display = 'flex';
+            playSound('tick');
+        }
+
+        window.closeEditMoneyModal = function () {
+            $('#editMoneyModal').style.display = 'none';
+        };
+
+        window.adjustModalInput = function (delta) {
+            const input = $('#txtEditMoneyInput');
+            let val = parseInt(input.value, 10) || 0;
+            val = Math.max(0, val + delta);
+            input.value = val;
+            playSound('tick');
+        };
+
+        window.setModalInput = function (val) {
+            $('#txtEditMoneyInput').value = val;
+            playSound('tick');
+        };
+
+        $('#btnSaveEditedMoney').onclick = () => {
+            const val = parseInt($('#txtEditMoneyInput').value, 10);
+            if (!isNaN(val)) {
+                teams[editingTeamIdx].money = Math.max(0, val);
+                closeEditMoneyModal();
+                playSound('cash');
+                drawTeams();
+                saveState();
+                if (typeof window.toast === 'function') {
+                    window.toast(`✅ Đã cập nhật tiền của ${teams[editingTeamIdx].name} thành $${teams[editingTeamIdx].money.toLocaleString()}!`, 2500, '#16a34a');
+                }
+            }
+        };
+
+        /* ================= 10. MÀN HÌNH CHỐT KIẾN THỨC & BÁO ỨNG THANH TRA BẢN QUYỀN ================= */
+        function renderSummaryScreen() {
+            const grid = $('#summaryCardsGrid');
+            const cards = DB.summary_cards || [];
+            grid.innerHTML = cards.map(c => `
+                <div class="summary-card">
+                    <span class="sc-badge">${esc(c.badge)}</span>
+                    <div class="sc-title">
+                        <span>${c.icon}</span> ${esc(c.title)}
+                    </div>
+                    <div class="sc-desc">${c.desc}</div>
+                </div>
+            `).join('');
+        }
+
+        let curConsQIdx = 0;
+        function renderConsolidationQuiz() {
+            const qList = DB.consolidation_quizzes || [];
+            if (!qList.length) return;
+            const q = qList[curConsQIdx % qList.length];
+            $('#consQTag').textContent = `Câu hỏi ${curConsQIdx + 1} / ${qList.length}`;
+            $('#consQText').textContent = q.q;
+
+            const optsBox = $('#consQOpts');
+            optsBox.innerHTML = q.opts.map((opt, idx) => `
+                <button type="button" class="quiz-opt-btn" data-cidx="${idx}">
+                    ${esc(opt)}
+                </button>
+            `).join('');
+
+            const fb = $('#consQFeedback');
+            fb.style.display = 'none';
+
+            $$('#consQOpts .quiz-opt-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const chosen = Number(btn.dataset.cidx);
+                    const isOk = chosen === q.ans;
+                    $$('#consQOpts .quiz-opt-btn').forEach((b, i) => {
+                        b.disabled = true;
+                        if (i === q.ans) b.classList.add('correct');
+                        else if (i === chosen && !isOk) b.classList.add('wrong');
+                    });
+
+                    playSound(isOk ? 'beep_ok' : 'beep_wrong');
+                    fb.style.display = 'block';
+                    fb.style.background = isOk ? '#dcfce7' : '#fee2e2';
+                    fb.style.color = isOk ? '#14532d' : '#991b1b';
+                    fb.innerHTML = `<b>${isOk ? '🎉 CHÍNH XÁC!' : '❌ CHƯA ĐÚNG!'}</b> ${esc(q.exp)}`;
+
+                    if (isOk) fireConfetti();
+
+                    const stName = $('#selStudentCons')?.value;
+                    if (stName) {
+                        studentLogs.push({
+                            studentName: stName,
+                            activity: `Củng cố - Câu ${curConsQIdx + 1}`,
+                            isCorrect: isOk,
+                            note: isOk ? 'Hiểu rõ tầm quan trọng của bản quyền phần mềm' : 'Cần chú ý thêm về quy định bản quyền',
+                            tt27: isOk ? 'T' : 'H'
+                        });
+                    }
+                    saveState();
+                };
+            });
+        }
+
+        $('#btnNextConsQ').onclick = () => {
+            curConsQIdx = (curConsQIdx + 1) % DB.consolidation_quizzes.length;
+            renderConsolidationQuiz();
+        };
+
+        // KÍCH HOẠT THANH TRA BẢN QUYỀN TOÀN QUỐC
+        function triggerAuditingProcess() {
+            const modal = $('#auditModal');
+            const list = $('#auditResultsList');
+
+            let auditHtml = '';
+            teams.forEach(t => {
+                const hadCrack = (t.infectedSoftwares && t.infectedSoftwares.length > 0) || t.infected;
+                if (hadCrack) {
+                    const penalty = Math.round(t.money * 0.5);
+                    t.money = Math.max(0, t.money - penalty);
+                    auditHtml += `
+                        <div style="background:#fee2e2; border:2px solid #dc2626; border-radius:12px; padding:14px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <span style="font-weight:900; font-size:1.2rem; color:#991b1b">❌ ${esc(t.name)} (${esc(t.corpName)}): PHÁT HIỆN DÙNG PHẦN MỀM LẬU!</span>
+                                <div style="font-size:.95rem; font-weight:700; color:#b91c1c; margin-top:4px">
+                                    Các phần mềm bẻ khóa: <b>${esc(t.infectedSoftwares.join(', ') || 'Bản crack VIP')}</b>
+                                </div>
+                            </div>
+                            <span style="font-weight:900; font-size:1.25rem; color:#dc2626; background:#fff; padding:6px 14px; border-radius:8px">
+                                PHẠT -$${penalty}
+                            </span>
+                        </div>
+                    `;
+                } else {
+                    t.money += 200; // Thưởng tổ làm ăn lương thiện
+                    auditHtml += `
+                        <div style="background:#dcfce7; border:2px solid #16a34a; border-radius:12px; padding:14px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <span style="font-weight:900; font-size:1.2rem; color:#14532d">✅ ${esc(t.name)} (${esc(t.corpName)}): DOANH NGHIỆP TRUNG THỰC & AN TOÀN!</span>
+                                <div style="font-size:.95rem; font-weight:700; color:#15803d; margin-top:4px">
+                                    100% phần mềm có bản quyền chính hãng · Máy tính sạch virus tuyệt đối!
+                                </div>
+                            </div>
+                            <span style="font-weight:900; font-size:1.25rem; color:#15803d; background:#fff; padding:6px 14px; border-radius:8px">
+                                THƯỞNG +$200
+                            </span>
+                        </div>
+                    `;
+                }
+            });
+
+            list.innerHTML = auditHtml;
+            modal.style.display = 'flex';
+            playSound('bad');
+            drawTeams();
+            saveState();
+        }
+
+        $('#btnTriggerAuditing').onclick = triggerAuditingProcess;
+
+        $('#btnAuditProceedToPodium').onclick = () => {
+            $('#auditModal').style.display = 'none';
+            go(5);
+        };
+
+        /* ================= 11. BẢNG VÀNG & VINH DANH (QUY CHUẨN 13 TIE-RANKING) ================= */
+        function calculateCompetitionRankings(teamList) {
+            if (!teamList || !teamList.length) return [];
+            const sorted = [...teamList].sort((a, b) => b.money - a.money);
+            let currentRank = 1;
+            for (let i = 0; i < sorted.length; i++) {
+                if (i > 0) {
+                    if (sorted[i].money === sorted[i - 1].money) {
+                        sorted[i].rank = sorted[i - 1].rank;
+                        sorted[i].isTie = true;
+                        sorted[i - 1].isTie = true;
+                    } else {
+                        currentRank = i + 1;
+                        sorted[i].rank = currentRank;
+                        sorted[i].isTie = false;
+                    }
+                } else {
+                    sorted[i].rank = 1;
+                    sorted[i].isTie = false;
+                }
+
+                if (sorted[i].rank === 1) {
+                    sorted[i].title = sorted[i].isTie ? "ĐỒNG QUÁN QUÂN" : "QUÁN QUÂN";
+                    sorted[i].medal = "🥇";
+                } else if (sorted[i].rank === 2) {
+                    sorted[i].title = sorted[i].isTie ? "ĐỒNG Á QUÂN" : "Á QUÂN";
+                    sorted[i].medal = "🥈";
+                } else if (sorted[i].rank === 3) {
+                    sorted[i].title = sorted[i].isTie ? "ĐỒNG HẠNG BA" : "HẠNG BA";
+                    sorted[i].medal = "🥉";
+                } else {
+                    sorted[i].title = "KHUYẾN KHÍCH";
+                    sorted[i].medal = "🎖️";
+                }
+            }
+            return sorted;
+        }
+
+        function renderPodium() {
+            const ranked = calculateCompetitionRankings(teams);
+            const podiumArea = $('#podiumArea');
+
+            const top3 = ranked.slice(0, 3);
+            podiumArea.innerHTML = top3.map(t => `
+                <div class="podium-pillar rank-${t.rank}">
+                    <div class="podium-medal">${t.medal}</div>
+                    <div class="podium-name">${esc(t.name)}</div>
+                    <div style="font-size:.9rem; font-weight:700; opacity:.9">${esc(t.corpName)}</div>
+                    <div class="podium-score">$${t.money.toLocaleString()}</div>
+                    <div style="font-size:.85rem; font-weight:900; margin-top:4px; background:rgba(0,0,0,0.25); padding:2px 8px; border-radius:6px">
+                        ${t.title}
+                    </div>
+                </div>
+            `).join('');
+
+            const banner = $('#podiumBanner');
+            const champions = ranked.filter(t => t.rank === 1);
+            if (champions.length > 1) {
+                const names = champions.map(c => c.name).join(' & ');
+                banner.textContent = `🏆 ĐỒNG QUÁN QUÂN: ${names} (CÙNG ĐẠT $${champions[0].money.toLocaleString()})! 🏆`;
+                banner.style.display = 'block';
+            } else if (champions.length === 1) {
+                banner.textContent = `🏆 QUÁN QUÂN XUẤT SẮC: ${champions[0].name} - ${champions[0].corpName} ($${champions[0].money.toLocaleString()})! 🏆`;
+                banner.style.display = 'block';
+            }
+
+            // Vẽ biểu đồ SVG lịch sử tài chính ở Bảng Vàng
+            renderFinancialChart('#podiumChartSvgWrap', '#podiumChartLegends');
+
+            const totalMoney = teams.reduce((acc, t) => acc + t.money, 0);
+            $('#statTotalMoney').textContent = `$${totalMoney.toLocaleString()}`;
+            $('#statSafeTransactions').textContent = statSafeCount;
+            $('#statCrackDisasters').textContent = statCrackDisasterCount;
+            $('#statActiveStudents').textContent = studentLogs.length;
+        }
+
+        function fireConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 } });
+            }
+        }
+
+        /* ================= 12. XUẤT BÁO CÁO CSV (UTF-8 CÓ BOM \uFEFF) & GOOGLE DRIVE ================= */
+        function generateCsvContent() {
+            const ranked = calculateCompetitionRankings(teams);
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('vi-VN');
+            const timeStr = now.toLocaleTimeString('vi-VN');
+
+            let csv = '\uFEFF';
+
+            csv += '=== BÁO CÁO TIẾT DẠY TIN HỌC TIỂU HỌC ===\r\n';
+            csv += `Môn học,Tin học 4\r\n`;
+            csv += `Bài học,Bài 6: Sử dụng phần mềm khi được phép (Tiết 11 - Thương Trường Phần Mềm)\r\n`;
+            csv += `Lớp học,${currentClassId.replace('_', '/')}\r\n`;
+            csv += `Thời gian xuất báo cáo,${timeStr} ngày ${dateStr}\r\n`;
+            csv += `Tổng tài sản thương trường,$${teams.reduce((acc, t) => acc + t.money, 0)}\r\n\r\n`;
+
+            csv += '=== BẢNG XẾP HẠNG THI ĐUA CÁC TỔ ===\r\n';
+            csv += 'Thứ hạng,Danh hiệu,Tên tổ,Tập đoàn công nghệ,Phần mềm sở hữu,Tổng tài sản,Lãi suất cuối,Đồng hạng\r\n';
+            ranked.forEach(t => {
+                csv += `Hạng ${t.rank},"${t.title}","${t.name}","${t.corpName}","${t.software}",$${t.money},${t.currentInterest}%,${t.isTie ? 'Có (Đồng điểm)' : 'Không'}\r\n`;
+            });
+            csv += '\r\n';
+
+            csv += '=== ĐÁNH GIÁ HỌC SINH THEO THÔNG TƯ 27 ===\r\n';
+            csv += 'STT,Họ và tên học sinh,Nội dung tham gia,Kết quả,Xếp loại TT27,Nhận xét SMAS sư phạm\r\n';
+            if (studentLogs.length) {
+                studentLogs.forEach((s, idx) => {
+                    csv += `${idx + 1},"${s.studentName}","${s.activity}","${s.isCorrect ? 'Đúng' : 'Chưa đúng'}","${s.tt27}","${s.note}"\r\n`;
+                });
+            } else {
+                csv += '1,"Cả lớp","Tham gia phát biểu và giao dịch sôi nổi","Đạt","T","Tích cực tương tác và nắm vững bài học"\r\n';
+            }
+            csv += '\r\n';
+
+            csv += '=== NHẬT KÝ GIAO DỊCH THƯƠNG TRƯỜNG ===\r\n';
+            csv += 'Thời gian,Nội dung giao dịch\r\n';
+            tradeLogs.forEach(log => {
+                csv += `"${log.replace(/"/g, '""')}"\r\n`;
+            });
+
+            return csv;
+        }
+
+        function getExportFileName() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            const h = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            return `KetQua_TinHoc4_Lop_${currentClassId.replace('_', '-')}_Tiet_11_Ngay_${y}-${m}-${d}_${h}h${min}p${s}s.csv`;
+        }
+
+        function downloadCsvLocal(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(link.href), 1500);
+            if (typeof window.toast === 'function') {
+                window.toast('📄 Đã tải file CSV báo cáo về máy thành công!', 3000, '#16a34a');
+            }
+        }
+
+        $('#btnExportLocal').onclick = () => {
+            const csv = generateCsvContent();
+            downloadCsvLocal(csv, getExportFileName());
+        };
+
+        $('#btnExportDrive').onclick = () => {
+            const csv = generateCsvContent();
+            const fileName = getExportFileName();
+            if (typeof window.uploadCsvToDrive === 'function') {
+                window.uploadCsvToDrive(csv, fileName);
+            } else {
+                downloadCsvLocal(csv, fileName);
+            }
+        };
+
+        /* ================= 13. CHUYỂN TAB MÀN HÌNH & KHỞI CHẠY ================= */
+        function go(idx) {
+            curScreen = idx;
+            $$('nav button').forEach(b => {
+                b.classList.toggle('on', Number(b.dataset.go) === idx);
+            });
+            $$('main .screen').forEach((s, i) => {
+                s.classList.toggle('on', (i + 1) === idx);
+            });
+
+            if (idx === 1) updateVietnameseDate();
+            if (idx === 2) {
+                renderMysteryBoxes();
+                renderMarketListing();
+                renderFundQuiz();
+            }
+            if (idx === 3) {
+                // CHỈ GACHA NẾU CHƯA CÓ SỰ CỐ HOẶC BẮT ĐẦU VÒNG ĐẦU TIÊN
+                if (!curTargetCorp) {
+                    startAutoGachaForCustomer();
+                } else {
+                    updateArena();
+                }
+            }
+            if (idx === 4) {
+                renderSummaryScreen();
+                renderConsolidationQuiz();
+            }
+            if (idx === 5) {
+                renderPodium();
+                playSound('fanfare');
+                fireConfetti();
+            }
+        }
+
+        $$('nav button').forEach(b => {
+            b.onclick = () => go(Number(b.dataset.go));
+        });
+
+        $$('[data-go]').forEach(b => {
+            b.onclick = () => go(Number(b.dataset.go));
+        });
+
+        // KHỞI ĐỘNG HỆ THỐNG
+        window.addEventListener('DOMContentLoaded', () => {
+            updateVietnameseDate();
+            initClasses();
+            if (!loadState()) {
+                initTeams();
+                saveState();
+            }
+            renderMysteryBoxes();
+            renderMarketListing();
+            drawTeams();
+            renderTradeLog();
+            loadStudentsData();
+            go(1);
+        });
+    </script>
+</body>
+
+</html>
