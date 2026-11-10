@@ -4200,69 +4200,80 @@
             2: { currentIdx: 0, cases: [] }
         };
 
-        function initSupremeCourtRounds() {
-            const N = teams.length;
-            courtRounds[1].cases = [];
-            courtRounds[2].cases = [];
-            courtRounds[1].currentIdx = 0;
-            courtRounds[2].currentIdx = 0;
-
-            const r1Cases = SUPREME_CASE_BANK.filter(c => c.round === 1);
-            const r2Cases = SUPREME_CASE_BANK.filter(c => c.round === 2);
-            const poolR1 = shuffleArray(r1Cases.length > 0 ? r1Cases : SUPREME_CASE_BANK.slice(0, 12));
-            const poolR2 = shuffleArray(r2Cases.length > 0 ? r2Cases : SUPREME_CASE_BANK.slice(12, 24));
-
-            // GẤP ĐÔI SỐ VỤ ÁN MỖI VÒNG: Mỗi tổ được làm Nguyên đơn 2 lần (2 chu kỳ thi đấu)
-            const casesPerRound = Math.max(N * 2, 4);
-
-            // Vòng 1: 2 chu kỳ đấu
-            for (let idx = 0; idx < casesPerRound; idx++) {
-                const i = idx % N;
-                const cycle = Math.floor(idx / N);
-                const pIdx = i;
-                const offset = (cycle === 0) ? 1 : ((N > 2) ? 2 : 1);
-                const dIdx = (i + offset) % N;
-                const template = poolR1[idx % poolR1.length];
-                courtRounds[1].cases.push(createCaseInstance(1, idx, pIdx, dIdx, template));
-            }
-
-            // Vòng 2: 2 chu kỳ đấu với các đối thủ chéo khác
-            for (let idx = 0; idx < casesPerRound; idx++) {
-                const i = idx % N;
-                const cycle = Math.floor(idx / N);
-                const pIdx = i;
-                const offset = (cycle === 0) ? ((N > 2) ? 2 : 1) : ((N > 3) ? 3 : 1);
-                const dIdx = (i + offset) % N;
-                const template = poolR2[idx % poolR2.length];
-                courtRounds[2].cases.push(createCaseInstance(2, idx, pIdx, dIdx, template));
-            }
-        }
-
-        function reshuffleRoundCases(roundNum) {
-            const N = teams.length;
-            const rCases = SUPREME_CASE_BANK.filter(c => c.round === roundNum);
-            const sliceStart = (roundNum === 1) ? 0 : 12;
-            const pool = shuffleArray(rCases.length > 0 ? rCases : SUPREME_CASE_BANK.slice(sliceStart, sliceStart + 12));
+        function buildBalancedCourtRound(roundNum) {
+            const humanTeams = teams.filter(t => !t.isDemonTeam);
+            const N = Math.max(humanTeams.length, 2);
             courtRounds[roundNum].cases = [];
             courtRounds[roundNum].currentIdx = 0;
 
-            const casesPerRound = Math.max(N * 2, 4);
+            const rCases = SUPREME_CASE_BANK.filter(c => c.round === roundNum);
+            const fallbackSlice = (roundNum === 1) ? SUPREME_CASE_BANK.slice(0, 12) : SUPREME_CASE_BANK.slice(12, 24);
+            const sourcePool = (rCases.length > 0) ? rCases : fallbackSlice;
 
-            for (let idx = 0; idx < casesPerRound; idx++) {
-                const i = idx % N;
-                const cycle = Math.floor(idx / N);
-                const pIdx = i;
-                let offset;
-                if (roundNum === 1) {
-                    offset = (cycle === 0) ? 1 : ((N > 2) ? 2 : 1);
-                } else {
-                    offset = (cycle === 0) ? ((N > 2) ? 2 : 1) : ((N > 3) ? 3 : 1);
-                }
-                const dIdx = (i + offset) % N;
-                courtRounds[roundNum].cases.push(createCaseInstance(roundNum, idx, pIdx, dIdx, pool[idx % pool.length]));
+            const vPool = shuffleArray(sourcePool.filter(c => c.type === 'VIOLATION'));
+            const tPool = shuffleArray(sourcePool.filter(c => c.type === 'TRAP'));
+            let vIdx = 0;
+            let tIdx = 0;
+
+            // Xác định bước lệch offset đối thủ (đảm bảo không tự đấu với mình và đổi đối thủ ở Vòng 2):
+            let offV, offT;
+            if (roundNum === 1) {
+                offV = 1;
+                offT = (N > 2) ? 2 : 1;
+            } else {
+                offV = (N > 2) ? 2 : 1;
+                offT = (N > 3) ? 3 : ((N > 2) ? 1 : 1);
             }
+
+            // Xây dựng 2 chu kỳ thi đấu (Cycle 0 & Cycle 1) với cấu trúc cân bằng tuyệt đối:
+            // - Mỗi tổ làm Nguyên đơn đúng 2 lần (1 vụ VIOLATION, 1 vụ TRAP)
+            // - Mỗi tổ làm Bị đơn đúng 2 lần (1 vụ VIOLATION - bị kiện đúng tội, 1 vụ TRAP - bị kiện nhưng đóng vai tốt)
+            // - Xen kẽ tự nhiên giữa Án vi phạm và Án bẫy/hợp pháp
+            let caseIdx = 0;
+            for (let cycle = 0; cycle < 2; cycle++) {
+                for (let i = 0; i < N; i++) {
+                    const pTeamObj = humanTeams[i];
+                    const pIdx = pTeamObj.id;
+                    let dTeamObj, templateType;
+
+                    if (cycle === 0) {
+                        if (i % 2 === 0) {
+                            dTeamObj = humanTeams[(i + offV) % N];
+                            templateType = 'VIOLATION';
+                        } else {
+                            dTeamObj = humanTeams[(i + offT) % N];
+                            templateType = 'TRAP';
+                        }
+                    } else {
+                        if (i % 2 === 0) {
+                            dTeamObj = humanTeams[(i + offT) % N];
+                            templateType = 'TRAP';
+                        } else {
+                            dTeamObj = humanTeams[(i + offV) % N];
+                            templateType = 'VIOLATION';
+                        }
+                    }
+
+                    const dIdx = dTeamObj.id;
+                    const template = (templateType === 'VIOLATION')
+                        ? vPool[vIdx++ % vPool.length]
+                        : tPool[tIdx++ % tPool.length];
+
+                    courtRounds[roundNum].cases.push(createCaseInstance(roundNum, caseIdx, pIdx, dIdx, template));
+                    caseIdx++;
+                }
+            }
+        }
+
+        function initSupremeCourtRounds() {
+            buildBalancedCourtRound(1);
+            buildBalancedCourtRound(2);
+        }
+
+        function reshuffleRoundCases(roundNum) {
+            buildBalancedCourtRound(roundNum);
             renderSupremeCourtArena(roundNum);
-            toast(`🔀 Đã trộn ngẫu nhiên bộ Hồ sơ Vòng ${roundNum} (${casesPerRound} vụ)!`, 2000, 'var(--blue)');
+            toast(`🔀 Đã trộn ngẫu nhiên bộ Hồ sơ Vòng ${roundNum} (${courtRounds[roundNum].cases.length} vụ cân bằng 50/50)!`, 2000, 'var(--blue)');
         }
 
         function createCaseInstance(roundNum, idx, pIdx, dIdx, template) {
@@ -4482,9 +4493,9 @@
                                     <div class="article-excerpt">
                                         "Cô giáo giống như người mẹ thứ hai luôn ân cần dạy bảo chúng em từng nét chữ, từng nụ cười..."
                                     </div>
-                                    <div class="news-author-missing">
-                                        <span class="missing-label" style="color:#64748b;">🏷️ PHẦN GHI NHẬN TÁC GIẢ CUỐI BÀI:</span>
-                                        <span class="missing-box" style="color:#475569;">[ Để trống — Không ghi tên tác giả ]</span>
+                                    <div class="news-author-missing" style="background:rgba(16,185,129,0.08); border-color:#10b981;">
+                                        <span class="missing-label" style="color:#059669; font-weight:700;">🏷️ PHẦN GHI NHẬN TÁC GIẢ CUỐI BÀI:</span>
+                                        <span class="missing-box" style="color:#047857; font-weight:800;">"Tác giả bài viết: ${esc(pTeam.name)} (${esc(pTeam.startupName)}) — Sử dụng dưới sự đồng ý của tác giả"</span>
                                     </div>
                                 </div>
                             </div>
@@ -5077,7 +5088,7 @@
                         </div>
                         <div class="step-title">
                             <span style="color:#c2410c;">🛡️ PHA 2: MỜI BỊ ĐƠN <u>${dTeam.name} (${dTeam.startupName})</u> CHỌN LỜI BÀO CHỮA TRƯỚC ĐƠN KIỆN:</span>
-                            <span style="font-size:13px; color:#64748b;">(Nếu mình làm đúng luật hãy chọn câu trích dẫn đúng Luật; nếu trót làm sai hãy chọn câu Nhận lỗi để giảm 200 Xu tiền phạt!)</span>
+                            <span style="font-size:13px; color:#64748b;">(Nếu tổ mình làm đúng luật hãy chọn câu trích dẫn đúng Luật để nhận +150 Xu; nếu trót làm sai hãy dũng cảm Nhận lỗi để được Tòa khoan hồng thưởng +50 Xu!)</span>
                         </div>
                         <div class="defense-cards-grid">
                             ${defenseCardsHtml}
@@ -5644,8 +5655,8 @@
             if (c.type === 'VIOLATION') {
                 // ================= ÁN VI PHẠM THẬT =================
                 const defendantApologized = (c.selectedDefenseCard === 'APOLOGIZE');
-                const defPenalty = defendantApologized ? -100 : -300;
-                const defNote = defendantApologized ? 'Biết nhận lỗi thiện chí (Giảm 200 Xu phạt)' : 'Vi phạm còn cãi cùn';
+                const defDelta = defendantApologized ? 50 : -300;
+                const defNote = defendantApologized ? 'Dũng cảm nhận lỗi & hiểu luật (+50 Xu)' : 'Vi phạm còn cãi cùn (-300 Xu)';
 
                 if (c.plaintiffAction === 'SUE') {
                     playSuccessSound();
@@ -5654,11 +5665,11 @@
                     c.rulingSummaryHtml = `
                         ${c.verdictExplainHtml}<br>
                         👉 <b>Phán quyết:</b> <b>${pTeam.name}</b> đối chiếu luật chuẩn xác, khởi kiện thành công nhận <b>+300 Xu</b>!
-                        <b>${dTeam.name}</b> ${defendantApologized ? 'đã biết tự giác nhận lỗi ở Pha 2 nên được Tòa khoan hồng chỉ phạt nhẹ <b>-100 Xu</b>.' : 'ngoan cố chọn thẻ cãi cùn nên bị phạt nặng <b>-300 Xu</b>!'}
+                        <b>${dTeam.name}</b> ${defendantApologized ? 'đã thể hiện tinh thần dũng cảm, tự giác nhận lỗi và nêu đúng điều luật ở Pha 2 nên được Tòa khoan hồng, thưởng <b>+50 Xu Tinh thần trung thực</b>!' : 'ngoan cố chọn thẻ cãi cùn nên bị Tòa phạt nặng <b>-300 Xu</b>!'}
                     `;
 
                     awardScore(pIdx, 300, 'Thắng kiện vi phạm bản quyền', 'Thắng kiện');
-                    awardScore(dIdx, defPenalty, defNote, defNote);
+                    awardScore(dIdx, defDelta, defNote, defNote);
 
                 } else if (c.stealerIdx !== null) {
                     const sTeam = teams[c.stealerIdx];
@@ -5669,12 +5680,12 @@
                         ${c.verdictExplainHtml}<br>
                         👉 <b>Phán quyết:</b> <b>${pTeam.name}</b> nhìn vật chứng mà bỏ qua vi phạm nên bị phạt <b>-100 Xu</b>!
                         <b>${sTeam.name}</b> tinh mắt <b>Cướp còi chính nghĩa</b> nhận trọn <b>+300 Xu</b> tiền thưởng!
-                        <b>${dTeam.name}</b> bị phạt <b>${defPenalty} Xu</b> (${defNote}).
+                        <b>${dTeam.name}</b> ${defendantApologized ? 'dũng cảm nhận lỗi nên được Tòa khoan hồng thưởng <b>+50 Xu Tinh thần trung thực</b>.' : 'bị Tòa phạt <b>-300 Xu</b> do vi phạm còn cãi cùn.'}
                     `;
 
                     awardScore(pIdx, -100, 'Bỏ lọt hành vi vi phạm', 'Bỏ lọt vi phạm');
                     awardScore(c.stealerIdx, 300, 'Cướp còi thành công', 'Cướp còi chuẩn');
-                    awardScore(dIdx, defPenalty, defNote, defNote);
+                    awardScore(dIdx, defDelta, defNote, defNote);
                 }
 
             } else {
