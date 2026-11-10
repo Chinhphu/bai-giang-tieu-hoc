@@ -1252,11 +1252,59 @@
         #monsterFileInput, #csvTiet09Input {
             display: none;
         }
+
+        /* TOAST THÔNG BÁO HỆ THỐNG TRỰC QUAN */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 100030;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+            max-width: 480px;
+        }
+
+        .toast-item {
+            pointer-events: auto;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 14px 22px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #1e293b;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            border-left: 6px solid #0284c7;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            line-height: 1.4;
+        }
+
+        .toast-item.info { border-left-color: #0284c7; background: #f0f9ff; color: #0369a1; }
+        .toast-item.ok, .toast-item.success { border-left-color: #16a34a; background: #f0fdf4; color: #15803d; }
+        .toast-item.warn, .toast-item.warning { border-left-color: #d97706; background: #fffbeb; color: #b45309; }
+        .toast-item.bad, .toast-item.error { border-left-color: #dc2626; background: #fef2f2; color: #b91c1c; }
+
+        @keyframes toastSlideIn {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes toastSlideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(120%); opacity: 0; }
+        }
     </style>
     <script src="questions.js"></script>
 </head>
 
 <body>
+
+    <!-- Khung chứa thông báo Toast nổi trên màn hình -->
+    <div id="toastContainer" class="toast-container"></div>
 
     <!-- Lớp phủ sấm sét khi tiêu diệt quái vật -->
     <div id="lightningOverlay"></div>
@@ -2532,6 +2580,26 @@
         /* =========================================================================
            11. BÁO CÁO SMAS & XUẤT CSV (UTF-8 BOM CÓ TÊN THEO THỜI GIAN)
            ========================================================================= */
+        function showToast(msg, type = 'info', duration = 4000) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast-item ${type}`;
+            toast.innerHTML = msg;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+        window.showToast = showToast;
+        window.toast = function(msg, duration = 3500) {
+            showToast(msg, 'info', duration);
+        };
+
         function openSmasExportModal() {
             const classTitle = currentClass.replace('_', '/');
             const classList = studentData[currentClass] || FALLBACK_STUDENTS[currentClass] || [];
@@ -2589,9 +2657,11 @@
 
         async function handleExportCsv(uploadDrive = false) {
             if (trackingRecords.length === 0) {
-                alert('Chưa có dữ liệu học sinh nào trong Tiết 10 để xuất file CSV!');
+                alert('⚠️ Chưa có dữ liệu học sinh nào trong Tiết 10 để xuất file CSV!');
                 return;
             }
+
+            const classTitle = currentClass.replace('_', '/');
 
             const csvRows = trackingRecords.map((r, idx) => ({
                 "STT": idx + 1,
@@ -2625,24 +2695,73 @@
                 lesson: '10'
             });
 
-            if (uploadDrive && typeof window.uploadCsvToDrive === 'function') {
-                await window.uploadCsvToDrive(csvRows, fileName);
-            } else if (typeof window.LessonExport !== 'undefined') {
-                window.LessonExport.download(csvRows, fileName);
-            } else {
-                let csvContent = '\uFEFF' + [
-                    Object.keys(csvRows[0]).join(','),
-                    ...csvRows.map(row => Object.values(row).map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))
-                ].join('\r\n');
+            if (uploadDrive) {
+                // 1. CHẾ ĐỘ BẮN FILE LÊN GOOGLE DRIVE
+                const driveBtns = document.querySelectorAll('button[onclick*="handleExportCsv(true)"]');
+                driveBtns.forEach(b => {
+                    b.disabled = true;
+                    b.dataset.originHtml = b.innerHTML;
+                    b.innerHTML = '<span>⏳</span> Đang đồng bộ lên Drive...';
+                });
 
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+                showToast('☁️ Đang đồng bộ dữ liệu Tiết 10 lên Google Drive... Xin vui lòng đợi vài giây!', 'info', 5000);
+
+                try {
+                    let uploadRes = null;
+                    if (typeof window.uploadCsvToDrive === 'function') {
+                        uploadRes = await window.uploadCsvToDrive(csvRows, fileName);
+                    } else if (typeof window.LessonExport !== 'undefined' && typeof window.LessonExport.uploadToDrive === 'function') {
+                        uploadRes = await window.LessonExport.uploadToDrive(csvRows, fileName);
+                    }
+
+                    if (uploadRes && uploadRes.status === 'success') {
+                        playAudioTone('fanfare');
+                        showToast('✅ Đã lưu file CSV thành công vào Google Drive!', 'ok', 5000);
+                        alert(`✅ BẮN FILE LÊN GOOGLE DRIVE THÀNH CÔNG!\n\n📁 Tên file: ${fileName}\n🏫 Lớp: ${classTitle}\n👥 Sĩ số đã hoàn thành: ${trackingRecords.length} học sinh\n\nFile CSV kết quả đã được lưu an toàn vào Thư mục "Log tiết học" trên Google Drive của Thầy/Cô!`);
+                    } else {
+                        // Trường hợp uploadCsvToDrive trong core.js fallback tự tải về máy do mất mạng
+                        playAudioTone('ding');
+                        showToast(`📥 Đã tự động tải file CSV về máy: ${fileName}`, 'warn', 5000);
+                        alert(`📥 ĐÃ TẢI FILE CSV VỀ MÁY TÍNH!\n\n📁 Tên file: ${fileName}\n🏫 Lớp: ${classTitle}\n\n⚠️ Lưu ý: Kết nối Google Drive chưa phản hồi hoặc bị chặn tường lửa, hệ thống đã TỰ ĐỘNG TẢI FILE CSV VỀ THƯ MỤC DOWNLOADS của máy tính Thầy/Cô an toàn 100%!`);
+                    }
+                } catch (err) {
+                    console.error('Lỗi khi bắn Drive:', err);
+                    playAudioTone('ding');
+                    if (typeof window.LessonExport !== 'undefined') {
+                        window.LessonExport.download(csvRows, fileName);
+                    }
+                    showToast(`📥 Đã tải file CSV về máy: ${fileName}`, 'warn', 5000);
+                    alert(`📥 ĐÃ TẢI FILE CSV VỀ MÁY TÍNH!\n\n📁 Tên file: ${fileName}\n\n⚠️ Kết nối mạng tới Google Drive gián đoạn. File CSV đã được lưu về thư mục Downloads của máy tính!`);
+                } finally {
+                    driveBtns.forEach(b => {
+                        b.disabled = false;
+                        if (b.dataset.originHtml) b.innerHTML = b.dataset.originHtml;
+                    });
+                }
+
+            } else {
+                // 2. CHẾ ĐỘ TẢI FILE CSV TRỰC TIẾP VỀ MÁY
+                if (typeof window.LessonExport !== 'undefined') {
+                    window.LessonExport.download(csvRows, fileName);
+                } else {
+                    let csvContent = '\uFEFF' + [
+                        Object.keys(csvRows[0]).join(','),
+                        ...csvRows.map(row => Object.values(row).map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))
+                    ].join('\r\n');
+
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
+
+                playAudioTone('ding');
+                showToast(`📥 Đã tải file CSV về máy: ${fileName}`, 'ok', 4000);
+                alert(`📥 TẢI FILE CSV VỀ MÁY THÀNH CÔNG!\n\n📁 Tên file: ${fileName}\n🏫 Lớp: ${classTitle}\n👥 Sĩ số đã lưu: ${trackingRecords.length} học sinh\n\nFile CSV đã được tải về thư mục Downloads của Thầy/Cô!`);
             }
         }
 

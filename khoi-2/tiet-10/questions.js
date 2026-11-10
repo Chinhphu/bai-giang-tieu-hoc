@@ -1,38 +1,36 @@
 /**
  * Ngân hàng dữ liệu đồng bộ từ questions.json (Tiết 10 - Vui học Toán cùng máy tính)
- * Đa dạng câu hỏi và phong phú kết quả
+ * 100% Chuẩn kiến thức Toán Lớp 2 Học kỳ 1:
+ * - Phép cộng, trừ qua 10 trong phạm vi 20
+ * - Phép tính tròn chục trong phạm vi 100
+ * - Điền số thích hợp vào ô trống
  * Hỗ trợ chạy 100% offline-first không lỗi CORS khi mở bằng file://
  */
 window.QUESTS_DATA = [
   {
+    "equation": "9 + 2 = <span class='math-unknown'>?</span>",
+    "answer": 11,
+    "hint": "9 cộng 1 rồi cộng 1"
+  },
+  {
+    "equation": "9 + 3 = <span class='math-unknown'>?</span>",
+    "answer": 12,
+    "hint": "9 cộng 1 rồi cộng 2"
+  },
+  {
     "equation": "9 + 4 = <span class='math-unknown'>?</span>",
     "answer": 13,
-    "hint": "Phép cộng qua 10: 9 cộng 1 rồi cộng tiếp 3"
-  },
-  {
-    "equation": "8 + 5 = <span class='math-unknown'>?</span>",
-    "answer": 13,
-    "hint": "8 cộng 2 bằng 10, rồi cộng tiếp 3"
-  },
-  {
-    "equation": "7 + 6 = <span class='math-unknown'>?</span>",
-    "answer": 13,
-    "hint": "7 cộng 3 bằng 10, rồi cộng 3"
-  },
-  {
-    "equation": "8 + 6 = <span class='math-unknown'>?</span>",
-    "answer": 14,
-    "hint": "8 cộng 2 bằng 10, rồi cộng 4"
+    "hint": "9 cộng 1 rồi cộng 3"
   },
   {
     "equation": "9 + 5 = <span class='math-unknown'>?</span>",
     "answer": 14,
-    "hint": "9 cộng 1 bằng 10, rồi cộng 4"
+    "hint": "9 cộng 1 rồi cộng 4"
   },
   {
-    "equation": "7 + 8 = <span class='math-unknown'>?</span>",
+    "equation": "9 + 6 = <span class='math-unknown'>?</span>",
     "answer": 15,
-    "hint": "7 cộng 3 bằng 10, cộng tiếp 5"
+    "hint": "9 cộng 1 rồi cộng 5"
   },
   {
     "equation": "9 + 7 = <span class='math-unknown'>?</span>",
@@ -40,24 +38,79 @@ window.QUESTS_DATA = [
     "hint": "9 cộng 1 bằng 10, cộng 6"
   },
   {
-    "equation": "8 + 8 = <span class='math-unknown'>?</span>",
-    "answer": 16,
-    "hint": "8 cộng 2 bằng 10, cộng 6"
-  },
-  {
     "equation": "9 + 8 = <span class='math-unknown'>?</span>",
     "answer": 17,
     "hint": "9 cộng 1 bằng 10, cộng 7"
   },
   {
-    "equation": "9 + 9 = <span class='math-unknown'>?</span>",
-    "answer": 18,
-    "hint": "9 cộng 1 bằng 10, cộng 8"
+    "equation": "8 + 3 = <span class='math-unknown'>?</span>",
+    "answer": 11,
+    "hint": "8 cộng 2 rồi cộng 1"
   },
   {
-    "equation": "11 - 5 = <span class='math-unknown'>?</span>",
-    "answer": 6,
-    "hint": "11 trừ 1 rồi trừ 4"
+    "equation": "8 + 4 = <span class='math-unknown'>?</span>",
+    "answer": 12,
+    "hint": "8 cộng 2 rồi cộng 2"
+  },
+  {
+    "equation": "8 + 5 = <span class='math-unknown'>?</span>",
+    "answer": 13,
+    "hint": "8 cộng 2 bằng 10, cộng 3"
+  },
+  {
+    "equation": "8 + 6 = <span class='math-unknown'>?</span>",
+    "answer": 14,
+    "hint": "8 cộng 2 bằng 10, cộng 4"
+  },
+  {
+    "equation": "8 + 7 = <span class='math-unknown'>?</span>",
+    "answer": 15,
+    "hint": "8 cộng 2 bằng 10, cộng 5"
+  },
+  {
+    "equation": "7 + 4 = <span class='math-unknown'>?</span>",
+    "answer": 11,
+    "hint": "7 cộng 3 rồi cộng 1"
+  },
+  {
+    "equation": "7 + 5 = <span class='math-unknown'>?</span>",
+    "answer": 12,
+    "hint": "7 cộng 3 rồi cộng 2"
+  },
+  {
+    "equation": "7 + 6 = <span class='math-unknown'>?</span>",
+    "answer": 13,
+    "hint": "7 cộng 3 bằng 10, cộng 3"
+  },
+  {
+    "equation": "7 + 7 = <span class='math-unknown'>?</span>",
+    "answer": 14,
+    "hint": "7 cộng 3 bằng 10, cộng 4"
+  },
+  {
+    "equation": "6 + 5 = <span class='math-unknown'>?</span>",
+    "answer": 11,
+    "hint": "6 cộng 4 rồi cộng 1"
+  },
+  {
+    "equation": "6 + 6 = <span class='math-unknown'>?</span>",
+    "answer": 12,
+    "hint": "6 cộng 4 rồi cộng 2"
+  },
+  {
+    "equation": "6 + 7 = <span class='math-unknown'>?</span>",
+    "answer": 13,
+    "hint": "6 cộng 4 bằng 10, cộng 3"
+  },
+  {
+    "equation": "11 - 2 = <span class='math-unknown'>?</span>",
+    "answer": 9,
+    "hint": "11 trừ 1 rồi trừ 1"
+  },
+  {
+    "equation": "11 - 3 = <span class='math-unknown'>?</span>",
+    "answer": 8,
+    "hint": "11 trừ 1 rồi trừ 2"
   },
   {
     "equation": "11 - 4 = <span class='math-unknown'>?</span>",
@@ -65,14 +118,34 @@ window.QUESTS_DATA = [
     "hint": "11 trừ 1 rồi trừ 3"
   },
   {
+    "equation": "11 - 5 = <span class='math-unknown'>?</span>",
+    "answer": 6,
+    "hint": "11 trừ 1 rồi trừ 4"
+  },
+  {
+    "equation": "12 - 3 = <span class='math-unknown'>?</span>",
+    "answer": 9,
+    "hint": "12 trừ 2 rồi trừ 1"
+  },
+  {
+    "equation": "12 - 4 = <span class='math-unknown'>?</span>",
+    "answer": 8,
+    "hint": "12 trừ 2 rồi trừ 2"
+  },
+  {
+    "equation": "12 - 5 = <span class='math-unknown'>?</span>",
+    "answer": 7,
+    "hint": "12 trừ 2 rồi trừ 3"
+  },
+  {
     "equation": "12 - 7 = <span class='math-unknown'>?</span>",
     "answer": 5,
     "hint": "12 trừ 2 rồi trừ 5"
   },
   {
-    "equation": "12 - 8 = <span class='math-unknown'>?</span>",
-    "answer": 4,
-    "hint": "12 trừ 2 rồi trừ 6"
+    "equation": "13 - 4 = <span class='math-unknown'>?</span>",
+    "answer": 9,
+    "hint": "13 trừ 3 rồi trừ 1"
   },
   {
     "equation": "13 - 5 = <span class='math-unknown'>?</span>",
@@ -80,14 +153,29 @@ window.QUESTS_DATA = [
     "hint": "13 trừ 3 rồi trừ 2"
   },
   {
-    "equation": "13 - 8 = <span class='math-unknown'>?</span>",
-    "answer": 5,
-    "hint": "13 trừ 3 rồi trừ 5"
+    "equation": "13 - 6 = <span class='math-unknown'>?</span>",
+    "answer": 7,
+    "hint": "13 trừ 3 rồi trừ 3"
   },
   {
-    "equation": "14 - 9 = <span class='math-unknown'>?</span>",
-    "answer": 5,
-    "hint": "14 trừ 4 rồi trừ 5"
+    "equation": "13 - 7 = <span class='math-unknown'>?</span>",
+    "answer": 6,
+    "hint": "13 trừ 3 rồi trừ 4"
+  },
+  {
+    "equation": "14 - 5 = <span class='math-unknown'>?</span>",
+    "answer": 9,
+    "hint": "14 trừ 4 rồi trừ 1"
+  },
+  {
+    "equation": "14 - 6 = <span class='math-unknown'>?</span>",
+    "answer": 8,
+    "hint": "14 trừ 4 rồi trừ 2"
+  },
+  {
+    "equation": "14 - 8 = <span class='math-unknown'>?</span>",
+    "answer": 6,
+    "hint": "14 trừ 4 rồi trừ 4"
   },
   {
     "equation": "15 - 6 = <span class='math-unknown'>?</span>",
@@ -95,14 +183,9 @@ window.QUESTS_DATA = [
     "hint": "15 trừ 5 rồi trừ 1"
   },
   {
-    "equation": "15 - 9 = <span class='math-unknown'>?</span>",
-    "answer": 6,
-    "hint": "15 trừ 5 rồi trừ 4"
-  },
-  {
-    "equation": "16 - 8 = <span class='math-unknown'>?</span>",
+    "equation": "15 - 7 = <span class='math-unknown'>?</span>",
     "answer": 8,
-    "hint": "16 trừ 6 rồi trừ 2"
+    "hint": "15 trừ 5 rồi trừ 2"
   },
   {
     "equation": "16 - 7 = <span class='math-unknown'>?</span>",
@@ -110,9 +193,19 @@ window.QUESTS_DATA = [
     "hint": "16 trừ 6 rồi trừ 1"
   },
   {
+    "equation": "16 - 8 = <span class='math-unknown'>?</span>",
+    "answer": 8,
+    "hint": "16 trừ 6 rồi trừ 2"
+  },
+  {
     "equation": "17 - 8 = <span class='math-unknown'>?</span>",
     "answer": 9,
     "hint": "17 trừ 7 rồi trừ 1"
+  },
+  {
+    "equation": "17 - 9 = <span class='math-unknown'>?</span>",
+    "answer": 8,
+    "hint": "17 trừ 7 rồi trừ 2"
   },
   {
     "equation": "18 - 9 = <span class='math-unknown'>?</span>",
@@ -120,84 +213,89 @@ window.QUESTS_DATA = [
     "hint": "18 trừ 8 rồi trừ 1"
   },
   {
-    "equation": "<span class='math-unknown'>?</span> + 7 = 13",
-    "answer": 6,
-    "hint": "Mấy cộng 7 để bằng 13?"
+    "equation": "6 + <span class='math-unknown'>?</span> = 11",
+    "answer": 5,
+    "hint": "6 cộng mấy để bằng 11?"
   },
   {
-    "equation": "8 + <span class='math-unknown'>?</span> = 14",
-    "answer": 6,
-    "hint": "8 cộng mấy để bằng 14?"
-  },
-  {
-    "equation": "<span class='math-unknown'>?</span> + 9 = 15",
-    "answer": 6,
-    "hint": "Mấy cộng 9 bằng 15?"
-  },
-  {
-    "equation": "6 + <span class='math-unknown'>?</span> = 15",
-    "answer": 9,
-    "hint": "6 cộng mấy để bằng 15?"
-  },
-  {
-    "equation": "14 - <span class='math-unknown'>?</span> = 8",
-    "answer": 6,
-    "hint": "14 trừ mấy bằng 8?"
-  },
-  {
-    "equation": "<span class='math-unknown'>?</span> - 7 = 5",
-    "answer": 12,
-    "hint": "Số nào trừ 7 bằng 5?"
-  },
-  {
-    "equation": "<span class='math-unknown'>?</span> - 8 = 6",
-    "answer": 14,
-    "hint": "Số nào trừ 8 bằng 6?"
-  },
-  {
-    "equation": "16 - <span class='math-unknown'>?</span> = 9",
+    "equation": "<span class='math-unknown'>?</span> + 8 = 15",
     "answer": 7,
-    "hint": "16 trừ mấy bằng 9?"
+    "hint": "Mấy cộng 8 để bằng 15?"
+  },
+  {
+    "equation": "9 + <span class='math-unknown'>?</span> = 14",
+    "answer": 5,
+    "hint": "9 cộng mấy để bằng 14?"
+  },
+  {
+    "equation": "7 + <span class='math-unknown'>?</span> = 12",
+    "answer": 5,
+    "hint": "7 cộng mấy để bằng 12?"
+  },
+  {
+    "equation": "14 - <span class='math-unknown'>?</span> = 6",
+    "answer": 8,
+    "hint": "14 trừ mấy để bằng 6?"
+  },
+  {
+    "equation": "<span class='math-unknown'>?</span> + 5 = 13",
+    "answer": 8,
+    "hint": "Mấy cộng 5 bằng 13?"
+  },
+  {
+    "equation": "15 - <span class='math-unknown'>?</span> = 8",
+    "answer": 7,
+    "hint": "15 trừ mấy bằng 8?"
+  },
+  {
+    "equation": "13 - <span class='math-unknown'>?</span> = 7",
+    "answer": 6,
+    "hint": "13 trừ mấy bằng 7?"
+  },
+  {
+    "equation": "60 - 20 = <span class='math-unknown'>?</span>",
+    "answer": 40,
+    "hint": "6 chục trừ 2 chục bằng mấy chục?"
+  },
+  {
+    "equation": "90 - 40 = <span class='math-unknown'>?</span>",
+    "answer": 50,
+    "hint": "9 chục trừ 4 chục bằng mấy chục?"
+  },
+  {
+    "equation": "50 - 30 = <span class='math-unknown'>?</span>",
+    "answer": 20,
+    "hint": "5 chục trừ 3 chục"
+  },
+  {
+    "equation": "80 - 30 = <span class='math-unknown'>?</span>",
+    "answer": 50,
+    "hint": "8 chục trừ 3 chục"
+  },
+  {
+    "equation": "70 - 20 = <span class='math-unknown'>?</span>",
+    "answer": 50,
+    "hint": "7 chục trừ 2 chục"
+  },
+  {
+    "equation": "30 + 40 = <span class='math-unknown'>?</span>",
+    "answer": 70,
+    "hint": "3 chục cộng 4 chục bằng mấy chục?"
+  },
+  {
+    "equation": "50 + 20 = <span class='math-unknown'>?</span>",
+    "answer": 70,
+    "hint": "5 chục cộng 2 chục"
   },
   {
     "equation": "40 + 50 = <span class='math-unknown'>?</span>",
     "answer": 90,
-    "hint": "4 chục cộng 5 chục bằng mấy chục?"
+    "hint": "4 chục cộng 5 chục"
   },
   {
-    "equation": "20 + 70 = <span class='math-unknown'>?</span>",
-    "answer": 90,
-    "hint": "2 chục cộng 7 chục bằng mấy chục?"
-  },
-  {
-    "equation": "30 + 30 = <span class='math-unknown'>?</span>",
-    "answer": 60,
-    "hint": "3 chục cộng 3 chục bằng mấy chục?"
-  },
-  {
-    "equation": "50 + 50 = <span class='math-unknown'>?</span>",
-    "answer": 100,
-    "hint": "5 chục cộng 5 chục bằng bao nhiêu?"
-  },
-  {
-    "equation": "100 - 40 = <span class='math-unknown'>?</span>",
-    "answer": 60,
-    "hint": "10 chục trừ 4 chục bằng mấy chục?"
-  },
-  {
-    "equation": "100 - 70 = <span class='math-unknown'>?</span>",
-    "answer": 30,
-    "hint": "10 chục trừ 7 chục bằng mấy chục?"
-  },
-  {
-    "equation": "80 - 60 = <span class='math-unknown'>?</span>",
-    "answer": 20,
-    "hint": "8 chục trừ 6 chục"
-  },
-  {
-    "equation": "70 - 40 = <span class='math-unknown'>?</span>",
-    "answer": 30,
-    "hint": "7 chục trừ 4 chục"
+    "equation": "<span class='math-unknown'>?</span> - 20 = 50",
+    "answer": 70,
+    "hint": "Số tròn chục nào trừ 20 bằng 50?"
   },
   {
     "equation": "<span class='math-unknown'>?</span> + 30 = 80",
@@ -205,83 +303,8 @@ window.QUESTS_DATA = [
     "hint": "Mấy chục cộng 30 bằng 80?"
   },
   {
-    "equation": "90 - <span class='math-unknown'>?</span> = 40",
-    "answer": 50,
-    "hint": "90 trừ mấy chục bằng 40?"
-  },
-  {
-    "equation": "<span class='math-unknown'>?</span> - 30 = 60",
-    "answer": 90,
-    "hint": "Số tròn chục nào trừ 30 bằng 60?"
-  },
-  {
-    "equation": "24 + 5 = <span class='math-unknown'>?</span>",
-    "answer": 29,
-    "hint": "4 cộng 5 bằng 9, giữ nguyên 2 chục"
-  },
-  {
-    "equation": "35 + 14 = <span class='math-unknown'>?</span>",
-    "answer": 49,
-    "hint": "5 cộng 4 bằng 9; 3 chục cộng 1 chục bằng 4 chục"
-  },
-  {
-    "equation": "48 - 15 = <span class='math-unknown'>?</span>",
-    "answer": 33,
-    "hint": "8 trừ 5 bằng 3; 4 chục trừ 1 chục bằng 3 chục"
-  },
-  {
-    "equation": "57 - 23 = <span class='math-unknown'>?</span>",
-    "answer": 34,
-    "hint": "7 trừ 3 bằng 4; 5 chục trừ 2 chục bằng 3 chục"
-  },
-  {
-    "equation": "62 + 7 = <span class='math-unknown'>?</span>",
-    "answer": 69,
-    "hint": "2 cộng 7 bằng 9, giữ nguyên 6 chục"
-  },
-  {
-    "equation": "78 - 36 = <span class='math-unknown'>?</span>",
-    "answer": 42,
-    "hint": "8 trừ 6 bằng 2; 7 chục trừ 3 chục bằng 4 chục"
-  },
-  {
-    "equation": "2 x 4 = <span class='math-unknown'>?</span>",
-    "answer": 8,
-    "hint": "Bảng nhân 2: 2 nhân 4 bằng mấy?"
-  },
-  {
-    "equation": "2 x 6 = <span class='math-unknown'>?</span>",
-    "answer": 12,
-    "hint": "Bảng nhân 2: 2 lấy 6 lần"
-  },
-  {
-    "equation": "2 x 9 = <span class='math-unknown'>?</span>",
-    "answer": 18,
-    "hint": "Bảng nhân 2: 2 nhân 9 bằng mấy?"
-  },
-  {
-    "equation": "5 x 3 = <span class='math-unknown'>?</span>",
-    "answer": 15,
-    "hint": "Bảng nhân 5: 5 lấy 3 lần"
-  },
-  {
-    "equation": "5 x 7 = <span class='math-unknown'>?</span>",
-    "answer": 35,
-    "hint": "Bảng nhân 5: 5 nhân 7 bằng bao nhiêu?"
-  },
-  {
-    "equation": "5 x 9 = <span class='math-unknown'>?</span>",
-    "answer": 45,
-    "hint": "Bảng nhân 5: 5 nhân 9 bằng bao nhiêu?"
-  },
-  {
-    "equation": "16 : 2 = <span class='math-unknown'>?</span>",
-    "answer": 8,
-    "hint": "16 chia 2 bằng mấy? (2 x 8 = 16)"
-  },
-  {
-    "equation": "30 : 5 = <span class='math-unknown'>?</span>",
-    "answer": 6,
-    "hint": "30 chia 5 bằng mấy? (5 x 6 = 30)"
+    "equation": "100 - 30 = <span class='math-unknown'>?</span>",
+    "answer": 70,
+    "hint": "10 chục trừ 3 chục bằng mấy chục?"
   }
 ];
