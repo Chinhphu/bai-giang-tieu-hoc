@@ -1,369 +1,369 @@
-/**
+﻿/**
  * Ngân hàng dữ liệu đồng bộ từ quests.json
  * Hỗ trợ chạy 100% offline-first không lỗi CORS khi mở bằng file://
  */
 window.QUESTS_DATA = {
-  "title": "Tin Học 5 - Bài 5: Bản quyền nội dung số (Tiết 2) - Tòa án tối cao Startup",
+  "title": "Tin Há»c 5 - BÃ i 5: Báº£n quyá»n ná»™i dung sá»‘ (Tiáº¿t 2) - TÃ²a Ã¡n tá»‘i cao Startup",
   "cases": [
     {
       "id": "case_poster",
       "mockupType": "poster",
       "round": 1,
       "type": "VIOLATION",
-      "lawTag": "Vi phạm Điều 1 & Điều 2 (Chưa xin phép + Tự ý xóa tên tác giả)",
-      "rumor": "Dư luận phát hiện poster quảng cáo mới của <b>{dName} ({dStartup})</b> dùng bức tranh kỹ thuật số do <b>{pName} ({pStartup})</b> vẽ tuần trước.",
-      "knownFacts": "• <b>Về việc xin phép:</b> <b>{dName}</b> tải bức tranh trên trang cá nhân của <b>{pName}</b> về dùng mà chưa từng nhắn tin hay hỏi ý kiến <b>{pName}</b>.<br>• <b>Về cách ghi nguồn:</b> Trên bức tranh gốc có chữ ký của <b>{pName}</b>, nhưng <b>{dName}</b> đã cắt bỏ chữ ký đó và ghi dòng chữ dưới đây:",
-      "exhibitBox": "🖼️ [Vật chứng trên Poster của {dName}]: \"Minh họa: Nguồn Sưu tầm trên mạng\"",
+      "lawTag": "Vi pháº¡m Äiá»u 1 & Äiá»u 2 (ChÆ°a xin phÃ©p + Tá»± Ã½ xÃ³a tÃªn tÃ¡c giáº£)",
+      "rumor": "DÆ° luáº­n phÃ¡t hiá»‡n poster quáº£ng cÃ¡o má»›i cá»§a <b>{dName} ({dStartup})</b> dÃ¹ng bá»©c tranh ká»¹ thuáº­t sá»‘ do <b>{pName} ({pStartup})</b> váº½ tuáº§n trÆ°á»›c.",
+      "knownFacts": "â€¢ <b>Vá» viá»‡c xin phÃ©p:</b> <b>{dName}</b> táº£i bá»©c tranh trÃªn trang cÃ¡ nhÃ¢n cá»§a <b>{pName}</b> vá» dÃ¹ng mÃ  chÆ°a tá»«ng nháº¯n tin hay há»i Ã½ kiáº¿n <b>{pName}</b>.<br>â€¢ <b>Vá» cÃ¡ch ghi nguá»“n:</b> TrÃªn bá»©c tranh gá»‘c cÃ³ chá»¯ kÃ½ cá»§a <b>{pName}</b>, nhÆ°ng <b>{dName}</b> Ä‘Ã£ cáº¯t bá» chá»¯ kÃ½ Ä‘Ã³ vÃ  ghi dÃ²ng chá»¯ dÆ°á»›i Ä‘Ã¢y:",
+      "exhibitBox": "ðŸ–¼ï¸ [Váº­t chá»©ng trÃªn Poster cá»§a {dName}]: \"Minh há»a: Nguá»“n SÆ°u táº§m trÃªn máº¡ng\"",
       "cards": [
-        { "id": "EXCUSE", "quote": "\"Tranh đăng lên mạng tụi em tải về rồi ghi chữ Nguồn Sưu tầm ở góc poster là đã tôn trọng Điều 2 rồi, không cần xin phép nữa!\"" },
-        { "id": "APOLOGIZE", "quote": "\"Tụi em nhận lỗi! Tranh biết rõ tác giả là bạn mà tụi em tự ý lấy chưa xin phép lại ghi Sưu tầm là sai cả Điều 1 lẫn Điều 2. Xin tòa giảm nhẹ!\"" }
+        { "id": "EXCUSE", "quote": "\"Theo Äiá»u 2 SGK, khi láº¥y tÃ i liá»‡u tham kháº£o trÃªn máº¡ng thÃ¬ Ä‘Æ°á»£c phÃ©p ghi nguá»“n lÃ  SÆ°u táº§m. Bá»©c tranh nÃ y táº£i tá»± do trÃªn máº¡ng nÃªn tá»• em ghi 'Minh há»a: Nguá»“n SÆ°u táº§m' á»Ÿ gÃ³c lÃ  hoÃ n toÃ n Ä‘Ãºng quy Ä‘á»‹nh ghi nguá»“n!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Theo Äiá»u 1 vÃ  Äiá»u 2 SGK, khi tÃ¡c pháº©m Ä‘Ã£ cÃ³ chá»¯ kÃ½ tÃ¡c giáº£ rÃµ rÃ ng thÃ¬ báº¯t buá»™c pháº£i xin phÃ©p vÃ  ghi Ä‘Ãºng tÃªn tÃ¡c giáº£, khÃ´ng Ä‘Æ°á»£c tá»± Ã½ cáº¯t bá» Ä‘á»ƒ ghi SÆ°u táº§m. Tá»• em xin nháº­n trÃ¡ch nhiá»‡m vÃ  sá»­a sai ngay!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Bức tranh có tác giả rõ ràng là <b>{pName}</b>. Việc <b>{dName}</b> tự ý lấy khi <b>chưa được phép</b> (sai Điều 1) lại xóa tên tác giả để ghi <b>\"Sưu tầm\"</b> (sai Điều 2) là <b>VI PHẠM BẢN QUYỀN!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Bá»©c tranh cÃ³ tÃ¡c giáº£ rÃµ rÃ ng lÃ  <b>{pName}</b>. Viá»‡c <b>{dName}</b> tá»± Ã½ láº¥y khi <b>chÆ°a Ä‘Æ°á»£c phÃ©p</b> (sai Äiá»u 1) láº¡i xÃ³a tÃªn tÃ¡c giáº£ Ä‘á»ƒ ghi <b>\"SÆ°u táº§m\"</b> (sai Äiá»u 2) lÃ  <b>VI PHáº M Báº¢N QUYá»€N!</b>"
     },
     {
       "id": "case_cinema",
       "mockupType": "cinema",
       "round": 1,
       "type": "TRAP",
-      "lawTag": "Hợp pháp đúng Điều 1 (Đã xin phép + Ghi rõ tên tác giả)",
-      "rumor": "Khán giả xôn xao nghi ngờ bộ phim mới của <b>{dName} ({dStartup})</b> \"dùng chùa\" bản nhạc nền piano do <b>{pName} ({pStartup})</b> sáng tác!",
-      "knownFacts": "• <b>Sự thật giữa 2 công ty:</b> Tuần trước, <b>{dName}</b> đã gửi thư xin phép sử dụng bản nhạc và <b>{pName} đã ký xác nhận đồng ý</b>.<br>• <b>Trên màn hình kết thúc phim (Credit):</b> <b>{dName}</b> trình chiếu công khai dòng chữ sau:",
-      "exhibitBox": "🎬 [Hình chụp cuối phim của {dName}]: \"Âm nhạc trong phim: Sáng tác bởi {pName} ({pStartup}) – Sử dụng dưới sự cho phép của tác giả\"",
+      "lawTag": "Há»£p phÃ¡p Ä‘Ãºng Äiá»u 1 (ÄÃ£ xin phÃ©p + Ghi rÃµ tÃªn tÃ¡c giáº£)",
+      "rumor": "KhÃ¡n giáº£ xÃ´n xao nghi ngá» bá»™ phim má»›i cá»§a <b>{dName} ({dStartup})</b> \"dÃ¹ng chÃ¹a\" báº£n nháº¡c ná»n piano do <b>{pName} ({pStartup})</b> sÃ¡ng tÃ¡c!",
+      "knownFacts": "â€¢ <b>Sá»± tháº­t giá»¯a 2 cÃ´ng ty:</b> Tuáº§n trÆ°á»›c, <b>{dName}</b> Ä‘Ã£ gá»­i thÆ° xin phÃ©p sá»­ dá»¥ng báº£n nháº¡c vÃ  <b>{pName}</b> Ä‘Ã£ kÃ½ xÃ¡c nháº­n Ä‘á»“ng Ã½.<br>â€¢ <b>TrÃªn mÃ n hÃ¬nh káº¿t thÃºc phim (Credit):</b> <b>{dName}</b> trÃ¬nh chiáº¿u cÃ´ng khai dÃ²ng chá»¯ sau:",
+      "exhibitBox": "ðŸŽ¬ [HÃ¬nh chá»¥p cuá»‘i phim cá»§a {dName}]: \"Ã‚m nháº¡c trong phim: SÃ¡ng tÃ¡c bá»Ÿi {pName} ({pStartup}) â€“ Sá»­ dá»¥ng dÆ°á»›i sá»± cho phÃ©p cá»§a tÃ¡c giáº£\"",
       "cards": [
-        { "id": "LEGAL_DEFENSE", "quote": "\"Công ty chúng em đã làm đủ 2 vế của Điều 1: Vừa xin phép tác giả đàng hoàng, vừa ghi rõ tên tác giả ở cuối phim nên hoàn toàn hợp pháp!\"" },
-        { "id": "CLUMSY", "quote": "\"Nhạc đăng trên mạng là tài sản chung của nhân loại nên tụi em cứ lấy ghép vào phim thôi chứ không cần theo điều luật nào cả!\"" }
+        { "id": "LEGAL_DEFENSE", "quote": "\"CÃ´ng ty chÃºng em Ä‘Ã£ lÃ m Ä‘á»§ 2 váº¿ cá»§a Äiá»u 1: Vá»«a xin phÃ©p tÃ¡c giáº£ Ä‘Ã ng hoÃ ng, vá»«a ghi rÃµ tÃªn tÃ¡c giáº£ á»Ÿ cuá»‘i phim nÃªn hoÃ n toÃ n há»£p phÃ¡p!\"" },
+        { "id": "CLUMSY", "quote": "\"Báº£n nháº¡c piano nÃ y quÃ¡ ná»•i tiáº¿ng trÃªn máº¡ng nÃªn tá»• em nghÄ© chá»‰ cáº§n Ä‘Æ°a vÃ o phim cho hay chá»© khÃ´ng cáº§n pháº£i Ä‘á»ƒ Ã½ cÃ¡c quy táº¯c báº£n quyá»n!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Đối chiếu Điều 1 (Quy tắc Vàng): <b>{dName}</b> đã thỏa mãn đủ cả 2 vế: <b>(1) Được tác giả cho phép</b> và <b>(2) Ghi rõ tên tác giả</b> ở cuối phim. Tin đồn ăn cắp là sai sự thật ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Äá»‘i chiáº¿u Äiá»u 1 (Quy táº¯c VÃ ng): <b>{dName}</b> Ä‘Ã£ thá»a mÃ£n Ä‘á»§ cáº£ 2 váº¿: <b>(1) ÄÆ°á»£c tÃ¡c giáº£ cho phÃ©p</b> vÃ  <b>(2) Ghi rÃµ tÃªn tÃ¡c giáº£</b> á»Ÿ cuá»‘i phim. Tin Ä‘á»“n Äƒn cáº¯p lÃ  sai sá»± tháº­t âž” <b>HOÃ€N TOÃ€N Há»¢P PHÃP!</b>"
     },
     {
       "id": "case_book",
       "mockupType": "book",
       "round": 1,
       "type": "VIOLATION",
-      "lawTag": "Vi phạm Điều 2 (Viết lại truyện cổ tích nhưng tự nhận mình là Tác giả)",
-      "rumor": "<b>{pName} ({pStartup})</b> phát hiện cuốn truyện mới xuất bản của <b>{dName} ({dStartup})</b> có nội dung chính là truyện cổ tích <i>\"Cây khế\"</i> nhưng lại ghi tên tác giả rất lạ!",
-      "knownFacts": "• <b>Cách thực hiện:</b> <b>{dName}</b> dựa trên cốt truyện cổ tích dân gian <i>\"Cây khế\"</i>, sau đó tự diễn đạt lại bằng lời văn mới của tổ mình.<br>• <b>Trên trang bìa cuốn sách:</b> <b>{dName}</b> in dòng chữ công bố bản quyền như sau:",
-      "exhibitBox": "📕 [Vật chứng Bìa sách của {dName}]: \"Truyện: Ăn Khế Trả Vàng — Tác giả sáng tác cốt truyện: {dName} ({dStartup})\"",
+      "lawTag": "Vi pháº¡m Äiá»u 2 (Viáº¿t láº¡i truyá»‡n cá»• tÃ­ch nhÆ°ng tá»± nháº­n mÃ¬nh lÃ  TÃ¡c giáº£)",
+      "rumor": "<b>{pName} ({pStartup})</b> phÃ¡t hiá»‡n cuá»‘n truyá»‡n má»›i xuáº¥t báº£n cá»§a <b>{dName} ({dStartup})</b> cÃ³ ná»™i dung chÃ­nh lÃ  truyá»‡n cá»• tÃ­ch <i>\"CÃ¢y kháº¿\"</i> nhÆ°ng láº¡i ghi tÃªn tÃ¡c giáº£ ráº¥t láº¡!",
+      "knownFacts": "â€¢ <b>CÃ¡ch thá»±c hiá»‡n:</b> <b>{dName}</b> dá»±a trÃªn cá»‘t truyá»‡n cá»• tÃ­ch dÃ¢n gian <i>\"CÃ¢y kháº¿\"</i>, sau Ä‘Ã³ tá»± diá»…n Ä‘áº¡t láº¡i báº±ng lá»i vÄƒn má»›i cá»§a tá»• mÃ¬nh.<br>â€¢ <b>TrÃªn trang bÃ¬a cuá»‘n sÃ¡ch:</b> <b>{dName}</b> in dÃ²ng chá»¯ cÃ´ng bá»‘ báº£n quyá»n nhÆ° sau:",
+      "exhibitBox": "ðŸ“• [Váº­t chá»©ng BÃ¬a sÃ¡ch cá»§a {dName}]: \"Truyá»‡n: Ä‚n Kháº¿ Tráº£ VÃ ng â€” TÃ¡c giáº£ sÃ¡ng tÃ¡c cá»‘t truyá»‡n: {dName} ({dStartup})\"",
       "cards": [
-        { "id": "EXCUSE", "quote": "\"Vì tụi em không chép nguyên văn mà tự viết lại bằng lời văn mới của tụi em nên tụi em có quyền ghi Tác giả sáng tác là tên tổ em!\"" },
-        { "id": "APOLOGIZE", "quote": "\"Chúng em sai Điều 2 rồi! Dù diễn đạt lại bằng lời văn của mình nhưng dựa trên truyện cổ tích có sẵn thì phải ghi là Phỏng theo truyện Cây khế. Xin nhận lỗi!\"" }
+        { "id": "EXCUSE", "quote": "\"ToÃ n bá»™ tá»«ng cÃ¢u chá»¯ vÃ  cÃ¡ch diá»…n Ä‘áº¡t trong cuá»‘n sÃ¡ch Ä‘á»u do tá»• em tá»± biÃªn soáº¡n 100%, khÃ´ng chÃ©p nguyÃªn vÄƒn cá»§a ai, nÃªn tá»• em cÃ³ quyá»n Ä‘á»©ng tÃªn tÃ¡c giáº£ sÃ¡ng tÃ¡c cuá»‘n sÃ¡ch má»›i nÃ y!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Theo Äiá»u 2 SGK trang 21, dÃ¹ diá»…n Ä‘áº¡t láº¡i báº±ng lá»i vÄƒn cá»§a mÃ¬nh nhÆ°ng dá»±a trÃªn cÃ¢u chuyá»‡n cá»• tÃ­ch cÃ³ sáºµn thÃ¬ báº¯t buá»™c pháº£i ghi lÃ  'Phá»ng theo truyá»‡n CÃ¢y kháº¿', khÃ´ng Ä‘Æ°á»£c tá»± nháº­n lÃ  tÃ¡c giáº£ cá»‘t truyá»‡n. Tá»• em xin nháº­n khuyáº¿t Ä‘iá»ƒm!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Điều 2 SGK trang 21: Khi diễn đạt lại nội dung bằng ngôn ngữ của mình dựa trên câu chuyện có sẵn, bắt buộc phải ghi nguồn theo mẫu <b>\"Phỏng theo truyện Cây khế\"</b>, không được tự nhận là tác giả cốt truyện ➔ <b>VI PHẠM ĐIỀU 2!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Theo Äiá»u 2 SGK trang 21: Khi diá»…n Ä‘áº¡t láº¡i ná»™i dung báº±ng ngÃ´n ngá»¯ cá»§a mÃ¬nh dá»±a trÃªn cÃ¢u chuyá»‡n cÃ³ sáºµn, báº¯t buá»™c pháº£i ghi nguá»“n theo máº«u <b>\"Phá»ng theo truyá»‡n CÃ¢y kháº¿\"</b>, khÃ´ng Ä‘Æ°á»£c tá»± nháº­n lÃ  tÃ¡c giáº£ cá»‘t truyá»‡n âž” <b>VI PHáº M ÄIá»€U 2!</b>"
     },
     {
       "id": "case_corkboard",
       "mockupType": "corkboard",
       "round": 1,
       "type": "TRAP",
-      "lawTag": "Hợp pháp đúng Điều 2 (Thơ dân gian khuyết danh ghi nguồn Sưu tầm)",
-      "rumor": "Một số độc giả nghi ngờ tờ báo tường của <b>{dName} ({dStartup})</b> đạo nhái bài ca dao dân gian từng xuất hiện trong cuốn sổ tay văn học của <b>{pName}</b>!",
-      "knownFacts": "• <b>Nguồn gốc bài thơ:</b> Đây là bài ca dao truyền miệng từ xa xưa (cả <b>{pName}</b> và <b>{dName}</b> đều biết bài này không rõ tên tác giả là ai).<br>• <b>Trên tờ báo tường:</b> Ngay bên dưới bài ca dao, <b>{dName}</b> ghi rõ dòng chữ:",
-      "exhibitBox": "📰 [Vật chứng Báo tường của {dName}]: \"Công cha như núi Thái Sơn / Nghĩa mẹ như nước trong nguồn chảy ra... — Nguồn: Sưu tầm\"",
+      "lawTag": "Há»£p phÃ¡p Ä‘Ãºng Äiá»u 2 (ThÆ¡ dÃ¢n gian khuyáº¿t danh ghi nguá»“n SÆ°u táº§m)",
+      "rumor": "Má»™t sá»‘ Ä‘á»™c giáº£ nghi ngá» tá» bÃ¡o tÆ°á»ng cá»§a <b>{dName} ({dStartup})</b> Ä‘áº¡o nhÃ¡i bÃ i ca dao dÃ¢n gian tá»«ng xuáº¥t hiá»‡n trong cuá»‘n sá»• tay vÄƒn há»c cá»§a <b>{pName}</b>!",
+      "knownFacts": "â€¢ <b>Nguá»“n gá»‘c bÃ i thÆ¡:</b> ÄÃ¢y lÃ  bÃ i ca dao truyá»n miá»‡ng tá»« xa xÆ°a (cáº£ <b>{pName}</b> vÃ  <b>{dName}</b> Ä‘á»u biáº¿t bÃ i nÃ y khÃ´ng rÃµ tÃªn tÃ¡c giáº£ lÃ  ai).<br>â€¢ <b>TrÃªn tá» bÃ¡o tÆ°á»ng:</b> Ngay bÃªn dÆ°á»›i bÃ i ca dao, <b>{dName}</b> ghi rÃµ dÃ²ng chá»¯:",
+      "exhibitBox": "ðŸ“° [Váº­t chá»©ng BÃ¡o tÆ°á»ng cá»§a {dName}]: \"CÃ´ng cha nhÆ° nÃºi ThÃ¡i SÆ¡n / NghÄ©a máº¹ nhÆ° nÆ°á»›c trong nguá»“n cháº£y ra... â€” Nguá»“n: SÆ°u táº§m\"",
       "cards": [
-        { "id": "LEGAL_DEFENSE", "quote": "\"Đây là bài ca dao dân gian không rõ tên tác giả, nên chúng em ghi nguồn là Sưu tầm đúng chuẩn Mẫu số 2 của Điều 2 SGK!\"" },
-        { "id": "CLUMSY", "quote": "\"Bài ca dao này do tổ trưởng tụi em mới tự sáng tác hôm qua nhưng ghi nhầm thành chữ Sưu tầm đó!\"" }
+        { "id": "LEGAL_DEFENSE", "quote": "\"ÄÃ¢y lÃ  bÃ i ca dao dÃ¢n gian khÃ´ng rÃµ tÃªn tÃ¡c giáº£, nÃªn chÃºng em ghi nguá»“n lÃ  SÆ°u táº§m Ä‘Ãºng chuáº©n Máº«u sá»‘ 2 cá»§a Äiá»u 2 SGK!\"" },
+        { "id": "CLUMSY", "quote": "\"BÃ i ca dao nÃ y ai cÅ©ng thuá»™c lÃ²ng tá»« nhá» nÃªn tá»• em cá»© chÃ©p lÃªn bÃ¡o tÆ°á»ng thÃ´i chá»© khÃ´ng cáº§n biáº¿t cÃ³ theo Ä‘Ãºng máº«u quy Ä‘á»‹nh cá»§a SGK hay khÃ´ng!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Điều 2 SGK trang 21: Khi trình bày một bài thơ hoặc ca dao không rõ tên tác giả, việc ghi nguồn là <b>\"Sưu tầm\"</b> là đúng quy định 100% ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Theo Äiá»u 2 SGK trang 21: Khi trÃ¬nh bÃ y má»™t bÃ i thÆ¡ hoáº·c ca dao khÃ´ng rÃµ tÃªn tÃ¡c giáº£, viá»‡c ghi nguá»“n lÃ  <b>\"SÆ°u táº§m\"</b> lÃ  Ä‘Ãºng quy Ä‘á»‹nh 100% âž” <b>HOÃ€N TOÃ€N Há»¢P PHÃP!</b>"
     },
     {
       "id": "case_diary",
       "mockupType": "diary",
       "round": 1,
       "type": "VIOLATION",
-      "lawTag": "Vi phạm Điều 3 (Đọc và kể lại nhật ký cá nhân khi chưa được phép)",
-      "rumor": "Xảy ra tranh cãi gay gắt giữa <b>{pName} ({pStartup})</b> và <b>{dName} ({dStartup})</b> về việc lộ bí mật trong cuốn sổ nhật ký cá nhân!",
-      "knownFacts": "• <b>Diễn biến thực tế:</b> Thành viên <b>{pName}</b> sang bàn của <b>{dName}</b> thảo luận rồi vô tình để quên cuốn sổ nhật ký cá nhân (sổ đang mở sẵn trang viết dở).<br>• <b>Hành động của {dName}:</b> Thấy sổ mở sẵn, thành viên <b>{dName}</b> đã cầm lên đọc to rồi đem kể lại nội dung trong nhật ký cho nhiều bạn khác nghe.",
-      "exhibitBox": "📓 [Xác nhận tại hiện trường]: Cuốn sổ bìa xanh ngoài bìa ghi \"Nhật ký riêng tư của {pName}\" — Các trang viết đang mở trên bàn học.",
+      "lawTag": "Vi pháº¡m Äiá»u 3 (Äá»c vÃ  ká»ƒ láº¡i nháº­t kÃ½ cÃ¡ nhÃ¢n khi chÆ°a Ä‘Æ°á»£c phÃ©p)",
+      "rumor": "Xáº£y ra tranh cÃ£i gay gáº¯t giá»¯a <b>{pName} ({pStartup})</b> vÃ  <b>{dName} ({dStartup})</b> vá» viá»‡c lá»™ bÃ­ máº­t trong cuá»‘n sá»• nháº­t kÃ½ cÃ¡ nhÃ¢n!",
+      "knownFacts": "â€¢ <b>Diá»…n biáº¿n thá»±c táº¿:</b> ThÃ nh viÃªn <b>{pName}</b> sang bÃ n cá»§a <b>{dName}</b> tháº£o luáº­n rá»“i vÃ´ tÃ¬nh Ä‘á»ƒ quÃªn cuá»‘n sá»• nháº­t kÃ½ cÃ¡ nhÃ¢n (sá»• Ä‘ang má»Ÿ sáºµn trang viáº¿t dá»Ÿ).<br>â€¢ <b>HÃ nh Ä‘á»™ng cá»§a {dName}:</b> Tháº¥y sá»• má»Ÿ sáºµn, thÃ nh viÃªn <b>{dName}</b> Ä‘Ã£ cáº§m lÃªn Ä‘á»c to rá»“i Ä‘em ká»ƒ láº¡i ná»™i dung trong nháº­t kÃ½ cho nhiá»u báº¡n khÃ¡c nghe.",
+      "exhibitBox": "ðŸ““ [XÃ¡c nháº­n táº¡i hiá»‡n trÆ°á»ng]: Cuá»‘n sá»• bÃ¬a xanh ngoÃ i bÃ¬a ghi \"Nháº­t kÃ½ riÃªng tÆ° cá»§a {pName}\" â€” CÃ¡c trang viáº¿t Ä‘ang má»Ÿ trÃªn bÃ n há»c.",
       "cards": [
-        { "id": "EXCUSE", "quote": "\"Do bạn tự để quên cuốn sổ mở sẵn trên bàn của tổ em! Tụi em chỉ vô tình nhìn thấy chữ trên trang giấy rồi kể lại thôi nên không phạm luật!\"" },
-        { "id": "APOLOGIZE", "quote": "\"Chúng em sai Điều 3 rồi! Nhật ký là thông tin riêng tư của mỗi người, dù bạn để quên mở sẵn thì đọc và kể lại khi chưa được phép vẫn là vi phạm. Xin lỗi bạn!\"" }
+        { "id": "EXCUSE", "quote": "\"Cuá»‘n sá»• Ä‘Æ°á»£c báº¡n Ä‘á»ƒ má»Ÿ sáºµn ngay trÃªn máº·t bÃ n lá»›p há»c chung, khÃ´ng cáº¥t trong cáº·p hay cÃ i khÃ³a. Nhá»¯ng dÃ²ng chá»¯ Ä‘Ã£ phÆ¡i bÃ y trÆ°á»›c máº¯t má»i ngÆ°á»i thÃ¬ viá»‡c Ä‘á»c vÃ  ká»ƒ láº¡i khÃ´ng thá»ƒ coi lÃ  vi pháº¡m bÃ­ máº­t!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Theo Äiá»u 3 SGK, thÃ´ng tin cÃ¡ nhÃ¢n vÃ  nháº­t kÃ½ lÃ  quyá»n riÃªng tÆ° cá»§a má»—i ngÆ°á»i. DÃ¹ báº¡n Ä‘á»ƒ quÃªn má»Ÿ sáºµn thÃ¬ viá»‡c tá»± Ã½ Ä‘á»c to vÃ  lan truyá»n khi chÆ°a Ä‘Æ°á»£c phÃ©p lÃ  hoÃ n toÃ n sai trÃ¡i. Tá»• em xin thÃ nh tháº­t xin lá»—i báº¡n!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Chiếu theo Điều 3 & Hoạt động 2 SGK trang 21 (tình huống của An và Bình): Thông tin trong cuốn nhật ký mang tính riêng tư. Dù vô tình hay cố ý truy cập, đọc và kể lại khi chưa được phép đều là <b>VI PHẠM TÍNH RIÊNG TƯ!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Chiáº¿u theo Äiá»u 3 & Hoáº¡t Ä‘á»™ng 2 SGK trang 21 (tÃ¬nh huá»‘ng cá»§a An vÃ  BÃ¬nh): ThÃ´ng tin trong cuá»‘n nháº­t kÃ½ mang tÃ­nh riÃªng tÆ°. DÃ¹ vÃ´ tÃ¬nh hay cá»‘ Ã½ truy cáº­p, Ä‘á»c vÃ  ká»ƒ láº¡i khi chÆ°a Ä‘Æ°á»£c phÃ©p Ä‘á»u lÃ  <b>VI PHáº M TÃNH RIÃŠNG TÆ¯!</b>"
     },
     {
       "id": "case_newsletter",
       "mockupType": "newsletter",
       "round": 1,
       "type": "TRAP",
-      "lawTag": "Hợp pháp đúng Điều 1 (Đã xin phép + Ghi rõ tên tác giả bài viết)",
-      "rumor": "Dư luận nghi ngờ Bản tin trường của <b>{dName} ({dStartup})</b> đăng bài viết cảm xúc <i>\"Người mẹ thứ hai\"</i> của <b>{pName} ({pStartup})</b> mà không xin phép!",
-      "knownFacts": "• <b>Sự thật giữa 2 tổ:</b> Hôm qua, đại diện <b>{dName}</b> đã gặp trực tiếp xin phép mượn bài viết và được <b>{pName}</b> đồng ý.<br>• <b>Trên bản tin điện tử:</b> Ngay dưới bài viết, <b>{dName}</b> in rõ ràng thông tin tác giả như sau:",
-      "exhibitBox": "📄 [Bản tin đã xuất bản của {dName}]: Bài viết \"Người mẹ thứ hai\" — Chú thích: \"Tác giả bài viết: {pName} ({pStartup}) — Sử dụng dưới sự đồng ý của tác giả\"",
+      "lawTag": "Há»£p phÃ¡p Ä‘Ãºng Äiá»u 1 (ÄÃ£ xin phÃ©p + Ghi rÃµ tÃªn tÃ¡c giáº£ bÃ i viáº¿t)",
+      "rumor": "DÆ° luáº­n nghi ngá» Báº£n tin trÆ°á»ng cá»§a <b>{dName} ({dStartup})</b> Ä‘Äƒng bÃ i viáº¿t cáº£m xÃºc <i>\"NgÆ°á»i máº¹ thá»© hai\"</i> cá»§a <b>{pName} ({pStartup})</b> mÃ  khÃ´ng xin phÃ©p!",
+      "knownFacts": "â€¢ <b>Sá»± tháº­t giá»¯a 2 tá»•:</b> HÃ´m qua, Ä‘áº¡i diá»‡n <b>{dName}</b> Ä‘Ã£ gáº·p trá»±c tiáº¿p xin phÃ©p mÆ°á»£n bÃ i viáº¿t vÃ  Ä‘Æ°á»£c <b>{pName}</b> Ä‘á»“ng Ã½.<br>â€¢ <b>TrÃªn báº£n tin Ä‘iá»‡n tá»­:</b> Ngay dÆ°á»›i bÃ i viáº¿t, <b>{dName}</b> in rÃµ rÃ ng thÃ´ng tin tÃ¡c giáº£ nhÆ° sau:",
+      "exhibitBox": "ðŸ“„ [Báº£n tin Ä‘Ã£ xuáº¥t báº£n cá»§a {dName}]: BÃ i viáº¿t \"NgÆ°á»i máº¹ thá»© hai\" â€” ChÃº thÃ­ch: \"TÃ¡c giáº£ bÃ i viáº¿t: {pName} ({pStartup}) â€” Sá»­ dá»¥ng dÆ°á»›i sá»± Ä‘á»“ng Ã½ cá»§a tÃ¡c giáº£\"",
       "cards": [
-        { "id": "LEGAL_DEFENSE", "quote": "\"Chúng em đã thực hiện đúng cả 2 vế của Điều 1 SGK: Vừa xin phép bạn và vừa ghi rõ tên tác giả ở cuối bài viết nên hoàn toàn đúng luật!\"" },
-        { "id": "CLUMSY", "quote": "\"Bài viết hay trên bản tin là của chung cả trường nên tụi em cứ lấy đăng thôi chứ không cần xin phép ai!\"" }
+        { "id": "LEGAL_DEFENSE", "quote": "\"ChÃºng em Ä‘Ã£ thá»±c hiá»‡n Ä‘Ãºng cáº£ 2 váº¿ cá»§a Äiá»u 1 SGK: Vá»«a xin phÃ©p báº¡n vÃ  vá»«a ghi rÃµ tÃªn tÃ¡c giáº£ á»Ÿ cuá»‘i bÃ i viáº¿t nÃªn hoÃ n toÃ n Ä‘Ãºng luáº­t!\"" },
+        { "id": "CLUMSY", "quote": "\"BÃ i viáº¿t cá»§a báº¡n ráº¥t xÃºc Ä‘á»™ng vÃ  há»£p vá»›i chá»§ Ä‘á» báº£n tin trÆ°á»ng nÃªn tá»• em cá»© Ä‘Äƒng lÃªn Ä‘á»ƒ tÃ´n vinh thÃ´i chá»© khÃ´ng cáº§n cÄƒn cá»© vÃ o Ä‘iá»u luáº­t nÃ o!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Hộp kiến thức SGK trang 21 (Điều 1): <b>{dName}</b> đã thỏa mãn đủ cả 2 vế: <b>(1) Được tác giả cho phép</b> và <b>(2) Ghi rõ tên tác giả</b> ở cuối bài viết ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Theo Há»™p kiáº¿n thá»©c SGK trang 21 (Äiá»u 1): <b>{dName}</b> Ä‘Ã£ thá»a mÃ£n Ä‘á»§ cáº£ 2 váº¿: <b>(1) ÄÆ°á»£c tÃ¡c giáº£ cho phÃ©p</b> vÃ  <b>(2) Ghi rÃµ tÃªn tÃ¡c giáº£</b> á»Ÿ cuá»‘i bÃ i viáº¿t âž” <b>HOÃ€N TOÃ€N Há»¢P PHÃP!</b>"
     },
     {
       "id": "case_podcast",
       "mockupType": "podcast",
       "round": 1,
       "type": "TRAP",
-      "lawTag": "Hợp pháp đúng Điều 1 (Đã xin phép + Giới thiệu rõ người chia sẻ)",
-      "rumor": "Kênh Podcast học đường của <b>{dName} ({dStartup})</b> bị nghi ngờ phát sóng đoạn ghi âm bài thuyết trình của <b>{pName} ({pStartup})</b> mà không xin phép!",
-      "knownFacts": "• <b>Sự thật giữa 2 tổ:</b> Trước khi thu âm số phát sóng mới, <b>{dName}</b> đã gửi tin nhắn xin phép và được <b>{pName}</b> đồng ý cho phát đoạn ghi âm bài thuyết trình.<br>• <b>Trên bản tin âm thanh:</b> Người dẫn chương trình của <b>{dName}</b> đã giới thiệu rõ ràng tên tác giả như sau:",
-      "exhibitBox": "🎙️ [Trích đoạn Podcast của {dName}]: \"Đoạn âm thanh thuyết trình vừa rồi được chia sẻ bởi bạn {pName} ({pStartup}) dưới sự đồng ý của tác giả.\"",
+      "lawTag": "Há»£p phÃ¡p Ä‘Ãºng Äiá»u 1 (ÄÃ£ xin phÃ©p + Giá»›i thiá»‡u rÃµ ngÆ°á»i chia sáº»)",
+      "rumor": "KÃªnh Podcast há»c Ä‘Æ°á»ng cá»§a <b>{dName} ({dStartup})</b> bá»‹ nghi ngá» phÃ¡t sÃ³ng Ä‘oáº¡n ghi Ã¢m bÃ i thuyáº¿t trÃ¬nh cá»§a <b>{pName} ({pStartup})</b> mÃ  khÃ´ng xin phÃ©p!",
+      "knownFacts": "â€¢ <b>Sá»± tháº­t giá»¯a 2 tá»•:</b> TrÆ°á»›c khi thu Ã¢m sá»‘ phÃ¡t sÃ³ng má»›i, <b>{dName}</b> Ä‘Ã£ gá»­i tin nháº¯n xin phÃ©p vÃ  Ä‘Æ°á»£c <b>{pName}</b> Ä‘á»“ng Ã½ cho phÃ¡t Ä‘oáº¡n ghi Ã¢m bÃ i thuyáº¿t trÃ¬nh.<br>â€¢ <b>TrÃªn báº£n tin Ã¢m thanh:</b> NgÆ°á»i dáº«n chÆ°Æ¡ng trÃ¬nh cá»§a <b>{dName}</b> Ä‘Ã£ giá»›i thiá»‡u rÃµ rÃ ng tÃªn tÃ¡c giáº£ nhÆ° sau:",
+      "exhibitBox": "ðŸŽ™ï¸ [TrÃ­ch Ä‘oáº¡n Podcast cá»§a {dName}]: \"Äoáº¡n Ã¢m thanh thuyáº¿t trÃ¬nh vá»«a rá»“i Ä‘Æ°á»£c chia sáº» bá»Ÿi báº¡n {pName} ({pStartup}) dÆ°á»›i sá»± Ä‘á»“ng Ã½ cá»§a tÃ¡c giáº£.\"",
       "cards": [
-        { "id": "LEGAL_DEFENSE", "quote": "\"Chúng em đã xin phép trước và trong tập podcast đã nói rõ tên tác giả bạn {pName} nên hoàn toàn đúng chuẩn Điều 1!\"" },
-        { "id": "CLUMSY", "quote": "\"Giọng nói hay thì tụi em cứ ghi âm phát lên mạng thôi chứ cần gì phải xin phép ai!\"" }
+        { "id": "LEGAL_DEFENSE", "quote": "\"ChÃºng em Ä‘Ã£ xin phÃ©p trÆ°á»›c vÃ  trong táº­p podcast Ä‘Ã£ nÃ³i rÃµ tÃªn tÃ¡c giáº£ báº¡n {pName} nÃªn hoÃ n toÃ n Ä‘Ãºng chuáº©n Äiá»u 1!\"" },
+        { "id": "CLUMSY", "quote": "\"Äoáº¡n thuyáº¿t trÃ¬nh nÃ y lÃ  bÃ i há»c trÃªn lá»›p nÃªn phÃ¡t thanh há»c Ä‘Æ°á»ng cá»© phÃ¡t sÃ³ng tá»± nhiÃªn, khÃ´ng cáº§n pháº£i cÄƒn cá»© theo cÃ¡c quy táº¯c tÃ¡c quyá»n!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Đối chiếu Điều 1: <b>{dName}</b> đã thỏa mãn đủ cả 2 vế: <b>(1) Được sự đồng ý của tác giả</b> và <b>(2) Giới thiệu rõ tên tác giả</b> trên sản phẩm ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Äá»‘i chiáº¿u Äiá»u 1: <b>{dName}</b> Ä‘Ã£ thá»a mÃ£n Ä‘á»§ cáº£ 2 váº¿: <b>(1) ÄÆ°á»£c sá»± Ä‘á»“ng Ã½ cá»§a tÃ¡c giáº£</b> vÃ  <b>(2) Giá»›i thiá»‡u rÃµ tÃªn tÃ¡c giáº£</b> trÃªn sáº£n pháº©m âž” <b>HOÃ€N TOÃ€N Há»¢P PHÃP!</b>"
     },
     {
       "id": "case_sticker",
       "mockupType": "sticker",
       "round": 1,
       "type": "VIOLATION",
-      "lawTag": "Vi phạm Điều 1 & Điều 2 (Tự ý lấy hình vẽ của bạn, xóa logo và nhận là người thiết kế)",
-      "rumor": "<b>{pName} ({pStartup})</b> bức xúc khi bộ Sticker hoạt hình do mình dày công vẽ trên máy tính bỗng xuất hiện trong bộ nhãn dán của <b>{dName} ({dStartup})</b>!",
-      "knownFacts": "• <b>Về việc xin phép:</b> <b>{dName}</b> thấy bộ nhãn dán của bạn đẹp liền chụp màn hình lưu lại, không hề nhắn tin hay xin phép <b>{pName}</b>.<br>• <b>Về ghi nhận tác quyền:</b> <b>{dName}</b> dùng công cụ chỉnh sửa để xóa logo chữ ký của <b>{pName}</b> ở góc hình và ghi tên tổ mình:",
-      "exhibitBox": "🎨 [Bộ nhãn dán công bố của {dName}]: Bộ Sticker 6 con vật — Dòng chú thích: \"Thiết kế bởi: {dName} ({dStartup})\"",
+      "lawTag": "Vi pháº¡m Äiá»u 1 & Äiá»u 2 (Tá»± Ã½ láº¥y hÃ¬nh váº½ cá»§a báº¡n, xÃ³a logo vÃ  nháº­n lÃ  ngÆ°á»i thiáº¿t káº¿)",
+      "rumor": "<b>{pName} ({pStartup})</b> bá»©c xÃºc khi bá»™ Sticker hoáº¡t hÃ¬nh do mÃ¬nh dÃ y cÃ´ng váº½ trÃªn mÃ¡y tÃ­nh bá»—ng xuáº¥t hiá»‡n trong bá»™ nhÃ£n dÃ¡n cá»§a <b>{dName} ({dStartup})</b>!",
+      "knownFacts": "â€¢ <b>Vá» viá»‡c xin phÃ©p:</b> <b>{dName}</b> tháº¥y bá»™ nhÃ£n dÃ¡n cá»§a báº¡n Ä‘áº¹p liá»n chá»¥p mÃ n hÃ¬nh lÆ°u láº¡i, khÃ´ng há» nháº¯n tin hay xin phÃ©p <b>{pName}</b>.<br>â€¢ <b>Vá» ghi nháº­n tÃ¡c quyá»n:</b> <b>{dName}</b> dÃ¹ng cÃ´ng cá»¥ chá»‰nh sá»­a Ä‘á»ƒ xÃ³a logo chá»¯ kÃ½ cá»§a <b>{pName}</b> á»Ÿ gÃ³c hÃ¬nh vÃ  ghi tÃªn tá»• mÃ¬nh:",
+      "exhibitBox": "ðŸŽ¨ [Bá»™ nhÃ£n dÃ¡n cÃ´ng bá»‘ cá»§a {dName}]: Bá»™ Sticker 6 con váº­t â€” DÃ²ng chÃº thÃ­ch: \"Thiáº¿t káº¿ bá»Ÿi: {dName} ({dStartup})\"",
       "cards": [
-        { "id": "EXCUSE", "quote": "\"Ảnh vẽ đăng lên mạng nhóm lớp là của chung, tụi em cắt viền lại rồi phát hành thì tổ em là người tạo ra bộ sticker mới này!\"" },
-        { "id": "APOLOGIZE", "quote": "\"Tụi em nhận lỗi! Lấy hình vẽ của bạn chưa xin phép lại xóa chữ ký để tự nhận là của mình là vi phạm nghiêm trọng Điều 1 và Điều 2!\"" }
+        { "id": "EXCUSE", "quote": "\"HÃ¬nh váº½ chia sáº» trong nhÃ³m lá»›p lÃ  tÃ i nguyÃªn má»Ÿ cho cáº£ lá»›p cÃ¹ng dÃ¹ng. Tá»• em Ä‘Ã£ bá» nhiá»u cÃ´ng sá»©c cáº¯t viá»n, chá»‰nh sá»­a mÃ u sáº¯c vÃ  táº¡o thÃ nh bá»™ sticker hoÃ n chá»‰nh thÃ¬ tá»• em chÃ­nh lÃ  ngÆ°á»i thiáº¿t káº¿ bá»™ nhÃ£n dÃ¡n má»›i nÃ y!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Theo Äiá»u 1 vÃ  Äiá»u 2 SGK, quyá»n tÃ¡c giáº£ thuá»™c vá» ngÆ°á»i váº½ ra bá»©c hÃ¬nh. Viá»‡c tá»± Ã½ cáº¯t viá»n, xÃ³a logo chá»¯ kÃ½ Ä‘á»ƒ nháº­n lÃ  cá»§a mÃ¬nh mÃ  chÆ°a xin phÃ©p lÃ  hÃ nh vi Ä‘áº¡o nhÃ¡i nghiÃªm trá»ng. Tá»• em xin nháº­n lá»—i vÃ  thu há»“i ngay!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Tác phẩm đồ họa có quyền tác giả của <b>{pName}</b>. Hành vi tự ý lấy chưa xin phép (sai Điều 1) và xóa chữ ký nhận làm của mình (sai Điều 2) là <b>VI PHẠM BẢN QUYỀN!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> TÃ¡c pháº©m Ä‘á»“ há»a cÃ³ quyá»n tÃ¡c giáº£ cá»§a <b>{pName}</b>. HÃ nh vi tá»± Ã½ láº¥y chÆ°a xin phÃ©p (sai Äiá»u 1) vÃ  xÃ³a chá»¯ kÃ½ nháº­n lÃ m cá»§a mÃ¬nh (sai Äiá»u 2) lÃ  <b>VI PHáº M Báº¢N QUYá»€N!</b>"
     },
     {
       "id": "case_recitation",
       "mockupType": "recitation",
       "round": 1,
       "type": "TRAP",
-      "lawTag": "Hợp pháp đúng Điều 2 (Đọc bài thơ nổi tiếng và ghi rõ tác giả sáng tác)",
-      "rumor": "Có ý kiến cho rằng video ngâm thơ của <b>{dName} ({dStartup})</b> sao chép tác phẩm văn học của người khác để dự thi phong trào!",
-      "knownFacts": "• <b>Nội dung thể hiện:</b> <b>{dName}</b> tự đọc và thu âm bài thơ nổi tiếng <i>\"Quê hương\"</i> để làm video dự thi Tiếng hát tuổi thơ.<br>• <b>Trên khung hình và phần mô tả video:</b> <b>{dName}</b> trình bày thông tin tác quyền như sau:",
-      "exhibitBox": "📺 [Khung hình video của {dName}]: \"Bài thơ: Quê hương — Tác giả: Đỗ Trung Quân — Trình bày: {dName} ({dStartup})\"",
+      "lawTag": "Há»£p phÃ¡p Ä‘Ãºng Äiá»u 2 (Äá»c bÃ i thÆ¡ ná»•i tiáº¿ng vÃ  ghi rÃµ tÃ¡c giáº£ sÃ¡ng tÃ¡c)",
+      "rumor": "CÃ³ Ã½ kiáº¿n cho ráº±ng video ngÃ¢m thÆ¡ cá»§a <b>{dName} ({dStartup})</b> sao chÃ©p tÃ¡c pháº©m vÄƒn há»c cá»§a ngÆ°á»i khÃ¡c Ä‘á»ƒ dá»± thi phong trÃ o!",
+      "knownFacts": "â€¢ <b>Ná»™i dung thá»ƒ hiá»‡n:</b> <b>{dName}</b> tá»± Ä‘á»c vÃ  thu Ã¢m bÃ i thÆ¡ ná»•i tiáº¿ng <i>\"QuÃª hÆ°Æ¡ng\"</i> Ä‘á»ƒ lÃ m video dá»± thi Tiáº¿ng hÃ¡t tuá»•i thÆ¡.<br>â€¢ <b>TrÃªn khung hÃ¬nh vÃ  pháº§n mÃ´ táº£ video:</b> <b>{dName}</b> trÃ¬nh bÃ y thÃ´ng tin tÃ¡c quyá»n nhÆ° sau:",
+      "exhibitBox": "ðŸ“º [Khung hÃ¬nh video cá»§a {dName}]: \"BÃ i thÆ¡: QuÃª hÆ°Æ¡ng â€” TÃ¡c giáº£: Äá»— Trung QuÃ¢n â€” TrÃ¬nh bÃ y: {dName} ({dStartup})\"",
       "cards": [
-        { "id": "LEGAL_DEFENSE", "quote": "\"Chúng em tự đọc thơ và đã ghi rõ ràng Tên bài thơ cùng Tên tác giả Đỗ Trung Quân đúng chuẩn quy định tôn trọng tác quyền Điều 2!\"" },
-        { "id": "CLUMSY", "quote": "\"Bài thơ này do tổ em tự sáng tác khi đi dã ngoại cuối tuần trước chứ không phải của ai khác!\"" }
+        { "id": "LEGAL_DEFENSE", "quote": "\"ChÃºng em tá»± Ä‘á»c thÆ¡ vÃ  Ä‘Ã£ ghi rÃµ rÃ ng TÃªn bÃ i thÆ¡ cÃ¹ng TÃªn tÃ¡c giáº£ Äá»— Trung QuÃ¢n Ä‘Ãºng chuáº©n quy Ä‘á»‹nh tÃ´n trá»ng tÃ¡c quyá»n Äiá»u 2!\"" },
+        { "id": "CLUMSY", "quote": "\"BÃ i thÆ¡ QuÃª hÆ°Æ¡ng cÃ³ sáºµn trong sÃ¡ch tiáº¿ng Viá»‡t nÃªn tá»• em cá»© thu Ã¢m giá»ng Ä‘á»c dá»± thi thÃ´i chá»© khÃ´ng cáº§n báº­n tÃ¢m Ä‘áº¿n quy Ä‘á»‹nh tÃ¡c quyá»n cá»§a tÃ¡c giáº£!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Điều 2 SGK trang 21: Trình bày bài thơ của tác giả khác và ghi rõ tên bài thơ cùng tên tác giả là hoàn toàn đúng quy định tác quyền ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Theo Äiá»u 2 SGK trang 21: TrÃ¬nh bÃ y bÃ i thÆ¡ cá»§a tÃ¡c giáº£ khÃ¡c vÃ  ghi rÃµ tÃªn bÃ i thÆ¡ cÃ¹ng tÃªn tÃ¡c giáº£ lÃ  hoÃ n toÃ n Ä‘Ãºng quy Ä‘á»‹nh tÃ¡c quyá»n âž” <b>HOÃ€N TOÃ€N Há»¢P PHÃP!</b>"
     },
     {
       "id": "case_gallery",
       "mockupType": "gallery",
       "round": 1,
       "type": "VIOLATION",
-      "lawTag": "Vi phạm Điều 3 (Tự ý lấy ảnh chụp gia đình của bạn mang đi triển lãm công cộng)",
-      "rumor": "<b>{pName} ({pStartup})</b> bất ngờ khi thấy bức ảnh chụp cả gia đình mình đi nghỉ mát bị <b>{dName} ({dStartup})</b> in ra dán lên Bảng tin triển lãm trường!",
-      "knownFacts": "• <b>Nguồn gốc bức ảnh:</b> Bức ảnh chụp bố mẹ và <b>{pName}</b> được đăng trong album gia đình riêng tư trên trang cá nhân của <b>{pName}</b>.<br>• <b>Hành động của {dName}:</b> Thấy ảnh đẹp, <b>{dName}</b> đã tự tải về máy rồi in ra dán vào góc triển lãm ảnh mà chưa từng hỏi xin phép <b>{pName}</b> hay phụ huynh.",
-      "exhibitBox": "🖼️ [Bảng triển lãm trường]: Bức ảnh gia đình của {pName} — Dán kèm lời chú thích: \"Gia đình hạnh phúc tiêu biểu\"",
+      "lawTag": "Vi pháº¡m Äiá»u 3 (Tá»± Ã½ láº¥y áº£nh chá»¥p gia Ä‘Ã¬nh cá»§a báº¡n mang Ä‘i triá»ƒn lÃ£m cÃ´ng cá»™ng)",
+      "rumor": "<b>{pName} ({pStartup})</b> báº¥t ngá» khi tháº¥y bá»©c áº£nh chá»¥p cáº£ gia Ä‘Ã¬nh mÃ¬nh Ä‘i nghá»‰ mÃ¡t bá»‹ <b>{dName} ({dStartup})</b> in ra dÃ¡n lÃªn Báº£ng tin triá»ƒn lÃ£m trÆ°á»ng!",
+      "knownFacts": "â€¢ <b>Nguá»“n gá»‘c bá»©c áº£nh:</b> Bá»©c áº£nh chá»¥p bá»‘ máº¹ vÃ  <b>{pName}</b> Ä‘Æ°á»£c Ä‘Äƒng trong album gia Ä‘Ã¬nh riÃªng tÆ° trÃªn trang cÃ¡ nhÃ¢n cá»§a <b>{pName}</b>.<br>â€¢ <b>HÃ nh Ä‘á»™ng cá»§a {dName}:</b> Tháº¥y áº£nh Ä‘áº¹p, <b>{dName}</b> Ä‘Ã£ tá»± táº£i vá» mÃ¡y rá»“i in ra dÃ¡n vÃ o gÃ³c triá»ƒn lÃ£m áº£nh mÃ  chÆ°a tá»«ng há»i xin phÃ©p <b>{pName}</b> hay phá»¥ huynh.",
+      "exhibitBox": "ðŸ–¼ï¸ [Báº£ng triá»ƒn lÃ£m trÆ°á»ng]: Bá»©c áº£nh gia Ä‘Ã¬nh cá»§a {pName} â€” DÃ¡n kÃ¨m lá»i chÃº thÃ­ch: \"Gia Ä‘Ã¬nh háº¡nh phÃºc tiÃªu biá»ƒu\"",
       "cards": [
-        { "id": "EXCUSE", "quote": "\"Ảnh gia đình bạn rất đẹp nên tụi em dán lên bảng tin để khen ngợi gia đình bạn chứ đâu có nói xấu đâu mà bảo vi phạm!\"" },
-        { "id": "APOLOGIZE", "quote": "\"Chúng em sai Điều 3 rồi! Ảnh gia đình là quyền riêng tư cá nhân, mang đi trưng bày công cộng khi chưa được phép là vi phạm quyền riêng tư. Tụi em xin gỡ ngay!\"" }
+        { "id": "EXCUSE", "quote": "\"Tá»• em mang áº£nh Ä‘i triá»ƒn lÃ£m hoÃ n toÃ n vÃ¬ má»¥c Ä‘Ã­ch tá»‘t Ä‘áº¹p nháº±m tÃ´n vinh táº¥m gÆ°Æ¡ng 'Gia Ä‘Ã¬nh háº¡nh phÃºc tiÃªu biá»ƒu' cá»§a trÆ°á»ng há»c, khÃ´ng há» vá»¥ lá»£i hay nÃ³i xáº¥u báº¡n nÃªn khÃ´ng thá»ƒ coi lÃ  vi pháº¡m quyá»n riÃªng tÆ°!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Theo Äiá»u 3 SGK, hÃ¬nh áº£nh gia Ä‘Ã¬nh lÃ  dá»¯ liá»‡u riÃªng tÆ° cá»§a cÃ¡ nhÃ¢n. DÃ¹ vá»›i má»¥c Ä‘Ã­ch tá»‘t Ä‘áº¹p hay khen ngá»£i thÃ¬ tá»± Ã½ mang Ä‘i trÆ°ng bÃ y cÃ´ng cá»™ng khi chÆ°a Ä‘Æ°á»£c gia Ä‘Ã¬nh báº¡n cho phÃ©p váº«n lÃ  vi pháº¡m. Tá»• em xin gá»¡ áº£nh ngay!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Điều 3 SGK: Hình ảnh gia đình và cá nhân là thông tin mang tính riêng tư. Dù với mục đích khen ngợi thì tự ý công khai khi chưa được phép vẫn là <b>VI PHẠM QUYỀN RIÊNG TƯ!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Theo Äiá»u 3 SGK: HÃ¬nh áº£nh gia Ä‘Ã¬nh vÃ  cÃ¡ nhÃ¢n lÃ  thÃ´ng tin mang tÃ­nh riÃªng tÆ°. DÃ¹ vá»›i má»¥c Ä‘Ã­ch khen ngá»£i thÃ¬ tá»± Ã½ cÃ´ng khai khi chÆ°a Ä‘Æ°á»£c phÃ©p váº«n lÃ  <b>VI PHáº M QUYá»€N RIÃŠNG TÆ¯!</b>"
     },
     {
       "id": "case_remix",
       "mockupType": "remix",
       "round": 1,
       "type": "VIOLATION",
-      "lawTag": "Vi phạm Điều 1 (Tự ý phối lại bản nhạc của bạn khi chưa xin phép)",
-      "rumor": "<b>{pName} ({pStartup})</b> phát hiện đoạn nhạc bài hát tự sáng tác của mình bị <b>{dName} ({dStartup})</b> cắt ghép mang đi phối thành nhạc DJ sôi động!",
-      "knownFacts": "• <b>Về việc xin phép:</b> <b>{dName}</b> tải tệp âm thanh bài hát gốc của <b>{pName}</b> về máy rồi đưa vào phần mềm phối nhạc mà chưa từng hỏi ý kiến tác giả.<br>• <b>Về cách ghi nguồn:</b> Trong phần thông tin bản nhạc mới, <b>{dName}</b> có ghi dòng chữ:",
-      "exhibitBox": "🎧 [Bản nhạc remix của {dName}]: \"Nhạc cổ động thể thao Remix (Giai điệu gốc của tác giả: {pName})\"",
+      "lawTag": "Vi pháº¡m Äiá»u 1 (Tá»± Ã½ phá»‘i láº¡i báº£n nháº¡c cá»§a báº¡n khi chÆ°a xin phÃ©p)",
+      "rumor": "<b>{pName} ({pStartup})</b> phÃ¡t hiá»‡n Ä‘oáº¡n nháº¡c bÃ i hÃ¡t tá»± sÃ¡ng tÃ¡c cá»§a mÃ¬nh bá»‹ <b>{dName} ({dStartup})</b> cáº¯t ghÃ©p mang Ä‘i phá»‘i thÃ nh nháº¡c DJ sÃ´i Ä‘á»™ng!",
+      "knownFacts": "â€¢ <b>Vá» viá»‡c xin phÃ©p:</b> <b>{dName}</b> táº£i tá»‡p Ã¢m thanh bÃ i hÃ¡t gá»‘c cá»§a <b>{pName}</b> vá» mÃ¡y rá»“i Ä‘Æ°a vÃ o pháº§n má»m phá»‘i nháº¡c mÃ  chÆ°a tá»«ng há»i Ã½ kiáº¿n tÃ¡c giáº£.<br>â€¢ <b>Vá» cÃ¡ch ghi nguá»“n:</b> Trong pháº§n thÃ´ng tin báº£n nháº¡c má»›i, <b>{dName}</b> cÃ³ ghi dÃ²ng chá»¯:",
+      "exhibitBox": "ðŸŽ§ [Báº£n nháº¡c remix cá»§a {dName}]: \"Nháº¡c cá»• Ä‘á»™ng thá»ƒ thao Remix (Giai Ä‘iá»‡u gá»‘c cá»§a tÃ¡c giáº£: {pName})\"",
       "cards": [
-        { "id": "EXCUSE", "quote": "\"Tụi em đã ghi tên bạn là tác giả giai điệu gốc rồi, tụi em chỉ phối lại tiết tấu nhanh hơn thôi thì không cần phải xin phép!\"" },
-        { "id": "APOLOGIZE", "quote": "\"Tụi em nhận lỗi! Điều 1 yêu cầu phải được tác giả cho phép trước khi sử dụng và chỉnh sửa tác phẩm. Tụi em chưa xin phép là sai Điều 1!\"" }
+        { "id": "EXCUSE", "quote": "\"ChÃºng em Ä‘Ã£ ghi nháº­n Ä‘áº§y Ä‘á»§ tÃªn tÃ¡c giáº£ giai Ä‘iá»‡u gá»‘c ráº¥t trang trá»ng á»Ÿ pháº§n giá»›i thiá»‡u Ä‘Ãºng Äiá»u 2 SGK. CÃ²n pháº§n phá»‘i khÃ­, tiáº¿t táº¥u sÃ´i Ä‘á»™ng lÃ  do tá»• em tá»± sÃ¡ng táº¡o nÃªn khÃ´ng cáº§n pháº£i xin phÃ©p tÃ¡c giáº£!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Theo Äiá»u 1 SGK trang 21, khi sá»­ dá»¥ng hoáº·c chá»‰nh sá»­a tÃ¡c pháº©m cá»§a ngÆ°á»i khÃ¡c báº¯t buá»™c pháº£i Ä‘Æ°á»£c tÃ¡c giáº£ cho phÃ©p trÆ°á»›c. CÃ³ ghi tÃªn mÃ  chÆ°a xin phÃ©p váº«n lÃ  vi pháº¡m báº£n quyá»n. Tá»• em xin nháº­n trÃ¡ch nhiá»‡m!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Điều 1 (Hộp kiến thức SGK trang 21): Khi sử dụng hoặc sửa đổi tác phẩm của người khác bắt buộc phải <b>ĐƯỢC CHO PHÉP</b>. Có ghi tên tác giả nhưng chưa xin phép vẫn là <b>VI PHẠM BẢN QUYỀN!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Theo Äiá»u 1 (Há»™p kiáº¿n thá»©c SGK trang 21): Khi sá»­ dá»¥ng hoáº·c sá»­a Ä‘á»•i tÃ¡c pháº©m cá»§a ngÆ°á»i khÃ¡c báº¯t buá»™c pháº£i <b>ÄÆ¯á»¢C CHO PHÃ‰P</b>. CÃ³ ghi tÃªn tÃ¡c giáº£ nhÆ°ng chÆ°a xin phÃ©p váº«n lÃ  <b>VI PHáº M Báº¢N QUYá»€N!</b>"
     },
     {
       "id": "case_parody",
       "mockupType": "parody",
       "round": 1,
       "type": "TRAP",
-      "lawTag": "Hợp pháp đúng Điều 2 (Kịch bản dựa trên truyện cổ tích có ghi rõ Phỏng theo)",
-      "rumor": "Một số khán giả thắc mắc vở kịch hội diễn của <b>{dName} ({dStartup})</b> có cốt truyện chàng dũng sĩ diệt quái vật giống truyện cổ tích <i>\"Thạch Sanh\"</i> trong sách của <b>{pName}</b>!",
-      "knownFacts": "• <b>Cách xây dựng kịch bản:</b> <b>{dName}</b> dựa trên tích truyện dân gian Thạch Sanh, tự sáng tác lại toàn bộ lời thoại và lời dẫn chuyện mới cho các vai diễn.<br>• <b>Trên tờ rơi phát cho khán giả:</b> <b>{dName}</b> ghi dòng chú thích nguồn như sau:",
-      "exhibitBox": "🎭 [Tờ rơi vở kịch của {dName}]: \"Vở kịch thiếu nhi: Người Hùng Rừng Xanh — Phỏng theo truyện cổ tích dân gian Thạch Sanh\"",
+      "lawTag": "Há»£p phÃ¡p Ä‘Ãºng Äiá»u 2 (Ká»‹ch báº£n dá»±a trÃªn truyá»‡n cá»• tÃ­ch cÃ³ ghi rÃµ Phá»ng theo)",
+      "rumor": "Má»™t sá»‘ khÃ¡n giáº£ tháº¯c máº¯c vá»Ÿ ká»‹ch há»™i diá»…n cá»§a <b>{dName} ({dStartup})</b> cÃ³ cá»‘t truyá»‡n chÃ ng dÅ©ng sÄ© diá»‡t quÃ¡i váº­t giá»‘ng truyá»‡n cá»• tÃ­ch <i>\"Tháº¡ch Sanh\"</i> trong sÃ¡ch cá»§a <b>{pName}</b>!",
+      "knownFacts": "â€¢ <b>CÃ¡ch xÃ¢y dá»±ng ká»‹ch báº£n:</b> <b>{dName}</b> dá»±a trÃªn tÃ­ch truyá»‡n dÃ¢n gian Tháº¡ch Sanh, tá»± sÃ¡ng tÃ¡c láº¡i toÃ n bá»™ lá»i thoáº¡i vÃ  lá»i dáº«n chuyá»‡n má»›i cho cÃ¡c vai diá»…n.<br>â€¢ <b>TrÃªn tá» rÆ¡i phÃ¡t cho khÃ¡n giáº£:</b> <b>{dName}</b> ghi dÃ²ng chÃº thÃ­ch nguá»“n nhÆ° sau:",
+      "exhibitBox": "ðŸŽ­ [Tá» rÆ¡i vá»Ÿ ká»‹ch cá»§a {dName}]: \"Vá»Ÿ ká»‹ch thiáº¿u nhi: NgÆ°á»i HÃ¹ng Rá»«ng Xanh â€” Phá»ng theo truyá»‡n cá»• tÃ­ch dÃ¢n gian Tháº¡ch Sanh\"",
       "cards": [
-        { "id": "LEGAL_DEFENSE", "quote": "\"Chúng em diễn đạt lại truyện bằng lời thoại kịch bản mới của tổ mình và đã ghi nguồn Phỏng theo truyện Thạch Sanh chuẩn Mẫu số 3 Điều 2 SGK!\"" },
-        { "id": "CLUMSY", "quote": "\"Nhân vật Thạch Sanh là do tổ em tự sáng tác hôm qua chứ không phải truyện cổ tích của ai hết!\"" }
+        { "id": "LEGAL_DEFENSE", "quote": "\"ChÃºng em diá»…n Ä‘áº¡t láº¡i truyá»‡n báº±ng lá»i thoáº¡i ká»‹ch báº£n má»›i cá»§a tá»• mÃ¬nh vÃ  Ä‘Ã£ ghi nguá»“n Phá»ng theo truyá»‡n Tháº¡ch Sanh chuáº©n Máº«u sá»‘ 3 Äiá»u 2 SGK!\"" },
+        { "id": "CLUMSY", "quote": "\"Vá»Ÿ ká»‹ch nÃ y chá»‰ diá»…n vui trong há»™i diá»…n vÄƒn nghá»‡ cá»§a trÆ°á»ng nÃªn tá»• em cá»© dá»±ng cáº£nh theo tÃ­ch xÆ°a chá»© khÃ´ng cáº§n biáº¿t Ä‘iá»u luáº­t quy Ä‘á»‹nh ra sao!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Điều 2 SGK trang 21: Khi diễn đạt lại nội dung truyện cổ tích bằng ngôn ngữ kịch bản mới, ghi nguồn <b>\"Phỏng theo truyện...\"</b> là hoàn toàn đúng luật ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Theo Äiá»u 2 SGK trang 21: Khi diá»…n Ä‘áº¡t láº¡i ná»™i dung truyá»‡n cá»• tÃ­ch báº±ng ngÃ´n ngá»¯ ká»‹ch báº£n má»›i, ghi nguá»“n <b>\"Phá»ng theo truyá»‡n...\"</b> lÃ  hoÃ n toÃ n Ä‘Ãºng luáº­t âž” <b>HOÃ€N TOÃ€N Há»¢P PHÃP!</b>"
     },
     {
       "id": "case_clapper",
       "mockupType": "clapper",
       "round": 2,
       "type": "TRAP",
-      "lawTag": "Hợp pháp đúng Điều 2 (Diễn đạt lại bằng lời của mình và ghi Phỏng theo)",
-      "rumor": "Có tin đồn bộ phim hoạt hình ngắn mới chiếu của <b>{dName} ({dStartup})</b> bắt chước cốt truyện ngụ ngôn <i>\"Rùa và Thỏ\"</i> trong tủ sách của <b>{pName}</b>!",
-      "knownFacts": "• <b>Cách thực hiện:</b> <b>{dName}</b> dựa theo ý nghĩa câu chuyện <i>\"Rùa và Thỏ\"</i>, sau đó tự viết lại toàn bộ lời thoại mới bằng ngôn ngữ của tổ mình.<br>• <b>Trên màn hình mở đầu phim:</b> <b>{dName}</b> hiển thị rõ ràng dòng chú thích nguồn như sau:",
-      "exhibitBox": "🎞️ [Màn hình mở đầu phim của {dName}]: \"Hoạt hình: Cuộc Đua Trong Rừng — Nội dung: Phỏng theo truyện Rùa và Thỏ\"",
+      "lawTag": "Há»£p phÃ¡p Ä‘Ãºng Äiá»u 2 (Diá»…n Ä‘áº¡t láº¡i báº±ng lá»i cá»§a mÃ¬nh vÃ  ghi Phá»ng theo)",
+      "rumor": "CÃ³ tin Ä‘á»“n bá»™ phim hoáº¡t hÃ¬nh ngáº¯n má»›i chiáº¿u cá»§a <b>{dName} ({dStartup})</b> báº¯t chÆ°á»›c cá»‘t truyá»‡n ngá»¥ ngÃ´n <i>\"RÃ¹a vÃ  Thá»\"</i> trong tá»§ sÃ¡ch cá»§a <b>{pName}</b>!",
+      "knownFacts": "â€¢ <b>CÃ¡ch thá»±c hiá»‡n:</b> <b>{dName}</b> dá»±a theo Ã½ nghÄ©a cÃ¢u chuyá»‡n <i>\"RÃ¹a vÃ  Thá»\"</i>, sau Ä‘Ã³ tá»± viáº¿t láº¡i toÃ n bá»™ lá»i thoáº¡i má»›i báº±ng ngÃ´n ngá»¯ cá»§a tá»• mÃ¬nh.<br>â€¢ <b>TrÃªn mÃ n hÃ¬nh má»Ÿ Ä‘áº§u phim:</b> <b>{dName}</b> hiá»ƒn thá»‹ rÃµ rÃ ng dÃ²ng chÃº thÃ­ch nguá»“n nhÆ° sau:",
+      "exhibitBox": "ðŸŽžï¸ [MÃ n hÃ¬nh má»Ÿ Ä‘áº§u phim cá»§a {dName}]: \"Hoáº¡t hÃ¬nh: Cuá»™c Äua Trong Rá»«ng â€” Ná»™i dung: Phá»ng theo truyá»‡n RÃ¹a vÃ  Thá»\"",
       "cards": [
-        { "id": "LEGAL_DEFENSE", "quote": "\"Chúng em không chép nguyên văn mà diễn đạt lại bằng ngôn ngữ của mình và đã ghi rõ nguồn là Phỏng theo truyện Rùa và Thỏ đúng chuẩn ví dụ SGK trang 21!\"" },
-        { "id": "CLUMSY", "quote": "\"Truyện Rùa và Thỏ là do tổ em tự nghĩ ra đầu tiên trên thế giới chứ không dựa theo truyện nào hết!\"" }
+        { "id": "LEGAL_DEFENSE", "quote": "\"ChÃºng em khÃ´ng chÃ©p nguyÃªn vÄƒn mÃ  diá»…n Ä‘áº¡t láº¡i báº±ng ngÃ´n ngá»¯ cá»§a mÃ¬nh vÃ  Ä‘Ã£ ghi rÃµ nguá»“n lÃ  Phá»ng theo truyá»‡n RÃ¹a vÃ  Thá» Ä‘Ãºng chuáº©n vÃ­ dá»¥ SGK trang 21!\"" },
+        { "id": "CLUMSY", "quote": "\"Truyá»‡n ngá»¥ ngÃ´n RÃ¹a vÃ  Thá» lÃ  cÃ¢u chuyá»‡n quen thuá»™c ai cÅ©ng biáº¿t nÃªn tá»• em cá»© váº½ tranh lÃ m phim theo trÃ­ nhá»› chá»© khÃ´ng cáº§n cÄƒn cá»© theo Ä‘iá»u luáº­t nÃ o!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> SGK trang 21 nêu chính xác ví dụ này: Người sử dụng có thể diễn đạt lại nội dung bằng ngôn ngữ của mình và ghi nguồn <b>\"Phỏng theo truyện Rùa và Thỏ\"</b> ➔ <b>HOÀN TOÀN HỢP PHÁP ĐÚNG ĐIỀU 2!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> SGK trang 21 nÃªu chÃ­nh xÃ¡c vÃ­ dá»¥ nÃ y: NgÆ°á»i sá»­ dá»¥ng cÃ³ thá»ƒ diá»…n Ä‘áº¡t láº¡i ná»™i dung báº±ng ngÃ´n ngá»¯ cá»§a mÃ¬nh vÃ  ghi nguá»“n <b>\"Phá»ng theo truyá»‡n RÃ¹a vÃ  Thá»\"</b> âž” <b>HOÃ€N TOÃ€N Há»¢P PHÃP ÄÃšNG ÄIá»€U 2!</b>"
     },
     {
       "id": "case_computer",
       "mockupType": "computer",
       "round": 2,
       "type": "VIOLATION",
-      "lawTag": "Vi phạm Điều 3 (Tự ý sao chép tệp trong máy tính của bạn khi chưa xin phép)",
-      "rumor": "<b>{pName} ({pStartup})</b> phát hiện trong USB của <b>{dName} ({dStartup})</b> có chứa tệp bài trình chiếu dự thi của tổ mình!",
-      "knownFacts": "• <b>Diễn biến tại phòng máy:</b> Giờ ra chơi, máy tính của <b>{pName}</b> vẫn bật màn hình (không đặt mật khẩu khóa máy).<br>• <b>Hành động của {dName}:</b> Thành viên <b>{dName}</b> đi ngang qua thấy tệp trình chiếu trên màn hình đẹp quá liền cắm USB sao chép tệp đó về máy mình mà chưa hỏi ý kiến <b>{pName}</b>.",
-      "exhibitBox": "💻 [Biên bản phòng máy]: Tệp \"DuAn_SangTao.pptx\" của {pName} được sao chép sang USB của {dName} lúc 09:15 khi chủ máy vắng mặt.",
+      "lawTag": "Vi pháº¡m Äiá»u 3 (Tá»± Ã½ sao chÃ©p tá»‡p trong mÃ¡y tÃ­nh cá»§a báº¡n khi chÆ°a xin phÃ©p)",
+      "rumor": "<b>{pName} ({pStartup})</b> phÃ¡t hiá»‡n trong USB cá»§a <b>{dName} ({dStartup})</b> cÃ³ chá»©a tá»‡p bÃ i trÃ¬nh chiáº¿u dá»± thi cá»§a tá»• mÃ¬nh!",
+      "knownFacts": "â€¢ <b>Diá»…n biáº¿n táº¡i phÃ²ng mÃ¡y:</b> Giá» ra chÆ¡i, mÃ¡y tÃ­nh cá»§a <b>{pName}</b> váº«n báº­t mÃ n hÃ¬nh (khÃ´ng Ä‘áº·t máº­t kháº©u khÃ³a mÃ¡y).<br>â€¢ <b>HÃ nh Ä‘á»™ng cá»§a {dName}:</b> ThÃ nh viÃªn <b>{dName}</b> Ä‘i ngang qua tháº¥y tá»‡p trÃ¬nh chiáº¿u trÃªn mÃ n hÃ¬nh Ä‘áº¹p quÃ¡ liá»n cáº¯m USB sao chÃ©p tá»‡p Ä‘Ã³ vá» mÃ¡y mÃ¬nh mÃ  chÆ°a há»i Ã½ kiáº¿n <b>{pName}</b>.",
+      "exhibitBox": "ðŸ’» [BiÃªn báº£n phÃ²ng mÃ¡y]: Tá»‡p \"DuAn_SangTao.pptx\" cá»§a {pName} Ä‘Æ°á»£c sao chÃ©p sang USB cá»§a {dName} lÃºc 09:15 khi chá»§ mÃ¡y váº¯ng máº·t.",
       "cards": [
-        { "id": "EXCUSE", "quote": "\"Tại máy tính trong phòng thực hành của bạn mở sẵn không cài mật khẩu khóa máy, nghĩa là tài liệu công khai ai đi ngang chép cũng được!\"" },
-        { "id": "APOLOGIZE", "quote": "\"Tụi em nhận lỗi! Theo Điều 3 SGK, sao chép tệp của bạn khi chưa có sự đồng ý là hành vi sai trái vi phạm đạo đức. Tụi em xin xóa tệp ngay!\"" }
+        { "id": "EXCUSE", "quote": "\"MÃ¡y tÃ­nh trong phÃ²ng thá»±c hÃ nh lÃ  thiáº¿t bá»‹ há»c táº­p chung cá»§a nhÃ  trÆ°á»ng, mÃ¡y má»Ÿ sáºµn khÃ´ng cÃ i máº­t kháº©u nghÄ©a lÃ  cÃ¡c tá»‡p Ä‘á»ƒ á»Ÿ cháº¿ Ä‘á»™ chia sáº» cÃ´ng khai cho báº¡n bÃ¨ trong lá»›p cÃ¹ng há»c há»i kinh nghiá»‡m!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Theo má»¥c 3 SGK trang 22, tá»‡p bÃ i lÃ m lÆ°u trÃªn mÃ¡y tÃ­nh lÃ  tÃ i liá»‡u riÃªng cá»§a há»c sinh. Tá»± Ã½ cáº¯m USB sao chÃ©p khi chÆ°a Ä‘Æ°á»£c báº¡n Ä‘á»“ng Ã½ (dÃ¹ mÃ¡y khÃ´ng khÃ³a) lÃ  hÃ nh vi vi pháº¡m Ä‘áº¡o Ä‘á»©c sá»‘. Tá»• em xin xÃ³a tá»‡p ngay!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo mục 3 SGK trang 22: Sao chép tệp của bạn khi chưa có sự đồng ý (dù máy bạn không khóa mật khẩu) là hành vi sai trái, vi phạm đạo đức và quyền riêng tư ➔ <b>VI PHẠM ĐIỀU 3!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Theo má»¥c 3 SGK trang 22: Sao chÃ©p tá»‡p cá»§a báº¡n khi chÆ°a cÃ³ sá»± Ä‘á»“ng Ã½ (dÃ¹ mÃ¡y báº¡n khÃ´ng khÃ³a máº­t kháº©u) lÃ  hÃ nh vi sai trÃ¡i, vi pháº¡m Ä‘áº¡o Ä‘á»©c vÃ  quyá»n riÃªng tÆ° âž” <b>VI PHáº M ÄIá»€U 3!</b>"
     },
     {
       "id": "case_agreement",
       "mockupType": "agreement",
       "round": 2,
       "type": "TRAP",
-      "lawTag": "Hợp pháp đúng Điều 1 & 3 (Xin phép bạn trước khi sao chép tệp và ghi nguồn)",
-      "rumor": "Có bạn báo tin trông thấy thành viên <b>{dName} ({dStartup})</b> cầm USB sang máy tính của <b>{pName} ({pStartup})</b> để chép tệp trình chiếu!",
-      "knownFacts": "• <b>Sự thật giữa 2 tổ:</b> Giống tình huống bạn Khoa và bạn Minh trong SGK, trước khi cắm USB, đại diện <b>{dName}</b> đã hỏi xin phép trực tiếp và được trưởng nhóm <b>{pName}</b> đồng ý cho chép tệp mẫu.<br>• <b>Trên slide sử dụng:</b> <b>{dName}</b> cũng ghi chú rõ tên tác giả tệp mẫu là <b>{pName}</b>.",
-      "exhibitBox": "🤝 [Xác nhận tại lớp]: Trưởng nhóm {pName} đã đồng ý cho {dName} sao chép tệp + Slide có ghi rõ \"Tệp mẫu thiết kế: {pName}\"",
+      "lawTag": "Há»£p phÃ¡p Ä‘Ãºng Äiá»u 1 & 3 (Xin phÃ©p báº¡n trÆ°á»›c khi sao chÃ©p tá»‡p vÃ  ghi nguá»“n)",
+      "rumor": "CÃ³ báº¡n bÃ¡o tin trÃ´ng tháº¥y thÃ nh viÃªn <b>{dName} ({dStartup})</b> cáº§m USB sang mÃ¡y tÃ­nh cá»§a <b>{pName} ({pStartup})</b> Ä‘á»ƒ chÃ©p tá»‡p trÃ¬nh chiáº¿u!",
+      "knownFacts": "â€¢ <b>Sá»± tháº­t giá»¯a 2 tá»•:</b> Giá»‘ng tÃ¬nh huá»‘ng báº¡n Khoa vÃ  báº¡n Minh trong SGK, trÆ°á»›c khi cáº¯m USB, Ä‘áº¡i diá»‡n <b>{dName}</b> Ä‘Ã£ há»i xin phÃ©p trá»±c tiáº¿p vÃ  Ä‘Æ°á»£c trÆ°á»Ÿng nhÃ³m <b>{pName}</b> Ä‘á»“ng Ã½ cho chÃ©p tá»‡p máº«u.<br>â€¢ <b>TrÃªn slide sá»­ dá»¥ng:</b> <b>{dName}</b> cÅ©ng ghi chÃº rÃµ tÃªn tÃ¡c giáº£ tá»‡p máº«u lÃ  <b>{pName}</b>.",
+      "exhibitBox": "ðŸ¤ [XÃ¡c nháº­n táº¡i lá»›p]: TrÆ°á»Ÿng nhÃ³m {pName} Ä‘Ã£ Ä‘á»“ng Ã½ cho {dName} sao chÃ©p tá»‡p + Slide cÃ³ ghi rÃµ \"Tá»‡p máº«u thiáº¿t káº¿: {pName}\"",
       "cards": [
-        { "id": "LEGAL_DEFENSE", "quote": "\"Giống bạn Khoa trong câu hỏi SGK trang 22, chúng em đã xin phép tổ bạn trước khi sao chép tệp trình chiếu và ghi rõ nguồn nên hoàn toàn đúng luật!\"" },
-        { "id": "CLUMSY", "quote": "\"Tụi em lén chép lúc bạn không để ý nhưng may quá không bị phát hiện!\"" }
+        { "id": "LEGAL_DEFENSE", "quote": "\"Giá»‘ng báº¡n Khoa trong cÃ¢u há»i SGK trang 22, chÃºng em Ä‘Ã£ xin phÃ©p tá»• báº¡n trÆ°á»›c khi sao chÃ©p tá»‡p trÃ¬nh chiáº¿u vÃ  ghi rÃµ nguá»“n nÃªn hoÃ n toÃ n Ä‘Ãºng luáº­t!\"" },
+        { "id": "CLUMSY", "quote": "\"Tháº¥y tá»‡p trÃ¬nh chiáº¿u cá»§a báº¡n Ä‘áº¹p quÃ¡ thÃ¬ tá»• em cá»© xin báº¡n má»™t tiáº¿ng rá»“i chÃ©p thÃ´i chá»© khÃ´ng nghÄ© lÃ  viá»‡c nÃ y láº¡i liÃªn quan Ä‘áº¿n quy Ä‘á»‹nh phÃ¡p luáº­t!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo câu hỏi ghép nối SGK trang 22 (tình huống 3): Xin phép bạn trước khi sao chép tệp trình chiếu và ghi rõ nguồn là hành vi tôn trọng bản quyền đáng đồng tình ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Theo cÃ¢u há»i ghÃ©p ná»‘i SGK trang 22 (tÃ¬nh huá»‘ng 3): Xin phÃ©p báº¡n trÆ°á»›c khi sao chÃ©p tá»‡p trÃ¬nh chiáº¿u vÃ  ghi rÃµ nguá»“n lÃ  hÃ nh vi tÃ´n trá»ng báº£n quyá»n Ä‘Ã¡ng Ä‘á»“ng tÃ¬nh âž” <b>HOÃ€N TOÃ€N Há»¢P PHÃP!</b>"
     },
     {
       "id": "case_magazine",
       "mockupType": "magazine",
       "round": 2,
       "type": "VIOLATION",
-      "lawTag": "Vi phạm Điều 1 (Chỉ ghi tên tác giả nhưng chưa được tác giả cho phép)",
-      "rumor": "<b>{pName} ({pStartup})</b> phát hiện bức tranh vẽ phong cảnh trên máy tính của mình bị <b>{dName} ({dStartup})</b> lấy in lên bìa tạp chí!",
-      "knownFacts": "• <b>Về việc xin phép:</b> Giống tình huống của Hoa và Minh trong SGK, <b>{dName}</b> tự lấy bức tranh của <b>{pName}</b> đưa vào tạp chí mà chưa hề hỏi ý kiến <b>{pName}</b>.<br>• <b>Về việc ghi nguồn:</b> Dưới bức tranh trên tạp chí, <b>{dName}</b> vẫn ghi dòng chữ tên tác giả rất to như sau:",
-      "exhibitBox": "🎨 [Bìa tạp chí của {dName}]: Có in dòng chữ \"Tranh vẽ bởi tác giả: {pName}\" dưới bức tranh phong cảnh số.",
+      "lawTag": "Vi pháº¡m Äiá»u 1 (Chá»‰ ghi tÃªn tÃ¡c giáº£ nhÆ°ng chÆ°a Ä‘Æ°á»£c tÃ¡c giáº£ cho phÃ©p)",
+      "rumor": "<b>{pName} ({pStartup})</b> phÃ¡t hiá»‡n bá»©c tranh váº½ phong cáº£nh trÃªn mÃ¡y tÃ­nh cá»§a mÃ¬nh bá»‹ <b>{dName} ({dStartup})</b> láº¥y in lÃªn bÃ¬a táº¡p chÃ­!",
+      "knownFacts": "â€¢ <b>Vá» viá»‡c xin phÃ©p:</b> Giá»‘ng tÃ¬nh huá»‘ng cá»§a Hoa vÃ  Minh trong SGK, <b>{dName}</b> tá»± láº¥y bá»©c tranh cá»§a <b>{pName}</b> Ä‘Æ°a vÃ o táº¡p chÃ­ mÃ  chÆ°a há» há»i Ã½ kiáº¿n <b>{pName}</b>.<br>â€¢ <b>Vá» viá»‡c ghi nguá»“n:</b> DÆ°á»›i bá»©c tranh trÃªn táº¡p chÃ­, <b>{dName}</b> váº«n ghi dÃ²ng chá»¯ tÃªn tÃ¡c giáº£ ráº¥t to nhÆ° sau:",
+      "exhibitBox": "ðŸŽ¨ [BÃ¬a táº¡p chÃ­ cá»§a {dName}]: CÃ³ in dÃ²ng chá»¯ \"Tranh váº½ bá»Ÿi tÃ¡c giáº£: {pName}\" dÆ°á»›i bá»©c tranh phong cáº£nh sá»‘.",
       "cards": [
-        { "id": "EXCUSE", "quote": "\"Tụi em không hề ăn cắp nhé! Dưới bức tranh tụi em đã ghi rõ ràng Tên tác giả là tổ bạn rồi nên tụi em hoàn toàn đúng luật!\"" },
-        { "id": "APOLOGIZE", "quote": "\"Chúng em sai Điều 1 rồi! Dù có ghi tên tác giả nhưng khi chưa hỏi ý kiến và chưa được bạn cho phép sử dụng thì vẫn là vi phạm bản quyền. Xin nhận lỗi!\"" }
+        { "id": "EXCUSE", "quote": "\"DÆ°á»›i bá»©c tranh trÃªn bÃ¬a táº¡p chÃ­, tá»• em Ä‘Ã£ in dÃ²ng chá»¯ ghi rÃµ tÃªn tÃ¡c giáº£ ráº¥t trang trá»ng Ä‘Ãºng chuáº©n Äiá»u 2 SGK Ä‘á»ƒ quáº£ng bÃ¡ tÃ i nÄƒng cho báº¡n, khÃ´ng há» nháº­n vÆ¡ lÃ  cá»§a mÃ¬nh nÃªn tá»• em hoÃ n toÃ n Ä‘Ãºng quy Ä‘á»‹nh tÃ¡c quyá»n!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Theo Hoáº¡t Ä‘á»™ng 2 SGK trang 21 vÃ  Äiá»u 1, viá»‡c sá»­ dá»¥ng tÃ¡c pháº©m báº¯t buá»™c pháº£i cÃ³ Ä‘á»§ 2 váº¿: ÄÆ°á»£c tÃ¡c giáº£ cho phÃ©p VÃ€ Ghi rÃµ nguá»“n. CÃ³ ghi tÃªn tÃ¡c giáº£ nhÆ°ng chÆ°a xin phÃ©p váº«n lÃ  vi pháº¡m báº£n quyá»n. Tá»• em xin nháº­n lá»—i!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Hoạt động 2 SGK trang 21 (tình huống Minh và Hoa) & Điều 1: Chỉ được sử dụng nội dung khi <b>được tác giả cho phép</b>. Có ghi tên tác giả nhưng <b>chưa xin phép</b> vẫn là <b>VI PHẠM ĐIỀU 1!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Theo Hoáº¡t Ä‘á»™ng 2 SGK trang 21 (tÃ¬nh huá»‘ng Minh vÃ  Hoa) & Äiá»u 1: Chá»‰ Ä‘Æ°á»£c sá»­ dá»¥ng ná»™i dung khi <b>Ä‘Æ°á»£c tÃ¡c giáº£ cho phÃ©p</b>. CÃ³ ghi tÃªn tÃ¡c giáº£ nhÆ°ng <b>chÆ°a xin phÃ©p</b> váº«n lÃ  <b>VI PHáº M ÄIá»€U 1!</b>"
     },
     {
       "id": "case_slide",
       "mockupType": "slide",
       "round": 2,
       "type": "TRAP",
-      "lawTag": "Hợp pháp đúng Điều 1 & Vận dụng SGK (Xin phép và ghi rõ nguồn website)",
-      "rumor": "Nhiều người thắc mắc khi thấy bài trình chiếu <i>\"Ngày hội Trạng Nguyên nhỏ tuổi\"</i> của <b>{dName} ({dStartup})</b> sử dụng tư liệu từ website do <b>{pName} ({pStartup})</b> quản lý!",
-      "knownFacts": "• <b>Sự thật giữa 2 tổ:</b> Ban biên tập website của <b>{pName}</b> đã cấp phép cho các tổ sử dụng tư liệu phục vụ học tập nếu ghi rõ nguồn website.<br>• <b>Trên trang cuối bài trình chiếu:</b> <b>{dName}</b> đã ghi đầy đủ thông tin nguồn như sau:",
-      "exhibitBox": "🌐 [Slide cuối bài trình chiếu của {dName}]: \"Tư liệu và hình ảnh được phép sử dụng — Nguồn: Website {pStartup} (thieunien.vn)\"",
+      "lawTag": "Há»£p phÃ¡p Ä‘Ãºng Äiá»u 1 & Váº­n dá»¥ng SGK (Xin phÃ©p vÃ  ghi rÃµ nguá»“n website)",
+      "rumor": "Nhiá»u ngÆ°á»i tháº¯c máº¯c khi tháº¥y bÃ i trÃ¬nh chiáº¿u <i>\"NgÃ y há»™i Tráº¡ng NguyÃªn nhá» tuá»•i\"</i> cá»§a <b>{dName} ({dStartup})</b> sá»­ dá»¥ng tÆ° liá»‡u tá»« website do <b>{pName} ({pStartup})</b> quáº£n lÃ½!",
+      "knownFacts": "â€¢ <b>Sá»± tháº­t giá»¯a 2 tá»•:</b> Ban biÃªn táº­p website cá»§a <b>{pName}</b> Ä‘Ã£ cáº¥p phÃ©p cho cÃ¡c tá»• sá»­ dá»¥ng tÆ° liá»‡u phá»¥c vá»¥ há»c táº­p náº¿u ghi rÃµ nguá»“n website.<br>â€¢ <b>TrÃªn trang cuá»‘i bÃ i trÃ¬nh chiáº¿u:</b> <b>{dName}</b> Ä‘Ã£ ghi Ä‘áº§y Ä‘á»§ thÃ´ng tin nguá»“n nhÆ° sau:",
+      "exhibitBox": "ðŸŒ [Slide cuá»‘i bÃ i trÃ¬nh chiáº¿u cá»§a {dName}]: \"TÆ° liá»‡u vÃ  hÃ¬nh áº£nh Ä‘Æ°á»£c phÃ©p sá»­ dá»¥ng â€” Nguá»“n: Website {pStartup} (thieunien.vn)\"",
       "cards": [
-        { "id": "LEGAL_DEFENSE", "quote": "\"Theo đúng phần Vận dụng SGK trang 23, chúng em đã được phép sử dụng và ghi rõ nguồn thông tin từ website ở trang cuối bài trình chiếu!\"" },
-        { "id": "CLUMSY", "quote": "\"Cứ thấy gì trên mạng Internet là tụi em copy về nhận làm của mình hết chứ không cần ghi nguồn website nào cả!\"" }
+        { "id": "LEGAL_DEFENSE", "quote": "\"Theo Ä‘Ãºng pháº§n Váº­n dá»¥ng SGK trang 23, chÃºng em Ä‘Ã£ Ä‘Æ°á»£c phÃ©p sá»­ dá»¥ng vÃ  ghi rÃµ nguá»“n thÃ´ng tin tá»« website á»Ÿ trang cuá»‘i bÃ i trÃ¬nh chiáº¿u!\"" },
+        { "id": "CLUMSY", "quote": "\"TÆ° liá»‡u nÃ y cÃ³ sáºµn trÃªn website má»Ÿ cá»§a trÆ°á»ng nÃªn tá»• em cá»© táº£i vá» Ä‘Æ°a vÃ o slide thuyáº¿t trÃ¬nh chá»© khÃ´ng cáº§n tÃ¬m hiá»ƒu xem website cÃ³ quy Ä‘á»‹nh gÃ¬ khÃ´ng!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo mục Vận dụng SGK trang 23: Khi sử dụng thông tin từ website cho bài trình chiếu, việc được phép và ghi rõ nguồn website là hành động tôn trọng bản quyền chuẩn mực ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Theo má»¥c Váº­n dá»¥ng SGK trang 23: Khi sá»­ dá»¥ng thÃ´ng tin tá»« website cho bÃ i trÃ¬nh chiáº¿u, viá»‡c Ä‘Æ°á»£c phÃ©p vÃ  ghi rÃµ nguá»“n website lÃ  hÃ nh Ä‘á»™ng tÃ´n trá»ng báº£n quyá»n chuáº©n má»±c âž” <b>HOÃ€N TOÃ€N Há»¢P PHÃP!</b>"
     },
     {
       "id": "case_smartphone",
       "mockupType": "smartphone",
       "round": 2,
       "type": "VIOLATION",
-      "lawTag": "Vi phạm Điều 3 (Đọc tin nhắn trên điện thoại của người khác khi không được phép)",
-      "rumor": "<b>{pName} ({pStartup})</b> tố cáo thành viên của <b>{dName} ({dStartup})</b> xâm phạm quyền riêng tư trên điện thoại di động!",
-      "knownFacts": "• <b>Diễn biến thực tế:</b> Điện thoại của đại diện <b>{pName}</b> để trên bàn học bỗng sáng màn hình báo có tin nhắn riêng từ gia đình gửi tới.<br>• <b>Hành động của {dName}:</b> Thành viên <b>{dName}</b> ngồi cạnh đã tự ý cầm điện thoại lên đọc tin nhắn rồi chia sẻ chuyện đó cho các bạn xung quanh.",
-      "exhibitBox": "📱 [Xác nhận sự việc]: Tin nhắn riêng tư trên điện thoại của {pName} được thành viên {dName} đọc và chia sẻ lại trong lớp.",
+      "lawTag": "Vi pháº¡m Äiá»u 3 (Äá»c tin nháº¯n trÃªn Ä‘iá»‡n thoáº¡i cá»§a ngÆ°á»i khÃ¡c khi khÃ´ng Ä‘Æ°á»£c phÃ©p)",
+      "rumor": "<b>{pName} ({pStartup})</b> tá»‘ cÃ¡o thÃ nh viÃªn cá»§a <b>{dName} ({dStartup})</b> xÃ¢m pháº¡m quyá»n riÃªng tÆ° trÃªn Ä‘iá»‡n thoáº¡i di Ä‘á»™ng!",
+      "knownFacts": "â€¢ <b>Diá»…n biáº¿n thá»±c táº¿:</b> Äiá»‡n thoáº¡i cá»§a Ä‘áº¡i diá»‡n <b>{pName}</b> Ä‘á»ƒ trÃªn bÃ n há»c bá»—ng sÃ¡ng mÃ n hÃ¬nh bÃ¡o cÃ³ tin nháº¯n riÃªng tá»« gia Ä‘Ã¬nh gá»­i tá»›i.<br>â€¢ <b>HÃ nh Ä‘á»™ng cá»§a {dName}:</b> ThÃ nh viÃªn <b>{dName}</b> ngá»“i cáº¡nh Ä‘Ã£ tá»± Ã½ cáº§m Ä‘iá»‡n thoáº¡i lÃªn Ä‘á»c tin nháº¯n rá»“i chia sáº» chuyá»‡n Ä‘Ã³ cho cÃ¡c báº¡n xung quanh.",
+      "exhibitBox": "ðŸ“± [XÃ¡c nháº­n sá»± viá»‡c]: Tin nháº¯n riÃªng tÆ° trÃªn Ä‘iá»‡n thoáº¡i cá»§a {pName} Ä‘Æ°á»£c thÃ nh viÃªn {dName} Ä‘á»c vÃ  chia sáº» láº¡i trong lá»›p.",
       "cards": [
-        { "id": "EXCUSE", "quote": "\"Tại tin nhắn tự hiện lên trên màn hình điện thoại để trên bàn, tụi em đâu có bẻ khóa mật khẩu đâu mà bảo tụi em phạm luật!\"" },
-        { "id": "APOLOGIZE", "quote": "\"Theo mục Luyện tập 2 SGK trang 23, đọc tin nhắn trên điện thoại và chia sẻ thông tin riêng tư của người khác mà không được phép là sai trái. Chúng em xin lỗi!\"" }
+        { "id": "EXCUSE", "quote": "\"ThÃ´ng bÃ¡o tin nháº¯n tá»± Ä‘á»™ng sÃ¡ng vÃ  hiá»‡n rÃµ ná»™i dung trÃªn mÃ n hÃ¬nh khÃ³a ngay trÆ°á»›c máº¯t, chÃºng em khÃ´ng há» nháº­p máº­t mÃ£ hay báº» khÃ³a thiáº¿t bá»‹ nÃªn viá»‡c Ä‘á»c Ä‘Æ°á»£c chá»‰ lÃ  pháº£n xáº¡ nhÃ¬n tháº¥y thÃ´ng tin tá»± nhiÃªn!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Theo Luyá»‡n táº­p 2 SGK trang 23, Ä‘á»c tin nháº¯n trÃªn Ä‘iá»‡n thoáº¡i cá»§a ngÆ°á»i khÃ¡c vÃ  chia sáº» thÃ´ng tin riÃªng tÆ° khi chÆ°a Ä‘Æ°á»£c phÃ©p lÃ  vi pháº¡m nghiÃªm trá»ng quyá»n riÃªng tÆ°. Tá»• em xin chÃ¢n thÃ nh xin lá»—i báº¡n!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Luyện tập 2 (ý a và c) SGK trang 23: Đọc tin nhắn trên điện thoại của người khác và chia sẻ thông tin riêng tư mà không xin phép là hành vi vi phạm đạo đức và quyền riêng tư ➔ <b>VI PHẠM ĐIỀU 3!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Theo Luyá»‡n táº­p 2 (Ã½ a vÃ  c) SGK trang 23: Äá»c tin nháº¯n trÃªn Ä‘iá»‡n thoáº¡i cá»§a ngÆ°á»i khÃ¡c vÃ  chia sáº» thÃ´ng tin riÃªng tÆ° mÃ  khÃ´ng xin phÃ©p lÃ  hÃ nh vi vi pháº¡m Ä‘áº¡o Ä‘á»©c vÃ  quyá»n riÃªng tÆ° âž” <b>VI PHáº M ÄIá»€U 3!</b>"
     },
     {
       "id": "case_cloud_folder",
       "mockupType": "cloud_folder",
       "round": 2,
       "type": "VIOLATION",
-      "lawTag": "Vi phạm Điều 3 & Điều 2 (Tự ý tải bài làm trong thư mục riêng của bạn nộp bài cho tổ mình)",
-      "rumor": "<b>{pName} ({pStartup})</b> bức xúc tố cáo bài văn dự thi của mình lưu trong thư mục đám mây lớp học bị <b>{dName} ({dStartup})</b> lấy nộp cho tổ khác!",
-      "knownFacts": "• <b>Tình huống tại thư mục chung:</b> Link lưu trữ đám mây của lớp được mở để nộp bài tập, trong đó mỗi bạn có một thư mục cá nhân đặt tên riêng.<br>• <b>Hành động của {dName}:</b> <b>{dName}</b> đã mở thư mục cá nhân của <b>{pName}</b>, tải tệp <i>\"BaiVan_Diem10.docx\"</i> về máy rồi đổi tên tác giả thành tên tổ mình đem nộp.",
-      "exhibitBox": "☁️ [Nhật ký thao tác đám mây]: Tệp \"BaiVan_Diem10.docx\" trong thư mục riêng của {pName} bị tải về lúc 20:10 và nộp lại dưới tên {dName}.",
+      "lawTag": "Vi pháº¡m Äiá»u 3 & Äiá»u 2 (Tá»± Ã½ táº£i bÃ i lÃ m trong thÆ° má»¥c riÃªng cá»§a báº¡n ná»™p bÃ i cho tá»• mÃ¬nh)",
+      "rumor": "<b>{pName} ({pStartup})</b> bá»©c xÃºc tá»‘ cÃ¡o bÃ i vÄƒn dá»± thi cá»§a mÃ¬nh lÆ°u trong thÆ° má»¥c Ä‘Ã¡m mÃ¢y lá»›p há»c bá»‹ <b>{dName} ({dStartup})</b> láº¥y ná»™p cho tá»• khÃ¡c!",
+      "knownFacts": "â€¢ <b>TÃ¬nh huá»‘ng táº¡i thÆ° má»¥c chung:</b> Link lÆ°u trá»¯ Ä‘Ã¡m mÃ¢y cá»§a lá»›p Ä‘Æ°á»£c má»Ÿ Ä‘á»ƒ ná»™p bÃ i táº­p, trong Ä‘Ã³ má»—i báº¡n cÃ³ má»™t thÆ° má»¥c cÃ¡ nhÃ¢n Ä‘áº·t tÃªn riÃªng.<br>â€¢ <b>HÃ nh Ä‘á»™ng cá»§a {dName}:</b> <b>{dName}</b> Ä‘Ã£ má»Ÿ thÆ° má»¥c cÃ¡ nhÃ¢n cá»§a <b>{pName}</b>, táº£i tá»‡p <i>\"BaiVan_Diem10.docx\"</i> vá» mÃ¡y rá»“i Ä‘á»•i tÃªn tÃ¡c giáº£ thÃ nh tÃªn tá»• mÃ¬nh Ä‘em ná»™p.",
+      "exhibitBox": "â˜ï¸ [Nháº­t kÃ½ thao tÃ¡c Ä‘Ã¡m mÃ¢y]: Tá»‡p \"BaiVan_Diem10.docx\" trong thÆ° má»¥c riÃªng cá»§a {pName} bá»‹ táº£i vá» lÃºc 20:10 vÃ  ná»™p láº¡i dÆ°á»›i tÃªn {dName}.",
       "cards": [
-        { "id": "EXCUSE", "quote": "\"Thư mục đám mây chia sẻ chung cho cả lớp thì tệp nào trong đó tụi em cũng được tải về sử dụng nộp bài!\"" },
-        { "id": "APOLOGIZE", "quote": "\"Chúng em sai cả Điều 3 lẫn Điều 2 rồi! Tự ý vào thư mục riêng của bạn lấy tệp là sai Điều 3, lại đổi tên nhận bài của bạn là của mình là sai Điều 2. Xin nhận lỗi!\"" }
+        { "id": "EXCUSE", "quote": "\"ÄÆ°á»ng link thÆ° má»¥c Ä‘Ã¡m mÃ¢y Ä‘Æ°á»£c giÃ¡o viÃªn cáº¥p quyá»n truy cáº­p má»Ÿ cho táº¥t cáº£ há»c sinh trong lá»›p Ä‘á»ƒ chia sáº» nguá»“n há»c liá»‡u, nÃªn má»i tÃ i liá»‡u trong Ä‘Ã³ Ä‘á»u lÃ  dá»¯ liá»‡u tham kháº£o chung, ai cÅ©ng cÃ³ quyá»n táº£i vá» sá»­ dá»¥ng!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Theo Äiá»u 3 vÃ  Äiá»u 2 SGK, thÆ° má»¥c cÃ¡ nhÃ¢n Ä‘áº·t tÃªn riÃªng lÃ  khÃ´ng gian riÃªng tÆ°. Viá»‡c tá»± Ã½ táº£i bÃ i cá»§a báº¡n ná»™p dÆ°á»›i tÃªn tá»• mÃ¬nh lÃ  vá»«a xÃ¢m pháº¡m quyá»n riÃªng tÆ° vá»«a máº¡o danh tÃ¡c giáº£. Tá»• em xin nháº­n trÃ¡ch nhiá»‡m!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Chiếu theo Điều 3 & Điều 2 SGK trang 22: Tự ý truy cập tài liệu riêng của bạn khi chưa được phép là vi phạm quyền riêng tư, nhận bài của người khác là của mình là <b>HÀNH VI SAI TRÁI!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Chiáº¿u theo Äiá»u 3 & Äiá»u 2 SGK trang 22: Tá»± Ã½ truy cáº­p tÃ i liá»‡u riÃªng cá»§a báº¡n khi chÆ°a Ä‘Æ°á»£c phÃ©p lÃ  vi pháº¡m quyá»n riÃªng tÆ°, nháº­n bÃ i cá»§a ngÆ°á»i khÃ¡c lÃ  cá»§a mÃ¬nh lÃ  <b>HÃ€NH VI SAI TRÃI!</b>"
     },
     {
       "id": "case_code_game",
       "mockupType": "code_game",
       "round": 2,
       "type": "TRAP",
-      "lawTag": "Hợp pháp đúng Điều 1 & 2 (Dùng khối lệnh Scratch mở và ghi nhận tác giả trong Notes & Credits)",
-      "rumor": "Một số bạn nghi ngờ trò chơi lập trình Scratch mới của <b>{dName} ({dStartup})</b> sao chép mã lệnh di chuyển nhân vật từ dự án của <b>{pName} ({pStartup})</b>!",
-      "knownFacts": "• <b>Nguồn gốc tài nguyên:</b> <b>{pName}</b> chia sẻ khối lệnh điều khiển nhân vật lên cộng đồng Scratch với chế độ mở khuyến khích mọi người học tập.<br>• <b>Trong phần giới thiệu dự án:</b> <b>{dName}</b> điền đầy đủ thông tin tại ô <i>\"Notes and Credits\"</i> như sau:",
-      "exhibitBox": "🧩 [Mục Notes & Credits dự án Scratch của {dName}]: \"Mã điều khiển nhân vật bay tham khảo từ dự án mở của bạn {pName} ({pStartup}) — Xin chân thành cảm ơn tác giả!\"",
+      "lawTag": "Há»£p phÃ¡p Ä‘Ãºng Äiá»u 1 & 2 (DÃ¹ng khá»‘i lá»‡nh Scratch má»Ÿ vÃ  ghi nháº­n tÃ¡c giáº£ trong Notes & Credits)",
+      "rumor": "Má»™t sá»‘ báº¡n nghi ngá» trÃ² chÆ¡i láº­p trÃ¬nh Scratch má»›i cá»§a <b>{dName} ({dStartup})</b> sao chÃ©p mÃ£ lá»‡nh di chuyá»ƒn nhÃ¢n váº­t tá»« dá»± Ã¡n cá»§a <b>{pName} ({pStartup})</b>!",
+      "knownFacts": "â€¢ <b>Nguá»“n gá»‘c tÃ i nguyÃªn:</b> <b>{pName}</b> chia sáº» khá»‘i lá»‡nh Ä‘iá»u khiá»ƒn nhÃ¢n váº­t lÃªn cá»™ng Ä‘á»“ng Scratch vá»›i cháº¿ Ä‘á»™ má»Ÿ khuyáº¿n khÃ­ch má»i ngÆ°á»i há»c táº­p.<br>â€¢ <b>Trong pháº§n giá»›i thiá»‡u dá»± Ã¡n:</b> <b>{dName}</b> Ä‘iá»n Ä‘áº§y Ä‘á»§ thÃ´ng tin táº¡i Ã´ <i>\"Notes and Credits\"</i> nhÆ° sau:",
+      "exhibitBox": "ðŸ§© [Má»¥c Notes & Credits dá»± Ã¡n Scratch cá»§a {dName}]: \"MÃ£ Ä‘iá»u khiá»ƒn nhÃ¢n váº­t bay tham kháº£o tá»« dá»± Ã¡n má»Ÿ cá»§a báº¡n {pName} ({pStartup}) â€” Xin chÃ¢n thÃ nh cáº£m Æ¡n tÃ¡c giáº£!\"",
       "cards": [
-        { "id": "LEGAL_DEFENSE", "quote": "\"Khối lệnh được tác giả chia sẻ mở cho cộng đồng học hỏi, chúng em đã ghi công tác giả ở mục Notes and Credits đúng chuẩn đạo đức số!\"" },
-        { "id": "CLUMSY", "quote": "\"Tất cả mọi khối lệnh lập trình trên thế giới đều do tổ em phát minh ra nên tụi em không cần ghi nhận ai cả!\"" }
+        { "id": "LEGAL_DEFENSE", "quote": "\"Khá»‘i lá»‡nh Ä‘Æ°á»£c tÃ¡c giáº£ chia sáº» má»Ÿ cho cá»™ng Ä‘á»“ng há»c há»i, chÃºng em Ä‘Ã£ ghi cÃ´ng tÃ¡c giáº£ á»Ÿ má»¥c Notes and Credits Ä‘Ãºng chuáº©n Ä‘áº¡o Ä‘á»©c sá»‘!\"" },
+        { "id": "CLUMSY", "quote": "\"Cá»™ng Ä‘á»“ng Scratch lÃ  nÆ¡i chia sáº» mÃ£ lá»‡nh tá»± do nÃªn tá»• em tháº¥y khá»‘i lá»‡nh hay thÃ¬ cá»© kÃ©o ghÃ©p vÃ o game cá»§a mÃ¬nh thÃ´i, khÃ´ng cáº§n báº­n tÃ¢m Ä‘áº¿n quy táº¯c nÃ o!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Sử dụng tài nguyên mở phục vụ học tập và ghi nhận đầy đủ tên tác giả tại phần ghi chú nguồn là hành vi văn minh, tôn trọng bản quyền ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Sá»­ dá»¥ng tÃ i nguyÃªn má»Ÿ phá»¥c vá»¥ há»c táº­p vÃ  ghi nháº­n Ä‘áº§y Ä‘á»§ tÃªn tÃ¡c giáº£ táº¡i pháº§n ghi chÃº nguá»“n lÃ  hÃ nh vi vÄƒn minh, tÃ´n trá»ng báº£n quyá»n âž” <b>HOÃ€N TOÃ€N Há»¢P PHÃP!</b>"
     },
     {
       "id": "case_avatar_hack",
       "mockupType": "avatar_hack",
       "round": 2,
       "type": "VIOLATION",
-      "lawTag": "Vi phạm Điều 3 (Chụp trộm biểu cảm bạn bị ngã rồi đăng chế ảnh meme lên mạng xã hội)",
-      "rumor": "<b>{pName} ({pStartup})</b> buồn bã khi thấy hình ảnh biểu cảm hài hước của mình lúc vấp ngã bị <b>{dName} ({dStartup})</b> chế ảnh đăng lên nhóm mạng xã hội!",
-      "knownFacts": "• <b>Diễn biến tại sân trường:</b> Giờ ra chơi, <b>{pName}</b> vô tình vấp ngã làm rơi sách vở trên sân trường.<br>• <b>Hành động của {dName}:</b> <b>{dName}</b> dùng điện thoại chụp trộm khuôn mặt của <b>{pName}</b> rồi chèn câu chữ chế nhạo hài hước đăng lên nhóm chat công khai khi <b>{pName}</b> chưa hề đồng ý.",
-      "exhibitBox": "📲 [Bài đăng trên mạng xã hội của {dName}]: Ảnh chụp khuôn mặt ngã của {pName} — Kèm câu chế ảnh: \"Khi bạn cố gắng nhưng đời không như mơ 😂\"",
+      "lawTag": "Vi pháº¡m Äiá»u 3 (Chá»¥p trá»™m biá»ƒu cáº£m báº¡n bá»‹ ngÃ£ rá»“i Ä‘Äƒng cháº¿ áº£nh meme lÃªn máº¡ng xÃ£ há»™i)",
+      "rumor": "<b>{pName} ({pStartup})</b> buá»“n bÃ£ khi tháº¥y hÃ¬nh áº£nh biá»ƒu cáº£m hÃ i hÆ°á»›c cá»§a mÃ¬nh lÃºc váº¥p ngÃ£ bá»‹ <b>{dName} ({dStartup})</b> cháº¿ áº£nh Ä‘Äƒng lÃªn nhÃ³m máº¡ng xÃ£ há»™i!",
+      "knownFacts": "â€¢ <b>Diá»…n biáº¿n táº¡i sÃ¢n trÆ°á»ng:</b> Giá» ra chÆ¡i, <b>{pName}</b> vÃ´ tÃ¬nh váº¥p ngÃ£ lÃ m rÆ¡i sÃ¡ch vá»Ÿ trÃªn sÃ¢n trÆ°á»ng.<br>â€¢ <b>HÃ nh Ä‘á»™ng cá»§a {dName}:</b> <b>{dName}</b> dÃ¹ng Ä‘iá»‡n thoáº¡i chá»¥p trá»™m khuÃ´n máº·t cá»§a <b>{pName}</b> rá»“i chÃ¨n cÃ¢u chá»¯ cháº¿ nháº¡o hÃ i hÆ°á»›c Ä‘Äƒng lÃªn nhÃ³m chat cÃ´ng khai khi <b>{pName}</b> chÆ°a há» Ä‘á»“ng Ã½.",
+      "exhibitBox": "ðŸ“² [BÃ i Ä‘Äƒng trÃªn máº¡ng xÃ£ há»™i cá»§a {dName}]: áº¢nh chá»¥p khuÃ´n máº·t ngÃ£ cá»§a {pName} â€” KÃ¨m cÃ¢u cháº¿ áº£nh: \"Khi báº¡n cá»‘ gáº¯ng nhÆ°ng Ä‘á»i khÃ´ng nhÆ° mÆ¡ ðŸ˜‚\"",
       "cards": [
-        { "id": "EXCUSE", "quote": "\"Tụi em chỉ đăng ảnh chế cho vui trong nhóm bạn để giải trí thôi chứ không có ý thù ghét gì bạn cả nên không phạm luật!\"" },
-        { "id": "APOLOGIZE", "quote": "\"Tụi em nhận lỗi! Theo Điều 3 SGK, chụp ảnh người khác khi chưa xin phép rồi chia sẻ lên mạng làm ảnh hưởng tâm lý của bạn là vi phạm đạo đức số. Tụi em xin xóa bài ngay!\"" }
+        { "id": "EXCUSE", "quote": "\"SÃ¢n trÆ°á»ng lÃ  khÃ´ng gian sinh hoáº¡t cÃ´ng cá»™ng vÃ  bá»©c áº£nh cháº¿ hÃ i hÆ°á»›c chá»‰ chia sáº» trong nhÃ³m báº¡n bÃ¨ thÃ¢n thiáº¿t Ä‘á»ƒ giáº£i trÃ­ tuá»•i há»c trÃ², khÃ´ng há» cÃ³ má»¥c Ä‘Ã­ch xÃºc pháº¡m hay Ä‘Äƒng cÃ´ng khai ra ngoÃ i máº¡ng xÃ£ há»™i!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Theo Äiá»u 3 SGK trang 22, hÃ¬nh áº£nh cÃ¡ nhÃ¢n lÃ  quyá»n riÃªng tÆ° cá»§a má»—i ngÆ°á»i. Viá»‡c chá»¥p trá»™m vÃ  lan truyá»n lÃ m áº£nh hÆ°á»Ÿng tÃ¢m lÃ½ cá»§a báº¡n lÃ  vi pháº¡m Ä‘áº¡o Ä‘á»©c sá»‘. Tá»• em xin nháº­n khuyáº¿t Ä‘iá»ƒm vÃ  xÃ³a áº£nh ngay!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Theo Điều 3 SGK trang 22: Hình ảnh khuôn mặt của mỗi người là quyền riêng tư cá nhân. Chụp trộm và đăng lên mạng chế nhạo khi chưa được phép là <b>VI PHẠM QUYỀN RIÊNG TƯ!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Theo Äiá»u 3 SGK trang 22: HÃ¬nh áº£nh khuÃ´n máº·t cá»§a má»—i ngÆ°á»i lÃ  quyá»n riÃªng tÆ° cÃ¡ nhÃ¢n. Chá»¥p trá»™m vÃ  Ä‘Äƒng lÃªn máº¡ng cháº¿ nháº¡o khi chÆ°a Ä‘Æ°á»£c phÃ©p lÃ  <b>VI PHáº M QUYá»€N RIÃŠNG TÆ¯!</b>"
     },
     {
       "id": "case_science_report",
       "mockupType": "science_report",
       "round": 2,
       "type": "TRAP",
-      "lawTag": "Hợp pháp đúng Điều 1 (Đã gửi thư xin phép và ghi nguồn chú thích biểu đồ nghiên cứu)",
-      "rumor": "Nhiều tổ thắc mắc khi thấy bài báo cáo khoa học STEM của <b>{dName} ({dStartup})</b> có biểu đồ thí nghiệm nhiệt độ giống hệt số liệu của <b>{pName} ({pStartup})</b>!",
-      "knownFacts": "• <b>Sự thật giữa 2 tổ:</b> Tuần trước, đại diện <b>{dName}</b> đã gửi thư xin phép mượn bảng số liệu biểu đồ và được nhóm trưởng <b>{pName}</b> gửi văn bản đồng ý.<br>• <b>Dưới biểu đồ trong bài báo cáo:</b> <b>{dName}</b> in rõ chú thích trích dẫn nguồn:",
-      "exhibitBox": "📊 [Trang báo cáo STEM của {dName}]: Biểu đồ đo nhiệt độ nước — Dòng chú thích: \"Số liệu thí nghiệm được phép trích dẫn từ nhóm nghiên cứu {pName} ({pStartup})\"",
+      "lawTag": "Há»£p phÃ¡p Ä‘Ãºng Äiá»u 1 (ÄÃ£ gá»­i thÆ° xin phÃ©p vÃ  ghi nguá»“n chÃº thÃ­ch biá»ƒu Ä‘á»“ nghiÃªn cá»©u)",
+      "rumor": "Nhiá»u tá»• tháº¯c máº¯c khi tháº¥y bÃ i bÃ¡o cÃ¡o khoa há»c STEM cá»§a <b>{dName} ({dStartup})</b> cÃ³ biá»ƒu Ä‘á»“ thÃ­ nghiá»‡m nhiá»‡t Ä‘á»™ giá»‘ng há»‡t sá»‘ liá»‡u cá»§a <b>{pName} ({pStartup})</b>!",
+      "knownFacts": "â€¢ <b>Sá»± tháº­t giá»¯a 2 tá»•:</b> Tuáº§n trÆ°á»›c, Ä‘áº¡i diá»‡n <b>{dName}</b> Ä‘Ã£ gá»­i thÆ° xin phÃ©p mÆ°á»£n báº£ng sá»‘ liá»‡u biá»ƒu Ä‘á»“ vÃ  Ä‘Æ°á»£c nhÃ³m trÆ°á»Ÿng <b>{pName}</b> gá»­i vÄƒn báº£n Ä‘á»“ng Ã½.<br>â€¢ <b>DÆ°á»›i biá»ƒu Ä‘á»“ trong bÃ i bÃ¡o cÃ¡o:</b> <b>{dName}</b> in rÃµ chÃº thÃ­ch trÃ­ch dáº«n nguá»“n:",
+      "exhibitBox": "ðŸ“Š [Trang bÃ¡o cÃ¡o STEM cá»§a {dName}]: Biá»ƒu Ä‘á»“ Ä‘o nhiá»‡t Ä‘á»™ nÆ°á»›c â€” DÃ²ng chÃº thÃ­ch: \"Sá»‘ liá»‡u thÃ­ nghiá»‡m Ä‘Æ°á»£c phÃ©p trÃ­ch dáº«n tá»« nhÃ³m nghiÃªn cá»©u {pName} ({pStartup})\"",
       "cards": [
-        { "id": "LEGAL_DEFENSE", "quote": "\"Chúng em đã làm đúng Điều 1 SGK: Có văn bản xin phép được tác giả đồng ý và ghi rõ nguồn nhóm nghiên cứu bên dưới biểu đồ!\"" },
-        { "id": "CLUMSY", "quote": "\"Thấy số liệu của bạn trên bàn là tụi em chép số vào bài mình luôn cho nhanh chứ xin phép làm gì!\"" }
+        { "id": "LEGAL_DEFENSE", "quote": "\"ChÃºng em Ä‘Ã£ lÃ m Ä‘Ãºng Äiá»u 1 SGK: CÃ³ vÄƒn báº£n xin phÃ©p Ä‘Æ°á»£c tÃ¡c giáº£ Ä‘á»“ng Ã½ vÃ  ghi rÃµ nguá»“n nhÃ³m nghiÃªn cá»©u bÃªn dÆ°á»›i biá»ƒu Ä‘á»“!\"" },
+        { "id": "CLUMSY", "quote": "\"Sá»‘ liá»‡u biá»ƒu Ä‘á»“ nÃ y lÃ  káº¿t quáº£ thÃ­ nghiá»‡m khoa há»c cá»§a lá»›p nÃªn tá»• em cá»© Ä‘Æ°a vÃ o bÃ i bÃ¡o cÃ¡o STEM cho Ä‘áº§y Ä‘á»§ chá»© khÃ´ng cáº§n cÄƒn cá»© theo Ä‘iá»u luáº­t nÃ o!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Thực hiện đầy đủ 2 vế của Điều 1: Đã được tác giả đồng ý cho phép trích dẫn VÀ ghi rõ nguồn nhóm tác giả dưới biểu đồ ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Thá»±c hiá»‡n Ä‘áº§y Ä‘á»§ 2 váº¿ cá»§a Äiá»u 1: ÄÃ£ Ä‘Æ°á»£c tÃ¡c giáº£ Ä‘á»“ng Ã½ cho phÃ©p trÃ­ch dáº«n VÃ€ ghi rÃµ nguá»“n nhÃ³m tÃ¡c giáº£ dÆ°á»›i biá»ƒu Ä‘á»“ âž” <b>HOÃ€N TOÃ€N Há»¢P PHÃP!</b>"
     },
     {
       "id": "case_video_sub",
       "mockupType": "video_sub",
       "round": 2,
       "type": "VIOLATION",
-      "lawTag": "Vi phạm Điều 1 & Điều 2 (Tải video của bạn về chèn phụ đề, xóa tên tác giả gốc)",
-      "rumor": "<b>{pName} ({pStartup})</b> phát hiện video bài giảng Tiếng Anh khoa học do tổ mình kỳ công tự quay và lồng tiếng bị <b>{dName} ({dStartup})</b> đăng lên kênh khác!",
-      "knownFacts": "• <b>Về việc xin phép:</b> <b>{dName}</b> tải trọn vẹn tệp video gốc của <b>{pName}</b> từ trên mạng về máy mà chưa từng hỏi ý kiến <b>{pName}</b>.<br>• <b>Về việc ghi nhận tác giả:</b> <b>{dName}</b> cắt bỏ đoạn giới thiệu tên tổ của <b>{pName}</b> ở đầu video, sau đó chèn thêm dòng chữ phụ đề tiếng Việt và nhận video là của mình:",
-      "exhibitBox": "🎬 [Video đăng tải bởi {dName}]: Video Khoa Học Tự Nhiên — Cắt bỏ intro tên {pName} — Dòng ghi nhận: \"Biên soạn & Sản xuất: {dName} ({dStartup})\"",
+      "lawTag": "Vi pháº¡m Äiá»u 1 & Äiá»u 2 (Táº£i video cá»§a báº¡n vá» chÃ¨n phá»¥ Ä‘á», xÃ³a tÃªn tÃ¡c giáº£ gá»‘c)",
+      "rumor": "<b>{pName} ({pStartup})</b> phÃ¡t hiá»‡n video bÃ i giáº£ng Tiáº¿ng Anh khoa há»c do tá»• mÃ¬nh ká»³ cÃ´ng tá»± quay vÃ  lá»“ng tiáº¿ng bá»‹ <b>{dName} ({dStartup})</b> Ä‘Äƒng lÃªn kÃªnh khÃ¡c!",
+      "knownFacts": "â€¢ <b>Vá» viá»‡c xin phÃ©p:</b> <b>{dName}</b> táº£i trá»n váº¹n tá»‡p video gá»‘c cá»§a <b>{pName}</b> tá»« trÃªn máº¡ng vá» mÃ¡y mÃ  chÆ°a tá»«ng há»i Ã½ kiáº¿n <b>{pName}</b>.<br>â€¢ <b>Vá» viá»‡c ghi nháº­n tÃ¡c giáº£:</b> <b>{dName}</b> cáº¯t bá» Ä‘oáº¡n giá»›i thiá»‡u tÃªn tá»• cá»§a <b>{pName}</b> á»Ÿ Ä‘áº§u video, sau Ä‘Ã³ chÃ¨n thÃªm dÃ²ng chá»¯ phá»¥ Ä‘á» tiáº¿ng Viá»‡t vÃ  nháº­n video lÃ  cá»§a mÃ¬nh:",
+      "exhibitBox": "ðŸŽ¬ [Video Ä‘Äƒng táº£i bá»Ÿi {dName}]: Video Khoa Há»c Tá»± NhiÃªn â€” Cáº¯t bá» intro tÃªn {pName} â€” DÃ²ng ghi nháº­n: \"BiÃªn soáº¡n & Sáº£n xuáº¥t: {dName} ({dStartup})\"",
       "cards": [
-        { "id": "EXCUSE", "quote": "\"Tổ em đã mất công dịch và chèn thêm dòng chữ phụ đề tiếng Việt vào video thì đây là sản phẩm mới do tổ em sở hữu bản quyền!\"" },
-        { "id": "APOLOGIZE", "quote": "\"Chúng em sai rồi! Video của bạn mà tự ý tải về dùng không xin phép lại cắt intro xóa tên bạn là vi phạm cả Điều 1 và Điều 2!\"" }
+        { "id": "EXCUSE", "quote": "\"Tá»• em Ä‘Ã£ bá» nhiá»u thá»i gian dá»‹ch thuáº­t vÃ  lÃ m phá»¥ Ä‘á» tiáº¿ng Viá»‡t giÃºp ngÆ°á»i xem tiáº¿p cáº­n kiáº¿n thá»©c dá»… dÃ ng hÆ¡n, nÃªn theo quy Ä‘á»‹nh sÃ¡ng táº¡o sá»‘ thÃ¬ tá»• em chÃ­nh lÃ  Ä‘Æ¡n vá»‹ Ä‘á»“ng sáº£n xuáº¥t áº¥n báº£n Viá»‡t hÃ³a nÃ y!\"" },
+        { "id": "APOLOGIZE", "quote": "\"Theo Äiá»u 1 vÃ  Äiá»u 2 SGK, video thuá»™c quyá»n sá»Ÿ há»¯u cá»§a tÃ¡c giáº£ gá»‘c. Viá»‡c tá»± Ã½ táº£i vá» sá»­ dá»¥ng chÆ°a xin phÃ©p láº¡i cáº¯t intro xÃ³a tÃªn báº¡n lÃ  vi pháº¡m nghiÃªm trá»ng báº£n quyá»n. Tá»• em xin gá»¡ video vÃ  nháº­n trÃ¡ch nhiá»‡m!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Video thuộc quyền tác giả của <b>{pName}</b>. Việc chèn thêm phụ đề không biến video của người khác thành của mình khi <b>chưa được phép</b> và <b>xóa tên tác giả gốc</b> ➔ <b>VI PHẠM BẢN QUYỀN!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Video thuá»™c quyá»n tÃ¡c giáº£ cá»§a <b>{pName}</b>. Viá»‡c chÃ¨n thÃªm phá»¥ Ä‘á» khÃ´ng biáº¿n video cá»§a ngÆ°á»i khÃ¡c thÃ nh cá»§a mÃ¬nh khi <b>chÆ°a Ä‘Æ°á»£c phÃ©p</b> vÃ  <b>xÃ³a tÃªn tÃ¡c giáº£ gá»‘c</b> âž” <b>VI PHáº M Báº¢N QUYá»€N!</b>"
     },
     {
       "id": "case_library_wiki",
       "mockupType": "library_wiki",
       "round": 2,
       "type": "TRAP",
-      "lawTag": "Hợp pháp đúng Điều 2 & Vận dụng SGK (Trích dẫn định nghĩa từ Bách khoa toàn thư mở có dẫn nguồn)",
-      "rumor": "Có ý kiến cho rằng tài liệu Cẩm nang Tin học 5 của <b>{dName} ({dStartup})</b> sao chép nguyên văn định nghĩa từ mạng Internet mà không tự viết!",
-      "knownFacts": "• <b>Nội dung trích dẫn:</b> <b>{dName}</b> trích dẫn đoạn định nghĩa <i>\"Nội dung số là gì?\"</i> từ Bách khoa toàn thư mở Wikipedia (tài liệu cấp phép mở cho học tập).<br>• <b>Ngay cuối đoạn trích dẫn:</b> <b>{dName}</b> ghi chú nguồn thông tin đầy đủ:",
-      "exhibitBox": "📖 [Tài liệu Cẩm nang của {dName}]: Đoạn trích \"Nội dung số là sản phẩm dữ liệu...\" — Chú thích: \"Trích dẫn từ Bách khoa toàn thư mở Wikipedia (Giấy phép chia sẻ mở CC)\"",
+      "lawTag": "Há»£p phÃ¡p Ä‘Ãºng Äiá»u 2 & Váº­n dá»¥ng SGK (TrÃ­ch dáº«n Ä‘á»‹nh nghÄ©a tá»« BÃ¡ch khoa toÃ n thÆ° má»Ÿ cÃ³ dáº«n nguá»“n)",
+      "rumor": "CÃ³ Ã½ kiáº¿n cho ráº±ng tÃ i liá»‡u Cáº©m nang Tin há»c 5 cá»§a <b>{dName} ({dStartup})</b> sao chÃ©p nguyÃªn vÄƒn Ä‘á»‹nh nghÄ©a tá»« máº¡ng Internet mÃ  khÃ´ng tá»± viáº¿t!",
+      "knownFacts": "â€¢ <b>Ná»™i dung trÃ­ch dáº«n:</b> <b>{dName}</b> trÃ­ch dáº«n Ä‘oáº¡n Ä‘á»‹nh nghÄ©a <i>\"Ná»™i dung sá»‘ lÃ  gÃ¬?\"</i> tá»« BÃ¡ch khoa toÃ n thÆ° má»Ÿ Wikipedia (tÃ i liá»‡u cáº¥p phÃ©p má»Ÿ cho há»c táº­p).<br>â€¢ <b>Ngay cuá»‘i Ä‘oáº¡n trÃ­ch dáº«n:</b> <b>{dName}</b> ghi chÃº nguá»“n thÃ´ng tin Ä‘áº§y Ä‘á»§:",
+      "exhibitBox": "ðŸ“– [TÃ i liá»‡u Cáº©m nang cá»§a {dName}]: Äoáº¡n trÃ­ch \"Ná»™i dung sá»‘ lÃ  sáº£n pháº©m dá»¯ liá»‡u...\" â€” ChÃº thÃ­ch: \"TrÃ­ch dáº«n tá»« BÃ¡ch khoa toÃ n thÆ° má»Ÿ Wikipedia (Giáº¥y phÃ©p chia sáº» má»Ÿ CC)\"",
       "cards": [
-        { "id": "LEGAL_DEFENSE", "quote": "\"Theo phần Vận dụng SGK trang 23, chúng em sử dụng tài liệu chia sẻ mở phục vụ học tập và đã trích dẫn đầy đủ tên nguồn gốc tài liệu!\"" },
-        { "id": "CLUMSY", "quote": "\"Định nghĩa này do tổ em tự nghĩ ra từ năm ngoái chứ không hề có trên mạng đâu!\"" }
+        { "id": "LEGAL_DEFENSE", "quote": "\"Theo pháº§n Váº­n dá»¥ng SGK trang 23, chÃºng em sá»­ dá»¥ng tÃ i liá»‡u chia sáº» má»Ÿ phá»¥c vá»¥ há»c táº­p vÃ  Ä‘Ã£ trÃ­ch dáº«n Ä‘áº§y Ä‘á»§ tÃªn nguá»“n gá»‘c tÃ i liá»‡u!\"" },
+        { "id": "CLUMSY", "quote": "\"Äá»‹nh nghÄ©a vá» ná»™i dung sá»‘ cÃ³ sáºµn trÃªn máº¡ng ai tra cá»©u cÅ©ng tháº¥y, nÃªn tá»• em cá»© chÃ©p vÃ o cáº©m nang thÃ´i chá»© khÃ´ng cáº§n biáº¿t cÃ³ theo Ä‘Ãºng quy Ä‘á»‹nh hay khÃ´ng!\"" }
       ],
-      "verdictExplain": "⚖️ <b>CĂN CỨ PHÁP LÝ:</b> Chiếu theo mục Vận dụng SGK trang 23: Trích dẫn định nghĩa từ nguồn tài liệu tham khảo mở và ghi rõ tên nguồn là hành vi sử dụng thông tin hợp pháp và mẫu mực ➔ <b>HOÀN TOÀN HỢP PHÁP!</b>"
+      "verdictExplain": "âš–ï¸ <b>CÄ‚N Cá»¨ PHÃP LÃ:</b> Chiáº¿u theo má»¥c Váº­n dá»¥ng SGK trang 23: TrÃ­ch dáº«n Ä‘á»‹nh nghÄ©a tá»« nguá»“n tÃ i liá»‡u tham kháº£o má»Ÿ vÃ  ghi rÃµ tÃªn nguá»“n lÃ  hÃ nh vi sá»­ dá»¥ng thÃ´ng tin há»£p phÃ¡p vÃ  máº«u má»±c âž” <b>HOÃ€N TOÃ€N Há»¢P PHÃP!</b>"
     }
   ]
 };
