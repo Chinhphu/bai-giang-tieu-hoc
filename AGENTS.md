@@ -129,7 +129,7 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 ### 12. Điểm Khởi Đầu Mặc Định 1000đ (Base Score) & Cấu Hình 2–6 Tổ Linh Hoạt
 * **Phạm vi áp dụng:** Chỉ setup ở những tiết học hoặc mini-game có hệ thống tính điểm thi đua (đấu tổ, trả lời câu hỏi cộng/trừ điểm, đấu trường đối kháng, minigame cá cược/mua sắm...). KHÔNG áp dụng gượng ép cho các tiết thuần túy tích lũy linh kiện, checkbox hay bài tập đúng/sai không dùng thang điểm số.
 * **Giá trị mặc định:** `const STARTING_SCORE = 1000;` (mỗi tổ hoặc học sinh bắt đầu với 1000 điểm sàn).
-* **Linh hoạt từ 2 đến 6 Tổ:** UI luôn có sẵn các nút `[+ Thêm Tổ]` / `[- Bớt Tổ]` ở đầu giờ trước khi vào trận để giáo viên linh hoạt cấu hình theo sĩ số lớp (từ 2 đến 6 tổ) hoặc kích hoạt thêm Tổ Quỷ.
+* **Linh hoạt từ 2 đến 6 Tổ:** UI luôn có sẵn các nút `[+ Thêm Tổ]` / `[- Bớt Tổ]` ở đầu giờ trước khi vào trận để giáo viên linh hoạt cấu hình theo sĩ số lớp (từ 2 đến 6 tổ) hoặc kích hoạt thêm Tổ Quỷ (đối với Khối 5).
 * **Mục đích sư phạm:**
   * Tạo tâm lý phấn khởi, tự tin ngay từ đầu giờ học ("mỗi đội đều có sẵn vốn 1000 điểm năng lượng/khởi nghiệp").
   * **Chống điểm âm:** Khi học sinh bị trừ điểm hoặc phạt vi phạm (-20đ, -50đ, -100đ...), tổng điểm vẫn giữ ở mức dương, không làm các em nản lòng hay tự ti.
@@ -171,14 +171,16 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
     ```
   * Nhúng file qua `<script src="quests.js"></script>` trong `<head>`: 100% không bao giờ dính lỗi CORS trên `file:///`, giáo viên mở sửa trực tiếp như JSON mà không phải đồng bộ 2 nơi.
 
-### 16. Quy Chuẩn Tính Năng Ẩn: Cơ Chế "Phe Quỷ" Bất Công Công Khai (Asymmetric Debuff & Anti-Griefing)
-* **Bản chất Toàn Hệ Thống (Shared Mode / Component):** Đây là một **Chế độ chơi dùng chung toàn hệ thống** (`shared/js/demon-mode.js`), không phải tính năng tạm thời riêng lẻ của một tiết. Mọi tiết học ở tất cả các khối (1 - 5) đều có thể kích hoạt khi gặp lớp cá biệt.
+### 16. Quy Chuẩn Tính Năng Ẩn: Cơ Chế "Phe Quỷ" Bất Công Công Khai (Chỉ Dành Riêng Cho Khối 5 / Lớp 5)
+* **Đặc Quyền Dành Riêng Cho Khối 5 (Lớp 5):**
+  * Cơ chế Phe Quỷ (`shared/js/demon-mode.js`) được thiết kế **ĐỘC QUYỀN DÀNH RIÊNG CHO HỌC SINH KHỐI 5** (học sinh 10–11 tuổi có cá tính mạnh, bắt đầu có tâm lý nổi loạn tiền dậy thì, thích thể hiện cái tôi và quậy phá theo nhóm).
+  * **TUYỆT ĐỐI CẤM ÁP DỤNG cho Khối 1, 2, 3, 4:** Học sinh các khối 1–4 còn quá nhỏ, tâm lý nhạy cảm, dễ tủi thân và tiêu cực nếu bị gắn mác "Phe Quỷ" hay chịu chế độ phạt nặng. Ở các khối 1–4 chỉ áp dụng kỷ luật tích cực, nhắc nhở nhẹ nhàng và động viên sự tiến bộ.
 * **Triết Lý "Bất Công Công Khai" (Đập Bỏ Tôn Vinh Ngầm):**
   * Thực tế lớp học đã chứng minh: cho Phe Quỷ giao diện ngầu, sấm sét tím và phần thưởng "Quỷ Vương lên cầm chuột máy giáo viên" sẽ phản tác dụng — học sinh coi đó là đặc quyền VIP để quậy phá.
   * Hệ thống tuyên bố thẳng thắn trên UI và trong luật: **"Tổ Quỷ luôn chịu sự bất công của hệ thống"**.
 * **Bộ Luật Bất Công (Hardcore Handicap):**
   1. **Trả lời đúng:** Chỉ nhận **50% điểm thưởng** (+50đ thay vì +100đ), hoặc chỉ được dùng để "chuộc tội" giảm án phạt, trần điểm tối đa không vượt sàn 1000đ.
-  2. **Trả lời sai / Vi phạm trật tự:** Bị phạt **gấp đôi (-200đ)** và số điểm bị trừ này được **bơm thẳng vào "Quỹ Cứu TrỢ"** chia cho các tổ Loài Người (hoặc cộng cho tổ Loài Người đang thấp điểm nhất).
+  2. **Trả lời sai / Vi phạm trật tự:** Bị phạt **gấp đôi (-200đ)** và số điểm bị trừ này được **bơm thẳng vào "Quỹ Cứu Trợ"** chia cho các tổ Loài Người (hoặc cộng cho tổ Loài Người đang thấp điểm nhất).
   3. **Gacha Bất Lợi:** Trong các game có yếu tố may rủi (như *IT Tycoon*), tỷ lệ gặp sự cố/virus của Tổ Quỷ mặc định bị nâng lên **60% – 80%** thay vì 30% như tổ thường.
 * **Bãi Bỏ Hoàn Toàn Danh Hiệu "Quỷ Vương Cầm Máy":**
   * Xóa bỏ hoàn toàn phần thưởng cho phép học sinh cá biệt lên bục giảng điều khiển máy chiếu tiết sau và toàn bộ quy trình 3 bậc xét duyệt rườm rà (so lỗi vi phạm, soi vở tại chỗ, đấu Gacha 1-1).
@@ -192,7 +194,7 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
   * Tách riêng bảng danh sách trong file CSV: `=== THEO DÕI HÀNH VI & KỶ LUẬT (PHE QUỶ) ===`.
   * Xếp loại TT27: Mặc định là **C (Chưa hoàn thành)** hoặc **H (Hoàn thành nhưng cần rèn luyện thêm ý thức)** kèm nhận xét chi tiết, trung thực để làm việc với GVCN và phụ huynh.
 * **Phương thức kích hoạt ẩn (Zero Overhead):**
-  * Kích hoạt qua file wrapper `tiet-X/index-mavuong.html` (`index.html?mode=mavuong`) hoặc phím tắt ẩn của Giáo viên (`Ctrl + Alt + D` hoặc click 4 lần vào logo) ngay trong `index.html`.
+  * Kích hoạt qua file wrapper `tiet-X/index-mavuong.html` (`index.html?mode=mavuong`) hoặc phím tắt ẩn của Giáo viên (`Ctrl + Alt + D` hoặc click 4 lần vào logo) ngay trong `index.html` của Khối 5.
 
 ### 17. Cơ Chế Can Thiệp Sửa Điểm, Dây Thắng (Streak) & Xếp Hạng Thủ Công Khi Bấm Nhầm (Manual Score & Streak Override)
 * **Ý nghĩa sư phạm:** Trong giờ học thực tế, học sinh hoặc giáo viên rất dễ bấm nhầm: học sinh lỡ tay nhấp nhầm đáp án, giáo viên bấm nhầm nút cộng/trừ điểm hoặc chấm nhầm tổ, chuột bị double-click, v.v. Nếu hệ thống cứng nhắc không cho sửa, học sinh sẽ ức chế, tranh cãi, làm gián đoạn tiết học.
@@ -286,7 +288,7 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Đã nhúng `prevent-reload.js` và `core.js` chưa?
 - [ ] Font chữ có đúng chuẩn của Khối đó không?
 - [ ] Mọi chỗ có học sinh phát biểu đều có ô chọn học sinh + nút Gacha chưa? (Chỉ log telemetry, không cộng điểm tổ khi phát biểu tự do)
-- [ ] Nếu đấu theo tổ: Hàm Gacha đã có tham số `spinGacha(teamId)` lọc đúng học sinh của tổ đang tới lượt chưa? (Không quay ngẫu nhiên toàn lớp làm mất thời gian chết)
+- [ ] Nếu đấu theo tổ: Đã hỗ trợ cơ chế bốc thăm linh hoạt (bấm Gacha nhiều lần đến khi ra bạn thuộc tổ đang tới lượt hoặc chọn nhanh từ danh sách) chưa?
 - [ ] UI thi đua có nút linh hoạt từ 2 đến 6 tổ (`[+ Thêm Tổ]` / `[- Bớt Tổ]`) chưa?
 - [ ] Tương tác 100% không đạo cụ (Zero-Prop): Sử dụng ký hiệu tay (ngón tay 1-2-3-4 cho ABCD, X/O, thả tim) + Gacha, không dùng bảng con/hoa xoay/đạo cụ giấy tờ?
 - [ ] Có Slide khởi động (Hook) khơi gợi tò mò đầu giờ chưa? (Không mở đầu áp đặt một chiều)
@@ -304,7 +306,7 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Điểm khởi đầu mặc định có được thiết lập 1000đ (đối với các tiết/game có hệ thống tính điểm) không?
 - [ ] Đã có công cụ cho phép Giáo viên sửa điểm, sửa chuỗi dây (streak) hoặc thứ hạng khi bấm nhầm chưa?
 - [ ] Bảng xếp hạng và xuất CSV có cơ chế xử lý đồng hạng (bằng điểm $\to$ cùng hạng, cùng cúp/huy chương, danh hiệu "Đồng Quán quân / Đồng Á quân") không?
-- [ ] Nếu kích hoạt Phe Quỷ: Đã tuân thủ cơ chế Bất Công Công Khai (tuyệt đối không trao quyền Quỷ Vương cầm máy, đúng +50% max 1000đ, sai/phạt -200đ vào Quỹ Cứu Trợ, rớt sàn <800đ, ân xá hoàn lương) chưa?
+- [ ] Nếu là Khối 5 và kích hoạt Phe Quỷ: Đã tuân thủ cơ chế Bất Công Công Khai (chỉ áp dụng Khối 5, tuyệt đối không áp dụng Khối 1-4; không trao quyền Quỷ Vương cầm máy, đúng +50% max 1000đ, sai/phạt -200đ vào Quỹ Cứu Trợ, rớt sàn <800đ, ân xá hoàn lương) chưa?
 - [ ] Tên file CSV xuất ra có đúng quy cách `KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}...` không?
 - [ ] 100% file HTML đã có cơ chế tự động lưu LocalStorage (Auto-Save) phòng cúp điện/sập nguồn chưa?
 - [ ] 100% file HTML đã có nút Xóa dữ liệu phiên (Clear Session Button) có xác nhận confirm và thông báo chưa?

@@ -17,7 +17,7 @@
 9. [Hệ thống Lưu trữ LocalStorage Bắt Buộc & Phục Hồi Khi Cúp Điện (Crash Recovery & Auto-Save)](#9-hệ-thống-lưu-trữ-localstorage-bắt-buộc--phục-hồi-khi-cúp-điện-crash-recovery--auto-save)
 10. [Hệ thống Điểm Khởi Đầu 1000đ, Xếp Rank Đồng Hạng & Can Thiệp Sửa Điểm/Chuỗi Dây Khi Thao Tác Nhầm](#10-hệ-thống-điểm-khởi-đầu-1000đ-xếp-rank-đồng-hạng--can-thiệp-sửa-điểmchuỗi-dây-khi-thao-tác-nhầm)
 11. [Hệ thống Quản lý Quests & Câu hỏi bằng File quests.js Duy Nhất](#11-hệ-thống-quản-lý-quests--câu-hỏi-bằng-file-questsjs-duy-nhất)
-12. [Hệ thống Tính Năng Ẩn: Cơ Chế "Phe Quỷ" Bất Công Công Khai (Asymmetric Debuff & Anti-Griefing)](#12-hệ-thống-tính-năng-ẩn-cơ-chế-phe-quỷ-bất-công-công-khai-asymmetric-debuff--anti-griefing)
+12. [Hệ thống Tính Năng Ẩn: Cơ Chế "Phe Quỷ" Bất Công Công Khai (Chỉ Dành Riêng Cho Khối 5)](#12-hệ-thống-tính-năng-ẩn-cơ-chế-phe-quỷ-bất-công-công-khai-chỉ-áp-dụng-riêng-cho-khối-5--lớp-5)
 13. [Hệ thống Dàn Dựng Bàn Phím Máy Tính Ảo Chuẩn Công Thái Học (Realistic ANSI Keyboard Layout)](#13-hệ-thống-dàn-dựng-bàn-phím-máy-tính-ảo-chuẩn-công-thái-học-realistic-ansi-keyboard-layout)
 14. [Giao thức Cập nhật Quy chuẩn (Living Document Protocol)](#14-giao-thức-cập-nhật-quy-chuẩn-living-document-protocol)
 
@@ -45,7 +45,7 @@ bai-giang-tieu-hoc/
 │   │   └── core.css           # CSS cơ bản toàn hệ thống
 │   └── js/
 │       ├── core.js            # Xuất CSV UTF-8 BOM, đồng bộ GAS, helper toàn hệ thống
-│       ├── demon-mode.js      # Logic Phe Quỷ / Đấu trường Ma Vương dùng chung toàn hệ thống
+│       ├── demon-mode.js      # Logic Phe Quỷ / Đấu trường Ma Vương (Độc quyền dành riêng cho Khối 5)
 │       └── prevent-reload.js  # Bộ bảo vệ chống bấm nhầm phím/chuột làm mất dữ liệu
 ├── khoi-1/ ... khoi-5/        # Thư mục bài giảng 5 khối lớp
 │   ├── shared/                # Thành phần dùng chung của khối (template.html, components.js, style.css)
@@ -568,7 +568,7 @@ function clearSessionData() {
   * Áp dụng cho các tiết học hoặc mini-game có hệ thống tính điểm thi đua: đấu tổ, trả lời trắc nghiệm/vấn đáp cộng-trừ điểm, đấu trường đối kháng, mô hình đầu tư/startup (ví dụ: Khối 5 Shark Tank IT, Khối 4 Đấu trường, Khối 3 Cắt cáp...).
   * **KHÔNG** bắt buộc ở những tiết chỉ tính số lượng linh kiện thu thập được, đếm số màn chơi hoàn thành, hoặc câu hỏi checkbox Đạt / Chưa đạt.
 * **Cú pháp hằng số chuẩn & Bố trí nút linh hoạt 2–6 Tổ:**
-  * **Linh hoạt số lượng Tổ (2 đến 6 Tổ):** Thay vì fix cứng 4 tổ, giao diện cài đặt đầu giờ luôn có nút `[+ Thêm Tổ]` / `[- Bớt Tổ]` (cho phép cấu hình linh hoạt từ 2 đến 6 tổ tùy theo quy mô lớp hoặc thêm Tổ Quỷ khi kích hoạt).
+  * **Linh hoạt số lượng Tổ (2 đến 6 Tổ):** Thay vì fix cứng 4 tổ, giao diện cài đặt đầu giờ luôn có nút `[+ Thêm Tổ]` / `[- Bớt Tổ]` (cho phép cấu hình linh hoạt từ 2 đến 6 tổ tùy theo quy mô lớp hoặc thêm Tổ Quỷ khi kích hoạt ở Khối 5).
   ```javascript
   const STARTING_SCORE = 1000;
   // Cấu hình khởi tạo mặc định (linh hoạt mở rộng 2 - 6 tổ)
@@ -733,11 +733,15 @@ function clearSessionData() {
 
 ---
 
-## 12. HỆ THỐNG TÍNH NĂNG ẨN: CƠ CHẾ "PHE QUỶ" BẤT CÔNG CÔNG KHAI (ASYMMETRIC DEBUFF & ANTI-GRIEFING)
+## 12. HỆ THỐNG TÍNH NĂNG ẨN: CƠ CHẾ "PHE QUỶ" BẤT CÔNG CÔNG KHAI (CHỈ ÁP DỤNG RIÊNG CHO KHỐI 5 / LỚP 5)
 
-### 12.1 Bản chất Toàn Hệ Thống (Shared Mode / Component)
-* **Không phải tính năng riêng lẻ tạm thời:** Cơ chế Phe Quỷ là một **chế độ chơi dùng chung toàn hệ thống** được đóng gói tại `shared/js/demon-mode.js` và CSS tại `shared/css/core.css`.
-* **Phạm vi áp dụng:** Bất kỳ tiết học nào thuộc bất kỳ khối lớp nào (Khối 1 - Khối 5) đều có thể nạp và kích hoạt khi lớp học có học sinh cá biệt (qua query URL `?mode=mavuong`, sessionStorage hoặc phím tắt `Ctrl + Alt + D`).
+### 12.1 Đặc Quyền Độc Quyền Dành Riêng Cho Khối 5 (Lớp 5)
+* **Đặc quyền độc quyền của Khối 5:** Cơ chế Phe Quỷ (`shared/js/demon-mode.js`) được thiết kế **ĐỘC QUYỀN VÀ CHỈ ÁP DỤNG CHO HỌC SINH KHỐI 5 (LỚP 5)**.
+* **Lý do sư phạm lứa tuổi:**
+  * **Học sinh Khối 1 đến Khối 4 (6 – 9 tuổi):** Tâm sinh lý còn non nớt, dễ tủi thân, chưa có khả năng tự điều chỉnh cảm xúc phức tạp. Việc bị đưa vào "Phe Quỷ", chịu luật "bất công công khai", trừ điểm nặng hay hạ xếp loại C dễ gây sang chấn tâm lý, mặc cảm hoặc tiêu cực học đường. Ở Khối 1–4, giáo viên chỉ áp dụng kỷ luật tích cực: nhắc nhở nhẹ nhàng, kiểm tra tư thế (như widget cầm chuột ở Khối 1), hoặc trừ điểm nhẹ.
+  * **Học sinh Khối 5 (10 – 11 tuổi):** Bước vào giai đoạn tiền dậy thì, học sinh có cá tính mạnh, bắt đầu hình thành tâm lý nổi loạn, thích tụ tập bè phái quậy phá ngầm, thích thể hiện cái tôi trước bạn bè hoặc thách thức giáo viên. Cơ chế "Bất công công khai" được may đo riêng cho lứa tuổi này: đánh trúng tâm lý sĩ diện, khiến hành vi quậy phá không còn là chỗ để "làm ngầu" mà trở thành sự thiệt thòi cay đắng và làm lợi cho các bạn khác (Quỹ cứu trợ).
+* **TUYỆT ĐỐI CẤM:** Không được kích hoạt hoặc tích hợp Phe Quỷ vào bất kỳ bài học nào của Khối 1, Khối 2, Khối 3 và Khối 4.
+* **Hình thức kích hoạt:** Chỉ áp dụng trong các tiết Khối 5 có học sinh cá biệt (qua query URL `?mode=mavuong`, sessionStorage hoặc phím tắt ẩn của Giáo viên `Ctrl + Alt + D`).
 
 ### 12.2 Bối cảnh Sư phạm Thực Tế & Triết Lý "Bất Công Công Khai" (Asymmetric Debuff / Hardcore Handicap)
 * **Bài học đắt giá từ thực tế lớp học:**

@@ -18,9 +18,9 @@ Các bài giảng Tin học khối 3 có cùng khung lớp học theo chuẩn gi
 ## Cơ chế Xuất Báo Cáo CSV & Đồng Bộ Google Drive
 
 Toàn bộ hệ thống xuất file báo cáo ở định dạng **CSV chuẩn UTF-8 có BOM (`\uFEFF`)**:
-1. **Quy cách đặt tên file chuẩn thống nhất:**
-   `KetQua_TinHoc3_Lop_{Lop}_Tiet_{Tiet}_{HH}h{MM}p{SS}s_Ngay_{DD}-{MM}-{YYYY}.csv`
-   *(Ví dụ: `KetQua_TinHoc3_Lop_3-2_Tiet_06_14h30p25s_Ngay_31-10-2026.csv`)*
+1. **Quy cách đặt tên file chuẩn thống nhất (Đưa Ngày lên trước Giờ để tự động sort theo tên):**
+   `KetQua_TinHoc3_Lop_{Lop}_Tiet_{Tiet}_Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s.csv`
+   *(Ví dụ: `KetQua_TinHoc3_Lop_3-2_Tiet_06_Ngay_2026-10-31_14h30p25s.csv`)*
 2. Khi giáo viên bấm nút **"📥 Xuất CSV báo cáo"** ở màn hình tổng kết:
 3. Hệ thống sử dụng hàm `uploadCsvToDrive(csvDataOrSections, fileName)` (cung cấp sẵn từ `../shared/components.js`, với alias tương thích `uploadExcelToDrive`).
 4. Với báo cáo nhiều phần (Bảng Xếp Hạng, Nhật Ký Chi Tiết, Danh Sách Học Sinh), hệ thống tự động gộp thành định dạng multi-section CSV ngăn cách bởi tiêu đề `=== TÊN PHẦN ===`, lưu giữ trọn vẹn dữ liệu.

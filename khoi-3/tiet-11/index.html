@@ -948,24 +948,6 @@
                 </div>
                 <div id="teamsListRack"></div>
             </div>
-
-            <!-- Khung Quản lý Phe Quỷ (Demon Mode) -->
-            <div class="card-panel" style="background:#1e1b4b; border-color:#4338ca; color:#fff; padding:12px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-weight:900; font-size:0.95rem; color:#f472b6;">😈 PHE QUỶ (CÁ BIỆT)</span>
-                    <button onclick="toggleDemonMode()" style="background:#4338ca; color:#fff; font-size:0.78rem; font-weight:800; padding:3px 8px; border-radius:6px;">
-                        Kích hoạt
-                    </button>
-                </div>
-                <div id="demonModeContainer" style="display:none; margin-top:8px; font-size:0.85rem; color:#cbd5e1;">
-                    <div style="font-size:0.82rem; color:#fda4af; margin-bottom:4px;">Chuyển học sinh vi phạm sang Phe Quỷ:</div>
-                    <div style="display:flex; gap:4px;">
-                        <select id="banishSelect" style="flex:1; background:#0f172a; color:#fff; border:1px solid #6366f1; padding:4px; border-radius:4px; font-size:0.82rem;"></select>
-                        <button onclick="banishToDemon()" style="background:#e11d48; color:#fff; font-weight:800; padding:4px 8px; border-radius:4px; font-size:0.8rem;">Trục xuất</button>
-                    </div>
-                    <div id="demonMembersList" style="margin-top:6px; font-weight:700; color:#f43f5e;">Chưa có quỷ nào.</div>
-                </div>
-            </div>
         </aside>
     </div>
 
@@ -1001,8 +983,6 @@
         let currentTurnTeamIndex = 0;
         let currentQuestionIndex = 0;
         let stagedStudent = null;
-        let demonModeActive = false;
-        let demonList = [];
 
         // Mảng danh sách tổ
         let teams = [
@@ -1182,9 +1162,7 @@
                     teams,
                     currentTurnTeamIndex,
                     currentQuestionIndex,
-                    doneStudents: Array.from(doneStudents),
-                    demonList,
-                    demonModeActive
+                    doneStudents: Array.from(doneStudents)
                 };
                 localStorage.setItem(getStorageKey(), JSON.stringify(state));
             } catch (e) {}
@@ -1200,8 +1178,6 @@
                     if (state.currentTurnTeamIndex !== undefined) currentTurnTeamIndex = state.currentTurnTeamIndex;
                     if (state.currentQuestionIndex !== undefined) currentQuestionIndex = state.currentQuestionIndex;
                     if (state.doneStudents) doneStudents = new Set(state.doneStudents);
-                    if (state.demonList) demonList = state.demonList;
-                    if (state.demonModeActive) demonModeActive = state.demonModeActive;
                     showToast("⚡ Đã tự động khôi phục dữ liệu phiên học trước!");
                 }
             } catch (e) {}
@@ -1212,7 +1188,6 @@
                 localStorage.removeItem(getStorageKey());
                 teams.forEach(t => t.score = STARTING_SCORE);
                 doneStudents.clear();
-                demonList = [];
                 currentQuestionIndex = 0;
                 saveLocalState();
                 renderTeamsRack();
@@ -1673,22 +1648,6 @@
             toast.textContent = msg;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3200);
-        }
-
-        function toggleDemonMode() {
-            demonModeActive = !demonModeActive;
-            document.getElementById('demonModeContainer').style.display = demonModeActive ? 'block' : 'none';
-            showToast(demonModeActive ? "⚠️ Đã kích hoạt Chế độ Phe Quỷ!" : "Đã tắt Phe Quỷ");
-            saveLocalState();
-        }
-
-        function banishToDemon() {
-            const name = document.getElementById('banishSelect').value;
-            if (!name || demonList.includes(name)) return;
-            demonList.push(name);
-            document.getElementById('demonMembersList').textContent = `Quỷ: ${demonList.join(', ')}`;
-            showToast(`⚡ Đã trục xuất ${name} sang Phe Quỷ!`);
-            saveLocalState();
         }
     </script>
 </body>

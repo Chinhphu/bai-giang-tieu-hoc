@@ -116,9 +116,9 @@ Phòng máy tính tiểu học thường xuyên gặp sự cố cúp điện đ�
 
 ---
 
-## 😈 Cơ Chế Phe Quỷ: Bất Công Công Khai (Asymmetric Debuff & Anti-Griefing)
+## 😈 Cơ Chế Phe Quỷ: Bất Công Công Khai (Chỉ Dành Riêng Cho Khối 5 / Lớp 5)
 
-Áp dụng cho các lớp cá biệt có học sinh cố tình phá bĩnh, chống đối (`shared/js/demon-mode.js`):
+Áp dụng **ĐỘC QUYỀN CHO KHỐI 5** khi gặp các lớp cá biệt có học sinh tiền dậy thì cố tình phá bĩnh, chống đối (`shared/js/demon-mode.js`). *Tuyệt đối không áp dụng cho Khối 1, 2, 3, 4 vì tâm lý học sinh còn nhỏ, chỉ nên giáo dục tích cực.*:
 1. **Triết lý Bất Công Công Khai:** Tuyên bố thẳng trên UI: *"Tổ Quỷ luôn chịu sự bất công của hệ thống"*. Triệt tiêu tư tưởng "tôn vinh ngầm" hay xem việc vào Phe Quỷ là đặc quyền VIP.
 2. **Bãi bỏ hoàn toàn "Quỷ Vương cầm máy":** Xóa bỏ đặc quyền lên bục giảng cầm chuột điều khiển máy chiếu và toàn bộ quy trình 3 bậc xét duyệt rườm rà. Học sinh quậy phá không được nắm quyền lực điều khiển lớp.
 3. **Hệ số Bất Công (Hardcore Handicap):**

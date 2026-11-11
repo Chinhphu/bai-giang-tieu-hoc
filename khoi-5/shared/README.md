@@ -57,9 +57,9 @@ Modal chấp nhận `cancel-label`; summary chấp nhận `export-label` và `go
 ## Cơ chế Xuất Báo Cáo CSV & Đồng Bộ Google Drive
 
 Toàn bộ các tiết Tin học 5 xuất file báo cáo ở định dạng **CSV chuẩn UTF-8 có BOM (`\uFEFF`)**:
-1. **Quy cách đặt tên file chuẩn thống nhất:**
-   `KetQua_TinHoc5_Lop_{Lop}_Tiet_{Tiet}_{HH}h{MM}p{SS}s_Ngay_{DD}-{MM}-{YYYY}.csv`
-   *(Ví dụ: `KetQua_TinHoc5_Lop_5-2_Tiet_07_15h40p12s_Ngay_31-10-2026.csv`)*
+1. **Quy cách đặt tên file chuẩn thống nhất (Đưa Ngày lên trước Giờ để tự động sort theo tên):**
+   `KetQua_TinHoc5_Lop_{Lop}_Tiet_{Tiet}_Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s.csv`
+   *(Ví dụ: `KetQua_TinHoc5_Lop_5-2_Tiet_07_Ngay_2026-10-31_15h40p12s.csv`)*
 2. Báo cáo nhiều sheet (Bảng Điểm Tổ, Đánh Giá Từng Em TT27/SMAS, Nhật Ký Chi Tiết) được chuyển đổi thành multi-section CSV chuẩn, phân chia trực quan bằng tiêu đề `=== TÊN PHẦN ===`.
 3. Hàm `uploadCsvToDrive(sections, fileName)` trong `components.js` mã hóa dữ liệu Base64 với MIME `text/csv;charset=utf-8` gửi lên Google Apps Script Web App và fallback tải file về máy giáo viên nếu không có kết nối mạng.
 
