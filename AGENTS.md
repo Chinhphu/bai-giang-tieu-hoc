@@ -126,9 +126,10 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
   * **Xóa đúng phạm vi:** Chỉ xóa đúng key `STORAGE_KEY` của chính bài học/game đó; sau đó reset trạng thái và thông báo *"✅ Đã xóa dữ liệu phiên học thành công!"*.
   * **TUYỆT ĐỐI CẤM:** Không được gọi `localStorage.clear()` hoặc xóa dữ liệu của bài học khác trên cùng máy tính.
 
-### 12. Điểm Khởi Đầu Mặc Định 1000đ (Base Score)
+### 12. Điểm Khởi Đầu Mặc Định 1000đ (Base Score) & Cấu Hình 2–6 Tổ Linh Hoạt
 * **Phạm vi áp dụng:** Chỉ setup ở những tiết học hoặc mini-game có hệ thống tính điểm thi đua (đấu tổ, trả lời câu hỏi cộng/trừ điểm, đấu trường đối kháng, minigame cá cược/mua sắm...). KHÔNG áp dụng gượng ép cho các tiết thuần túy tích lũy linh kiện, checkbox hay bài tập đúng/sai không dùng thang điểm số.
 * **Giá trị mặc định:** `const STARTING_SCORE = 1000;` (mỗi tổ hoặc học sinh bắt đầu với 1000 điểm sàn).
+* **Linh hoạt từ 2 đến 6 Tổ:** UI luôn có sẵn các nút `[+ Thêm Tổ]` / `[- Bớt Tổ]` ở đầu giờ trước khi vào trận để giáo viên linh hoạt cấu hình theo sĩ số lớp (từ 2 đến 6 tổ) hoặc kích hoạt thêm Tổ Quỷ.
 * **Mục đích sư phạm:**
   * Tạo tâm lý phấn khởi, tự tin ngay từ đầu giờ học ("mỗi đội đều có sẵn vốn 1000 điểm năng lượng/khởi nghiệp").
   * **Chống điểm âm:** Khi học sinh bị trừ điểm hoặc phạt vi phạm (-20đ, -50đ, -100đ...), tổng điểm vẫn giữ ở mức dương, không làm các em nản lòng hay tự ti.
@@ -144,7 +145,7 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
     * Bằng điểm thứ nhì: **"ĐỒNG Á QUÂN"** 🥈.
     * Bằng điểm thứ ba: **"ĐỒNG HẠNG BA"** 🥉.
     * Các thứ hạng sau: **"KHUYẾN KHÍCH"** 🌟 / **"NỖ LỰC"** 🎖️.
-* **Đồng bộ Báo cáo CSV:** Bảng xếp hạng trong file CSV phải có cột *"Đồng Hạng"* (`Có (Đồng điểm)` / `Không`) và hiển thị thứ hạng chuẩn (`Hạng 1`, `Hạng 1`, `Hạng 3`...), tuyệt đối không phân biệt đối xử khi bằng điểm.
+* **Đồng bộ Báo cáo CSV:** Bảng xếp hạng trong file CSV phải có cột *"Đồng Hạng"* (`Có (Đồng điểm)` / `Không`), hiển thị thứ hạng chuẩn (`Hạng 1`, `Hạng 1`, `Hạng 3`...) và cột "Huy Chương" dùng văn bản thuần (`Huy chương Vàng`, `Huy chương Bạc`, `Huy chương Đồng`), tuyệt đối không phân biệt đối xử khi bằng điểm.
 
 ### 14. Màn Hình Chốt Kiến Thức / Ghi Nhớ Cuối Tiết (Summary Screen before Leaderboard)
 * **Vị trí bắt buộc:** Cuối bất cứ tiết học nào, **ngay trước slide Bảng vàng vinh danh**, BẮT BUỘC có một màn hình để chốt lại những kiến thức trọng tâm đã học của tiết đó (kiểu "Em ghi nhớ" / "Chốt kiến thức").
@@ -158,62 +159,40 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
   * Mỗi card chỉ gồm: Nhãn/Icon + Tiêu đề ngắn + 1 đến 2 câu chốt cô đọng, in đậm từ khóa quan trọng.
 * **Luồng chuyển slide:** Học sinh và giáo viên cùng đọc to chốt bài xong $\to$ Bấm nút *"🏆 Xem Bảng Vàng Vinh Danh ▶"* để sang màn hình vinh danh và kết thúc tiết.
 
-### 15. Tách Toàn Bộ Quests & Câu Hỏi Ra File JSON Bên Cạnh (Externalize Quests to JSON)
-* **CẤM:** Tuyệt đối KHÔNG nhúng cứng (hardcode) hàng chục hoặc hàng trăm dòng mảng dữ liệu câu hỏi, tình huống, vụ án, thẻ bài trực tiếp vào file HTML/JS của bài giảng khiến file phình to, khó tìm và khó sửa đổi nội dung.
-* **BẮT BUỘC:** Toàn bộ ngân hàng câu hỏi, thử thách, kịch bản phải được tách ra đặt ở file `quests.json` (hoặc `questions.json`) nằm ngay cạnh file `index.html` trong thư mục của tiết học.
-* **Cơ chế nạp 100% Offline-First:**
-  * HTML gọi hàm nạp tự động `fetch('quests.json')` khi chạy qua máy chủ (Live Server / HTTP).
-  * ĐỒNG THỜI luôn có file đồng bộ `quests.js` (hoặc `questions.js`) định nghĩa biến toàn cục (ví dụ: `window.QUESTS_DATA = ...`) nhúng qua thẻ `<script src="quests.js"></script>` để khi giáo viên mở file trực tiếp `file:///...` trong phòng máy không bị lỗi CORS chặn `fetch`.
-* **Lợi ích:** Giáo viên có thể mở ngay file `quests.json` / `quests.js` bên cạnh để chỉnh sửa, thêm bớt câu hỏi một cách trực quan, nhanh chóng mà không lo làm hỏng mã nguồn HTML/CSS/JS.
+### 15. Quản Lý Quests & Câu Hỏi Bằng File `quests.js` Duy Nhất (Single Quests File - DRY)
+* **CẤM:** Tuyệt đối KHÔNG nhúng cứng (hardcode) hàng chục hoặc hàng trăm dòng mảng dữ liệu câu hỏi, tình huống, vụ án, thẻ bài trực tiếp vào file HTML/JS của bài giảng.
+* **Quy chuẩn DUY NHẤT 1 file `quests.js` (Bỏ hẳn `quests.json`):**
+  * Việc duy trì song song 2 file (`quests.json` và `quests.js`) vi phạm nguyên tắc DRY, dễ dẫn đến tình trạng sửa file `.json` nhưng quên sửa file `.js`, khi chạy offline bằng `file:///...` sẽ vẫn ăn dữ liệu cũ.
+  * Toàn bộ ngân hàng câu hỏi, thử thách, kịch bản phải được đặt trong **DUY NHẤT 1 file `quests.js`** nằm ngay cạnh `index.html`:
+    ```javascript
+    window.QUESTS_DATA = [
+      { id: 1, question: "...", options: ["A", "B", "C", "D"], answer: 0, points: 100 }
+    ];
+    ```
+  * Nhúng file qua `<script src="quests.js"></script>` trong `<head>`: 100% không bao giờ dính lỗi CORS trên `file:///`, giáo viên mở sửa trực tiếp như JSON mà không phải đồng bộ 2 nơi.
 
-### 16. Quy Chuẩn Tính Năng Ẩn: Cơ Chế "Phe Quỷ" / "Đấu Trường Ma Vương" (Shared Demon Mode)
+### 16. Quy Chuẩn Tính Năng Ẩn: Cơ Chế "Phe Quỷ" Bất Công Công Khai (Asymmetric Debuff & Anti-Griefing)
 * **Bản chất Toàn Hệ Thống (Shared Mode / Component):** Đây là một **Chế độ chơi dùng chung toàn hệ thống** (`shared/js/demon-mode.js`), không phải tính năng tạm thời riêng lẻ của một tiết. Mọi tiết học ở tất cả các khối (1 - 5) đều có thể kích hoạt khi gặp lớp cá biệt.
-* **Bản chất Sư phạm:** Kích hoạt thủ công cho các lớp cá biệt có học sinh cố ý chống đối, phá bĩnh để kéo tụt điểm của cả tổ ("chết chùm"). Cơ chế này mượn chính sự háo thắng, sĩ diện tuổi mới lớn để ép học sinh tự kiểm soát kỷ luật lẫn nhau và bảo vệ các tổ bình thường.
-* **Bố cục Gọn gàng — Tích hợp Thẳng vào Tổ (Không chiếm Sidebar riêng):**
-  * Tổ Quỷ chính là **một Tổ ngang hàng** trong mảng danh sách tổ (`teams`) ở Sidebar, không được tạo thêm khối riêng chiếm diện tích màn hình TV.
-  * **Không hiển thị điểm tổ:** Thẻ Tổ Quỷ tuyệt đối **không show ô điểm số chung** (vì điểm là tài sản cá nhân bí mật của từng con quỷ để đấu tranh sinh tồn), mà **chỉ hiển thị danh sách tên các con quỷ** trong tổ kèm nhãn nhận diện.
-* **Quy tắc Cách ly & Sinh tồn (Quỷ ăn thịt Quỷ - Zero-Sum):**
-  * Học sinh cá biệt bị trục xuất khỏi tổ gốc, gom vào **"Phe Quỷ" (Tổ Ma Vương)**. Điểm của Phe Quỷ được tính độc lập theo từng cá nhân con quỷ, không chia đều cho tổ.
-  * **Hút điểm khi Trả lời Đúng (Kỹ năng Steal duy nhất — Độc đạo làm giàu):** Chỉ khi một con Quỷ lên bảng trả lời **ĐÚNG** câu hỏi, nó mới được kích hoạt kỹ năng Hút máu (Steal) rút điểm từ túi của những con Quỷ khác (đang ồn ào/thấp điểm hơn) đắp vào mình. Không được máy in cấp thêm điểm mới. Muốn tích điểm để tranh ngôi Quỷ Vương BẮT BUỘC phải tự giác học bài và trả lời đúng!
-  * **Hủy diệt điểm phạt kỷ luật / Khóa chặt "Chiến thuật Namikaze" (Cấm tiệt đường hiến máu nhân đạo):**
-    * Khi một con Quỷ làm ồn, vi phạm kỷ luật, không chép bài hoặc trả lời sai: Bị phạt trừ điểm (`-100đ`).
-    * **TUYỆT ĐỐI CẤM chia điểm phạt này cho các con Quỷ khác** (triệt tiêu hoàn toàn kịch bản liên minh/thông đồng ngầm: 2-3 em cố tình quậy phá và chọn sai để "bơm điểm nuôi" 1 em lên Quỷ Vương).
-    * Số điểm bị phạt này sẽ bị **HỦY DIỆT (bay vào Hư Vô)** HOẶC chuyển thẳng vào **"Quỹ Cứu Trợ"** cho tổ Loài Người có điểm số thấp nhất. Quậy phá chỉ làm hại bản thân và biếu quà cho đối thủ!
-* **Khóa Chặn "Lối Thoát Tự Nguyện Sang Phe Quỷ" (Cửa vào dễ, cái giá cực đắt):**
-  * Tuyệt đối cấm học sinh bình thường tự ý "xin sang Phe Quỷ cho vui / ngầu".
-  * **Mất toàn bộ bảo hộ đồng đội:** Sang Phe Quỷ là chiến đấu đơn độc, không ai được phép nhắc bài hay hỗ trợ.
-  * **Hồ sơ kỷ luật riêng gửi GVCN & Phụ huynh:** Toàn bộ học sinh Phe Quỷ cuối tiết bị xuất vào bảng theo dõi kỷ luật riêng, nhận xét kỷ luật sắc bén, trung thực gửi thẳng cho GVCN và phụ huynh.
-  * **Ngưỡng phạt rớt sàn (< 800 Xu):** Bất kỳ con Quỷ nào kết thúc tiết với tổng điểm **dưới mốc sàn 800 Xu** (hoặc âm điểm) sẽ bị xếp loại TT27 là **C (Chưa hoàn thành)**, bị phạt chép phạt nội dung bài học 3–5 lần, dọn vệ sinh phòng máy hoặc đứng góc lớp/mất quyền dùng máy tính ở tiết học sau! Chỉ duy nhất 1 Quỷ Vương (đạt điểm cao nhất và chép đủ 100% vở) mới được vinh danh cầm máy điều khiển.
-* **Vòng đời Gacha — Mỗi con Quỷ đúng 1 lượt duy nhất (Single Turn per Round):**
-  * Nút Gacha của Tổ Quỷ đặt đồng bộ như các tổ khác và các tiết trước (`🎲 Gọi tên lên bảng`).
-  * **Chu trình gọi:** Mỗi con quỷ chỉ được gọi lên bảng **đúng 1 lượt duy nhất** trong một vòng xoay. Chỉ khi toàn bộ các con quỷ trong tổ đều đã lên bảng đủ 1 lượt thì hệ thống mới cho phép bắt đầu vòng mới.
-  * Gọi lên bảng bằng **Pop-up Alert Gọi Tên Khổng Lồ (`showBigStudentAlert`)** quen thuộc để cả lớp cùng thấy rõ em nào đang lên máy.
-* **Ngai vàng Quỷ Vương & Phần thưởng có điều kiện:**
-  * Cá nhân Quỷ có điểm cao nhất cuối tiết đăng quang làm **Quỷ Vương**.
-  * **Phần thưởng:** Được lên bục giảng cầm chuột điều khiển máy chiếu tiết học tuần sau.
-  * **Điều kiện tiên quyết:** Vở phải chép đủ 100% bài học (Giáo viên duyệt vở trước khi cho lên máy).
-  * **Cơ chế Phân định Bằng Điểm (Tie-Breaking) & Ghi Rõ Lý Do Sắc Phong:**
-    * **BẮT BUỘC ghi rõ Lý do Sắc phong trên màn hình TV (.dk-reason-box):** Khi vinh danh Quỷ Vương trên Slide Chốt kiến thức (Summary) hoặc Bảng vàng (Leaderboard), hệ thống BẮT BUỘC phải hiện 1 khung nổi bật ghi rõ lý do em đó được trao vương miện (điểm cao nhất, thắng nhờ ít vi phạm, hoặc thắng sau vòng duyệt vở).
-    * **Quy trình Phân định 3 bậc khi các con Quỷ bằng điểm:**
-      1. **Bậc 1 — So Chỉ số Kỷ luật (`violations`):** Nếu có từ 2 em trở lên cùng đạt điểm cao nhất, hệ thống tự động so số lần bị nhắc nhở vi phạm. Em nào **ít vi phạm hơn** sẽ chiến thắng đăng quang Quỷ Vương. Màn hình ghi rõ lý do: *'Đồng điểm cao nhất (X Xu), nhưng đăng quang nhờ Ý THỨC KỶ LUẬT TỐT HƠN (chỉ Y lần nhắc nhở, ít hơn Z lần của bạn B)!'*.
-      2. **Bậc 2 — Soi Vở Ghi Bài Trực Tiếp (Teacher Audit):** Nếu bằng cả điểm lẫn số lần vi phạm, màn hình hiện thông báo yêu cầu Giáo viên kiểm tra vở tại chỗ. Giáo viên bấm nút công nhận em có vở chép bài đạt 100% đầy đủ, sạch đẹp hơn. Màn hình cập nhật lý do: *'Chiến thắng sau vòng duyệt Vở Ghi Bài 100% sạch đẹp của Giáo viên!'*.
-      3. **Bậc 3 — Hòa tuyệt đối 100%:** Giáo viên được chọn giữa 2 hình thức:
-         - **Song Ma Vương (Đồng Hạng):** Cả 2 cùng lên bục giảng tuần sau, chia ca mỗi em quản trò 15 phút.
-         - **Vòng Quay Đoạt Vương (1 vs 1):** Bấm nút Gacha 1-1 để hệ thống bốc ngẫu nhiên chọn ra 1 Quỷ Vương, em còn lại nhận danh hiệu Tả Hữu Hộ Pháp.
-    * **Các thứ hạng dưới:** Áp dụng chuẩn Tie-ranking (Mục 1.13), xếp đồng hạng công bằng và ghi rõ trong CSV: Hạng X (Đồng điểm).
-* **Trừng phạt "Túi Kinh Nghiệm" (Loot Goblin) & Giáng cấp Slime:**
-  * Nếu Quỷ Vương lên cầm máy mà lóng ngóng, quản trò lôm côm hoặc cố ý phá hoại: Giáo viên kích hoạt **Đòn Phản Phệ**.
-  * Toàn bộ điểm tích lũy của Quỷ Vương phát nổ, trở thành "túi kinh nghiệm" chia đều cho các tổ Loài Người.
-  * Quỷ Vương bị giáng cấp thẳng xuống làm **Slime Xanh Nhầy Nhụa** kèm hiệu ứng **"Câm Lặng" (Silence)**: tước mọi quyền phát biểu, hủy tư cách Quỷ Vương và phong ấn vĩnh viễn khỏi bàn giáo viên trong tiết đó.
-* **Cơ chế Hoàn Lương (Redemption):** Quỷ Vương hoàn thành xuất sắc nhiệm vụ có quyền chọn giữ ngai vàng hoặc "chuyển sinh" trở về làm Người ở tổ cũ với tư cách Anh Hùng mang điểm thưởng cho tổ.
+* **Triết Lý "Bất Công Công Khai" (Đập Bỏ Tôn Vinh Ngầm):**
+  * Thực tế lớp học đã chứng minh: cho Phe Quỷ giao diện ngầu, sấm sét tím và phần thưởng "Quỷ Vương lên cầm chuột máy giáo viên" sẽ phản tác dụng — học sinh coi đó là đặc quyền VIP để quậy phá.
+  * Hệ thống tuyên bố thẳng thắn trên UI và trong luật: **"Tổ Quỷ luôn chịu sự bất công của hệ thống"**.
+* **Bộ Luật Bất Công (Hardcore Handicap):**
+  1. **Trả lời đúng:** Chỉ nhận **50% điểm thưởng** (+50đ thay vì +100đ), hoặc chỉ được dùng để "chuộc tội" giảm án phạt, trần điểm tối đa không vượt sàn 1000đ.
+  2. **Trả lời sai / Vi phạm trật tự:** Bị phạt **gấp đôi (-200đ)** và số điểm bị trừ này được **bơm thẳng vào "Quỹ Cứu TrỢ"** chia cho các tổ Loài Người (hoặc cộng cho tổ Loài Người đang thấp điểm nhất).
+  3. **Gacha Bất Lợi:** Trong các game có yếu tố may rủi (như *IT Tycoon*), tỷ lệ gặp sự cố/virus của Tổ Quỷ mặc định bị nâng lên **60% – 80%** thay vì 30% như tổ thường.
+* **Bãi Bỏ Hoàn Toàn Danh Hiệu "Quỷ Vương Cầm Máy":**
+  * Xóa bỏ hoàn toàn phần thưởng cho phép học sinh cá biệt lên bục giảng điều khiển máy chiếu tiết sau và toàn bộ quy trình 3 bậc xét duyệt rườm rà (so lỗi vi phạm, soi vở tại chỗ, đấu Gacha 1-1).
+  * Học sinh quậy phá tuyệt đối không được trao bất kỳ quyền lực điều khiển lớp học nào.
+* **Đơn Giản Hóa Bảng Điểm, Ngưỡng Rớt Sàn (< 800đ) & Nút Hoàn Lương (Ân Xá):**
+  * Bỏ cơ chế "Zero-Sum Quỷ hút máu Quỷ" phức tạp (tốn thời gian giải thích luật và dễ gây cãi vã).
+  * **Ngưỡng phạt rớt sàn (< 800 Xu):** Bất kỳ con Quỷ nào kết thúc tiết học với tổng điểm dưới 800 Xu sẽ bị xếp loại TT27 là **C (Chưa hoàn thành)**, nhận hình phạt kỷ luật nghiêm khắc (chép phạt bài học 3–5 lần, trực nhật dọn phòng máy, tước quyền thao tác máy tiết sau, và gửi biên bản cho GVCN/phụ huynh).
+  * **Nút Hoàn Lương (Thanh Tẩy / Ân Xá):** Em nào ngồi im chép bài đủ, không bị trừ điểm trong suốt 15–20 phút thì được giáo viên bấm nút "Ân xá" trả về tổ gốc, mang theo 100đ – 200đ tài trợ cho tổ cũ.
 * **Báo cáo CSV Riêng Biệt & Nhận Xét Nghiêm Khắc (Anti-Sugarcoating):**
-  * **TUYỆT ĐỐI CẤM** dùng các câu khen ngợi tích cực sáo rỗng ("Hoàn thành tốt", "Chăm chỉ", "Nhanh nhẹn"...) cho học sinh thuộc Phe Quỷ.
-  * Tách riêng một bảng danh sách trong file CSV: `=== THEO DÕI HÀNH VI & KỶ LUẬT (PHE QUỶ) ===`.
-  * Xếp loại Thông tư 27: Mặc định là **C (Chưa hoàn thành)** hoặc **H (Hoàn thành nhưng cần rèn luyện thêm ý thức)**.
-  * Hệ thống tự sinh câu nhận xét khách quan, nghiêm khắc để Giáo viên dùng làm việc với GVCN/Phụ huynh: ghi rõ số lần vi phạm kỷ luật, tình trạng không chép bài, hiện tượng cố tình làm ảnh hưởng tổ, trạng thái bị phong ấn Slime.
+  * **TUYỆT ĐỐI CẤM** dùng các câu khen ngợi tích cực sáo rỗng cho học sinh thuộc Phe Quỷ.
+  * Tách riêng bảng danh sách trong file CSV: `=== THEO DÕI HÀNH VI & KỶ LUẬT (PHE QUỶ) ===`.
+  * Xếp loại TT27: Mặc định là **C (Chưa hoàn thành)** hoặc **H (Hoàn thành nhưng cần rèn luyện thêm ý thức)** kèm nhận xét chi tiết, trung thực để làm việc với GVCN và phụ huynh.
 * **Phương thức kích hoạt ẩn (Zero Overhead):**
-  * Hỗ trợ URL kích hoạt trực tiếp trên GitHub Pages: `tiet-X/index-mavuong.html` (file wrapper chuyển tiếp `index.html?mode=mavuong`).
-  * Hoặc phím tắt ẩn của Giáo viên (`Ctrl + Alt + D` hoặc click 4 lần vào logo) ngay trong `index.html`. Không nhân bản code trùng lặp để đảm bảo tính nhất quán khi bảo trì.
+  * Kích hoạt qua file wrapper `tiet-X/index-mavuong.html` (`index.html?mode=mavuong`) hoặc phím tắt ẩn của Giáo viên (`Ctrl + Alt + D` hoặc click 4 lần vào logo) ngay trong `index.html`.
 
 ### 17. Cơ Chế Can Thiệp Sửa Điểm, Dây Thắng (Streak) & Xếp Hạng Thủ Công Khi Bấm Nhầm (Manual Score & Streak Override)
 * **Ý nghĩa sư phạm:** Trong giờ học thực tế, học sinh hoặc giáo viên rất dễ bấm nhầm: học sinh lỡ tay nhấp nhầm đáp án, giáo viên bấm nhầm nút cộng/trừ điểm hoặc chấm nhầm tổ, chuột bị double-click, v.v. Nếu hệ thống cứng nhắc không cho sửa, học sinh sẽ ức chế, tranh cãi, làm gián đoạn tiết học.
@@ -246,12 +225,15 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 * **4. Nguyên tắc Kết hợp Đa phương tiện & Sách giáo khoa (Multimodal SGK Scaffolding):**
   * **Mục đích:** Khắc phục rào cản phòng máy (màn hình xa, lóa sáng) và rèn thói quen sử dụng tài liệu học tập chuẩn.
   * **Quy chuẩn:** Slide màn chiếu đóng vai trò trực quan hóa và gamification, không thay thế hoàn toàn SGK. Khi xuất hiện sơ đồ chi tiết, hình ảnh giải phẫu, văn bản dài hoặc bài thực hành: Slide luôn có badge đối chiếu rõ ràng: `📖 Xem Hình X - Trang Y (SGK)` để học sinh kết hợp nhịp nhàng giữa màn chiếu lớn và sách in trên bàn.
-* **5. Khai thác Tài nguyên Lớp học & Tương tác 100% Đồng loạt (Ưu tiên / Khuyến khích):**
+* **5. Tương tác 100% Không Đạo Cụ Vật Lý (Zero-Prop Physical Interaction):**
   * **Mục đích:** Triệt tiêu hoàn toàn mô hình thụ động "1 em được gọi trả lời, cả lớp ngồi nhìn/mất trật tự".
-  * **Tính chất:** **ƯU TIÊN & KHUYẾN KHÍCH (Tùy điều kiện thực tế của từng phòng máy / lớp học — KHÔNG bắt buộc cứng nhắc):**
-    * *Khi lớp có sẵn đồ dùng:* Khai thác bộ hoa xoay trắc nghiệm ABCD, bảng con, thẻ tín hiệu... để 100% học sinh cùng tư duy và giơ đáp án đồng loạt, giúp giáo viên nắm bắt tỷ lệ hiểu bài của cả lớp chỉ trong 3 giây.
-    * *Khi lớp không có đồ dùng:* Giáo viên linh hoạt thay thế bằng hình thức giơ tay, hô đáp án đồng thanh hoặc tương tác trực tiếp qua slide mà không bị gò bó.
-    * *Khuếch đại trực quan (nếu có thiết bị):* Tận dụng Đèn chiếu vật thể hoặc chia sẻ màn hình máy chủ để chiếu phóng to các thao tác mẫu tinh vi (cầm nắm thiết bị, phím tắt, linh kiện phần cứng, sản phẩm vẽ/Scratch/soạn thảo).
+  * **Triết lý Zero-Effort (100% Web-based):**
+    * **TUYỆT ĐỐI CẤM:** Không yêu cầu hay gợi ý giáo viên/học sinh mang vác chuẩn bị đạo cụ vật lý rườm rà (bông hoa xoay trắc nghiệm ABCD, bảng con, thẻ màu tín hiệu, phấn viết...). Toàn bộ giáo án vận hành trơn tru theo triết lý "Zero-Effort" (chỉ cần màn chiếu TV và máy tính).
+    * **Cử chỉ Ký hiệu Tay (Hand Gestures & Body Language):**
+      * **Chọn A - B - C - D:** Cả lớp cùng suy nghĩ và đồng loạt giơ **1 - 2 - 3 - 4 ngón tay** biểu quyết đáp án tương ứng.
+      * **Đúng / Sai & Tán thành / Phản đối:** Giơ chéo hai tay tạo chữ **X** (Sai / Không đồng ý) hoặc vòng hai tay tạo chữ **O** (Đúng / Tán thành), làm biểu tượng Thả tim hoặc Giơ ngón cái (Like).
+      * **Đồng loạt 100% động não:** Giáo viên chỉ mất 2 giây quét mắt quanh phòng máy là nắm bắt chính xác mức độ hiểu bài của toàn thể học sinh (Formative Assessment) mà không tốn công phát/thu/dọn dẹp đạo cụ.
+    * **Kết hợp Gacha Màn Hình Lớn:** Sau khi cả lớp biểu quyết bằng cử chỉ tay, giáo viên bấm nút Gacha bốc 1 em lên chốt đáp án trên máy.
 * **6. Nghệ thuật Khẩu lệnh Sư phạm Dứt khoát (Decisive Classroom Directives):**
   * **Mục đích:** Thiết lập kỷ luật tích cực và sự tập trung cao độ trong phòng máy.
   * **Quy chuẩn:** Giáo viên là người làm chủ và điều phối nhịp độ. Khẩu lệnh đưa ra phải ngắn gọn, mang tính định hướng hành động dứt khoát (*"Hành động + Đối tượng + Thời điểm"*). Tuyệt đối tránh các câu hỏi đuôi do dự, hỏi ngược nước đôi ("phải không?"). Nội dung hiển thị trên slide phải là các câu khẳng định chuẩn xác, truyền cảm hứng.
@@ -282,15 +264,15 @@ Khi nhận được yêu cầu viết tiết học mới từ người dùng (v�
    * Chèn đúng 2 file bảo vệ: `../../shared/js/prevent-reload.js` và `../../shared/js/core.js`.
 3. **Bước 3 — Nạp Dữ liệu Học sinh & Thiết lập Chế độ:**
    * Trỏ đúng file JSON `../../assets/data/students_{khoi}_2026_2027.json`.
-   * Xác định tiết này là **Chế độ Toàn lớp cá nhân** (gacha tự động, bật full telemetry) hay **Chế độ Đấu theo tổ** (chọn tên thủ công, ghi log sư phạm).
+   * Xác định tiết này là **Chế độ Toàn lớp cá nhân** (gacha tự động, bật full telemetry) hay **Chế độ Đấu theo tổ** (chọn tên thủ công hoặc `spinGacha(teamId)`, ghi log sư phạm).
    * **Bố trí Widget chọn học sinh:** Bất kỳ slide/hoạt động nào có học sinh phát biểu đều bố trí dropdown chọn tên + nút Gacha (chỉ log telemetry, không cộng điểm tổ khi phát biểu tự do; chỉ cộng điểm khi vào game chính thức).
-   * **Nếu tiết học có tính điểm:** Khởi tạo điểm sàn mặc định `STARTING_SCORE = 1000` và tích hợp hàm tính thứ hạng xử lý đồng hạng (`calculateRankings`). Đồng thời cung cấp công cụ sửa điểm/chuỗi streak khi bấm nhầm.
+   * **Nếu tiết học có tính điểm:** Khởi tạo điểm sàn mặc định `STARTING_SCORE = 1000`, hỗ trợ nút linh hoạt từ 2 đến 6 tổ (`[+ Thêm Tổ]` / `[- Bớt Tổ]`), và tích hợp hàm tính thứ hạng xử lý đồng hạng (`calculateRankings`). Đồng thời cung cấp công cụ sửa điểm/chuỗi streak khi bấm nhầm.
    * **Tự động lưu LocalStorage & Nút Clear:** Thiết lập cơ chế tự động lưu trạng thái (Auto-Save) vào LocalStorage với key chuẩn để phục hồi sau khi cúp điện, kèm nút Xóa dữ liệu phiên có xác nhận `confirm()`.
-   * **Quests & Câu hỏi:** Đặt toàn bộ ngân hàng câu hỏi/vụ án vào `quests.json` (kèm `quests.js` cho offline `file://`), không hardcode vào HTML.
+   * **Quests & Câu hỏi:** Đặt toàn bộ ngân hàng câu hỏi/vụ án vào **DUY NHẤT 1 file `quests.js`** (`window.QUESTS_DATA = [...]`), tuyệt đối KHÔNG dùng `quests.json` và không hardcode vào HTML.
 4. **Bước 4 — Thiết kế Flow Bài Dạy Sư Phạm & Ghi Bài Chặng:**
    * **Khởi động (Hook Slide):** Bắt đầu bằng tình huống/câu đố gợi mở, không áp đặt dạy bài mới ngay.
    * **Slide ghi bài đầu giờ:** Nền trắng tinh khiết, chữ siêu to, có nút phóng to 100% toàn màn hình (`⛶`), KHÔNG đặt đồng hồ đếm ngược (Timer), nội dung ghi tối giản chắt lọc từ khóa.
-   * **Hoạt động Khám phá & Thực hành:** Có câu chuyển tiếp mượt mà giữa các chặng, có badge đối chiếu `📖 Hình X - Trang Y SGK`, chuyển hóa khái niệm/kỹ năng thành hình ảnh trực quan đời sống. Nếu có bàn phím ảo phải canh đều 2 mép và thụt hàng ANSI chuẩn. Chia thẻ ghi nhớ ngắn gọn ở cuối mỗi hoạt động.
+   * **Hoạt động Khám phá & Thực hành:** Có câu chuyển tiếp mượt mà giữa các chặng, có badge đối chiếu `📖 Hình X - Trang Y SGK`, tương tác 100% không đạo cụ (Zero-Prop ký hiệu tay), chuyển hóa khái niệm/kỹ năng thành hình ảnh trực quan đời sống. Nếu có bàn phím ảo phải canh đều 2 mép và thụt hàng ANSI chuẩn. Chia thẻ ghi nhớ ngắn gọn ở cuối mỗi hoạt động.
    * **Chốt kiến thức 5 phút cuối:** Bắt buộc đặt ngay trước Slide Bảng vàng vinh danh (thiết kế 2-3-4 card to, rõ, ít chữ; quy trình Active Recall: học sinh tự nhớ lại trước, giáo viên bổ sung sau; thiết kế đủ câu hỏi cho tất cả các tổ tham gia thi đua).
 5. **Bước 5 — Tích hợp Xuất Báo cáo CSV:**
    * Gắn nút xuất CSV / Đồng bộ Drive ở màn hình tổng kết sử dụng `window.LessonExport` hoặc `window.uploadCsvToDrive` (đảm bảo bảng xếp hạng thể hiện đúng cơ chế đồng hạng).
@@ -304,6 +286,9 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Đã nhúng `prevent-reload.js` và `core.js` chưa?
 - [ ] Font chữ có đúng chuẩn của Khối đó không?
 - [ ] Mọi chỗ có học sinh phát biểu đều có ô chọn học sinh + nút Gacha chưa? (Chỉ log telemetry, không cộng điểm tổ khi phát biểu tự do)
+- [ ] Nếu đấu theo tổ: Hàm Gacha đã có tham số `spinGacha(teamId)` lọc đúng học sinh của tổ đang tới lượt chưa? (Không quay ngẫu nhiên toàn lớp làm mất thời gian chết)
+- [ ] UI thi đua có nút linh hoạt từ 2 đến 6 tổ (`[+ Thêm Tổ]` / `[- Bớt Tổ]`) chưa?
+- [ ] Tương tác 100% không đạo cụ (Zero-Prop): Sử dụng ký hiệu tay (ngón tay 1-2-3-4 cho ABCD, X/O, thả tim) + Gacha, không dùng bảng con/hoa xoay/đạo cụ giấy tờ?
 - [ ] Có Slide khởi động (Hook) khơi gợi tò mò đầu giờ chưa? (Không mở đầu áp đặt một chiều)
 - [ ] Có câu chuyển tiếp logic, mượt mà giữa các hoạt động/chặng trong bài chưa?
 - [ ] Trang ghi bài vào vở có nền trắng tinh khiết, chữ đủ to cho học sinh cuối lớp và có nút toàn màn hình (`⛶`) không?
@@ -313,12 +298,13 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Nếu có bàn phím ảo: Đã canh đều phẳng 2 bên mép và đúng độ thụt hàng công thái học ANSI (Q thụt so với 1, A thụt so với Q, Z thụt so với A) chưa?
 - [ ] Khẩu lệnh và lời dẫn sư phạm có dứt khoát, mang tính định hướng hành động rõ ràng không? (Không hỏi ngược nước đôi)
 - [ ] Trước bảng vinh danh đã có slide chốt kiến thức / ghi nhớ (2-3-4 card, ít chữ, chữ lớn, dành trọn 5 phút cuối cho học sinh Active Recall) chưa? Có đủ câu hỏi củng cố cho tất cả các tổ tham gia không?
-- [ ] Toàn bộ quests / câu hỏi đã được tách ra file `quests.json` (kèm `quests.js` offline) bên cạnh, không tích hợp vào HTML chưa?
+- [ ] Toàn bộ quests / câu hỏi đã được tách ra DUY NHẤT 1 file `quests.js` (`window.QUESTS_DATA = [...]`) bên cạnh, KHÔNG dùng `quests.json` và không tích hợp vào HTML chưa?
 - [ ] Logic gọi tên có đảm bảo nguyên tắc: *Trả lời xong mới tính là hoàn thành* (Picked ≠ Done)?
 - [ ] Cảm biến đo thao tác (Telemetry) có đặt đúng ngữ cảnh (chỉ bật khi học sinh trực tiếp bấm máy)?
 - [ ] Điểm khởi đầu mặc định có được thiết lập 1000đ (đối với các tiết/game có hệ thống tính điểm) không?
 - [ ] Đã có công cụ cho phép Giáo viên sửa điểm, sửa chuỗi dây (streak) hoặc thứ hạng khi bấm nhầm chưa?
 - [ ] Bảng xếp hạng và xuất CSV có cơ chế xử lý đồng hạng (bằng điểm $\to$ cùng hạng, cùng cúp/huy chương, danh hiệu "Đồng Quán quân / Đồng Á quân") không?
+- [ ] Nếu kích hoạt Phe Quỷ: Đã tuân thủ cơ chế Bất Công Công Khai (tuyệt đối không trao quyền Quỷ Vương cầm máy, đúng +50% max 1000đ, sai/phạt -200đ vào Quỹ Cứu Trợ, rớt sàn <800đ, ân xá hoàn lương) chưa?
 - [ ] Tên file CSV xuất ra có đúng quy cách `KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}...` không?
 - [ ] 100% file HTML đã có cơ chế tự động lưu LocalStorage (Auto-Save) phòng cúp điện/sập nguồn chưa?
 - [ ] 100% file HTML đã có nút Xóa dữ liệu phiên (Clear Session Button) có xác nhận confirm và thông báo chưa?

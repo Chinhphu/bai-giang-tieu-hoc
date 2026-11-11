@@ -61,6 +61,13 @@ KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}_Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s.
 
 ---
 
+## 📜 Ngân Hàng Câu Hỏi: Duy Nhất 1 File `quests.js` (Offline-First & DRY)
+
+- Toàn bộ ngân hàng câu hỏi, thử thách, vụ án trắc nghiệm được tách riêng đặt tại **DUY NHẤT 1 file `quests.js`** (`window.QUESTS_DATA = [...]`) nằm ngay cạnh `index.html`.
+- Bỏ hẳn file `quests.json` để triệt tiêu lỗi không đồng bộ dữ liệu (DRY) và tránh hoàn toàn lỗi chặn CORS khi mở bằng giao thức tệp `file:///...`.
+
+---
+
 ## ⚡ Hệ thống Tự Động Lưu LocalStorage & Phục Hồi Khi Cúp Điện (Crash Recovery)
 
 Phòng máy tính tiểu học thường xuyên gặp sự cố cúp điện đột ngột hoặc học sinh/giáo viên lỡ tắt tab trình duyệt. Hệ thống giải quyết triệt để:
@@ -97,10 +104,28 @@ Phòng máy tính tiểu học thường xuyên gặp sự cố cúp điện đ�
 3. **Nguyên lý Trực quan hóa (Concrete over Abstract) & Đối chiếu SGK**:
    - Cụ thể hóa mọi khái niệm trừu tượng thành ẩn dụ đời sống quen thuộc (thư mục như ngăn kéo, thuật toán như công thức bánh...); cụ thể hóa thao tác vật lý bằng so sánh cơ thể và mã màu thị giác, tránh dùng số liệu cơ học khô khan.
    - Luôn gắn badge đối chiếu tài liệu `📖 Xem Hình X - Trang Y (SGK)` ở các nội dung chi tiết để học sinh kết hợp màn chiếu lớn và sách in trên bàn.
-4. **Tương tác, Widget Gọi tên & Khẩu lệnh Sư phạm Dứt khoát**:
+4. **Tương tác 100% Không Đạo Cụ & Gacha Thông Minh Theo Tổ**:
+   - **Tương tác Thể chất Không Đạo Cụ (Zero-Prop):** Triệt tiêu hoàn toàn đạo cụ giấy tờ (bảng con, hoa xoay ABCD...). Học sinh biểu quyết bằng cử chỉ tay trực quan (giơ 1-2-3-4 ngón tay tương ứng A-B-C-D, hai tay chữ X / vòng tay chữ O, thả tim / Like) kết hợp Gacha bốc thăm trên màn hình lớn.
+   - **Gacha linh hoạt theo Tổ:** Khi đấu theo tổ, giáo viên vẫn dùng nút Gacha bình thường (bấm quay liên tục đến khi ra học sinh thuộc tổ đang tới lượt thì chốt) hoặc chọn nhanh từ dropdown.
+   - **Linh hoạt 2 đến 6 Tổ:** UI có sẵn nút `[+ Thêm Tổ]` / `[- Bớt Tổ]` để điều chỉnh sĩ số tổ thi đấu linh hoạt đầu giờ.
    - **Widget chọn học sinh ở MỌI vị trí phát biểu:** Bố trí ô chọn tên + nút Gacha ở mọi hoạt động. Phân định rõ: phát biểu tự do chỉ log Telemetry cá nhân (không cộng điểm tổ); chỉ khi vào Game/Đấu trường chính thức mới tính điểm vào Tổ thi đua.
-   - **Đồ dùng học tập (DCHT):** Ưu tiên khuyến khích khai thác khi phòng máy có sẵn (hoa xoay ABCD, bảng con...); linh hoạt thay thế nếu lớp không có.
    - **Khẩu lệnh giáo viên rõ ràng, dứt khoát** (*"Hành động + Đối tượng + Thời điểm"*); cấm câu hỏi ngược do dự ("phải không?").
 5. **Dàn dựng Bàn phím Máy tính Ảo Chuẩn Công Thái Học (Realistic ANSI Layout)**:
    - Khi dựng bàn phím trên HTML/CSS: Bắt buộc đúng chuẩn độ thụt lùi hàng thực tế (Q thụt so với 1, A thụt so với Q, Z thụt so với A).
    - Canh đều tuyệt đối 2 bên mép (mép trái phẳng tắp, mép phải phẳng tắp 100%, tỷ lệ tổng $15\text{U}$ mỗi hàng).
+
+---
+
+## 😈 Cơ Chế Phe Quỷ: Bất Công Công Khai (Asymmetric Debuff & Anti-Griefing)
+
+Áp dụng cho các lớp cá biệt có học sinh cố tình phá bĩnh, chống đối (`shared/js/demon-mode.js`):
+1. **Triết lý Bất Công Công Khai:** Tuyên bố thẳng trên UI: *"Tổ Quỷ luôn chịu sự bất công của hệ thống"*. Triệt tiêu tư tưởng "tôn vinh ngầm" hay xem việc vào Phe Quỷ là đặc quyền VIP.
+2. **Bãi bỏ hoàn toàn "Quỷ Vương cầm máy":** Xóa bỏ đặc quyền lên bục giảng cầm chuột điều khiển máy chiếu và toàn bộ quy trình 3 bậc xét duyệt rườm rà. Học sinh quậy phá không được nắm quyền lực điều khiển lớp.
+3. **Hệ số Bất Công (Hardcore Handicap):**
+   - **Đúng:** Chỉ nhận **50% điểm thưởng** (+50đ thay vì +100đ, hoặc chỉ dùng chuộc tội, trần điểm tối đa không vượt sàn 1000đ).
+   - **Sai / Phạt trật tự:** Phạt **gấp đôi (-200đ)**, số điểm bị trừ được **bơm thẳng vào Quỹ Cứu Trợ** chia cho các tổ Loài Người.
+   - **Gacha Bất Lợi:** Tỷ lệ gặp sự cố/virus trong game may rủi bị nâng lên **60% – 80%** (so với 20% – 30% của tổ thường).
+4. **Ngưỡng Phạt Rớt Sàn (< 800đ) & Nút Hoàn Lương (Ân Xá):**
+   - Bỏ cơ chế "Quỷ hút máu Quỷ" phức tạp gây tranh cãi.
+   - Rớt dưới mốc 800 Xu cuối tiết: Xếp loại TT27 mức **C (Chưa hoàn thành)**, phạt chép phạt bài học và thông báo GVCN/phụ huynh.
+   - Nút Ân Xá: Em nào ngồi im chép bài đủ, nghiêm túc không vi phạm suốt 15–20 phút được giáo viên bấm nút "Ân xá" trở về tổ gốc kèm điểm thưởng cho tổ.
