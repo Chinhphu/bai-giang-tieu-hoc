@@ -1457,17 +1457,21 @@
         }
 
         function populateStudentDropdown() {
-            const list = studentsData[currentClass] || FALLBACK_STUDENTS['3_2'];
+            const list = (studentsData && studentsData[currentClass]) ? studentsData[currentClass] : (FALLBACK_STUDENTS[currentClass] || FALLBACK_STUDENTS['3_2'] || []);
             const select = document.getElementById('quizStudentSelect');
-            const banish = document.getElementById('banishSelect');
+            if (!select) return;
+
+            const currentVal = stagedStudent || select.value;
             select.innerHTML = '<option value="">-- Chọn bạn lên bảng --</option>';
-            banish.innerHTML = '';
 
             list.forEach(name => {
                 const isDone = doneStudents.has(name) ? ' (Đã lên)' : '';
                 select.innerHTML += `<option value="${name}">${name}${isDone}</option>`;
-                banish.innerHTML += `<option value="${name}">${name}</option>`;
             });
+
+            if (currentVal) {
+                select.value = currentVal;
+            }
         }
 
         function gachaPickStudent() {
