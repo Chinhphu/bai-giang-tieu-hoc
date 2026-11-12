@@ -57,9 +57,14 @@ $$\text{Chờ (Waiting)} \xrightarrow{\text{Bốc thăm Gacha / Chọn}} \text{L
 * **Phân Tách Rạch Ròi: Log Telemetry Cá Nhân vs Điểm Số Thi Đua Của Tổ:**
   * **1. Khi phát biểu tự do (Khởi động, Khám phá, Vấn đáp giữa giờ, Chốt bài):** Thao tác chọn học sinh **CHỈ DÙNG ĐỂ GHI NHẬN (LOG) DỮ LIỆU CÁ NHÂN** (ghi nhận em đó đã tham gia, đúng/sai, xếp loại TT27 để xuất CSV cuối tiết). **TUYỆT ĐỐI KHÔNG tự động cộng/trừ điểm vào Tổ** để tránh làm loãng hoặc mất cân bằng bảng điểm thi đua.
   * **2. Chỉ khi bước vào VÒNG ĐẤU GAME / THỬ THÁCH CHÍNH THỨC:** Điểm số câu trả lời mới được kích hoạt cộng/trừ vào điểm số của Tổ thi đua!
-* **Ứng dụng linh hoạt theo chế độ:**
+* **Ứng dụng linh hoạt theo chế độ & Quy chuẩn "Gacha tới khi trúng thì thôi":**
+  * **Thực tế lớp học & Lý do tuyệt đối KHÔNG gán tổ cố định:** Mỗi lần giáo viên gặp lại bất kỳ lớp nào thì lớp đó lại đổi chỗ ngồi một lần (do GVCN xếp lại chỗ hoặc học sinh tự đổi vị trí trong phòng máy). Do đó, hệ thống **QUYẾT ĐỊNH KHÔNG GÁN TỔ NGAY TỪ ĐẦU** cho học sinh trong dữ liệu JSON hay danh sách lớp.
   * **Chế độ Toàn lớp / Cá nhân:** Bấm Gacha để quay ngẫu nhiên cả lớp, ưu tiên em chưa tham gia.
-  * **Chế độ Thi đua Theo Tổ:** Vẫn cho dùng Gacha bình thường. Giáo viên bấm nút Gacha liên tục cho đến khi quay trúng tên một em thuộc Tổ đang tới lượt thì dừng lại và chốt em đó lên bảng.
+  * **Chế độ Thi đua Theo Tổ ("Gacha tới khi nào trúng thì thôi"):** 
+    * Việc lượt thi của Tổ này nhưng quay Gacha lại trúng học sinh đang ngồi ở Tổ khác là **HOÀN TOÀN BÌNH THƯỜNG VÀ ĐÚNG CHỦ ĐÍCH THIẾT KẾ**, tuyệt đối **KHÔNG PHẢI LÀ LỖI (NOT A BUG)**. AI Agent TUYỆT ĐỐI KHÔNG tự ý ép buộc gán cứng học sinh vào tổ hay khóa bộ lọc Gacha theo tổ giả định trong code.
+    * Khi đến lượt một Tổ, Giáo viên chỉ cần **bấm nút Gacha liên tục cho đến khi quay trúng tên một em thuộc Tổ đang tới lượt thì dừng lại và chốt em đó lên bảng** (*"Gacha tới khi nào trúng thì thôi"*).
+    * Nhờ nguyên tắc *Picked ≠ Done*, việc bấm Gacha lướt qua nhiều bạn hoàn toàn không làm mất lượt của các bạn đó.
+    * Ngoài ra, nếu có em trong tổ xung phong giơ tay, Giáo viên có thể chọn trực tiếp tên em đó từ danh sách dropdown.
 
 ### 5. Bộ đo lường hành vi (Telemetry) theo Vai trò người điều khiển (`Actor-based`)
 * **Trường hợp A: Học sinh trực tiếp thao tác trên máy (`Actor: Student`)**
@@ -83,6 +88,7 @@ $$\text{Chờ (Waiting)} \xrightarrow{\text{Bốc thăm Gacha / Chọn}} \text{L
 ### 7. Dữ liệu Học sinh Đồng bộ Toàn Trường
 * Nạp tự động từ thư mục dữ liệu gốc:
   `../../assets/data/students_{khoi}_2026_2027.json` (hoặc đường dẫn tương đối phù hợp).
+* **Danh sách phẳng — Tuyệt đối KHÔNG gán tổ cố định:** Do học sinh đổi chỗ ngồi liên tục sau mỗi tuần/buổi học, tệp JSON chỉ lưu trữ danh sách họ tên phẳng của lớp, TUYỆT ĐỐI KHÔNG gán cứng thuộc tính tổ (`team`). Việc bốc thăm theo tổ vận hành theo cơ chế *"Gacha tới khi nào trúng thì thôi"*.
 * Luôn có biến dự phòng `FALLBACK_STUDENTS` trong code để đề phòng trường hợp mở file HTML độc lập bị chặn chính sách CORS.
 * Luôn cung cấp Modal hoặc ô cho giáo viên thêm nhanh/bổ sung học sinh vãng lai khi cần.
 
@@ -288,7 +294,7 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Đã nhúng `prevent-reload.js` và `core.js` chưa?
 - [ ] Font chữ có đúng chuẩn của Khối đó không?
 - [ ] Mọi chỗ có học sinh phát biểu đều có ô chọn học sinh + nút Gacha chưa? (Chỉ log telemetry, không cộng điểm tổ khi phát biểu tự do)
-- [ ] Nếu đấu theo tổ: Đã hỗ trợ cơ chế bốc thăm linh hoạt (bấm Gacha nhiều lần đến khi ra bạn thuộc tổ đang tới lượt hoặc chọn nhanh từ danh sách) chưa?
+- [ ] Nếu đấu theo tổ: Đã hỗ trợ cơ chế bốc thăm linh hoạt (học sinh đổi chỗ ngồi mỗi tuần nên không gán tổ cố định; giáo viên bấm Gacha nhiều lần tới khi nào trúng bạn thuộc tổ đang tới lượt thì chốt hoặc chọn nhanh từ danh sách, không xem việc ra bạn tổ khác là lỗi) chưa?
 - [ ] UI thi đua có nút linh hoạt từ 2 đến 6 tổ (`[+ Thêm Tổ]` / `[- Bớt Tổ]`) chưa?
 - [ ] Tương tác 100% không đạo cụ (Zero-Prop): Sử dụng ký hiệu tay (ngón tay 1-2-3-4 cho ABCD, X/O, thả tim) + Gacha, không dùng bảng con/hoa xoay/đạo cụ giấy tờ?
 - [ ] Có Slide khởi động (Hook) khơi gợi tò mò đầu giờ chưa? (Không mở đầu áp đặt một chiều)

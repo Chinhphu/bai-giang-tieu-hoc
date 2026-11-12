@@ -63,6 +63,16 @@ Toàn bộ các tiết Tin học 5 xuất file báo cáo ở định dạng **CS
 2. Báo cáo nhiều sheet (Bảng Điểm Tổ, Đánh Giá Từng Em TT27/SMAS, Nhật Ký Chi Tiết) được chuyển đổi thành multi-section CSV chuẩn, phân chia trực quan bằng tiêu đề `=== TÊN PHẦN ===`.
 3. Hàm `uploadCsvToDrive(sections, fileName)` trong `components.js` mã hóa dữ liệu Base64 với MIME `text/csv;charset=utf-8` gửi lên Google Apps Script Web App và fallback tải file về máy giáo viên nếu không có kết nối mạng.
 
+## 🎲 Quy Chuẩn Gọi Tên & Gacha Thi Đua Theo Tổ ("Gacha tới khi trúng thì thôi")
+
+1. **Không gán tổ cố định ngay từ đầu:**
+   - Trong thực tế giảng dạy, mỗi lần gặp lại bất kỳ lớp nào (sau mỗi tuần/buổi học) thì học sinh lớp đó lại đổi chỗ ngồi một lần.
+   - Do đó, danh sách học sinh (`students_5_2026_2027.json`) là danh sách phẳng, **hoàn toàn KHÔNG gán sẵn tổ cố định**. AI Agent tuyệt đối không tự ý gán cứng `team: i % numTeams` rồi ép buộc học sinh phải thuộc tổ đó trong code.
+2. **Cơ chế "Gacha tới khi nào trúng thì thôi":**
+   - Khi bước vào vòng thi đấu theo Tổ, việc bấm Gacha quay ngẫu nhiên cả lớp mà trúng bạn đang ngồi ở Tổ khác là **hoàn toàn bình thường và đúng chủ đích thiết kế, KHÔNG PHẢI LỖI (NOT A BUG)**.
+   - Giáo viên chỉ cần **bấm nút Gacha liên tục cho tới khi nào quay trúng tên một em đang ngồi ở Tổ đang tới lượt** thì dừng lại và chốt em đó lên bảng.
+   - Tuân thủ nguyên tắc *Picked ≠ Done*: Bấm Gacha lướt qua nhiều em hoàn toàn không làm mất lượt của các em đó. Em nào thực hiện xong thử thách mới tính là hoàn thành (`playedStudents`). Giáo viên cũng có thể chọn trực tiếp từ danh sách dropdown nếu có bạn xung phong.
+
 ## Trạng thái áp dụng
 
 - Tiết 03–07 dùng chung component cài đặt, sidebar, modal học sinh, màn hình tổng kết và thông báo toast; mỗi trang vẫn giữ nguyên hoạt động và nội dung slide đặc thù.

@@ -66,7 +66,9 @@ Học sinh lớp 2 (7 tuổi) vừa qua giai đoạn tập đọc tập viết, 
 
 ## 🎲 4. VÒNG ĐỜI GỌI TÊN & HỆ THỐNG TÍNH ĐIỂM
 
-1. **Nguyên tắc "Chọn là chọn, làm xong mới tính" (Picked ≠ Done):**
+1. **Nguyên tắc "Chọn là chọn, làm xong mới tính" (Picked ≠ Done) & "Gacha tới khi nào trúng thì thôi":**
+   - **Thực tế lớp học & Không gán tổ cố định:** Học sinh đổi chỗ ngồi liên tục sau mỗi tuần/buổi học, do đó danh sách học sinh phẳng, **tuyệt đối không gán sẵn tổ cố định**. AI Agent không được tự ý ép gán cứng tổ cho học sinh trong code.
+   - **Gacha tới khi trúng thì thôi (Không phải lỗi):** Khi đến lượt thi của một Tổ, việc bấm Gacha ra bạn đang ngồi ở Tổ khác là hoàn toàn bình thường và đúng thiết kế (KHÔNG PHẢI LỖI). Giáo viên chỉ cần bấm Gacha liên tục cho tới khi trúng bạn thuộc tổ đang tới lượt thì chốt.
    - Bấm `🎲 Gacha` bật pop-up tên học sinh siêu to lên màn hình.
    - Nếu em đó vắng hoặc chưa sẵn sàng: Bấm lại Gacha để quay tiếp bạn khác mà không làm mất lượt của bạn cũ.
    - Chỉ khi học sinh **nhập đáp án, click vượt ải, hoặc giáo viên bấm Xác nhận**, em đó mới chuyển sang danh sách "Đã tham gia" (`playedStudents`).

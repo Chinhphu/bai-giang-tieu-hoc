@@ -295,13 +295,16 @@ $$\text{1. Chờ (Waiting)} \xrightarrow[\text{Bấm Gacha lại để quay ti�
   * Việc bấm Gacha nhiều lần để chọn người hoàn toàn không làm mất lượt của học sinh.
   * Chỉ khi học sinh **nhập đáp án, click tấn công hoặc giáo viên bấm Xác nhận kết quả**, hệ thống mới chính thức chuyển em đó sang mảng `playedStudents` (Done) và ghi nhận vào lịch sử / CSV.
 
-### 4.2 Ứng dụng Gacha theo Chế độ Tiết học
+### 4.2 Ứng dụng Gacha theo Chế độ Tiết học & Cơ Chế "Gacha Tới Khi Nào Trúng Thì Thôi"
 1. **Chế độ Toàn lớp / Cá nhân (Đấu quái toán, Luyện chuột, Gõ phím tiếp sức):**
    * Bấm Gacha tự động bốc ngẫu nhiên từ mảng học sinh chưa tham gia (`remainingStudents`).
    * Pop-up hiện tên thật to để cả lớp cùng quan sát bạn bước lên máy tính.
-2. **Chế độ Thi đua Theo Tổ (Nhóm ráp PC, Trắc nghiệm đồng đội):**
-   * **Vẫn hỗ trợ dùng Gacha bình thường:** Do giáo viên không thể nhớ hết danh sách từng em thuộc tổ nào và dữ liệu JSON gốc không chia sẵn tổ cố định, giáo viên có thể bấm nút Gacha liên tục cho đến khi hiện ra tên một em thuộc **Tổ đang đến lượt** thì chốt em đó lên bảng.
-   * Hoặc giáo viên có thể chọn trực tiếp từ danh sách nếu có em xung phong giơ tay.
+2. **Chế độ Thi đua Theo Tổ ("Gacha tới khi nào trúng thì thôi"):**
+   * **Thực tế lớp học & Lý do KHÔNG gán tổ cố định:** Trong thực tế giảng dạy tiểu học, mỗi lần giáo viên gặp lại bất kỳ lớp nào (mỗi tuần, mỗi buổi học) là lớp đó lại đổi chỗ ngồi một lần (do GVCN sắp xếp lại vị trí hoặc học sinh tự đổi máy). Do đó, hệ thống **CHỦ ĐÍCH KHÔNG GÁN TỔ NGAY TỪ ĐẦU** cho học sinh trong dữ liệu JSON hay danh sách lớp.
+   * **Không phải là lỗi (NOT A BUG):** Việc đến lượt thi của Tổ này nhưng bấm Gacha lại hiện tên học sinh đang ngồi ở Tổ khác là **hoàn toàn bình thường và đúng chủ đích thiết kế**. AI Agent TUYỆT ĐỐI KHÔNG xem đây là lỗi và không được tự ý ép gán cứng học sinh vào tổ hay khóa bộ lọc Gacha theo tổ giả định trong code.
+   * **Quy trình bấm Gacha của Giáo viên:** Giáo viên bấm nút Gacha liên tục cho đến khi hiện ra tên một em đang ngồi ở **Tổ đang đến lượt** thì dừng lại và chốt em đó lên bảng (*"Gacha tới khi nào trúng thì thôi"*).
+   * **Nguyên tắc an toàn lượt:** Nhờ nguyên tắc *Picked ≠ Done*, việc bấm Gacha nhiều lần để tìm đúng bạn thuộc tổ hoàn toàn không làm mất lượt của các bạn đã hiện tên trước đó.
+   * Giáo viên cũng có thể chọn trực tiếp từ dropdown danh sách nếu có em trong tổ xung phong giơ tay.
 
 ### 4.3 Bố Trí Widget Chọn Học Sinh & Phân Tách Điểm Số (Logging vs Team Scoring)
 * **Widget Chọn Học Sinh Ở MỌI Vị Trí Phát Biểu:**

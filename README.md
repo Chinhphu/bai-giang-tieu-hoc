@@ -106,7 +106,10 @@ Phòng máy tính tiểu học thường xuyên gặp sự cố cúp điện đ�
    - Luôn gắn badge đối chiếu tài liệu `📖 Xem Hình X - Trang Y (SGK)` ở các nội dung chi tiết để học sinh kết hợp màn chiếu lớn và sách in trên bàn.
 4. **Tương tác 100% Không Đạo Cụ & Gacha Thông Minh Theo Tổ**:
    - **Tương tác Thể chất Không Đạo Cụ (Zero-Prop):** Triệt tiêu hoàn toàn đạo cụ giấy tờ (bảng con, hoa xoay ABCD...). Học sinh biểu quyết bằng cử chỉ tay trực quan (giơ 1-2-3-4 ngón tay tương ứng A-B-C-D, hai tay chữ X / vòng tay chữ O, thả tim / Like) kết hợp Gacha bốc thăm trên màn hình lớn.
-   - **Gacha linh hoạt theo Tổ:** Khi đấu theo tổ, giáo viên vẫn dùng nút Gacha bình thường (bấm quay liên tục đến khi ra học sinh thuộc tổ đang tới lượt thì chốt) hoặc chọn nhanh từ dropdown.
+   - **Gacha linh hoạt theo Tổ ("Gacha tới khi nào trúng thì thôi"):**
+     - *Thực tế lớp học:* Học sinh đổi chỗ ngồi liên tục mỗi tuần/buổi học, do đó hệ thống **chủ đích KHÔNG gán tổ cố định** trong dữ liệu JSON/danh sách học sinh.
+     - *Không phải lỗi:* Việc đến lượt Tổ này nhưng bấm Gacha ra tên em thuộc Tổ khác là **hoàn toàn bình thường và đúng thiết kế**, KHÔNG PHẢI LỖI.
+     - Giáo viên chỉ cần **bấm nút Gacha liên tục cho tới khi nào quay trúng tên một bạn đang ngồi ở Tổ tới lượt thì chốt** (nguyên tắc *Picked ≠ Done*, bấm nhiều lần không mất lượt) hoặc chọn trực tiếp từ dropdown nếu có em xung phong.
    - **Linh hoạt 2 đến 6 Tổ:** UI có sẵn nút `[+ Thêm Tổ]` / `[- Bớt Tổ]` để điều chỉnh sĩ số tổ thi đấu linh hoạt đầu giờ.
    - **Widget chọn học sinh ở MỌI vị trí phát biểu:** Bố trí ô chọn tên + nút Gacha ở mọi hoạt động. Phân định rõ: phát biểu tự do chỉ log Telemetry cá nhân (không cộng điểm tổ); chỉ khi vào Game/Đấu trường chính thức mới tính điểm vào Tổ thi đua.
    - **Khẩu lệnh giáo viên rõ ràng, dứt khoát** (*"Hành động + Đối tượng + Thời điểm"*); cấm câu hỏi ngược do dự ("phải không?").

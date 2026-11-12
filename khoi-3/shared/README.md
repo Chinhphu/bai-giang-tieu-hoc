@@ -29,6 +29,16 @@ Toàn bộ hệ thống xuất file báo cáo ở định dạng **CSV chuẩn U
 6. Dữ liệu được lưu trực tiếp vào thư mục Drive lưu trữ log tiết học của nhà trường.
 7. **Cơ chế dự phòng (Fallback):** Nếu mất mạng hoặc không kết nối được Google Apps Script, hệ thống sẽ tự động kích hoạt tải trực tiếp tệp CSV về máy giáo viên qua `window.LessonExport.download(...)`.
 
+## 🎲 Quy Chuẩn Gọi Tên & Gacha Thi Đua Theo Tổ ("Gacha tới khi trúng thì thôi")
+
+1. **Không gán tổ cố định ngay từ đầu:**
+   - Trong thực tế giảng dạy, mỗi lần gặp lại bất kỳ lớp nào (sau mỗi tuần/buổi học) thì học sinh lớp đó lại đổi chỗ ngồi một lần.
+   - Do đó, danh sách học sinh (`students_3_2026_2027.json`) là danh sách phẳng, **hoàn toàn KHÔNG gán sẵn tổ cố định**. AI Agent tuyệt đối không tự ý gán cứng tổ cho học sinh trong code hay chia mảng cố định.
+2. **Cơ chế "Gacha tới khi nào trúng thì thôi":**
+   - Khi bước vào vòng thi đấu theo Tổ (lắp ráp linh kiện, câu hỏi thi đua...), việc bấm Gacha quay ngẫu nhiên cả lớp mà ra tên bạn đang ngồi ở Tổ khác là **hoàn toàn bình thường và đúng chủ đích thiết kế, KHÔNG PHẢI LỖI (NOT A BUG)**.
+   - Giáo viên chỉ cần **bấm nút Gacha liên tục cho tới khi nào quay trúng tên một em đang ngồi ở Tổ đang tới lượt** thì dừng lại và chốt em đó lên bảng.
+   - Tuân thủ nguyên tắc *Picked ≠ Done*: Bấm Gacha lướt qua nhiều em hoàn toàn không làm mất lượt của các em đó. Em nào thực hiện xong thử thách mới tính là hoàn thành. Giáo viên cũng có thể chọn trực tiếp từ danh sách dropdown nếu có bạn xung phong.
+
 ## Cách dùng Web Components
 
 Nạp CSS và script trong thẻ `<head>` của từng tiết:

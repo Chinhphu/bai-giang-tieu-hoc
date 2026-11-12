@@ -52,6 +52,11 @@ Khi Gacha dừng lại, hệ thống hiển thị cùng lúc:
 - `🚫 Mời về chỗ (Chưa để bút chì / Làm ồn)`: Còi buzzer cảnh báo, hủy lượt vì vi phạm kỷ luật phòng máy ("Đặt cây bút chì ngay ngắn mới được cầm chuột").
 - `😷 Vắng mặt / Bỏ qua`: Bỏ qua tạm thời trong buổi học.
 
+### 🎲 Cơ Chế "Gacha Tới Khi Nào Trúng Thì Thôi" & Không Gán Tổ Cố Định:
+- **Thực tế lớp học:** Mỗi tuần/buổi học học sinh đều đổi chỗ ngồi trong phòng máy, nên dữ liệu JSON/danh sách học sinh là danh sách phẳng, **tuyệt đối KHÔNG gán tổ cố định**.
+- **Không phải lỗi:** Khi thi đua theo tổ, việc quay Gacha ra tên bạn ở tổ khác là **hoàn toàn bình thường và đúng thiết kế, KHÔNG PHẢI LỖI**. Giáo viên chỉ cần bấm Gacha liên tục cho tới khi ra bạn thuộc tổ đang tới lượt thì chốt.
+- Tuân thủ nguyên tắc *Picked ≠ Done*: Bấm Gacha nhiều lần không làm mất lượt của học sinh.
+
 ---
 
 ## 🖱️ 4. WIDGET KIỂM TRA TƯ THẾ CẦM CHUỘT 5 GIÂY (`components.js`)

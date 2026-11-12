@@ -83,9 +83,11 @@ khoi-4/
 
 ## 🎲 5. VÒNG ĐỜI GỌI TÊN, ĐIỂM SÀN 1000Đ & TIE-RANKING
 
-1. **Nguyên tắc "Chọn là chọn, làm xong mới tính" (Picked ≠ Done):**
+1. **Nguyên tắc "Chọn là chọn, làm xong mới tính" (Picked ≠ Done) & "Gacha tới khi nào trúng thì thôi":**
+   - **Thực tế lớp học & Không gán tổ cố định:** Học sinh đổi chỗ ngồi liên tục sau mỗi tuần/buổi học, do đó danh sách học sinh phẳng, **tuyệt đối không gán sẵn tổ cố định**. AI Agent không được gán cứng tổ cho học sinh trong code.
+   - **Gacha tới khi trúng thì thôi (Không phải lỗi):** Khi đến lượt thi của một Tổ, việc bấm Gacha ra bạn đang ngồi ở Tổ khác là hoàn toàn bình thường và đúng thiết kế (KHÔNG PHẢI LỖI). Giáo viên chỉ cần bấm Gacha liên tục cho tới khi trúng bạn thuộc tổ đang tới lượt thì chốt.
    - Bấm `🎲 Gacha` hiện Pop-up tên học sinh siêu to lên màn chiếu.
-   - Nếu em được gọi chưa sẵn sàng: Bấm lại Gacha để quay tiếp bạn khác mà không làm mất lượt của bạn cũ.
+   - Nếu em được gọi chưa sẵn sàng hoặc chưa thuộc tổ đang đến lượt: Bấm lại Gacha để quay tiếp bạn khác mà không làm mất lượt của bạn cũ.
    - Chỉ khi học sinh hoàn thành câu trả lời / thử thách, em đó mới chính thức chuyển sang danh sách "Đã hoàn thành".
 2. **Điểm Sàn 1000đ & Bố trí 2–6 Tổ linh hoạt:**
    - Điểm số khởi đầu: `STARTING_SCORE = 1000;` để chống điểm âm, duy trì tinh thần cạnh tranh lành mạnh.
