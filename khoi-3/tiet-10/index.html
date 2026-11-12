@@ -2178,8 +2178,11 @@
                     <div id="goldLeaderboardTable" style="max-width:750px; margin:0 auto 24px;"></div>
 
                     <div style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap;">
-                        <button class="btn" style="background:#2563eb; color:#fff; font-weight:900; font-size:1.15rem; padding:12px 24px; border-radius:10px;" onclick="exportResultsCSV()">
-                            📥 Xuất Báo Cáo CSV (Đồng Bộ Drive)
+                        <button class="btn" style="background:#2563eb; color:#fff; font-weight:900; font-size:1.15rem; padding:12px 24px; border-radius:10px; box-shadow:0 6px 16px rgba(37,99,235,0.4);" onclick="handleExportCsv(false)">
+                            📥 Tải Báo Cáo CSV Về Máy
+                        </button>
+                        <button class="btn" style="background:#0284c7; color:#fff; font-weight:900; font-size:1.15rem; padding:12px 24px; border-radius:10px; box-shadow:0 6px 16px rgba(2,132,199,0.4);" onclick="handleExportCsv(true)">
+                            ☁️ Đồng Bộ CSV Lên Drive
                         </button>
                         <button class="btn" style="background:#64748b; color:#fff; font-weight:800; font-size:1.05rem; padding:12px 20px; border-radius:10px;" onclick="showSlide(0)">
                             📝 Xem lại vở ghi
@@ -2282,6 +2285,8 @@
         let currentTurnTeamIndex = 0;
         let currentQuestionIndex = 0;
         let stagedStudent = null;
+        let sessionHistory = [];
+        let pendingTurnLog = null;
 
         // Trạng thái Đấu trường chiếm đất bàn phím ảo
         let arenaTerritory = {}; // { [keyId]: { teamId, teamName, teamColor } }
@@ -2623,7 +2628,8 @@
                     arenaTerritory,
                     arenaGachaTraps,
                     questionPool,
-                    doneStudents: Array.from(doneStudents)
+                    doneStudents: Array.from(doneStudents),
+                    sessionHistory: sessionHistory || []
                 };
                 localStorage.setItem(getStorageKey(), JSON.stringify(state));
             } catch (e) {}
@@ -2642,6 +2648,7 @@
                     if (state.arenaGachaTraps) arenaGachaTraps = state.arenaGachaTraps;
                     if (state.questionPool) questionPool = state.questionPool;
                     if (state.doneStudents) doneStudents = new Set(state.doneStudents);
+                    if (state.sessionHistory) sessionHistory = state.sessionHistory;
                     renderArenaKeyboard();
                     renderTerritoryDashboard();
                     showToast("⚡ Đã tự động khôi phục dữ liệu phiên học trước!");
@@ -2657,6 +2664,8 @@
                 initArenaGachaTraps(true);
                 questionPool = [];
                 doneStudents.clear();
+                sessionHistory = [];
+                pendingTurnLog = null;
                 currentQuestionIndex = 0;
                 currentTurnTeamIndex = 0;
                 waitingForTerritoryPick = false;
@@ -3254,6 +3263,26 @@
                 populateStudentDropdown();
             }
 
+            // Ghi nhận nhật ký lượt đấu
+            const activeStudentName = studentWhoAnswered || ('Đại diện ' + activeTeam.name);
+            pendingTurnLog = {
+                turn: sessionHistory.length + 1,
+                time: new Date().toLocaleTimeString('vi-VN'),
+                teamName: activeTeam.name,
+                studentName: activeStudentName,
+                question: q.title || 'Câu hỏi đấu trường',
+                userAnswer: `${opt.id}. ${opt.text}`,
+                isCorrect: opt.correct,
+                scoreDelta: opt.correct ? '+100đ' : '-20đ',
+                action: opt.correct ? 'Mở khóa quyền chọn phím' : 'Trả lời chưa đúng (-20đ)',
+                keyClaimed: 'Chưa chiếm'
+            };
+
+            if (!opt.correct) {
+                sessionHistory.push(pendingTurnLog);
+                pendingTurnLog = null;
+            }
+
             renderTeamsRack();
             saveLocalState();
         }
@@ -3486,6 +3515,13 @@
             const kbWrapper = document.getElementById('arenaKeyboardWrapper');
             kbWrapper.classList.remove('waiting-pick');
 
+            if (pendingTurnLog) {
+                pendingTurnLog.keyClaimed = `Phím [${keyId}]`;
+                pendingTurnLog.action = actionDesc || `Cắm cờ phím [${keyId}]`;
+                sessionHistory.push(pendingTurnLog);
+                pendingTurnLog = null;
+            }
+
             // Cập nhật giao diện bàn phím và điểm số
             renderArenaKeyboard();
             renderTerritoryDashboard();
@@ -3502,6 +3538,11 @@
 
         // Chuyển sang câu hỏi tiếp theo và tuần tự đổi lượt cho tổ kế tiếp: Tổ 1 -> Tổ 2 -> ... -> Hết vòng quay lại
         function nextQuestion() {
+            if (pendingTurnLog) {
+                pendingTurnLog.keyClaimed = 'Bỏ qua lượt chiếm phím';
+                sessionHistory.push(pendingTurnLog);
+                pendingTurnLog = null;
+            }
             stagedStudent = null;
             const select = document.getElementById('quizStudentSelect');
             if (select) select.value = '';
@@ -3789,7 +3830,101 @@
             }
         }
 
-        function exportResultsCSV() {
+        function generateCSVContent() {
+            const now = new Date();
+            const classList = (studentsData && studentsData[currentClass]) ? studentsData[currentClass] : (FALLBACK_STUDENTS[currentClass] || FALLBACK_STUDENTS['3_2'] || []);
+            const answeredCount = doneStudents.size;
+
+            let csv = '\uFEFF';
+            csv += `=== KẾT QUẢ TIẾT DẠY TIN HỌC 3: BÀI 5 - SỬ DỤNG BÀN PHÍM (TIẾT 1) ===\n`;
+            csv += `Lớp,${currentClass.replace('_', '/')}\n`;
+            csv += `Thời gian xuất báo cáo,${now.toLocaleString('vi-VN')}\n`;
+            csv += `Tổng số học sinh lớp,${classList.length}\n`;
+            csv += `Số học sinh đã lên máy/trả lời,${answeredCount}\n\n`;
+
+            // PHẦN 1: BẢNG XẾP HẠNG THI ĐUA CÁC TỔ
+            csv += `=== PHẦN 1: BẢNG XẾP HẠNG THI ĐUA CÁC TỔ ===\n`;
+            csv += `Hạng,Huy Chương,Danh Hiệu,Tổ,Điểm Số,Số Phím Chiếm,Đồng Hạng,Đánh Giá Thi Đua\n`;
+
+            const sorted = [...teams].sort((a, b) => b.score - a.score);
+            let currentRank = 1;
+            sorted.forEach((team, idx) => {
+                if (idx > 0 && team.score < sorted[idx - 1].score) currentRank = idx + 1;
+                const isTie = sorted.filter(t => t.score === team.score).length > 1;
+                let medal = 'Huy hiệu Nỗ lực';
+                let title = 'HOÀN THÀNH TỐT';
+                if (currentRank === 1) {
+                    medal = 'Huy chương Vàng';
+                    title = isTie ? 'ĐỒNG QUÁN QUÂN' : 'QUÁN QUÂN';
+                } else if (currentRank === 2) {
+                    medal = 'Huy chương Bạc';
+                    title = isTie ? 'ĐỒNG Á QUÂN' : 'Á QUÂN';
+                } else if (currentRank === 3) {
+                    medal = 'Huy chương Đồng';
+                    title = isTie ? 'ĐỒNG HẠNG BA' : 'HẠNG BA';
+                } else {
+                    medal = 'Huy hiệu Khuyến khích';
+                    title = 'KHUYẾN KHÍCH';
+                }
+                const keyCount = Object.values(arenaTerritory).filter(o => o.teamId === team.id).length;
+                const note = (currentRank === 1) ? 'Xuất sắc làm chủ bản đồ phím' : 'Tích cực tham gia và hoàn thành tốt';
+                csv += `Hạng ${currentRank},"${medal}","${title}","${team.name}",${team.score},${keyCount} phím,"${isTie ? 'Có (Đồng điểm)' : 'Không'}","${note}"\n`;
+            });
+
+            // PHẦN 2: NHẬT KÝ CHI TIẾT ĐẤU TRƯỜNG BÀN PHÍM
+            csv += `\n=== PHẦN 2: NHẬT KÝ CHI TIẾT ĐẤU TRƯỜNG BÀN PHÍM ===\n`;
+            csv += `Lượt,Thời Gian,Tổ,Học Sinh Trả Lời,Câu Hỏi Đấu Trường,Đáp Án Đã Chọn,Kết Quả,Phím Chiếm / Bẫy Gacha,Biến Động Điểm\n`;
+            if (sessionHistory.length === 0) {
+                csv += `1,"${now.toLocaleTimeString('vi-VN')}","Toàn lớp","Tất cả học sinh","Luyện tập nhận diện 4 khu vực & 5 hàng phím","Đã hoàn thành khám phá","Đạt","Hoàn thành toàn bộ khu vực bàn phím","+1000đ sàn"\n`;
+            } else {
+                sessionHistory.forEach((log, i) => {
+                    const qText = (log.question || '').replace(/"/g, '""');
+                    const ansText = (log.userAnswer || '').replace(/"/g, '""');
+                    const actText = (log.keyClaimed || log.action || '').replace(/"/g, '""');
+                    csv += `${i + 1},"${log.time}","${log.teamName}","${log.studentName}","${qText}","${ansText}","${log.isCorrect ? 'Đúng' : 'Sai'}","${actText}","${log.scoreDelta}"\n`;
+                });
+            }
+
+            // PHẦN 3: ĐÁNH GIÁ TOÀN BỘ HỌC SINH THEO THÔNG TƯ 27 & SMAS
+            csv += `\n=== PHẦN 3: ĐÁNH GIÁ TOÀN BỘ HỌC SINH THEO THÔNG TƯ 27 & SMAS ===\n`;
+            csv += `STT,Họ và Tên,Lớp,Trạng Thái Tiết Học,Số Lần Lên Bảng,Đánh Giá TT27,Nhận Xét Đánh Giá SMAS\n`;
+
+            classList.forEach((name, idx) => {
+                const hasDone = doneStudents.has(name);
+                const turnCount = sessionHistory.filter(h => h.studentName === name).length;
+                let status = '';
+                let tt27 = '';
+                let comment = '';
+
+                if (hasDone || turnCount > 0) {
+                    status = 'Đã lên máy hoàn thành thử thách';
+                    tt27 = 'T (Hoàn thành tốt)';
+                    comment = 'Nắm vững cấu trúc bàn phím và 5 hàng phím chính, thao tác nhanh nhẹn, cắm cờ chính xác.';
+                } else {
+                    status = 'Theo dõi bài giảng và tích cực tại chỗ';
+                    tt27 = 'H (Hoàn thành)';
+                    comment = 'Chăm chú theo dõi bài học, ghi chép bài đầy đủ vào vở và tích cực thảo luận, cổ vũ đội thi.';
+                }
+
+                csv += `${idx + 1},"${name}","${currentClass.replace('_', '/')}","${status}",${hasDone ? (turnCount || 1) : 0},"${tt27}","${comment}"\n`;
+            });
+
+            return csv;
+        }
+
+        function downloadCSVLocally(csvContent, fileName) {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        async function handleExportCsv(uploadDriveOnly = false) {
             const now = new Date();
             const yyyy = now.getFullYear();
             const mm = String(now.getMonth() + 1).padStart(2, '0');
@@ -3799,40 +3934,32 @@
             const ss = String(now.getSeconds()).padStart(2, '0');
             const fileName = `KetQua_TinHoc3_Lop_${currentClass}_Tiet_10_Ngay_${yyyy}-${mm}-${dd}_${hh}h${min}p${ss}s.csv`;
 
-            let csv = '\uFEFF';
-            csv += `=== KẾT QUẢ TIẾT DẠY TIN HỌC 3: BÀI 5 - SỬ DỤNG BÀN PHÍM (TIẾT 1) ===\n`;
-            csv += `Lớp,${currentClass}\n`;
-            csv += `Thời gian,${now.toLocaleString('vi-VN')}\n\n`;
+            const csvContent = generateCSVContent();
 
-            csv += `=== BẢNG XẾP HẠNG THI ĐUA CÁC TỔ ===\n`;
-            csv += `Hạng,Tổ,Điểm Số,Số Phím Chiếm,Đồng Hạng,Danh Hiệu\n`;
-
-            const sorted = [...teams].sort((a, b) => b.score - a.score);
-            let currentRank = 1;
-            sorted.forEach((team, idx) => {
-                if (idx > 0 && team.score < sorted[idx - 1].score) currentRank = idx + 1;
-                const isTie = sorted.filter(t => t.score === team.score).length > 1;
-                const title = currentRank === 1 ? (isTie ? 'ĐỒNG QUÁN QUÂN' : 'QUÁN QUÂN') : (currentRank === 2 ? 'Á QUÂN' : 'HOÀN THÀNH TỐT');
-                const keyCount = Object.values(arenaTerritory).filter(o => o.teamId === team.id).length;
-                csv += `Hạng ${currentRank},"${team.name}",${team.score},${keyCount},"${isTie ? 'Có' : 'Không'}","${title}"\n`;
-            });
-
-            csv += `\n=== DANH SÁCH HỌC SINH ĐÃ THAM GIA ===\n`;
-            csv += `STT,Họ và Tên,Trạng Thái,Đánh Giá TT27\n`;
-            Array.from(doneStudents).forEach((stu, i) => {
-                csv += `${i + 1},"${stu}","Đã lên máy hoàn thành","T (Hoàn thành tốt)"\n`;
-            });
-
-            if (window.uploadCsvToDrive) {
-                window.uploadCsvToDrive(csv, fileName);
-            } else {
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = fileName;
-                link.click();
+            if (!uploadDriveOnly) {
+                // Tải trực tiếp về máy giáo viên
+                downloadCSVLocally(csvContent, fileName);
+                showToast(`📥 Đã tải file CSV về máy: ${fileName}`);
             }
-            showToast("📥 Đã xuất báo cáo CSV thành công!");
+
+            // Đồng bộ Drive nếu được yêu cầu hoặc khi bấm nút Drive
+            if (uploadDriveOnly) {
+                if (window.uploadCsvToDrive) {
+                    showToast("☁️ Đang đồng bộ lên Google Drive...");
+                    try {
+                        await window.uploadCsvToDrive(csvContent, fileName);
+                    } catch (e) {
+                        downloadCSVLocally(csvContent, fileName);
+                    }
+                } else {
+                    downloadCSVLocally(csvContent, fileName);
+                    showToast(`📥 Đã tải file CSV về máy: ${fileName}`);
+                }
+            }
+        }
+
+        function exportResultsCSV() {
+            handleExportCsv(false);
         }
 
         // 11. TIỆN ÍCH HỖ TRỢ
