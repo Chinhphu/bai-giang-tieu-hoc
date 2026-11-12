@@ -1,0 +1,2353 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tin học 5 – Bài 6: Định dạng kí tự và bố trí hình ảnh trong văn bản (Tiết 1)</title>
+
+    <!-- LIÊN KẾT TÀI NGUYÊN OFFLINE-FIRST CHUẨN KHỐI 5 -->
+    <link rel="stylesheet" href="../shared/style.css">
+
+    <!-- BẢO VỆ CHỐNG RELOAD & MODULE TIỆN ÍCH HỆ THỐNG -->
+    <script src="../../shared/js/prevent-reload.js"></script>
+    <script src="../../shared/js/core.js"></script>
+    <script src="../../shared/js/confetti.js"></script>
+    <script src="../../shared/js/docx-grader.js"></script>
+    <script src="../shared/components.js"></script>
+    <script src="../../shared/js/demon-mode.js"></script>
+    <script src="quests.js"></script>
+
+    <style>
+        /* ================= TYPOGRAPHY & DESIGN SYSTEM KHỐI 5 ================= */
+        html, body, div, span, applet, object, iframe,
+        h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+        a, abbr, acronym, address, big, cite, code,
+        del, dfn, em, img, ins, kbd, q, s, samp,
+        small, strike, strong, sub, sup, tt, var,
+        b, u, i, center, dl, dt, dd, ol, ul, li,
+        fieldset, form, label, legend, table, caption,
+        tbody, tfoot, thead, tr, th, td, article, aside,
+        canvas, details, embed, figure, figcaption, footer,
+        header, hgroup, menu, nav, output, ruby, section,
+        summary, time, mark, audio, video, button, input, select, textarea {
+            font-family: 'Be Vietnam Pro', sans-serif !important;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --mint: #16b89a;
+            --mint-dark: #0f8a73;
+            --blue: #2563eb;
+            --blue-dark: #1d4ed8;
+            --coral: #ef4444;
+            --gold: #f59e0b;
+            --purple: #8b5cf6;
+            --dark: #0f172a;
+            --slate: #1e293b;
+            --line: #cbd5e1;
+            --ink: #1e293b;
+            --paper: #ffffff;
+            --shadow: #94a3b8;
+        }
+
+        /* Giao diện chính 2 cột (Sidebar + Sân khấu Slide) */
+        #game-screen {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #game-screen.active {
+            display: flex;
+        }
+
+        .main {
+            flex: 1;
+            height: 100vh;
+            overflow-y: auto;
+            position: relative;
+            padding: 24px 36px 140px;
+            background: #f8fafc;
+        }
+
+        /* Thanh công cụ Giáo viên trên đỉnh */
+        .teacher-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            border: 2px solid var(--line);
+            border-radius: 14px;
+            padding: 8px 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .tb-left, .tb-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .btn-tb {
+            font-size: 13.5px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1.5px solid var(--line);
+            background: #fff;
+            color: var(--ink);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-tb:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+            transform: translateY(-1px);
+        }
+        .btn-tb.primary {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            color: #1d4ed8;
+        }
+        .btn-tb.demon {
+            background: #faf5ff;
+            border-color: #a855f7;
+            color: #7e22ce;
+        }
+        .btn-tb.danger {
+            background: #fef2f2;
+            border-color: #f87171;
+            color: #dc2626;
+        }
+
+        /* Thanh gọi học sinh Inline (.q-caller-inline) */
+        .q-caller-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            border: 2px solid var(--line);
+            border-radius: 12px;
+            padding: 6px 12px;
+            margin: 8px 0;
+            vertical-align: middle;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+        .q-caller-inline .qc-badge {
+            font-size: 14px;
+            font-weight: 800;
+            color: #475569;
+        }
+        .q-caller-inline select {
+            height: 34px;
+            padding: 0 10px;
+            border-radius: 8px;
+            border: 1.5px solid var(--line);
+            font-size: 14px;
+            font-weight: 700;
+            background: #fff;
+            color: var(--ink);
+            outline: none;
+            max-width: 230px;
+        }
+        .btn-dice {
+            width: 34px;
+            height: 34px;
+            min-width: 34px;
+            padding: 0;
+            font-size: 17px;
+            border-radius: 8px;
+            background: #fef08a;
+            border: 2px solid #ca8a04;
+            color: #854d0e;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #a16207;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s ease;
+        }
+        .btn-dice:hover {
+            background: #fde047;
+            transform: translateY(-1px);
+        }
+        .btn-dice:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #a16207;
+        }
+
+        /* Hệ thống Slide & Thẻ */
+        .slide {
+            display: none;
+            max-width: 1100px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .slide.active {
+            display: block;
+            animation: fadeIn 0.25s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 800;
+            padding: 4px 14px;
+            border-radius: 20px;
+            background: #e0f2fe;
+            color: #0369a1;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .tag.game { background: #fef3c7; color: #b45309; }
+        .tag.vo { background: #ecfdf5; color: #047857; }
+        .tag.demon { background: #fae8ff; color: #86198f; }
+
+        .slide-title {
+            font-size: 34px;
+            font-weight: 900;
+            color: var(--ink);
+            margin: 4px 0 16px;
+            line-height: 1.25;
+        }
+
+        /* Thẻ chép bài (.vo-main) & Clean Notebook */
+        .notebook.clean {
+            background: #ffffff;
+            border: 3px solid #0f172a;
+            border-radius: 18px;
+            padding: 40px 32px;
+            max-width: 900px;
+            margin: 16px auto;
+            box-shadow: 0 8px 0 var(--line);
+            text-align: center;
+            position: relative;
+        }
+        .notebook .date-line {
+            font-size: 26px;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 24px;
+        }
+        .notebook .nb-header {
+            margin-bottom: 20px;
+        }
+        .notebook .nb-subject {
+            font-size: 32px;
+            font-weight: 900;
+            color: #0284c7;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .notebook .nb-title {
+            font-size: 42px;
+            font-weight: 900;
+            color: #b91c1c;
+            line-height: 1.3;
+        }
+
+        /* Thẻ ghi nhớ 1 câu (.vo-main chặng 1 & 2) */
+        .notebook.vo-main {
+            background: #ffffff;
+            border: 3px solid #16b89a;
+            border-radius: 18px;
+            padding: 28px 36px;
+            max-width: 900px;
+            margin: 20px auto;
+            box-shadow: 0 8px 0 #0d9488;
+            text-align: left;
+        }
+        .vo-text {
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1.6;
+            color: #0f172a;
+        }
+        .vo-text b {
+            color: #0284c7;
+        }
+
+        /* Nút toàn màn hình chép bài chuẩn Quy chuẩn 3 */
+        .btn-fs-toggle {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            font-size: 14px;
+            font-weight: 800;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-fs-toggle:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        /* Khi notebook phóng to fullscreen modal */
+        .notebook.fullscreen-mode {
+            position: fixed !important;
+            inset: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999999 !important;
+            background: #ffffff !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            padding: 100px 40px 60px !important;
+            overflow-y: auto !important;
+            box-sizing: border-box !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+        .notebook.fullscreen-mode .date-line {
+            font-size: 34px !important;
+        }
+        .notebook.fullscreen-mode .nb-subject {
+            font-size: 42px !important;
+        }
+        .notebook.fullscreen-mode .nb-title {
+            font-size: 56px !important;
+        }
+        .btn-fs-close {
+            position: fixed !important;
+            top: 20px !important;
+            right: 28px !important;
+            z-index: 10000000 !important;
+            font-size: 16px !important;
+            font-weight: 900 !important;
+            padding: 10px 22px !important;
+            border-radius: 10px !important;
+            background: #ef4444 !important;
+            color: #fff !important;
+            border: 2px solid #b91c1c !important;
+            cursor: pointer !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+        }
+
+        /* ================= GIAO DIỆN SÀN CƯỢC SĂN BUG (2 CỘT) ================= */
+        .bet-arena {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            max-width: 1060px;
+            margin: 16px auto;
+            text-align: left;
+        }
+        @media (max-width: 900px) {
+            .bet-arena { grid-template-columns: 1fr; }
+        }
+
+        .arena-card {
+            background: #ffffff;
+            border: 3px solid var(--ink);
+            border-radius: 20px;
+            padding: 20px 24px;
+            box-shadow: 0 6px 0 var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px dashed var(--line);
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+        .ticket-title {
+            font-size: 19px;
+            font-weight: 900;
+            color: #0369a1;
+        }
+        .ticket-badge {
+            font-size: 13px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 12px;
+            background: #fef08a;
+            color: #854d0e;
+        }
+
+        .ticket-target {
+            font-size: 16px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+        .ticket-req {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #334155;
+            margin-bottom: 16px;
+        }
+
+        /* Đồng hồ đếm ngược 45s */
+        .timer-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1e293b;
+            color: #fff;
+            border-radius: 14px;
+            padding: 12px 20px;
+            margin-bottom: 14px;
+        }
+        .timer-val {
+            font-size: 38px;
+            font-weight: 900;
+            color: #facc15;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 1px;
+        }
+        .timer-val.warning {
+            color: #ef4444;
+            animation: pulse 0.5s infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.08); }
+        }
+        .timer-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* Dropzone nộp file .docx */
+        .docx-dropzone {
+            border: 3px dashed #3b82f6;
+            background: #eff6ff;
+            border-radius: 16px;
+            padding: 24px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .docx-dropzone:hover, .docx-dropzone.dragover {
+            border-color: #1d4ed8;
+            background: #dbeafe;
+            transform: scale(1.01);
+        }
+        .dz-icon {
+            font-size: 42px;
+            margin-bottom: 6px;
+        }
+        .dz-text {
+            font-size: 16px;
+            font-weight: 800;
+            color: #1e40af;
+            margin-bottom: 4px;
+        }
+        .dz-sub {
+            font-size: 13px;
+            color: #64748b;
+        }
+        .dz-file-badge {
+            display: none;
+            background: #fff;
+            border: 2px solid #2563eb;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: 800;
+            color: #1d4ed8;
+            margin-top: 10px;
+        }
+
+        /* Bảng chọn cược nhanh Zero-Prop */
+        .betting-table {
+            background: #f8fafc;
+            border: 2px solid var(--line);
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 14px;
+        }
+        .bet-table-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #475569;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .bet-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: #fff;
+            margin-bottom: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        .bet-team-name {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .bet-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .btn-bet {
+            font-size: 13px;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+        .btn-bet.pass {
+            background: #f0fdf4;
+            color: #166534;
+            border-color: #86efac;
+        }
+        .btn-bet.bug {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fca5a5;
+        }
+        .btn-bet.active-pass {
+            background: #22c55e !important;
+            color: #fff !important;
+            border-color: #15803d !important;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+        }
+        .btn-bet.active-bug {
+            background: #ef4444 !important;
+            color: #fff !important;
+            border-color: #b91c1c !important;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Khung kết quả Auto-Grader */
+        .grader-result-box {
+            display: none;
+            border-radius: 14px;
+            padding: 14px;
+            margin-top: 10px;
+            animation: fadeIn 0.2s ease;
+        }
+        .grader-result-box.pass {
+            background: #ecfdf5;
+            border: 2px solid #10b981;
+            color: #065f46;
+        }
+        .grader-result-box.fail {
+            background: #fff1f2;
+            border: 2px solid #f43f5e;
+            color: #9f1239;
+        }
+        .gr-title {
+            font-size: 18px;
+            font-weight: 900;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .gr-list {
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 6px 0 0;
+            padding-left: 20px;
+        }
+
+        /* Hệ thống nút hành động lớn */
+        .btn-action {
+            font-size: 18px;
+            font-weight: 900;
+            padding: 12px 24px;
+            border-radius: 14px;
+            border: 3px solid var(--ink);
+            cursor: pointer;
+            box-shadow: 0 5px 0 var(--shadow);
+            transition: all 0.1s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 var(--shadow);
+        }
+        .btn-action:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 var(--shadow);
+        }
+        .btn-action.mint {
+            background: var(--mint);
+            color: #fff;
+            border-color: var(--mint-dark);
+            box-shadow: 0 5px 0 #0f766e;
+        }
+        .btn-action.blue {
+            background: var(--blue);
+            color: #fff;
+            border-color: var(--blue-dark);
+            box-shadow: 0 5px 0 #1e40af;
+        }
+        .btn-action.coral {
+            background: var(--coral);
+            color: #fff;
+            border-color: #b91c1c;
+            box-shadow: 0 5px 0 #991b1b;
+        }
+        .btn-action.gold {
+            background: var(--gold);
+            color: #fff;
+            border-color: #b45309;
+            box-shadow: 0 5px 0 #78350f;
+        }
+
+        /* Thẻ so sánh Khởi động */
+        .warmup-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.9fr;
+            gap: 20px;
+            max-width: 1040px;
+            margin: 14px auto 20px;
+            text-align: left;
+        }
+        @media (max-width: 900px) {
+            .warmup-grid { grid-template-columns: 1fr; }
+        }
+        .warmup-card {
+            background: #fff;
+            border: 2px solid var(--ink);
+            border-radius: 16px;
+            padding: 16px 20px;
+            box-shadow: 0 5px 0 var(--line);
+        }
+        .sample-doc-box {
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            padding: 14px;
+            font-family: 'Times New Roman', serif !important;
+            font-size: 15px;
+            line-height: 1.4;
+            color: #000;
+            border-radius: 8px;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        /* Đáp án ẩn mở .rev */
+        .rev {
+            background: #f0fdfa;
+            border: 2px dashed #0d9488;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #64748b;
+            cursor: pointer;
+            margin-top: 8px;
+            line-height: 1.5;
+            transition: all 0.2s;
+        }
+        .rev.show {
+            border-style: solid;
+            color: #0f172a;
+            background: #ccfbf1;
+        }
+        .rev:not(.show) > * {
+            display: none !important;
+        }
+
+        /* Thẻ Khám phá Lý thuyết */
+        .theory-diagram {
+            background: #ffffff;
+            border: 3px solid var(--ink);
+            border-radius: 18px;
+            padding: 20px;
+            max-width: 960px;
+            margin: 12px auto 20px;
+            box-shadow: 0 6px 0 var(--line);
+            text-align: left;
+        }
+        .font-ribbon-demo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 12px 0;
+            flex-wrap: wrap;
+        }
+        .ribbon-btn {
+            background: #fff;
+            border: 1.5px solid #94a3b8;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-weight: 800;
+            font-size: 15px;
+            color: #1e293b;
+            box-shadow: 0 2px 0 #cbd5e1;
+        }
+
+        /* Màn hình Chốt kiến thức */
+        .summary-card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 980px;
+            margin: 16px auto 24px;
+            text-align: left;
+        }
+        @media (max-width: 768px) {
+            .summary-card-grid { grid-template-columns: 1fr; }
+        }
+        .summary-card {
+            background: #ffffff;
+            border: 3px solid #0f172a;
+            border-radius: 18px;
+            padding: 22px 26px;
+            box-shadow: 0 6px 0 var(--mint-dark);
+        }
+        .summary-card h3 {
+            font-size: 22px;
+            font-weight: 900;
+            color: #0f766e;
+            margin: 0 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .summary-card p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        /* Bảng vàng Vinh danh */
+        .rankings-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            max-width: 960px;
+            margin: 20px auto;
+        }
+        .rank-card {
+            background: #ffffff;
+            border: 3px solid var(--ink);
+            border-radius: 18px;
+            padding: 18px 16px;
+            text-align: center;
+            box-shadow: 0 6px 0 var(--shadow);
+            position: relative;
+        }
+        .rank-card.champion {
+            border-color: #f59e0b;
+            background: #fffbeb;
+            box-shadow: 0 8px 0 #d97706;
+            transform: scale(1.03);
+        }
+        .rank-medal {
+            font-size: 44px;
+            margin-bottom: 4px;
+        }
+        .rank-title {
+            font-size: 16px;
+            font-weight: 900;
+            color: #92400e;
+            text-transform: uppercase;
+        }
+        .rank-team {
+            font-size: 22px;
+            font-weight: 900;
+            color: #0f172a;
+            margin: 4px 0;
+        }
+        .rank-score {
+            font-size: 26px;
+            font-weight: 900;
+            color: #2563eb;
+        }
+
+        /* Modal Chấm Hàng Loạt (Batch Mode) */
+        .batch-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.7);
+            z-index: 999999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .batch-modal-overlay.active {
+            display: flex;
+        }
+        .batch-modal-box {
+            background: #ffffff;
+            border-radius: 20px;
+            width: 95%;
+            max-width: 900px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .batch-modal-header {
+            padding: 16px 24px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+        .batch-modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .batch-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-top: 14px;
+        }
+        .batch-table th, .batch-table td {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            text-align: left;
+        }
+        .batch-table th {
+            background: #f1f5f9;
+            font-weight: 800;
+        }
+        .badge-tt27 {
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 900;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .badge-tt27.t { background: #dcfce7; color: #166534; }
+        .badge-tt27.h { background: #e0f2fe; color: #075985; }
+        .badge-tt27.c { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+
+<body>
+    <!-- 1. MÀN HÌNH CẤU HÌNH ĐẦU GIỜ KHỐI 5 -->
+    <khoi5-setup
+        heading="TIN HỌC 5 – BÀI 6 (TIẾT 1)"
+        description="Định dạng kí tự và bố trí hình ảnh trong văn bản · Đấu trường Săn Bug Auto-Grader"
+        team-label="Số lượng tổ tham gia:"
+        team-unit="Tổ"
+        starting-score-label="Điểm sàn khởi đầu mỗi tổ:"
+        default-score="1000"
+        default-teams="4"
+        start-label="VÀO TIẾT HỌC 🚀">
+    </khoi5-setup>
+
+    <!-- 2. SÂN KHẤU CHÍNH & SIDEBAR KẾ THỪA KHỐI 5 -->
+    <div id="game-screen">
+        <khoi5-sidebar
+            title="BẢNG ĐIỂM THI ĐUA"
+            quick-action="none"
+            page-indicator
+            gold-board>
+        </khoi5-sidebar>
+
+        <main class="main" id="main-stage">
+            <!-- THANH CÔNG CỤ GIÁO VIÊN -->
+            <div class="teacher-toolbar">
+                <div class="tb-left">
+                    <button class="btn-tb primary" type="button" onclick="window.DocxGrader.downloadStarterDocx()" title="Tải tệp mẫu làm kem dưa hấu thô chưa định dạng">
+                        📄 Tải Đề Bài Mẫu (.docx)
+                    </button>
+                    <button class="btn-tb" type="button" onclick="openBatchModal()" title="Chấm nhanh 35 bài thực hành cả lớp xuất TT27">
+                        📦 Chấm Hàng Loạt (Batch Mode)
+                    </button>
+                    <button class="btn-tb demon" type="button" id="btn-toggle-demon" onclick="toggleDemonMode()" title="Bật/Tắt tính năng Phe Quỷ cách ly học sinh cá biệt">
+                        😈 Đấu Trường Ma Vương
+                    </button>
+                </div>
+                <div class="tb-right">
+                    <span id="demon-relief-fund-display" style="display:none; font-size:13.5px; font-weight:800; color:#a855f7; background:#faf5ff; padding:4px 10px; border-radius:8px; border:1px solid #d8b4fe;">
+                        Quỹ Cứu Trợ: <b id="relief-fund-val">0</b> Xu
+                    </span>
+                    <button class="btn-tb danger" type="button" onclick="resetLessonSession()" title="Xóa dữ liệu lưu để dạy lớp mới">
+                        🗑️ Xóa dữ liệu phiên
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================= SLIDE 1: KHỞI ĐỘNG (SO SÁNH HÌNH 28 & NHẬN XÉT AN, MINH) ================= -->
+            <section class="slide active" id="slide-1">
+                <div class="tag">Khởi động · Khám phá</div>
+                <h1 class="slide-title">BẮT MẠCH VĂN BẢN: "CÁCH LÀM KEM DƯA HẤU"</h1>
+                
+                <div class="warmup-grid">
+                    <!-- Bên trái: Văn bản thô Hình 28 -->
+                    <div class="warmup-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span style="font-size:13px; font-weight:800; background:#e2e8f0; padding:2px 8px; border-radius:6px; color:#475569;">HÌNH 28 SGK TR.30</span>
+                            <span style="font-size:13px; color:#dc2626; font-weight:700;">⚠️ Văn bản thô chưa định dạng</span>
+                        </div>
+                        <div class="sample-doc-box">
+                            <div style="font-size:14px; margin-bottom:4px;">CÁCH LÀM KEM DƯA HẤU</div>
+                            <div style="font-size:14px; margin-bottom:2px;">Nguyên liệu:</div>
+                            <div style="font-size:13px; color:#334155;">- Dưa hấu: 300g<br>- Sữa chua: 1 hộp<br>- Sữa đặc: 2 thìa</div>
+                            <div style="background:#fee2e2; border:1px dashed #ef4444; border-radius:6px; padding:6px; margin:8px 0; text-align:center; font-size:12px; color:#991b1b;">
+                                🍉 [Hình ảnh que kem dưa hấu đang nằm cắt ngang dòng chữ!]
+                            </div>
+                            <div style="font-size:14px; margin-bottom:2px;">Các bước thực hiện:</div>
+                            <div style="font-size:13px; color:#334155;">
+                                Bước 1: Gọt vỏ, bỏ hạt dưa hấu rồi cắt miếng nhỏ.<br>
+                                Bước 2: Cho dưa hấu, sữa chua, sữa đặc xay nhuyễn.<br>
+                                Bước 3: Rót vào khuôn, cắm que để ngăn đá 4-6 tiếng.<br>
+                                Bước 4: Lấy kem ra khỏi khuôn và thưởng thức.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bên phải: Nhận xét của An & Minh -->
+                    <div class="warmup-card">
+                        <div style="font-size:15px; font-weight:800; color:#0369a1; margin-bottom:10px;">
+                            💬 Ý KIẾN CỦA AN & MINH (HÌNH 29, 30):
+                        </div>
+                        <div style="background:#f0f9ff; border-left:4px solid #0284c7; padding:10px 12px; border-radius:6px; margin-bottom:12px; font-size:14px; line-height:1.5;">
+                            <b>Bạn Minh:</b> <i>"Văn bản đã có đủ các bước làm kem nhưng tiêu đề và đề mục chưa nổi bật, rất khó nhìn lướt!"</i>
+                        </div>
+                        <div style="background:#fdf2f8; border-left:4px solid #ec4899; padding:10px 12px; border-radius:6px; font-size:14px; line-height:1.5;">
+                            <b>Bạn An:</b> <i>"Hình ảnh que kem đang nằm cắt ngang đoạn văn làm đứt mạch đọc. Cần cho chữ bao quanh ảnh!"</i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2 CÂU HỎI TƯƠNG TÁC GỌI HỌC SINH (.q-caller-inline) -->
+                <div style="max-width:960px; margin:0 auto 20px; text-align:left;">
+                    <div style="background:#fff; border:2px solid var(--line); border-radius:14px; padding:14px 18px; margin-bottom:12px;">
+                        <div style="font-weight:800; font-size:16px; color:#0f172a; margin-bottom:4px;">
+                            1. Theo em, bạn Minh muốn thay đổi điều gì ở phần chữ để bài viết dễ đọc hơn?
+                        </div>
+                        <div class="q-caller-inline">
+                            <span class="qc-badge">Học sinh trả lời:</span>
+                            <select id="sel-warmup-1" class="qc-student-select"></select>
+                            <button class="btn-dice" type="button" onclick="pickStudentFor('warmup-1')" title="Gọi ngẫu nhiên">🎲</button>
+                        </div>
+                        <div class="rev" id="rev-warm-1" onclick="this.classList.toggle('show')">
+                            <b>Đáp án:</b> Cần <b>đổi cỡ chữ to hơn, in đậm</b> và <b>đổi màu nổi bật</b> cho tiêu đề và các đề mục.
+                        </div>
+                        <div style="margin-top:8px; display:flex; gap:8px;">
+                            <button class="btn-tb primary" type="button" onclick="gradeWarmup('warmup-1', true, 'rev-warm-1')">Ghi nhận ĐÚNG</button>
+                            <button class="btn-tb danger" type="button" onclick="gradeWarmup('warmup-1', false)">Chưa đúng</button>
+                        </div>
+                    </div>
+
+                    <div style="background:#fff; border:2px solid var(--line); border-radius:14px; padding:14px 18px;">
+                        <div style="font-weight:800; font-size:16px; color:#0f172a; margin-bottom:4px;">
+                            2. Bạn An mong muốn văn bản chảy như thế nào đối với hình ảnh minh họa?
+                        </div>
+                        <div class="q-caller-inline">
+                            <span class="qc-badge">Học sinh trả lời:</span>
+                            <select id="sel-warmup-2" class="qc-student-select"></select>
+                            <button class="btn-dice" type="button" onclick="pickStudentFor('warmup-2')" title="Gọi ngẫu nhiên">🎲</button>
+                        </div>
+                        <div class="rev" id="rev-warm-2" onclick="this.classList.toggle('show')">
+                            <b>Đáp án:</b> Văn bản phải <b>tự động chảy bao quanh hình ảnh</b> (chọn kiểu Square) thay vì bị cắt đôi ngắt quãng.
+                        </div>
+                        <div style="margin-top:8px; display:flex; gap:8px;">
+                            <button class="btn-tb primary" type="button" onclick="gradeWarmup('warmup-2', true, 'rev-warm-2')">Ghi nhận ĐÚNG</button>
+                            <button class="btn-tb danger" type="button" onclick="gradeWarmup('warmup-2', false)">Chưa đúng</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:16px;">
+                    <button class="btn-action blue" type="button" onclick="goSlide(1)">
+                        Em chép bài vào vở ▶
+                    </button>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 2: EM CHÉP BÀI VÀO VỞ (ĐẦU GIỜ - CHỈ TỰA BÀI) ================= -->
+            <section class="slide" id="slide-2">
+                <div class="tag vo">Em chép bài vào vở</div>
+                <div class="notebook clean" id="notebook-slide-2">
+                    <button type="button" class="btn-fs-toggle" onclick="window.toggleNotebookFullscreen(this)">
+                        ⛶ Chế độ toàn màn hình chép bài
+                    </button>
+                    <div class="date-line">
+                        <span class="notebookDateDisplay">Thứ ..., ngày ... tháng ... năm 2026</span>
+                    </div>
+                    <div class="nb-header">
+                        <div class="nb-subject">Tin học</div>
+                        <div class="nb-title">BÀI 6: ĐỊNH DẠNG KÍ TỰ VÀ BỐ TRÍ HÌNH ẢNH TRONG VĂN BẢN (TIẾT 1)</div>
+                    </div>
+                </div>
+                <div style="margin-top: 24px;">
+                    <button class="btn-action blue" type="button" onclick="goSlide(1)">
+                        Khám phá Mục 1a (Định dạng kí tự) ▶
+                    </button>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 3: KHÁM PHÁ 1A - ĐỊNH DẠNG KÍ TỰ ================= -->
+            <section class="slide" id="slide-3">
+                <div class="tag">Khám phá · Mục 1a SGK</div>
+                <h1 class="slide-title">1a. ĐỊNH DẠNG KÍ TỰ (THẺ HOME $\rightarrow$ NHÓM FONT)</h1>
+
+                <div class="theory-diagram">
+                    <div style="font-size:16px; font-weight:800; color:#0369a1; margin-bottom:8px;">
+                        📌 CÁC NÚT LỆNH CỐT LÕI TRONG NHÓM LỆNH FONT (HÌNH 31 SGK TR.31):
+                    </div>
+                    
+                    <div class="font-ribbon-demo">
+                        <span class="ribbon-btn">Arial ▾ <small>(Phông chữ)</small></span>
+                        <span class="ribbon-btn">14 ▾ <small>(Cỡ chữ)</small></span>
+                        <span class="ribbon-btn" style="font-weight:900;">B <small>(In đậm - Bold)</small></span>
+                        <span class="ribbon-btn" style="font-style:italic;">I <small>(In nghiêng)</small></span>
+                        <span class="ribbon-btn" style="text-decoration:underline;">U <small>(Gạch chân)</small></span>
+                        <span class="ribbon-btn" style="color:#ef4444;">A ▾ <small>(Màu chữ - Color)</small></span>
+                    </div>
+
+                    <div style="background:#f8fafc; border-left:4px solid #16b89a; padding:12px 16px; border-radius:8px; margin-top:12px;">
+                        <h4 style="margin:0 0 6px; font-size:17px; color:#0f766e;">❓ CÂU HỎI KHÁM PHÁ SGK TR.31:</h4>
+                        <p style="margin:0 0 8px; font-size:16px;">
+                            Nêu các bước để định dạng tiêu đề <b>"CÁCH LÀM KEM DƯA HẤU"</b> có cỡ chữ <b>18</b>, <b>in đậm</b> và <b>màu đỏ</b>?
+                        </p>
+                        
+                        <div class="q-caller-inline">
+                            <span class="qc-badge">Học sinh xung phong:</span>
+                            <select id="sel-theory-1" class="qc-student-select"></select>
+                            <button class="btn-dice" type="button" onclick="pickStudentFor('theory-1')" title="Gọi ngẫu nhiên">🎲</button>
+                        </div>
+
+                        <div class="rev" id="rev-theory-1" onclick="this.classList.toggle('show')">
+                            <b>4 BƯỚC THAO TÁC CHUẨN:</b><br>
+                            1. <b>Chọn (bôi đen)</b> dòng tiêu đề "CÁCH LÀM KEM DƯA HẤU".<br>
+                            2. Trong thẻ <b>Home</b>, nhóm <b>Font</b>, nháy chuột chọn <b>cỡ chữ 18</b>.<br>
+                            3. Nháy chuột vào nút <b>B</b> để in đậm.<br>
+                            4. Nháy chuột vào nút <b>Font Color (chữ A)</b> và chọn <b>màu Đỏ (Red)</b>.
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 18px;">
+                    <button class="btn-action mint" type="button" onclick="goSlide(1)">
+                        Chép ghi nhớ Điều 1a vào vở ▶
+                    </button>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 4: CHÉP BÀI VÀO VỞ - ĐIỀU 1A ================= -->
+            <section class="slide" id="slide-4">
+                <div class="tag vo">Em chép bài vào vở</div>
+                <div class="notebook vo-main">
+                    <div class="vo-text">
+                        Để định dạng kí tự, ta <b>chọn phần văn bản</b> cần định dạng, sau đó sử dụng các nút lệnh trong <b>nhóm Font trên thẻ Home</b>.
+                    </div>
+                </div>
+                <div style="margin-top: 24px;">
+                    <button class="btn-action gold" type="button" onclick="startStage1Game()">
+                        Vào Game: Sàn Cược Săn Bug (Vòng Kí Tự) ⚡ ▶
+                    </button>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 5: GAME SÀN CƯỢC SĂN BUG - CHẶNG 1 (VÒNG KÍ TỰ) ================= -->
+            <section class="slide" id="slide-5">
+                <div class="tag game">Chặng 1 · Sàn Cược Săn Bug Auto-Grader</div>
+                <h1 class="slide-title">VÒNG 1: THỬ THÁCH ĐỊNH DẠNG KÍ TỰ</h1>
+
+                <div class="bet-arena">
+                    <!-- CỘT TRÁI: TICKET ĐỀ BÀI + TIMER 45S -->
+                    <div class="arena-card">
+                        <div>
+                            <div class="ticket-header">
+                                <span class="ticket-title" id="s1-ticket-title">TICKET 1.1: TIÊU ĐỀ NỔI BẬT</span>
+                                <span class="ticket-badge" id="s1-team-badge">Đội thi: Tổ 1</span>
+                            </div>
+                            <div class="ticket-target">Mục tiêu: <span id="s1-target-text">CÁCH LÀM KEM DƯA HẤU</span></div>
+                            <div class="ticket-req" id="s1-ticket-req">
+                                Đang tải yêu cầu định dạng...
+                            </div>
+                        </div>
+
+                        <!-- Đồng hồ đếm ngược 45s -->
+                        <div class="timer-box">
+                            <div>
+                                <div style="font-size:12px; color:#94a3b8; font-weight:800; text-transform:uppercase;">Thời gian thực chiến</div>
+                                <div class="timer-val" id="s1-timer-display">45s</div>
+                            </div>
+                            <div class="timer-controls">
+                                <button class="btn-tb primary" type="button" id="s1-btn-start-timer" onclick="startStageTimer(1)">▶ Bắt đầu</button>
+                                <button class="btn-tb" type="button" onclick="pauseStageTimer(1)">⏸ Tạm dừng</button>
+                                <button class="btn-tb" type="button" onclick="resetStageTimer(1)">🔄 Đặt lại</button>
+                            </div>
+                        </div>
+
+                        <!-- Nút hỗ trợ tải đề bài cho máy thi -->
+                        <button class="btn-tb primary" style="width:100%; justify-content:center; padding:10px;" type="button" onclick="window.DocxGrader.downloadStarterDocx()">
+                            📄 Mở / Tải Đề Bài Thô (.docx) Cho Máy Đội Thi
+                        </button>
+                    </div>
+
+                    <!-- CỘT PHẢI: DROPZONE NHẬN FILE + SÀN CƯỢC CÁC TỔ -->
+                    <div class="arena-card">
+                        <!-- Dropzone nhận file -->
+                        <div class="docx-dropzone" id="s1-dropzone">
+                            <div class="dz-icon">📥</div>
+                            <div class="dz-text">Kéo thả hoặc nhấp để nộp file .docx</div>
+                            <div class="dz-sub">Hệ thống Auto-Grader chạy Unit Test ngầm trên file Word thật</div>
+                            <div class="dz-file-badge" id="s1-file-badge"></div>
+                        </div>
+
+                        <!-- Bảng chọn cược Zero-Prop cho các tổ còn lại -->
+                        <div class="betting-table">
+                            <div class="bet-table-title">
+                                <span>🎯 SÀN CƯỢC CÁC TỔ (CỬ CHỈ TAY ZERO-PROP):</span>
+                                <span style="font-size:12px; color:#64748b;">👍 Tin PASS (+50đ/-50đ) | ❌ Bắt BUG (+100đ/-50đ)</span>
+                            </div>
+                            <div id="s1-bet-list"></div>
+                        </div>
+
+                        <!-- Nút Kích hoạt chấm bài -->
+                        <button class="btn-action mint" style="width:100%;" type="button" id="s1-btn-grade" onclick="gradeStageSubmission(1)">
+                            ⚡ Chạy Auto-Grader Chấm Điểm
+                        </button>
+
+                        <!-- Khung kết quả hiển thị lỗi / thành công -->
+                        <div class="grader-result-box" id="s1-result-box"></div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px; display:flex; justify-content:center; gap:12px;">
+                    <button class="btn-action blue" type="button" onclick="nextStageTicket(1)">
+                        Đổi Lượt Thi Tiếp Theo ➡️
+                    </button>
+                    <button class="btn-action mint" type="button" onclick="goSlide(1)">
+                        Khám phá Mục 1b (Bố trí hình ảnh) ▶
+                    </button>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 6: KHÁM PHÁ 1B - BỐ TRÍ HÌNH ẢNH TRONG VĂN BẢN ================= -->
+            <section class="slide" id="slide-6">
+                <div class="tag">Khám phá · Mục 1b SGK</div>
+                <h1 class="slide-title">1b. BỐ TRÍ HÌNH ẢNH (NÚT LAYOUT OPTIONS $\rightarrow$ SQUARE)</h1>
+
+                <div class="theory-diagram">
+                    <div style="font-size:16px; font-weight:800; color:#0369a1; margin-bottom:8px;">
+                        📌 NÚT LỆNH BỐ TRÍ HÌNH ẢNH LAYOUT OPTIONS (HÌNH 33 SGK TR.31):
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:12px 0;">
+                        <div style="background:#fef2f2; border:2px solid #f87171; border-radius:12px; padding:12px;">
+                            <div style="font-weight:900; color:#991b1b; margin-bottom:4px;">❌ Inline with Text (Mặc định):</div>
+                            <p style="font-size:14.5px; color:#334155; margin:0;">
+                                Hình ảnh nằm trên cùng 1 dòng với chữ, làm ngắt quãng câu văn, tạo khoảng trắng trống hoác rất xấu!
+                            </p>
+                        </div>
+                        <div style="background:#f0fdf4; border:2px solid #4ade80; border-radius:12px; padding:12px;">
+                            <div style="font-weight:900; color:#166534; margin-bottom:4px;">✅ Square (Bao quanh hình vuông):</div>
+                            <p style="font-size:14.5px; color:#334155; margin:0;">
+                                Dòng chữ tự động chảy uốn lượn bao quanh các mép của hình ảnh, trang văn bản gọn gàng và đẹp mắt!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="background:#f8fafc; border-left:4px solid #3b82f6; padding:12px 16px; border-radius:8px; margin-top:12px;">
+                        <h4 style="margin:0 0 6px; font-size:17px; color:#1d4ed8;">❓ CÂU HỎI KHÁM PHÁ SGK TR.31:</h4>
+                        <p style="margin:0 0 8px; font-size:16px;">
+                            Sau khi chèn hình ảnh vào văn bản, nếu muốn văn bản bao quanh hình ảnh thì em chọn nút lệnh nào trong Layout Options?
+                        </p>
+                        
+                        <div class="q-caller-inline">
+                            <span class="qc-badge">Học sinh xung phong:</span>
+                            <select id="sel-theory-2" class="qc-student-select"></select>
+                            <button class="btn-dice" type="button" onclick="pickStudentFor('theory-2')" title="Gọi ngẫu nhiên">🎲</button>
+                        </div>
+
+                        <div class="rev" id="rev-theory-2" onclick="this.classList.toggle('show')">
+                            <b>3 BƯỚC THAO TÁC CHUẨN:</b><br>
+                            1. <b>Chọn (nháy chuột vào)</b> hình ảnh.<br>
+                            2. Nháy chuột vào nút <b>Layout Options</b> xuất hiện ở góc trên bên phải ảnh.<br>
+                            3. Trong nhóm <i>With Text Wrapping</i>, chọn kiểu <b>Square (Bao quanh)</b>.
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 18px;">
+                    <button class="btn-action mint" type="button" onclick="goSlide(1)">
+                        Chép ghi nhớ Điều 1b vào vở ▶
+                    </button>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 7: CHÉP BÀI VÀO VỞ - ĐIỀU 1B ================= -->
+            <section class="slide" id="slide-7">
+                <div class="tag vo">Em chép bài vào vở</div>
+                <div class="notebook vo-main">
+                    <div class="vo-text">
+                        Để bố trí hình ảnh trong văn bản, ta <b>chọn hình ảnh</b>, nháy chuột vào nút <b>Layout Options</b> và chọn kiểu <b>Square</b> để văn bản bao quanh hình ảnh.
+                    </div>
+                </div>
+                <div style="margin-top: 24px;">
+                    <button class="btn-action gold" type="button" onclick="startStage2Game()">
+                        Vào Game: Sàn Cược Săn Bug (Vòng Bố Cục Ảnh) ⚡ ▶
+                    </button>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 8: GAME SÀN CƯỢC SĂN BUG - CHẶNG 2 (VÒNG BỐ CỤC ẢNH) ================= -->
+            <section class="slide" id="slide-8">
+                <div class="tag game">Chặng 2 · Sàn Cược Săn Bug Auto-Grader</div>
+                <h1 class="slide-title">VÒNG 2: THỬ THÁCH BỐ TRÍ HÌNH ẢNH SQUARE</h1>
+
+                <div class="bet-arena">
+                    <!-- CỘT TRÁI: TICKET ĐỀ BÀI + TIMER 45S -->
+                    <div class="arena-card">
+                        <div>
+                            <div class="ticket-header">
+                                <span class="ticket-title" id="s2-ticket-title">TICKET 2.1: GIẢI CỨU ĐOẠN VĂN GÃY DÒNG</span>
+                                <span class="ticket-badge" id="s2-team-badge">Đội thi: Tổ 1</span>
+                            </div>
+                            <div class="ticket-target">Mục tiêu: <span id="s2-target-text">Hình ảnh que kem dưa hấu</span></div>
+                            <div class="ticket-req" id="s2-ticket-req">
+                                Đang tải yêu cầu bố cục ảnh...
+                            </div>
+                        </div>
+
+                        <!-- Đồng hồ đếm ngược 45s -->
+                        <div class="timer-box">
+                            <div>
+                                <div style="font-size:12px; color:#94a3b8; font-weight:800; text-transform:uppercase;">Thời gian thực chiến</div>
+                                <div class="timer-val" id="s2-timer-display">45s</div>
+                            </div>
+                            <div class="timer-controls">
+                                <button class="btn-tb primary" type="button" id="s2-btn-start-timer" onclick="startStageTimer(2)">▶ Bắt đầu</button>
+                                <button class="btn-tb" type="button" onclick="pauseStageTimer(2)">⏸ Tạm dừng</button>
+                                <button class="btn-tb" type="button" onclick="resetStageTimer(2)">🔄 Đặt lại</button>
+                            </div>
+                        </div>
+
+                        <button class="btn-tb primary" style="width:100%; justify-content:center; padding:10px;" type="button" onclick="window.DocxGrader.downloadStarterDocx()">
+                            📄 Mở / Tải Đề Bài Thô (.docx) Cho Máy Đội Thi
+                        </button>
+                    </div>
+
+                    <!-- CỘT PHẢI: DROPZONE NHẬN FILE + SÀN CƯỢC -->
+                    <div class="arena-card">
+                        <div class="docx-dropzone" id="s2-dropzone">
+                            <div class="dz-icon">🖼️</div>
+                            <div class="dz-text">Kéo thả hoặc nhấp để nộp file .docx đã sửa ảnh</div>
+                            <div class="dz-sub">Hệ thống kiểm tra thẻ xml &lt;wp:wrapSquare&gt; tự động</div>
+                            <div class="dz-file-badge" id="s2-file-badge"></div>
+                        </div>
+
+                        <!-- Bảng chọn cược Zero-Prop -->
+                        <div class="betting-table">
+                            <div class="bet-table-title">
+                                <span>🎯 SÀN CƯỢC CÁC TỔ:</span>
+                                <span style="font-size:12px; color:#64748b;">👍 Tin PASS | ❌ Bắt BUG</span>
+                            </div>
+                            <div id="s2-bet-list"></div>
+                        </div>
+
+                        <button class="btn-action mint" style="width:100%;" type="button" id="s2-btn-grade" onclick="gradeStageSubmission(2)">
+                            ⚡ Chạy Auto-Grader Kiểm Tra Thẻ WrapSquare
+                        </button>
+
+                        <div class="grader-result-box" id="s2-result-box"></div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px; display:flex; justify-content:center; gap:12px;">
+                    <button class="btn-action blue" type="button" onclick="nextStageTicket(2)">
+                        Đổi Lượt Thi Tiếp Theo ➡️
+                    </button>
+                    <button class="btn-action mint" type="button" onclick="goSlide(1)">
+                        Chốt Kiến Thức Cuối Tiết (Active Recall) ▶
+                    </button>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 9: CHỐT KIẾN THỨC (ACTIVE RECALL 5 PHÚT VÀNG) ================= -->
+            <section class="slide" id="slide-9">
+                <div class="tag vo">5 Phút Vàng · Chốt kiến thức</div>
+                <h1 class="slide-title">2 QUY TẮC CỐT LÕI CẦN GHI NHỚ HÔM NAY</h1>
+
+                <div class="summary-card-grid">
+                    <div class="summary-card">
+                        <h3>🔤 1. ĐỊNH DẠNG KÍ TỰ</h3>
+                        <p>
+                            Chọn phần văn bản cần định dạng $\rightarrow$ Sử dụng các nút lệnh trong <b>nhóm Font (thẻ Home)</b> để chỉnh phông chữ, cỡ chữ, kiểu chữ (<b>B, I, U</b>) và màu chữ.
+                        </p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>🖼️ 2. BỐ TRÍ HÌNH ẢNH</h3>
+                        <p>
+                            Chọn hình ảnh $\rightarrow$ Nháy chuột vào nút <b>Layout Options</b> $\rightarrow$ Chọn kiểu <b>Square</b> để văn bản tự động chảy bao quanh hình ảnh gọn gàng, đẹp mắt.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- CÂU HỎI CỦNG CỐ CÔNG BẰNG CHO TẤT CẢ CÁC TỔ -->
+                <div style="max-width:980px; margin:0 auto 20px; text-align:left;">
+                    <div style="font-weight:900; font-size:17px; color:#0f172a; margin-bottom:8px;">
+                        🎯 CÂU HỎI CỦNG CỐ LẤY ĐIỂM BỨT PHÁ (MỖI TỔ 1 CÂU):
+                    </div>
+                    <div id="consolidation-questions-container"></div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button class="btn-action gold" type="button" onclick="goSlide(1)">
+                        🏆 Xem Bảng Vàng Vinh Danh ▶
+                    </button>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 10: BẢNG VÀNG VINH DANH & XUẤT CSV ================= -->
+            <section class="slide" id="slide-10">
+                <div class="tag game">Tổng kết · Bảng vàng</div>
+                <h1 class="slide-title" id="leaderboard-heading">🏆 BẢNG VÀNG VINH DANH TIẾT 11</h1>
+
+                <div class="rankings-box" id="rankings-container"></div>
+
+                <div style="margin-top: 30px; display:flex; justify-content:center; gap:16px; flex-wrap:wrap;">
+                    <button class="btn-action mint" type="button" onclick="exportCsvSession()">
+                        📥 Xuất Báo Cáo CSV (UTF-8 BOM)
+                    </button>
+                    <button class="btn-action blue" type="button" onclick="openEnd()">
+                        📋 Quản Lí Học Sinh & Đánh Giá TT27
+                    </button>
+                    <button class="btn-action coral" type="button" onclick="goSlideTo(1)">
+                        🔄 Quay Lại Slide Đầu
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 3. MODAL CHẤM HÀNG LOẠT (BATCH MODE 35 MÁY PHÒNG MÁY) -->
+    <div class="batch-modal-overlay" id="batch-modal">
+        <div class="batch-modal-box">
+            <div class="batch-modal-header">
+                <div style="font-size:18px; font-weight:900; color:#0f172a;">
+                    📦 CHẤM HÀNG LOẠT CẢ LỚP (BATCH DOCX AUTO-GRADER)
+                </div>
+                <button class="btn-tb danger" type="button" onclick="closeBatchModal()">✖ Đóng</button>
+            </div>
+            <div class="batch-modal-body">
+                <div style="font-size:14.5px; color:#475569; margin-bottom:12px;">
+                    Chọn quy tắc chấm:
+                    <select id="batch-rule-select" style="padding:4px 10px; border-radius:6px; font-weight:700;">
+                        <option value="stage1">Chặng 1: Định dạng kí tự (Tiêu đề + Đề mục)</option>
+                        <option value="stage2">Chặng 2: Bố cục hình ảnh (Thẻ Square)</option>
+                        <option value="both" selected>Tổng hợp cả Tiết 11: Kí tự + Ảnh Square</option>
+                    </select>
+                </div>
+
+                <div class="docx-dropzone" id="batch-dropzone" style="padding:20px 14px;">
+                    <div class="dz-icon">📂</div>
+                    <div class="dz-text">Kéo thả nhiều file .docx hoặc nhấp để chọn toàn bộ bài của cả lớp (35+ files)</div>
+                    <div class="dz-sub">Tự động đối chiếu quy tắc, chấm điểm, xếp loại T/H/C Thông tư 27 và sinh nhận xét SMAS</div>
+                    <input type="file" id="batch-file-input" multiple accept=".docx" style="display:none;">
+                </div>
+
+                <div id="batch-progress" style="display:none; margin:10px 0; font-weight:800; color:#2563eb;"></div>
+
+                <table class="batch-table" id="batch-table" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Tên Tệp / Học Sinh</th>
+                            <th>Test Đạt</th>
+                            <th>Tỷ Lệ</th>
+                            <th>TT27</th>
+                            <th>Nhận Xét Sư Phạm (SMAS)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="batch-tbody"></tbody>
+                </table>
+            </div>
+            <div style="padding:14px 24px; border-top:2px solid #e2e8f0; background:#f8fafc; display:flex; justify-content:flex-end; gap:10px;">
+                <button class="btn-tb primary" type="button" id="btn-export-batch-csv" onclick="exportBatchCsv()" style="display:none;">
+                    📥 Xuất File Kết Quả Chấm CSV
+                </button>
+                <button class="btn-tb" type="button" onclick="closeBatchModal()">Hoàn tất</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. MODAL THÊM HỌC SINH & TỔNG KẾT KHỐI 5 -->
+    <khoi5-student-modal></khoi5-student-modal>
+    <khoi5-summary gold-board></khoi5-summary>
+
+    <!-- ================= JAVASCRIPT ĐIỀU KHIỂN BÀI HỌC ================= -->
+    <script>
+        /* ================= CẤU HÌNH & TRẠNG THÁI TOÀN BỘ TIẾT HỌC ================= */
+        const GRADE = 5;
+        const LESSON = 11;
+        const STARTING_SCORE = 1000;
+        window.STARTING_SCORE = STARTING_SCORE;
+
+        let currentClass = '5_1';
+        let STORAGE_KEY = `bgtieu_hoc_k5_tiet_11_${currentClass}_state`;
+
+        let currentSlide = 1;
+        const TOTAL_SLIDES = 10;
+
+        let teams = [];
+        let studentsList = [];
+        let calledStudents = new Set();
+        let telemetryLogs = [];
+
+        // Trạng thái Phe Quỷ
+        const urlParams = new URLSearchParams(window.location.search);
+        let isDemonMode = urlParams.get('mode') === 'mavuong' || sessionStorage.getItem('bg_demon_mode') === 'true';
+        let demonReliefFund = 0;
+
+        // Trạng thái Sàn Cược
+        let currentTicketIdx = { 1: 0, 2: 0 };
+        let stageBets = { 1: {}, 2: {} }; // teamId -> 'PASS' | 'BUG'
+        let uploadedFiles = { 1: null, 2: null };
+        let stageTimers = { 1: null, 2: null };
+        let stageTimeLeft = { 1: 45, 2: 45 };
+
+        // Dữ liệu Batch Mode
+        let batchResultsCache = [];
+
+        /* ================= SYNTHESIZER ÂM THANH OFFLINE ================= */
+        const AudioSys = {
+            ctx: null,
+            init() {
+                if (!this.ctx && (window.AudioContext || window.webkitAudioContext)) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+            playTick() {
+                try {
+                    this.init();
+                    if (!this.ctx) return;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.05);
+                } catch(e) {}
+            },
+            playWin() {
+                try {
+                    this.init();
+                    if (!this.ctx) return;
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, i) => {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.1);
+                        gain.gain.setValueAtTime(0.12, this.ctx.currentTime + i * 0.1);
+                        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.1 + 0.25);
+                        osc.start(this.ctx.currentTime + i * 0.1);
+                        osc.stop(this.ctx.currentTime + i * 0.1 + 0.25);
+                    });
+                } catch(e) {}
+            },
+            playFail() {
+                try {
+                    this.init();
+                    if (!this.ctx) return;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(110, this.ctx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.3);
+                } catch(e) {}
+            }
+        };
+
+        /* ================= 1. KHỞI ĐỘNG TIẾT HỌC & LOCALSTORAGE ================= */
+        window.addEventListener('DOMContentLoaded', async () => {
+            if (window.updateVietnameseDate) {
+                window.updateVietnameseDate();
+            }
+
+            // Kiểm tra trạng thái phục hồi
+            const savedState = loadLocalStorage();
+            if (savedState) {
+                restoreSession(savedState);
+            }
+
+            // Khởi tạo dropzones
+            setupStageDropzone(1);
+            setupStageDropzone(2);
+            setupBatchDropzone();
+
+            // Cập nhật giao diện Phe Quỷ nếu đang bật
+            if (isDemonMode) {
+                activateDemonModeUI();
+            }
+        });
+
+        function startGame() {
+            const classSelect = document.getElementById('s-class');
+            currentClass = classSelect ? classSelect.value : '5_1';
+            STORAGE_KEY = `bgtieu_hoc_k5_tiet_11_${currentClass}_state`;
+
+            const teamsCountSelect = document.getElementById('s-teams');
+            const numTeams = teamsCountSelect ? parseInt(teamsCountSelect.value, 10) : 4;
+
+            const scoreInput = document.getElementById('s-score');
+            const baseScore = scoreInput ? (parseInt(scoreInput.value, 10) || 1000) : 1000;
+
+            teams = [];
+            for (let i = 1; i <= numTeams; i++) {
+                teams.push({
+                    id: i,
+                    name: `Tổ ${i}`,
+                    score: baseScore,
+                    isDemon: false
+                });
+            }
+
+            // Nếu Phe Quỷ bật, thêm Tổ Quỷ
+            if (isDemonMode) {
+                teams.push({
+                    id: 99,
+                    name: "Tổ Quỷ 😈",
+                    score: 0,
+                    isDemon: true
+                });
+            }
+
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('game-screen').classList.add('active');
+
+            loadStudentsForClass(currentClass);
+            renderTeams();
+            renderConsolidationQuestions();
+            updateSlideView();
+            saveLocalStorage();
+        }
+
+        /* ================= 2. LOCALSTORAGE AUTO-SAVE & PHỤC HỒI ================= */
+        function saveLocalStorage() {
+            const state = {
+                currentClass,
+                currentSlide,
+                teams,
+                telemetryLogs,
+                isDemonMode,
+                demonReliefFund,
+                timestamp: Date.now()
+            };
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch(e) {}
+        }
+
+        function loadLocalStorage() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                return raw ? JSON.parse(raw) : null;
+            } catch(e) { return null; }
+        }
+
+        function restoreSession(state) {
+            if (!state || !state.teams) return;
+            currentClass = state.currentClass || '5_1';
+            currentSlide = state.currentSlide || 1;
+            teams = state.teams;
+            telemetryLogs = state.telemetryLogs || [];
+            isDemonMode = !!state.isDemonMode;
+            demonReliefFund = state.demonReliefFund || 0;
+
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('game-screen').classList.add('active');
+
+            loadStudentsForClass(currentClass);
+            renderTeams();
+            renderConsolidationQuestions();
+            updateSlideView();
+
+            if (window.toast) {
+                window.toast('⚡ Đã tự động khôi phục dữ liệu phiên học trước do sự cố tắt máy/cúp điện!', 3500, 'var(--mint)');
+            }
+        }
+
+        function resetLessonSession() {
+            if (confirm('Bạn có chắc chắn muốn xóa dữ liệu đã lưu của tiết này để bắt đầu lớp mới không?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                window.allowPageReload();
+                location.reload();
+            }
+        }
+
+        /* ================= 3. QUẢN LÝ HỌC SINH & GỌI INLINE ================= */
+        async function loadStudentsForClass(classKey) {
+            try {
+                const res = await fetch(`../../assets/data/students_5_2026_2027.json`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const list = data[classKey] || data['5_1'] || [];
+                    studentsList = list.map((item, idx) => ({
+                        id: idx + 1,
+                        name: typeof item === 'string' ? item : item.name,
+                        team: (idx % teams.length) + 1
+                    }));
+                }
+            } catch(e) {
+                // Fallback nếu không có fetch CORS
+                studentsList = [
+                    'Ngô Phương Anh', 'Nguyễn Quốc Anh', 'Phạm Minh Anh', 'Đào Thiên Ân',
+                    'Trương Gia Bảo', 'Nguyễn Trọng Đức', 'Đỗ Hoàng Hiếu', 'Nguyễn Nhật Huy',
+                    'Dương Uyển Khanh', 'Trương Ngọc Lâm', 'Mạc Kim Ngân', 'Bùi Quốc Thành'
+                ].map((name, idx) => ({ id: idx + 1, name, team: (idx % teams.length) + 1 }));
+            }
+            populateStudentSelects();
+        }
+
+        function populateStudentSelects() {
+            document.querySelectorAll('.qc-student-select').forEach(select => {
+                select.innerHTML = '<option value="">-- Chọn học sinh --</option>' +
+                    studentsList.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+            });
+        }
+
+        function pickStudentFor(contextId) {
+            const select = document.getElementById(`sel-${contextId}`);
+            if (!select || studentsList.length === 0) return;
+
+            // Ưu tiên em chưa phát biểu
+            const uncalled = studentsList.filter(s => !calledStudents.has(s.name));
+            const pool = uncalled.length > 0 ? uncalled : studentsList;
+            const chosen = pool[Math.floor(Math.random() * pool.length)];
+
+            select.value = chosen.name;
+            calledStudents.add(chosen.name);
+            AudioSys.playTick();
+        }
+
+        function gradeWarmup(contextId, isCorrect, revId) {
+            const select = document.getElementById(`sel-${contextId}`);
+            const studentName = select ? select.value : '';
+            if (!studentName) {
+                alert('Vui lòng chọn học sinh phát biểu!');
+                return;
+            }
+
+            if (isCorrect && revId) {
+                const rev = document.getElementById(revId);
+                if (rev) rev.classList.add('show');
+            }
+
+            // Ghi nhận Telemetry cá nhân (Quy chuẩn 4 & 5: TUYỆT ĐỐI KHÔNG CỘNG ĐIỂM TỔ KHI VẤN ĐÁP)
+            telemetryLogs.push({
+                student: studentName,
+                activity: 'Khởi động',
+                correct: isCorrect,
+                ratingTT27: isCorrect ? 'T' : 'H',
+                time: new Date().toLocaleTimeString()
+            });
+
+            if (isCorrect) AudioSys.playWin();
+            else AudioSys.playFail();
+
+            if (window.toast) {
+                window.toast(`📝 Đã ghi nhận phát biểu của em ${studentName} (${isCorrect ? 'Đúng' : 'Cần cố gắng'})!`, 2200);
+            }
+            saveLocalStorage();
+        }
+
+        /* ================= 4. ĐIỀU HƯỚNG SLIDE ================= */
+        function updateSlideView() {
+            document.querySelectorAll('.slide').forEach((s, idx) => {
+                s.classList.toggle('active', (idx + 1) === currentSlide);
+            });
+
+            const pageNumEl = document.getElementById('slide-page-num');
+            if (pageNumEl) {
+                pageNumEl.textContent = `${currentSlide} / ${TOTAL_SLIDES}`;
+            }
+
+            const mainStage = document.getElementById('main-stage');
+            if (mainStage) mainStage.scrollTop = 0;
+
+            if (currentSlide === 10) {
+                renderLeaderboard();
+                if (window.triggerConfetti) window.triggerConfetti();
+            }
+        }
+
+        function goSlide(dir) {
+            const next = currentSlide + dir;
+            if (next >= 1 && next <= TOTAL_SLIDES) {
+                currentSlide = next;
+                updateSlideView();
+                saveLocalStorage();
+            }
+        }
+
+        function goSlideTo(num) {
+            if (num >= 1 && num <= TOTAL_SLIDES) {
+                currentSlide = num;
+                updateSlideView();
+                saveLocalStorage();
+            }
+        }
+
+        /* ================= 5. BẢNG ĐIỂM SIDEBAR ================= */
+        function renderTeams() {
+            const container = document.getElementById('teams');
+            if (!container) return;
+
+            container.innerHTML = teams.map(t => `
+                <div class="team-card ${t.isDemon ? 'demon-team' : ''}" style="margin-bottom:8px; padding:10px 12px; border-radius:12px; background:#fff; border:2px solid ${t.isDemon ? '#a855f7' : 'var(--line)'};">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:900; font-size:15px; color:${t.isDemon ? '#7e22ce' : '#0f172a'};">${t.name}</span>
+                        <span style="font-size:18px; font-weight:900; color:${t.isDemon ? '#9333ea' : '#2563eb'}; cursor:pointer;" onclick="editTeamScore(${t.id})">${t.score} Xu</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editTeamScore(teamId) {
+            const team = teams.find(t => t.id === teamId);
+            if (!team) return;
+            if (window.quickEditNumber) {
+                window.quickEditNumber(team.score, `điểm số ${team.name}`, (newVal) => {
+                    team.score = newVal;
+                    renderTeams();
+                    saveLocalStorage();
+                });
+            }
+        }
+
+        /* ================= 6. SÀN CƯỢC SĂN BUG (GAME LOGIC CHẶNG 1 & 2) ================= */
+        function startStage1Game() {
+            goSlideTo(5);
+            loadStageTicket(1, 0);
+        }
+
+        function startStage2Game() {
+            goSlideTo(8);
+            loadStageTicket(2, 0);
+        }
+
+        function loadStageTicket(stageNum, ticketIdx) {
+            currentTicketIdx[stageNum] = ticketIdx;
+            stageBets[stageNum] = {};
+            uploadedFiles[stageNum] = null;
+            resetStageTimer(stageNum);
+
+            const stageData = (stageNum === 1) ? window.QUESTS_DATA.stage1 : window.QUESTS_DATA.stage2;
+            const ticket = stageData.tickets[ticketIdx % stageData.tickets.length];
+
+            // Render Ticket Info
+            document.getElementById(`s${stageNum}-ticket-title`).textContent = ticket.title;
+            document.getElementById(`s${stageNum}-team-badge`).textContent = `Đội thi: ${ticket.teamName}`;
+            document.getElementById(`s${stageNum}-target-text`).textContent = ticket.targetText;
+            document.getElementById(`s${stageNum}-ticket-req`).innerHTML = ticket.reqText;
+
+            // Reset Dropzone & Results
+            const badge = document.getElementById(`s${stageNum}-file-badge`);
+            badge.style.display = 'none';
+            badge.textContent = '';
+            const resBox = document.getElementById(`s${stageNum}-result-box`);
+            resBox.style.display = 'none';
+
+            // Render Betting Buttons for other teams
+            renderBettingTable(stageNum, ticket.teamId);
+        }
+
+        function renderBettingTable(stageNum, activeTeamId) {
+            const container = document.getElementById(`s${stageNum}-bet-list`);
+            if (!container) return;
+
+            const otherTeams = teams.filter(t => t.id !== activeTeamId);
+            container.innerHTML = otherTeams.map(t => `
+                <div class="bet-row" id="bet-row-s${stageNum}-t${t.id}">
+                    <span class="bet-team-name">${t.name}</span>
+                    <div class="bet-actions">
+                        <button class="btn-bet pass" type="button" id="btn-bet-s${stageNum}-t${t.id}-pass" onclick="placeBet(${stageNum}, ${t.id}, 'PASS')">👍 Tin PASS</button>
+                        <button class="btn-bet bug" type="button" id="btn-bet-s${stageNum}-t${t.id}-bug" onclick="placeBet(${stageNum}, ${t.id}, 'BUG')">❌ Bắt BUG</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function placeBet(stageNum, teamId, betChoice) {
+            stageBets[stageNum][teamId] = betChoice;
+            const row = document.getElementById(`bet-row-s${stageNum}-t${teamId}`);
+            if (row) {
+                const btnPass = document.getElementById(`btn-bet-s${stageNum}-t${teamId}-pass`);
+                const btnBug = document.getElementById(`btn-bet-s${stageNum}-t${teamId}-bug`);
+                btnPass.classList.toggle('active-pass', betChoice === 'PASS');
+                btnBug.classList.toggle('active-bug', betChoice === 'BUG');
+            }
+            AudioSys.playTick();
+        }
+
+        function nextStageTicket(stageNum) {
+            const stageData = (stageNum === 1) ? window.QUESTS_DATA.stage1 : window.QUESTS_DATA.stage2;
+            const nextIdx = (currentTicketIdx[stageNum] + 1) % stageData.tickets.length;
+            loadStageTicket(stageNum, nextIdx);
+        }
+
+        /* --- Đồng hồ đếm ngược 45s --- */
+        function startStageTimer(stageNum) {
+            if (stageTimers[stageNum]) return;
+            const btn = document.getElementById(`s${stageNum}-btn-start-timer`);
+            if (btn) btn.disabled = true;
+
+            stageTimers[stageNum] = setInterval(() => {
+                stageTimeLeft[stageNum]--;
+                const disp = document.getElementById(`s${stageNum}-timer-display`);
+                if (disp) {
+                    disp.textContent = `${stageTimeLeft[stageNum]}s`;
+                    disp.classList.toggle('warning', stageTimeLeft[stageNum] <= 10);
+                }
+                AudioSys.playTick();
+
+                if (stageTimeLeft[stageNum] <= 0) {
+                    clearInterval(stageTimers[stageNum]);
+                    stageTimers[stageNum] = null;
+                    if (btn) btn.disabled = false;
+                    AudioSys.playFail();
+                    if (window.toast) window.toast('⏰ Hết giờ làm bài 45 giây! Vui lòng nộp file Word.', 3000, 'var(--coral)');
+                }
+            }, 1000);
+        }
+
+        function pauseStageTimer(stageNum) {
+            if (stageTimers[stageNum]) {
+                clearInterval(stageTimers[stageNum]);
+                stageTimers[stageNum] = null;
+                const btn = document.getElementById(`s${stageNum}-btn-start-timer`);
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        function resetStageTimer(stageNum) {
+            pauseStageTimer(stageNum);
+            stageTimeLeft[stageNum] = 45;
+            const disp = document.getElementById(`s${stageNum}-timer-display`);
+            if (disp) {
+                disp.textContent = '45s';
+                disp.classList.remove('warning');
+            }
+        }
+
+        /* --- Thiết lập Dropzone --- */
+        function setupStageDropzone(stageNum) {
+            const dz = document.getElementById(`s${stageNum}-dropzone`);
+            if (!dz) return;
+
+            window.DocxGrader.setupDropzone(dz, {
+                onResult: (result, file) => {
+                    uploadedFiles[stageNum] = { file, result };
+                    const badge = document.getElementById(`s${stageNum}-file-badge`);
+                    badge.style.display = 'inline-block';
+                    badge.textContent = `📎 Đã nhận tệp: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                    if (window.toast) window.toast('✅ Đã nạp file Word thành công! Bấm Chạy Auto-Grader.', 2500, 'var(--mint)');
+                }
+            });
+        }
+
+        /* --- Chấm điểm Auto-Grader & Thanh toán Sàn Cược --- */
+        async function gradeStageSubmission(stageNum) {
+            const submission = uploadedFiles[stageNum];
+            if (!submission) {
+                alert('Vui lòng nộp hoặc kéo thả tệp .docx vào khung trước khi chấm!');
+                return;
+            }
+
+            pauseStageTimer(stageNum);
+
+            const stageData = (stageNum === 1) ? window.QUESTS_DATA.stage1 : window.QUESTS_DATA.stage2;
+            const ticket = stageData.tickets[currentTicketIdx[stageNum]];
+            const rules = ticket.rules || [];
+
+            // Chạy Unit Test kiểm tra các rule
+            const result = await window.DocxGrader.gradeFile(submission.file, rules);
+            const isPass = result.pass;
+
+            // Hiển thị kết quả chi tiết
+            const resBox = document.getElementById(`s${stageNum}-result-box`);
+            resBox.className = `grader-result-box ${isPass ? 'pass' : 'fail'}`;
+            resBox.style.display = 'block';
+
+            let resultHtml = `
+                <div class="gr-title">
+                    <span>${isPass ? '🎉 CHÚC MỪNG: BÀI LÀM PASS 100%!' : '⚠️ PHÁT HIỆN BUG ĐỊNH DẠNG!'}</span>
+                </div>
+                <div style="font-size:14px; margin-bottom:6px;">
+                    ${isPass ? 'Tất cả các tiêu chí định dạng đều chính xác tuyệt đối.' : 'Chi tiết lỗi cần khắc phục:'}
+                </div>
+                <ul class="gr-list">
+                    ${result.details.map(d => `
+                        <li style="color:${d.passed ? '#059669' : '#dc2626'}; font-weight:700;">
+                            ${d.passed ? '✓' : '✗'} ${d.name}: ${d.message}
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+
+            // Áp dụng Logic Cộng/Trừ Điểm & Quy tắc Phe Quỷ Bất Công Công Khai
+            const activeTeam = teams.find(t => t.id === ticket.teamId) || teams[0];
+            let scoreDeltaSummary = [];
+
+            if (activeTeam.isDemon) {
+                // QUY TẮC PHE QUỶ:
+                if (isPass) {
+                    activeTeam.score = Math.min(1000, activeTeam.score + 50); // Trần tối đa 1000 Xu
+                    scoreDeltaSummary.push(`Tổ Quỷ PASS: +50 Xu (Trần 1000 Xu)`);
+                } else {
+                    activeTeam.score = Math.max(0, activeTeam.score - 200); // Phạt -200 Xu
+                    demonReliefFund += 200;
+                    scoreDeltaSummary.push(`Tổ Quỷ FAIL: Phạt -200 Xu vào Quỹ Cứu Trợ!`);
+                    // Chia đều cho các tổ Loài Người
+                    const humanTeams = teams.filter(t => !t.isDemon);
+                    if (humanTeams.length > 0) {
+                        const share = Math.floor(200 / humanTeams.length);
+                        humanTeams.forEach(ht => ht.score += share);
+                        scoreDeltaSummary.push(`Quỹ Cứu Trợ chia đều +${share} Xu cho mỗi tổ Loài Người!`);
+                    }
+                }
+            } else {
+                // QUY TẮC TỔ LOÀI NGƯỜI CHUẨN:
+                if (isPass) {
+                    activeTeam.score += 150;
+                    scoreDeltaSummary.push(`${activeTeam.name} thi PASS: +150 Xu`);
+                } else {
+                    activeTeam.score = Math.max(0, activeTeam.score - 100);
+                    scoreDeltaSummary.push(`${activeTeam.name} thi FAIL dính bug: -100 Xu`);
+                }
+            }
+
+            // Thanh toán cược cho các tổ khác:
+            const bets = stageBets[stageNum] || {};
+            teams.forEach(t => {
+                if (t.id === activeTeam.id) return;
+                const bet = bets[t.id];
+                if (!bet) return;
+
+                if (isPass) {
+                    if (bet === 'PASS') {
+                        t.score += 50;
+                        scoreDeltaSummary.push(`${t.name} cược đúng 👍 Tin PASS: +50 Xu`);
+                    } else if (bet === 'BUG') {
+                        t.score = Math.max(0, t.score - 50);
+                        scoreDeltaSummary.push(`${t.name} cược sai ❌ Bắt BUG: -50 Xu`);
+                    }
+                } else {
+                    if (bet === 'BUG') {
+                        t.score += 100;
+                        scoreDeltaSummary.push(`${t.name} bắt đúng ❌ BUG: +100 Xu`);
+                    } else if (bet === 'PASS') {
+                        t.score = Math.max(0, t.score - 50);
+                        scoreDeltaSummary.push(`${t.name} cược sai 👍 Tin PASS: -50 Xu`);
+                    }
+                }
+            });
+
+            resultHtml += `
+                <div style="margin-top:10px; padding-top:8px; border-top:1px dashed #cbd5e1; font-size:13.5px; font-weight:800; color:#1e293b;">
+                    💰 Biến động điểm số Sàn Cược:<br>
+                    ${scoreDeltaSummary.map(s => `• ${s}`).join('<br>')}
+                </div>
+            `;
+            resBox.innerHTML = resultHtml;
+
+            if (isPass) AudioSys.playWin();
+            else AudioSys.playFail();
+
+            renderTeams();
+            updateDemonFundUI();
+            saveLocalStorage();
+        }
+
+        /* ================= 7. CÂU HỎI CỦNG CỐ CÔNG BẰNG (SLIDE 9) ================= */
+        function renderConsolidationQuestions() {
+            const container = document.getElementById('consolidation-questions-container');
+            if (!container) return;
+
+            const questions = window.QUESTS_DATA.summary.consolidationQuestions || [];
+            container.innerHTML = questions.map((q, idx) => `
+                <div style="background:#fff; border:2px solid var(--line); border-radius:12px; padding:12px 16px; margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <span style="font-weight:900; font-size:15px; color:#0284c7;">${q.forTeam}: ${q.question}</span>
+                    </div>
+                    <div class="rev" id="rev-sum-${idx}" onclick="this.classList.toggle('show')">
+                        <b>Đáp án:</b> ${q.answer}
+                    </div>
+                    <div style="margin-top:8px; display:flex; gap:8px;">
+                        <button class="btn-tb primary" type="button" onclick="rewardConsolidation(${idx}, true, 'rev-sum-${idx}')">Đúng (+100 Xu)</button>
+                        <button class="btn-tb danger" type="button" onclick="rewardConsolidation(${idx}, false)">Chưa đúng</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function rewardConsolidation(qIdx, isCorrect, revId) {
+            if (isCorrect && revId) {
+                const rev = document.getElementById(revId);
+                if (rev) rev.classList.add('show');
+            }
+
+            // Cộng điểm cho tổ tương ứng
+            const targetTeam = teams[qIdx % teams.length];
+            if (targetTeam && isCorrect) {
+                targetTeam.score += 100;
+                renderTeams();
+                AudioSys.playWin();
+                if (window.toast) window.toast(`🎉 ${targetTeam.name} trả lời củng cố chính xác: +100 Xu!`, 2500, 'var(--mint)');
+            } else {
+                AudioSys.playFail();
+            }
+            saveLocalStorage();
+        }
+
+        /* ================= 8. BẢNG VÀNG VINH DANH (TIE-RANKING QUY CHUẨN 13) ================= */
+        function renderLeaderboard() {
+            const container = document.getElementById('rankings-container');
+            if (!container) return;
+
+            // Sắp xếp điểm giảm dần
+            const sortedTeams = [...teams].sort((a, b) => b.score - a.score);
+
+            // Tính toán xếp hạng đồng hạng (Standard Competition Ranking)
+            let ranks = [];
+            let currentRank = 1;
+            for (let i = 0; i < sortedTeams.length; i++) {
+                if (i > 0 && sortedTeams[i].score < sortedTeams[i - 1].score) {
+                    currentRank = i + 1;
+                }
+                const isShared = (i > 0 && sortedTeams[i].score === sortedTeams[i - 1].score) ||
+                                 (i < sortedTeams.length - 1 && sortedTeams[i].score === sortedTeams[i + 1].score);
+
+                let title = 'KHUYẾN KHÍCH';
+                let medal = '🎖️';
+                if (currentRank === 1) {
+                    title = isShared ? 'ĐỒNG QUÁN QUÂN' : 'QUÁN QUÂN';
+                    medal = '🥇';
+                } else if (currentRank === 2) {
+                    title = isShared ? 'ĐỒNG Á QUÂN' : 'Á QUÂN';
+                    medal = '🥈';
+                } else if (currentRank === 3) {
+                    title = isShared ? 'ĐỒNG HẠNG BA' : 'HẠNG BA';
+                    medal = '🥉';
+                }
+
+                ranks.push({
+                    team: sortedTeams[i],
+                    rank: currentRank,
+                    isShared,
+                    title,
+                    medal
+                });
+            }
+
+            container.innerHTML = ranks.map(r => `
+                <div class="rank-card ${r.rank === 1 ? 'champion' : ''}">
+                    <div class="rank-medal">${r.medal}</div>
+                    <div class="rank-title">${r.title}</div>
+                    <div class="rank-team">${r.team.name}</div>
+                    <div class="rank-score">${r.team.score} Xu</div>
+                </div>
+            `).join('');
+        }
+
+        /* ================= 9. XUẤT CSV BÁO CÁO UTF-8 CÓ BOM (QUY CHUẨN 6) ================= */
+        function exportCsvSession() {
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const timeStr = `${String(now.getHours()).padStart(2, '0')}h${String(now.getMinutes()).padStart(2, '0')}p${String(now.getSeconds()).padStart(2, '0')}s`;
+
+            const fileName = `KetQua_TinHoc5_Lop_${currentClass}_Tiet_11_Ngay_${dateStr}_${timeStr}.csv`;
+
+            // Sheet 1: Bảng Xếp Hạng Các Tổ
+            const sortedTeams = [...teams].sort((a, b) => b.score - a.score);
+            const teamRows = sortedTeams.map((t, idx) => {
+                const rank = idx + 1;
+                return [`"${rank}"`, `"${t.name}"`, `"${t.score} Xu"`, `"${t.isDemon ? 'Phe Quỷ' : 'Bình thường'}"`].join(',');
+            });
+            const section1 = [
+                '=== PHẦN 1: BẢNG XẾP HẠNG THI ĐUA CÁC TỔ ===',
+                '"Thứ Hạng","Tên Tổ","Tổng Điểm Cuối Tiết","Chế Độ"',
+                ...teamRows
+            ].join('\r\n');
+
+            // Sheet 2: Nhật Ký Telemetry Cá Nhân Học Sinh (TT27)
+            const telemetryRows = telemetryLogs.map((log, idx) => {
+                return [
+                    `"${idx + 1}"`,
+                    `"${log.student}"`,
+                    `"${log.activity}"`,
+                    `"${log.correct ? 'Đúng' : 'Chưa đúng'}"`,
+                    `"${log.ratingTT27}"`,
+                    `"${log.time}"`
+                ].join(',');
+            });
+            const section2 = [
+                '=== PHẦN 2: NHẬT KÝ ĐÁNH GIÁ CÁ NHÂN HỌC SINH (THÔNG TƯ 27) ===',
+                '"STT","Họ và Tên","Hoạt Động","Kết Quả","Mức Đạt TT27","Thời Gian"',
+                ...telemetryRows
+            ].join('\r\n');
+
+            // Sheet 3: Hồ Sơ Kỷ Luật Phe Quỷ (Nếu có)
+            let section3 = '';
+            if (isDemonMode) {
+                section3 = [
+                    '\r\n\r\n=== PHẦN 3: HỒ SƠ QUẢN CHẾ PHE QUỶ & QUỸ CỨU TRỢ ===',
+                    `"Tổng Quỹ Cứu Trợ Thu Được:","${demonReliefFund} Xu"`,
+                    `"Chế độ áp dụng:","Đấu Trường Ma Vương - Độc quyền Khối 5"`
+                ].join('\r\n');
+            }
+
+            const fullCsv = '\uFEFF' + section1 + '\r\n\r\n' + section2 + section3;
+
+            if (window.uploadCsvToDrive) {
+                window.uploadCsvToDrive(fullCsv, fileName);
+            } else {
+                const blob = new Blob([fullCsv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 2000);
+            }
+        }
+
+        /* ================= 10. CHẾ ĐỘ DEMON MODE (QUY CHUẨN 12 & 16) ================= */
+        function toggleDemonMode() {
+            isDemonMode = !isDemonMode;
+            sessionStorage.setItem('bg_demon_mode', isDemonMode ? 'true' : 'false');
+            if (isDemonMode) {
+                activateDemonModeUI();
+                if (!teams.some(t => t.isDemon)) {
+                    teams.push({ id: 99, name: "Tổ Quỷ 😈", score: 0, isDemon: true });
+                }
+                if (window.toast) window.toast('⚡ ĐÃ KÍCH HOẠT ĐẤU TRƯỜNG MA VƯƠNG! 😈', 3000, 'var(--purple)');
+            } else {
+                teams = teams.filter(t => !t.isDemon);
+                document.getElementById('demon-relief-fund-display').style.display = 'none';
+                if (window.toast) window.toast('🕊️ Đã tắt chế độ Đấu Trường Ma Vương.', 2500, 'var(--mint)');
+            }
+            renderTeams();
+            saveLocalStorage();
+        }
+
+        function activateDemonModeUI() {
+            const btn = document.getElementById('btn-toggle-demon');
+            if (btn) btn.style.background = '#f3e8ff';
+            updateDemonFundUI();
+        }
+
+        function updateDemonFundUI() {
+            const fundDisplay = document.getElementById('demon-relief-fund-display');
+            const fundVal = document.getElementById('relief-fund-val');
+            if (fundDisplay && fundVal) {
+                fundDisplay.style.display = isDemonMode ? 'inline-block' : 'none';
+                fundVal.textContent = demonReliefFund;
+            }
+        }
+
+        // Phím tắt Ctrl + Alt + D kích hoạt Demon Mode
+        window.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.altKey && (e.key === 'd' || e.key === 'D')) {
+                toggleDemonMode();
+            }
+        });
+
+        /* ================= 11. CHẤM HÀNG LOẠT (BATCH MODE CHO PHÒNG MÁY) ================= */
+        function openBatchModal() {
+            document.getElementById('batch-modal').classList.add('active');
+        }
+
+        function closeBatchModal() {
+            document.getElementById('batch-modal').classList.remove('active');
+        }
+
+        function setupBatchDropzone() {
+            const dz = document.getElementById('batch-dropzone');
+            const fileInput = document.getElementById('batch-file-input');
+            if (!dz || !fileInput) return;
+
+            dz.addEventListener('click', () => fileInput.click());
+
+            dz.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dz.classList.add('dragover');
+            });
+            dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+
+            dz.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                dz.classList.remove('dragover');
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    processBatchFiles(e.dataTransfer.files);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                    processBatchFiles(e.target.files);
+                }
+            });
+        }
+
+        async function processBatchFiles(files) {
+            const ruleSelect = document.getElementById('batch-rule-select');
+            const choice = ruleSelect ? ruleSelect.value : 'both';
+
+            let rules = [];
+            if (choice === 'stage1') {
+                rules = window.QUESTS_DATA.stage1.tickets[0].rules;
+            } else if (choice === 'stage2') {
+                rules = window.QUESTS_DATA.stage2.tickets[0].rules;
+            } else {
+                rules = [
+                    ...window.QUESTS_DATA.stage1.tickets[0].rules,
+                    ...window.QUESTS_DATA.stage2.tickets[0].rules
+                ];
+            }
+
+            const progEl = document.getElementById('batch-progress');
+            progEl.style.display = 'block';
+            progEl.textContent = '⏳ Đang giải nén và chấm bài hàng loạt...';
+
+            batchResultsCache = await window.DocxGrader.gradeBatch(files, rules, {
+                onProgress: (current, total) => {
+                    progEl.textContent = `⏳ Đang chấm: ${current} / ${total} tệp...`;
+                }
+            });
+
+            progEl.textContent = `✅ Đã chấm xong toàn bộ ${batchResultsCache.length} bài nộp!`;
+
+            // Hiển thị bảng
+            const table = document.getElementById('batch-table');
+            const tbody = document.getElementById('batch-tbody');
+            table.style.display = 'table';
+            document.getElementById('btn-export-batch-csv').style.display = 'inline-flex';
+
+            tbody.innerHTML = batchResultsCache.map((res, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td><b>${res.fileName}</b></td>
+                    <td>${res.passedCount} / ${res.totalCount}</td>
+                    <td><b>${res.scorePercent}%</b></td>
+                    <td><span class="badge-tt27 ${res.ratingTT27.toLowerCase()}">${res.ratingTT27}</span></td>
+                    <td style="font-size:13px; color:#334155;">${res.smasComment}</td>
+                </tr>
+            `).join('');
+        }
+
+        function exportBatchCsv() {
+            if (batchResultsCache.length === 0) return;
+            window.DocxGrader.exportBatchResultsToCsv(batchResultsCache, {
+                title: 'BÁO CÁO THỰC HÀNH WORD TIN HỌC 5 (TIẾT 11)',
+                className: `Lớp ${currentClass}`
+            });
+        }
+
+        /* ================= 12. TÍCH HỢP QUẢN LÝ HỌC SINH MODAL ================= */
+        function openAddHs() {
+            const m = document.getElementById('hs-modal');
+            if (m) m.classList.add('active');
+        }
+        function closeAddHs() {
+            const m = document.getElementById('hs-modal');
+            if (m) m.classList.remove('active');
+        }
+        function saveAddHs() {
+            const input = document.getElementById('hs-input');
+            if (!input || !input.value.trim()) return;
+            const names = input.value.split('\n').map(n => n.trim()).filter(Boolean);
+            names.forEach((name, i) => {
+                studentsList.push({
+                    id: studentsList.length + 1,
+                    name: name,
+                    team: (studentsList.length % teams.length) + 1
+                });
+            });
+            input.value = '';
+            closeAddHs();
+            populateStudentSelects();
+            if (window.toast) window.toast(`Đã thêm ${names.length} học sinh mới!`, 2000);
+        }
+
+        function openEnd() {
+            const end = document.getElementById('end-screen');
+            if (end) end.classList.add('active');
+            renderKanban();
+        }
+        function closeEnd() {
+            const end = document.getElementById('end-screen');
+            if (end) end.classList.remove('active');
+        }
+
+        function renderKanban() {
+            const kanban = document.getElementById('kanban');
+            if (!kanban) return;
+            kanban.innerHTML = teams.map(t => {
+                const members = studentsList.filter(s => s.team === t.id);
+                return `
+                    <div class="kcol" style="background:#fff; border:2px solid var(--line); border-radius:12px; padding:12px; min-width:200px;">
+                        <h3 style="margin:0 0 10px; font-size:16px; font-weight:800; color:#0f172a;">${t.name} (${members.length})</h3>
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            ${members.map(m => `
+                                <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:6px 10px; font-size:13.5px; font-weight:700;">
+                                    ${m.name}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
