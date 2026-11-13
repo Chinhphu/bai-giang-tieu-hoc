@@ -1,0 +1,2437 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tin học 1 - Tiết 10: Đoàn Tàu Bất Tận - Về Ga Kho Báu</title>
+
+  <!-- 100% Offline-First: Nạp tài nguyên nội bộ, không CDN -->
+  <link rel="stylesheet" href="../../shared/css/core.css">
+  <script src="../../shared/js/prevent-reload.js"></script>
+  <script src="../../shared/js/core.js"></script>
+  <script src="../../shared/js/confetti.js"></script>
+  <script src="quests.js"></script>
+
+  <style>
+    :root {
+      --font-main: 'Baloo 2', 'Nunito', 'Segoe UI', cursive, sans-serif;
+      --orange-main: #f97316;
+      --orange-dark: #ea580c;
+      --orange-light: #ffedd5;
+      --yellow-main: #facc15;
+      --yellow-bright: #fde047;
+      --green-main: #22c55e;
+      --green-dark: #16a34a;
+      --blue-sky: #38bdf8;
+      --blue-deep: #0284c7;
+      --red-heart: #ef4444;
+      --slate-dark: #1e293b;
+      --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-main);
+      background: linear-gradient(180deg, #7dd3fc 0%, #bae6fd 45%, #e0f2fe 70%, #86efac 100%);
+      color: var(--slate-dark);
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      outline: none;
+    }
+
+    /* =========================================================
+       1. KHUNG ỨNG DỤNG TOÀN MÀN HÌNH (FULLSCREEN APP)
+       ========================================================= */
+    #app {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    /* Bầu trời & Mây bay hoạt hình */
+    .sky-scenery {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .sun {
+      position: absolute;
+      top: 20px;
+      right: 80px;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, #fef08a 0%, #facc15 70%, #f59e0b 100%);
+      border-radius: 50%;
+      box-shadow: 0 0 45px rgba(250, 204, 21, 0.8);
+      animation: pulseSun 4s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulseSun {
+      0% { transform: scale(1); filter: brightness(1); }
+      100% { transform: scale(1.08); filter: brightness(1.15); }
+    }
+
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 50px;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+      animation: floatCloud linear infinite;
+    }
+
+    .cloud::before,
+    .cloud::after {
+      content: '';
+      position: absolute;
+      background: inherit;
+      border-radius: 50%;
+    }
+
+    .cloud-1 {
+      top: 12%;
+      width: 170px;
+      height: 50px;
+      left: -200px;
+      animation-duration: 48s;
+    }
+    .cloud-1::before { width: 70px; height: 70px; top: -35px; left: 25px; }
+    .cloud-1::after { width: 90px; height: 90px; top: -45px; left: 70px; }
+
+    .cloud-2 {
+      top: 22%;
+      width: 220px;
+      height: 60px;
+      left: -250px;
+      animation-duration: 38s;
+      animation-delay: -15s;
+      opacity: 0.85;
+    }
+    .cloud-2::before { width: 85px; height: 85px; top: -40px; left: 35px; }
+    .cloud-2::after { width: 110px; height: 110px; top: -55px; left: 90px; }
+
+    .cloud-3 {
+      top: 32%;
+      width: 150px;
+      height: 45px;
+      left: -180px;
+      animation-duration: 55s;
+      animation-delay: -30s;
+      opacity: 0.75;
+    }
+    .cloud-3::before { width: 60px; height: 60px; top: -30px; left: 20px; }
+    .cloud-3::after { width: 75px; height: 75px; top: -38px; left: 60px; }
+
+    @keyframes floatCloud {
+      from { transform: translateX(0); }
+      to { transform: translateX(calc(100vw + 300px)); }
+    }
+
+    /* Đồi cỏ lượn sóng */
+    .hills {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 38vh;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .hill-back {
+      position: absolute;
+      bottom: 60px;
+      left: -5%;
+      width: 110%;
+      height: 100%;
+      background: #86efac;
+      border-radius: 50% 50% 0 0 / 40% 40% 0 0;
+    }
+
+    .hill-front {
+      position: absolute;
+      bottom: 0;
+      left: -5%;
+      width: 110%;
+      height: 75%;
+      background: #4ade80;
+      border-radius: 50% 50% 0 0 / 30% 30% 0 0;
+    }
+
+    /* =========================================================
+       2. THANH TRẠNG THÁI TRÊN ĐỈNH (TOP BAR - SIÊU TỐI GIẢN)
+       ========================================================= */
+    .top-bar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 24px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      border-bottom: 3px solid #fed7aa;
+    }
+
+    /* Khu vực Tên học sinh (CỰC TO CHO LỚP 1) */
+    .student-display {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .current-student-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
+      border: 3px solid var(--orange-main);
+      padding: 6px 20px;
+      border-radius: 50px;
+      box-shadow: 0 4px 10px rgba(249, 115, 22, 0.25);
+      animation: pulseBadge 2.5s infinite ease-in-out;
+    }
+
+    @keyframes pulseBadge {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+
+    .current-student-badge .label {
+      font-size: clamp(14px, 1.8vh, 18px);
+      font-weight: 800;
+      color: var(--orange-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .current-student-badge .student-name {
+      font-size: clamp(24px, 3.2vh, 36px);
+      font-weight: 900;
+      color: #9a3412;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .next-student-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f1f5f9;
+      border: 2px dashed #94a3b8;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: clamp(13px, 1.7vh, 17px);
+      font-weight: 800;
+      color: #475569;
+    }
+
+    .next-student-badge span.next-name {
+      color: var(--blue-deep);
+      font-weight: 900;
+    }
+
+    /* Khu vực Ở giữa: Tiến trình toa tàu + Máu / Năng lượng */
+    .center-stats {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .train-progress-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fef08a;
+      border: 3px solid #eab308;
+      padding: 6px 18px;
+      border-radius: 30px;
+      font-size: clamp(16px, 2.2vh, 24px);
+      font-weight: 900;
+      color: #854d0e;
+      box-shadow: 0 3px 8px rgba(234, 179, 8, 0.25);
+    }
+
+    .hearts-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #ffe4e6;
+      border: 3px solid #fb7185;
+      padding: 6px 16px;
+      border-radius: 30px;
+      box-shadow: 0 3px 8px rgba(251, 113, 133, 0.25);
+    }
+
+    .heart-icon {
+      font-size: clamp(22px, 3vh, 32px);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.15));
+      display: inline-block;
+    }
+
+    .heart-icon.alive {
+      animation: heartbeat 1.8s infinite ease-in-out;
+    }
+
+    .heart-icon.lost {
+      filter: grayscale(1) opacity(0.35);
+      transform: scale(0.85);
+      animation: none;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      15% { transform: scale(1.22); }
+      30% { transform: scale(1); }
+      45% { transform: scale(1.15); }
+    }
+
+    /* Nút Cài đặt / Menu duy nhất ở góc */
+    .top-right-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-gear {
+      width: clamp(42px, 5.5vh, 52px);
+      height: clamp(42px, 5.5vh, 52px);
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 50%;
+      font-size: clamp(20px, 2.6vh, 28px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+      color: #64748b;
+    }
+
+    .btn-gear:hover {
+      background: #e2e8f0;
+      color: #1e293b;
+      transform: rotate(45deg);
+    }
+
+    .btn-gear:active {
+      transform: scale(0.92) rotate(45deg);
+    }
+
+    /* =========================================================
+       3. SÂN KHẤU CHÍNH (MAIN PLAY ARENA)
+       ========================================================= */
+    .arena {
+      position: relative;
+      z-index: 5;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 1.5vh 2vw;
+    }
+
+    /* Tiêu đề Nhiệm Vụ (QUEST TITLE - CHỮ KHỔNG LỒ) */
+    .quest-banner {
+      margin-bottom: 2vh;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.95);
+      border: 4px solid var(--orange-main);
+      padding: 10px 40px;
+      border-radius: 40px;
+      box-shadow: 0 10px 25px rgba(249, 115, 22, 0.2);
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .quest-banner h2 {
+      font-size: clamp(28px, 4.2vh, 46px);
+      font-weight: 900;
+      color: #c2410c;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .quest-banner .sub {
+      font-size: clamp(16px, 2.2vh, 22px);
+      font-weight: 700;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    /* =========================================================
+       4. ĐOÀN TÀU & ĐƯỜNG RAY XE LỬA (TRAIN & RAILWAY TRACK)
+       ========================================================= */
+    .railway-section {
+      position: relative;
+      width: 100%;
+      max-width: 1350px;
+      height: 44vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    /* Đường ray xe lửa */
+    .rail-track {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      height: 28px;
+      background: repeating-linear-gradient(
+        90deg,
+        #78350f 0px,
+        #78350f 18px,
+        transparent 18px,
+        transparent 45px
+      );
+      border-top: 5px solid #475569;
+      border-bottom: 5px solid #334155;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Đoàn tàu xe lửa */
+    .train-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 16px;
+      padding-bottom: 40px;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Hiệu ứng tàu chạy qua màn hình */
+    .train-container.train-depart {
+      animation: trainZoomOut 1.2s forwards cubic-bezier(0.45, 0, 0.55, 1);
+    }
+
+    @keyframes trainZoomOut {
+      0% { transform: translateX(0); }
+      30% { transform: translateX(-40px); }
+      100% { transform: translateX(calc(100vw + 400px)); }
+    }
+
+    .train-container.train-enter {
+      animation: trainZoomIn 0.7s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes trainZoomIn {
+      0% { transform: translateX(-100vw); }
+      100% { transform: translateX(0); }
+    }
+
+    /* Đầu tàu hơi nước (Locomotive) */
+    .locomotive {
+      position: relative;
+      width: clamp(140px, 18vw, 210px);
+      height: clamp(120px, 16vh, 175px);
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+      border: 4px solid #7f1d1d;
+      border-radius: 20px 40px 10px 10px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      flex-shrink: 0;
+      order: 10; /* Đầu tàu đi trước bên phải */
+    }
+
+    /* Ống khói đầu tàu */
+    .chimney {
+      position: absolute;
+      top: -26px;
+      right: 25px;
+      width: 32px;
+      height: 28px;
+      background: #1e293b;
+      border: 3px solid #0f172a;
+      border-radius: 6px 6px 0 0;
+    }
+
+    .chimney::after {
+      content: '';
+      position: absolute;
+      top: -6px;
+      left: -4px;
+      width: 40px;
+      height: 8px;
+      background: #facc15;
+      border-radius: 4px;
+    }
+
+    /* Khói hơi nước */
+    .steam-puff {
+      position: absolute;
+      top: -45px;
+      right: 28px;
+      width: 24px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 50%;
+      animation: puffSteam 1.5s infinite linear;
+      pointer-events: none;
+    }
+
+    @keyframes puffSteam {
+      0% { transform: translate(0, 0) scale(0.5); opacity: 0.9; }
+      50% { transform: translate(-20px, -25px) scale(1.2); opacity: 0.7; }
+      100% { transform: translate(-45px, -50px) scale(2); opacity: 0; }
+    }
+
+    /* Cabin đầu tàu */
+    .loco-cabin {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      width: 60px;
+      height: 60px;
+      background: #7dd3fc;
+      border: 4px solid #0284c7;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+
+    /* Đèn pha phía trước đầu tàu */
+    .loco-lamp {
+      position: absolute;
+      bottom: 35px;
+      right: -14px;
+      width: 22px;
+      height: 28px;
+      background: #fef08a;
+      border: 3px solid #ca8a04;
+      border-radius: 0 10px 10px 0;
+      box-shadow: 10px 0 25px rgba(254, 240, 138, 0.9);
+    }
+
+    /* Bánh xe lửa */
+    .train-wheels {
+      position: absolute;
+      bottom: -18px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-around;
+      pointer-events: none;
+    }
+
+    .wheel {
+      width: clamp(28px, 4vh, 40px);
+      height: clamp(28px, 4vh, 40px);
+      background: #334155;
+      border: 4px solid #0f172a;
+      border-radius: 50%;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+      position: relative;
+      animation: spinWheel 1.2s infinite linear;
+    }
+
+    .wheel::after {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      background: #94a3b8;
+      border-radius: 50%;
+    }
+
+    @keyframes spinWheel {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Khói đen khi bấm sai */
+    .locomotive.shake-bad {
+      animation: locoWrong 0.5s ease-in-out;
+    }
+
+    @keyframes locoWrong {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-12px) rotate(-3deg); }
+      40% { transform: translateX(12px) rotate(3deg); }
+      60% { transform: translateX(-8px) rotate(-2deg); }
+      80% { transform: translateX(8px) rotate(2deg); }
+    }
+
+    .black-smoke {
+      position: absolute;
+      top: -60px;
+      right: 15px;
+      font-size: 44px;
+      pointer-events: none;
+      animation: blackSmoke 0.9s forwards ease-out;
+      display: none;
+    }
+
+    @keyframes blackSmoke {
+      0% { opacity: 0; transform: translateY(0) scale(0.6); }
+      30% { opacity: 1; transform: translateY(-20px) scale(1.3); }
+      100% { opacity: 0; transform: translateY(-60px) scale(2); }
+    }
+
+    /* =========================================================
+       5. GIAO DIỆN CÁC TOA TÀU (CARRIAGES & QUEST ITEMS)
+       ========================================================= */
+    .carriage-group {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      order: 1; /* Các toa đi sau đầu tàu */
+    }
+
+    /* Khối thẻ Toa Tàu Dạng 1 & Dạng 2 */
+    .carriage {
+      position: relative;
+      width: clamp(110px, 14vw, 175px);
+      height: clamp(100px, 14vh, 155px);
+      background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+      border: 4px solid #0369a1;
+      border-radius: 16px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .carriage:hover {
+      transform: translateY(-8px) scale(1.05);
+      box-shadow: 0 14px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .carriage:active {
+      transform: scale(0.95);
+    }
+
+    .carriage-num {
+      font-size: clamp(44px, 6.5vh, 72px);
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 3px 0 #075985, 0 6px 12px rgba(0, 0, 0, 0.3);
+      line-height: 1;
+    }
+
+    /* Màu sắc sinh động cho các toa Dạng 1 */
+    .carriage.color-0 {
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      border-color: #b45309;
+    }
+    .carriage.color-0 .carriage-num { text-shadow: 0 3px 0 #92400e; }
+
+    .carriage.color-1 {
+      background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+      border-color: #047857;
+    }
+    .carriage.color-1 .carriage-num { text-shadow: 0 3px 0 #065f46; }
+
+    .carriage.color-2 {
+      background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+      border-color: #6d28d9;
+    }
+    .carriage.color-2 .carriage-num { text-shadow: 0 3px 0 #5b21b6; }
+
+    /* Toa đã bấm đúng trong Dạng 1 (Đã nối vào đoàn) */
+    .carriage.solved {
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+      border-color: #15803d !important;
+      box-shadow: 0 0 25px rgba(34, 197, 94, 0.8) !important;
+      transform: scale(0.95) !important;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .carriage.solved::before {
+      content: '⭐';
+      position: absolute;
+      top: -16px;
+      right: -10px;
+      font-size: 28px;
+      animation: popStar 0.4s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popStar {
+      from { transform: scale(0) rotate(-45deg); }
+      to { transform: scale(1) rotate(0); }
+    }
+
+    /* Toa bấm sai (Rung lắc) */
+    .carriage.shake-wrong {
+      animation: shakeCarriage 0.45s ease-in-out;
+      border-color: #ef4444 !important;
+      background: linear-gradient(135deg, #f87171 0%, #dc2626 100%) !important;
+    }
+
+    @keyframes shakeCarriage {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-14px) rotate(-4deg); }
+      40% { transform: translateX(14px) rotate(4deg); }
+      60% { transform: translateX(-8px) rotate(-2deg); }
+      80% { transform: translateX(8px) rotate(2deg); }
+    }
+
+    /* Toa dấu hỏi ? trong Dạng 2 */
+    .carriage.mystery-slot {
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      border: 4px dashed #94a3b8;
+      cursor: default;
+      animation: glowMystery 2s infinite ease-in-out;
+    }
+
+    .carriage.mystery-slot:hover {
+      transform: none;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .carriage.mystery-slot .carriage-num {
+      color: #94a3b8;
+      text-shadow: none;
+      animation: bounceQ 1.2s infinite ease-in-out;
+    }
+
+    @keyframes glowMystery {
+      0%, 100% { border-color: #94a3b8; box-shadow: 0 0 10px rgba(148, 163, 184, 0.3); }
+      50% { border-color: var(--orange-main); box-shadow: 0 0 25px rgba(249, 115, 22, 0.6); }
+    }
+
+    @keyframes bounceQ {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* Khớp nối giữa các toa */
+    .coupler {
+      width: 16px;
+      height: 10px;
+      background: #475569;
+      border-radius: 4px;
+      margin-bottom: 25px;
+    }
+
+    /* =========================================================
+       6. DẠNG 2: 3 VIÊN ĐÁ LỰA CHỌN Ở DƯỚI (OPTIONS BAR)
+       ========================================================= */
+    .missing-options-section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-top: 2.5vh;
+      animation: fadeInUp 0.4s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .missing-options-section .instruction-label {
+      font-size: clamp(18px, 2.4vh, 26px);
+      font-weight: 800;
+      color: #0f172a;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 4px 20px;
+      border-radius: 20px;
+    }
+
+    .stones-container {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+    }
+
+    .stone-card {
+      width: clamp(90px, 12vw, 140px);
+      height: clamp(80px, 11vh, 120px);
+      background: linear-gradient(135deg, #fef08a 0%, #eab308 100%);
+      border: 4px solid #ca8a04;
+      border-radius: 20px;
+      box-shadow: 0 8px 18px rgba(202, 138, 4, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .stone-card:hover {
+      transform: translateY(-8px) scale(1.08);
+      box-shadow: 0 16px 28px rgba(202, 138, 4, 0.45);
+      background: linear-gradient(135deg, #fef9c3 0%, #facc15 100%);
+    }
+
+    .stone-card:active {
+      transform: scale(0.92);
+    }
+
+    .stone-card .stone-num {
+      font-size: clamp(40px, 5.5vh, 64px);
+      font-weight: 900;
+      color: #713f12;
+      text-shadow: 0 2px 0 #fef08a;
+    }
+
+    /* Hiệu ứng viên đá bay lên thế chỗ dấu ? */
+    .stone-card.fly-up {
+      animation: stoneFlyUp 0.6s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      pointer-events: none;
+    }
+
+    @keyframes stoneFlyUp {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: translateY(-70px) scale(1.2); }
+      100% { transform: translateY(-160px) scale(1.1); opacity: 0; }
+    }
+
+    /* =========================================================
+       7. BANNER TIẾP SỨC HIGH-FIVE (POPUP SIÊU ĐẸP CHO LỚP 1)
+       ========================================================= */
+    .highfive-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(6px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease-in-out;
+    }
+
+    .highfive-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .highfive-box {
+      background: #ffffff;
+      border: 8px solid var(--orange-main);
+      border-radius: 40px;
+      padding: 30px 60px;
+      text-align: center;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+      transform: scale(0.7);
+      transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .highfive-overlay.active .highfive-box {
+      transform: scale(1);
+    }
+
+    .highfive-emoji {
+      font-size: clamp(60px, 10vh, 100px);
+      animation: waveHand 0.8s infinite alternate ease-in-out;
+    }
+
+    @keyframes waveHand {
+      0% { transform: rotate(-15deg) scale(1); }
+      100% { transform: rotate(15deg) scale(1.15); }
+    }
+
+    .highfive-title {
+      font-size: clamp(32px, 5vh, 52px);
+      font-weight: 900;
+      color: var(--orange-dark);
+      margin: 10px 0;
+    }
+
+    .highfive-next {
+      font-size: clamp(24px, 3.8vh, 38px);
+      font-weight: 800;
+      color: #1e293b;
+    }
+
+    .highfive-next strong {
+      color: var(--blue-deep);
+      font-size: 1.15em;
+    }
+
+    /* =========================================================
+       8. CẢNH BÁO TRỪ TIM VÌ ỒN ÀO (NOISE PENALTY BANNER)
+       ========================================================= */
+    .penalty-toast {
+      position: fixed;
+      top: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: #dc2626;
+      color: #ffffff;
+      border: 4px solid #fecaca;
+      border-radius: 40px;
+      padding: 14px 40px;
+      font-size: clamp(20px, 2.8vh, 32px);
+      font-weight: 900;
+      box-shadow: 0 15px 35px rgba(220, 38, 38, 0.45);
+      z-index: 99999;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .penalty-toast.active {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .penalty-toast.reward {
+      background: #16a34a;
+      border-color: #bbf7d0;
+      box-shadow: 0 15px 35px rgba(22, 163, 74, 0.45);
+    }
+
+    /* =========================================================
+       9. MÀN HÌNH CHIẾN THẮNG: VỀ GA KHO BÁU (VICTORY SCREEN)
+       ========================================================= */
+    .victory-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .victory-modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .victory-card {
+      background: linear-gradient(180deg, #ffffff 0%, #fffbeb 100%);
+      border: 8px solid #facc15;
+      border-radius: 40px;
+      padding: 35px 50px;
+      max-width: 900px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+      transform: scale(0.8);
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .victory-modal.active .victory-card {
+      transform: scale(1);
+    }
+
+    .victory-icon {
+      font-size: clamp(60px, 9vh, 90px);
+      animation: bounceTrophy 1s infinite alternate ease-in-out;
+    }
+
+    @keyframes bounceTrophy {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(-15px) scale(1.1); }
+    }
+
+    .victory-title {
+      font-size: clamp(32px, 5vh, 50px);
+      font-weight: 900;
+      color: #b45309;
+      margin: 10px 0;
+      text-transform: uppercase;
+    }
+
+    .victory-desc {
+      font-size: clamp(18px, 2.6vh, 26px);
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 20px;
+    }
+
+    .victory-stats {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      margin: 20px 0;
+    }
+
+    .stat-pill {
+      background: #fef08a;
+      border: 3px solid #eab308;
+      padding: 10px 24px;
+      border-radius: 24px;
+      font-size: clamp(16px, 2.2vh, 22px);
+      font-weight: 800;
+      color: #854d0e;
+    }
+
+    .victory-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 25px;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      padding: 12px 28px;
+      font-size: clamp(16px, 2.2vh, 22px);
+      font-weight: 800;
+      border-radius: 30px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s;
+    }
+
+    .btn-action.btn-csv {
+      background: #16a34a;
+      color: #ffffff;
+      border: 3px solid #15803d;
+    }
+
+    .btn-action.btn-csv:hover {
+      background: #15803d;
+      transform: translateY(-3px);
+    }
+
+    .btn-action.btn-replay {
+      background: #f97316;
+      color: #ffffff;
+      border: 3px solid #c2410c;
+    }
+
+    .btn-action.btn-replay:hover {
+      background: #ea580c;
+      transform: translateY(-3px);
+    }
+
+    /* =========================================================
+       10. MENU GIÁO VIÊN (TEACHER DRAWER - BẢNG ĐIỀU KHIỂN ẨN)
+       ========================================================= */
+    .teacher-drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 99999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .teacher-drawer-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .teacher-drawer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: clamp(340px, 35vw, 480px);
+      background: #ffffff;
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .teacher-drawer-overlay.active .teacher-drawer {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      padding: 16px 20px;
+      background: #f8fafc;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .drawer-header h3 {
+      font-size: 20px;
+      font-weight: 900;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-close-drawer {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #475569;
+    }
+
+    .btn-close-drawer:hover {
+      background: #cbd5e1;
+      color: #0f172a;
+    }
+
+    .drawer-content {
+      flex: 1;
+      padding: 18px 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .drawer-group {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .drawer-group-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #64748b;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .control-row label {
+      font-size: 15px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .control-select,
+    .control-input {
+      padding: 6px 12px;
+      border: 2px solid #cbd5e1;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      outline: none;
+    }
+
+    .control-btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-control {
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn-control.heart-minus {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 2px solid #f87171;
+    }
+    .btn-control.heart-minus:hover { background: #fca5a5; }
+
+    .btn-control.heart-plus {
+      background: #dcfce7;
+      color: #15803d;
+      border: 2px solid #4ade80;
+    }
+    .btn-control.heart-plus:hover { background: #86efac; }
+
+    .btn-control.action-skip {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 2px solid #38bdf8;
+    }
+    .btn-control.action-skip:hover { background: #bae6fd; }
+
+    .btn-control.action-gacha {
+      background: #fef08a;
+      color: #854d0e;
+      border: 2px solid #eab308;
+    }
+    .btn-control.action-gacha:hover { background: #fde047; }
+
+    /* Danh sách học sinh mini trong drawer */
+    .student-list-container {
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #ffffff;
+    }
+
+    .student-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .student-item:last-child {
+      border-bottom: none;
+    }
+
+    .student-item.done {
+      color: #16a34a;
+      background: #f0fdf4;
+    }
+
+    .student-item.active {
+      color: var(--orange-dark);
+      background: #fff7ed;
+      font-weight: 900;
+    }
+
+    .btn-pick-student {
+      font-size: 12px;
+      padding: 3px 8px;
+      background: #e2e8f0;
+      border-radius: 6px;
+      font-weight: 800;
+    }
+    .btn-pick-student:hover { background: var(--orange-main); color: #fff; }
+
+    .shortcuts-guide {
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .shortcuts-guide kbd {
+      background: #e2e8f0;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-weight: 800;
+      color: #1e293b;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <!-- Cảnh bầu trời & Đồi núi -->
+    <div class="sky-scenery">
+      <div class="sun"></div>
+      <div class="cloud cloud-1"></div>
+      <div class="cloud cloud-2"></div>
+      <div class="cloud cloud-3"></div>
+      <div class="hills">
+        <div class="hill-back"></div>
+        <div class="hill-front"></div>
+      </div>
+    </div>
+
+    <!-- 1. THANH TRẠNG THÁI TRÊN ĐỈNH (TOP BAR) -->
+    <header class="top-bar">
+      <!-- Trái: Tên bé đang chơi (SIÊU TO) -->
+      <div class="student-display">
+        <div class="current-student-badge">
+          <span class="label">🏃 LƯỢT BÉ:</span>
+          <span class="student-name" id="currentStudentName">Đang tải...</span>
+        </div>
+        <div class="next-student-badge">
+          <span>✋ Tiếp theo:</span>
+          <span class="next-name" id="nextStudentName">Đang tải...</span>
+        </div>
+      </div>
+
+      <!-- Giữa: Tiến trình đoàn tàu & Máu năng lượng -->
+      <div class="center-stats">
+        <div class="train-progress-pill">
+          <span>🚂 Toa:</span>
+          <span id="trainProgressText">0 / 35</span>
+        </div>
+
+        <div class="hearts-bar" id="heartsContainer">
+          <span class="heart-icon alive">❤️</span>
+          <span class="heart-icon alive">❤️</span>
+          <span class="heart-icon alive">❤️</span>
+          <span class="heart-icon alive">❤️</span>
+          <span class="heart-icon alive">❤️</span>
+        </div>
+      </div>
+
+      <!-- Phải: Nút bánh răng duy nhất cho Giáo viên -->
+      <div class="top-right-tools">
+        <button class="btn-gear" id="btnToggleMenu" title="Menu Giáo Viên (Phím M)">⚙️</button>
+      </div>
+    </header>
+
+    <!-- 2. SÂN KHẤU CHÍNH (MAIN PLAY ARENA) -->
+    <main class="arena">
+      <!-- Tiêu đề nhiệm vụ to, đơn giản cho Lớp 1 -->
+      <div class="quest-banner">
+        <h2 id="questTitle">Bấm toa từ BÉ đến LỚN</h2>
+        <div class="sub" id="questSub">Bé hãy nhấp chuột vào từng số theo thứ tự nhé!</div>
+      </div>
+
+      <!-- Khu vực Đường ray & Đoàn tàu xe lửa -->
+      <div class="railway-section">
+        <div class="train-container" id="trainContainer">
+          <!-- Các toa tàu bài học (Dạng 1 hoặc Dạng 2) sẽ được render tại đây -->
+          <div class="carriage-group" id="carriagesSlot"></div>
+
+          <!-- Khớp nối -->
+          <div class="coupler"></div>
+
+          <!-- Đầu tàu xe lửa -->
+          <div class="locomotive" id="locomotive">
+            <div class="chimney"></div>
+            <div class="steam-puff"></div>
+            <div class="loco-cabin">🚂</div>
+            <div class="loco-lamp"></div>
+            <div class="black-smoke" id="blackSmoke">💨</div>
+            <div class="train-wheels">
+              <div class="wheel"></div>
+              <div class="wheel"></div>
+              <div class="wheel"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Đường ray xe lửa -->
+        <div class="rail-track"></div>
+      </div>
+
+      <!-- Khu vực 3 viên đá lựa chọn cho Dạng 2 (Ẩn khi ở Dạng 1) -->
+      <div class="missing-options-section" id="missingOptionsSection" style="display: none;">
+        <div class="instruction-label">👇 Nhấp chuột vào số đúng để lắp vào toa ❓</div>
+        <div class="stones-container" id="stonesContainer">
+          <!-- Render 3 viên đá tại đây -->
+        </div>
+      </div>
+    </main>
+
+    <!-- 3. POPUP HIGH-FIVE TIẾP SỨC GIỮA CÁC BÉ -->
+    <div class="highfive-overlay" id="highfiveOverlay">
+      <div class="highfive-box">
+        <div class="highfive-emoji">🙌 ✋</div>
+        <div class="highfive-title">ĐẬP TAY TIẾP SỨC!</div>
+        <div class="highfive-next">
+          Mời bạn <strong id="highfiveStudentName">Nguyễn Văn A</strong> lên máy!
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. THÔNG BÁO CẢNH BÁO TRỪ TIM VÌ ỒN HOẶC THƯỞNG TIM -->
+    <div class="penalty-toast" id="penaltyToast">
+      <span id="penaltyToastIcon">⚠️</span>
+      <span id="penaltyToastMsg">Lớp ồn ào! Trừ 1 Trái Tim! Suỵt!</span>
+    </div>
+
+    <!-- 4.1 POPUP HẾT NĂNG LƯỢNG KHI MẤT HẾT 5 TIM -->
+    <div class="victory-modal" id="outOfHeartsModal">
+      <div class="victory-card" style="border-color: #ef4444; background: linear-gradient(180deg, #ffffff 0%, #fee2e2 100%);">
+        <div class="victory-icon">🚂💨 💔</div>
+        <h1 class="victory-title" style="color: #dc2626;">TÀU TẠM DỪNG VÌ LỚP ỒN!</h1>
+        <p class="victory-desc" style="font-size: clamp(20px, 3vh, 28px); color: #7f1d1d; margin-bottom: 25px;">
+          Cả lớp hãy cùng nhau hô to: <strong>"CHÚNG EM GIỮ TRẬT TỰ!"</strong> để nạp lại 5 Trái Tim cho tàu chạy tiếp nào!
+        </p>
+        <div class="victory-buttons">
+          <button class="btn-action btn-replay" id="btnRechargeHearts" style="background: #22c55e; border-color: #16a34a; font-size: clamp(20px, 2.8vh, 28px); padding: 14px 36px;">
+            ⚡ NẠP ĐẦY NĂNG LƯỢNG (+5 ❤️)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. MÀN HÌNH CHIẾN THẮNG: VỀ GA KHO BÁU -->
+    <div class="victory-modal" id="victoryModal">
+      <div class="victory-card">
+        <div class="victory-icon">🏆 🚂 💎</div>
+        <h1 class="victory-title">ĐOÀN TÀU ĐÃ VỀ GA KHO BÁU!</h1>
+        <p class="victory-desc">
+          Cả lớp mình thật tuyệt vời! Đã tiếp sức gắn đủ toàn bộ các toa tàu về đích an toàn!
+        </p>
+
+        <div class="victory-stats">
+          <div class="stat-pill">🚂 Hoàn thành: <span id="victoryCarriageCount">35</span> toa</div>
+          <div class="stat-pill">❤️ Năng lượng còn lại: <span id="victoryHeartsCount">5</span> tim</div>
+        </div>
+
+        <div class="victory-buttons">
+          <button class="btn-action btn-csv" id="btnExportCsvVictory">
+            📊 Xuất Báo Cáo CSV (UTF-8)
+          </button>
+          <button class="btn-action btn-replay" id="btnReplayVictory">
+            🔄 Chơi Tiếp Sức Lại
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. MENU GIÁO VIÊN (TEACHER DRAWER - BẢNG ĐIỀU KHIỂN ẨN) -->
+    <div class="teacher-drawer-overlay" id="teacherDrawerOverlay">
+      <div class="teacher-drawer">
+        <div class="drawer-header">
+          <h3>⚙️ Bảng Điều Khiển Giáo Viên</h3>
+          <button class="btn-close-drawer" id="btnCloseDrawer">✖</button>
+        </div>
+
+        <div class="drawer-content">
+          <!-- Chọn lớp học -->
+          <div class="drawer-group">
+            <div class="drawer-group-title">🏫 Lớp Học</div>
+            <div class="control-row">
+              <label for="selectClass">Chọn Lớp:</label>
+              <select id="selectClass" class="control-select">
+                <option value="1_6">Lớp 1/6 (Danh sách chuẩn)</option>
+                <option value="1_1">Lớp 1/1</option>
+                <option value="1_2">Lớp 1/2</option>
+                <option value="1_3">Lớp 1/3</option>
+                <option value="1_4">Lớp 1/4</option>
+                <option value="1_5">Lớp 1/5</option>
+              </select>
+            </div>
+            <div class="control-row">
+              <label for="inputTargetCars">Toa mục tiêu:</label>
+              <input type="number" id="inputTargetCars" class="control-input" min="5" max="60" value="35" style="width: 80px;">
+            </div>
+          </div>
+
+          <!-- Trọng tài Lớp Học & Chống Ồn -->
+          <div class="drawer-group">
+            <div class="drawer-group-title">⚖️ Trọng Tài & Chống Ồn</div>
+            <div class="control-btn-grid">
+              <button class="btn-control heart-minus" id="btnDeductHeart" title="Phím tắt: D hoặc -">
+                🔇 -1 Tim (Phạt ồn)
+              </button>
+              <button class="btn-control heart-plus" id="btnRewardHeart" title="Phím tắt: + hoặc =">
+                💖 +1 Tim (Khen ngoan)
+              </button>
+            </div>
+            <div class="control-btn-grid">
+              <button class="btn-control action-skip" id="btnSkipStudent" title="Phím tắt: Space hoặc N">
+                ⏭️ Bỏ qua / Đổi bạn
+              </button>
+              <button class="btn-control action-gacha" id="btnGachaPick" title="Phím tắt: G">
+                🎲 Gacha chọn ngẫu nhiên
+              </button>
+            </div>
+          </div>
+
+          <!-- Danh sách học sinh lớp -->
+          <div class="drawer-group">
+            <div class="drawer-group-title">
+              <span>👥 Danh Sách Học Sinh (<span id="countDoneStudents">0</span>/<span id="countTotalStudents">0</span>)</span>
+            </div>
+            <div class="student-list-container" id="studentListContainer">
+              <!-- Render danh sách học sinh tại đây -->
+            </div>
+          </div>
+
+          <!-- Tiện ích & Báo Cáo -->
+          <div class="drawer-group">
+            <div class="drawer-group-title">📊 Dữ Liệu & Báo Cáo</div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <button class="btn-control" id="btnToggleSound" style="padding: 8px; background: #f1f5f9; border: 1px solid #cbd5e1;">
+                🔊 Âm Thanh: Đang Bật
+              </button>
+              <button class="btn-control btn-csv" id="btnExportCsvDrawer" style="padding: 10px; background: #16a34a; color: #fff;">
+                📑 Xuất File CSV Điểm Danh & Telemetry
+              </button>
+              <button class="btn-control" id="btnFullscreen" style="padding: 8px; background: #f1f5f9; border: 1px solid #cbd5e1;">
+                ⛶ Toàn Màn Hình (F11)
+              </button>
+              <button class="btn-control" id="btnClearSession" style="padding: 8px; background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5;">
+                🗑️ Xóa Dữ Liệu Tiết Học (Lớp Mới)
+              </button>
+            </div>
+          </div>
+
+          <!-- Hướng dẫn Phím Tắt Giáo Viên -->
+          <div class="drawer-group">
+            <div class="drawer-group-title">⌨️ Phím Tắt Nhanh (Game Master)</div>
+            <div class="shortcuts-guide">
+              <p><kbd>-</kbd> hoặc <kbd>D</kbd>: Trừ 1 Tim (Lớp ồn ào)</p>
+              <p><kbd>+</kbd>: Cộng 1 Tim (Thưởng ngoan)</p>
+              <p><kbd>Space</kbd> / <kbd>N</kbd>: Chuyển bé tiếp theo</p>
+              <p><kbd>M</kbd>: Bật/Tắt Menu Giáo Viên</p>
+              <p><kbd>G</kbd>: Quay Gacha chọn ngẫu nhiên</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       11. JAVASCRIPT ĐIỀU KHIỂN GAME (ENDLESS TRAIN ENGINE)
+       ========================================================= -->
+  <script>
+    (function () {
+      'use strict';
+
+      // -------------------------------------------------------------
+      // 1. ÂM THANH WEB AUDIO SYNTHESIZER (100% OFFLINE)
+      // -------------------------------------------------------------
+      const AudioEngine = (function () {
+        let ctx = null;
+        let isMuted = false;
+        function getCtx() {
+          if (!ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) ctx = new AudioCtx();
+          }
+          if (ctx && ctx.state === 'suspended') {
+            ctx.resume().catch(() => {});
+          }
+          return ctx;
+        }
+
+        function playTone(freq, duration, type = 'sine', volume = 0.25, endFreq = null, delay = 0) {
+          if (isMuted) return;
+          const c = getCtx();
+          if (!c) return;
+          const t = c.currentTime + delay;
+          const osc = c.createOscillator();
+          const gain = c.createGain();
+
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, t);
+          if (endFreq) {
+            osc.frequency.exponentialRampToValueAtTime(endFreq, t + duration);
+          }
+
+          gain.gain.setValueAtTime(volume, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+
+          osc.connect(gain);
+          gain.connect(c.destination);
+
+          osc.start(t);
+          osc.stop(t + duration + 0.05);
+        }
+
+        return {
+          toggleMute: () => {
+            isMuted = !isMuted;
+            return isMuted;
+          },
+          isMuted: () => isMuted,
+          click: () => playTone(600, 0.08, 'sine', 0.2, 800),
+          correctStep: () => {
+            playTone(523, 0.15, 'triangle', 0.3, 659);
+            playTone(784, 0.22, 'triangle', 0.28, 1046, 0.08);
+          },
+          trainWhistle: () => {
+            // Tiếng còi xe lửa "Tu tuuu!"
+            playTone(440, 0.45, 'sawtooth', 0.16, 466);
+            playTone(554, 0.45, 'sawtooth', 0.16, 587);
+            playTone(440, 0.55, 'sawtooth', 0.18, 466, 0.35);
+            playTone(554, 0.55, 'sawtooth', 0.18, 587, 0.35);
+          },
+          wrongOops: () => {
+            playTone(280, 0.18, 'sine', 0.25, 220);
+            playTone(200, 0.25, 'sine', 0.25, 150, 0.15);
+          },
+          penaltyBeep: () => {
+            playTone(220, 0.2, 'sawtooth', 0.35);
+            playTone(180, 0.3, 'sawtooth', 0.35, null, 0.15);
+          },
+          rewardDing: () => {
+            playTone(659, 0.15, 'triangle', 0.25);
+            playTone(880, 0.25, 'triangle', 0.25, null, 0.12);
+          },
+          highFive: () => {
+            playTone(700, 0.12, 'sine', 0.35, 1200);
+            playTone(988, 0.25, 'triangle', 0.3, null, 0.06);
+          },
+          victoryFanfare: () => {
+            const melody = [523, 659, 784, 1046];
+            melody.forEach((freq, idx) => {
+              playTone(freq, 0.25, 'triangle', 0.3, null, idx * 0.12);
+            });
+            setTimeout(() => {
+              playTone(1046, 0.6, 'triangle', 0.35);
+            }, 550);
+          }
+        };
+      })();
+
+      // -------------------------------------------------------------
+      // 2. DỮ LIỆU DANH SÁCH HỌC SINH & LỚP HỌC
+      // -------------------------------------------------------------
+      const FALLBACK_STUDENTS = [
+        "Lê Nguyễn Thảo An", "Dương Quỳnh Anh", "Nguyễn Duy Anh", "Nguyễn Trần Bảo Anh",
+        "Tô Tuệ Anh", "Trần Nguyễn Phương Anh", "Danh Trần Gia Bảo", "Trần Tuyết Băng",
+        "Nguyễn Hoàng Dũng", "Phạm Quang Đạt", "Nguyễn Phúc Hậu", "Huỳnh Minh Huy",
+        "Phạm Khắc Huy", "Phạm Minh Ken", "Thái Phát Khang", "Lâm Hoàng Gia Khương",
+        "Nguyễn Tuấn Kiệt", "Đỗ Ngọc Thiên Kim", "Nguyễn Ngọc Thiên Kim", "Đặng Bảo Linh",
+        "Danh Nguyễn Trà My", "Hà Tiểu My", "Nguyễn Cẩm Ngọc", "Nguyễn Hoàng Bảo Ngọc",
+        "Nguyễn Phan Kim Nguyên", "Lưu Nguyệt Nhân", "Lương Huỳnh An Nhiên", "Huỳnh Minh Phát",
+        "Lê Hoàng Phát", "Lưu Vương Thành Phát", "Đàm Tâm Phú", "Huỳnh Ngọc Như Phúc",
+        "Ngô Anh Quốc", "Đặng Phi Thiên", "Nguyễn Hoàng Thiện", "Danh Minh Thuận",
+        "Tô Minh Trí", "Đặng Bảo Trúc", "Phan Nhật Trường", "Võ Huỳnh Khánh Vân",
+        "Mai Đức Vĩnh", "Danh Nguyễn Hoàng Yến"
+      ];
+
+      const STORAGE_KEY = 'bgtieu_hoc_k1_tiet_10_state';
+
+      // -------------------------------------------------------------
+      // 3. TRẠNG THÁI GAME (GAME STATE)
+      // -------------------------------------------------------------
+      const state = {
+        classId: '1_6',
+        students: [],
+        currentIndex: 0,
+        doneStudents: [], // danh sách index các bé đã hoàn thành
+        completedCars: 0,
+        targetCars: 35,
+        hearts: 5,
+        maxHearts: 5,
+        isGameOver: false,
+        isProcessingStep: false,
+        telemetry: {}, // { [name]: { type, misclicks, durationSec, result } }
+        currentQuest: null,
+        questManager: null,
+        // Tiến trình tạm của dạng 1
+        sortProgress: []
+      };
+
+      let questStartTime = Date.now();
+      let misclickCount = 0;
+
+      // -------------------------------------------------------------
+      // 4. KHỞI TẠO VÀ LƯU TRẠNG THÁI (LOCALSTORAGE)
+      // -------------------------------------------------------------
+      async function loadStudentData(classId) {
+        state.classId = classId;
+        try {
+          const resp = await fetch('../../assets/data/students_1_2026_2027.json');
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data && data[classId] && data[classId].length) {
+              state.students = [...data[classId]];
+              return;
+            }
+          }
+        } catch (err) {
+          console.warn('Dùng danh sách học sinh dự phòng offline:', err);
+        }
+        state.students = [...FALLBACK_STUDENTS];
+      }
+
+      function saveState() {
+        try {
+          const dataToSave = {
+            classId: state.classId,
+            currentIndex: state.currentIndex,
+            doneStudents: state.doneStudents,
+            completedCars: state.completedCars,
+            targetCars: state.targetCars,
+            hearts: state.hearts,
+            telemetry: state.telemetry
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+        } catch (e) {
+          console.warn('Lỗi lưu localStorage:', e);
+        }
+      }
+
+      function restoreState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return false;
+          const saved = JSON.parse(raw);
+          if (saved && typeof saved.completedCars === 'number') {
+            state.currentIndex = saved.currentIndex || 0;
+            state.doneStudents = saved.doneStudents || [];
+            state.completedCars = saved.completedCars || 0;
+            state.targetCars = saved.targetCars || 35;
+            state.hearts = typeof saved.hearts === 'number' ? saved.hearts : 5;
+            state.telemetry = saved.telemetry || {};
+            showToastNotice('⚡ Đã khôi phục dữ liệu tiết học dở dang!', 'reward');
+            return true;
+          }
+        } catch (e) {
+          console.warn('Lỗi đọc localStorage:', e);
+        }
+        return false;
+      }
+
+      // -------------------------------------------------------------
+      // 5. RENDER GIAO DIỆN CHÍNH (UI UPDATES)
+      // -------------------------------------------------------------
+      function updateHeader() {
+        const curNameEl = document.getElementById('currentStudentName');
+        const nextNameEl = document.getElementById('nextStudentName');
+        const progressEl = document.getElementById('trainProgressText');
+
+        const currentName = state.students[state.currentIndex] || 'Hoàn thành!';
+        curNameEl.textContent = currentName;
+
+        const nextIdx = (state.currentIndex + 1) % state.students.length;
+        const nextName = state.students[nextIdx] || 'Cả lớp';
+        nextNameEl.textContent = nextName;
+
+        progressEl.textContent = `${state.completedCars} / ${state.targetCars}`;
+
+        // Render Hearts
+        const heartsContainer = document.getElementById('heartsContainer');
+        heartsContainer.innerHTML = '';
+        for (let i = 0; i < state.maxHearts; i++) {
+          const span = document.createElement('span');
+          span.className = 'heart-icon ' + (i < state.hearts ? 'alive' : 'lost');
+          span.textContent = '❤️';
+          heartsContainer.appendChild(span);
+        }
+      }
+
+      function updateDrawerStudentList() {
+        const container = document.getElementById('studentListContainer');
+        const countDone = document.getElementById('countDoneStudents');
+        const countTotal = document.getElementById('countTotalStudents');
+
+        countDone.textContent = state.doneStudents.length;
+        countTotal.textContent = state.students.length;
+
+        container.innerHTML = '';
+        state.students.forEach((name, idx) => {
+          const item = document.createElement('div');
+          const isDone = state.doneStudents.includes(idx);
+          const isCurrent = state.currentIndex === idx;
+
+          item.className = 'student-item ' + (isCurrent ? 'active' : isDone ? 'done' : '');
+          item.innerHTML = `
+            <span>${idx + 1}. ${name} ${isDone ? '✅' : ''} ${isCurrent ? '👉 (Đang chơi)' : ''}</span>
+            <button class="btn-pick-student" data-index="${idx}">Chọn</button>
+          `;
+          container.appendChild(item);
+        });
+
+        // Bắt sự kiện chọn bé trực tiếp
+        container.querySelectorAll('.btn-pick-student').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const idx = parseInt(e.target.dataset.index, 10);
+            if (!isNaN(idx)) {
+              state.currentIndex = idx;
+              closeDrawer();
+              nextQuest(false);
+              saveState();
+            }
+          });
+        });
+      }
+
+      // -------------------------------------------------------------
+      // 6. KHỞI TẠO CÂU HỎI MỚI (QUEST DISPATCHER)
+      // -------------------------------------------------------------
+      function nextQuest(isAdvance = true) {
+        if (state.completedCars >= state.targetCars) {
+          triggerVictory();
+          return;
+        }
+
+        if (isAdvance) {
+          // Tìm bé tiếp theo chưa chơi
+          let found = false;
+          for (let step = 1; step <= state.students.length; step++) {
+            const candidateIdx = (state.currentIndex + step) % state.students.length;
+            if (!state.doneStudents.includes(candidateIdx)) {
+              state.currentIndex = candidateIdx;
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            // Đã chơi hết một vòng, tiếp tục vòng lặp
+            state.currentIndex = (state.currentIndex + 1) % state.students.length;
+          }
+        }
+
+        questStartTime = Date.now();
+        misclickCount = 0;
+        state.isProcessingStep = false;
+
+        updateHeader();
+        updateDrawerStudentList();
+
+        // Lấy câu hỏi tiếp theo từ QuestManager
+        if (!state.questManager) {
+          state.questManager = new window.QuestManager();
+        }
+        const quest = state.questManager.getNextQuest();
+        state.currentQuest = quest;
+
+        renderQuest(quest);
+      }
+
+      function renderQuest(quest) {
+        const titleEl = document.getElementById('questTitle');
+        const subEl = document.getElementById('questSub');
+        const carriagesSlot = document.getElementById('carriagesSlot');
+        const missingOptionsSection = document.getElementById('missingOptionsSection');
+        const stonesContainer = document.getElementById('stonesContainer');
+        const trainContainer = document.getElementById('trainContainer');
+
+        // Animation đoàn tàu vào sân khấu
+        trainContainer.classList.remove('train-depart');
+        trainContainer.classList.add('train-enter');
+        setTimeout(() => trainContainer.classList.remove('train-enter'), 700);
+
+        carriagesSlot.innerHTML = '';
+        stonesContainer.innerHTML = '';
+
+        if (quest.type === 'sort') {
+          // ==================== DẠNG 1: SẮP XẾP BÉ ĐẾN LỚN ====================
+          titleEl.textContent = 'Bấm toa từ BÉ đến LỚN 👶 ➡️ 🧑';
+          subEl.textContent = 'Bé hãy nhấp chuột vào các số từ nhỏ nhất đến lớn nhất!';
+          missingOptionsSection.style.display = 'none';
+
+          state.sortProgress = [];
+          const sortedNumbers = [...quest.numbers].sort((a, b) => a - b);
+
+          quest.numbers.forEach((num, idx) => {
+            const car = document.createElement('div');
+            car.className = `carriage color-${idx % 3}`;
+            car.dataset.value = num;
+            car.innerHTML = `
+              <span class="carriage-num">${num}</span>
+              <div class="train-wheels">
+                <div class="wheel"></div>
+                <div class="wheel"></div>
+              </div>
+            `;
+
+            car.addEventListener('click', () => {
+              handleSortCarClick(car, num, sortedNumbers);
+            });
+
+            carriagesSlot.appendChild(car);
+          });
+
+        } else if (quest.type === 'missing') {
+          // ==================== DẠNG 2: TÌM SỐ LIỀN KỀ / TOA ? ====================
+          titleEl.textContent = 'Tìm số thích hợp vào toa ❓';
+          subEl.textContent = 'Nhấp chuột vào số bên dưới để điền vào toa trống!';
+          missingOptionsSection.style.display = 'flex';
+          missingOptionsSection.style.opacity = '1';
+
+          // Render 3 toa tàu trên ray (trong đó có 1 toa dấu ?)
+          quest.train.forEach((num, idx) => {
+            const car = document.createElement('div');
+            if (num === null) {
+              car.className = 'carriage mystery-slot';
+              car.id = 'mysteryCarriage';
+              car.innerHTML = `
+                <span class="carriage-num">❓</span>
+                <div class="train-wheels">
+                  <div class="wheel"></div>
+                  <div class="wheel"></div>
+                </div>
+              `;
+            } else {
+              car.className = `carriage color-${idx % 3}`;
+              car.innerHTML = `
+                <span class="carriage-num">${num}</span>
+                <div class="train-wheels">
+                  <div class="wheel"></div>
+                  <div class="wheel"></div>
+                </div>
+              `;
+            }
+            carriagesSlot.appendChild(car);
+          });
+
+          // Render 3 viên đá lựa chọn ở dưới
+          quest.options.forEach((optNum) => {
+            const stone = document.createElement('div');
+            stone.className = 'stone-card';
+            stone.dataset.value = optNum;
+            stone.innerHTML = `<span class="stone-num">${optNum}</span>`;
+
+            stone.addEventListener('click', () => {
+              handleMissingOptionClick(stone, optNum, quest.correct);
+            });
+
+            stonesContainer.appendChild(stone);
+          });
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 7. XỬ LÝ CLICK DẠNG 1: SẮP XẾP TỪ BÉ ĐẾN LỚN
+      // -------------------------------------------------------------
+      function handleSortCarClick(carElement, numValue, sortedNumbers) {
+        if (state.isProcessingStep) return;
+        if (carElement.classList.contains('solved')) return;
+
+        const expectedValue = sortedNumbers[state.sortProgress.length];
+
+        if (numValue === expectedValue) {
+          // Bấm ĐÚNG số bé tiếp theo!
+          AudioEngine.correctStep();
+          state.sortProgress.push(numValue);
+          carElement.classList.add('solved');
+
+          if (state.sortProgress.length === sortedNumbers.length) {
+            // Hoàn thành cả 3 toa!
+            state.isProcessingStep = true;
+            finishCurrentStudentQuest(true);
+          }
+        } else {
+          // Bấm SAI thứ tự!
+          triggerWrongClick(carElement);
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 8. XỬ LÝ CLICK DẠNG 2: TÌM SỐ LIỀN KỀ
+      // -------------------------------------------------------------
+      function handleMissingOptionClick(stoneElement, selectedValue, correctValue) {
+        if (state.isProcessingStep) return;
+
+        if (selectedValue === correctValue) {
+          // Bấm ĐÚNG!
+          state.isProcessingStep = true;
+          AudioEngine.correctStep();
+
+          // Hiệu ứng viên đá bay lên lắp vào toa ?
+          stoneElement.classList.add('fly-up');
+
+          const mysteryCar = document.getElementById('mysteryCarriage');
+          if (mysteryCar) {
+            setTimeout(() => {
+              mysteryCar.className = 'carriage color-1 solved';
+              mysteryCar.innerHTML = `
+                <span class="carriage-num">${correctValue}</span>
+                <div class="train-wheels">
+                  <div class="wheel"></div>
+                  <div class="wheel"></div>
+                </div>
+              `;
+            }, 300);
+          }
+
+          setTimeout(() => {
+            finishCurrentStudentQuest(true);
+          }, 600);
+
+        } else {
+          // Bấm SAI!
+          triggerWrongClick(stoneElement);
+        }
+      }
+
+      // Xử lý khi bé bấm sai (xịt khói, rung lắc, trừ 1 ít máu/nhắc nhở nhưng cho bấm lại)
+      function triggerWrongClick(element) {
+        misclickCount++;
+        AudioEngine.wrongOops();
+
+        // Hiệu ứng rung lắc phần tử
+        element.classList.add('shake-wrong');
+        setTimeout(() => element.classList.remove('shake-wrong'), 500);
+
+        // Hiệu ứng đầu tàu xịt khói
+        const loco = document.getElementById('locomotive');
+        const smoke = document.getElementById('blackSmoke');
+        loco.classList.add('shake-bad');
+        smoke.style.display = 'block';
+        setTimeout(() => {
+          loco.classList.remove('shake-bad');
+          smoke.style.display = 'none';
+        }, 800);
+
+        // Trừ 1 tim nếu bấm sai nhiều hoặc trừ nửa tim
+        if (misclickCount % 2 === 0) {
+          deductHeart('Bé bấm nhầm một chút, cùng cố lên nào!');
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 9. KẾT THÚC LƯỢT CỦA BÉ HIỆN TẠI & CHUYỂN TIẾP SỨC
+      // -------------------------------------------------------------
+      function finishCurrentStudentQuest(isSuccess) {
+        const durationSec = Math.round((Date.now() - questStartTime) / 1000);
+        const currentStudent = state.students[state.currentIndex];
+
+        // Ghi nhận Telemetry Thông tư 27
+        const tt27 = misclickCount <= 1 ? 'T' : 'H';
+        const comment = misclickCount === 0
+          ? 'Phản xạ rất nhanh, thao tác chuột chính xác, nhận biết số liền kề xuất sắc.'
+          : 'Thực hiện được yêu cầu, nhận biết đúng số, thao tác chuột có tiến bộ.';
+
+        state.telemetry[currentStudent] = {
+          questType: state.currentQuest.type === 'sort' ? 'Sắp xếp số bé đến lớn' : 'Tìm số liền kề',
+          misclicks: misclickCount,
+          durationSec: durationSec,
+          rating: tt27,
+          comment: comment
+        };
+
+        if (!state.doneStudents.includes(state.currentIndex)) {
+          state.doneStudents.push(state.currentIndex);
+        }
+
+        // Tăng số toa hoàn thành của cả lớp
+        state.completedCars++;
+        saveState();
+
+        // Ẩn nhẹ các viên đá lựa chọn khi tàu rời ga
+        const missingOptionsSection = document.getElementById('missingOptionsSection');
+        if (missingOptionsSection) {
+          missingOptionsSection.style.transition = 'opacity 0.3s';
+          missingOptionsSection.style.opacity = '0';
+        }
+
+        // Tiếng còi xe lửa "Tu tuuu!" và đoàn tàu phóng đi
+        AudioEngine.trainWhistle();
+        const trainContainer = document.getElementById('trainContainer');
+        trainContainer.classList.add('train-depart');
+
+        // Bắn pháo hoa nhỏ ăn mừng câu đúng
+        if (typeof window.confetti === 'function') {
+          window.confetti({ particleCount: 35, spread: 60 });
+        }
+
+        // Sau khi tàu chạy ra, hiện popup HIGH-FIVE đập tay tiếp sức
+        setTimeout(() => {
+          if (state.completedCars >= state.targetCars) {
+            triggerVictory();
+            return;
+          }
+
+          showHighFiveModal();
+        }, 900);
+      }
+
+      // -------------------------------------------------------------
+      // 10. POPUP TIẾP SỨC HIGH-FIVE & VẬN HÀNH KHÔNG VỠ TRẬN
+      // -------------------------------------------------------------
+      function showHighFiveModal() {
+        const nextIdx = (state.currentIndex + 1) % state.students.length;
+        const nextName = state.students[nextIdx] || 'Bạn kế tiếp';
+
+        const overlay = document.getElementById('highfiveOverlay');
+        const nameEl = document.getElementById('highfiveStudentName');
+
+        nameEl.textContent = nextName;
+        overlay.classList.add('active');
+        AudioEngine.highFive();
+
+        let timer = null;
+        const advance = () => {
+          if (timer) clearTimeout(timer);
+          overlay.classList.remove('active');
+          overlay.removeEventListener('click', advance);
+          nextQuest(true);
+        };
+
+        // Cho phép bấm chuột để vào chơi ngay không cần chờ hết 1.8s
+        overlay.addEventListener('click', advance);
+        timer = setTimeout(advance, 1800);
+      }
+
+      // -------------------------------------------------------------
+      // 11. CƠ CHẾ TRỪ/CỘNG TIM (CHỐNG ỒN & GAME MASTER)
+      // -------------------------------------------------------------
+      function deductHeart(reason = 'Lớp ồn ào! Trừ 1 Trái Tim!') {
+        if (state.hearts > 0) {
+          state.hearts--;
+          AudioEngine.penaltyBeep();
+          showToastNotice(`⚠️ ${reason}`, 'penalty');
+          updateHeader();
+          saveState();
+
+          if (state.hearts <= 0) {
+            const outModal = document.getElementById('outOfHeartsModal');
+            if (outModal) outModal.classList.add('active');
+          }
+        }
+      }
+
+      function rewardHeart(reason = 'Cả lớp trật tự, thưởng 1 Trái Tim! ✨') {
+        const outModal = document.getElementById('outOfHeartsModal');
+        if (outModal && outModal.classList.contains('active')) {
+          outModal.classList.remove('active');
+        }
+
+        if (state.hearts < state.maxHearts) {
+          state.hearts++;
+          AudioEngine.rewardDing();
+          showToastNotice(`💖 ${reason}`, 'reward');
+          updateHeader();
+          saveState();
+        } else {
+          showToastNotice('💖 Năng lượng cả lớp đã đầy tràn 5 Tim!', 'reward');
+        }
+      }
+
+      function showToastNotice(msg, type = 'penalty') {
+        const toast = document.getElementById('penaltyToast');
+        const msgEl = document.getElementById('penaltyToastMsg');
+        const iconEl = document.getElementById('penaltyToastIcon');
+
+        msgEl.textContent = msg;
+        iconEl.textContent = type === 'reward' ? '💖' : '⚠️';
+
+        toast.className = 'penalty-toast ' + (type === 'reward' ? 'reward active' : 'active');
+
+        setTimeout(() => {
+          toast.classList.remove('active');
+        }, 2500);
+      }
+
+      // -------------------------------------------------------------
+      // 12. CHIẾN THẮNG: VỀ GA KHO BÁU
+      // -------------------------------------------------------------
+      function triggerVictory() {
+        state.isGameOver = true;
+        AudioEngine.victoryFanfare();
+
+        const modal = document.getElementById('victoryModal');
+        document.getElementById('victoryCarriageCount').textContent = state.completedCars;
+        document.getElementById('victoryHeartsCount').textContent = state.hearts;
+
+        modal.classList.add('active');
+
+        // Bắn pháo hoa nổ ngập trời
+        if (typeof window.confetti === 'function') {
+          const runFirework = () => {
+            window.confetti({ particleCount: 80, spread: 100, origin: { x: 0.3, y: 0.5 } });
+            window.confetti({ particleCount: 80, spread: 100, origin: { x: 0.7, y: 0.5 } });
+          };
+          runFirework();
+          setTimeout(runFirework, 800);
+          setTimeout(runFirework, 1600);
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 13. XUẤT CSV BÁO CÁO CHUẨN UTF-8 CÓ BOM (QUY CHUẨN 6)
+      // -------------------------------------------------------------
+      function exportSessionCsv() {
+        const headers = [
+          "STT",
+          "Họ và tên",
+          "Lớp",
+          "Nhiệm vụ",
+          "Số lần click trượt",
+          "Thời gian hoàn thành (giây)",
+          "Xếp loại TT27",
+          "Nhận xét tự động sư phạm"
+        ];
+
+        const rows = state.students.map((name, idx) => {
+          const log = state.telemetry[name] || {
+            questType: "Chưa tham gia",
+            misclicks: 0,
+            durationSec: 0,
+            rating: "H",
+            comment: "Chưa hoàn thành lượt chơi."
+          };
+          return [
+            idx + 1,
+            name,
+            state.classId.replace('_', '/'),
+            log.questType,
+            log.misclicks,
+            log.durationSec,
+            log.rating,
+            log.comment
+          ];
+        });
+
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const hh = String(now.getHours()).padStart(2, '0');
+        const min = String(now.getMinutes()).padStart(2, '0');
+        const ss = String(now.getSeconds()).padStart(2, '0');
+
+        const fileName = `KetQua_TinHoc1_Lop_${state.classId.replace('_', '-')}_Tiet_10_Ngay_${yyyy}-${mm}-${dd}_${hh}h${min}p${ss}s.csv`;
+
+        const csvData = [
+          headers,
+          ...rows
+        ];
+
+        if (window.LessonExport && typeof window.LessonExport.uploadToDrive === 'function') {
+          window.LessonExport.uploadToDrive(csvData, fileName);
+        } else if (window.LessonExport && typeof window.LessonExport.download === 'function') {
+          window.LessonExport.download(csvData, fileName);
+        } else {
+          // Fallback thủ công chuẩn UTF-8 có BOM
+          const csvContent = "\uFEFF" + csvData.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\r\n");
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 14. ĐIỀU KHIỂN MENU GIÁO VIÊN (DRAWER & KEYBOARD SHORTCUTS)
+      // -------------------------------------------------------------
+      const drawerOverlay = document.getElementById('teacherDrawerOverlay');
+      const btnToggleMenu = document.getElementById('btnToggleMenu');
+      const btnCloseDrawer = document.getElementById('btnCloseDrawer');
+
+      function openDrawer() {
+        updateDrawerStudentList();
+        drawerOverlay.classList.add('active');
+      }
+
+      function closeDrawer() {
+        drawerOverlay.classList.remove('active');
+      }
+
+      btnToggleMenu.addEventListener('click', openDrawer);
+      btnCloseDrawer.addEventListener('click', closeDrawer);
+      drawerOverlay.addEventListener('click', (e) => {
+        if (e.target === drawerOverlay) closeDrawer();
+      });
+
+      // Đổi lớp học
+      const selectClass = document.getElementById('selectClass');
+      selectClass.value = state.classId;
+      selectClass.addEventListener('change', async (e) => {
+        const newClass = e.target.value;
+        if (confirm(`Bạn muốn chuyển sang ${e.target.options[e.target.selectedIndex].text}? Dữ liệu lớp hiện tại sẽ được lưu.`)) {
+          await loadStudentData(newClass);
+          state.currentIndex = 0;
+          state.doneStudents = [];
+          state.completedCars = 0;
+          state.telemetry = {};
+          saveState();
+          closeDrawer();
+          nextQuest(false);
+        } else {
+          selectClass.value = state.classId;
+        }
+      });
+
+      // Đổi số toa mục tiêu
+      const inputTargetCars = document.getElementById('inputTargetCars');
+      inputTargetCars.value = state.targetCars;
+      inputTargetCars.addEventListener('change', (e) => {
+        const val = parseInt(e.target.value, 10);
+        if (val > 0) {
+          state.targetCars = val;
+          updateHeader();
+          saveState();
+        }
+      });
+
+      // Các nút bấm trong drawer
+      document.getElementById('btnDeductHeart').addEventListener('click', () => {
+        deductHeart('Trừ 1 Tim vì lớp ồn ào!');
+      });
+
+      document.getElementById('btnRewardHeart').addEventListener('click', () => {
+        rewardHeart('Thưởng 1 Tim vì cả lớp giữ trật tự tốt!');
+      });
+
+      document.getElementById('btnSkipStudent').addEventListener('click', () => {
+        nextQuest(true);
+        closeDrawer();
+      });
+
+      document.getElementById('btnGachaPick').addEventListener('click', () => {
+        // Chọn ngẫu nhiên một bé chưa chơi
+        const remaining = state.students.map((_, i) => i).filter(i => !state.doneStudents.includes(i));
+        if (remaining.length > 0) {
+          const picked = remaining[Math.floor(Math.random() * remaining.length)];
+          state.currentIndex = picked;
+          closeDrawer();
+          nextQuest(false);
+          showToastNotice(`🎲 Gacha đã gọi tên: ${state.students[picked]}!`, 'reward');
+        } else {
+          showToastNotice('Tất cả học sinh đều đã hoàn thành!', 'reward');
+        }
+      });
+
+      document.getElementById('btnExportCsvDrawer').addEventListener('click', exportSessionCsv);
+      document.getElementById('btnExportCsvVictory').addEventListener('click', exportSessionCsv);
+
+      document.getElementById('btnFullscreen').addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      });
+
+      // Xóa dữ liệu phiên học (Quy chuẩn 11)
+      document.getElementById('btnClearSession').addEventListener('click', () => {
+        if (confirm('Bạn có chắc chắn muốn xóa dữ liệu đã lưu của tiết này để bắt đầu lớp mới không?')) {
+          localStorage.removeItem(STORAGE_KEY);
+          state.currentIndex = 0;
+          state.doneStudents = [];
+          state.completedCars = 0;
+          state.hearts = 5;
+          state.telemetry = {};
+          saveState();
+          closeDrawer();
+          nextQuest(false);
+          showToastNotice('✅ Đã xóa dữ liệu phiên học thành công!', 'reward');
+        }
+      });
+
+      document.getElementById('btnReplayVictory').addEventListener('click', () => {
+        document.getElementById('victoryModal').classList.remove('active');
+        state.completedCars = 0;
+        state.hearts = 5;
+        state.doneStudents = [];
+        state.currentIndex = 0;
+        state.isGameOver = false;
+        saveState();
+        nextQuest(false);
+      });
+
+      // Nút nạp lại năng lượng khi hết tim
+      const btnRechargeHearts = document.getElementById('btnRechargeHearts');
+      if (btnRechargeHearts) {
+        btnRechargeHearts.addEventListener('click', () => {
+          state.hearts = 5;
+          const outModal = document.getElementById('outOfHeartsModal');
+          if (outModal) outModal.classList.remove('active');
+          AudioEngine.rewardDing();
+          updateHeader();
+          saveState();
+          showToastNotice('💖 Đã nạp đầy 5 Trái Tim! Tàu lại xình xịch lên đường!', 'reward');
+        });
+      }
+
+      // Nút bật/tắt âm thanh
+      const btnToggleSound = document.getElementById('btnToggleSound');
+      if (btnToggleSound) {
+        btnToggleSound.addEventListener('click', () => {
+          const muted = AudioEngine.toggleMute();
+          btnToggleSound.textContent = muted ? '🔇 Âm Thanh: Đang Tắt' : '🔊 Âm Thanh: Đang Bật';
+          btnToggleSound.style.color = muted ? '#dc2626' : '#1e293b';
+        });
+      }
+
+      // -------------------------------------------------------------
+      // 15. PHÍM TẮT BÀN PHÍM DÀNH CHO GIÁO VIÊN (GAME MASTER)
+      // -------------------------------------------------------------
+      window.addEventListener('keydown', (e) => {
+        // Tránh bắt phím khi đang nhập liệu ô input
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+        const key = e.key.toLowerCase();
+
+        if (key === 'm') {
+          // Bật/tắt Drawer
+          if (drawerOverlay.classList.contains('active')) {
+            closeDrawer();
+          } else {
+            openDrawer();
+          }
+        } else if (key === '-' || key === 'd' || key === 'h') {
+          // Trừ tim
+          deductHeart('Lớp ồn ào! Trừ 1 Trái Tim! 🤫');
+        } else if (key === '+' || key === '=') {
+          // Cộng tim
+          rewardHeart('Cả lớp rất ngoan, thưởng 1 Trái Tim! ✨');
+        } else if (key === ' ' || key === 'n') {
+          // Bỏ qua / chuyển bạn kế tiếp
+          e.preventDefault();
+          nextQuest(true);
+        } else if (key === 'g') {
+          // Gacha ngẫu nhiên
+          document.getElementById('btnGachaPick').click();
+        } else if (key === 'f') {
+          document.getElementById('btnFullscreen').click();
+        }
+      });
+
+      // -------------------------------------------------------------
+      // 16. KHỞI ĐỘNG GAME (BOOTSTRAP)
+      // -------------------------------------------------------------
+      async function initGame() {
+        await loadStudentData('1_6');
+        const restored = restoreState();
+        if (!restored) {
+          state.targetCars = Math.min(35, state.students.length || 35);
+        }
+        nextQuest(false);
+      }
+
+      window.addEventListener('DOMContentLoaded', initGame);
+
+    })();
+  </script>
+</body>
+
+</html>
