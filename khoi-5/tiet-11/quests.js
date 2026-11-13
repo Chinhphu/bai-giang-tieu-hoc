@@ -27,7 +27,7 @@ window.QUESTS_DATA = {
     ]
   },
 
-  // 2. Chặng 1 - Mục 1a (Định dạng kí tự) & Sàn Cược Săn Bug (Vòng Kí Tự)
+  // 2. Chặng 1 - Mục 1a (Định dạng kí tự) - Mỗi tổ làm trên file riêng của tổ mình
   stage1: {
     title: "Chặng 1: Định dạng kí tự (Thẻ Home → Nhóm Font)",
     theory: {
@@ -48,14 +48,14 @@ window.QUESTS_DATA = {
         id: "t1-1",
         teamId: 1,
         teamName: "Tổ 1",
-        title: "TICKET 1.1: TIÊU ĐỀ NỔI BẬT",
-        targetText: "CÁCH LÀM KEM DƯA HẤU",
-        reqText: "• Phông chữ: Arial<br>• Cỡ chữ: 18pt<br>• Kiểu chữ: In đậm (B)<br>• Màu chữ: Đỏ (Red)",
+        title: "TICKET 1.1 (TỔ 1): LÀM NỔI BẬT TIÊU ĐỀ",
+        targetText: "Dòng tiêu đề: \"CÁCH LÀM KEM DƯA HẤU\"",
+        reqText: "• <b>Phông chữ:</b> Arial<br>• <b>Cỡ chữ:</b> 18<br>• <b>Kiểu chữ:</b> In đậm (nút <b>B</b>)<br>• <b>Màu chữ:</b> Đỏ (Red)<br><i>(Làm xong bấm Ctrl + S lưu tệp của Tổ 1 và kéo vào ô chấm điểm)</i>",
         timeLimit: 45,
         rules: [
           {
             id: "r1-1-title-format",
-            name: "Định dạng Tiêu đề (Arial, 18pt, In đậm, Màu Đỏ)",
+            name: "Tiêu đề 'CÁCH LÀM KEM DƯA HẤU' (Arial, 18pt, In đậm B, Màu Đỏ)",
             type: "paragraph_format",
             match: "CÁCH LÀM KEM DƯA HẤU",
             fontFamily: "Arial",
@@ -69,14 +69,14 @@ window.QUESTS_DATA = {
         id: "t1-2",
         teamId: 2,
         teamName: "Tổ 2",
-        title: "TICKET 1.2: BỘ ĐỀ MỤC RÕ RÀNG",
-        targetText: "Nguyên liệu: & Các bước thực hiện:",
-        reqText: "• Cỡ chữ: 14pt<br>• Kiểu chữ: In đậm (B)<br>• Màu chữ: Xanh dương (Blue)",
+        title: "TICKET 1.2 (TỔ 2): LÀM RÕ 2 ĐỀ MỤC",
+        targetText: "Hai dòng: \"Nguyên liệu:\" và \"Các bước thực hiện:\"",
+        reqText: "• Định dạng cho <b>cả 2 dòng đề mục</b> trên:<br>• <b>Cỡ chữ:</b> 14<br>• <b>Kiểu chữ:</b> In đậm (nút <b>B</b>)<br>• <b>Màu chữ:</b> Xanh dương (Blue)<br><i>(Làm xong bấm Ctrl + S lưu tệp của Tổ 2 và kéo vào ô chấm điểm)</i>",
         timeLimit: 45,
         rules: [
           {
             id: "r1-2-heading-1",
-            name: "Đề mục 'Nguyên liệu:' (14pt, In đậm, Xanh dương)",
+            name: "Đề mục 'Nguyên liệu:' (14pt, In đậm B, Màu Xanh dương)",
             type: "paragraph_format",
             match: "Nguyên liệu:",
             fontSize: 14,
@@ -85,7 +85,7 @@ window.QUESTS_DATA = {
           },
           {
             id: "r1-2-heading-2",
-            name: "Đề mục 'Các bước thực hiện:' (14pt, In đậm, Xanh dương)",
+            name: "Đề mục 'Các bước thực hiện:' (14pt, In đậm B, Màu Xanh dương)",
             type: "paragraph_format",
             match: "Các bước thực hiện:",
             fontSize: 14,
@@ -98,14 +98,14 @@ window.QUESTS_DATA = {
         id: "t1-3",
         teamId: 3,
         teamName: "Tổ 3",
-        title: "TICKET 1.3: DÒNG LƯU Ý ĐẶC BIỆT",
-        targetText: "Dòng 'Lưu ý: Thực hiện cẩn thận khi dùng dao...'",
-        reqText: "• Kiểu chữ: In nghiêng (I) & Gạch chân (U)<br>• Màu chữ: Tím (Purple)",
+        title: "TICKET 1.3 (TỔ 3): NHẤN MẠNH DÒNG LƯU Ý",
+        targetText: "Dòng cuối bài: \"Lưu ý: Thực hiện cẩn thận khi dùng dao...\"",
+        reqText: "• <b>Kiểu chữ:</b> Bấm cả 2 nút <b>In nghiêng (I)</b> và <b>Gạch chân (U)</b><br>• <b>Màu chữ:</b> Tím (Purple)<br><i>(Làm xong bấm Ctrl + S lưu tệp của Tổ 3 và kéo vào ô chấm điểm)</i>",
         timeLimit: 45,
         rules: [
           {
             id: "r1-3-note-format",
-            name: "Dòng Lưu ý (In nghiêng I, Gạch chân U, Màu Tím)",
+            name: "Dòng 'Lưu ý:' cuối bài (In nghiêng I, Gạch chân U, Màu Tím)",
             type: "paragraph_format",
             match: "Lưu ý:",
             italic: true,
@@ -118,35 +118,35 @@ window.QUESTS_DATA = {
         id: "t1-4",
         teamId: 4,
         teamName: "Tổ 4",
-        title: "TICKET 1.4: DANH SÁCH 4 BƯỚC THỰC HIỆN",
-        targetText: "Bước 1 đến Bước 4",
-        reqText: "• Các đoạn Bước 1, Bước 2, Bước 3, Bước 4 đều có định dạng In đậm (B) ở nhãn bước",
+        title: "TICKET 1.4 (TỔ 4): IN ĐẬM 4 BƯỚC THỰC HIỆN",
+        targetText: "4 dòng từ \"Bước 1:\" đến \"Bước 4:\"",
+        reqText: "• Bôi đen và bấm nút <b>B (In đậm)</b> cho cả 4 dòng (hoặc 4 nhãn): <b>Bước 1:</b>, <b>Bước 2:</b>, <b>Bước 3:</b>, <b>Bước 4:</b><br><i>(Làm xong bấm Ctrl + S lưu tệp của Tổ 4 và kéo vào ô chấm điểm)</i>",
         timeLimit: 45,
         rules: [
           {
             id: "r1-4-step-1",
-            name: "Đoạn Bước 1 có in đậm",
+            name: "Đoạn 'Bước 1:' có In đậm (B)",
             type: "paragraph_format",
             match: "Bước 1:",
             bold: true
           },
           {
             id: "r1-4-step-2",
-            name: "Đoạn Bước 2 có in đậm",
+            name: "Đoạn 'Bước 2:' có In đậm (B)",
             type: "paragraph_format",
             match: "Bước 2:",
             bold: true
           },
           {
             id: "r1-4-step-3",
-            name: "Đoạn Bước 3 có in đậm",
+            name: "Đoạn 'Bước 3:' có In đậm (B)",
             type: "paragraph_format",
             match: "Bước 3:",
             bold: true
           },
           {
             id: "r1-4-step-4",
-            name: "Đoạn Bước 4 có in đậm",
+            name: "Đoạn 'Bước 4:' có In đậm (B)",
             type: "paragraph_format",
             match: "Bước 4:",
             bold: true
@@ -157,14 +157,14 @@ window.QUESTS_DATA = {
         id: "t1-5",
         teamId: 5,
         teamName: "Tổ 5",
-        title: "TICKET 1.5: TIÊU ĐỀ & DÒNG LƯU Ý",
-        targetText: "Tiêu đề & Dòng Lưu ý",
-        reqText: "• Tiêu đề: 18pt, In đậm, Màu Đỏ<br>• Dòng Lưu ý: In nghiêng, Gạch chân",
+        title: "TICKET 1.5 (TỔ 5): TIÊU ĐỀ & DÒNG LƯU Ý",
+        targetText: "Dòng Tiêu đề và Dòng Lưu ý cuối bài",
+        reqText: "• <b>Tiêu đề \"CÁCH LÀM KEM DƯA HẤU\":</b> Cỡ chữ <b>18</b>, <b>In đậm (B)</b>, màu <b>Đỏ (Red)</b><br>• <b>Dòng \"Lưu ý:...\":</b> Bấm <b>In nghiêng (I)</b> và <b>Gạch chân (U)</b><br><i>(Làm xong bấm Ctrl + S lưu tệp của Tổ 5 và nộp bài)</i>",
         timeLimit: 45,
         rules: [
           {
             id: "r1-5-title",
-            name: "Tiêu đề (18pt, In đậm, Màu Đỏ)",
+            name: "Tiêu đề (18pt, In đậm B, Màu Đỏ)",
             type: "paragraph_format",
             match: "CÁCH LÀM KEM DƯA HẤU",
             fontSize: 18,
@@ -173,7 +173,7 @@ window.QUESTS_DATA = {
           },
           {
             id: "r1-5-note",
-            name: "Dòng Lưu ý (In nghiêng, Gạch chân)",
+            name: "Dòng Lưu ý (In nghiêng I, Gạch chân U)",
             type: "paragraph_format",
             match: "Lưu ý:",
             italic: true,
@@ -185,14 +185,14 @@ window.QUESTS_DATA = {
         id: "t1-6",
         teamId: 6,
         teamName: "Tổ 6",
-        title: "TICKET 1.6: ĐỀ MỤC & CÁC BƯỚC",
-        targetText: "Đề mục Nguyên liệu & Bước 1, Bước 2",
-        reqText: "• Đề mục 'Nguyên liệu:': 14pt, In đậm, Màu Xanh dương<br>• Bước 1, Bước 2: In đậm",
+        title: "TICKET 1.6 (TỔ 6): ĐỀ MỤC & BƯỚC 1, BƯỚC 2",
+        targetText: "Đề mục \"Nguyên liệu:\" và Bước 1, Bước 2",
+        reqText: "• <b>Đề mục \"Nguyên liệu:\":</b> Cỡ chữ <b>14</b>, <b>In đậm (B)</b>, màu <b>Xanh dương (Blue)</b><br>• <b>Dòng \"Bước 1:\" và \"Bước 2:\":</b> Bấm nút <b>In đậm (B)</b><br><i>(Làm xong bấm Ctrl + S lưu tệp của Tổ 6 và nộp bài)</i>",
         timeLimit: 45,
         rules: [
           {
             id: "r1-6-h1",
-            name: "Đề mục 'Nguyên liệu:' (14pt, In đậm, Xanh dương)",
+            name: "Đề mục 'Nguyên liệu:' (14pt, In đậm B, Xanh dương)",
             type: "paragraph_format",
             match: "Nguyên liệu:",
             fontSize: 14,
@@ -201,14 +201,14 @@ window.QUESTS_DATA = {
           },
           {
             id: "r1-6-s1",
-            name: "Bước 1 có in đậm",
+            name: "Bước 1 có In đậm (B)",
             type: "paragraph_format",
             match: "Bước 1:",
             bold: true
           },
           {
             id: "r1-6-s2",
-            name: "Bước 2 có in đậm",
+            name: "Bước 2 có In đậm (B)",
             type: "paragraph_format",
             match: "Bước 2:",
             bold: true
@@ -219,9 +219,9 @@ window.QUESTS_DATA = {
         id: "t1-demon",
         teamId: 99,
         teamName: "Tổ Quỷ 😈",
-        title: "TICKET MA VƯƠNG: ĐỊNH DẠNG TỔNG HỢP",
+        title: "⚠️ TICKET MA VƯƠNG: ĐỊNH DẠNG TỔNG HỢP",
         targetText: "Tiêu đề & Cả 2 Đề mục",
-        reqText: "• Tiêu đề: 18pt, In đậm, Màu Đỏ<br>• Cả 2 đề mục ('Nguyên liệu:' & 'Các bước thực hiện:'): 14pt, In đậm, Màu Xanh dương",
+        reqText: "• <b>Tiêu đề:</b> 18pt, In đậm (B), Màu Đỏ (Red)<br>• <b>Cả 2 đề mục ('Nguyên liệu:' & 'Các bước thực hiện:'):</b> 14pt, In đậm (B), Màu Xanh dương (Blue)",
         timeLimit: 45,
         rules: [
           {
@@ -235,7 +235,7 @@ window.QUESTS_DATA = {
           },
           {
             id: "r1-demon-h1",
-            name: "Đề mục 'Nguyên liệu:': 14pt, In đậm, Màu Xanh",
+            name: "Đề mục 'Nguyên liệu:': 14pt, In đậm, Màu Xanh dương",
             type: "paragraph_format",
             match: "Nguyên liệu:",
             fontSize: 14,
@@ -244,7 +244,7 @@ window.QUESTS_DATA = {
           },
           {
             id: "r1-demon-h2",
-            name: "Đề mục 'Các bước thực hiện:': 14pt, In đậm, Màu Xanh",
+            name: "Đề mục 'Các bước thực hiện:': 14pt, In đậm, Màu Xanh dương",
             type: "paragraph_format",
             match: "Các bước thực hiện:",
             fontSize: 14,
@@ -256,7 +256,7 @@ window.QUESTS_DATA = {
     ]
   },
 
-  // 3. Chặng 2 - Mục 1b (Bố trí hình ảnh) & Sàn Cược Săn Bug (Vòng Bố Cục Ảnh)
+  // 3. Chặng 2 - Mục 1b (Mỗi tổ mở lại đúng file riêng của tổ mình từ Chặng 1 để chỉnh ảnh Square)
   stage2: {
     title: "Chặng 2: Bố trí hình ảnh trong văn bản (Layout Options → Square)",
     theory: {
@@ -276,14 +276,14 @@ window.QUESTS_DATA = {
         id: "t2-1",
         teamId: 1,
         teamName: "Tổ 1",
-        title: "TICKET 2.1: GIẢI CỨU ĐOẠN VĂN GÃY DÒNG",
-        targetText: "Hình ảnh que kem dưa hấu",
-        reqText: "• Nháy chuột chọn ảnh que kem dưa hấu<br>• Bấm nút Layout Options bên cạnh ảnh<br>• Chọn kiểu bố cục: Square (Bao quanh)<br>• Văn bản tự động chảy bao quanh ảnh mượt mà!",
+        title: "TICKET 2.1 (TỔ 1): BỐ CỤC ẢNH SQUARE",
+        targetText: "Hình ảnh que kem dưa hấu (Trên tệp của Tổ 1)",
+        reqText: "• Mở tiếp tệp Word của <b>Tổ 1</b> đã làm ở Chặng 1<br>• Nháy chuột chọn <b>ảnh que kem</b> → Bấm nút <b>Layout Options</b> → Chọn kiểu <b>Square (Bao quanh)</b><br>• Giữ nguyên định dạng <b>Tiêu đề chữ Đỏ 18pt</b> của Tổ 1 → Bấm <b>Ctrl + S</b> lưu và nộp bài!",
         timeLimit: 45,
         rules: [
           {
             id: "r2-1-img-exists",
-            name: "Có hình ảnh trong tài liệu",
+            name: "Có hình ảnh que kem trong tài liệu",
             type: "image_exists"
           },
           {
@@ -291,6 +291,15 @@ window.QUESTS_DATA = {
             name: "Đã chọn kiểu bố cục Square (wp:wrapSquare)",
             type: "image_wrap",
             expectedWrap: "square"
+          },
+          {
+            id: "r2-1-keep-s1",
+            name: "Giữ nguyên định dạng Tiêu đề của Tổ 1 (18pt, In đậm, Đỏ)",
+            type: "paragraph_format",
+            match: "CÁCH LÀM KEM DƯA HẤU",
+            fontSize: 18,
+            bold: true,
+            color: "RED"
           }
         ]
       },
@@ -298,14 +307,14 @@ window.QUESTS_DATA = {
         id: "t2-2",
         teamId: 2,
         teamName: "Tổ 2",
-        title: "TICKET 2.2: BỐ CỤC SQUARE GÓC PHẢI",
-        targetText: "Hình ảnh que kem dưa hấu",
-        reqText: "• Thiết lập kiểu bố cục Square cho hình ảnh<br>• Đảm bảo đoạn 'Nguyên liệu' chảy sát bên cạnh hình ảnh",
+        title: "TICKET 2.2 (TỔ 2): BỐ CỤC ẢNH SQUARE",
+        targetText: "Hình ảnh que kem dưa hấu (Trên tệp của Tổ 2)",
+        reqText: "• Mở tiếp tệp Word của <b>Tổ 2</b> đã làm ở Chặng 1<br>• Nháy chuột chọn <b>ảnh que kem</b> → Bấm nút <b>Layout Options</b> → Chọn kiểu <b>Square (Bao quanh)</b><br>• Giữ nguyên định dạng <b>2 Đề mục màu Xanh dương 14pt</b> của Tổ 2 → Bấm <b>Ctrl + S</b> lưu và nộp bài!",
         timeLimit: 45,
         rules: [
           {
             id: "r2-2-img-exists",
-            name: "Có hình ảnh trong tài liệu",
+            name: "Có hình ảnh que kem trong tài liệu",
             type: "image_exists"
           },
           {
@@ -313,6 +322,15 @@ window.QUESTS_DATA = {
             name: "Đã chọn kiểu bố cục Square (wp:wrapSquare)",
             type: "image_wrap",
             expectedWrap: "square"
+          },
+          {
+            id: "r2-2-keep-s1",
+            name: "Giữ nguyên Đề mục 'Nguyên liệu:' của Tổ 2 (14pt, In đậm, Xanh dương)",
+            type: "paragraph_format",
+            match: "Nguyên liệu:",
+            fontSize: 14,
+            bold: true,
+            color: "BLUE"
           }
         ]
       },
@@ -320,22 +338,30 @@ window.QUESTS_DATA = {
         id: "t2-3",
         teamId: 3,
         teamName: "Tổ 3",
-        title: "TICKET 2.3: BỐ CỤC SQUARE + KHÔNG LÀM MẤT CHỮ",
-        targetText: "Hình ảnh và nội dung",
-        reqText: "• Bố cục ảnh dạng Square<br>• Kiểm tra đầy đủ 4 bước thực hiện không bị xóa mất",
+        title: "TICKET 2.3 (TỔ 3): BỐ CỤC ẢNH SQUARE",
+        targetText: "Hình ảnh que kem dưa hấu (Trên tệp của Tổ 3)",
+        reqText: "• Mở tiếp tệp Word của <b>Tổ 3</b> đã làm ở Chặng 1<br>• Nháy chuột chọn <b>ảnh que kem</b> → Bấm nút <b>Layout Options</b> → Chọn kiểu <b>Square (Bao quanh)</b><br>• Giữ nguyên định dạng dòng <b>Lưu ý màu Tím, Nghiêng, Gạch chân</b> của Tổ 3 → Bấm <b>Ctrl + S</b> lưu và nộp bài!",
         timeLimit: 45,
         rules: [
           {
+            id: "r2-3-img-exists",
+            name: "Có hình ảnh que kem trong tài liệu",
+            type: "image_exists"
+          },
+          {
             id: "r2-3-img-square",
-            name: "Đã chọn kiểu bố cục Square",
+            name: "Đã chọn kiểu bố cục Square (wp:wrapSquare)",
             type: "image_wrap",
             expectedWrap: "square"
           },
           {
-            id: "r2-3-text-intact",
-            name: "Văn bản các bước vẫn nguyên vẹn",
-            type: "text_contains",
-            expectedText: "thưởng thức"
+            id: "r2-3-keep-s1",
+            name: "Giữ nguyên dòng Lưu ý của Tổ 3 (In nghiêng, Gạch chân, Màu Tím)",
+            type: "paragraph_format",
+            match: "Lưu ý:",
+            italic: true,
+            underline: true,
+            color: "PURPLE"
           }
         ]
       },
@@ -343,22 +369,27 @@ window.QUESTS_DATA = {
         id: "t2-4",
         teamId: 4,
         teamName: "Tổ 4",
-        title: "TICKET 2.4: BỐ CỤC SQUARE HOÀN CHỈNH",
-        targetText: "Toàn bài làm kem",
-        reqText: "• Thiết lập Square cho ảnh que kem<br>• Tiêu đề giữ nguyên in đậm nổi bật",
+        title: "TICKET 2.4 (TỔ 4): BỐ CỤC ẢNH SQUARE",
+        targetText: "Hình ảnh que kem dưa hấu (Trên tệp của Tổ 4)",
+        reqText: "• Mở tiếp tệp Word của <b>Tổ 4</b> đã làm ở Chặng 1<br>• Nháy chuột chọn <b>ảnh que kem</b> → Bấm nút <b>Layout Options</b> → Chọn kiểu <b>Square (Bao quanh)</b><br>• Giữ nguyên <b>4 Bước thực hiện In đậm</b> của Tổ 4 → Bấm <b>Ctrl + S</b> lưu và nộp bài!",
         timeLimit: 45,
         rules: [
           {
+            id: "r2-4-img-exists",
+            name: "Có hình ảnh que kem trong tài liệu",
+            type: "image_exists"
+          },
+          {
             id: "r2-4-img-square",
-            name: "Đã chọn kiểu bố cục Square",
+            name: "Đã chọn kiểu bố cục Square (wp:wrapSquare)",
             type: "image_wrap",
             expectedWrap: "square"
           },
           {
-            id: "r2-4-title-bold",
-            name: "Tiêu đề vẫn in đậm",
+            id: "r2-4-keep-s1",
+            name: "Giữ nguyên các bước thực hiện In đậm của Tổ 4",
             type: "paragraph_format",
-            match: "CÁCH LÀM KEM DƯA HẤU",
+            match: "Bước 1:",
             bold: true
           }
         ]
@@ -367,23 +398,30 @@ window.QUESTS_DATA = {
         id: "t2-5",
         teamId: 5,
         teamName: "Tổ 5",
-        title: "TICKET 2.5: BỐ CỤC SQUARE & ĐỀ MỤC",
-        targetText: "Ảnh que kem & Đề mục",
-        reqText: "• Thiết lập Square cho ảnh que kem<br>• Đề mục 'Nguyên liệu:' in đậm",
+        title: "TICKET 2.5 (TỔ 5): BỐ CỤC ẢNH SQUARE",
+        targetText: "Hình ảnh que kem dưa hấu (Trên tệp của Tổ 5)",
+        reqText: "• Mở tiếp tệp Word của <b>Tổ 5</b> đã làm ở Chặng 1<br>• Nháy chuột chọn <b>ảnh que kem</b> → Bấm nút <b>Layout Options</b> → Chọn kiểu <b>Square (Bao quanh)</b><br>• Giữ nguyên định dạng <b>Tiêu đề Đỏ & dòng Lưu ý</b> của Tổ 5 → Bấm <b>Ctrl + S</b> lưu và nộp bài!",
         timeLimit: 45,
         rules: [
           {
+            id: "r2-5-img-exists",
+            name: "Có hình ảnh que kem trong tài liệu",
+            type: "image_exists"
+          },
+          {
             id: "r2-5-img-square",
-            name: "Đã chọn kiểu bố cục Square",
+            name: "Đã chọn kiểu bố cục Square (wp:wrapSquare)",
             type: "image_wrap",
             expectedWrap: "square"
           },
           {
-            id: "r2-5-heading-bold",
-            name: "Đề mục 'Nguyên liệu:' in đậm",
+            id: "r2-5-keep-s1",
+            name: "Giữ nguyên Tiêu đề của Tổ 5 (18pt, In đậm, Đỏ)",
             type: "paragraph_format",
-            match: "Nguyên liệu:",
-            bold: true
+            match: "CÁCH LÀM KEM DƯA HẤU",
+            fontSize: 18,
+            bold: true,
+            color: "RED"
           }
         ]
       },
@@ -391,22 +429,30 @@ window.QUESTS_DATA = {
         id: "t2-6",
         teamId: 6,
         teamName: "Tổ 6",
-        title: "TICKET 2.6: BỐ CỤC SQUARE & LƯU Ý",
-        targetText: "Ảnh que kem & Dòng Lưu ý",
-        reqText: "• Thiết lập Square cho ảnh que kem<br>• Giữ nguyên vẹn nội dung bài viết",
+        title: "TICKET 2.6 (TỔ 6): BỐ CỤC ẢNH SQUARE",
+        targetText: "Hình ảnh que kem dưa hấu (Trên tệp của Tổ 6)",
+        reqText: "• Mở tiếp tệp Word của <b>Tổ 6</b> đã làm ở Chặng 1<br>• Nháy chuột chọn <b>ảnh que kem</b> → Bấm nút <b>Layout Options</b> → Chọn kiểu <b>Square (Bao quanh)</b><br>• Giữ nguyên định dạng <b>Đề mục Xanh dương & Bước 1-2 đậm</b> của Tổ 6 → Bấm <b>Ctrl + S</b> lưu và nộp bài!",
         timeLimit: 45,
         rules: [
           {
+            id: "r2-6-img-exists",
+            name: "Có hình ảnh que kem trong tài liệu",
+            type: "image_exists"
+          },
+          {
             id: "r2-6-img-square",
-            name: "Đã chọn kiểu bố cục Square",
+            name: "Đã chọn kiểu bố cục Square (wp:wrapSquare)",
             type: "image_wrap",
             expectedWrap: "square"
           },
           {
-            id: "r2-6-text-intact",
-            name: "Nội dung bài viết nguyên vẹn",
-            type: "text_contains",
-            expectedText: "CÁCH LÀM KEM DƯA HẤU"
+            id: "r2-6-keep-s1",
+            name: "Giữ nguyên Đề mục 'Nguyên liệu:' của Tổ 6 (14pt, In đậm, Xanh dương)",
+            type: "paragraph_format",
+            match: "Nguyên liệu:",
+            fontSize: 14,
+            bold: true,
+            color: "BLUE"
           }
         ]
       },
@@ -414,9 +460,9 @@ window.QUESTS_DATA = {
         id: "t2-demon",
         teamId: 99,
         teamName: "Tổ Quỷ 😈",
-        title: "TICKET MA VƯƠNG: BỐ CỤC SQUARE THẦN TỐC",
-        targetText: "Toàn bộ trang văn bản",
-        reqText: "• Đổi bố cục ảnh sang Square<br>• Tiêu đề 18pt in đậm màu đỏ<br>• Đề mục 'Nguyên liệu:' 14pt in đậm màu xanh",
+        title: "⚠️ TICKET MA VƯƠNG: BỐ CỤC SQUARE THẦN TỐC",
+        targetText: "Toàn bộ trang văn bản (Trên tệp của Tổ Quỷ)",
+        reqText: "• Mở tiếp tệp của <b>Tổ Quỷ</b> → Đổi bố cục ảnh sang <b>Square (Bao quanh)</b><br>• Giữ nguyên Tiêu đề (18pt, Đậm, Đỏ) và Đề mục 'Nguyên liệu:' (14pt, Đậm, Xanh dương)",
         timeLimit: 45,
         rules: [
           {
@@ -436,7 +482,7 @@ window.QUESTS_DATA = {
           },
           {
             id: "r2-demon-h1",
-            name: "Đề mục 'Nguyên liệu:': 14pt, In đậm, Màu Xanh",
+            name: "Đề mục 'Nguyên liệu:': 14pt, In đậm, Màu Xanh dương",
             type: "paragraph_format",
             match: "Nguyên liệu:",
             fontSize: 14,
