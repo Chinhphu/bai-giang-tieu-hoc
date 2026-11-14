@@ -266,8 +266,9 @@
                     </select>
                 </div>
                 <div id="teamsListWrapper"></div>
-                <div style="padding: 8px 10px; text-align: center;">
+                <div style="padding: 8px 10px; text-align: center; display: flex; flex-direction: column; gap: 6px;">
                     <button class="btn yellow" style="width: 100%; font-size: 0.8rem; padding: 6px 10px; border-radius: 6px;" onclick="initCaroGame()">🔄 Tạo bàn cờ mới</button>
+                    <button type="button" class="btn red" style="width: 100%; font-size: 0.8rem; padding: 6px 10px; border-radius: 6px; background:#fee2e2; color:#ef4444; border:1px solid #f87171; font-weight:800; cursor:pointer;" onclick="if(window.sessionManager)window.sessionManager.clear();" title="Xóa dữ liệu phiên để bắt đầu lớp mới">🗑️ Xóa phiên</button>
                 </div>
             </aside>
         </div>
@@ -343,6 +344,31 @@
                 `;
             }
             initCaroGame();
+            if (window.createSessionStateManager) {
+                window.sessionManager = window.createSessionStateManager({
+                    storageKey: 'bgtieu_hoc_k4_tiet_05_state',
+                    onRestore: (st) => {
+                        if (st.boardState) {
+                            boardState = st.boardState;
+                            boardState.forEach((val, idx) => {
+                                if (val !== null) {
+                                    const cellEl = document.getElementById(`c-${idx}`);
+                                    if (cellEl) {
+                                        cellEl.innerText = teamSymbols[val];
+                                        cellEl.classList.add(`t-${val}`);
+                                        cellEl.disabled = true;
+                                    }
+                                }
+                            });
+                        }
+                        if (st.activeTeam != null) {
+                            activeTeam = st.activeTeam;
+                            highlightActiveTeam();
+                        }
+                    }
+                });
+                window.sessionManager.restore();
+            }
         }
 
         function initCaroGame() {
@@ -511,6 +537,7 @@
 
         function claimCell(teamIdx) {
             boardState[selectedCellId] = teamIdx;
+            if (window.sessionManager) window.sessionManager.save({ boardState, activeTeam });
             let cell = document.getElementById(`c-${selectedCellId}`);
             cell.innerText = teamSymbols[teamIdx];
             cell.classList.add(`team-${teamIdx}`);

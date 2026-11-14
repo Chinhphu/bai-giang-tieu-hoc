@@ -1252,7 +1252,7 @@
                 teams.push({
                     id: 99,
                     name: "Tổ Quỷ 😈",
-                    score: 0,
+                    score: STARTING_SCORE,
                     isDemon: true
                 });
             }
@@ -1331,7 +1331,7 @@
                     studentsList = list.map((item, idx) => ({
                         id: idx + 1,
                         name: typeof item === 'string' ? item : item.name,
-                        team: (idx % teams.length) + 1
+                        team: null
                     }));
                 }
             } catch(e) {
@@ -1339,7 +1339,7 @@
                     'Ngô Phương Anh', 'Nguyễn Quốc Anh', 'Phạm Minh Anh', 'Đào Thiên Ân',
                     'Trương Gia Bảo', 'Nguyễn Trọng Đức', 'Đỗ Hoàng Hiếu', 'Nguyễn Nhật Huy',
                     'Dương Uyển Khanh', 'Trương Ngọc Lâm', 'Mạc Kim Ngân', 'Bùi Quốc Thành'
-                ].map((name, idx) => ({ id: idx + 1, name, team: (idx % teams.length) + 1 }));
+                ].map((name, idx) => ({ id: idx + 1, name, team: null }));
             }
             populateStudentSelects();
             if (window.DemonMode) {
@@ -1370,7 +1370,6 @@
             const chosen = pool[Math.floor(Math.random() * pool.length)];
 
             select.value = chosen.name;
-            calledStudents.add(chosen.name);
             AudioSys.playTick();
         }
 
@@ -1381,6 +1380,8 @@
                 alert('Vui lòng chọn học sinh phát biểu!');
                 return;
             }
+
+            calledStudents.add(studentName);
 
             if (isCorrect && revId) {
                 const rev = document.getElementById(revId);
@@ -1906,6 +1907,13 @@
                     window.DemonMode.openManagerModal();
                 }
                 isDemonMode = window.DemonMode.isActive;
+                if (isDemonMode) {
+                    if (!teams.some(t => t.isDemon)) {
+                        teams.push({ id: 99, name: "Tổ Quỷ 😈", score: STARTING_SCORE, isDemon: true });
+                    }
+                } else {
+                    teams = teams.filter(t => !t.isDemon);
+                }
                 updateDemonFundUI();
                 renderTeams();
             }

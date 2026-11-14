@@ -167,6 +167,7 @@
           <div class="tc-buttons">
             <button class="btn-tiny" type="button" onclick="openAddHs()" title="Thêm học sinh mới">➕ Thêm HS</button>
             <button class="btn-tiny" type="button" onclick="openEnd()" title="Tổng kết đánh giá và xuất CSV">📋 Tổng kết</button>
+            <button class="btn-tiny" type="button" onclick="if(window.sessionManager)window.sessionManager.clear();else if(typeof clearSession==='function')clearSession();" title="Xóa dữ liệu phiên học để bắt đầu lớp mới" style="background:#fee2e2; color:#ef4444; border-color:#f87171;">🗑️ Xóa phiên</button>
           </div>
           ${showGoldBoard
             ? '<div class="sidebar-gold-board"><button class="btn-tiny" type="button" onclick="switchAi(3)" title="Xem Bảng vàng xếp hạng">🏆 Bảng Vàng</button></div>'

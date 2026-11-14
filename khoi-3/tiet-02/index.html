@@ -62,7 +62,8 @@
                     <option value="5">5 tổ</option>
                     <option value="6">6 tổ</option>
                 </select>
-                <input id="startScoreInput" type="number" min="0" step="10" value="0" title="Điểm khởi đầu" style="width:55px; padding:4px 6px; border-radius:8px; border:1px solid #cbd5e1; font-weight:800; text-align:center;" onchange="initGame()" />
+                <input id="startScoreInput" type="number" min="0" step="10" value="1000" title="Điểm khởi đầu" style="width:55px; padding:4px 6px; border-radius:8px; border:1px solid #cbd5e1; font-weight:800; text-align:center;" onchange="initGame()" />
+                <button class="btn-nav" style="padding:4px 8px; font-size:0.8rem; background:#fee2e2; color:#ef4444; border:1px solid #f87171;" onclick="if(window.sessionManager)window.sessionManager.clear();" title="Xóa phiên">🗑️</button>
                 <button class="btn-nav" style="padding:4px 8px; font-size:0.8rem; background:#2b2d42;" onclick="toggleFullScreen()" title="Toàn màn hình">⛶</button>
             </div>
         </div>
@@ -188,7 +189,7 @@
             listContainer.innerHTML = '';
             teams = [];
 
-            const startScore = parseInt(document.getElementById('startScoreInput')?.value, 10) || 0;
+            const startScore = parseInt(document.getElementById('startScoreInput')?.value, 10) || 1000;
             for (let i = 0; i < num; i++) {
                 teams.push(startScore);
                 const color = TEAM_COLORS[i % TEAM_COLORS.length];
@@ -206,10 +207,46 @@
                             <button class="noise-btn" onclick="updateScore(${i}, -15, event)" title="Trừ điểm vi phạm (-15đ)">-15</button>
                         </div>
                     </div>
-                    <div class="team-score" id="score-${i}" style="color:${color};" title="Điểm số Tổ ${i + 1}">0</div>
+                    <div class="team-score" id="score-${i}" style="color:${color};" title="Điểm số Tổ ${i + 1}">${startScore}</div>
                 `;
                 listContainer.appendChild(teamDiv);
             }
+            saveSession();
+        }
+
+        function saveSession() {
+            if (window.sessionManager) {
+                window.sessionManager.save({
+                    teams,
+                    activeTurn,
+                    calledStudents: Array.from(calledStudents)
+                });
+            }
+        }
+
+        function initSessionManager() {
+            if (!window.createSessionStateManager) return;
+            window.sessionManager = window.createSessionStateManager({
+                storageKey: 'bgtieu_hoc_k3_tiet_02_' + currentClassID + '_state',
+                onRestore: (st) => {
+                    if (st) {
+                        if (Array.isArray(st.teams)) {
+                            teams = st.teams;
+                            teams.forEach((sc, idx) => {
+                                const el = document.getElementById(`score-${idx}`);
+                                if (el) el.innerText = sc;
+                            });
+                        }
+                        if (st.activeTurn !== undefined) setTurn(st.activeTurn);
+                        if (Array.isArray(st.calledStudents)) {
+                            calledStudents = new Set(st.calledStudents);
+                            renderStudents();
+                        }
+                    }
+                },
+                onClear: () => location.reload()
+            });
+            window.sessionManager.restore();
         }
 
         function setTurn(idx) {
@@ -219,6 +256,7 @@
                 const nameEl = el.querySelector('.team-name');
                 if (nameEl) nameEl.textContent = `Tổ ${i + 1} ${i === idx ? '🎯' : ''}`;
             });
+            saveSession();
         }
 
         function updateScore(teamIndex, points, ev) {
@@ -233,6 +271,7 @@
             if (typeof toast === 'function') {
                 toast(`Tổ ${teamIndex + 1} ${points >= 0 ? '+' : ''}${points}đ! (Tổng: ${teams[teamIndex]}đ)`);
             }
+            saveSession();
         }
 
         async function loadClassData(classId) {
@@ -264,6 +303,7 @@
             calledStudents = new Set();
             selectedStudent = null;
             renderStudents();
+            initSessionManager();
         }
 
         function renderStudents() {
@@ -307,6 +347,7 @@
                 calledStudents.add(selectedStudent);
                 selectedStudent = null;
                 renderStudents();
+                saveSession();
             }
         }
 

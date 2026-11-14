@@ -94,7 +94,7 @@
     <!-- ================= SIDEBAR QUẢN LÝ ================= -->
     <aside class="side">
         <div class="shead"><span>🛠️ Bảng đội</span><button class="btn gray" onclick="addStudent()">➕ Thêm học
-                sinh</button><button class="btn warn" onclick="showSummary()">📊 Tổng kết</button></div>
+                sinh</button><button class="btn warn" onclick="showSummary()">📊 Tổng kết</button><button class="btn danger" onclick="if(window.sessionManager)window.sessionManager.clear();" style="background:#fee2e2; color:#ef4444; border:1px solid #f87171; font-weight:800; cursor:pointer;" title="Xóa dữ liệu phiên để bắt đầu lớp mới">🗑️ Xóa phiên</button></div>
         <div id="teamList"></div>
     </aside>
 
@@ -262,6 +262,30 @@
             });
             G.nextId = names.length; G.used = new Set();
             G.phase = 1; G.turn = 0; G.log = []; G.won = false; G.gifts = null; G.pool = G.bank.slice();
+            if (window.createSessionStateManager) {
+                window.sessionManager = window.createSessionStateManager({
+                    storageKey: 'bgtieu_hoc_k3_tiet_06_' + (G.cls || '3_2') + '_state',
+                    onRestore: (st) => {
+                        if (st) {
+                            if (st.teams) G.teams = st.teams;
+                            if (st.students) G.students = st.students;
+                            if (st.used) G.used = new Set(st.used);
+                            if (st.turn !== undefined) G.turn = st.turn;
+                            if (st.phase !== undefined) G.phase = st.phase;
+                            if (st.log) G.log = st.log;
+                            if (G.phase === 2) {
+                                show('p2');
+                                refreshTurnUI();
+                            }
+                            renderSide();
+                        }
+                    },
+                    onClear: () => {
+                        location.reload();
+                    }
+                });
+                window.sessionManager.restore();
+            }
             $('giftGrid').innerHTML = ''; $('dealBtn').disabled = false; $('p1Next').disabled = true; renderSide(); show('p1');
         }
         // PHÁT QUÀ: mỗi tổ nhận 3-4 món ngẫu nhiên, tối đa 1 Core (tỉ lệ 15%), còn lại là phụ kiện vui
@@ -507,7 +531,7 @@
         }
         function drawQuestion() {
             const t = G.teams[G.turn], sv = $('stuSel').value; if (sv === '') return;
-            const st = G.students.find(s => s.id === +sv); G.used.add(st.id); st.team = G.turn;   // em trả lời cho tổ nào thì ghi vào tổ đó          // KHOÁ tên em này
+            const st = G.students.find(s => s.id === +sv); st.team = G.turn;   // em trả lời cho tổ nào thì ghi vào tổ đó
             const q = nextQuestion(); G.cur = { q, lvl: q.lv, name: studentDisplayName(st), id: st.id };
             $('drawBtn').disabled = true; $('stuSel').disabled = true; $('fb').innerText = '';
             const box = $('qBox'); box.style.display = 'block';
@@ -560,7 +584,7 @@
         function resolve(ok, answer) {
             const t = G.teams[G.turn], c = G.cur, st = G.students.find(s => s.id === c.id);
             t.total++; if (ok) t.correct++;
-            if (st) { st.total = (st.total || 0) + 1; st.correct = (st.correct || 0) + (ok ? 1 : 0); }
+            if (st) { G.used.add(st.id); st.total = (st.total || 0) + 1; st.correct = (st.correct || 0) + (ok ? 1 : 0); }
             const entry = { time: new Date().toLocaleTimeString('vi-VN'), team: t.name, studentId: c.id, student: studentDisplayName(c), level: c.lvl, question: c.q.q, answer: answer, result: ok ? 'Đúng' : 'Sai', item: '' };
             G.log.push(entry);
             const fb = $('fb');
@@ -624,6 +648,16 @@
 </div>`;
             }).join('');
             attachInvScroll();
+            if (window.sessionManager && G.teams && G.teams.length) {
+                window.sessionManager.save({
+                    teams: G.teams,
+                    students: G.students,
+                    used: Array.from(G.used || []),
+                    turn: G.turn,
+                    phase: G.phase,
+                    log: G.log
+                });
+            }
         }
 
         function attachInvScroll() {

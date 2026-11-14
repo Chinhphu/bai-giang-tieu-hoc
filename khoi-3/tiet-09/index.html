@@ -1418,6 +1418,7 @@
                             <option value="3_5" selected>Lớp 3/5</option>
                             <option value="3_6">Lớp 3/6</option>
                         </select>
+                        <button type="button" style="padding:2px 7px; font-size:0.78rem; background:#fee2e2; color:#ef4444; border:1px solid #f87171; border-radius:6px; font-weight:800; cursor:pointer;" onclick="if(window.sessionManager)window.sessionManager.clear();" title="Xóa dữ liệu phiên">🗑️</button>
                     </div>
                 </div>
 
@@ -1747,6 +1748,45 @@
                     studentBadge.textContent = `(Chưa chọn học sinh)`;
                 }
             }
+            saveSession();
+        }
+
+        function saveSession() {
+            if (window.sessionManager) {
+                window.sessionManager.save({
+                    teamsData,
+                    currentTurnTeam,
+                    teamCount,
+                    studentData,
+                    curQIdx
+                });
+            }
+        }
+
+        function initSessionManager() {
+            if (!window.createSessionStateManager) return;
+            window.sessionManager = window.createSessionStateManager({
+                storageKey: 'bgtieu_hoc_k3_tiet_09_' + currentClassID + '_state',
+                onRestore: (st) => {
+                    if (st) {
+                        if (st.teamCount) teamCount = st.teamCount;
+                        if (st.teamsData) {
+                            teamsData = st.teamsData;
+                            renderTeamsRacks();
+                        }
+                        if (st.currentTurnTeam !== undefined) currentTurnTeam = st.currentTurnTeam;
+                        if (st.studentData) {
+                            studentData = st.studentData;
+                            renderStudentRoster();
+                        }
+                        if (st.curQIdx !== undefined) curQIdx = st.curQIdx;
+                        updateRacksLive();
+                        renderCurrentQuestion();
+                    }
+                },
+                onClear: () => location.reload()
+            });
+            window.sessionManager.restore();
         }
 
         function changeTeamCount(num) {
@@ -2704,6 +2744,7 @@
             renderStudentRoster();
             updateRacksLive();
             renderCurrentQuestion();
+            initSessionManager();
         }
 
         function onStudentSelectChange(name) {

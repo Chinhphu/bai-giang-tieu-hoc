@@ -98,8 +98,9 @@
         <div id="game-bg" class="game-layout theme-left">
             
             <!-- BỘ ĐẾM SỐ LƯỢNG (Chỉ để thầy biết đã gọi bao nhiêu em) -->
-            <div style="position: absolute; top: 20px; left: 20px; font-size: 1.5rem; font-weight: bold; color: #666; background: rgba(255,255,255,0.7); padding: 5px 15px; border-radius: 10px;">
-                Đã gõ thành công: <span id="counter" style="color: #D50000; font-size: 2rem;">0</span> phím
+            <div style="position: absolute; top: 20px; left: 20px; font-size: 1.5rem; font-weight: bold; color: #666; background: rgba(255,255,255,0.7); padding: 5px 15px; border-radius: 10px; display:flex; align-items:center;">
+                <span>Đã gõ thành công: <span id="counter" style="color: #D50000; font-size: 2rem;">0</span> phím</span>
+                <button type="button" onclick="if(window.sessionManager)window.sessionManager.clear();" style="margin-left:10px; background:#fee2e2; color:#ef4444; border:1px solid #f87171; border-radius:6px; font-weight:800; padding:4px 8px; cursor:pointer;" title="Xóa dữ liệu phiên">🗑️ Xóa phiên</button>
             </div>
 
             <!-- CHỮ CÁI ĐỂ GÕ -->
@@ -211,6 +212,7 @@
                         // --- GÕ ĐÚNG ---
                         totalKeysTyped++;
                         document.getElementById('counter').innerText = totalKeysTyped;
+                        if (window.sessionManager) window.sessionManager.save({ totalKeysTyped });
 
                         // Hiệu ứng phím to lên
                         targetEl.classList.add('pulse');
@@ -232,6 +234,21 @@
 
         // Khởi tạo phím đầu tiên
         generateNextKey();
+
+        if (window.createSessionStateManager) {
+            window.sessionManager = window.createSessionStateManager({
+                storageKey: 'bgtieu_hoc_k2_tiet_03_state',
+                onRestore: (st) => {
+                    if (st && st.totalKeysTyped !== undefined) {
+                        totalKeysTyped = st.totalKeysTyped;
+                        const el = document.getElementById('counter');
+                        if (el) el.innerText = totalKeysTyped;
+                    }
+                },
+                onClear: () => location.reload()
+            });
+            window.sessionManager.restore();
+        }
 
     </script>
 </body>

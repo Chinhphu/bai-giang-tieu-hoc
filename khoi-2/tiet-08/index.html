@@ -921,6 +921,9 @@
                 <button class="action-btn" onclick="resetGameCounter()">
                     🔄 Đặt lại lượt (0)
                 </button>
+                <button type="button" class="action-btn" style="background:#fee2e2; color:#ef4444; border:1px solid #f87171;" onclick="if(window.sessionManager)window.sessionManager.clear();" title="Xóa dữ liệu phiên">
+                    🗑️ Xóa phiên
+                </button>
             </div>
         </div>
     </section>
@@ -998,6 +1001,7 @@
             <!-- Render danh sách 8 trang -->
         </div>
         <button class="nav-control-btn next-btn" id="nextBtn" onclick="changeSlide(1)">Tiếp&nbsp;❯</button>
+        <button type="button" class="nav-control-btn" style="background:#fee2e2; color:#ef4444; border:1px solid #f87171;" onclick="if(window.sessionManager)window.sessionManager.clear();" title="Xóa dữ liệu phiên">🗑️</button>
         <button class="nav-control-btn fs-btn" onclick="toggleFullScreen()" title="Toàn màn hình">⛶</button>
     </div>
 
@@ -1063,6 +1067,16 @@
         function goToSlide(idx) {
             currentSlideIndex = idx;
             updateSlideView();
+            saveSession();
+        }
+
+        function saveSession() {
+            if (window.sessionManager) {
+                window.sessionManager.save({
+                    currentSlideIndex,
+                    completedCount
+                });
+            }
         }
 
         // Bắt phím tắt bàn phím chuyển slide (Mũi tên, PageUp/Down)
@@ -1083,6 +1097,24 @@
 
         initSlidePills();
         updateSlideView();
+
+        if (window.createSessionStateManager) {
+            window.sessionManager = window.createSessionStateManager({
+                storageKey: 'bgtieu_hoc_k2_tiet_08_state',
+                onRestore: (st) => {
+                    if (st) {
+                        if (st.currentSlideIndex !== undefined) goToSlide(st.currentSlideIndex);
+                        if (st.completedCount !== undefined) {
+                            completedCount = st.completedCount;
+                            const badge = document.getElementById('completedCountBadge');
+                            if (badge) badge.innerText = completedCount;
+                        }
+                    }
+                },
+                onClear: () => location.reload()
+            });
+            window.sessionManager.restore();
+        }
 
         // 3. TƯƠNG TÁC SLIDE 3: TRÒ CHƠI AI NHANH HƠN
         function revealDevice(card) {
@@ -1224,6 +1256,7 @@
         function resetGameCounter() {
             completedCount = 0;
             document.getElementById('completedCountBadge').innerText = '0';
+            saveSession();
             pickRandomMission();
         }
 
@@ -1248,6 +1281,7 @@
                 isMissionPassed = true;
                 completedCount++;
                 document.getElementById('completedCountBadge').innerText = completedCount;
+                saveSession();
 
                 alertEl.className = 'game-status-box correct';
                 alertEl.innerHTML = `🎉 CHÍNH XÁC! Em đã gõ đúng ký tự <b>${currentMission.char}</b>! (+1 lượt ⭐⭐⭐)`;

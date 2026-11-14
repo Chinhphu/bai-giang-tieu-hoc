@@ -23,25 +23,41 @@
         .team-controls button { flex: 1; background: #e2e8f0; font-weight: bold; border-radius: 6px; padding: 3px 0; font-size: 0.78rem; }
 
         /* ================= GIAO DIỆN BÀN PHÍM CHUẨN QWERTY (CÓ THỤT LỀ SO LE) ================= */
-        .visual-keyboard { 
-            display: flex; flex-direction: column; align-items: flex-start; gap: 6px; 
-            background: #e2e8f0; padding: 20px; border-radius: 12px; margin: 15px auto; 
-            width: max-content; /* Ôm sát nội dung */
-            border: 3px solid #cbd5e1; box-shadow: 0 4px 0 #cbd5e1; 
+        /* ================= BÀN PHÍM WINDOWS 60 CỘT CHUẨN ANSI ================= */
+        .windows-keyboard { 
+            display: flex; flex-direction: column; gap: 7px; 
+            background: #1e293b; padding: 16px 20px; border-radius: 16px; margin: 15px auto; 
+            width: 100%; max-width: 980px; 
+            border: 4px solid #334155; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); 
         }
-        .key-row { display: flex; gap: 6px; }
-        
-        /* Căn chỉnh so le thụt lề cho từng hàng phím */
-        .key-row:nth-child(1) { padding-left: 0px; }    /* Hàng phím số */
-        .key-row:nth-child(2) { padding-left: 24px; }   /* Hàng trên (QWERTY) thụt 0.5 phím */
-        .key-row:nth-child(3) { padding-left: 40px; }   /* Hàng cơ sở (ASDFG) thụt thêm */
-        .key-row:nth-child(4) { padding-left: 64px; }   /* Hàng dưới (ZXCVB) thụt thêm nữa */
-        .key-row:nth-child(5) { padding-left: 125px; }  /* Phím cách canh giữa */
+        .kb-row { display: grid; grid-template-columns: repeat(60, 1fr); gap: 6px; width: 100%; }
 
-        .key-btn { width: 50px; height: 50px; background: #fff; border: 2px solid #94a3b8; border-radius: 8px; font-weight: 900; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; color: var(--ink); box-shadow: 0 4px 0 #94a3b8; user-select: none; transition: 0.1s;}
-        .key-btn.spacebar { width: 250px; font-size: 0.9rem; color: #64748b; }
-        .key-btn.active-key { background: var(--coral); color: #fff; box-shadow: 0 1px 0 #b82e3b; transform: translateY(3px); border-color: #b82e3b; animation: glow 0.8s infinite alternate; }
+        .key-btn { 
+            height: 52px; background: #fff; border: 2px solid #94a3b8; border-radius: 8px; 
+            font-weight: 900; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; 
+            color: var(--ink); box-shadow: 0 4px 0 #94a3b8; user-select: none; transition: 0.1s; cursor: pointer;
+        }
+        .key-btn:hover { border-color: #38bdf8; transform: translateY(-2px); }
+        .key-btn.active-key { 
+            background: var(--coral) !important; color: #fff !important; 
+            box-shadow: 0 0 16px var(--coral) !important; transform: translateY(3px); 
+            border-color: #b82e3b !important; animation: glow 0.8s infinite alternate; 
+        }
         @keyframes glow { from { box-shadow: 0 0 10px var(--coral), 0 1px 0 #b82e3b; } to { box-shadow: 0 0 25px var(--coral), 0 1px 0 #b82e3b; } }
+
+        /* Tỷ lệ độ rộng phím (Tổng 60 cột mỗi hàng) */
+        .span-4  { grid-column: span 4; }
+        .span-5  { grid-column: span 5; }
+        .span-6  { grid-column: span 6; }
+        .span-7  { grid-column: span 7; }
+        .span-8  { grid-column: span 8; }
+        .span-9  { grid-column: span 9; }
+        .span-11 { grid-column: span 11; }
+        .span-25 { grid-column: span 25; }
+
+        .key-func { background: #334155; color: #f8fafc; font-size: 0.95rem; border-color: #475569; box-shadow: 0 4px 0 #1e293b; }
+        .key-enter { background: #1e3a8a; color: #bfdbfe; font-size: 1.05rem; border-color: #3b82f6; box-shadow: 0 4px 0 #172554; }
+        .key-btn.spacebar { font-size: 0.95rem; color: #64748b; background: #f8fafc; }
 
         /* Quiz trắc nghiệm (Cố định khung, đáp án xếp dọc) */
         .quiz-card { max-width: 800px; margin: 0 auto; min-height: 450px; display: flex; flex-direction: column; }
@@ -68,13 +84,6 @@
     <div class="app-shell">
         <header class="topbar">
             <div class="brand"><span class="brand-mark">⌨️</span><h1>Gõ bàn phím đúng cách</h1></div>
-            <!-- BỘ ĐẾM THỜI GIAN TRÊN THANH TOPBAR -->
-            <div class="timer-container">
-                <span id="countdownTimer">07:00</span>
-                <button class="timer-btn play" id="startTimerBtn" title="Bắt đầu">▶</button>
-                <button class="timer-btn pause" id="pauseTimerBtn" title="Tạm dừng">⏸</button>
-                <button class="timer-btn reset" id="resetTimerBtn" title="Làm lại">🔄</button>
-            </div>
         </header>
 
         <div class="lesson-layout">
@@ -82,6 +91,7 @@
                 <!-- MÀN HÌNH 1: GHI BÀI -->
                 <section class="screen active" data-screen="1">
                     <div class="blackboard">
+                        <button type="button" class="btn-fs-toggle" onclick="toggleNotebookFullscreen(this)">⛶ Chế độ toàn màn hình chép bài</button>
                         <p class="blackboard-header" id="currentDateDisplay">Thứ ..., ngày ... tháng ... năm ...</p>
                         <p class="blackboard-subject">Môn: Tin học</p>
                         <p class="blackboard-title">Bài 2: Gõ bàn phím đúng cách</p>
@@ -167,26 +177,82 @@
                             <button class="btn small" style="background: #e2e8f0; color: var(--ink); border: 2px solid #cbd5e1;" id="showHintBtn">🔍 Xem sơ đồ gợi ý</button>
                         </div>
 
-                        <div class="visual-keyboard" id="visualKeyboard">
-                            <!-- Hàng phím số (Thụt 0px) -->
-                            <div class="key-row">
-                                <div class="key-btn" data-key="1">1</div><div class="key-btn" data-key="2">2</div><div class="key-btn" data-key="3">3</div><div class="key-btn" data-key="4">4</div><div class="key-btn" data-key="5">5</div><div class="key-btn" data-key="6">6</div><div class="key-btn" data-key="7">7</div><div class="key-btn" data-key="8">8</div><div class="key-btn" data-key="9">9</div><div class="key-btn" data-key="0">0</div>
+                        <div class="windows-keyboard" id="visualKeyboard">
+                            <!-- Hàng 1: Phím số (60 cột) -->
+                            <div class="kb-row">
+                                <div class="key-btn span-4 key-func">`</div>
+                                <div class="key-btn span-4" data-key="1">1</div>
+                                <div class="key-btn span-4" data-key="2">2</div>
+                                <div class="key-btn span-4" data-key="3">3</div>
+                                <div class="key-btn span-4" data-key="4">4</div>
+                                <div class="key-btn span-4" data-key="5">5</div>
+                                <div class="key-btn span-4" data-key="6">6</div>
+                                <div class="key-btn span-4" data-key="7">7</div>
+                                <div class="key-btn span-4" data-key="8">8</div>
+                                <div class="key-btn span-4" data-key="9">9</div>
+                                <div class="key-btn span-4" data-key="0">0</div>
+                                <div class="key-btn span-4">-</div>
+                                <div class="key-btn span-4">=</div>
+                                <div class="key-btn span-8 key-func">⌫</div>
                             </div>
-                            <!-- Hàng phím trên (Thụt 24px) -->
-                            <div class="key-row">
-                                <div class="key-btn" data-key="Q">Q</div><div class="key-btn" data-key="W">W</div><div class="key-btn" data-key="E">E</div><div class="key-btn" data-key="R">R</div><div class="key-btn" data-key="T">T</div><div class="key-btn" data-key="Y">Y</div><div class="key-btn" data-key="U">U</div><div class="key-btn" data-key="I">I</div><div class="key-btn" data-key="O">O</div><div class="key-btn" data-key="P">P</div>
+                            <!-- Hàng 2: Hàng trên (60 cột) -->
+                            <div class="kb-row">
+                                <div class="key-btn span-6 key-func">Tab ⇥</div>
+                                <div class="key-btn span-4" data-key="Q">Q</div>
+                                <div class="key-btn span-4" data-key="W">W</div>
+                                <div class="key-btn span-4" data-key="E">E</div>
+                                <div class="key-btn span-4" data-key="R">R</div>
+                                <div class="key-btn span-4" data-key="T">T</div>
+                                <div class="key-btn span-4" data-key="Y">Y</div>
+                                <div class="key-btn span-4" data-key="U">U</div>
+                                <div class="key-btn span-4" data-key="I">I</div>
+                                <div class="key-btn span-4" data-key="O">O</div>
+                                <div class="key-btn span-4" data-key="P">P</div>
+                                <div class="key-btn span-4">[</div>
+                                <div class="key-btn span-4">]</div>
+                                <div class="key-btn span-6 key-func">\</div>
                             </div>
-                            <!-- Hàng phím cơ sở (Thụt 40px) -->
-                            <div class="key-row">
-                                <div class="key-btn" data-key="A">A</div><div class="key-btn" data-key="S">S</div><div class="key-btn" data-key="D">D</div><div class="key-btn" data-key="F">F</div><div class="key-btn" data-key="G">G</div><div class="key-btn" data-key="H">H</div><div class="key-btn" data-key="J">J</div><div class="key-btn" data-key="K">K</div><div class="key-btn" data-key="L">L</div>
+                            <!-- Hàng 3: Hàng cơ sở (60 cột) -->
+                            <div class="kb-row">
+                                <div class="key-btn span-7 key-func">Caps</div>
+                                <div class="key-btn span-4" data-key="A">A</div>
+                                <div class="key-btn span-4" data-key="S">S</div>
+                                <div class="key-btn span-4" data-key="D">D</div>
+                                <div class="key-btn span-4" data-key="F">F</div>
+                                <div class="key-btn span-4" data-key="G">G</div>
+                                <div class="key-btn span-4" data-key="H">H</div>
+                                <div class="key-btn span-4" data-key="J">J</div>
+                                <div class="key-btn span-4" data-key="K">K</div>
+                                <div class="key-btn span-4" data-key="L">L</div>
+                                <div class="key-btn span-4">;</div>
+                                <div class="key-btn span-4">'</div>
+                                <div class="key-btn span-9 key-enter">Enter ↵</div>
                             </div>
-                            <!-- Hàng phím dưới (Thụt 64px) -->
-                            <div class="key-row">
-                                <div class="key-btn" data-key="Z">Z</div><div class="key-btn" data-key="X">X</div><div class="key-btn" data-key="C">C</div><div class="key-btn" data-key="V">V</div><div class="key-btn" data-key="B">B</div><div class="key-btn" data-key="N">N</div><div class="key-btn" data-key="M">M</div>
+                            <!-- Hàng 4: Hàng dưới (60 cột) -->
+                            <div class="kb-row">
+                                <div class="key-btn span-9 key-func">Shift ⇧</div>
+                                <div class="key-btn span-4" data-key="Z">Z</div>
+                                <div class="key-btn span-4" data-key="X">X</div>
+                                <div class="key-btn span-4" data-key="C">C</div>
+                                <div class="key-btn span-4" data-key="V">V</div>
+                                <div class="key-btn span-4" data-key="B">B</div>
+                                <div class="key-btn span-4" data-key="N">N</div>
+                                <div class="key-btn span-4" data-key="M">M</div>
+                                <div class="key-btn span-4">,</div>
+                                <div class="key-btn span-4">.</div>
+                                <div class="key-btn span-4">/</div>
+                                <div class="key-btn span-11 key-func">Shift ⇧</div>
                             </div>
-                            <!-- Phím cách (Thụt 125px) -->
-                            <div class="key-row">
-                                <div class="key-btn spacebar" data-key="Space">SPACE (Phím cách)</div>
+                            <!-- Hàng 5: Hàng phím cách (60 cột) -->
+                            <div class="kb-row">
+                                <div class="key-btn span-5 key-func">Ctrl</div>
+                                <div class="key-btn span-5 key-func">Win</div>
+                                <div class="key-btn span-5 key-func">Alt</div>
+                                <div class="key-btn span-25 spacebar" data-key="Space">SPACE (Phím cách)</div>
+                                <div class="key-btn span-5 key-func">Alt</div>
+                                <div class="key-btn span-5 key-func">Win</div>
+                                <div class="key-btn span-5 key-func">Menu</div>
+                                <div class="key-btn span-5 key-func">Ctrl</div>
                             </div>
                         </div>
 
@@ -220,6 +286,7 @@
                     <div class="team-controls" style="background: var(--paper);">
                         <button id="removeTeamBtn">➖ Bớt Đội</button>
                         <button id="addTeamBtn">➕ Thêm Đội</button>
+                        <button type="button" onclick="if(window.sessionManager)window.sessionManager.clear();" style="background:#fee2e2; color:#ef4444; border:1px solid #f87171; border-radius:6px; font-weight:800; cursor:pointer;" title="Xóa dữ liệu phiên để bắt đầu lớp mới">🗑️ Xóa phiên</button>
                     </div>
                     
                     <div id="teamList" style="background: var(--paper); padding-bottom: 10px;">
@@ -285,42 +352,6 @@
         const days = ["Chủ nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
         document.getElementById('currentDateDisplay').innerHTML = `${days[today.getDay()]}, ngày ${today.getDate().toString().padStart(2, '0')} tháng ${(today.getMonth() + 1).toString().padStart(2, '0')} năm ${today.getFullYear()}`;
 
-        // === 2. LOGIC ĐỒNG HỒ ĐẾM NGƯỢC TOPBAR ===
-        let timeLeft = 420; // 7 phút x 60 giây
-        let timerInterval = null;
-        const timerDisplay = document.getElementById('countdownTimer');
-
-        function updateTimerDisplay() {
-            let m = Math.floor(timeLeft / 60);
-            let s = timeLeft % 60;
-            timerDisplay.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
-
-        document.getElementById('startTimerBtn').onclick = () => {
-            if (!timerInterval) {
-                timerInterval = setInterval(() => {
-                    if (timeLeft > 0) {
-                        timeLeft--;
-                        updateTimerDisplay();
-                    } else {
-                        clearInterval(timerInterval);
-                        timerInterval = null;
-                        alert("⏱ Đã hết thời gian ghi bài!");
-                    }
-                }, 1000);
-            }
-        };
-        document.getElementById('pauseTimerBtn').onclick = () => {
-            clearInterval(timerInterval);
-            timerInterval = null;
-        };
-        document.getElementById('resetTimerBtn').onclick = () => {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            timeLeft = 420; // Đặt lại 7 phút
-            updateTimerDisplay();
-        };
-
         // === 3. QUẢN LÝ SỐ LƯỢNG ĐỘI & ĐIỂM ===
         const STARTING_SCORE = 1000;
         let teams = [
@@ -330,6 +361,9 @@
         ];
 
         function renderTeams() {
+            if (window.sessionManager && teams) {
+                window.sessionManager.save({ teams });
+            }
             const list = document.getElementById('teamList');
             list.innerHTML = '';
             teams.forEach((t, i) => {
@@ -361,6 +395,17 @@
                 renderTeams();
             }
         };
+        if (window.createSessionStateManager) {
+            window.sessionManager = window.createSessionStateManager({
+                storageKey: 'bgtieu_hoc_k4_tiet_03_state',
+                onRestore: (st) => {
+                    if (st.teams) teams = st.teams;
+                    renderTeams();
+                }
+            });
+            window.sessionManager.restore();
+        }
+
         renderTeams();
 
         // === 4. CHUYỂN TRANG ===

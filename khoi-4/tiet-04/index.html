@@ -222,6 +222,9 @@
             <div class="panel">
                 
                 <!-- Khu vực điều khiển phạt ồn của GV -->
+                <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+                    <button type="button" onclick="if(window.sessionManager)window.sessionManager.clear();" style="background:#fee2e2; color:#ef4444; border:1px solid #f87171; border-radius:6px; font-weight:800; padding:4px 10px; cursor:pointer;" title="Xóa dữ liệu phiên để bắt đầu lớp mới">🗑️ Xóa phiên</button>
+                </div>
                 <div id="penalty-controls" class="penalty-controls">
                     <!-- Nút phạt sinh tự động -->
                 </div>
@@ -304,6 +307,18 @@
             isPlaying = false;
             
             showScreen('screen-game');
+            if (window.createSessionStateManager) {
+                window.sessionManager = window.createSessionStateManager({
+                    storageKey: 'bgtieu_hoc_k4_tiet_04_state',
+                    onRestore: (st) => {
+                        if (st.teams) teams = st.teams;
+                        if (st.currentRoundIndex != null) currentRoundIndex = st.currentRoundIndex;
+                        if (st.currentTeamIndex != null) currentTeamIndex = st.currentTeamIndex;
+                        renderLiveScoreboard();
+                    }
+                });
+                window.sessionManager.restore();
+            }
             renderLiveScoreboard();
             renderBoard();
             updateTargetChar();
@@ -311,6 +326,9 @@
 
         // --- RENDER BẢNG ĐIỂM VÀ NÚT PHẠT ---
         function renderLiveScoreboard() {
+            if (window.sessionManager && teams && teams.length > 0) {
+                window.sessionManager.save({ teams, currentRoundIndex, currentTeamIndex });
+            }
             const board = document.getElementById('live-scoreboard');
             const penDiv = document.getElementById('penalty-controls');
             board.innerHTML = "";

@@ -68,7 +68,7 @@
       const description = escapeHtml(this.getAttribute('description') || 'Điệp vụ lắp ráp máy tính — đội nào gom đủ 4 linh kiện sẽ vô địch!');
       const startLabel = escapeHtml(this.getAttribute('start-label') || 'Bắt đầu ➔');
       const startingScoreLabel = escapeHtml(this.getAttribute('starting-score-label') || 'Điểm khởi đầu mỗi tổ:');
-      const defaultScore = escapeHtml(this.getAttribute('default-score') || '100');
+      const defaultScore = escapeHtml(this.getAttribute('default-score') || '1000');
       const selectedClass = /^3_[1-6]$/.test(this.getAttribute('default-class') || '')
         ? this.getAttribute('default-class')
         : '3_2';
@@ -130,6 +130,7 @@
             <span>${title}</span>
             <button class="btn gray" type="button" onclick="if(typeof openAddHs==='function')openAddHs();else if(typeof addStudent==='function')addStudent();">➕ Thêm học sinh</button>
             <button class="btn warn" type="button" onclick="if(typeof openEnd==='function')openEnd();else if(typeof showSummary==='function')showSummary();">📊 Tổng kết</button>
+            <button class="btn danger" type="button" onclick="if(window.sessionManager)window.sessionManager.clear();else if(typeof clearSession==='function')clearSession();" style="background:#ef4444; color:#fff;" title="Xóa dữ liệu phiên học để bắt đầu lớp mới">🗑️ Xóa phiên</button>
           </div>
           <div id="teamList"></div>
         </aside>
@@ -491,6 +492,7 @@
                   <option value="5" ${defaultTeams===5?'selected':''}>5 tổ</option>
                   <option value="6" ${defaultTeams===6?'selected':''}>6 tổ</option>
                 </select>
+                <button type="button" onclick="if(window.sessionManager)window.sessionManager.clear();else if(typeof clearSession==='function')clearSession();" style="background:#ef4444; color:#fff; font-size:11px; font-weight:800; border-radius:6px; padding:3px 6px; border:none; cursor:pointer;" title="Xóa dữ liệu phiên để bắt đầu lớp mới">🗑️ Xóa phiên</button>
               </div>
             </div>
             <div id="teamsContainer"></div>

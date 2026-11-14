@@ -28,29 +28,24 @@
 
 		<!-- Slide Ghi Bài (Tối ưu full màn hình, chữ siêu to) -->
 		<section class="slide-container copy-slide" data-slide="copy-text">
-			<div class="copy-header">
-				<h3 id="currentDateDisplay">Đang tải ngày...</h3>
-				<h2>Môn: Tin học</h2>
-				<h2>Bài 2: Xử lí thông tin</h2>
-			</div>
+			<div class="notebook clean" style="max-width: 960px; margin: 0 auto; background: #ffffff;">
+				<button type="button" class="btn-fs-toggle" onclick="toggleNotebookFullscreen(this)">⛶ Chế độ toàn màn hình chép bài</button>
+				<div class="copy-header">
+					<h3 id="currentDateDisplay">Đang tải ngày...</h3>
+					<h2>Môn: Tin học</h2>
+					<h2>Bài 2: Xử lí thông tin</h2>
+				</div>
 
-			<div class="copy-content">
-				<ul>
-					<li>1. Thu nhận thông tin qua <strong>các giác quan</strong>.</li>
-					<li>2. <strong>Bộ não</strong> xử lí và ra quyết định.</li>
-					<li>3. Quá trình: <strong>Thu nhận ➔ Xử lí ➔ Hành động</strong>.</li>
-				</ul>
+				<div class="copy-content">
+					<ul>
+						<li>1. Thu nhận thông tin qua <strong>các giác quan</strong>.</li>
+						<li>2. <strong>Bộ não</strong> xử lí và ra quyết định.</li>
+						<li>3. Quá trình: <strong>Thu nhận ➔ Xử lí ➔ Hành động</strong>.</li>
+					</ul>
+				</div>
 			</div>
-
-			<div class="timer-display" id="copyTimer">03:00</div>
 
 			<div class="controls copy-controls">
-				<button type="button" class="btn-nav" id="startTimerBtn"
-					style="background-color: var(--accent-green);">Bắt đầu</button>
-				<button type="button" class="btn-nav" id="pauseTimerBtn"
-					style="background-color: var(--lesson-coral);">Tạm dừng</button>
-				<button type="button" class="btn-nav" id="resetTimerBtn"
-					style="background-color: var(--lesson-muted);">Làm mới</button>
 				<button type="button" class="btn-nav next-btn">Bài mới ➔</button>
 			</div>
 		</section>
@@ -489,7 +484,8 @@
 					<option value="5">5 tổ</option>
 					<option value="6">6 tổ</option>
 				</select>
-				<input id="startScoreInput" type="number" min="0" step="10" value="0" title="Điểm khởi đầu" style="width:55px; padding:4px 6px; border-radius:8px; border:1px solid #cbd5e1; font-weight:800; text-align:center;" onchange="createTeams(Number(document.getElementById('teamCountInput').value))" />
+				<input id="startScoreInput" type="number" min="0" step="10" value="1000" title="Điểm khởi đầu" style="width:55px; padding:4px 6px; border-radius:8px; border:1px solid #cbd5e1; font-weight:800; text-align:center;" onchange="createTeams(Number(document.getElementById('teamCountInput').value))" />
+				<button type="button" style="padding:4px 8px; font-size:0.8rem; background:#fee2e2; color:#ef4444; border:1px solid #f87171; border-radius:8px; font-weight:800; cursor:pointer;" onclick="if(window.sessionManager)window.sessionManager.clear();" title="Xóa phiên">🗑️</button>
 			</div>
 		</div>
 		<div class="teams-list" id="teamsList"></div>
@@ -533,14 +529,7 @@
 		</div>
 	</div>
 
-	<!-- Modal Hết Giờ -->
-	<div class="time-up-modal" id="timeUpModal">
-		<div class="time-up-content">
-			<h1>⏰ HẾT GIỜ CHÉP BÀI!</h1>
-			<p>Các em nhanh tay gác bút lại nhé!</p>
-			<button type="button" class="btn-nav" id="closeTimeUpBtn" style="font-size: 4vh;">Đã rõ</button>
-		</div>
-	</div>
+
 
 	<script>
 		// ================= CẬP NHẬT NGÀY THÁNG TỰ ĐỘNG =================
@@ -592,7 +581,7 @@
 			if (count > 6) count = 6;
 			const list = document.getElementById('teamsList');
 			list.innerHTML = '';
-			const startScore = parseInt(document.getElementById('startScoreInput')?.value, 10) || 0;
+			const startScore = parseInt(document.getElementById('startScoreInput')?.value, 10) || 1000;
 			teamScores = Array(count).fill(startScore);
 
 			for (let i = 0; i < count; i++) {
@@ -630,6 +619,40 @@
 			if (typeof toast === 'function') {
 				toast(`Tổ ${idx + 1} điểm: ${teamScores[idx]}đ`);
 			}
+			saveSession();
+		}
+
+		function saveSession() {
+			if (window.sessionManager) {
+				window.sessionManager.save({
+					teamScores,
+					calledStudents: Array.from(calledStudents)
+				});
+			}
+		}
+
+		function initSessionManager() {
+			if (!window.createSessionStateManager) return;
+			window.sessionManager = window.createSessionStateManager({
+				storageKey: 'bgtieu_hoc_k3_tiet_03_' + currentClassID + '_state',
+				onRestore: (st) => {
+					if (st) {
+						if (Array.isArray(st.teamScores)) {
+							teamScores = st.teamScores;
+							teamScores.forEach((sc, idx) => {
+								const el = document.getElementById(`score-tiet03-${idx}`);
+								if (el) el.textContent = sc;
+							});
+						}
+						if (Array.isArray(st.calledStudents)) {
+							calledStudents = new Set(st.calledStudents);
+							renderStudents();
+						}
+					}
+				},
+				onClear: () => location.reload()
+			});
+			window.sessionManager.restore();
 		}
 
 		async function loadClassData(classId) {
@@ -661,6 +684,7 @@
 			calledStudents = new Set();
 			selectedStudent = null;
 			renderStudents();
+			initSessionManager();
 		}
 
 		function renderStudents() {
@@ -728,64 +752,6 @@
 		loadClassData('3_2');
 
 		// ================= TÍNH NĂNG ĐỒNG HỒ 7 PHÚT =================
-		let timeRemaining = 180;
-		let timerInterval;
-		let isTimerRunning = false;
-
-		const timerDisplay = document.getElementById('copyTimer');
-		const timeUpModal = document.getElementById('timeUpModal');
-		const startTimerBtn = document.getElementById('startTimerBtn');
-		const pauseTimerBtn = document.getElementById('pauseTimerBtn');
-		const resetTimerBtn = document.getElementById('resetTimerBtn');
-
-		function updateTimerText() {
-			let m = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
-			let s = (timeRemaining % 60).toString().padStart(2, '0');
-			timerDisplay.textContent = `${m}:${s}`;
-		}
-
-		startTimerBtn.addEventListener('click', function () {
-			if (isTimerRunning) return;
-			isTimerRunning = true;
-			this.textContent = 'Đang đếm ngược...';
-			this.style.opacity = '0.7';
-
-			timerInterval = setInterval(() => {
-				timeRemaining--;
-				updateTimerText();
-
-				if (timeRemaining <= 0) {
-					clearInterval(timerInterval);
-					isTimerRunning = false;
-					this.textContent = 'Bắt đầu chạy';
-					this.style.opacity = '1';
-					timeUpModal.classList.add('show');
-				}
-			}, 1000);
-		});
-
-		pauseTimerBtn.addEventListener('click', function () {
-			clearInterval(timerInterval);
-			isTimerRunning = false;
-			startTimerBtn.style.opacity = '1';
-			if (timeRemaining > 0 && timeRemaining < 420) {
-				startTimerBtn.textContent = 'Tiếp tục';
-			}
-		});
-
-		resetTimerBtn.addEventListener('click', function () {
-			clearInterval(timerInterval);
-			isTimerRunning = false;
-			timeRemaining = 180;
-			updateTimerText();
-			startTimerBtn.style.opacity = '1';
-			startTimerBtn.textContent = 'Bắt đầu';
-		});
-
-		document.getElementById('closeTimeUpBtn').addEventListener('click', () => {
-			timeUpModal.classList.remove('show');
-		});
-
 		// ================= LOGIC TRẮC NGHIỆM VÀ THỬ THÁCH =================
 
 		// Thử thách 1: Trắc nghiệm

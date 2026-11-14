@@ -1149,6 +1149,19 @@
             document.getElementById('app').style.display = 'flex';
             document.title = `Tin học 5 – Bài 2: Tìm kiếm thông tin trên website (Lớp ${currentClass.replace('_', '/')})`;
 
+            if (window.createSessionStateManager) {
+                window.sessionManager = window.createSessionStateManager({
+                    storageKey: `bgtieu_hoc_k5_tiet_04_${currentClass}_state`,
+                    onRestore: (st) => {
+                        if (st.teams) teams = st.teams;
+                        if (st.students) students = st.students;
+                        if (st.currentSlideIndex != null) goToSlide(st.currentSlideIndex);
+                        renderTeamsSidebar();
+                    }
+                });
+                window.sessionManager.restore();
+            }
+
             updateDateDisplay();
             renderTeamsSidebar();
             renderAllBetTables();
@@ -1163,6 +1176,9 @@
         }
 
         function renderTeamsSidebar() {
+            if (window.sessionManager && teams && teams.length > 0) {
+                window.sessionManager.save({ teams, students, currentSlideIndex });
+            }
             const teamsContainer = document.getElementById('teams');
             teamsContainer.innerHTML = teams.map((t, i) => `
                 <div class="team ${i === gameState.activeTeam ? 'turn' : ''}" id="team-${i}" style="--tc:${t.color}">

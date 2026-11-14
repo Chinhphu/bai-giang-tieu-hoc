@@ -1860,6 +1860,7 @@
                     Qua bước (+5s)</button>
                 <button class="btn-side next" onclick="manualNext()" title="Chuyển sang học sinh tiếp theo">⏭ Đổi bạn
                     kế</button>
+                <button class="btn-side" onclick="if(window.sessionManager)window.sessionManager.clear();" style="background:#fee2e2; color:#ef4444; border:1px solid #f87171;" title="Xóa dữ liệu phiên để bắt đầu lớp mới">🗑️ Xóa phiên</button>
                 <button class="btn-side end-game" onclick="endGameAndRank()">🏆 KẾT THÚC & VINH DANH TOP</button>
             </div>
 
@@ -2722,6 +2723,20 @@
 
             G.lastFinishedResult = null;
             G.currentQueueIdx = -1;
+
+            if (window.createSessionStateManager) {
+                window.sessionManager = window.createSessionStateManager({
+                    storageKey: 'bgtieu_hoc_k3_tiet_08_' + (G.classId || '3_2') + '_state',
+                    onRestore: (st) => {
+                        if (st.studentData) G.studentData = st.studentData;
+                        if (st.queue) G.queue = st.queue;
+                        if (st.currentQueueIdx != null) G.currentQueueIdx = st.currentQueueIdx;
+                        renderStudentList();
+                    }
+                });
+                window.sessionManager.restore();
+            }
+
             renderStudentList();
             advanceStudent();
         }
@@ -3227,6 +3242,10 @@
                 penaltySec: rec.penaltySec,
                 finalMs: finalMs
             };
+
+            if (window.sessionManager) {
+                window.sessionManager.save({ studentData: G.studentData, queue: G.queue, currentQueueIdx: G.currentQueueIdx });
+            }
 
             // Hiển thị kết quả bạn vừa thi xong trên pill nổi và mở NGAY lượt tiếp theo (0ms delay!)
             const pill = document.getElementById('last-result-pill');

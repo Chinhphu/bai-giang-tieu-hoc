@@ -1373,18 +1373,6 @@
             <!-- SLIDE 2: CHÉP BÀI ĐỢT 1 -->
             <section id="slide-1" class="slide-screen">
                 <div class="card-panel">
-                    <div class="copy-timer-card">
-                        <div class="copy-timer-info">
-                            <span class="copy-timer-badge">⏳ THỜI GIAN CHÉP BÀI</span>
-                            <span class="copy-timer-digits" id="copyTimer1">03:00</span>
-                        </div>
-                        <div class="copy-timer-actions">
-                            <button class="btn-timer start" onclick="startCopyTimer(1)">▶ Bắt đầu</button>
-                            <button class="btn-timer pause" onclick="pauseCopyTimer(1)">⏸ Tạm dừng</button>
-                            <button class="btn-timer reset" onclick="resetCopyTimer(1)">🔄 3 Phút</button>
-                        </div>
-                    </div>
-
                     <span class="note-step">✍️ CHÉP BÀI · Đợt 1/2 (Ngắn gọn)</span>
                     <div class="notebook-box clean" style="background:#ffffff !important;">
                         <button type="button" class="btn-fs-toggle" onclick="toggleNotebookFullscreen(this)">⛶ Chế độ toàn màn hình chép bài</button>
@@ -1506,20 +1494,9 @@
             <!-- SLIDE 4: CHÉP BÀI ĐỢT 2 -->
             <section id="slide-3" class="slide-screen">
                 <div class="card-panel">
-                    <div class="copy-timer-card">
-                        <div class="copy-timer-info">
-                            <span class="copy-timer-badge">⏳ THỜI GIAN CHÉP BÀI</span>
-                            <span class="copy-timer-digits" id="copyTimer2">03:00</span>
-                        </div>
-                        <div class="copy-timer-actions">
-                            <button class="btn-timer start" onclick="startCopyTimer(2)">▶ Bắt đầu</button>
-                            <button class="btn-timer pause" onclick="pauseCopyTimer(2)">⏸ Tạm dừng</button>
-                            <button class="btn-timer reset" onclick="resetCopyTimer(2)">🔄 3 Phút</button>
-                        </div>
-                    </div>
-
                     <span class="note-step">✍️ CHÉP BÀI · Đợt 2/2 (Hoàn tất)</span>
-                    <div class="notebook-box">
+                    <div class="notebook-box clean" style="background:#ffffff !important;">
+                        <button type="button" class="btn-fs-toggle" onclick="toggleNotebookFullscreen(this)">⛶ Chế độ toàn màn hình chép bài</button>
                         <div class="notebook-content">
                             <strong>2. Chuột máy tính:</strong>
                             <ul>
@@ -1630,6 +1607,7 @@
                             <option value="5">5 tổ</option>
                             <option value="6">6 tổ</option>
                         </select>
+                        <button type="button" style="padding:4px 8px; font-size:0.8rem; background:#fee2e2; color:#ef4444; border:1px solid #f87171; border-radius:6px; font-weight:800; cursor:pointer;" onclick="if(window.sessionManager)window.sessionManager.clear();" title="Xóa dữ liệu phiên để bắt đầu lớp mới">🗑️</button>
                     </div>
                 </div>
                 <div style="padding:4px 8px; background:#f8fafc; color:#475569; font-size:.75rem; font-weight:800; text-align:center; border-bottom:1px solid #e2e8f0;"
@@ -1696,83 +1674,12 @@
         const $ = s => document.querySelector(s);
         const $$ = s => document.querySelectorAll(s);
 
-        let START_SCORE = 100;
+        let START_SCORE = 1000;
         const SCORE_FLOOR = 0;
         const NOISE_PERCENT = 10;
         const STUDENTS_PER_TEAM_MOUSE = 2; // Mỗi tổ 2 bạn thực hành chuột
 
-        /* ================= QUẢN LÝ ĐỒNG HỒ 3 PHÚT CHÉP BÀI ================= */
-        let copyTimers = {
-            1: { remaining: 180, interval: null, paused: true },
-            2: { remaining: 180, interval: null, paused: true }
-        };
-
-        function updateCopyTimerUI(id) {
-            const ct = copyTimers[id];
-            const el = document.getElementById(`copyTimer${id}`);
-            if (!el) return;
-            const mm = Math.floor(ct.remaining / 60);
-            const ss = ct.remaining % 60;
-            el.textContent = `${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
-            el.style.color = ct.remaining <= 30 ? '#ef4444' : '#facc15';
-        }
-
-        function startCopyTimer(id) {
-            const ct = copyTimers[id];
-            if (!ct) return;
-            if (ct.remaining <= 0) ct.remaining = 180;
-            clearInterval(ct.interval);
-            ct.paused = false;
-            ct.interval = setInterval(() => {
-                if (!ct.paused && ct.remaining > 0) {
-                    ct.remaining--;
-                    updateCopyTimerUI(id);
-                    if (ct.remaining === 0) {
-                        clearInterval(ct.interval);
-                        playTimerBeep();
-                        toast('⏰ ĐÃ HẾT GIỜ CHÉP BÀI! Các em nhanh tay gác bút nhé!', 'ok');
-                    }
-                }
-            }, 1000);
-            updateCopyTimerUI(id);
-            toast(`⏳ Bắt đầu đếm ngược 3 phút chép bài!`, 'ok');
-        }
-
-        function pauseCopyTimer(id) {
-            const ct = copyTimers[id];
-            if (!ct) return;
-            ct.paused = !ct.paused;
-            toast(ct.paused ? '⏸ Đã tạm dừng đồng hồ!' : '▶ Tiếp tục đếm giờ!', 'ok');
-        }
-
-        function resetCopyTimer(id) {
-            const ct = copyTimers[id];
-            if (!ct) return;
-            clearInterval(ct.interval);
-            ct.remaining = 180;
-            ct.paused = true;
-            updateCopyTimerUI(id);
-        }
-
-        function playTimerBeep() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                [440, 660, 880].forEach((freq, idx) => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.18);
-                    gain.gain.setValueAtTime(0.2, ctx.currentTime + idx * 0.18);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + idx * 0.18 + 0.15);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start(ctx.currentTime + idx * 0.18);
-                    osc.stop(ctx.currentTime + idx * 0.18 + 0.15);
-                });
-            } catch (error) {
-                console.error('Không thể phát âm báo hết giờ:', error);
-            }
-        }
+        /* ================= QUẢN LÝ DANH SÁCH HỌC SINH ================= */
 
         const FALLBACK_STUDENTS = {
             "3_2": ["Nguyễn Khả Ái", "Nguyễn Đức Anh", "Nguyễn Quốc Anh", "Trịnh Gia Bảo", "Ngô Hoàng Bảo Châu", "Nguyễn Doanh Doanh", "Phạm Đại Dương", "Danh Thành Đạt", "Vũ Nghi Đình", "Võ Đoàn Nhã Hân", "Võ Hứa Chí Hiếu", "Nguyễn Trần Gia Huy", "Đoàn Gia Hưng", "Nguyễn Phúc Hưng", "Đỗ Minh Khang", "Đặng Nguyễn Quốc Khởi", "Đặng Lê Thiên Kim", "Trương Quân Kỳ", "Mai Hoàng Lam", "Lê Trúc Ly", "Vũ Hoàng Ánh Minh", "Vương Lê Bảo Minh", "Đinh Kim Ngân", "Trần Y Như Ngọc", "Chiêm Nguyễn Khôi Nguyên", "Nguyễn Công Gia Phát", "Trần Thiên Phú", "Keo Trần Kim Phúc", "Lê Đức Phúc", "Bùi Mai Phương", "Nguyễn Quốc Quân", "Lê Anh Quốc", "Nguyễn Xuân Quý", "Hình Minh Thanh", "Nguyễn Việt Thanh", "Nguyễn Minh Thành", "Lê Đức Thịnh", "Huỳnh Minh Thuận", "Huỳnh Gia Tiến", "Nguyễn Ngọc Trâm", "Nguyễn Ngọc Bảo Trân", "Nguyễn Thanh Trọng", "Nguyễn Đức Tuấn", "Đoàn Thị Bảo Vy", "Hình Lê Khánh Vy", "Hồ Nhật Vy", "Nguyễn Trần Thảo Vy", "Lê Ngọc Kim Yến"],
@@ -1845,8 +1752,82 @@
                 teamMouseTurnsDone: [...teamMouseTurnsDone],
                 contestTurnIndex,
                 curMouseTask,
-                turn
+                turn,
+                calledStudentIds: Array.from(calledStudents || [])
             };
+            if (window.sessionManager) {
+                window.sessionManager.save({
+                    classSession: classSessions[currentClassID]
+                });
+            }
+        }
+
+        function initSessionManager() {
+            if (!window.createSessionStateManager) return;
+            window.sessionManager = window.createSessionStateManager({
+                storageKey: 'bgtieu_hoc_k3_tiet_07_' + currentClassID + '_state',
+                onRestore: (st) => {
+                    if (st && st.classSession) {
+                        classSessions[currentClassID] = st.classSession;
+                        applyClassSession(st.classSession);
+                    }
+                },
+                onClear: () => location.reload()
+            });
+            window.sessionManager.restore();
+        }
+
+        function applyClassSession(classSession) {
+            if (!classSession) return;
+            if (classSession.teamCount >= 2 && classSession.teamCount <= 6) {
+                numT = classSession.teamCount;
+            }
+            $('#teamCount').value = String(numT);
+            selectedStudent = null;
+            lessonLogs = classSession.lessonLogs ? [...classSession.lessonLogs] : [];
+            solvedSpotIds.clear();
+            if (classSession.solvedSpotIds) {
+                const validSpotIds = new Set(POSTURE_SPOTS.map(spot => spot.id));
+                classSession.solvedSpotIds.forEach(id => {
+                    if (validSpotIds.has(id)) solvedSpotIds.add(id);
+                });
+            }
+            activeSpotIdx = classSession.activeSpotIdx || 0;
+            const savedMouseTurns = classSession.teamMouseTurnsDone || [];
+            const restoredMouseTurns = Array.from({ length: numT }, (_, i) =>
+                Math.min(STUDENTS_PER_TEAM_MOUSE, Math.max(0, savedMouseTurns[i] || 0))
+            );
+            const restoredContestTurnIndex = restoredMouseTurns.reduce((total, count) => total + count, 0);
+            curMouseTask = classSession.curMouseTask ? Math.min(classSession.curMouseTask, MOUSE_TASKS.length - 1) : 0;
+            const restoredTurn = restoredContestTurnIndex < numT * STUDENTS_PER_TEAM_MOUSE
+                ? (restoredContestTurnIndex ? restoredContestTurnIndex % numT : (classSession.turn % numT || 0))
+                : (classSession.turn % numT || 0);
+            turn = restoredTurn;
+
+            const classScores = classSession.teamScores || [];
+            TEAMS = Array.from({ length: numT }, (_, i) => ({
+                id: i,
+                n: `Tổ ${i + 1}`,
+                color: TEAM_COLORS[i % TEAM_COLORS.length],
+                score: Number.isFinite(classScores[i]) ? classScores[i] : START_SCORE
+            }));
+            initTeams();
+            if (Array.isArray(classSession.teamSolvedMouseTasks)) {
+                teamSolvedMouseTasks = classSession.teamSolvedMouseTasks.map(arr => new Set(Array.isArray(arr) ? arr : []));
+            } else {
+                teamSolvedMouseTasks = Array.from({ length: numT }, () => new Set());
+            }
+            if (Array.isArray(classSession.calledStudentIds)) {
+                calledStudents = new Set(classSession.calledStudentIds);
+                calledStudentsByClass[currentClassID] = calledStudents;
+                renderStudents();
+            }
+            teamMouseTurnsDone = restoredMouseTurns;
+            contestTurnIndex = restoredContestTurnIndex;
+            renderTeams();
+            updateTurnLabels();
+            renderPostureHotspots();
+            loadMouseTask(curMouseTask);
         }
 
         /* ================= 2. ĐIỀU HƯỚNG SLIDE ================= */
@@ -2636,6 +2617,7 @@
 
             renderStudents();
             updateTurnLabels();
+            initSessionManager();
         }
 
         function renderStudents() {

@@ -196,6 +196,7 @@
             <div class="stats-board" style="display: none;" id="stats-board">
                 <span class="stat-badge">🏆 Điểm: <span id="score">0</span></span>
                 <span class="stat-badge">👦👧 Còn: <span id="counter">0</span> bạn</span>
+                <button type="button" class="btn-start" style="background:#fee2e2; color:#ef4444; border:1px solid #f87171; padding:4px 10px; font-size:0.9rem; margin-left:8px;" onclick="if(window.sessionManager)window.sessionManager.clear();" title="Xóa dữ liệu phiên">🗑️ Xóa phiên</button>
             </div>
         </div>
 
@@ -292,7 +293,49 @@
             document.getElementById("score").innerText = score;
             
             renderStudentList();
+            initSessionManager();
             nextTurn();
+        }
+
+        function saveSession() {
+            if (window.sessionManager) {
+                window.sessionManager.save({
+                    score,
+                    remainingStudents,
+                    playedStudents,
+                    bannedStudents,
+                    pushedStudents,
+                    currentStudentName
+                });
+            }
+        }
+
+        function initSessionManager() {
+            if (!window.createSessionStateManager) return;
+            const selectedClass = document.getElementById("class-select").value || '2_2';
+            window.sessionManager = window.createSessionStateManager({
+                storageKey: 'bgtieu_hoc_k2_tiet_05_' + selectedClass + '_state',
+                onRestore: (st) => {
+                    if (st) {
+                        if (st.score !== undefined) {
+                            score = st.score;
+                            document.getElementById("score").innerText = score;
+                        }
+                        if (Array.isArray(st.remainingStudents)) remainingStudents = st.remainingStudents;
+                        if (Array.isArray(st.playedStudents)) playedStudents = st.playedStudents;
+                        if (Array.isArray(st.bannedStudents)) bannedStudents = st.bannedStudents;
+                        if (Array.isArray(st.pushedStudents)) pushedStudents = st.pushedStudents;
+                        if (st.currentStudentName) currentStudentName = st.currentStudentName;
+                        document.getElementById("stats-board").style.display = "flex";
+                        document.getElementById("game-area").style.display = "flex";
+                        document.getElementById("sidebar").style.display = "flex";
+                        renderStudentList();
+                        updateSidebarUI();
+                    }
+                },
+                onClear: () => location.reload()
+            });
+            window.sessionManager.restore();
         }
 
         // --- RENDER DANH SÁCH BÊN PHẢI ---
@@ -409,6 +452,7 @@
             });
 
             isWaitingForKey = true; 
+            saveSession();
         }
 
         function nextTurn() {
