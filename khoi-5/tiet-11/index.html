@@ -2650,6 +2650,16 @@
                 }));
             }
             populateStudentSelects();
+            if (window.DemonMode) {
+                window.DemonMode.init({
+                    students: studentsList.map(s => s.name || s),
+                    onStateChange: (active) => {
+                        isDemonMode = active;
+                        updateDemonFundUI();
+                        renderTeams();
+                    }
+                });
+            }
         }
 
         function enableGradingButtonsForSelect(selectEl) {
@@ -3728,72 +3738,18 @@
             }
         }
 
-        /* ================= 10. CHẾ ĐỘ DEMON MODE & ÂN XÁ HOÀN LƯƠNG (QUY CHUẨN 12 & 16) ================= */
+        /* ================= 10. CHẾ ĐỘ DEMON MODE (GỌI TRỰC TIẾP window.DemonMode) ================= */
         function toggleDemonMode() {
-            isDemonMode = !isDemonMode;
-            sessionStorage.setItem('bg_demon_mode', isDemonMode ? 'true' : 'false');
-            if (isDemonMode) {
-                activateDemonModeUI();
-                if (!teams.some(t => t.isDemon)) {
-                    teams.push({ id: 99, name: "Tổ Quỷ 😈", score: STARTING_SCORE, isDemon: true });
+            if (window.DemonMode) {
+                if (!window.DemonMode.isActive) {
+                    window.DemonMode.enable();
+                } else {
+                    window.DemonMode.openManagerModal();
                 }
-                if (window.toast) window.toast('⚡ ĐÃ KÍCH HOẠT ĐẤU TRƯỜNG MA VƯƠNG! 😈', 3000, 'var(--purple)');
-            } else {
-                teams = teams.filter(t => !t.isDemon);
-                const fundDisp = document.getElementById('demon-relief-fund-display');
-                if (fundDisp) fundDisp.style.display = 'none';
-                const sbFund = document.getElementById('sidebar-demon-fund');
-                if (sbFund) sbFund.style.display = 'none';
-                if (window.toast) window.toast('🕊️ Đã tắt chế độ Đấu Trường Ma Vương.', 2500, 'var(--mint)');
+                isDemonMode = window.DemonMode.isActive;
+                updateDemonFundUI();
+                renderTeams();
             }
-
-            renderTeams();
-            renderConsolidationQuestions();
-            updateDemonFundUI();
-
-            if (currentSlide === 5 || currentSlide === 8) {
-                const sNum = currentSlide === 5 ? 1 : 2;
-                const validTickets = getActiveStageTickets(sNum);
-                const curIdx = currentTicketIdx[sNum] || 0;
-                const safeIdx = curIdx < validTickets.length ? curIdx : (validTickets.length - 1);
-                currentTicketIdx[sNum] = safeIdx;
-                const ticket = validTickets[safeIdx];
-                const activeTeam = teams.find(t => t.id === ticket.teamId) || teams[0];
-                const isDemon = (ticket.teamId === 99);
-                const teamLabel = activeTeam ? activeTeam.name : ticket.teamName;
-
-                document.getElementById(`s${sNum}-ticket-title`).textContent = ticket.title;
-                document.getElementById(`s${sNum}-team-badge`).textContent = `Đội thi: ${teamLabel} (Lượt ${safeIdx + 1}/${validTickets.length})`;
-                document.getElementById(`s${sNum}-target-text`).textContent = ticket.targetText;
-                document.getElementById(`s${sNum}-ticket-req`).innerHTML = ticket.reqText;
-
-                const warningEl = document.getElementById(`s${sNum}-demon-warning`);
-                if (warningEl) warningEl.style.display = isDemon ? 'flex' : 'none';
-
-                const stSelect = document.getElementById(`sel-stage-${sNum}`);
-                const diceBtn = document.getElementById(`s${sNum}-btn-dice`);
-                if (stSelect) {
-                    if (isDemon) {
-                        stSelect.disabled = true;
-                        stSelect.style.background = '#f3e8ff';
-                        stSelect.style.borderColor = '#a855f7';
-                        stSelect.innerHTML = '<option value="">⚠️ Bắt buộc bấm 🎲 Gacha Tổ Quỷ</option>';
-                    } else {
-                        stSelect.disabled = false;
-                        stSelect.style.background = '';
-                        stSelect.style.borderColor = '';
-                        populateStudentSelects();
-                    }
-                }
-                if (diceBtn) {
-                    diceBtn.title = isDemon ? '🎲 Gacha Tổ Quỷ' : 'Gọi ngẫu nhiên (Picked ≠ Done)';
-                }
-
-                renderBettingTable(sNum, activeTeam ? activeTeam.id : ticket.teamId);
-            }
-            if (currentSlide === 10) renderLeaderboard();
-
-            saveLocalStorage();
         }
 
         function activateDemonModeUI() {
@@ -3801,67 +3757,28 @@
         }
 
         function updateDemonFundUI() {
+            const isDemon = window.DemonMode ? window.DemonMode.isActive : isDemonMode;
             const fundDisplay = document.getElementById('demon-relief-fund-display');
             const fundVal = document.getElementById('relief-fund-val');
             if (fundDisplay && fundVal) {
-                fundDisplay.style.display = isDemonMode ? 'inline-flex' : 'none';
+                fundDisplay.style.display = isDemon ? 'inline-flex' : 'none';
                 fundVal.textContent = demonReliefFund;
             }
             const sbFund = document.getElementById('sidebar-demon-fund');
             const sbVal = document.getElementById('sidebar-relief-fund-val');
             if (sbFund && sbVal) {
-                sbFund.style.display = isDemonMode ? 'flex' : 'none';
+                sbFund.style.display = isDemon ? 'flex' : 'none';
                 sbVal.textContent = demonReliefFund;
             }
             const demonBtn = document.getElementById('btn-sidebar-demon');
             if (demonBtn) {
-                demonBtn.style.background = isDemonMode ? '#7e22ce' : 'rgba(255, 255, 255, 0.08)';
+                demonBtn.style.background = isDemon ? '#7e22ce' : 'rgba(255, 255, 255, 0.08)';
             }
         }
 
         function promptPardonDemon() {
-            const demonStudents = studentsList.filter(s => s.isDemon);
-            if (demonStudents.length === 0) {
-                if (window.toast) window.toast('Chưa có học sinh nào ở Phe Quỷ để ân xá!', 2000);
-                return;
-            }
-            const names = demonStudents.map(s => s.name);
-            const chosenName = prompt('Nhập tên học sinh được ÂN XÁ hoàn lương trở về tổ cũ:\n(Đang ở Phe Quỷ: ' + names.join(', ') + ')', names[0]);
-            if (!chosenName) return;
-            pardonDemonStudent(chosenName.trim());
-        }
-
-        function pardonDemonStudent(studentName) {
-            const student = studentsList.find(s => s.name.toLowerCase().trim() === studentName.toLowerCase().trim());
-            if (!student) {
-                alert('Không tìm thấy học sinh "' + studentName + '" trong danh sách!');
-                return;
-            }
-            let record = demonRecords.find(r => r.name.toLowerCase().trim() === studentName.toLowerCase().trim());
-            if (!record) {
-                record = {
-                    name: student.name,
-                    originalTeamId: 1,
-                    status: 'Chưa hoàn lương',
-                    violations: 1
-                };
-                demonRecords.push(record);
-            }
-
-            student.isDemon = false;
-            record.status = 'Đã Ân Xá Hoàn Lương';
-
-            const targetTeam = teams.find(t => t.id === (record.originalTeamId || 1) && !t.isDemon) || teams[0];
-            if (targetTeam) {
-                targetTeam.score += 100;
-            }
-
-            AudioSys.playWin();
-            renderTeams();
-            populateStudentSelects();
-            saveLocalStorage();
-            if (window.toast) {
-                window.toast(`🕊️ Đã ÂN XÁ cho em ${student.name} hoàn lương trở về ${targetTeam.name}, tài trợ +100 Xu!`, 3000, 'var(--mint)');
+            if (window.DemonMode) {
+                window.DemonMode.openManagerModal();
             }
         }
 

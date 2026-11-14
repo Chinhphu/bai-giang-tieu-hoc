@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Ngân hàng dữ liệu đồng bộ từ questions.json
  * Hỗ trợ chạy 100% offline-first không lỗi CORS khi mở bằng file://
  */

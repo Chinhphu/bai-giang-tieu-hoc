@@ -55,9 +55,7 @@ const Khoi3Students = (() => {
 
     try {
       const paths = [
-        '../../assets/data/students_3_2026_2027.json',
-        '../assets/data/students_3_2026_2027.json',
-        '/assets/data/students_3_2026_2027.json'
+        '../../assets/data/students_3_2026_2027.json'
       ];
 
       let rawData = null;

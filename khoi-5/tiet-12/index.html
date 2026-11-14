@@ -1342,6 +1342,16 @@
                 ].map((name, idx) => ({ id: idx + 1, name, team: (idx % teams.length) + 1 }));
             }
             populateStudentSelects();
+            if (window.DemonMode) {
+                window.DemonMode.init({
+                    students: studentsList.map(s => s.name || s),
+                    onStateChange: (active) => {
+                        isDemonMode = active;
+                        updateDemonFundUI();
+                        renderTeams();
+                    }
+                });
+            }
         }
 
         function populateStudentSelects() {
@@ -1887,24 +1897,18 @@
             }
         }
 
-        /* ================= 10. PHE QUỶ DEMON MODE ================= */
+        /* ================= 10. PHE QUỶ DEMON MODE (GỌI TRỰC TIẾP window.DemonMode) ================= */
         function toggleDemonMode() {
-            isDemonMode = !isDemonMode;
-            sessionStorage.setItem('bg_demon_mode', isDemonMode ? 'true' : 'false');
-            if (isDemonMode) {
-                activateDemonModeUI();
-                if (!teams.some(t => t.isDemon)) {
-                    teams.push({ id: 99, name: "Tổ Quỷ 😈", score: 0, isDemon: true });
+            if (window.DemonMode) {
+                if (!window.DemonMode.isActive) {
+                    window.DemonMode.enable();
+                } else {
+                    window.DemonMode.openManagerModal();
                 }
-                if (window.toast) window.toast('⚡ ĐÃ KÍCH HOẠT ĐẤU TRƯỜNG MA VƯƠNG! 😈', 3000, 'var(--purple)');
-            } else {
-                teams = teams.filter(t => !t.isDemon);
-                document.getElementById('demon-relief-fund-display').style.display = 'none';
-                if (window.toast) window.toast('🕊️ Đã tắt chế độ Đấu Trường Ma Vương.', 2500, 'var(--mint)');
+                isDemonMode = window.DemonMode.isActive;
+                updateDemonFundUI();
+                renderTeams();
             }
-            renderTeams();
-            renderTeamSelectorV1();
-            saveLocalStorage();
         }
 
         function activateDemonModeUI() {
@@ -1914,19 +1918,14 @@
         }
 
         function updateDemonFundUI() {
+            const isDemon = window.DemonMode ? window.DemonMode.isActive : isDemonMode;
             const fundDisplay = document.getElementById('demon-relief-fund-display');
             const fundVal = document.getElementById('relief-fund-val');
             if (fundDisplay && fundVal) {
-                fundDisplay.style.display = isDemonMode ? 'inline-block' : 'none';
+                fundDisplay.style.display = isDemon ? 'inline-block' : 'none';
                 fundVal.textContent = demonReliefFund;
             }
         }
-
-        window.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.altKey && (e.key === 'd' || e.key === 'D')) {
-                toggleDemonMode();
-            }
-        });
 
         /* ================= 11. TÍCH HỢP QUẢN LÝ HỌC SINH MODAL ================= */
         function openAddHs() {
@@ -1951,6 +1950,16 @@
             input.value = '';
             closeAddHs();
             populateStudentSelects();
+            if (window.DemonMode) {
+                window.DemonMode.init({
+                    students: studentsList.map(s => s.name || s),
+                    onStateChange: (active) => {
+                        isDemonMode = active;
+                        updateDemonFundUI();
+                        renderTeams();
+                    }
+                });
+            }
             if (window.toast) window.toast(`Đã thêm ${names.length} học sinh mới!`, 2000);
         }
 

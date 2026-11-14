@@ -207,15 +207,12 @@
                     '3_3': ['Trần Văn An', 'Lê Thị Bích', 'Nguyễn Quốc Cường', 'Đỗ Thành Danh', 'Phạm Hoàng Em', 'Vũ Đình Giang', 'Bùi Thu Hà', 'Đặng Nhật Huy']
                 };
             }
-            try {
-                let q;
-                try {
-                    q = await (await fetch(QUESTION_JSON)).json();
-                } catch {
-                    q = await (await fetch('./cau-hoi-bai-3.json')).json();
-                }
-                G.bank = (q.questions || q).slice().sort((a, b) => a.lv - b.lv);
-            } catch (e) { errs.push('ngân hàng câu hỏi'); G.bank = []; }
+            if (window.QUESTS_DATA && Array.isArray(window.QUESTS_DATA.questions)) {
+                G.bank = window.QUESTS_DATA.questions.slice().sort((a, b) => a.lv - b.lv);
+            } else {
+                errs.push('ngân hàng câu hỏi');
+                G.bank = [];
+            }
             $('classSel').innerHTML = Object.keys(G.classes).map(k => `<option value="${esc(k)}">Lớp ${esc(k.replace('_', '/'))}</option>`).join('');
             setupClass();
             if (errs.length) $('setupMsg').innerText = '⚠ Không đọc được: ' + errs.join(', ') + ' — hãy mở game qua web server (không mở trực tiếp file://) và kiểm tra đường dẫn.';

@@ -385,16 +385,10 @@ const Khoi5Students = (() => {
 
   async function loadStudents(classKey = '5_1') {
     currentClassKey = String(classKey).replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    if (importedExcelStudents && importedExcelStudents.length > 0) {
-      allStudents = disambiguateNames(importedExcelStudents);
-      return allStudents;
-    }
 
     try {
       const paths = [
-        '../../assets/data/students_5_2026_2027.json',
-        '../assets/data/students_5_2026_2027.json',
-        '/assets/data/students_5_2026_2027.json'
+        '../../assets/data/students_5_2026_2027.json'
       ];
       let rawData = null;
       for (const p of paths) {
