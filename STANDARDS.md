@@ -519,25 +519,75 @@ bgtieu_hoc_k{Khoi}_tiet_{Tiet}_{Lop}_state
 }
 ```
 
-### 9.4 Bắt buộc Nút Xóa Dữ Liệu Phiên Học (Clear Session Button) Cho Mọi Trang HTML
-* **Phạm vi áp dụng:** BẮT BUỘC có mặt trên **100% file HTML** (bài giảng và mini-game).
-* **Vị trí & Thiết kế UI:**
-  * Nút đặt tại Sidebar, thanh điều khiển chân trang hoặc Menu công cụ Giáo viên (Teacher Toolbar).
-  * Nhãn nút rõ ràng: `🗑️ Xóa dữ liệu phiên` hoặc `🔄 Làm mới tiết học` (kèm tooltip giải thích: *"Xóa điểm và dữ liệu đã lưu để dạy lớp mới"*).
-* **Quy trình Xác nhận An toàn:**
-  1. Khi Giáo viên bấm nút, BẮT BUỘC hiển thị hộp thoại xác nhận `confirm()`:
-     ```javascript
-     if (confirm("⚠️ Bạn có chắc chắn muốn xóa toàn bộ điểm số và dữ liệu đã lưu của tiết này để bắt đầu lớp mới không?")) {
-         // Thực hiện xóa đúng key
-     }
-     ```
-  2. **Xóa chính xác phạm vi:** Chỉ xóa đúng key `STORAGE_KEY` của bài học/game đó (`localStorage.removeItem(STORAGE_KEY)`).
-  3. **TUYỆT ĐỐI CẤM:** Không được gọi `localStorage.clear()` vì sẽ xóa sạch dữ liệu của các bài học hoặc khối lớp khác đang lưu trên máy tính phòng máy.
-  4. Sau khi xóa, đặt lại trạng thái ban đầu (hoặc gọi `window.allowPageReload(); location.reload()`) và hiển thị thông báo: *"✅ Đã xóa dữ liệu phiên học thành công!"*.
+### 9.4 Quy Chuẩn Khởi Động Không Rào Cản (Zero Friction) & Nút Dạy Lớp Mới Duy Nhất
+* **1. Màn hình Setup sạch sẽ & Khởi động không rào cản (Zero Friction Entry):**
+  * **TUYỆT ĐỐI CẤM:** Không hiển thị banner hỏi han phức tạp (`setup-resume-banner`) hoặc hiện pop-up `confirm()` chặn đường khi giáo viên bấm *"VÀO TIẾT HỌC 🚀"*. Thao tác vào lớp phải lập tức, trơn tru.
+  * **Cơ chế phục hồi êm dịu (Silent Crash Recovery):** Khi giáo viên chọn lớp và bấm vào bài, nếu phát hiện có dữ liệu cũ của lớp đó (do cúp điện, sập nguồn hoặc tắt tab dở dang), hệ thống tự động khôi phục toàn bộ điểm số/tiến trình và hiện Toast xanh ngọc báo hiệu: *"⚡ Đã tự động khôi phục dữ liệu phiên học trước!"*. Nếu không có dữ liệu cũ, hệ thống tự động khởi tạo tiết học mới tinh 1000 điểm.
+* **2. TUYỆT ĐỐI CẤM Nút Xóa Dữ Liệu Trên Thanh Topbar Chiếu Cho Học Sinh:**
+  * Topbar trên cùng là không gian máy chiếu dành cho học sinh xem (tiêu đề, thanh điều hướng bài học). Tuyệt đối không đặt nút `🗑️ Xóa phiên` hoặc các nút quản trị phá hủy dữ liệu lên đây gây rối mắt và mất mỹ quan sư phạm.
+* **3. DUY NHẤT 1 Nút `🔄 Dạy Lớp Mới` Trong Sidebar Giáo Viên:**
+  * Đặt duy nhất 1 nút tại chân bảng điều khiển Sidebar ẩn/hiện của Giáo viên: `🔄 Dạy Lớp Mới`.
+  * **Quy trình Xác nhận Gọn gàng (1 câu duy nhất):**
+    ```javascript
+    function resetLessonSession() {
+        if (!confirm('Bắt đầu tiết dạy mới cho lớp tiếp theo? Toàn bộ điểm và tiến trình của lớp này sẽ được làm mới.')) return;
+        localStorage.removeItem(STORAGE_KEY);
+        if (window.allowPageReload) window.allowPageReload();
+        location.reload();
+    }
+    ```
+  * **Xóa chính xác phạm vi:** Chỉ xóa đúng key `STORAGE_KEY` của chính bài học và lớp đó.
+  * **TUYỆT ĐỐI CẤM:** Không được gọi `localStorage.clear()` làm ảnh hưởng các bài giảng hoặc khối lớp khác.
 
 ### 9.5 Mẫu Code Quản Lý State Chuẩn Hóa
 ```javascript
 const STORAGE_KEY = `bgtieu_hoc_k${CURRENT_GRADE}_tiet_${CURRENT_LESSON}_${CURRENT_CLASS}_state`;
+
+// 1. Tự động lưu ngầm mỗi khi có thay đổi
+function saveState() {
+    try {
+        const payload = {
+            classId: currentClass,
+            currentSlide: currentSlideIndex,
+            teams: teamsData,
+            playedStudents: Array.from(playedStudentsSet),
+            completedActivities: Array.from(completedSet),
+            timestamp: Date.now()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    } catch (e) {
+        console.warn('Lưu state thất bại:', e);
+    }
+}
+
+// 2. Tự động phục hồi êm dịu khi vào tiết (Zero Friction)
+function restoreStateIfExists() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        if (data && data.teams) {
+            teamsData = data.teams;
+            currentSlideIndex = data.currentSlide || 0;
+            if (data.playedStudents) playedStudentsSet = new Set(data.playedStudents);
+            renderScoreboard();
+            showToast('⚡ Đã tự động khôi phục dữ liệu phiên học trước!');
+            return true;
+        }
+    } catch (e) {
+        console.warn('Khôi phục thất bại:', e);
+    }
+    return false;
+}
+
+// 3. Nút Dạy Lớp Mới duy nhất trong Sidebar
+function resetLessonSession() {
+    if (!confirm('Bắt đầu tiết dạy mới cho lớp tiếp theo? Toàn bộ điểm và tiến trình của lớp này sẽ được làm mới.')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    if (window.allowPageReload) window.allowPageReload();
+    location.reload();
+}
+```
 
 // 1. Tự động lưu
 function saveSessionState() {

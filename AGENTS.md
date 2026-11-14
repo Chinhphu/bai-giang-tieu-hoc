@@ -126,7 +126,9 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 * **100% File HTML / Tiết học / Mini-game BẮT BUỘC tự động lưu trạng thái (Auto-Save):**
   * Trong phòng máy tính trường tiểu học, sự cố cúp điện đột ngột, sập aptomat, vấp dây nguồn máy tính hoặc học sinh/giáo viên vô tình tắt nhầm tab/trình duyệt xảy ra rất thường xuyên.
   * Mọi biến động trạng thái (điểm số các tổ/cá nhân, chuỗi thắng/dây streak, tiến trình slide/câu hỏi hiện tại, danh sách học sinh đã gọi / còn lại, nhật ký telemetry) **phải được tự động ghi ngay vào `localStorage`**.
-  * **Cơ chế Tự Động Phục Hồi (Crash Recovery):** Khi mở lại file HTML (sau khi có điện trở lại hoặc mở lại trình duyệt), hệ thống tự động kiểm tra `localStorage`. Nếu thấy có phiên học đang dở dang, lập tức khôi phục chính xác toàn bộ trạng thái và hiện Toast thông báo màu xanh ngọc: *"⚡ Đã tự động khôi phục dữ liệu phiên học trước do sự cố tắt máy/cúp điện!"*.
+  * **Cơ chế Tự Động Phục Hồi Êm Dịu (Silent Crash Recovery — Zero Friction):**
+    * Khi giáo viên chọn lớp và bấm *"VÀO TIẾT HỌC 🚀"*, nếu có dữ liệu phiên dở dang, hệ thống tự động khôi phục ngay lập tức và hiện 1 Toast thông báo màu xanh ngọc: *"⚡ Đã tự động khôi phục dữ liệu phiên trước của Lớp X!"*.
+    * **TUYỆT ĐỐI CẤM** hiện banner cảnh báo trên màn hình Setup hoặc bật popup `confirm()` hỏi dồn dập (*"Bạn muốn tiếp tục hay xóa dữ liệu cũ..."*). Việc này gây phiền toái, làm mất thời gian và khiến giáo viên ức chế khi vào tiết.
 * **Cú pháp Key an toàn — Tránh xung đột giữa các bài:**
   ```javascript
   const STORAGE_KEY = `bgtieu_hoc_k${grade}_tiet_${lesson}_${classId}_state`;
@@ -134,12 +136,14 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
   ```
   Tuyệt đối không dùng tên chung chung như `state`, `game_data`, `tv_data` gây ghi đè dữ liệu giữa các bài giảng khác nhau.
 
-### 11. Bắt Buộc Nút Xóa Dữ Liệu Tiết Học (Clear Session Button) Cho Mọi File HTML
+### 11. Quy Chuẩn Nút Làm Mới Tiết Học / Dạy Lớp Mới (Clean Session Reset)
 * **Phạm vi áp dụng:** BẮT BUỘC có mặt trên **100% file HTML của bài học và mini-game**.
-* **Vị trí & Thiết kế:**
-  * Nút đặt ở vị trí trực quan, dễ tìm (Sidebar, thanh công cụ Giáo viên hoặc góc trên màn hình), có nhãn rõ ràng: `🗑️ Xóa dữ liệu phiên` hoặc `🔄 Làm mới tiết học`.
-  * **Cơ chế xác nhận an toàn:** Khi bấm, BẮT BUỘC hiển thị hộp thoại xác nhận `confirm()`: *"Bạn có chắc chắn muốn xóa dữ liệu đã lưu của tiết này để bắt đầu lớp mới không?"*.
-  * **Xóa đúng phạm vi:** Chỉ xóa đúng key `STORAGE_KEY` của chính bài học/game đó; sau đó reset trạng thái và thông báo *"✅ Đã xóa dữ liệu phiên học thành công!"*.
+* **Vị trí & Thiết kế — Duy Nhất 1 Nút Trong Sidebar:**
+  * **DUY NHẤT 1 NÚT** đặt gọn gàng trong Sidebar (thanh công cụ quản trị của Giáo viên), có nhãn rõ ràng: `🔄 Dạy Lớp Mới` (hoặc `🗑️ Làm mới tiết học`).
+  * **TUYỆT ĐỐI CẤM đặt nút xóa phiên trên thanh Topbar** (màn chiếu chính trước mặt học sinh). Màn chiếu phải luôn sạch sẽ, không để lộ các nút kỹ thuật xóa dữ liệu.
+* **Cơ chế xác nhận an toàn 1 chạm:**
+  * Khi giáo viên chủ động bấm nút `🔄 Dạy Lớp Mới`: Chỉ hiển thị 1 câu xác nhận ngắn gọn: `confirm('Bắt đầu tiết dạy mới cho lớp tiếp theo?')`.
+  * Khi nhấn OK: Chỉ xóa đúng key `STORAGE_KEY` của chính bài học đó và reload trang về màn hình Setup.
   * **TUYỆT ĐỐI CẤM:** Không được gọi `localStorage.clear()` hoặc xóa dữ liệu của bài học khác trên cùng máy tính.
 
 ### 12. Điểm Khởi Đầu 1000đ, Cấu Hình 2–6 Tổ & Quy Chuẩn Bảng Điểm Tối Giản (Click Sửa Điểm & Phạt 10% Khi Ồn)

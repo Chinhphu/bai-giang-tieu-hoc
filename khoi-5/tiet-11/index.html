@@ -1491,10 +1491,10 @@
                 </button>
             </div>
 
-            <!-- 6. Nút Xóa dữ liệu phiên (Lớp mới) -->
+            <!-- 6. Nút Dạy Lớp Mới (Làm mới phiên) -->
             <div style="margin-top: 6px;">
-                <button class="btn-sb-danger" type="button" onclick="resetLessonSession()" title="Xóa dữ liệu phiên để bắt đầu lớp mới">
-                    🗑️ Xóa dữ liệu phiên
+                <button class="btn-sb-tool" style="width: 100%; justify-content: center; background: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: rgba(239, 68, 68, 0.3);" type="button" onclick="resetLessonSession()" title="Làm mới tiết học để bắt đầu lớp mới">
+                    🔄 Dạy Lớp Mới
                 </button>
             </div>
 
@@ -1527,9 +1527,6 @@
                     </span>
                     <button class="btn-tb gold" type="button" onclick="goSlideTo(10)" title="Xem ngay Bảng vàng vinh danh">
                         🏆 Bảng Vàng
-                    </button>
-                    <button class="btn-tb danger" type="button" onclick="resetLessonSession()" title="Xóa dữ liệu lưu để dạy lớp mới">
-                        🗑️ Xóa phiên
                     </button>
                 </div>
             </div>
@@ -2475,62 +2472,10 @@
             setupStageDropzone(1);
             setupStageDropzone(2);
 
-            // Dừng ở setup-screen để giáo viên chọn lớp; nếu có phiên dở dang thì hiển thị nút tiếp tục
-            const lastClass = localStorage.getItem(ACTIVE_CLASS_POINTER_KEY) || '5_1';
-            const savedState = loadLocalStorage(lastClass);
-            if (savedState && savedState.teams && savedState.teams.length > 0) {
-                showResumePromptOnSetup(savedState);
-            }
-
             if (isDemonMode) {
                 activateDemonModeUI();
             }
         });
-
-        function showResumePromptOnSetup(savedState) {
-            const setupBox = document.querySelector('.setup-box');
-            if (!setupBox) return;
-            const existingResume = document.getElementById('setup-resume-banner');
-            if (existingResume) existingResume.remove();
-
-            const banner = document.createElement('div');
-            banner.id = 'setup-resume-banner';
-            banner.style.cssText = 'background:#f0fdf4; border:2px solid #16b89a; border-radius:12px; padding:12px 16px; margin-bottom:14px; text-align:left;';
-            banner.innerHTML = `
-                <div style="font-weight:800; font-size:14px; color:#0f766e; margin-bottom:4px;">
-                    ⚡ Phát hiện phiên học dở dang: <b>Lớp ${savedState.currentClass ? savedState.currentClass.replace('_', '/') : '5/1'}</b> (Slide ${savedState.currentSlide || 1})
-                </div>
-                <div style="display:flex; gap:8px; margin-top:8px;">
-                    <button type="button" class="btn-tb primary" style="font-size:13px; padding:6px 12px;" onclick="resumeFromSetup()">
-                        ▶ Tiếp tục phiên học này
-                    </button>
-                    <button type="button" class="btn-tb danger" style="font-size:13px; padding:6px 12px;" onclick="discardSessionForClass('${savedState.currentClass || '5_1'}')">
-                        🗑️ Bỏ qua / Xóa phiên này
-                    </button>
-                </div>
-            `;
-            const h2 = setupBox.querySelector('h2');
-            if (h2 && h2.nextSibling) {
-                setupBox.insertBefore(banner, h2.nextSibling);
-            } else {
-                setupBox.prepend(banner);
-            }
-        }
-
-        async function resumeFromSetup() {
-            const lastClass = localStorage.getItem(ACTIVE_CLASS_POINTER_KEY) || '5_1';
-            const savedState = loadLocalStorage(lastClass);
-            if (savedState) {
-                await restoreSession(savedState);
-            }
-        }
-
-        function discardSessionForClass(cls) {
-            localStorage.removeItem(buildStorageKey(cls));
-            const banner = document.getElementById('setup-resume-banner');
-            if (banner) banner.remove();
-            if (window.toast) window.toast('Đã xóa phiên học cũ của lớp ' + cls.replace('_', '/'), 2000);
-        }
 
         async function startGame() {
             const classSelect = document.getElementById('s-class');
@@ -2538,16 +2483,14 @@
             localStorage.setItem(ACTIVE_CLASS_POINTER_KEY, currentClass);
             STORAGE_KEY = buildStorageKey(currentClass);
 
-            // Kiểm tra xem lớp đang chọn có phiên học dở dang không
+            // Tự động khôi phục nếu có phiên học dở dang (ví dụ khi cúp điện / sập nguồn)
             const existingState = loadLocalStorage(currentClass);
             if (existingState && existingState.teams && existingState.teams.length > 0) {
-                const wantResume = confirm(`⚡ Lớp ${currentClass.replace('_', '/')} đang có phiên học dở dang từ trước (Slide ${existingState.currentSlide || 1})!\n\n- Nhấn OK để TIẾP TỤC phiên học cũ.\n- Nhấn CANCEL để BẮT ĐẦU MỚI (xóa dữ liệu cũ của lớp này).`);
-                if (wantResume) {
-                    await restoreSession(existingState);
-                    return;
-                } else {
-                    localStorage.removeItem(STORAGE_KEY);
+                await restoreSession(existingState);
+                if (window.toast) {
+                    window.toast(`⚡ Đã tự động khôi phục dữ liệu phiên trước của Lớp ${currentClass.replace('_', '/')}`, 2500, 'var(--mint)');
                 }
+                return;
             }
 
             const teamsCountSelect = document.getElementById('s-teams');
@@ -2662,16 +2605,11 @@
         }
 
         function resetLessonSession() {
-            if (confirm('⚠️ Bạn có chắc chắn muốn xóa toàn bộ điểm số và dữ liệu đã lưu của tiết này để bắt đầu lớp mới không?')) {
+            if (confirm('Bắt đầu tiết dạy mới cho lớp tiếp theo?')) {
                 localStorage.removeItem(STORAGE_KEY);
                 localStorage.removeItem(ACTIVE_CLASS_POINTER_KEY);
-                if (window.toast) {
-                    window.toast('✅ Đã xóa dữ liệu phiên học thành công!', 1500, 'var(--mint)');
-                }
-                setTimeout(() => {
-                    if (window.allowPageReload) window.allowPageReload();
-                    location.reload();
-                }, 400);
+                if (window.allowPageReload) window.allowPageReload();
+                location.reload();
             }
         }
 
