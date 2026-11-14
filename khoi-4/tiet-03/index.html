@@ -360,26 +360,48 @@
             { id: 3, score: STARTING_SCORE }
         ];
 
+        let activeTeamIdx = 0;
         function renderTeams() {
             if (window.sessionManager && teams) {
-                window.sessionManager.save({ teams });
+                window.sessionManager.save({ teams, activeTeamIdx });
             }
             const list = document.getElementById('teamList');
             list.innerHTML = '';
             teams.forEach((t, i) => {
                 const div = document.createElement('div');
-                div.className = 'team';
+                const isTurn = (i === activeTeamIdx);
+                div.className = `team ${isTurn ? 'turn active' : ''}`;
+                div.style.cursor = 'pointer';
+                div.title = `Bấm để chuyển lượt sang Đội ${t.id}`;
+                if (isTurn) {
+                    div.style.outline = '3px solid #2563eb';
+                    div.style.background = '#eff6ff';
+                }
+                div.onclick = (e) => {
+                    if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
+                        selectTeam(i);
+                    }
+                };
                 div.innerHTML = `
-                    <div class="team-name" style="margin-bottom: 5px;">Đội ${t.id}</div>
-                    <div class="team-score">
-                        <button class="score-btn minus" onclick="changeScore(${i}, -10)">-</button>
-                        <input type="number" value="${t.score}" onchange="updateScore(${i}, this.value)">
-                        <button class="score-btn" onclick="changeScore(${i}, 10)">+</button>
+                    <div class="team-name" style="margin-bottom: 5px; font-weight:800; display:flex; justify-content:space-between; align-items:center;">
+                        <span>${isTurn ? '👉 ' : ''}Đội ${t.id}</span>
+                        ${isTurn ? '<span style="font-size:12px; background:#2563eb; color:#fff; padding:2px 6px; border-radius:4px;">Lượt chơi</span>' : ''}
+                    </div>
+                    <div class="team-score" onclick="event.stopPropagation()">
+                        <button class="score-btn minus" onclick="event.stopPropagation(); changeScore(${i}, -10)">-</button>
+                        <input type="number" value="${t.score}" onclick="event.stopPropagation()" onchange="updateScore(${i}, this.value)">
+                        <button class="score-btn" onclick="event.stopPropagation(); changeScore(${i}, 10)">+</button>
                     </div>
                 `;
                 list.appendChild(div);
             });
         }
+        window.selectTeam = (index) => {
+            if (index < 0 || index >= teams.length) return;
+            activeTeamIdx = index;
+            renderTeams();
+            if (window.toast) window.toast(`🎯 Đã chuyển lượt sang: Đội ${teams[index].id}`, 1500);
+        };
         window.changeScore = (index, amount) => { teams[index].score += amount; renderTeams(); };
         window.updateScore = (index, value) => { teams[index].score = parseInt(value) || 0; };
         
@@ -392,6 +414,7 @@
         document.getElementById('removeTeamBtn').onclick = () => {
             if(teams.length > 2) { 
                 teams.pop();
+                if (activeTeamIdx >= teams.length) activeTeamIdx = teams.length - 1;
                 renderTeams();
             }
         };
@@ -400,6 +423,7 @@
                 storageKey: 'bgtieu_hoc_k4_tiet_03_state',
                 onRestore: (st) => {
                     if (st.teams) teams = st.teams;
+                    if (st.activeTeamIdx !== undefined) activeTeamIdx = st.activeTeamIdx;
                     renderTeams();
                 }
             });

@@ -783,10 +783,10 @@
 
             for (let i = 0; i < numTeams; i++) {
                 upperHTML += `
-                    <div class="lane-upper" id="lane-upper-${i}">
+                    <div class="lane-upper" id="lane-upper-${i}" style="cursor:pointer;" onclick="if(event.target.className.indexOf('t-name')===-1) switchTeamTurn(${i})" title="Bấm để chuyển lượt sang Tổ ${i + 1}">
                         <div class="lane-header">
-                            <div class="t-name t-${i}" contenteditable="true">TỔ ${i + 1}</div>
-                            <div class="t-score" id="sb-count-${i}">3</div>
+                            <div class="t-name t-${i}" contenteditable="true" onclick="event.stopPropagation()">TỔ ${i + 1}</div>
+                            <div class="t-score" id="sb-count-${i}" onclick="event.stopPropagation()">3</div>
                         </div>
                         <div class="tower-above-ground" id="bf-above-${i}"></div>
                     </div>
@@ -863,6 +863,15 @@
                 else el.classList.remove('active-lane');
             });
             document.getElementById('btnDrawQuestion').style.display = 'inline-block';
+        }
+
+        function switchTeamTurn(targetIdx) {
+            if (targetIdx < 0 || targetIdx >= numTeams) return;
+            activeTeamTurn = targetIdx;
+            updateStatusUI();
+            let tName = document.querySelector(`#lane-upper-${activeTeamTurn} .t-name`)?.innerText || `Tổ ${targetIdx + 1}`;
+            if (typeof toast === 'function') toast(`🎯 Đã chuyển lượt sang: ${tName}`);
+            saveSession();
         }
 
         function drawQuestion() {

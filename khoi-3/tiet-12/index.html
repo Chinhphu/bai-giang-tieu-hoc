@@ -1501,11 +1501,18 @@
                 const card = document.createElement('div');
                 card.className = `team-row-card ${idx === currentTurnTeamIndex ? 'active-turn' : ''}`;
                 card.style.borderLeftColor = team.color;
+                card.style.cursor = 'pointer';
+                card.title = `Bấm để chuyển lượt sang ${team.name}`;
+                card.onclick = (e) => {
+                    if (e.target.tagName !== 'BUTTON') {
+                        switchTeamTurn(idx);
+                    }
+                };
                 card.innerHTML = `
                     <div style="font-weight:900; font-size:1.1rem; color:#fff;">
                         ${team.name} ${idx === currentTurnTeamIndex ? '⚡' : ''}
                     </div>
-                    <div style="display:flex; align-items:center; gap:6px;">
+                    <div style="display:flex; align-items:center; gap:6px;" onclick="event.stopPropagation()">
                         <button class="btn-score-ctrl" onclick="adjustScore(${idx}, -50)">-</button>
                         <span class="team-score-badge">${team.score}đ</span>
                         <button class="btn-score-ctrl" onclick="adjustScore(${idx}, 50)">+</button>
@@ -1513,6 +1520,17 @@
                 `;
                 rack.appendChild(card);
             });
+        }
+
+        function switchTeamTurn(idx) {
+            if (idx < 0 || idx >= teams.length) return;
+            currentTurnTeamIndex = idx;
+            const racerEl = document.getElementById('currentRacerTeamText');
+            if (racerEl && teams[currentTurnTeamIndex]) racerEl.textContent = `Tay đua: [${teams[currentTurnTeamIndex].name}]`;
+            renderTeamsRack();
+            saveLocalState();
+            if (typeof showToast === 'function') showToast(`👉 Đã chuyển lượt sang [${teams[currentTurnTeamIndex].name}]!`);
+            else if (typeof toast === 'function') toast(`👉 Đã chuyển lượt sang [${teams[currentTurnTeamIndex].name}]!`);
         }
 
         function adjustScore(teamIdx, amount) {

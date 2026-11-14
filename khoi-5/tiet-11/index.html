@@ -2953,24 +2953,24 @@
             container.innerHTML = teams.map(t => {
                 const isTurn = (t.id === activeTurnTeamId);
                 return `
-                <div class="team-card ${t.isDemon ? 'demon-team' : ''} ${isTurn ? 'turn' : ''}" id="team-card-${t.id}">
+                <div class="team-card ${t.isDemon ? 'demon-team' : ''} ${isTurn ? 'turn' : ''}" id="team-card-${t.id}" style="cursor:pointer;" onclick="switchTeamTurn(${t.id})" title="Bấm để chuyển lượt sang ${t.name}">
                     <div class="team-card-head">
                         <span class="team-card-name">
                             ${isTurn ? '👉 ' : ''}${t.name}
                         </span>
                         <div class="team-card-right">
-                            <span class="team-card-score" id="team-score-span-${t.id}" onclick="startInlineScoreEdit(${t.id}, event)" title="Nhấp trực tiếp để sửa điểm">
+                            <span class="team-card-score" id="team-score-span-${t.id}" onclick="event.stopPropagation(); startInlineScoreEdit(${t.id}, event)" title="Nhấp trực tiếp để sửa điểm">
                                 ${t.score} Xu
                             </span>
-                            <input type="number" class="team-score-input" id="team-score-input-${t.id}" value="${t.score}" style="display:none;" />
-                            <button class="btn-penalize-noise" type="button" onclick="penalizeNoise(${t.id})" title="Trừ 10% điểm khi tổ mất trật tự, nói chuyện riêng">
+                            <input type="number" class="team-score-input" id="team-score-input-${t.id}" value="${t.score}" style="display:none;" onclick="event.stopPropagation()" />
+                            <button class="btn-penalize-noise" type="button" onclick="event.stopPropagation(); penalizeNoise(${t.id})" title="Trừ 10% điểm khi tổ mất trật tự, nói chuyện riêng">
                                 🤫 -10%
                             </button>
                         </div>
                     </div>
                     ${t.isDemon ? `
-                        <div style="margin-top:6px;">
-                            <button class="btn-pardon-mini" type="button" onclick="promptPardonDemon()" title="Ân xá 1 học sinh về tổ cũ (+100 Xu)">
+                        <div style="margin-top:6px;" onclick="event.stopPropagation()">
+                            <button class="btn-pardon-mini" type="button" onclick="event.stopPropagation(); promptPardonDemon()" title="Ân xá 1 học sinh về tổ cũ (+100 Xu)">
                                 🕊️ Ân Xá Hoàn Lương (+100 Xu)
                             </button>
                         </div>
@@ -2978,6 +2978,25 @@
                 </div>
                 `;
             }).join('');
+        }
+
+        function switchTeamTurn(teamId) {
+            const stageNum = (currentSlide === 5) ? 1 : ((currentSlide === 8) ? 2 : null);
+            const teamObj = teams.find(t => t.id === teamId);
+            if (!stageNum) {
+                if (teamObj) toast(`🎯 Đã chọn: ${teamObj.name}`, 1500, teamObj.color);
+                return;
+            }
+            const tickets = getActiveStageTickets(stageNum);
+            const targetIdx = tickets.findIndex(t => t.teamId === teamId);
+            if (targetIdx !== -1) {
+                loadStageTicket(stageNum, targetIdx);
+                renderTeams();
+                toast(`🎯 Đã chuyển lượt sang: ${teamObj ? teamObj.name : 'Tổ ' + teamId}`, 1500, teamObj?.color);
+                if (typeof saveLocalStorage === 'function') saveLocalStorage();
+            } else {
+                toast(`Tổ ${teamObj ? teamObj.name : teamId} không có nhiệm vụ trong chặng này!`, 1500);
+            }
         }
 
         function startInlineScoreEdit(teamId, event) {

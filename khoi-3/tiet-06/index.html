@@ -615,15 +615,15 @@
 
             el.innerHTML = G.teams.map((t, i) => {
                 const isActive = G.phase === 2 && i === G.turn;
-                return `<div class="tcard ${isActive ? 'active' : ''}">
+                return `<div class="tcard ${isActive ? 'active' : ''}" style="cursor:pointer;" onclick="setTeamTurn(${i})" title="Bấm để chuyển lượt sang ${esc(t.name)}">
     <!-- Header: Dòng Tên tổ riêng biệt & cực kỳ rõ ràng -->
     <div class="tcard-top">
         <div class="tname-wrap">
-            <div class="tname" contenteditable="true" onblur="G.teams[${i}].name=this.innerText.trim()||G.teams[${i}].name">${esc(t.name)}</div>
+            <div class="tname" contenteditable="true" onclick="event.stopPropagation()" onblur="G.teams[${i}].name=this.innerText.trim()||G.teams[${i}].name">${esc(t.name)}</div>
         </div>
         <div class="tcard-top-right">
             <span class="tstat-pill" title="Số học sinh">👥 ${G.students.filter(s => s.team === i).length}</span>
-            <button class="btn-punish" title="Phạt ồn: Tịch thu 1 món" onclick="punish(${i})">🔇</button>
+            <button class="btn-punish" title="Phạt ồn: Tịch thu 1 món" onclick="event.stopPropagation(); punish(${i})">🔇</button>
         </div>
     </div>
 
@@ -648,6 +648,27 @@
 </div>`;
             }).join('');
             attachInvScroll();
+            if (window.sessionManager && G.teams && G.teams.length) {
+                window.sessionManager.save({
+                    teams: G.teams,
+                    students: G.students,
+                    used: Array.from(G.used || []),
+                    turn: G.turn,
+                    phase: G.phase,
+                    log: G.log
+                });
+            }
+        }
+
+        function setTeamTurn(idx) {
+            if (idx < 0 || idx >= G.teams.length) return;
+            G.turn = idx;
+            if (G.phase === 2) {
+                refreshTurnUI();
+            } else {
+                renderSide();
+            }
+            if (typeof toast === 'function') toast(`🎯 Đã chuyển lượt sang: ${G.teams[idx].name}`);
             if (window.sessionManager && G.teams && G.teams.length) {
                 window.sessionManager.save({
                     teams: G.teams,

@@ -327,6 +327,38 @@ $$\text{1. Chờ (Waiting)} \xrightarrow[\text{Bấm Gacha lại để quay ti�
   * **1. Khi phát biểu tự do (Khởi động, Khám phá, Vấn đáp giữa giờ, Chốt bài):** Thao tác chọn học sinh và ghi nhận câu trả lời **CHỈ DÙNG ĐỂ GHI NHẬN (LOG) VÀO TELEMETRY CÁ NHÂN** (ghi nhận em đó đã phát biểu, đúng/sai, xếp loại TT27 để xuất file CSV cuối tiết). **TUYỆT ĐỐI KHÔNG tự động cộng/trừ điểm vào Tổ** để giữ cho thang điểm thi đua không bị loãng hoặc mất cân bằng.
   * **2. Chỉ khi bước vào VÒNG ĐẤU GAME / THỬ THÁCH CHÍNH THỨC:** Điểm số câu trả lời mới được kích hoạt cộng/trừ vào điểm số của Tổ thi đua!
 
+### 4.4 Cơ Chế Bấm Vào Tổ Nào Chuyển Lượt Qua Tổ Đó (Click-to-Switch Turn — Xử Lý Tình Huống Tổ Chưa Sẵn Sàng)
+* **Ý nghĩa sư phạm & Thực tế phòng máy:**
+  * Trong một tiết học 35 phút, luồng câu hỏi hoặc trò chơi thường tự động xoay tua lần lượt (Tổ 1 $\rightarrow$ Tổ 2 $\rightarrow$ Tổ 3 $\rightarrow$ Tổ 4...).
+  * Tuy nhiên, trên lớp luôn có các tình huống bất ngờ:
+    * Học sinh thuộc tổ đang đến lượt chưa sẵn sàng, chưa kịp chuẩn bị hoặc lúng túng cần thêm thời gian hội ý.
+    * Máy tính của tổ đó đang gặp sự cố kết nối hoặc học sinh xin phép ra ngoài.
+    * Tổ khác đang rất hăng hái xung phong giải cứu hoặc cướp quyền trả lời trước.
+  * Nếu hệ thống ép buộc phải đi tuần tự và không cho đổi lượt, giáo viên sẽ bị "kẹt lượt", làm chậm tiến độ bài học và giảm hứng thú của cả lớp.
+* **Quy chuẩn kỹ thuật bắt buộc:**
+  1. **Thao tác 1-chạm (Single Click on Team Card):**
+     * Khi Giáo viên nhấp chuột trực tiếp vào bất kỳ thẻ Tổ nào trên Bảng điểm Sidebar / Trận địa / Đấu trường, hệ thống lập tức chuyển trạng thái `activeTurn` / `activeTeam` sang tổ đó.
+     * Thẻ tổ được click lập tức nhận class `.turn` hoặc `.active`, đổi viền sáng nổi bật, hiển thị icon 🎯 hoặc badge `👉 ĐANG TỚI LƯỢT`.
+     * Hiện Toast thông báo: `🎯 Đã chuyển lượt sang [Tên Tổ]!`.
+     * Tự động lưu trạng thái lượt mới vào `localStorage`.
+  2. **Bảo vệ bằng `event.stopPropagation()` trên các nút con:**
+     * Thẻ tổ thường chứa các nút chức năng nhỏ: Nút Phạt ồn (`🔇 -10%`), Ô sửa điểm inline (`.tscore` / `<input>`), Dropdown chọn học sinh (`<select>`), Nút xúc xắc (`🎲`).
+     * TẤT CẢ các phần tử con này **bắt buộc phải có `event.stopPropagation()`** để khi giáo viên bấm vào sửa điểm hay chọn học sinh thì **KHÔNG** bị kích hoạt nhầm sự kiện chuyển lượt của thẻ cha.
+  3. **Đoạn mã chuẩn (Template):**
+     ```javascript
+     function switchActiveTeam(idx) {
+         if (idx < 0 || idx >= teams.length) return;
+         gameState.activeTeam = idx; // hoặc turn = idx;
+         renderTeamsSidebar();
+         if (typeof toast === 'function') {
+             toast(`🎯 Đã chuyển lượt sang ${teams[idx].name}!`);
+         }
+         if (window.sessionManager) {
+             window.sessionManager.save({ ...getState() });
+         }
+     }
+     ```
+
 ---
 
 ## 5. HỆ THỐNG ĐO LƯỜNG HÀNH VI (TELEMETRY) & ĐÁNH GIÁ TT27 / SMAS

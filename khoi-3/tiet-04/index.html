@@ -517,6 +517,13 @@
                 const color = teamColors[i % teamColors.length];
                 const card = document.createElement('div');
                 card.className = 'team-card';
+                card.style.cursor = 'pointer';
+                card.title = `Bấm để chuyển lượt sang Tổ ${i + 1}`;
+                card.onclick = (e) => {
+                    if (!e.target.classList.contains('penalty')) {
+                        setCaroTurn(i);
+                    }
+                };
                 card.innerHTML = `
                   <div class="team-meta">
                     <span class="team-name" style="color: ${color};">Tổ ${i + 1} (${teamSymbols[i]})</span>
@@ -581,6 +588,27 @@
                 const el = document.getElementById(`score-tiet04-${i}`);
                 if (el) el.textContent = cellCount;
             }
+            saveSession();
+        }
+
+        function setCaroTurn(teamIndex) {
+            caroGames.forEach(game => {
+                if (game.active) {
+                    game.currentTeam = teamIndex;
+                    if (typeof game.drawStatus === 'function') {
+                        game.drawStatus();
+                    }
+                }
+            });
+            document.querySelectorAll('#teamsList .team-card').forEach((c, idx) => {
+                const isTurn = (idx === teamIndex);
+                c.classList.toggle('active', isTurn);
+                c.style.outline = isTurn ? '3px solid #2563eb' : '';
+                c.style.background = isTurn ? '#eff6ff' : '';
+            });
+            const teamName = `Tổ ${teamIndex + 1}`;
+            if (typeof toast === 'function') toast(`🎯 Đã chuyển lượt sang: ${teamName}`);
+            else showCustomAlert(`🎯 Đã chuyển lượt sang: ${teamName}`);
             saveSession();
         }
 
@@ -788,6 +816,7 @@
                     ? `Đến lượt ${currentName} (${teamSymbols[game.currentTeam]}) · Cần ${winStreak} ô liên tiếp để thắng`
                     : status.textContent;
             }
+            game.drawStatus = drawStatus;
 
             function reset() {
                 game.state = Array(49).fill(null);

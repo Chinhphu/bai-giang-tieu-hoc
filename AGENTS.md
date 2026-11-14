@@ -77,6 +77,15 @@ $$\text{Chờ (Waiting)} \xrightarrow{\text{Bốc thăm Gacha / Chọn}} \text{L
     * Khi đến lượt một Tổ, Giáo viên chỉ cần **bấm nút Gacha liên tục cho đến khi quay trúng tên một em thuộc Tổ đang tới lượt thì dừng lại và chốt em đó lên bảng** (*"Gacha tới khi nào trúng thì thôi"*).
     * Nhờ nguyên tắc *Picked ≠ Done*, việc bấm Gacha lướt qua nhiều bạn hoàn toàn không làm mất lượt của các bạn đó.
     * Ngoài ra, nếu có em trong tổ xung phong giơ tay, Giáo viên có thể chọn trực tiếp tên em đó từ danh sách dropdown.
+* **Cơ Chế Bấm Vào Tổ Nào Chuyển Lượt Qua Tổ Đó (Click-to-Switch Turn — Linh Hoạt Khi Tổ Chưa Sẵn Sàng):**
+  * **Thực tiễn lớp học:** Trong giờ học, thường xuyên xảy ra tình huống tổ đang đến lượt chưa sẵn sàng (học sinh đang lúng túng, chưa thảo luận xong, vắng mặt hoặc gặp trục trặc kỹ thuật), trong khi một tổ khác đang rất hào hứng xung phong.
+  * **QUY TẮC BẮT BUỘC:** Mọi màn hình thi đấu / bảng điểm Sidebar / trận địa theo tổ **PHẢI CHO PHÉP Giáo viên bấm (click) trực tiếp vào bất kỳ thẻ Tổ nào để chuyển lượt ngay tức khắc sang Tổ đó** (`setTurn(idx)` / `switchActiveTeam(idx)`).
+  * **UX / Kỹ thuật bắt buộc:**
+    * Thẻ tổ phải có con trỏ bàn tay (`cursor: pointer`), hiệu ứng hover nhún nhẹ.
+    * Khi bấm vào, thẻ tổ lập tức nhận trạng thái active (class `.active` / `.turn`, đổi viền sáng, hiện icon 🎯 hoặc badge "👉 ĐANG TỚI LƯỢT").
+    * Bật thông báo Toast nhẹ trên màn chiếu: *Ví dụ: `🎯 Đã chuyển lượt sang Tổ X!`*
+    * Tự động lưu lượt mới vào `localStorage` (thông qua `sessionManager.save`).
+    * **Chống bấm nhầm (stopPropagation):** Các nút bấm chức năng bên trong thẻ tổ (như nút Phạt ồn `🔇`, ô sửa điểm inline `<input>` / `.tscore`, dropdown chọn học sinh `<select>`, nút xúc xắc `🎲`) BẮT BUỘC phải có `event.stopPropagation()` để khi giáo viên bấm sửa điểm hoặc phạt không bị vô tình chuyển lượt.
 
 ### 5. Bộ đo lường hành vi (Telemetry) theo Vai trò người điều khiển (`Actor-based`)
 * **Trường hợp A: Học sinh trực tiếp thao tác trên máy (`Actor: Student`)**

@@ -341,8 +341,8 @@
                 
                 // Khung Điểm
                 board.innerHTML += `
-                    <div id="team-card-${t.id}" class="team-score-card ${isAct ? 'active' : ''}">
-                        <div class="team-name-disp">ĐỘI ${t.id}</div>
+                    <div id="team-card-${t.id}" class="team-score-card ${isAct ? 'active' : ''}" style="cursor:pointer;" onclick="switchTeam(${t.id - 1})" title="Bấm để chuyển lượt sang Đội ${t.id}">
+                        <div class="team-name-disp">${isAct ? '👉 ' : ''}ĐỘI ${t.id}</div>
                         <div class="team-time-disp" id="disp-time-${t.id}">${(t.time/1000).toFixed(2)}</div>
                         <div id="disp-pen-${t.id}" style="color:var(--coral); font-size:0.95rem; font-weight:bold; margin-top:5px; ${t.penalties > 0 ? '' : 'display:none;'}">(+${t.penalties}s phạt)</div>
                     </div>
@@ -358,6 +358,23 @@
                 `;
             });
         }
+
+        window.switchTeam = (teamIdx) => {
+            if (teamIdx < 0 || teamIdx >= totalTeams) return;
+            if (isPlaying) {
+                isPlaying = false;
+                clearInterval(mainTimerInterval);
+            }
+            currentTeamIndex = teamIdx;
+            currentCharIndex = 0;
+            renderLiveScoreboard();
+            renderBoard();
+            updateTargetChar();
+            if (window.toast) window.toast(`🎯 Đã chuyển lượt sang: Đội ${teamIdx + 1}`, 1500);
+            if (window.sessionManager && teams) {
+                window.sessionManager.save({ teams, currentRoundIndex, currentTeamIndex });
+            }
+        };
 
         // --- CẬP NHẬT RIÊNG ĐIỂM SỐ ĐỂ KHÔNG MẤT HIỆU ỨNG CSS ---
         function updateTeamScoreDisplay(teamId) {

@@ -337,9 +337,9 @@
             wrapper.innerHTML = "";
             for(let i=0; i<numTeams; i++) {
                 wrapper.innerHTML += `
-                    <div class="team" id="team-card-${i}">
-                        <div class="team-name t-${i}" contenteditable="true">ĐỘI ${i+1}</div>
-                        <button class="btn coral" style="padding: 10px; font-size: 1.1rem; width: 100%;" onclick="punishTeam(${i})">Phạt xóa 1 Ô (Ồn ào)</button>
+                    <div class="team" id="team-card-${i}" style="cursor:pointer;" onclick="setTurn(${i})" title="Bấm để chuyển lượt sang Đội ${i+1}">
+                        <div class="team-name t-${i}" contenteditable="true" onclick="event.stopPropagation()">ĐỘI ${i+1}</div>
+                        <button class="btn coral" style="padding: 10px; font-size: 1.1rem; width: 100%;" onclick="event.stopPropagation(); punishTeam(${i})">Phạt xóa 1 Ô (Ồn ào)</button>
                     </div>
                 `;
             }
@@ -363,11 +363,22 @@
                         }
                         if (st.activeTeam != null) {
                             activeTeam = st.activeTeam;
-                            highlightActiveTeam();
+                            updateStatus();
                         }
                     }
                 });
                 window.sessionManager.restore();
+            }
+        }
+
+        function setTurn(idx) {
+            if (idx < 0 || idx >= numTeams) return;
+            activeTeam = idx;
+            updateStatus();
+            const tName = document.querySelector(`#team-card-${activeTeam} .team-name`)?.innerText || `Đội ${idx + 1}`;
+            if (window.toast) window.toast(`🎯 Đã chuyển lượt sang: ${tName}`, 1500);
+            if (window.sessionManager) {
+                window.sessionManager.save({ boardState, activeTeam });
             }
         }
 

@@ -575,32 +575,57 @@
 		let calledStudents = new Set();
 		let selectedStudent = null;
 
+		let activeTurn = 0;
 		function createTeams(count) {
-			count = parseInt(count) || 3;
+			count = parseInt(count) || teamScores?.length || 3;
 			if (count < 2) count = 2;
 			if (count > 6) count = 6;
 			const list = document.getElementById('teamsList');
 			list.innerHTML = '';
 			const startScore = parseInt(document.getElementById('startScoreInput')?.value, 10) || 1000;
-			teamScores = Array(count).fill(startScore);
+			if (!teamScores || teamScores.length !== count) {
+				teamScores = Array(count).fill(startScore);
+			}
 
 			for (let i = 0; i < count; i++) {
 				const color = TEAM_COLORS[i % TEAM_COLORS.length];
 				const card = document.createElement('div');
-				card.className = 'team-card';
+				const isTurn = (i === activeTurn);
+				card.className = `team-card ${isTurn ? 'turn active' : ''}`;
+				card.id = `team-card-${i}`;
+				card.style.cursor = 'pointer';
+				card.title = `Bấm để chuyển lượt sang Tổ ${i + 1}`;
+				if (isTurn) {
+					card.style.outline = '3px solid #2563eb';
+					card.style.background = '#eff6ff';
+				}
+				card.onclick = (e) => {
+					if (e.target.tagName !== 'BUTTON') {
+						setTurn(i);
+					}
+				};
 				card.innerHTML = `
                   <div class="team-meta">
-                    <span class="team-name" style="color:${color};">Tổ ${i + 1}</span>
-                    <div class="team-action-btns">
+                    <span class="team-name" style="color:${color}; font-weight:800;">${isTurn ? '👉 ' : ''}Tổ ${i + 1}</span>
+                    <div class="team-action-btns" onclick="event.stopPropagation()">
                       <button class="plus-btn" onclick="updateTeamScore(${i}, 10, event)">+10</button>
                       <button class="plus-btn" style="background:#fef3c7;color:#92400e;border-color:#fde68a;" onclick="updateTeamScore(${i}, 'x2', event)">x2</button>
                       <button class="noise-btn" onclick="updateTeamScore(${i}, -5, event)">-5</button>
                     </div>
                   </div>
-                  <div class="team-score" id="score-tiet03-${i}" style="color:${color};">${startScore}</div>
+                  <div class="team-score" id="score-tiet03-${i}" style="color:${color};">${teamScores[i]}</div>
                 `;
 				list.appendChild(card);
 			}
+		}
+
+		function setTurn(idx) {
+			activeTurn = idx;
+			createTeams();
+			if (typeof toast === 'function') {
+				toast(`🎯 Đã chuyển lượt sang: Tổ ${idx + 1}`);
+			}
+			saveSession();
 		}
 
 		function updateTeamScore(idx, delta, ev) {
@@ -626,6 +651,7 @@
 			if (window.sessionManager) {
 				window.sessionManager.save({
 					teamScores,
+					activeTurn,
 					calledStudents: Array.from(calledStudents)
 				});
 			}
@@ -637,12 +663,10 @@
 				storageKey: 'bgtieu_hoc_k3_tiet_03_' + currentClassID + '_state',
 				onRestore: (st) => {
 					if (st) {
+						if (st.activeTurn !== undefined) activeTurn = st.activeTurn;
 						if (Array.isArray(st.teamScores)) {
 							teamScores = st.teamScores;
-							teamScores.forEach((sc, idx) => {
-								const el = document.getElementById(`score-tiet03-${idx}`);
-								if (el) el.textContent = sc;
-							});
+							createTeams();
 						}
 						if (Array.isArray(st.calledStudents)) {
 							calledStudents = new Set(st.calledStudents);

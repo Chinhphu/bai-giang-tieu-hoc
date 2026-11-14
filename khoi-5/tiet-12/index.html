@@ -1458,14 +1458,48 @@
             const container = document.getElementById('teams');
             if (!container) return;
 
-            container.innerHTML = teams.map(t => `
-                <div class="team-card ${t.isDemon ? 'demon-team' : ''}" style="margin-bottom:8px; padding:10px 12px; border-radius:12px; background:#fff; border:2px solid ${t.isDemon ? '#a855f7' : 'var(--line)'};">
+            let activeTurnIdx = -1;
+            if (currentSlide === 4) activeTurnIdx = currentTeamV1Idx;
+            else if (currentSlide === 5) activeTurnIdx = currentTeamV2Idx % teams.length;
+
+            container.innerHTML = teams.map((t, idx) => {
+                const isTurn = (idx === activeTurnIdx);
+                return `
+                <div class="team-card ${t.isDemon ? 'demon-team' : ''} ${isTurn ? 'turn' : ''}" style="margin-bottom:8px; padding:10px 12px; border-radius:12px; background:${isTurn ? '#eff6ff' : '#fff'}; border:2px solid ${isTurn ? '#2563eb' : (t.isDemon ? '#a855f7' : 'var(--line)')}; cursor:pointer;" onclick="switchTeamTurn(${idx})" title="Bấm để chuyển lượt sang ${t.name}">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:900; font-size:15px; color:${t.isDemon ? '#7e22ce' : '#0f172a'};">${t.name}</span>
-                        <span style="font-size:18px; font-weight:900; color:${t.isDemon ? '#9333ea' : '#2563eb'}; cursor:pointer;" onclick="editTeamScore(${t.id})">${t.score} Xu</span>
+                        <span style="font-weight:900; font-size:15px; color:${t.isDemon ? '#7e22ce' : '#0f172a'};">${isTurn ? '👉 ' : ''}${t.name}</span>
+                        <span style="font-size:18px; font-weight:900; color:${t.isDemon ? '#9333ea' : '#2563eb'}; cursor:pointer;" onclick="event.stopPropagation(); editTeamScore(${t.id})">${t.score} Xu</span>
                     </div>
                 </div>
-            `).join('');
+            `;}).join('');
+        }
+
+        function switchTeamTurn(idx) {
+            if (idx < 0 || idx >= teams.length) return;
+            if (currentSlide === 4) {
+                selectTeamV1(idx);
+            } else if (currentSlide === 5) {
+                currentTeamV2Idx = idx;
+                uploadedFiles[2] = null;
+                activeHandicaps.clear();
+                isBet2x = false;
+                const b2x = document.getElementById('btn-2x');
+                if (b2x) b2x.classList.remove('active');
+                document.querySelectorAll('.btn-handicap').forEach(b => b.classList.remove('active'));
+                const fb = document.getElementById('s2-file-badge');
+                if (fb) fb.style.display = 'none';
+                const rb = document.getElementById('s2-result-box');
+                if (rb) rb.style.display = 'none';
+                const ap = document.getElementById('aesthetic-panel');
+                if (ap) ap.style.display = 'none';
+                resetTimer90s();
+                renderTeams();
+                if (window.toast) window.toast(`🎯 Đã chuyển lượt Vòng 2 sang: ${teams[idx].name}`, 1500, teams[idx].color);
+                saveLocalStorage();
+            } else {
+                if (window.toast) window.toast(`🎯 Đã chọn: ${teams[idx].name}`, 1500, teams[idx].color);
+                renderTeams();
+            }
         }
 
         function editTeamScore(teamId) {
@@ -1495,10 +1529,13 @@
         function selectTeamV1(idx) {
             currentTeamV1Idx = idx;
             renderTeamSelectorV1();
+            renderTeams();
             uploadedFiles[1] = null;
             document.getElementById('s1-file-badge').style.display = 'none';
             document.getElementById('s1-result-box').style.display = 'none';
             AudioSys.playTick();
+            if (window.toast) window.toast(`🎯 Đã chuyển lượt Vòng 1 sang: ${teams[idx].name}`, 1500, teams[idx].color);
+            saveLocalStorage();
         }
 
         function nextStage1Turn() {

@@ -919,14 +919,14 @@
             }
             const teamsContainer = document.getElementById('teams');
             teamsContainer.innerHTML = teams.map((t, i) => `
-                <div class="team ${i === gameState.activeTeam ? 'turn' : ''}" id="team-${i}" style="--tc:${t.color}">
+                <div class="team ${i === gameState.activeTeam ? 'turn' : ''}" id="team-${i}" style="--tc:${t.color}; cursor:pointer;" onclick="switchActiveTeam(${i})" title="Nhấp để chuyển lượt sang ${t.name}">
                     <div class="turn-badge">👉 ĐANG TỚI LƯỢT</div>
                     <div class="trow">
-                        <span class="tname" onclick="switchActiveTeam(${i})" style="cursor:pointer;" title="Bấm để chuyển lượt sang ${t.name}">${t.name}</span>
-                        <button class="btn-penalty" onclick="penalizeTeam(${i})" title="Bấm phạt khi tổ ồn (-10%)">🔇 Phạt ồn</button>
+                        <span class="tname">${t.name}</span>
+                        <button class="btn-penalty" onclick="event.stopPropagation(); penalizeTeam(${i})" title="Bấm phạt khi tổ ồn (-10%)">🔇 Phạt ồn</button>
                     </div>
-                    <div class="tscore" contenteditable="true" spellcheck="false" title="Nhấp vào để nhập tay sửa điểm" onblur="setManualScore(${i}, this.innerText)" onkeydown="if(event.key==='Enter'){this.blur(); event.preventDefault();}">${t.score}</div>
-                    <div style="display:flex; gap:3px; align-items:center; width:100%;">
+                    <div class="tscore" contenteditable="true" spellcheck="false" title="Nhấp vào để nhập tay sửa điểm" onclick="event.stopPropagation()" onblur="setManualScore(${i}, this.innerText)" onkeydown="if(event.key==='Enter'){this.blur(); event.preventDefault();}">${t.score}</div>
+                    <div style="display:flex; gap:3px; align-items:center; width:100%;" onclick="event.stopPropagation()">
                         <select id="sel-${i}" style="flex:1;">
                             <option value="">-- Chọn học sinh --</option>
                         </select>
@@ -939,7 +939,7 @@
         }
 
         function switchActiveTeam(targetIdx) {
-            if (targetIdx === gameState.activeTeam || targetIdx < 0 || targetIdx >= teams.length) return;
+            if (targetIdx < 0 || targetIdx >= teams.length) return;
             gameState.activeTeam = targetIdx;
             renderTeamsSidebar();
             toast(`👉 Lượt chơi hiện tại: ${teams[targetIdx].name}`, 1500, teams[targetIdx].color);

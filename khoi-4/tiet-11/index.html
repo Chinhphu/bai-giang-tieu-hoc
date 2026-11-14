@@ -3641,7 +3641,7 @@
                     }).join('');
 
                 return `
-                    <div class="team-card ${idx === curCustomerIdx ? 'active-turn' : ''}">
+                    <div class="team-card ${idx === curCustomerIdx ? 'active-turn' : ''}" style="cursor:pointer;" onclick="if(!event.target.closest('button')) switchCustomerTurn(${idx})" title="Bấm để chuyển lượt sang ${esc(t.name)}">
                         <div class="team-header-row">
                             <span class="team-name">
                                 ${renderSoftwareIcon(t, 28)}
@@ -3690,6 +3690,24 @@
                     openEditMoneyModal(idx);
                 };
             });
+        }
+
+        function switchCustomerTurn(idx) {
+            if (idx < 0 || idx >= teams.length) return;
+            if (turnStepTimer) {
+                clearTimeout(turnStepTimer);
+                turnStepTimer = null;
+            }
+            curCustomerIdx = idx;
+            drawTeams();
+            if (typeof startAutoGachaForCustomer === 'function') {
+                startAutoGachaForCustomer();
+            }
+            playSound('tap');
+            saveState();
+            if (typeof window.toast === 'function') {
+                window.toast(`🎯 Đã chuyển lượt sang: ${teams[idx].name}`, 1500, '#2563eb');
+            }
         }
 
         let editingTeamIdx = 0;
