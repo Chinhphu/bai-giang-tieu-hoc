@@ -13,7 +13,7 @@ Sự khác biệt của Khối 2 so với các khối khác là chủ đích thi
 | :--- | :--- | :--- |
 | **Font chữ bắt buộc** | `'Nunito', sans-serif` | Nạp offline file `.woff2` từ `assets/fonts/` qua `shared/css/core.css`. Bo tròn, ấm áp, thân thiện với học sinh 7 tuổi. |
 | **Bảng màu chủ đạo** | Xanh dương (`#0284c7`), Vàng sao (`#f59e0b` / `#fbbf24`), Đỏ hành động (`#dc2626`) | Tươi vui, kích thích vận động nhận thức, độ tương phản cao trên máy chiếu TV. |
-| **Bố cục chuẩn** | Slide cuộn flexbox (`.slide.active`) + Bottom Navbar chân trang + Sidebar mini học sinh | Đệm chân trang bắt buộc `padding-bottom: 120px - 140px` để không bị thanh điều hướng che lấp. |
+| **Bố cục chuẩn** | Slide cuộn flexbox (`.slide.active`) + Bottom Navbar chân trang + Sidebar mini học sinh (Hoặc Drawer Menu Giáo viên ẩn/hiện bằng nút Hamburger `☰` như Tiết 10) | Đệm chân trang bắt buộc `padding-bottom: 120px - 140px` để không bị thanh điều hướng che lấp; cho phép menu điều khiển ẩn/hiện linh hoạt bằng nút Hamburger. |
 | **Bài giảng mẫu (Benchmark)** | **Tiết 09** *(Bài 6: Vui học Toán cùng máy tính)* & **Tiết 10** | Chuẩn về nhịp độ sư phạm, màn hình chép bài, đấu trường toán/chuột và hiệu ứng pháo hoa Canvas. |
 
 ---

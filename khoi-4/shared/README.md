@@ -13,7 +13,7 @@ Học sinh Khối 4 (9 tuổi) đã có tư duy logic phát triển, khả năng
 | :--- | :--- | :--- |
 | **Font chữ bắt buộc** | `'Be Vietnam Pro', sans-serif` | Nạp offline file `.woff2` từ `assets/fonts/` qua `shared/css/core.css`. Thiết kế chuẩn mực, hiện đại, trang nhã. |
 | **Bảng màu chủ đạo** | Xanh Navy (`#14213d`), Nền kem ngà (`#f4efe6`), Đỏ san hô (`#e63946`), Xanh lá (`#16a34a`) | Trưởng thành, chuyên nghiệp, tạo phong thái "Chuyên gia công nghệ nhí". |
-| **Bố cục chuẩn** | Header Tab điều hướng trên đỉnh + Grid 2 cột (Khu vực hoạt động & Sidebar quản lý) | Hiện đại, khoa học, tối ưu quan sát trên TV màn chiếu 16:9. |
+| **Bố cục chuẩn** | Header Tab điều hướng trên đỉnh + Grid 2 cột (Khu vực hoạt động & Sidebar quản lý) | Hiện đại, khoa học, tối ưu quan sát trên TV màn chiếu 16:9; cho phép thanh công cụ/menu điều khiển ẩn/hiện bằng nút Hamburger `☰`. |
 | **Bài giảng mẫu (Benchmark)** | **Tiết 03** & **Tiết 11** *(Bài 6: Sử dụng phần mềm khi được phép)* | Chuẩn về dàn dựng tình huống vụ án công nghệ, câu hỏi phân tích và cơ chế bảo vệ bản quyền số. |
 
 ---

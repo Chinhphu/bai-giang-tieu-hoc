@@ -116,6 +116,9 @@ Phòng máy tính tiểu học thường xuyên gặp sự cố cúp điện đ�
 5. **Dàn dựng Bàn phím Máy tính Ảo Chuẩn Công Thái Học (Realistic ANSI Layout)**:
    - Khi dựng bàn phím trên HTML/CSS: Bắt buộc đúng chuẩn độ thụt lùi hàng thực tế (Q thụt so với 1, A thụt so với Q, Z thụt so với A).
    - Canh đều tuyệt đối 2 bên mép (mép trái phẳng tắp, mép phải phẳng tắp 100%, tỷ lệ tổng $15\text{U}$ mỗi hàng).
+6. **Menu Điều Khiển Ẩn/Hiện Bằng Nút Hamburger (`☰`)**:
+   - Cho phép các menu điều khiển, thanh công cụ giáo viên (Teacher Toolbar) hoặc sidebar quản trị được thu gọn và ẩn/hiện bằng nút Hamburger (`☰`) (dạng Drawer trượt ra/vào).
+   - Tối ưu hóa 100% diện tích màn chiếu TV cho học sinh tập trung quan sát bài giảng, không bị phân tâm bởi các nút bấm kỹ thuật.
 
 ---
 

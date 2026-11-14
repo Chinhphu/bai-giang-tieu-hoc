@@ -104,12 +104,14 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 | **Khối 5** | `'Be Vietnam Pro', sans-serif`| Xanh ngọc Mint (`#16b89a`), Xanh dương, Xám đậm | Web Components chuẩn Tiết 07 (`<khoi5-...>`) |
 
 * Khi code bài mới cho Khối X, BẮT BUỘC dùng đúng font và style của Khối X. Tuyệt đối không lấy style Khối này cắm vào Khối kia.
+* **Linh hoạt Menu điều khiển & Nút Hamburger (`☰`):** Dù bố cục từng khối có nét đặc trưng riêng (Sidebar mini, Flexbox, 2 cột, Header Tab hay Web Components), **tất cả các menu điều khiển, thanh công cụ Giáo viên (Teacher Toolbar), bảng điều khiển quản trị hoặc sidebar điều hướng ĐỀU CHO PHÉP thiết kế ẩn/hiện bằng nút Hamburger (`☰`)** (ví dụ dạng Side Drawer trượt ra/vào). Điều này giúp tối ưu 100% diện tích màn chiếu cho học sinh tập trung vào bài giảng.
 
 ### 9. Kích thước & Tối ưu Màn chiếu TV Lớp học
 * **Tiêu đề Slide:** `2.4rem` – `3.5rem` (đậm `800`–`900`), nhìn rõ từ khoảng cách 8 mét cuối lớp.
 * **Chữ nội dung:** `1.3rem` – `1.6rem` (độ đậm tối thiểu `600`–`700`).
 * **Nút bấm / Thao tác:** Tối thiểu `1.2rem` – `1.5rem`, có hiệu ứng hover và active nhún nút rõ ràng.
 * **Chân trang:** Bắt buộc có khoảng đệm chân trang (`padding-bottom: 120px` đến `140px`) để không bao giờ bị thanh điều hướng che khuất nội dung.
+* **Tối ưu không gian bằng Menu Hamburger (`☰`):** Khuyến khích gom các công cụ điều khiển của giáo viên vào Menu trượt/Drawer cho phép ẩn/hiện bằng nút Hamburger (`☰`), giúp mở rộng tối đa vùng hiển thị nội dung bài học.
 * **Tỷ lệ:** Thiết kế co giãn linh hoạt (responsive flex), tối ưu cho tỷ lệ 16:9 của TV lớp học (độ phân giải 1366x768 hoặc 1920x1080).
 
 ### 10. Bắt Buộc Lưu Trạng Thái Vào LocalStorage (Auto-Save & Phục Hồi Khi Cúp Điện / Sập Nguồn)
@@ -260,13 +262,27 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
   * **CẤM:** Không được để mép ngoài của các hàng phím thò thụt, lồi lõm xộc xệch kỳ lạ.
   * **Quy chuẩn CSS:** Mỗi hàng phím (`.kb-row`) phải có tổng tỷ lệ phím tương đương chính xác 15 units ($15\text{U}$) và luôn chiếm trọn `width: 100%` (dùng Flexbox với `flex: var(--u, 1)` hoặc CSS Grid tỷ lệ). Mép trái thẳng tắp và mép phải phẳng tắp 100%!
 
+### 20. Quy Chuẩn Menu Điều Khiển & Thanh Công Cụ Giáo Viên: Cho Phép Ẩn/Hiện Bằng Nút Hamburger (`☰`)
+* **Bối cảnh & Ý nghĩa sư phạm trên màn chiếu TV:**
+  * Màn hình TV và máy chiếu tại các phòng máy tiểu học thường có chiều cao và tỷ lệ hiển thị giới hạn (16:9 hoặc độ phân giải 1366x768 / 1920x1080). Ưu tiên số một của giao diện là **dành 100% diện tích cho sân khấu bài giảng**, giúp cỡ chữ nội dung luôn đạt độ lớn tối ưu ($\ge 1.3\text{rem} - 1.6\text{rem}$), hình ảnh trực quan rõ nét để học sinh ngồi ở cuối lớp (khoảng cách 8–10m) nhìn rõ và tập trung hoàn toàn.
+  * Việc ghim cố định các thanh công cụ điều khiển (Teacher Toolbar, thanh quản trị, danh sách nút cấu hình, tải đề, chấm hàng loạt, chọn lớp, đấu trường ma vương...) hoặc sidebar cố định có thể làm chật chội sân khấu và gây phân tâm thị giác cho học sinh.
+* **Quy chuẩn Cho phép Ẩn/Hiện bằng Nút Hamburger (`☰`):**
+  * **Toàn quyền linh hoạt:** Tất cả các bài giảng (từ Khối 1 đến Khối 5) và Mini-games **ĐỀU ĐƯỢC PHÉP thiết kế các menu điều khiển, thanh công cụ giáo viên hoặc bảng quản trị ở dạng ẩn/hiện (Toggle/Drawer) thông qua một nút Hamburger (`☰`)**.
+  * **Vị trí nút Hamburger:** Thường bố trí ở thanh đỉnh đầu (`header-topbar` / góc trên bên phải hoặc bên trái màn hình), thiết kế gọn gàng, có icon `☰` và nhãn dễ nhận biết (ví dụ: `☰ Menu Giáo Viên` hoặc icon `☰`).
+  * **Trải nghiệm Drawer / Overlay mượt mà:**
+    * Khi bình thường: Menu điều khiển được ẩn đi hoặc trượt vào lề (`transform: translateX(100%)` hoặc `display: none`), nhường toàn bộ không gian cho bài giảng.
+    * Khi giáo viên bấm nút Hamburger: Bật mở bảng điều khiển (Teacher Drawer / Slide-out Panel) kèm lớp phủ mờ (`backdrop / overlay`) phía sau.
+    * Giáo viên thực hiện nhanh các tác vụ: chọn lớp, xem báo cáo SMAS, nạp CSV, đổi câu hỏi, chuyển chế độ, xuất dữ liệu, xóa session...
+    * Đóng menu nhanh chóng qua: Nút đóng `✕`, nhấp vào nền mờ ngoài overlay, hoặc bấm phím `Esc`.
+  * **Benchmark tham khảo:** Đã áp dụng mẫu chuẩn tại **Khối 2 Tiết 10** (`khoi-2/tiet-10/index.html` với `.btn-hamburger-teacher`, `.teacher-drawer-overlay`, `.teacher-drawer`).
+
 ---
 
 ## 🛠️ 2. QUY TRÌNH 5 BƯỚC KHI TẠO HOẶC CHỈNH SỬA TIẾT HỌC MỚI
 
 Khi nhận được yêu cầu viết tiết học mới từ người dùng (ví dụ: *"Tạo Tiết 10 Khối 2: Bài 7 - ..."*), AI phải thực hiện đúng 5 bước:
 
-1. **Bước 1 — Xác định Khối & Bản sắc:** Đọc bảng ở Mục 1.8 để chọn đúng Font chữ, Theme CSS, và Bố cục của Khối đó.
+1. **Bước 1 — Xác định Khối & Bản sắc:** Đọc bảng ở Mục 1.8 để chọn đúng Font chữ, Theme CSS, và Bố cục của Khối đó. Lưu ý: Cho phép thiết kế menu điều khiển & thanh công cụ giáo viên dạng ẩn/hiện bằng nút Hamburger (`☰`) để giải phóng tối đa không gian màn chiếu TV cho học sinh.
 2. **Bước 2 — Nạp Khung sườn Chuẩn (Boilerplate):** 
    * Kiểm tra xem khối đó đã có `template.html` chưa. Nếu có, nhân bản từ `template.html` của khối.
    * Chèn đúng 2 file bảo vệ: `../../shared/js/prevent-reload.js` và `../../shared/js/core.js`.
@@ -293,6 +309,7 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Không có link CDN bên ngoài nào (`cdnjs`, `jsdelivr`, `unpkg`,...) trong mã nguồn?
 - [ ] Đã nhúng `prevent-reload.js` và `core.js` chưa?
 - [ ] Font chữ có đúng chuẩn của Khối đó không?
+- [ ] Các menu điều khiển, thanh công cụ giáo viên (Teacher Toolbar / Drawer) nếu có: Cho phép ẩn/hiện linh hoạt bằng nút Hamburger (`☰`) để tối ưu 100% diện tích màn chiếu cho học sinh quan sát bài giảng?
 - [ ] Mọi chỗ có học sinh phát biểu đều có ô chọn học sinh + nút Gacha chưa? (Chỉ log telemetry, không cộng điểm tổ khi phát biểu tự do)
 - [ ] Nếu đấu theo tổ: Đã hỗ trợ cơ chế bốc thăm linh hoạt (học sinh đổi chỗ ngồi mỗi tuần nên không gán tổ cố định; giáo viên bấm Gacha nhiều lần tới khi nào trúng bạn thuộc tổ đang tới lượt thì chốt hoặc chọn nhanh từ danh sách, không xem việc ra bạn tổ khác là lỗi) chưa?
 - [ ] UI thi đua có nút linh hoạt từ 2 đến 6 tổ (`[+ Thêm Tổ]` / `[- Bớt Tổ]`) chưa?

@@ -13,6 +13,9 @@
 5. [Hệ thống Đo lường Hành vi (Telemetry) & Đánh giá TT27 / SMAS](#5-hệ-thống-đo-lường-hành-vi-telemetry--đánh-giá-tt27--smas)
 6. [Hệ thống Báo cáo CSV Chuẩn UTF-8 BOM & Đồng bộ Drive](#6-hệ-thống-báo-cáo-csv-chuẩn-utf-8-bom--đồng-bộ-drive)
 7. [Design System & Bản sắc Typography theo Khối](#7-design-system--bản-sắc-typography-theo-khối)
+   - 7.1 [Ma trận Nhận diện từng Khối](#71-ma-trận-nhận-diện-từng-khối)
+   - 7.2 [Thông số Kỹ thuật Màn chiếu TV Lớp học](#72-thông-số-kỹ-thuật-màn-chiếu-tv-lớp-học)
+   - 7.3 [Quy chuẩn Menu Điều Khiển & Thanh Công Cụ Giáo Viên: Cho Phép Ẩn/Hiện Bằng Nút Hamburger (`☰`)](#73-quy-chuẩn-menu-điều-khiển--thanh-công-cụ-giáo-viên-cho-phép-ẩnhiện-bằng-nút-hamburger-)
 8. [Hệ thống Âm thanh Web Audio API (Offline Synthesizer)](#8-hệ-thống-âm-thanh-web-audio-api-offline-synthesizer)
 9. [Hệ thống Lưu trữ LocalStorage Bắt Buộc & Phục Hồi Khi Cúp Điện (Crash Recovery & Auto-Save)](#9-hệ-thống-lưu-trữ-localstorage-bắt-buộc--phục-hồi-khi-cúp-điện-crash-recovery--auto-save)
 10. [Hệ thống Điểm Khởi Đầu 1000đ, Xếp Rank Đồng Hạng & Can Thiệp Sửa Điểm/Chuỗi Dây Khi Thao Tác Nhầm](#10-hệ-thống-điểm-khởi-đầu-1000đ-xếp-rank-đồng-hạng--can-thiệp-sửa-điểmchuỗi-dây-khi-thao-tác-nhầm)
@@ -411,12 +414,36 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 | **Khối 4** | `'Be Vietnam Pro', sans-serif` | Xanh Navy `#14213d` | Cam đất, Xanh lá | Header Tab đỉnh + Grid 2 cột |
 | **Khối 5** | `'Be Vietnam Pro', sans-serif` | Xanh mint `#16b89a` | Xanh dương `#3178f6` | Web Components chuẩn Tiết 07 |
 
+* **Linh hoạt Menu điều khiển & Nút Hamburger (`☰`):** Dù bố cục từng khối có định hướng riêng, **tất cả các menu điều khiển, thanh công cụ Giáo viên (Teacher Toolbar), bảng điều khiển quản trị hoặc sidebar điều hướng ĐỀU CHO PHÉP thiết kế ẩn/hiện bằng nút Hamburger (`☰`)** (ví dụ dạng Side Drawer trượt ra/vào). Điều này giúp tối ưu 100% diện tích màn chiếu cho học sinh tập trung vào bài giảng.
+
 ### 7.2 Thông số Kỹ thuật Màn chiếu TV Lớp học
 * **Tiêu đề Slide (`.slide-title`):** Cỡ `2.4rem` – `3.5rem`, `font-weight: 800 - 900`.
 * **Chữ Nội dung (`p`, `.desc`):** Cỡ `1.3rem` – `1.6rem`, `font-weight: 600 - 700`, `line-height: 1.5`.
 * **Nút bấm Hành động (`button`):** Cỡ `1.2rem` – `1.6rem`, độ dày `800`, padding tối thiểu `12px 24px`, bo góc `12px – 999px`.
 * **Đệm chân trang (Padding-bottom):** Bắt buộc chừa tối thiểu `120px` đến `140px` ở đáy trang để không bị thanh điều hướng che lấp nội dung.
+* **Tối ưu không gian bằng Menu Hamburger (`☰`):** Khuyến khích gom các công cụ điều khiển của giáo viên vào Menu trượt/Drawer cho phép ẩn/hiện bằng nút Hamburger (`☰`), giúp mở rộng tối đa vùng hiển thị nội dung bài học.
 * **Tương phản:** Nền sáng dịu mắt (xanh nhạt/kem/trắng xám), chữ tối màu (xanh navy đậm/đen xám), không dùng viền neon tương phản gắt làm mỏi mắt học sinh.
+
+### 7.3 Quy Chuẩn Menu Điều Khiển & Thanh Công Cụ Giáo Viên: Cho Phép Ẩn/Hiện Bằng Nút Hamburger (`☰`)
+
+#### 7.3.1 Lý do Sư phạm & Tối ưu Màn chiếu TV Lớp học
+* **Sân khấu bài giảng là ưu tiên tuyệt đối:** Màn hình TV và máy chiếu tại các phòng máy tính tiểu học thường có tỷ lệ hiển thị và chiều cao hạn chế (16:9 hoặc 1366x768 / 1920x1080). Trọng tâm của tiết học là nội dung bài giảng, hình ảnh minh họa sinh động và câu chữ cỡ lớn để học sinh ngồi ở cự ly 8–10m cuối lớp nhìn rõ và nắm bắt kịp thời.
+* **Giấu công cụ quản trị khỏi tầm mắt học sinh (Zero Distraction):** Các tính năng kỹ thuật dành riêng cho Giáo viên (như chọn lớp học, đổi câu hỏi, đổi hình ảnh quái vật, tải bài mẫu docx, chấm batch hàng loạt, kích hoạt Phe Quỷ, nạp CSV phụ trợ, xem báo cáo SMAS, sao lưu Drive, xóa dữ liệu phiên...) không cần thiết phải hiển thị liên tục trước mắt học sinh. Việc để lộ quá nhiều nút bấm kỹ thuật vừa làm thu hẹp không gian trình chiếu, vừa gây rối mắt và làm phân tán sự tập trung của trẻ.
+
+#### 7.3.2 Cơ Chế Ẩn/Hiện Bằng Nút Hamburger (`☰`)
+* **Toàn quyền áp dụng:** Hệ thống **CHO PHÉP VÀ KHUYẾN KHÍCH** chuyển các thanh điều khiển, thanh công cụ giáo viên (Teacher Toolbar) hoặc sidebar quản trị thành giao diện trượt / ngăn kéo (Drawer / Collapsible Panel) đóng mở bằng nút Hamburger (`☰`).
+* **Cấu trúc UI chuẩn:**
+  1. **Nút Hamburger (`.btn-hamburger-teacher`):** Đặt gọn gàng ở thanh đỉnh đầu (`header-topbar`) hoặc vị trí thuận tiện với icon `☰` và nhãn rõ ràng (ví dụ: `☰ Menu Giáo Viên`).
+  2. **Lớp phủ nền mờ (`.teacher-drawer-overlay`):** Phủ toàn màn hình (`position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(6px); z-index: 100010;`), giúp làm nổi bật menu khi mở.
+  3. **Ngăn kéo điều khiển (`.teacher-drawer`):** Trượt ra từ mép phải hoặc mép trái màn hình (`position: fixed; top: 0; right: 0; width: 450px - 480px; max-width: 90vw; height: 100vh; background: #ffffff; z-index: 100011; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);`).
+  4. **Nội dung bên trong Drawer:** Gom nhóm trực quan theo từng khu vực:
+     - 🏫 *Quản lý lớp học:* Chọn lớp, xem thống kê số bạn đã hoàn thành, nạp CSV ưu tiên.
+     - 🎮 *Thao tác trận đấu / bài giảng:* Bốc thăm Gacha, đổi câu hỏi, chuyển màn, cấu hình đề bài.
+     - 📊 *Báo cáo & Dữ liệu:* Xem báo cáo SMAS/TT27, xuất CSV về máy, tải lên Google Drive, xóa session làm mới tiết học.
+  5. **Cơ chế đóng linh hoạt:** Bấm nút đóng `✕`, click ra vùng overlay bên ngoài, hoặc nhấn phím `Esc`.
+
+#### 7.3.3 Benchmark Điển Hình
+* **Khối 2 Tiết 10** (`khoi-2/tiet-10/index.html`): Áp dụng thành công mô hình Hamburger Drawer giúp màn hình trận đấu toán học rộng rãi 100%, học sinh tập trung tối đa vào đề bài và hiệu ứng chiến đấu, trong khi giáo viên vẫn có thể mở menu quản trị bất cứ lúc nào chỉ với một cú nhấp chuột.
 
 ---
 

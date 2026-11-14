@@ -4,7 +4,7 @@ Các bài giảng Tin học khối 3 có cùng khung lớp học theo chuẩn gi
 
 ## Thành phần hiện có
 
-- `style.css`: Giao diện cơ sở định nghĩa theo Tiết 06 (Quicksand, màu sắc tươi sáng: `--primary: #4361ee`, `--secondary: #ffb703`, `--navy: #101b35`, `--green: #2a9d8f`, `--red: #e63946`, ...), bố cục `.main` và `.side`, các thẻ `.tcard`, linh kiện 4 ô `.core-slots-grid`, kho đồ cuộn ngang `.inv-scroll`, modal, toast và Kanban.
+- `style.css`: Giao diện cơ sở định nghĩa theo Tiết 06 (Quicksand, màu sắc tươi sáng: `--primary: #4361ee`, `--secondary: #ffb703`, `--navy: #101b35`, `--green: #2a9d8f`, `--red: #e63946`, ...), bố cục `.main` và `.side` (cho phép menu điều khiển, thanh công cụ hoặc sidebar ẩn/hiện bằng nút Hamburger `☰` để tối ưu diện tích màn chiếu), các thẻ `.tcard`, linh kiện 4 ô `.core-slots-grid`, kho đồ cuộn ngang `.inv-scroll`, modal, toast và Kanban.
 - `components.js`: Web Components cho cài đặt đầu giờ (`<khoi3-setup>`), sidebar (`<khoi3-sidebar>`), modal thêm học sinh (`<khoi3-student-modal>`) và màn hình tổng kết (`<khoi3-summary>`); đồng thời cung cấp hàm `toast(msg)` và **`uploadExcelToDrive(wb, fileName)`** tự động bắn file nhật ký lên Google Drive.
 - `students.js`: Quản lý danh sách học sinh Khối 3 nạp trực tiếp tự động từ JSON (`assets/data/students_3_2026_2027.json`). Hoàn toàn không dùng import Excel, chỉ dùng JSON và cho phép giáo viên thêm nhanh học sinh bằng tay.
 - `tracker.js`: Ghi nhật ký chi tiết theo thời gian thực, tính toán thứ hạng chuẩn sư phạm (xử lý đồng hạng) và xuất báo cáo 3 sheets (Bảng Xếp Hạng, Nhật Ký Chi Tiết, Danh Sách Học Sinh) tự động đồng bộ về Google Drive.

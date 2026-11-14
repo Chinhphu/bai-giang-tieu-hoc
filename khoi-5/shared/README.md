@@ -41,6 +41,8 @@ Các thuộc tính tùy chọn: `starting-score-label`, `start-label`. Component
 
 Các thuộc tính tùy chọn: `title`, `quick-action="gacha"`, `gold-board`, `navigation="false"`, `page-indicator`. Nút chỉ được thêm khi thuộc tính tương ứng được khai báo.
 
+*Lưu ý về bố cục màn chiếu:* Các menu điều khiển, thanh công cụ Giáo viên (Teacher Toolbar) hoặc sidebar quản lý hoàn toàn cho phép thiết kế ẩn/hiện thông qua nút Hamburger (`☰`) (ví dụ dạng Side Drawer) để giải phóng 100% diện tích màn chiếu cho học sinh quan sát bài giảng.
+
 Modal và màn hình tổng kết cũng cấu hình qua thuộc tính để giữ lại các hàm/ID riêng của từng bài:
 
 ```html
