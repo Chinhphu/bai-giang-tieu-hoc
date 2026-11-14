@@ -77,8 +77,8 @@ bai-giang-tieu-hoc/
 ```
 
 ### 2.2 Các hành vi bị vô hiệu hóa tự động
-1. **Phím Reload:** `F5`, `Ctrl+F5`, `Shift+F5`, `Ctrl+R`, `Cmd+R` $\to$ Chặn tức thì, hiện toast cảnh báo màu đỏ trên cùng màn hình.
-2. **Phím Điều hướng lùi:** `Alt+Mũi tên trái`, `Alt+Mũi tên phải`, `Backspace` ngoài ô input/textarea $\to$ Chặn để tránh bị back về trang trước làm mất điểm số.
+1. **Phím Reload:** `F5`, `Ctrl+F5`, `Shift+F5`, `Ctrl+R`, `Cmd+R` → Chặn tức thì, hiện toast cảnh báo màu đỏ trên cùng màn hình.
+2. **Phím Điều hướng lùi:** `Alt+Mũi tên trái`, `Alt+Mũi tên phải`, `Backspace` ngoài ô input/textarea → Chặn để tránh bị back về trang trước làm mất điểm số.
 3. **Chuột phải (Context menu):** Bị khóa để tránh học sinh bấm nhầm *"Tải lại"* hoặc mở kiểm tra mã nguồn (*Giáo viên nếu cần mở menu chuột phải gốc: giữ `Shift + Chuột phải`*).
 
 ### 2.3 Cơ chế cho phép Reload có chủ đích (Bypass)
@@ -111,8 +111,15 @@ location.reload();
   * Giữa các chặng trong tiết học (từ Khám phá sang Luyện tập, từ Thao tác cá nhân sang Thi đua tổ đội, từ Lý thuyết sang Thực hành máy), slide và kịch bản sư phạm BẮT BUỘC có **1–2 câu dẫn mang tính nhân quả/logic phát triển kiến thức**.
   * Câu chuyển tiếp phải trả lời được cho học sinh: *Tại sao sau khi biết kiến thức A, chúng mình lại cần khám phá tiếp kỹ năng B? Hoạt động trước đã giúp ích gì để giải quyết thử thách tiếp theo?*
 
-### 3.3 Trang Ghi bài vào vở — Tối Giản Tải Nhận Thức & Chuẩn UX Màn Chiếu
+### 3.3 Trang Ghi bài vào vở — Thực Hành Tối Đa, Lý Thuyết & Chép Bài Tối Thiểu (Chép 1 Lần Duy Nhất)
 Học sinh tiểu học cần nhìn rõ từ khoảng cách xa (8–10m cuối lớp) để hạ bút chép đúng tựa bài và kiến thức vào vở:
+* **Ý nghĩa sư phạm cốt lõi:**
+  * Thời lượng tiết học Tin học tiểu học chỉ có **35 phút**. Bản chất môn Tin học là rèn luyện năng lực và kỹ năng thực hành (thao tác chuột, bàn phím, tương tác phần mềm). Toàn bộ lý thuyết, hình ảnh và các bước thực hiện đều đã có trong SGK.
+  * Học sinh tiểu học viết chữ rất chậm. Nếu bắt học sinh chép bài dài hoặc chia nhỏ bắt chép bài nhiều lần trong tiết học, các em sẽ mất 10–15 phút chỉ để tìm bút, mở vở → xé nát mạch tư duy công nghệ và mất hơn một nửa thời gian thực hành máy tính.
+* **Quy chuẩn Ghi Bài 1 Lần Duy Nhất:**
+  * **Đầu giờ:** Ghi Thứ ngày tháng năm (tự động theo ngày dạy thực tế) + Môn: *Tin học* + *Tên bài học (Tiết mấy)*.
+  * **Nếu là Tiết 1 (Tiết mở đầu lý thuyết):** Cho chép **1 LẦN DUY NHẤT** ngay trang ghi bài đầu giờ, nội dung cô đọng tối đa chỉ **1 đoạn vài chữ ngắn gọn** (ví dụ: *Định dạng kí tự trong nhóm Font (thẻ Home); bố trí hình ảnh bằng nút Layout Options (Square).*). **TUYỆT ĐỐI KHÔNG ghi thêm tiêu đề "Nội dung ghi bài" hay "Kiến thức cốt lõi"** rườm rà. Dùng dấu mũi tên Unicode (`→`), cấm dùng mã LaTeX (`$\to$`). Chép xong trong 1–2 phút → học sinh cất vở vào ngăn bàn để dành trọn thời gian còn lại thực hành trên máy!
+  * **Nếu là Tiết 2 trở đi (Tiết thực hành/luyện tập):** Học sinh chỉ ghi Thứ ngày + Môn + Tên bài (Tiết 2) → **TUYỆT ĐỐI KHÔNG BẮT CHÉP THÊM LÝ THUYẾT NÀO NỮA**, dành trọn 100% thời lượng cho luyện tập thực hành trên máy tính!
 * **Nền trắng tinh khiết (`#ffffff`):**
   * TUYỆT ĐỐI CẤM trang trí rườm rà (không kẻ hoa văn, không kẻ ô ly gây rối mắt khi chiếu máy chiếu mờ, không đổ bóng lòe loẹt).
   * Chữ có thể tô màu phân cấp nổi bật trên nền trắng (Thứ ngày: xám/xanh dịu, Môn học: xanh dương đậm, Tên bài: đỏ/cam nổi bật).
@@ -121,12 +128,9 @@ Học sinh tiểu học cần nhìn rõ từ khoảng cách xa (8–10m cuối l
   * Tên môn học: `36px` – `44px` (đậm `900`, in hoa).
   * Tựa đề bài học: `50px` – `64px` (đậm `900`, in hoa).
   * Dòng ghi nhớ/tóm tắt: `30px` – `38px` (đậm `800`, giãn dòng `1.6`).
-* **Ghi chép tối giản — Chắt lọc từ khóa cốt lõi:**
-  * Sách giáo khoa đã in đầy đủ nội dung bài học. Học sinh tiểu học viết chữ rất chậm, nếu ép chép đoạn văn dài sẽ ngốn hết thời gian thực hành máy tính và biến giờ Tin học thành giờ chép chính tả.
-  * Chỉ cho học sinh ghi chép những từ khóa, công thức hành động hoặc quy tắc thật sự cốt lõi cần nhớ lâu dài.
 * **TUYỆT ĐỐI CẤM đặt Đồng hồ đếm ngược (Timer) khi học sinh chép bài:**
   * Cấm kỵ tuyệt đối việc ra khẩu lệnh: *"Các em có đúng 3 phút chép bài"* kèm widget đồng hồ đếm ngược tích tắc nhảy giây trên màn hình.
-  * Áp lực thời gian khiến vỏ não trẻ bị ức chế, học sinh hoảng sợ cắm đầu chép vội chép vàng cho kịp giờ, chữ viết nguệch ngoạc và hoàn toàn triệt tiêu khả năng ghi nhớ dài hạn. Giáo viên điều phối nhịp độ chép bài bằng cách quan sát thực tế trong lớp.
+  * Áp lực thời gian khiến học sinh hoảng loạn chép ẩu, chữ xấu và triệt tiêu khả năng tiếp thu. Giáo viên điều phối nhịp độ chép bài bằng cách quan sát thực tế trong lớp.
 * **BẮT BUỘC có nút Chế độ Toàn Màn Hình (Fullscreen Toggle) — Chuẩn Pop-up Toàn Màn Hình (Full-screen Overlay Modal) 1 Nút Zoom / 1 Nút Tắt Duy Nhất:**
   * **Bản chất kỹ thuật:** Tuyệt đối **không phụ thuộc vào API browser fullscreen (F11)** vốn hay bị trình duyệt chặn, hỏi quyền cấp phép hoặc lỗi zoom trên màn chiếu TV. Màn hình chép bài toàn màn hình được thiết kế dưới dạng một **Pop-up Modal Toàn Màn Hình (Full-screen Overlay Modal)** ghim cố định trùm kín 100% diện tích màn hình TV (`position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 9999999; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 100px 40px 60px; overflow-y: auto; box-sizing: border-box;`). Bắt buộc cho phép cuộn trang (`overflow-y: auto`) và phần đệm trên (`padding-top: 90px - 100px`) phải lớn hơn vị trí của nút tắt (`top: 20px - 24px`) để nội dung không bao giờ bị nút đóng che khuất khi chữ nhiều hoặc màn hình có chiều cao hạn chế.
   * **Trạng thái bình thường:** Chỉ hiển thị **DUY NHẤT 1 NÚT ZOOM** `⛶ Chế độ toàn màn hình chép bài` (`.btn-fs-toggle`). Nút tắt `btn-fs-close` bắt buộc ẩn hoàn toàn (`display: none !important;`).
@@ -141,9 +145,9 @@ Mẫu HTML chuẩn:
     </button>
     <div class="nb-date"><span class="notebookDateDisplay" id="current-date-line">Đang cập nhật ngày...</span></div>
     <div class="nb-subject">Môn: Tin học [Khối]</div>
-    <div class="nb-title">BÀI X: [TÊN BÀI HỌC]</div>
+    <div class="nb-title">BÀI X: [TÊN BÀI HỌC] (TIẾT 1)</div>
     <div class="nb-content">
-        ✍️ <b>Kiến thức cốt lõi:</b> [1-2 dòng ngắn gọn cần chép vào vở]
+        [1 đoạn vài chữ ngắn gọn, súc tích nhất của bài học, không thêm tiêu đề thừa]
     </div>
 </div>
 ```
@@ -184,18 +188,12 @@ document.addEventListener('keydown', (e) => {
 });
 ```
 
-### 3.4 Quy tắc "Ghi bài xé nhỏ" (Progressive Chunking)
-* Học sinh tiểu học sẽ rất chán nản nếu bắt chép một đoạn văn dài một lần.
-* Sau mỗi phần hoạt động/khám phá kiến thức mới, chỉ xuất hiện **1 thẻ ghi nhớ nhỏ** (`.memo-card`):
-```html
-<div class="memo-card">
-    <div class="memo-badge">✍️ Em ghi nhớ:</div>
-    <p class="memo-text">
-        [1-2 câu cô đọng, in đậm <b>từ khóa quan trọng</b>]
-    </p>
-</div>
-```
-* Giáo viên cho học sinh thực hành/thảo luận xong mới bấm hiển thị thẻ này, các em hạ bút viết đúng 1-2 dòng vào vở rồi chuyển hoạt động.
+### 3.4 Quy Chuẩn Ghi Bài 1 Lần Duy Nhất — Bãi Bỏ Chép Bài Chặng (No Progressive Chunking)
+* **Bãi bỏ việc bắt học sinh chép bài lắt nhắt nhiều chặng:**
+  * Việc cứ sau mỗi hoạt động nhỏ lại bắt dừng máy tính, lôi vở và bút ra chép 1-2 dòng khiến mạch học bị xé vụn, học sinh phải liên tục đổi tay từ chuột/bàn phím sang cầm bút, làm triệt tiêu sự hào hứng và lãng phí thời lượng quý giá của tiết học.
+* **Chức năng của các thẻ ghi nhớ (`.memo-card` / `.note-box`) xuyên suốt bài giảng:**
+  * Các thẻ ghi nhớ xuất hiện sau các hoạt động khám phá hoặc thực hành **chỉ đóng vai trò là Mỏ neo trực quan (Visual Anchor)** trên màn chiếu để học sinh đối chiếu hoặc đọc lướt khi làm bài.
+  * **TUYỆT ĐỐI KHÔNG bắt học sinh dừng tay để mở vở chép lại** các nội dung này. Toàn bộ nội dung cần ghi vào vở đã được chép hoàn tất 1 lần duy nhất ở đầu giờ.
 
 ### 3.5 Nguyên Lý Trực Quan Hóa Khái Niệm & Kỹ Năng (Concrete over Abstract)
 * **Bản chất tâm lý học lứa tuổi:**
@@ -239,6 +237,15 @@ document.addEventListener('keydown', (e) => {
 * **Nghệ thuật Khẩu lệnh Sư phạm Dứt khoát (Decisive Directives):**
   * Giáo viên là người làm chủ không gian phòng máy. Khẩu lệnh đưa ra phải ngắn gọn, dứt khoát và định hướng hành động rõ ràng (*"Hành động + Đối tượng + Thời điểm"*, ví dụ: *"Cả lớp mở sách trang 20"*, *"Hai tay đặt lên bàn phím"*).
   * **TUYỆT ĐỐI CẤM** dùng những câu hỏi ngược lại học sinh mang tính do dự, nước đôi (*"Hình này phải không các em?", "Làm vậy đúng không ta?"*). Slide và kịch bản sư phạm phải dùng các câu khẳng định chuẩn xác, truyền sự tự tin cho học sinh.
+
+### 3.7.1 Quy Chuẩn Vấn Đáp Thao Tác Quy Trình (Scrambled Steps Ordering)
+* **Bản chất tâm lý & Sư phạm:** Học sinh tiểu học chưa có khả năng diễn đạt lưu loát từng bước thao tác kỹ thuật dài dòng. Nếu bắt học sinh đứng lên trả lời miệng hoặc học vẹt 4 bước thực hiện, các em sẽ lúng túng, ngập ngừng, làm chùng không khí lớp học.
+* **Quy chuẩn Trắc nghiệm Sắp xếp Thứ tự:**
+  * Đối với các câu hỏi khám phá quy trình/thao tác (ví dụ 3–4 bước thao tác trên phần mềm):
+  1. **Hiển thị các bước xáo trộn (Scrambled Cards):** Chiếu 4 thẻ bước lộn xộn, đánh mã `(A), (B), (C), (D)`.
+  2. **Gọi học sinh đứng lên chọn thứ tự:** Giáo viên dùng ô chọn học sinh + nút Gacha `🎲` để gọi một em đứng lên lựa chọn.
+  3. **Cung cấp 4 phương án trắc nghiệm thứ tự:** Các phương án thứ tự to rõ (ví dụ: `1️⃣ (A) → (B) → (D) → (C)`, `2️⃣ (B) → (D) → (C) → (A)`...).
+  4. **Nhấp chọn & Phản hồi trực quan:** Giáo viên hoặc học sinh nhấp vào phương án được chọn → Nút đổi màu (Xanh nếu đúng, Đỏ nếu sai), phát âm thanh khen thưởng `playWin()` / `playFail()`, hiển thị lời giải thích sư phạm cốt lõi (nhấn mạnh thao tác nào luôn phải làm đầu tiên, ví dụ: *Luôn chọn bôi đen trước!*) và tự động ghi nhận Telemetry (T / H) cho học sinh.
 
 ### 3.8 Màn Hình Chốt Kiến Thức & Quy Trình 5 Phút Vàng (Consolidation Flow)
 * **Vị trí bắt buộc:** Liền trước slide Bảng vàng vinh danh (Slide kế cuối).
@@ -416,34 +423,38 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 
 * **Linh hoạt Menu điều khiển & Nút Hamburger (`☰`):** Dù bố cục từng khối có định hướng riêng, **tất cả các menu điều khiển, thanh công cụ Giáo viên (Teacher Toolbar), bảng điều khiển quản trị hoặc sidebar điều hướng ĐỀU CHO PHÉP thiết kế ẩn/hiện bằng nút Hamburger (`☰`)** (ví dụ dạng Side Drawer trượt ra/vào). Điều này giúp tối ưu 100% diện tích màn chiếu cho học sinh tập trung vào bài giảng.
 
-### 7.2 Thông số Kỹ thuật Màn chiếu TV Lớp học
-* **Tiêu đề Slide (`.slide-title`):** Cỡ `2.4rem` – `3.5rem`, `font-weight: 800 - 900`.
-* **Chữ Nội dung (`p`, `.desc`):** Cỡ `1.3rem` – `1.6rem`, `font-weight: 600 - 700`, `line-height: 1.5`.
-* **Nút bấm Hành động (`button`):** Cỡ `1.2rem` – `1.6rem`, độ dày `800`, padding tối thiểu `12px 24px`, bo góc `12px – 999px`.
+### 7.2 Thông số Kỹ thuật Màn chiếu TV Lớp học (Tối Ưu Cho Người Ngồi Xa 8–10m)
+* **Tối thiểu hóa chi tiết & Cho mọi thứ to lên:** Không nhồi nhét quá nhiều chi tiết vụn vặt, icon trang trí hay viền rườm rà. Tận dụng cơ chế cuộn trang dọc tự nhiên (`overflow-y: auto`) để mở rộng chiều cao, cho các phần tử to rõ tối đa giúp học sinh ngồi ở cự ly 8–10m cuối lớp nhìn rõ mồn một.
+* **Tiêu đề Slide (`.slide-title`):** Cỡ `2.4rem` – `3.5rem` (`36px` – `48px`), `font-weight: 800 - 900`.
+* **Chữ Nội dung & Câu hỏi (`p`, `.desc`):** Cỡ `1.3rem` – `1.6rem` (`19px` – `24px`), `font-weight: 700 - 800`, `line-height: 1.6`.
+* **Bảng điểm Tổ trên Sidebar:** Tên tổ $\ge 20\text{px} - 22\text{px}$, Điểm số $\ge 24\text{px} - 28\text{px}$. Chiều rộng sidebar khi mở đạt $340\text{px} - 360\text{px}$ để các phần tử to rõ không bị co rúm hay chèn ép.
+* **Nút bấm Hành động (`button`):** Cỡ `1.2rem` – `1.6rem` (`16px` – `20px`), độ dày `800 - 900`, padding tối thiểu `10px 20px`, bo góc `10px – 999px`.
 * **Đệm chân trang (Padding-bottom):** Bắt buộc chừa tối thiểu `120px` đến `140px` ở đáy trang để không bị thanh điều hướng che lấp nội dung.
-* **Tối ưu không gian bằng Menu Hamburger (`☰`):** Khuyến khích gom các công cụ điều khiển của giáo viên vào Menu trượt/Drawer cho phép ẩn/hiện bằng nút Hamburger (`☰`), giúp mở rộng tối đa vùng hiển thị nội dung bài học.
+* **Tối ưu không gian bằng Menu Hamburger / Toggle (`☰`):** Cho phép ẩn/hiện thanh công cụ/sidebar để nhường 100% diện tích màn chiếu cho bài giảng khi cần.
 * **Tương phản:** Nền sáng dịu mắt (xanh nhạt/kem/trắng xám), chữ tối màu (xanh navy đậm/đen xám), không dùng viền neon tương phản gắt làm mỏi mắt học sinh.
 
 ### 7.3 Quy Chuẩn Menu Điều Khiển & Thanh Công Cụ Giáo Viên: Cho Phép Ẩn/Hiện Bằng Nút Hamburger (`☰`)
 
 #### 7.3.1 Lý do Sư phạm & Tối ưu Màn chiếu TV Lớp học
 * **Sân khấu bài giảng là ưu tiên tuyệt đối:** Màn hình TV và máy chiếu tại các phòng máy tính tiểu học thường có tỷ lệ hiển thị và chiều cao hạn chế (16:9 hoặc 1366x768 / 1920x1080). Trọng tâm của tiết học là nội dung bài giảng, hình ảnh minh họa sinh động và câu chữ cỡ lớn để học sinh ngồi ở cự ly 8–10m cuối lớp nhìn rõ và nắm bắt kịp thời.
-* **Giấu công cụ quản trị khỏi tầm mắt học sinh (Zero Distraction):** Các tính năng kỹ thuật dành riêng cho Giáo viên (như chọn lớp học, đổi câu hỏi, đổi hình ảnh quái vật, tải bài mẫu docx, chấm batch hàng loạt, kích hoạt Phe Quỷ, nạp CSV phụ trợ, xem báo cáo SMAS, sao lưu Drive, xóa dữ liệu phiên...) không cần thiết phải hiển thị liên tục trước mắt học sinh. Việc để lộ quá nhiều nút bấm kỹ thuật vừa làm thu hẹp không gian trình chiếu, vừa gây rối mắt và làm phân tán sự tập trung của trẻ.
+* **Giấu công cụ quản trị khỏi tầm mắt học sinh (Zero Distraction):** Các tính năng kỹ thuật dành riêng cho Giáo viên (như chọn lớp học, đổi câu hỏi, đổi hình ảnh quái vật, tải bài mẫu docx, kích hoạt Phe Quỷ, nạp CSV phụ trợ, xem báo cáo SMAS, sao lưu Drive, xóa dữ liệu phiên...) không cần thiết phải hiển thị liên tục trước mắt học sinh. Việc để lộ quá nhiều nút bấm kỹ thuật vừa làm thu hẹp không gian trình chiếu, vừa gây rối mắt và làm phân tán sự tập trung của trẻ.
 
 #### 7.3.2 Cơ Chế Ẩn/Hiện Bằng Nút Hamburger (`☰`)
 * **Toàn quyền áp dụng:** Hệ thống **CHO PHÉP VÀ KHUYẾN KHÍCH** chuyển các thanh điều khiển, thanh công cụ giáo viên (Teacher Toolbar) hoặc sidebar quản trị thành giao diện trượt / ngăn kéo (Drawer / Collapsible Panel) đóng mở bằng nút Hamburger (`☰`).
 * **Cấu trúc UI chuẩn:**
-  1. **Nút Hamburger (`.btn-hamburger-teacher`):** Đặt gọn gàng ở thanh đỉnh đầu (`header-topbar`) hoặc vị trí thuận tiện với icon `☰` và nhãn rõ ràng (ví dụ: `☰ Menu Giáo Viên`).
-  2. **Lớp phủ nền mờ (`.teacher-drawer-overlay`):** Phủ toàn màn hình (`position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(6px); z-index: 100010;`), giúp làm nổi bật menu khi mở.
-  3. **Ngăn kéo điều khiển (`.teacher-drawer`):** Trượt ra từ mép phải hoặc mép trái màn hình (`position: fixed; top: 0; right: 0; width: 450px - 480px; max-width: 90vw; height: 100vh; background: #ffffff; z-index: 100011; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);`).
-  4. **Nội dung bên trong Drawer:** Gom nhóm trực quan theo từng khu vực:
-     - 🏫 *Quản lý lớp học:* Chọn lớp, xem thống kê số bạn đã hoàn thành, nạp CSV ưu tiên.
-     - 🎮 *Thao tác trận đấu / bài giảng:* Bốc thăm Gacha, đổi câu hỏi, chuyển màn, cấu hình đề bài.
-     - 📊 *Báo cáo & Dữ liệu:* Xem báo cáo SMAS/TT27, xuất CSV về máy, tải lên Google Drive, xóa session làm mới tiết học.
-  5. **Cơ chế đóng linh hoạt:** Bấm nút đóng `✕`, click ra vùng overlay bên ngoài, hoặc nhấn phím `Esc`.
+  1. **Nút Hamburger (`.btn-hamburger-toggle`):** BẮT BUỘC là **nút vuông độc lập (Square button tỷ lệ 1:1, khoảng 44px - 48px, KHÔNG CHỮ)**, chỉ chứa icon (`☰` khi đang đóng, `◀` hoặc `✕` khi đang mở). Nút luôn ghim cố định ở cạnh trên bên trái (`position: fixed; top: 12px - 14px; left: 12px - 14px; z-index: 9999;`). TUYỆT ĐỐI CẤM lồng nút vào thanh topbar hay container khác.
+  2. **Nút Điều Khiển Duy Nhất (Single Master Toggle):** Đây là công tắc duy nhất để đóng/mở sidebar. TUYỆT ĐỐI CẤM tạo thêm nút ẩn/thu gọn riêng bên trong Sidebar (như nút "◀ Thu gọn" trong header sidebar) gây lặp thừa thãi.
+  3. **Lớp phủ nền mờ (`.teacher-drawer-overlay` / Backdrop):** Khi dùng dạng Drawer trượt toàn phần, phủ toàn màn hình (`position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(6px); z-index: 100010;`), giúp làm nổi bật menu khi mở.
+  4. **Ngăn kéo điều khiển (`.teacher-drawer` hoặc Sidebar):** Trượt ra từ mép trái màn hình với animation mượt mà (`transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);`).
+  5. **Nội dung bên trong:** Gom nhóm trực quan theo từng khu vực:
+     - 🏆 *Điểm số & Thi đua:* Bảng điểm các tổ (click inline để sửa điểm, nút phạt ồn `🤫 -10%`).
+     - 🏫 *Quản lý lớp học:* Chọn lớp, xem danh sách học sinh, bốc thăm Gacha.
+     - 🛠️ *Công cụ tiết học:* Tải đề bài docx, đấu trường ma vương, xuất CSV, xóa session.
+  6. **Cơ chế đóng linh hoạt:** Bấm lại chính nút vuông ở góc trên bên trái, hoặc click ra vùng overlay bên ngoài, hoặc nhấn phím `Esc`.
 
 #### 7.3.3 Benchmark Điển Hình
-* **Khối 2 Tiết 10** (`khoi-2/tiet-10/index.html`): Áp dụng thành công mô hình Hamburger Drawer giúp màn hình trận đấu toán học rộng rãi 100%, học sinh tập trung tối đa vào đề bài và hiệu ứng chiến đấu, trong khi giáo viên vẫn có thể mở menu quản trị bất cứ lúc nào chỉ với một cú nhấp chuột.
+* **Khối 5 Tiết 11** (`khoi-5/tiet-11/index.html`): Áp dụng chuẩn nút vuông Hamburger cố định góc trên bên trái (không chữ), loại bỏ hoàn toàn các nút thừa, tối ưu 100% diện tích màn chiếu cho bài giảng.
+* **Khối 2 Tiết 10** (`khoi-2/tiet-10/index.html`): Áp dụng mô hình Hamburger Drawer giúp màn hình trận đấu toán học rộng rãi 100%, học sinh tập trung tối đa vào đề bài và hiệu ứng chiến đấu.
 
 ---
 
@@ -696,31 +707,61 @@ function clearSessionData() {
     * Chuỗi thắng liên tục (dây streak / combo) bị đứt oan hoặc tăng nhầm.
   * Nếu hệ thống không cho phép sửa điểm hay chuỗi thắng tại chỗ, học sinh sẽ có cảm giác bất công, ấm ức, làm phân tâm và gián đoạn không khí học tập.
 * **Quy chuẩn kỹ thuật bắt buộc:**
-  Mọi bài học có hệ thống tính điểm, xếp hạng hoặc chuỗi streak BẮT BUỘC phải cung cấp công cụ cho phép Giáo viên can thiệp nhanh:
-  1. **Click-to-Edit trực tiếp (Chỉnh sửa tại chỗ):**
-     * Cho phép Giáo viên nhấp trực tiếp vào con số điểm hoặc con số streak trên Sidebar (hoặc nút icon bút chì `✏️` cạnh điểm số).
-     * Bật hộp thoại `prompt` nhập số (hoặc pop-up chỉnh sửa):
+  Mọi bài học có hệ thống tính điểm, xếp hạng hoặc chuỗi streak BẮT BUỘC phải cung cấp công cụ cho phép Giáo viên can thiệp nhanh theo quy chuẩn tối giản (tránh rác UI):
+  1. **Sửa điểm trực tiếp bằng Ô Nhập Liệu (Inline Input Field — Không dùng Prompt, Không Emoji Bút):**
+     * **TUYỆT ĐỐI CẤM:** Không được nhồi nhét hàng loạt nút mini `+50`, `+100`, `-50`, `-100`, `🔄 1000đ`... trên từng thẻ tổ làm chật chội sidebar và gây phân tâm thị giác cho học sinh.
+     * **TUYỆT ĐỐI CẤM:** Không dùng hộp thoại `prompt()` của trình duyệt (thô cứng, dễ bị browser chặn). Không thêm emoji bút chì `✏️` thừa thãi.
+     * Cho phép Giáo viên nhấp trực tiếp vào con số điểm trên thẻ tổ (`.team-card-score`). Phần tử này lập tức chuyển hóa thành một ô nhập số `<input type="number" class="team-score-input">` ngay tại chỗ, tự động focus và bôi đen số cũ.
+     * Khi nhấn phím `Enter` hoặc nhấp chuột ra ngoài (`blur`), hệ thống tự động lưu số điểm mới. Khi nhấn `Esc`, hủy bỏ sửa điểm và giữ nguyên giá trị cũ.
+     * Đoạn mã chuẩn:
        ```javascript
-       function handleEditScore(teamId) {
-           const team = STATE.teams.find(t => t.id === teamId);
-           if (!team) return;
-           const input = prompt(`✏️ Nhập điểm mới cho ${team.name}:`, team.score);
-           if (input === null) return; // Người dùng bấm Hủy
-           const newScore = parseInt(input, 10);
-           if (!isNaN(newScore)) {
-               team.score = newScore;
-               onScoreUpdated();
-           }
+       function startInlineScoreEdit(teamId, event) {
+           if (event) event.stopPropagation();
+           const span = document.getElementById(`team-score-span-${teamId}`);
+           const input = document.getElementById(`team-score-input-${teamId}`);
+           if (!span || !input) return;
+
+           span.style.display = 'none';
+           input.style.display = 'inline-block';
+           input.focus();
+           input.select();
+
+           let committed = false;
+           const finish = () => {
+               if (committed) return;
+               committed = true;
+               const val = parseInt(input.value, 10);
+               const team = STATE.teams.find(t => t.id === teamId);
+               if (team && !isNaN(val)) {
+                   team.score = Math.max(0, val);
+                   onScoreUpdated();
+               }
+               renderTeams();
+           };
+           input.onkeydown = (e) => {
+               if (e.key === 'Enter') { e.preventDefault(); finish(); }
+               else if (e.key === 'Escape') { e.preventDefault(); committed = true; renderTeams(); }
+           };
+           input.onblur = finish;
        }
        ```
-  2. **Bộ nút điều chỉnh nhanh (+/-):**
-     * Thiết kế cụm nút nhỏ gọn: `+50`, `+100`, `-50`, `-100`, và nút reset về sàn 1000đ (`🔄 1000đ`).
+  2. **Tính năng Phạt ồn 1-chạm (Noise Penalty — Trừ 10% khi mất trật tự):**
+     * Mỗi thẻ tổ bố trí **DUY NHẤT 1 nút phạt ồn nhỏ gọn** (`🤫 -10%`).
+     * Khi tổ học sinh ồn ào hoặc mất trật tự, giáo viên bấm nút này để trừ chính xác 10% trên tổng điểm hiện tại của tổ:  
+       $$\text{Điểm trừ} = \text{round}(\text{Score} \times 0.1), \quad \text{Score mới} = \max(0, \text{Score} - \text{Điểm trừ})$$
+     * **BẮT BUỘC có Toast thông báo răn đe trên màn chiếu:** Kích hoạt âm thanh cảnh báo mất trật tự (`playNoiseAlert()`) và hiện thông báo Toast rõ ràng trên màn hình lớn:  
+       *Ví dụ: `📢 [Tổ 1] Mất trật tự / Ồn ào: Đã bị trừ 10% (-100 Xu), điểm hiện tại còn: 900 Xu! 🤫`*  
+       Giúp cả lớp tự giác nhắc nhau trật tự mà giáo viên không cần phải quát mắng.
   3. **Tự động tính toán lại và đồng bộ tức thì:**
-     * Ngay khi điểm hoặc chuỗi streak được chỉnh sửa:
+     * Ngay khi điểm hoặc chuỗi streak được chỉnh sửa / phạt:
        1. Gọi lại `window.calculateRankings(STATE.teams)` để cập nhật lại tức thì bảng xếp hạng, huy chương 🥇🥈🥉, và danh hiệu vinh danh.
        2. Gọi `saveSessionState()` để tự động lưu ngay vào `localStorage` (đề phòng cúp điện).
        3. Cập nhật dữ liệu chuẩn bị xuất file CSV cuối tiết.
-       4. Hiển thị Toast thông báo: *"✅ Đã cập nhật lại điểm số của [Tên Tổ] thành [X] điểm!"*.
+       4. Hiển thị Toast thông báo xác nhận.
+
+### 10.4 Quy Chuẩn Luồng Giảng Dạy: Lên Lần Lượt Từng Em Trên Bảng — CẤM "Chấm Hàng Loạt"
+* **Luồng tương tác trên lớp:** Học sinh được gọi lên bảng lần lượt từng em (qua dropdown chọn tên hoặc bốc thăm Gacha) để trực tiếp thao tác máy, giải quyết ticket hoặc trả lời câu hỏi.
+* **CẤM Chấm Hàng Loạt (Batch Auto-grader):** Tuyệt đối không đưa các tính năng upload 35 file zip/docx chấm đồng loạt vào slide bài giảng của giáo viên, gây rối giao diện và phá vỡ luồng sư phạm tương tác trực tiếp.
 
 ---
 
