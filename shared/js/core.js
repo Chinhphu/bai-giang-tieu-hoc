@@ -275,7 +275,27 @@
                 localStorage.setItem(storageKey, JSON.stringify(payload));
             } catch (err) {
                 console.warn('Lỗi khi lưu SessionState vào LocalStorage:', err);
+                if (err && (err.name === 'QuotaExceededError' || err.code === 22 || err.code === 1014)) {
+                    notify('⚠️ BỘ NHỚ TRÌNH DUYỆT ĐÃ ĐẦY! Thầy/Cô vui lòng xuất file CSV rồi bấm "🔄 Dạy Lớp Mới" ở Sidebar để làm mới bộ nhớ cho lớp tiếp theo nhé!', 'warn');
+                }
             }
+        };
+
+        // Hàm kiểm tra dung lượng ước tính của LocalStorage để cảnh báo sớm
+        const checkQuota = () => {
+            try {
+                let total = 0;
+                for (let x in localStorage) {
+                    if (Object.prototype.hasOwnProperty.call(localStorage, x)) {
+                        total += ((localStorage[x] && localStorage[x].length) || 0) * 2; // UTF-16
+                    }
+                }
+                // Hạn mức thông thường của trình duyệt là ~5MB. Nếu >= 4MB thì nhắc nhở
+                if (total >= 4 * 1024 * 1024) {
+                    const mbUsed = (total / (1024 * 1024)).toFixed(1);
+                    notify(`⚠️ Bộ nhớ tạm trên trình duyệt gần đầy (${mbUsed}MB / ~5MB)! Thầy/Cô hãy xuất CSV và bấm "🔄 Dạy Lớp Mới" ở Sidebar để giải phóng nhé!`, 'warn');
+                }
+            } catch (e) {}
         };
 
         const load = () => {
@@ -290,6 +310,7 @@
         };
 
         const restore = () => {
+            checkQuota();
             const saved = load();
             if (saved) {
                 if (typeof onRestore === 'function') {

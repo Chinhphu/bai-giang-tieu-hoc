@@ -9,23 +9,29 @@
 
 Mọi mã nguồn do AI sinh ra hoặc chỉnh sửa BẮT BUỘC phải tuân thủ tuyệt đối các nguyên tắc sau:
 
-### 1. 100% "Offline-First" — TUYỆT ĐỐI CẤM CDN NGOÀI
-* **CẤM:** Không được nhúng bất kỳ thư viện bên ngoài nào qua CDN (ví dụ: `cdnjs`, `jsdelivr`, `unpkg`, `xlsx.full.min.js`, `canvas-confetti`, FontAwesome...).
-* **LÝ DO:** Phòng máy tính trường tiểu học thường xuyên mất mạng hoặc tường lửa chặn CDN. Trang web phải mở bằng file trực tiếp (`file:///...`) và hoạt động trơn tru 100% khi không có internet.
+### 1. Triển Khai GitHub Pages & Kiến Trúc Tự Chủ Tài Nguyên (Zero-External CDN & Self-Contained)
+* **Môi trường vận hành chính thức:** Hệ thống slide bài giảng được triển khai và truy cập trực tuyến 100% qua **GitHub Pages (`https://<username>.github.io/<repo>/...`)**.
+* **TUYỆT ĐỐI CẤM CDN NGOÀI:** Không được nhúng bất kỳ thư viện bên ngoài nào qua CDN (ví dụ: `cdnjs`, `jsdelivr`, `unpkg`, `xlsx.full.min.js`, `canvas-confetti`, FontAwesome...).
+* **LÝ DO:** Mạng Internet tại các trường tiểu học thường xuyên thiết lập tường lửa chặn các dịch vụ CDN quốc tế, hoặc kết nối chập chờn. Việc đóng gói toàn bộ tài nguyên trong repo giúp trang web nạp siêu tốc, độc lập hoàn toàn và ổn định 100% khi trình chiếu trên lớp.
+* **BẮT BUỘC DÙNG ĐƯỜNG DẪN TƯƠNG ĐỐI (100% RELATIVE PATHS):** 
+  * Tuyệt đối không dùng đường dẫn tuyệt đối bắt đầu bằng dấu gạch chéo `/` (ví dụ `/assets/...` hay `/shared/...`) vì GitHub Pages chạy dưới dạng subpath (`...github.io/<repo-name>/...`), đường dẫn tuyệt đối sẽ trỏ ra ngoài repo và gây lỗi 404! Luôn dùng `../../assets/...` hoặc `../shared/...`.
 * **GIẢI PHÁP NỘI BỘ:**
   * Xuất CSV: Dùng thuần JavaScript có sẵn trong `shared/js/core.js`.
   * Hiệu ứng pháo hoa Confetti: Dùng Canvas HTML5 nội bộ (tham khảo mẫu Khối 2 Tiết 09).
   * Âm thanh (SFX): Dùng 100% Web Audio API synthesizer sinh sóng âm, không dùng file `.mp3` ngoài.
   * Font chữ & Google Material Symbols: Lưu trữ 100% offline file `.woff2` tại `assets/fonts/` và nạp qua `shared/css/core.css`. Tuyệt đối không dùng CDN font ngoài và không để thiếu font làm rơi về font mặc định Segoe UI.
 
-### 2. An toàn & Chống mất dữ liệu (`prevent-reload`)
+### 2. An toàn & Chống mất dữ liệu (`prevent-reload`) & Ngoại lệ Hard Reload cho Giáo viên
 * Mọi file HTML của tiết học bắt buộc phải nhúng file bảo vệ trong thẻ `<head>`:
   ```html
   <script src="../../shared/js/prevent-reload.js"></script>
   <script src="../../shared/js/core.js"></script>
   ```
-* Hệ thống tự động chặn: `F5`, `Ctrl+R`, `Alt+Mũi tên`, `Backspace` ngoài ô nhập, và chuột phải.
-* Khi giáo viên chủ động muốn làm lại/tải lại trang: Phải gọi hàm `window.allowPageReload()` trước khi gọi `location.reload()`.
+* Hệ thống tự động chặn học sinh bấm nhầm: `F5`, `Ctrl+R`, `Alt+Mũi tên`, `Backspace` ngoài ô nhập, và chuột phải.
+* **NGOẠI LỆ CHO GIÁO VIÊN TRÊN GITHUB PAGES:**
+  * **Hard Reload (`Ctrl + Shift + R` hoặc `Ctrl + Shift + F5`):** Khi giáo viên vừa cập nhật mã nguồn trên GitHub Pages và cần ép trình duyệt làm mới cache để nạp bản mới nhất, hệ thống **cho phép tải lại ngay khi giữ phím `Shift`**.
+  * **Menu ngữ cảnh gốc:** Giữ `Shift + Chuột phải`.
+  * Khi giáo viên chủ động muốn làm lại/tải lại trang bằng code: Phải gọi hàm `window.allowPageReload()` trước khi gọi `location.reload()`.
 
 ### 3. Quy chuẩn Trang Ghi bài vào vở — Thực Hành Tối Đa, Lý Thuyết & Chép Bài Tối Thiểu (Chép 1 Lần Duy Nhất)
 * **Ý nghĩa sư phạm cốt lõi môn Tin học (CTGDPT 2018):**
@@ -94,8 +100,8 @@ $$\text{Chờ (Waiting)} \xrightarrow{\text{Bốc thăm Gacha / Chọn}} \text{L
 ### 7. Dữ liệu Học sinh Đồng bộ Toàn Trường
 * Nạp tự động từ thư mục dữ liệu gốc:
   `../../assets/data/students_{khoi}_2026_2027.json` (hoặc đường dẫn tương đối phù hợp).
+* **Nạp dữ liệu Same-Origin trên GitHub Pages:** Do toàn bộ trang web và file JSON nằm trên cùng domain GitHub Pages, hàm `fetch()` dữ liệu học sinh hoạt động hoàn hảo 100%, không bao giờ bị lỗi chặn CORS. Biến `FALLBACK_STUDENTS` trong code chỉ đóng vai trò dự phòng khi mạng gặp sự cố tải file.
 * **Danh sách phẳng — Tuyệt đối KHÔNG gán tổ cố định:** Do học sinh đổi chỗ ngồi liên tục sau mỗi tuần/buổi học, tệp JSON chỉ lưu trữ danh sách họ tên phẳng của lớp, TUYỆT ĐỐI KHÔNG gán cứng thuộc tính tổ (`team`). Việc bốc thăm theo tổ vận hành theo cơ chế *"Gacha tới khi nào trúng thì thôi"*.
-* Luôn có biến dự phòng `FALLBACK_STUDENTS` trong code để đề phòng trường hợp mở file HTML độc lập bị chặn chính sách CORS.
 * Luôn cung cấp Modal hoặc ô cho giáo viên thêm nhanh/bổ sung học sinh vãng lai khi cần.
 
 ### 8. Định danh Typography & Bản sắc theo từng Khối (Grade Identity)
@@ -122,13 +128,23 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 * **Tối ưu không gian bằng Menu Hamburger / Toggle (`☰`):** Cho phép ẩn/hiện thanh công cụ/sidebar để nhường 100% diện tích màn chiếu cho bài giảng khi cần.
 * **Tỷ lệ:** Thiết kế co giãn linh hoạt (responsive flex), tối ưu cho tỷ lệ 16:9 của TV lớp học (độ phân giải 1366x768 hoặc 1920x1080).
 
-### 10. Bắt Buộc Lưu Trạng Thái Vào LocalStorage (Auto-Save & Phục Hồi Khi Cúp Điện / Sập Nguồn)
+### 10. Bắt Buộc Lưu Trạng Thái Vào LocalStorage — LƯU CHI TIẾT 100% ĐÁNH GIÁ TỪNG EM & CẢNH BÁO KHI ĐẦY
 * **100% File HTML / Tiết học / Mini-game BẮT BUỘC tự động lưu trạng thái (Auto-Save):**
   * Trong phòng máy tính trường tiểu học, sự cố cúp điện đột ngột, sập aptomat, vấp dây nguồn máy tính hoặc học sinh/giáo viên vô tình tắt nhầm tab/trình duyệt xảy ra rất thường xuyên.
   * Mọi biến động trạng thái (điểm số các tổ/cá nhân, chuỗi thắng/dây streak, tiến trình slide/câu hỏi hiện tại, danh sách học sinh đã gọi / còn lại, nhật ký telemetry) **phải được tự động ghi ngay vào `localStorage`**.
-  * **Cơ chế Tự Động Phục Hồi Êm Dịu (Silent Crash Recovery — Zero Friction):**
-    * Khi giáo viên chọn lớp và bấm *"VÀO TIẾT HỌC 🚀"*, nếu có dữ liệu phiên dở dang, hệ thống tự động khôi phục ngay lập tức và hiện 1 Toast thông báo màu xanh ngọc: *"⚡ Đã tự động khôi phục dữ liệu phiên trước của Lớp X!"*.
-    * **TUYỆT ĐỐI CẤM** hiện banner cảnh báo trên màn hình Setup hoặc bật popup `confirm()` hỏi dồn dập (*"Bạn muốn tiếp tục hay xóa dữ liệu cũ..."*). Việc này gây phiền toái, làm mất thời gian và khiến giáo viên ức chế khi vào tiết.
+* **BẮT BUỘC LƯU CHI TIẾT 100% ĐỂ ĐÁNH GIÁ HỌC SINH (Theo Thông tư 27 & SMAS):**
+  * **CẤM tóm tắt sơ sài hoặc cắt xén:** Dữ liệu từng học sinh phát biểu câu nào, đúng/sai, số lần click trượt, lỗi bàn phím, thời gian thao tác, xếp loại TT27 (**T / H / C**) và nhận xét SMAS cụ thể của cả 35–40 em **bắt buộc phải được lưu chi tiết đầy đủ 100%** vào LocalStorage để làm bằng chứng đánh giá học tập.
+  * Toàn bộ dữ liệu chi tiết của 1 lớp chỉ khoảng 15–25 KB (hoàn toàn nhẹ tênh trong hạn mức 5MB của trình duyệt, đủ lưu hàng trăm tiết học).
+  * **CẤM ghi rác tọa độ rê chuột (`mousemove`):** Không lưu tọa độ chuột liên tục 60fps để tránh phình dữ liệu vô nghĩa.
+* **Cơ Chế Cảnh Báo Bộ Nhớ Trình Duyệt Gần Đầy (Storage Quota Warning):**
+  * Do toàn bộ các bài giảng trên GitHub Pages cùng chia sẻ một kho LocalStorage chung (~5MB):
+  * Mọi lệnh `localStorage.setItem` bắt buộc phải bọc trong khối `try...catch` để bắt lỗi `QuotaExceededError`.
+  * **Nếu phát hiện bộ nhớ gần đầy (>= 4MB hoặc gặp QuotaExceededError):** Hệ thống **lập tức hiện thông báo Toast / Cảnh báo rõ ràng cho Giáo viên**:
+    *Ví dụ: `⚠️ Bộ nhớ tạm trên trình duyệt gần đầy! Thầy/Cô hãy kiểm tra xuất file CSV rồi bấm "🔄 Dạy Lớp Mới" ở Sidebar để làm mới bộ nhớ cho lớp tiếp theo nhé!`*
+  * **TUYỆT ĐỐI CẤM tự động xóa ngầm dữ liệu của giáo viên khi chưa bấm nút xác nhận.**
+* **Cơ chế Tự Động Phục Hồi Êm Dịu (Silent Crash Recovery — Zero Friction):**
+  * Khi giáo viên chọn lớp và bấm *"VÀO TIẾT HỌC 🚀"*, nếu có dữ liệu phiên dở dang, hệ thống tự động khôi phục ngay lập tức và hiện 1 Toast thông báo màu xanh ngọc: *"⚡ Đã tự động khôi phục dữ liệu phiên trước của Lớp X!"*.
+  * **TUYỆT ĐỐI CẤM** hiện banner cảnh báo trên màn hình Setup hoặc bật popup `confirm()` hỏi dồn dập (*"Bạn muốn tiếp tục hay xóa dữ liệu cũ..."*). Việc này gây phiền toái, làm mất thời gian và khiến giáo viên ức chế khi vào tiết.
 * **Cú pháp Key an toàn — Tránh xung đột giữa các bài:**
   ```javascript
   const STORAGE_KEY = `bgtieu_hoc_k${grade}_tiet_${lesson}_${classId}_state`;
@@ -196,14 +212,14 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 ### 15. Quản Lý Quests & Câu Hỏi Bằng File `quests.js` Duy Nhất (Single Quests File - DRY)
 * **CẤM:** Tuyệt đối KHÔNG nhúng cứng (hardcode) hàng chục hoặc hàng trăm dòng mảng dữ liệu câu hỏi, tình huống, vụ án, thẻ bài trực tiếp vào file HTML/JS của bài giảng.
 * **Quy chuẩn DUY NHẤT 1 file `quests.js` (Bỏ hẳn `quests.json`):**
-  * Việc duy trì song song 2 file (`quests.json` và `quests.js`) vi phạm nguyên tắc DRY, dễ dẫn đến tình trạng sửa file `.json` nhưng quên sửa file `.js`, khi chạy offline bằng `file:///...` sẽ vẫn ăn dữ liệu cũ.
+  * Việc duy trì song song 2 file (`quests.json` và `quests.js`) vi phạm nguyên tắc DRY, dễ dẫn đến tình trạng sửa file `.json` nhưng quên sửa file `.js`, dẫn đến lệch phiên bản.
   * Toàn bộ ngân hàng câu hỏi, thử thách, kịch bản phải được đặt trong **DUY NHẤT 1 file `quests.js`** nằm ngay cạnh `index.html`:
     ```javascript
     window.QUESTS_DATA = [
       { id: 1, question: "...", options: ["A", "B", "C", "D"], answer: 0, points: 100 }
     ];
     ```
-  * Nhúng file qua `<script src="quests.js"></script>` trong `<head>`: 100% không bao giờ dính lỗi CORS trên `file:///`, giáo viên mở sửa trực tiếp như JSON mà không phải đồng bộ 2 nơi.
+  * Nhúng file qua `<script src="quests.js"></script>` trong `<head>`: nạp dữ liệu đồng bộ tức thì trước khi khởi tạo DOM/ứng dụng, giáo viên mở sửa trực tiếp như JSON mà không phải đồng bộ 2 nơi.
 
 ### 16. Quy Chuẩn Tính Năng Ẩn: Cơ Chế "Phe Quỷ" Bất Công Công Khai (Chỉ Dành Riêng Cho Khối 5 / Lớp 5)
 * **Đặc Quyền Dành Riêng Cho Khối 5 (Lớp 5):**
@@ -355,8 +371,8 @@ Khi nhận được yêu cầu viết tiết học mới từ người dùng (v�
 ## 📋 3. BẢNG TỰ KIỂM TRA TRƯỚC KHI BÀN GIAO (PRE-FLIGHT CHECKLIST)
 
 Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà soát:
-- [ ] Không có link CDN bên ngoài nào (`cdnjs`, `jsdelivr`, `unpkg`,...) trong mã nguồn?
-- [ ] Đã nhúng `prevent-reload.js` và `core.js` chưa?
+- [ ] Không có link CDN bên ngoài nào (`cdnjs`, `jsdelivr`, `unpkg`,...) trong mã nguồn? Toàn bộ đường dẫn là Relative Path (không dùng đường dẫn tuyệt đối dạng `/assets/...`)?
+- [ ] Đã nhúng `prevent-reload.js` và `core.js` chưa? Đã hỗ trợ ngoại lệ Hard Reload `Ctrl + Shift + R` cho giáo viên làm mới cache GitHub Pages chưa?
 - [ ] Font chữ có đúng chuẩn của Khối đó không?
 - [ ] Các menu điều khiển, thanh công cụ giáo viên (Teacher Toolbar / Drawer) nếu có: Cho phép ẩn/hiện linh hoạt bằng nút Hamburger (`☰`) để tối ưu 100% diện tích màn chiếu cho học sinh quan sát bài giảng?
 - [ ] Mọi chỗ có học sinh phát biểu đều có ô chọn học sinh + nút Gacha chưa? (Chỉ log telemetry, không cộng điểm tổ khi phát biểu tự do)
@@ -382,7 +398,7 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Bảng xếp hạng và xuất CSV có cơ chế xử lý đồng hạng (bằng điểm → cùng hạng, cùng cúp/huy chương, danh hiệu "Đồng Quán quân / Đồng Á quân") không?
 - [ ] Nếu là Khối 5 và kích hoạt Phe Quỷ: Đã tuân thủ cơ chế Bất Công Công Khai (chỉ áp dụng Khối 5, tuyệt đối không áp dụng Khối 1-4; không trao quyền Quỷ Vương cầm máy, đúng +50% max 1000đ, sai/phạt -200đ vào Quỹ Cứu Trợ, rớt sàn <800đ, ân xá hoàn lương) chưa?
 - [ ] Tên file CSV xuất ra có đúng quy cách `KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}...` không?
-- [ ] 100% file HTML đã có cơ chế tự động lưu LocalStorage (Auto-Save) phòng cúp điện/sập nguồn chưa?
+- [ ] 100% file HTML đã có cơ chế tự động lưu LocalStorage (Auto-Save) phòng cúp điện/sập nguồn chưa? Đã lưu chi tiết 100% dữ liệu từng học sinh (TT27) và có cơ chế cảnh báo khi bộ nhớ gần đầy để bấm "Dạy lớp mới" chưa?
 - [ ] 100% file HTML đã có nút Xóa dữ liệu phiên (Clear Session Button) có xác nhận confirm và thông báo chưa?
 
 ---

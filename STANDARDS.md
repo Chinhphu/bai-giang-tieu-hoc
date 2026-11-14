@@ -59,9 +59,11 @@ bai-giang-tieu-hoc/
 └── games/                     # Kho mini-games hỗ trợ tiết dạy (caro, gõ phím, lật thẻ...)
 ```
 
-### 1.2 Nguyên tắc "100% Offline-First"
-* Mọi file HTML của tiết học phải chạy trơn tru khi mở bằng giao thức tệp trực tiếp `file:///...`.
+### 1.2 Triển Khai GitHub Pages & Kiến Trúc Tự Chủ Tài Nguyên (Zero-External CDN & Self-Contained)
+* Hệ thống bài giảng được triển khai và truy cập trực tuyến chính thức qua **GitHub Pages (`https://<username>.github.io/<repo>/...`)**.
 * **CẤM tuyệt đối việc nhúng CDN bên ngoài** (`cdnjs`, `jsdelivr`, `unpkg`, font awesome...).
+* **Lý do:** Tường lửa mạng trường học thường chặn các CDN quốc tế, hoặc đường truyền chập chờn. Việc đóng gói toàn bộ tài nguyên nội bộ giúp bài giảng nạp siêu tốc, độc lập hoàn toàn và chạy ổn định 100% trên lớp.
+* **BẮT BUỘC 100% Relative Paths:** Tuyệt đối không dùng đường dẫn tuyệt đối bắt đầu bằng `/` (như `/assets/...`), luôn dùng đường dẫn tương đối (`../../assets/...`) để tương thích hoàn toàn với subpath của GitHub Pages.
 * Tất cả hiệu ứng Confetti, âm thanh, xuất CSV phải hoàn toàn xử lý bằng JavaScript nội bộ.
 * Toàn bộ Google Fonts (Baloo 2, Nunito, Quicksand, Be Vietnam Pro) và Google Material Symbols được lưu trữ cục bộ dưới dạng file `.woff2` tại `assets/fonts/` và khai báo `@font-face` trong `shared/css/core.css`. Tuyệt đối không dùng CDN font ngoài và không để thiếu font làm rơi về font mặc định Segoe UI.
 
@@ -76,10 +78,11 @@ bai-giang-tieu-hoc/
 <script src="../../shared/js/core.js"></script>
 ```
 
-### 2.2 Các hành vi bị vô hiệu hóa tự động
-1. **Phím Reload:** `F5`, `Ctrl+F5`, `Shift+F5`, `Ctrl+R`, `Cmd+R` → Chặn tức thì, hiện toast cảnh báo màu đỏ trên cùng màn hình.
-2. **Phím Điều hướng lùi:** `Alt+Mũi tên trái`, `Alt+Mũi tên phải`, `Backspace` ngoài ô input/textarea → Chặn để tránh bị back về trang trước làm mất điểm số.
-3. **Chuột phải (Context menu):** Bị khóa để tránh học sinh bấm nhầm *"Tải lại"* hoặc mở kiểm tra mã nguồn (*Giáo viên nếu cần mở menu chuột phải gốc: giữ `Shift + Chuột phải`*).
+### 2.2 Các hành vi bị vô hiệu hóa tự động & Ngoại lệ cho Giáo viên
+1. **Phím Reload của học sinh:** `F5`, `Ctrl+R`, `Cmd+R` → Chặn tức thì, hiện toast cảnh báo màu đỏ trên cùng màn hình để bảo vệ dữ liệu tiết dạy.
+2. **Ngoại lệ Hard Reload cho Giáo viên:** Khi giáo viên vừa cập nhật mã nguồn trên GitHub Pages và cần ép trình duyệt làm mới cache nạp code mới nhất: Giữ phím `Shift` khi reload (**`Ctrl + Shift + R`** hoặc **`Ctrl + Shift + F5`**) → Hệ thống cho phép tải lại ngay lập tức.
+3. **Phím Điều hướng lùi:** `Alt+Mũi tên trái`, `Alt+Mũi tên phải`, `Backspace` ngoài ô input/textarea → Chặn để tránh bị back về trang trước làm mất điểm số.
+4. **Chuột phải (Context menu):** Bị khóa để tránh học sinh bấm nhầm *"Tải lại"* hoặc mở kiểm tra mã nguồn (*Giáo viên nếu cần mở menu chuột phải gốc: giữ `Shift + Chuột phải`*).
 
 ### 2.3 Cơ chế cho phép Reload có chủ đích (Bypass)
 Khi giáo viên bấm nút "Làm lại từ đầu" hoặc "Bắt đầu tiết mới", code JavaScript PHẢI gọi hàm bypass trước:
@@ -476,6 +479,8 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 * **Bối cảnh thực tế tại trường tiểu học:** Phòng máy vi tính tại trường tiểu học thường xuyên đối mặt với sự cố cúp điện đột ngột, aptomat tự ngắt khi quá tải, học sinh vấp dây nguồn làm sập máy, hoặc vô tình tắt nhầm tab/trình duyệt. Nếu dữ liệu điểm số, danh sách học sinh và tiến trình đang học bị mất sạch, Giáo viên và học sinh sẽ vô cùng hụt hẫng và tiết học bị đổ vỡ.
 * **Quy chuẩn bắt buộc:**
   * **100% file HTML của bài học và mini-game** BẮT BUỘC phải cài đặt cơ chế tự động lưu trữ (Auto-Save) vào `localStorage`.
+  * **LƯU CHI TIẾT 100% ĐỂ ĐÁNH GIÁ TỪNG EM (Theo Thông tư 27 & SMAS):** Bắt buộc phải lưu đầy đủ chi tiết lịch sử phát biểu, câu hỏi, đúng/sai, số lần click trượt, lỗi bàn phím, xếp loại TT27 (T/H/C) và câu nhận xét SMAS của từng học sinh. Dữ liệu này chỉ nặng khoảng 15–25 KB/lớp, hoàn toàn nhẹ và đủ chỗ cho hàng trăm tiết học.
+  * **Cơ Chế Cảnh Báo Khi Bộ Nhớ Gần Đầy (Storage Quota Alert):** Mọi lệnh `localStorage.setItem` phải bọc trong `try...catch`. Nếu dung lượng bộ nhớ LocalStorage của domain đạt ngưỡng đầy (>= 4MB hoặc gặp `QuotaExceededError`), hệ thống **phát thông báo rõ ràng cho Giáo viên**: *"⚠️ Bộ nhớ tạm trên trình duyệt gần đầy! Thầy/Cô hãy kiểm tra xuất file CSV rồi bấm '🔄 Dạy Lớp Mới' ở Sidebar để làm mới bộ nhớ cho lớp tiếp theo nhé!"*. Tuyệt đối không tự động xóa ngầm dữ liệu khi chưa có sự xác nhận của giáo viên.
   * Mỗi khi có bất kỳ sự thay đổi trạng thái nào (điểm số các tổ/cá nhân, chuỗi dây streak thắng, slide hiện tại, học sinh đã được gọi, câu hỏi đã hoàn thành, telemetry), hệ thống phải tự động serialize và ghi ngay vào `localStorage`.
   * Khi trang web được mở lại (sau khi có điện trở lại hoặc mở lại trình duyệt), hệ thống tự động kiểm tra `localStorage`. Nếu phát hiện phiên học đang dang dở, hệ thống **tự động phục hồi nguyên trạng thái (Restore Session)** và hiển thị Toast màu xanh ngọc:
     ```text
@@ -818,7 +823,7 @@ function clearSessionData() {
 ## 11. HỆ THỐNG QUẢN LÝ QUESTS & CÂU HỎI BẰNG FILE `quests.js` DUY NHẤT
 
 ### 11.1 Nguyên tắc "Không nhồi nhét câu hỏi vào HTML" & Triệt tiêu lỗi Duplicate (DRY)
-* **Vấn đề của phương án cũ (quests.json song song quests.js):** Việc duy trì song song 2 file chứa cùng nội dung (`quests.json` và `quests.js`) vi phạm nghiêm trọng nguyên tắc DRY (Don't Repeat Yourself). Khi giáo viên sửa câu hỏi ở file `.json` nhưng quên sửa file `.js`, lúc mang ra phòng máy mở trực tiếp bằng `file:///...`, hệ thống không gọi được `fetch()` nên fallback về `.js` cũ $\rightarrow$ học sinh vẫn nhìn thấy câu hỏi cũ chưa sửa!
+* **Vấn đề của phương án cũ (quests.json song song quests.js):** Việc duy trì song song 2 file chứa cùng nội dung (`quests.json` và `quests.js`) vi phạm nghiêm trọng nguyên tắc DRY (Don't Repeat Yourself). Khi giáo viên sửa câu hỏi ở file `.json` nhưng quên sửa file `.js`, hệ thống nạp lệch phiên bản $\rightarrow$ học sinh vẫn nhìn thấy câu hỏi cũ chưa sửa!
 * **Quy chuẩn mới tối ưu 100%:**
   * **Bỏ hẳn file `quests.json`**, chỉ dùng **DUY NHẤT 1 file `quests.js`** nằm ngay cạnh file `index.html`.
   * Toàn bộ câu hỏi, thử thách, tình huống vụ án, trắc nghiệm được khai báo trực tiếp vào biến toàn cục:
@@ -838,7 +843,7 @@ function clearSessionData() {
     ```
   * Cấu trúc mảng/object JavaScript trong `quests.js` hoàn toàn tương đồng với JSON, cực kỳ trực quan, giáo viên có thể mở bằng Notepad/VS Code để thêm/sửa câu hỏi trong 30 giây.
 
-### 11.2 Cơ chế Nạp 100% Offline-First Siêu Gọn Nhẹ
+### 11.2 Cơ chế Nạp Đồng Bộ Siêu Gọn Nhẹ
 * Trong thẻ `<head>` của `index.html`, chỉ cần nhúng duy nhất 1 dòng:
   ```html
   <script src="quests.js"></script>
@@ -848,9 +853,9 @@ function clearSessionData() {
   const QUESTS = window.QUESTS_DATA || [];
   ```
 * **Lợi ích vượt trội:**
-  1. **100% Không bao giờ dính lỗi CORS:** Chạy mượt mà tuyệt đối khi double-click mở trực tiếp `file:///...` trong phòng máy không có internet hay local web server.
-  2. **Chỉnh sửa 1 nơi duy nhất:** Giáo viên sửa xong là hiệu lực tức thì ở cả online lẫn offline, không bao giờ lo lệch phiên bản.
-  3. **Không cần code `fetch()` / `async-await` rườm rà:** Giảm tải mã nguồn, loại bỏ hoàn toàn nguy cơ bất đồng bộ race-condition khi nạp slide.
+  1. **Nạp dữ liệu đồng bộ tức thì:** Không cần code `fetch()` / `async-await` rườm rà, loại bỏ hoàn toàn nguy cơ bất đồng bộ race-condition khi nạp slide.
+  2. **Chỉnh sửa 1 nơi duy nhất:** Giáo viên sửa xong là hiệu lực tức thì, không bao giờ lo lệch phiên bản.
+  3. **Khả năng tương thích tuyệt đối:** Chạy hoàn hảo trên cả GitHub Pages lẫn khi mở cục bộ.
 
 ---
 

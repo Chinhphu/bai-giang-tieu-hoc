@@ -6,13 +6,13 @@ Slide bài giảng HTML/CSS/JS cho khối 1, 2, 3, 4, 5 và Kho mini-games.
 Để đảm bảo học sinh không vô tình thao tác làm mất điểm số, danh sách học sinh và dữ liệu bài giảng, toàn bộ hệ thống đã được tích hợp bộ bảo vệ tự động:
 
 ### 1. Các hành vi bị cấm / vô hiệu hóa:
-- **Phím F5, Ctrl + F5, Shift + F5**: Bị chặn ngay lập tức, hiển thị thông báo nhắc nhở màu đỏ.
-- **Phím Ctrl + R, Ctrl + Shift + R, Cmd + R, Cmd + Shift + R**: Bị chặn ngay lập tức.
+- **Phím F5, Ctrl + R**: Bị chặn ngay lập tức, hiển thị thông báo nhắc nhở màu đỏ để bảo vệ dữ liệu tiết học.
 - **Phím Alt + Mũi tên trái / Alt + Mũi tên phải**: Bị chặn để ngăn quay lại (back/forward) trang trước.
 - **Phím Backspace ngoài ô nhập liệu**: Bị chặn (chỉ cho phép xóa chữ khi đang gõ trong `input` hoặc `textarea`).
 - **Chuột phải (Context menu)**: Bị khóa để tránh học sinh bấm nhầm vào menu chuột phải chọn *"Tải lại"* hoặc nghịch mã nguồn (*Giáo viên nếu cần mở menu ngữ cảnh gốc chỉ cần giữ phím `Shift + Chuột phải`*).
 
-### 2. Hành vi duy nhất được phép tải lại:
+### 2. Các hành vi được phép tải lại:
+- **Ngoại lệ Hard Reload cho Giáo viên (khi chạy trên GitHub Pages):** Nhấn **`Ctrl + Shift + R`** hoặc **`Ctrl + Shift + F5`** (giữ phím `Shift`) để ép trình duyệt làm mới cache và tải mã nguồn bài giảng mới nhất.
 - **Bấm nút Reload trên thanh địa chỉ của trình duyệt**: Khi bấm nút này, trình duyệt sẽ kích hoạt sự kiện `beforeunload` và bật hộp thoại cảnh báo xác nhận (*"Bạn có chắc muốn rời khỏi/tải lại trang này? Dữ liệu chưa lưu có thể bị mất"*).
   - Nếu học sinh vô tình bấm nhầm: Bấm **Hủy / Stay** để tiếp tục tiết học mà không mất dữ liệu.
   - Nếu giáo viên chủ động muốn tải lại: Bấm **Tải lại / Reload**.
@@ -71,13 +71,16 @@ KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}_Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s.
 ## ⚡ Hệ thống Tự Động Lưu LocalStorage & Phục Hồi Khi Cúp Điện (Crash Recovery)
 
 Phòng máy tính tiểu học thường xuyên gặp sự cố cúp điện đột ngột hoặc học sinh/giáo viên lỡ tắt tab trình duyệt. Hệ thống giải quyết triệt để:
-1. **100% file HTML tự động lưu (Auto-Save)**:
-   - Điểm số của từng tổ/học sinh, chuỗi thắng (dây streak), tiến trình slide/câu hỏi, danh sách học sinh đã gọi / còn lại, nhật ký telemetry được lưu ngay vào `localStorage` mỗi khi có thay đổi.
+1. **100% file HTML tự động lưu (Auto-Save) & Lưu chi tiết đánh giá từng em:**
+   - **Lưu chi tiết 100% để đánh giá học sinh theo TT27:** Toàn bộ điểm số từng tổ/cá nhân, chuỗi thắng (dây streak), tiến trình slide/câu hỏi, câu trả lời của từng em, lỗi thao tác (misclicks, phím sai), xếp loại T/H/C và nhận xét SMAS được lưu trữ chi tiết đầy đủ vào `localStorage`.
    - Cú pháp key độc nhất: `bgtieu_hoc_k{Khoi}_tiet_{Tiet}_{Lop}_state` (hoặc `bgtieu_hoc_game_{GameId}_state`).
-2. **Tự động khôi phục (Resume Session)**:
-   - Khi mở lại file HTML sau khi có điện lại hoặc mở lại trình duyệt, hệ thống tự động nhận diện phiên học dở dang và khôi phục toàn vẹn dữ liệu kèm Toast thông báo.
-3. **Nút "Xóa dữ liệu phiên" (Clear Session) an toàn**:
-   - Mọi file HTML đều có nút xóa dữ liệu đặt tại vị trí trực quan, có hộp thoại `confirm()` xác nhận trước khi xóa, và chỉ xóa đúng key của tiết đó (tuyệt đối không làm ảnh hưởng bài khác).
+2. **Cảnh báo khi bộ nhớ gần đầy (Storage Quota Alert):**
+   - Do chạy trên cùng domain GitHub Pages (~5MB bộ nhớ), nếu bộ nhớ đạt ngưỡng đầy, hệ thống **tự động hiện thông báo Toast để nhắc nhở Giáo viên**: *"⚠️ Bộ nhớ tạm trên trình duyệt gần đầy! Thầy/Cô hãy xuất file CSV rồi bấm '🔄 Dạy Lớp Mới' ở Sidebar để làm mới bộ nhớ cho lớp tiếp theo!"*.
+   - Hệ thống tuyệt đối không tự ý xóa ngầm dữ liệu của giáo viên.
+3. **Tự động khôi phục (Resume Session):**
+   - Khi mở lại file HTML sau khi có điện lại hoặc mở lại trình duyệt, hệ thống tự động nhận diện phiên học dở dang và khôi phục toàn vẹn dữ liệu kèm Toast thông báo xanh ngọc.
+4. **Nút "Dạy Lớp Mới" (Clear Session) an toàn:**
+   - Đặt gọn gàng duy nhất 1 nút trong Sidebar của Giáo viên, có hộp thoại `confirm()` xác nhận trước khi xóa, và chỉ xóa đúng key của tiết đó (tuyệt đối không làm ảnh hưởng bài khác), giúp giải phóng bộ nhớ cho lớp học tiếp theo.
 
 ---
 

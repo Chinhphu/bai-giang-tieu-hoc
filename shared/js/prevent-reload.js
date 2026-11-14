@@ -102,6 +102,13 @@
         const isReloadShortcut = isCtrl && (key === 'r' || key === 'R' || keyCode === 82);
         const isHistoryNav = e.altKey && (key === 'ArrowLeft' || key === 'ArrowRight' || keyCode === 37 || keyCode === 39);
 
+        // NGOẠI LỆ CHO GIÁO VIÊN: Khi cần Hard Reload từ GitHub Pages để lấy code mới nhất, giữ phím Shift (Ctrl+Shift+R hoặc Shift+F5 / Ctrl+Shift+F5)
+        const isHardReload = e.shiftKey && (isF5 || isReloadShortcut);
+        if (isHardReload) {
+            isReloadAllowed = true;
+            return; // Cho phép trình duyệt thực hiện Hard Reload để làm mới cache từ GitHub Pages
+        }
+
         const target = e.target;
         const isTargetInput = target && (
             target.tagName === 'INPUT' ||
