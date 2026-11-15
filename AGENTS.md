@@ -427,7 +427,7 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 
 Khi nhận được yêu cầu viết tiết học mới từ người dùng (ví dụ: *"Tạo Tiết 10 Khối 2: Bài 7 - ..."*), AI phải thực hiện đúng 5 bước:
 
-1. **Bước 1 — Xác định Khối & Bản sắc:** Đọc bảng ở Mục 1.8 để chọn đúng Font chữ, Theme CSS, và Bố cục của Khối đó. Lưu ý: Cho phép thiết kế menu điều khiển & thanh công cụ giáo viên dạng ẩn/hiện bằng nút Hamburger (`☰`) để giải phóng tối đa không gian màn chiếu TV cho học sinh.
+1. **Bước 1 — Xác định Khối & Bản sắc:** Đọc bảng ở Mục 1.8 để chọn đúng Font chữ, Theme CSS, và Bố cục của Khối đó. Lưu ý: Sidebar / bảng điều khiển có thể nằm bên trái hoặc bên phải tùy theo bản sắc từng khối (ví dụ Khối 3 là 2 cột với Sidebar bên phải). Khi một khối đã có Sidebar hiển thị ở một bên, TUYỆT ĐỐI KHÔNG sinh thêm Drawer trượt bên đối diện gây dư thừa và xung đột layout; tích hợp công cụ giáo viên và điểm số trực tiếp trên Sidebar hiện hữu của khối đó. Có thể dùng nút Hamburger (`☰`) để thu gọn/mở rộng chính Sidebar đó khi cần giải phóng không gian màn chiếu TV cho học sinh.
 2. **Bước 2 — Nạp Khung sườn Chuẩn (Boilerplate):** 
    * Kiểm tra xem khối đó đã có `template.html` chưa. Nếu có, nhân bản từ `template.html` của khối.
    * Chèn đúng 2 file bảo vệ: `../../shared/js/prevent-reload.js` và `../../shared/js/core.js`.
@@ -454,7 +454,7 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Không có link CDN bên ngoài nào (`cdnjs`, `jsdelivr`, `unpkg`,...) trong mã nguồn? Toàn bộ đường dẫn là Relative Path (không dùng đường dẫn tuyệt đối dạng `/assets/...`)?
 - [ ] Đã nhúng `prevent-reload.js` và `core.js` chưa? Đã hỗ trợ ngoại lệ Hard Reload `Ctrl + Shift + R` cho giáo viên làm mới cache GitHub Pages chưa?
 - [ ] Font chữ có đúng chuẩn của Khối đó không?
-- [ ] Các menu điều khiển, thanh công cụ giáo viên (Teacher Toolbar / Drawer) nếu có: Cho phép ẩn/hiện linh hoạt bằng nút Hamburger (`☰`) để tối ưu 100% diện tích màn chiếu cho học sinh quan sát bài giảng?
+- [ ] Bố cục Sidebar đặt đúng bên theo bản sắc từng khối (ví dụ Khối 3 là Sidebar bên phải)? Đã tránh sinh thêm Drawer đối diện gây dư thừa? Nút Hamburger (`☰`) nếu có đóng vai trò thu gọn/mở rộng chính Sidebar đó?
 - [ ] Mọi chỗ có học sinh phát biểu đều có ô chọn học sinh + nút Gacha chưa? (Chỉ log telemetry, không cộng điểm tổ khi phát biểu tự do)
 - [ ] Nếu đấu theo tổ: Đã hỗ trợ cơ chế bốc thăm linh hoạt (học sinh đổi chỗ ngồi mỗi tuần nên không gán tổ cố định; giáo viên bấm Gacha nhiều lần tới khi nào trúng bạn thuộc tổ đang tới lượt thì chốt hoặc chọn nhanh từ danh sách, không xem việc ra bạn tổ khác là lỗi) chưa?
 - [ ] UI thi đua có nút linh hoạt từ 2 đến 6 tổ (`[+ Thêm Tổ]` / `[- Bớt Tổ]`) chưa?

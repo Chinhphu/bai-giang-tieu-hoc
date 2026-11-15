@@ -456,7 +456,12 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 | **Khối 4** | `'Be Vietnam Pro', sans-serif` | Xanh Navy `#14213d` | Cam đất, Xanh lá | Header Tab đỉnh + Grid 2 cột |
 | **Khối 5** | `'Be Vietnam Pro', sans-serif` | Xanh mint `#16b89a` | Xanh dương `#3178f6` | Web Components chuẩn Tiết 07 |
 
-* **Linh hoạt Menu điều khiển & Nút Hamburger (`☰`):** Dù bố cục từng khối có định hướng riêng, **tất cả các menu điều khiển, thanh công cụ Giáo viên (Teacher Toolbar), bảng điều khiển quản trị hoặc sidebar điều hướng ĐỀU CHO PHÉP thiết kế ẩn/hiện bằng nút Hamburger (`☰`)** (ví dụ dạng Side Drawer trượt ra/vào). Điều này giúp tối ưu 100% diện tích màn chiếu cho học sinh tập trung vào bài giảng.
+* **Linh hoạt Vị trí Sidebar (Bên Trái hoặc Bên Phải) & Nút Hamburger (`☰`):**
+  * Bố cục Sidebar có thể đặt ở **Bên Trái hoặc Bên Phải** tùy theo bản sắc/thiết kế của từng khối lớp:
+    - *Khối 3:* Sử dụng bố cục 2 cột cố định: Màn hình chính bên trái (`.main`) + Sidebar điểm số & công cụ ở bên phải (`.sidebar-right`).
+    - *Khối 1, Khối 2, Khối 4, Khối 5:* Có thể dùng Mini Sidebar, Bottom Navbar hoặc Drawer trượt ẩn/hiện.
+  * **QUY TẮC BẢO ĐẢM KHÔNG DƯ THỪA:** Nếu khối lớp đã có Sidebar hiển thị ở một bên (ví dụ Khối 3 đã có Sidebar bên phải), **TUYỆT ĐỐI KHÔNG sinh thêm Drawer trượt bên đối diện** (như tạo thêm drawer trượt bên trái làm thừa thãi, xung đột layout và giấu mất công cụ). Mọi công cụ thiết lập lớp học, chọn học sinh, chuyển lượt, phạt ồn và nút "🔄 Dạy Lớp Mới" được tích hợp trực tiếp, sạch sẽ trên Sidebar hiện hữu của khối đó.
+  * Khi bài học cần giải phóng 100% diện tích màn chiếu (Zero Distraction), nút Hamburger (`☰`) có thể được dùng làm công tắc thu gọn / mở rộng chính Sidebar đó.
 
 ### 7.2 Thông số Kỹ thuật Màn chiếu TV Lớp học (Tối Ưu Cho Người Ngồi Xa 8–10m)
 * **Tối thiểu hóa chi tiết & Cho mọi thứ to lên:** Không nhồi nhét quá nhiều chi tiết vụn vặt, icon trang trí hay viền rườm rà. Tận dụng cơ chế cuộn trang dọc tự nhiên (`overflow-y: auto`) để mở rộng chiều cao, cho các phần tử to rõ tối đa giúp học sinh ngồi ở cự ly 8–10m cuối lớp nhìn rõ mồn một.

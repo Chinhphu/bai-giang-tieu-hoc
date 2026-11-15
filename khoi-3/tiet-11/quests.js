@@ -1,146 +1,289 @@
 /**
- * Ngân hàng dữ liệu câu hỏi Tiết 11 Khối 3: Bài 5 - Sử dụng bàn phím (Tiết 2)
- * Chạy 100% Offline-first, chống lỗi CORS khi mở bằng file://
+ * NGÂN HÀNG ĐỀ GÕ TIẾP SỨC TIẾT 11 (TIN HỌC 3)
+ * Bài 5: Sử dụng bàn phím (Tiết 2) - ĐƯỜNG ĐUA TIẾP SỨC 10 NGÓN
+ * 
+ * QUY CHUẨN ĐỘ DÀI CÔNG BẰNG TUYỆT ĐỐI:
+ * TẤT CẢ CÁC ĐỀ BÀI ĐỀU CÓ ĐÚNG CHÍNH XÁC 6 PHÍM GÕ (6 KEYSTROKES)
+ * Để mọi học sinh lên bảng đều có độ dài bài thi ngang nhau 100%, không ai dài hơn hay ngắn hơn!
  */
-window.QUESTS_DATA = [
-  {
-    "id": "q1",
-    "type": "choice",
-    "badge": "🏥 CÔNG THÁI HỌC (NLS 4.3.CB1a)",
-    "title": "Tư thế ngồi gõ bàn phím nào sau đây là ĐÚNG để bảo vệ cột sống và mắt của em?",
-    "options": [
-      { "id": "A", "text": "Ngồi cong lưng, ghé sát mắt cách màn hình 10cm", "correct": false },
-      { "id": "B", "text": "Lưng thẳng tựa ghế, mắt cách màn hình 50-60cm, tay thả lỏng vuông góc", "correct": true },
-      { "id": "C", "text": "Nằm bò ra bàn, một tay gõ một tay chống cằm", "correct": false },
-      { "id": "D", "text": "Ngồi vắt chéo chân, màn hình để lệch hẳn sang một bên", "correct": false }
-    ],
-    "hint": "Quy tắc 3 góc vuông 90 độ và khoảng cách mắt bằng một sải tay (50-60cm)!",
-    "explain": "Đáp án B: Ngồi thẳng lưng, mắt cách màn hình 50-60cm giúp bảo vệ cột sống và không bị cận thị."
-  },
-  {
-    "id": "q2",
-    "type": "choice",
-    "badge": "💻 QUY TRÌNH KIRAN'S - BƯỚC 1",
-    "title": "Sau khi khởi động phần mềm Kiran's Typing Tutor, việc đầu tiên em cần làm ở màn hình chính là gì?",
-    "options": [
-      { "id": "A", "text": "Nháy đúp chuột vào nút tắt máy tính", "correct": false },
-      { "id": "B", "text": "Nhập tên của em vào ô User Name (hoặc chọn tên đã lưu)", "correct": true },
-      { "id": "C", "text": "Bấm liên tục vào bàn phím để thử âm thanh", "correct": false },
-      { "id": "D", "text": "Rút dây chuột máy tính ra", "correct": false }
-    ],
-    "hint": "Cần khai báo tên để phần mềm ghi nhận thành tích của em!",
-    "explain": "Đáp án B: Bước 1 là nhập tên vào ô User Name để phần mềm lưu lại kết quả luyện tập."
-  },
-  {
-    "id": "q3",
-    "type": "choice",
-    "badge": "💻 QUY TRÌNH KIRAN'S - BƯỚC 2",
-    "title": "Để bắt đầu bài tập luyện gõ phím với các hàng phím trong Kiran's Typing Tutor, em nháy chọn mục nào?",
-    "options": [
-      { "id": "A", "text": "Typing Practice (Luyện gõ phím)", "correct": true },
-      { "id": "B", "text": "Exit (Thoát)", "correct": false },
-      { "id": "C", "text": "Shut down (Tắt máy)", "correct": false },
-      { "id": "D", "text": "Delete User (Xóa người dùng)", "correct": false }
-    ],
-    "hint": "Chữ 'Practice' trong tiếng Anh nghĩa là 'Luyện tập'!",
-    "explain": "Đáp án A: Chọn Typing Practice để vào màn hình luyện tập các hàng phím."
-  },
-  {
-    "id": "q4",
-    "type": "choice",
-    "badge": "💻 QUY TRÌNH KIRAN'S - BƯỚC 3",
-    "title": "Trong mục Course của Kiran's Typing Tutor, lựa chọn 'Home Row' có nghĩa là luyện tập hàng phím nào?",
-    "options": [
-      { "id": "A", "text": "Hàng phím số", "correct": false },
-      { "id": "B", "text": "Hàng phím cơ sở (nơi đặt các ngón xuất phát)", "correct": true },
-      { "id": "C", "text": "Hàng phím trên", "correct": false },
-      { "id": "D", "text": "Hàng phím dưới", "correct": false }
-    ],
-    "hint": "'Home' nghĩa là ngôi nhà / căn cứ xuất phát!",
-    "explain": "Đáp án B: Home Row chính là Hàng phím cơ sở (ASDF JKL;)."
-  },
-  {
-    "id": "q5",
-    "type": "choice",
-    "badge": "💻 QUY TRÌNH KIRAN'S - BƯỚC 3",
-    "title": "Để luyện tập hàng phím TRÊN (chứa Q, W, E, R, T...), trong mục Course em sẽ chọn mục nào?",
-    "options": [
-      { "id": "A", "text": "Home Row", "correct": false },
-      { "id": "B", "text": "Top Row", "correct": true },
-      { "id": "C", "text": "Bottom Row", "correct": false },
-      { "id": "D", "text": "Numbers", "correct": false }
-    ],
-    "hint": "'Top' trong tiếng Anh có nghĩa là ở trên đỉnh/phía trên!",
-    "explain": "Đáp án B: Top Row là bài luyện tập dành riêng cho Hàng phím trên."
-  },
-  {
-    "id": "q6",
-    "type": "choice",
-    "badge": "🖐️ THAO TÁC VƯƠN NGÓN TAY",
-    "title": "Khi đang ở vị trí xuất phát (hàng cơ sở), để gõ phím R ở hàng phím trên, ngón tay nào sẽ vươn lên gõ?",
-    "options": [
-      { "id": "A", "text": "Ngón trỏ bàn tay trái (đang đặt ở phím F)", "correct": true },
-      { "id": "B", "text": "Ngón cái bàn tay trái", "correct": false },
-      { "id": "C", "text": "Ngón trỏ bàn tay phải", "correct": false },
-      { "id": "D", "text": "Ngón út bàn tay trái", "correct": false }
-    ],
-    "hint": "Phím R nằm ngay phía trên phím F, cùng thuộc lãnh thổ ngón trỏ trái!",
-    "explain": "Đáp án A: Ngón trỏ trái vươn từ phím F lên gõ phím R rồi lập tức rút về phím F."
-  },
-  {
-    "id": "q7",
-    "type": "choice",
-    "badge": "🖐️ THAO TÁC HẠ NGÓN TAY",
-    "title": "Khi gõ phím M ở hàng phím dưới, ngón tay nào sẽ hạ xuống gõ?",
-    "options": [
-      { "id": "A", "text": "Ngón trỏ bàn tay phải (đang đặt ở phím J)", "correct": true },
-      { "id": "B", "text": "Ngón giữa bàn tay phải (đang đặt ở phím K)", "correct": false },
-      { "id": "C", "text": "Ngón trỏ bàn tay trái", "correct": false },
-      { "id": "D", "text": "Ngón út bàn tay phải", "correct": false }
-    ],
-    "hint": "Phím M nằm ở hàng dưới, do ngón trỏ phải (phím J) phụ trách!",
-    "explain": "Đáp án A: Ngón trỏ phải vươn xuống gõ phím M rồi lùi về phím J."
-  },
-  {
-    "id": "q8",
-    "type": "choice",
-    "badge": "⏰ NLS 4.3.CB1a - NGHỈ NGƠI HỢP LÝ",
-    "title": "Theo lời khuyên y tế, sau khoảng bao nhiêu phút ngồi gõ máy tính thì em nên dừng lại chớp mắt và thả lỏng ngón tay?",
-    "options": [
-      { "id": "A", "text": "Gõ liên tục 5 tiếng không nghỉ", "correct": false },
-      { "id": "B", "text": "Sau mỗi 20-30 phút nên nghỉ ngơi, nhìn ra xa và xoa bóp cổ tay", "correct": true },
-      { "id": "C", "text": "Chỉ khi nào đau mắt chảy nước mắt mới nghỉ", "correct": false },
-      { "id": "D", "text": "Không bao giờ cần nghỉ ngơi", "correct": false }
-    ],
-    "hint": "Quy tắc 20-20-20 giúp mắt và cơ bắp thư giãn, chống mỏi mệt!",
-    "explain": "Đáp án B: Sau 20-30 phút ngồi máy tính, em nên giải lao, nhìn xa và xoa bóp tay."
-  },
-  {
-    "id": "q9",
-    "type": "choice",
-    "badge": "📊 KẾT QUẢ KIRAN'S",
-    "title": "Trong bảng kết quả của Kiran's Typing Tutor, chỉ số 'Accuracy' thể hiện điều gì?",
-    "options": [
-      { "id": "A", "text": "Thời gian gõ bài", "correct": false },
-      { "id": "B", "text": "Độ chính xác (tính theo phần trăm %)", "correct": true },
-      { "id": "C", "text": "Số phím bấm hỏng", "correct": false },
-      { "id": "D", "text": "Tên máy tính", "correct": false }
-    ],
-    "hint": "'Accuracy' nghĩa là độ chuẩn xác khi gõ phím!",
-    "explain": "Đáp án B: Accuracy thể hiện độ chính xác, tỷ lệ gõ đúng càng cao thì điểm càng tốt."
-  },
-  {
-    "id": "q10",
-    "type": "choice",
-    "badge": "🔄 QUY TẮC RÚT TAY",
-    "title": "Điều quan trọng nhất cần nhớ sau khi ngón tay vươn lên hàng trên hoặc hạ xuống hàng dưới để gõ là gì?",
-    "options": [
-      { "id": "A", "text": "Giữ nguyên ngón tay ở đó luôn, không cần rút về", "correct": false },
-      { "id": "B", "text": "Lập tức đưa ngón tay trở về vị trí xuất phát trên hàng phím cơ sở", "correct": true },
-      { "id": "C", "text": "Nhấc cả hai bàn tay lên trời", "correct": false },
-      { "id": "D", "text": "Bấm thêm 5 lần phím Space", "correct": false }
-    ],
-    "hint": "Căn cứ địa xuất phát chính là nhà của các ngón tay!",
-    "explain": "Đáp án B: Sau khi gõ xong, phải lập tức rút ngón tay về hàng cơ sở."
-  }
+
+window.TYPING_QUESTS = [
+    // === PHẦN 1: CỤM RÈN CƠ BẮP (MUSCLE MEMORY) - 6 PHÍM GÕ ===
+    {
+        id: "m-1",
+        stage: "Vươn ngón trỏ",
+        display: "F R F J U J",
+        keys: ["F", "R", "F", "J", "U", "J"],
+        type: "muscle"
+    },
+    {
+        id: "m-2",
+        stage: "Vươn ngón trỏ",
+        display: "F T F J Y J",
+        keys: ["F", "T", "F", "J", "Y", "J"],
+        type: "muscle"
+    },
+    {
+        id: "m-3",
+        stage: "Vươn ngón trỏ",
+        display: "R F R U J U",
+        keys: ["R", "F", "R", "U", "J", "U"],
+        type: "muscle"
+    },
+    {
+        id: "m-4",
+        stage: "Hạ ngón trỏ",
+        display: "F V F J M J",
+        keys: ["F", "V", "F", "J", "M", "J"],
+        type: "muscle"
+    },
+    {
+        id: "m-5",
+        stage: "Hạ ngón trỏ",
+        display: "F B F J N J",
+        keys: ["F", "B", "F", "J", "N", "J"],
+        type: "muscle"
+    },
+    {
+        id: "m-6",
+        stage: "Hạ ngón trỏ",
+        display: "V F V M J M",
+        keys: ["V", "F", "V", "M", "J", "M"],
+        type: "muscle"
+    },
+    {
+        id: "m-7",
+        stage: "Vươn ngón giữa",
+        display: "D E D K I K",
+        keys: ["D", "E", "D", "K", "I", "K"],
+        type: "muscle"
+    },
+    {
+        id: "m-8",
+        stage: "Hạ ngón giữa",
+        display: "D C D K , K",
+        keys: ["D", "C", "D", "K", ",", "K"],
+        type: "muscle"
+    },
+    {
+        id: "m-9",
+        stage: "Vươn ngón áp út",
+        display: "S W S L O L",
+        keys: ["S", "W", "S", "L", "O", "L"],
+        type: "muscle"
+    },
+    {
+        id: "m-10",
+        stage: "Hạ ngón áp út",
+        display: "S X S L . L",
+        keys: ["S", "X", "S", "L", ".", "L"],
+        type: "muscle"
+    },
+    {
+        id: "m-11",
+        stage: "Vươn ngón út",
+        display: "A Q A ; P ;",
+        keys: ["A", "Q", "A", ";", "P", ";"],
+        type: "muscle"
+    },
+    {
+        id: "m-12",
+        stage: "Hạ ngón út",
+        display: "A Z A ; / ;",
+        keys: ["A", "Z", "A", ";", "/", ";"],
+        type: "muscle"
+    },
+    {
+        id: "m-13",
+        stage: "Trỏ liên hoàn",
+        display: "F R V J U M",
+        keys: ["F", "R", "V", "J", "U", "M"],
+        type: "muscle"
+    },
+    {
+        id: "m-14",
+        stage: "Giữa liên hoàn",
+        display: "D E C K I ,",
+        keys: ["D", "E", "C", "K", "I", ","],
+        type: "muscle"
+    },
+    {
+        id: "m-15",
+        stage: "Áp út liên hoàn",
+        display: "S W X L O .",
+        keys: ["S", "W", "X", "L", "O", "."],
+        type: "muscle"
+    },
+    {
+        id: "m-16",
+        stage: "Út liên hoàn",
+        display: "A Q Z ; P /",
+        keys: ["A", "Q", "Z", ";", "P", "/"],
+        type: "muscle"
+    },
+
+    // === PHẦN 2: TỪ VỰNG TIẾNG ANH LỚP 3 QUEN THUỘC - 6 PHÍM GÕ ===
+    {
+        id: "w-1",
+        stage: "Từ vựng: Trường học",
+        display: "S C H O O L",
+        keys: ["S", "C", "H", "O", "O", "L"],
+        meaning: "Trường học",
+        type: "word"
+    },
+    {
+        id: "w-2",
+        stage: "Từ vựng: Gia đình",
+        display: "F A M I L Y",
+        keys: ["F", "A", "M", "I", "L", "Y"],
+        meaning: "Gia đình",
+        type: "word"
+    },
+    {
+        id: "w-3",
+        stage: "Từ vựng: Con thỏ",
+        display: "R A B B I T",
+        keys: ["R", "A", "B", "B", "I", "T"],
+        meaning: "Con thỏ",
+        type: "word"
+    },
+    {
+        id: "w-4",
+        stage: "Từ vựng: Con khỉ",
+        display: "M O N K E Y",
+        keys: ["M", "O", "N", "K", "E", "Y"],
+        meaning: "Con khỉ",
+        type: "word"
+    },
+    {
+        id: "w-5",
+        stage: "Từ vựng: Màu vàng",
+        display: "Y E L L O W",
+        keys: ["Y", "E", "L", "L", "O", "W"],
+        meaning: "Màu vàng",
+        type: "word"
+    },
+    {
+        id: "w-6",
+        stage: "Từ vựng: Quả cam",
+        display: "O R A N G E",
+        keys: ["O", "R", "A", "N", "G", "E"],
+        meaning: "Quả cam / Màu cam",
+        type: "word"
+    },
+    {
+        id: "w-7",
+        stage: "Từ vựng: Màu tím",
+        display: "P U R P L E",
+        keys: ["P", "U", "R", "P", "L", "E"],
+        meaning: "Màu tím",
+        type: "word"
+    },
+    {
+        id: "w-8",
+        stage: "Từ vựng: Bông hoa",
+        display: "F L O W E R",
+        keys: ["F", "L", "O", "W", "E", "R"],
+        meaning: "Bông hoa",
+        type: "word"
+    },
+    {
+        id: "w-9",
+        stage: "Từ vựng: Cây bút chì",
+        display: "P E N C I L",
+        keys: ["P", "E", "N", "C", "I", "L"],
+        meaning: "Cây bút chì",
+        type: "word"
+    },
+    {
+        id: "w-10",
+        stage: "Từ vựng: Cục tẩy",
+        display: "E R A S E R",
+        keys: ["E", "R", "A", "S", "E", "R"],
+        meaning: "Cục gôm / tẩy",
+        type: "word"
+    },
+    {
+        id: "w-11",
+        stage: "Từ vựng: Người bạn",
+        display: "F R I E N D",
+        keys: ["F", "R", "I", "E", "N", "D"],
+        meaning: "Người bạn",
+        type: "word"
+    },
+    {
+        id: "w-12",
+        stage: "Từ vựng: Bác sĩ",
+        display: "D O C T O R",
+        keys: ["D", "O", "C", "T", "O", "R"],
+        meaning: "Bác sĩ",
+        type: "word"
+    },
+    {
+        id: "w-13",
+        stage: "Từ vựng: Bác nông dân",
+        display: "F A R M E R",
+        keys: ["F", "A", "R", "M", "E", "R"],
+        meaning: "Bác nông dân",
+        type: "word"
+    },
+    {
+        id: "w-14",
+        stage: "Từ vựng: Mùa hè",
+        display: "S U M M E R",
+        keys: ["S", "U", "M", "M", "E", "R"],
+        meaning: "Mùa hè",
+        type: "word"
+    },
+    {
+        id: "w-15",
+        stage: "Từ vựng: Mùa đông",
+        display: "W I N T E R",
+        keys: ["W", "I", "N", "T", "E", "R"],
+        meaning: "Mùa đông",
+        type: "word"
+    },
+    {
+        id: "w-16",
+        stage: "Từ vựng: Mùa xuân",
+        display: "S P R I N G",
+        keys: ["S", "P", "R", "I", "N", "G"],
+        meaning: "Mùa xuân",
+        type: "word"
+    },
+    {
+        id: "w-17",
+        stage: "Từ vựng: Người bố",
+        display: "F A T H E R",
+        keys: ["F", "A", "T", "H", "E", "R"],
+        meaning: "Người bố",
+        type: "word"
+    },
+    {
+        id: "w-18",
+        stage: "Từ vựng: Người mẹ",
+        display: "M O T H E R",
+        keys: ["M", "O", "T", "H", "E", "R"],
+        meaning: "Người mẹ",
+        type: "word"
+    },
+    {
+        id: "w-19",
+        stage: "Từ vựng: Chị em gái",
+        display: "S I S T E R",
+        keys: ["S", "I", "S", "T", "E", "R"],
+        meaning: "Chị hoặc em gái",
+        type: "word"
+    },
+    {
+        id: "w-20",
+        stage: "Từ vựng: Con nhện",
+        display: "S P I D E R",
+        keys: ["S", "P", "I", "D", "E", "R"],
+        meaning: "Con nhện",
+        type: "word"
+    }
 ];
+
+// Đồng bộ biến toàn cục
+window.QUESTS_DATA = window.TYPING_QUESTS;
