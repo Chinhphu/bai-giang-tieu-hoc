@@ -122,7 +122,7 @@ window.QUESTS_DATA = {
         teamName: "Tổ 3",
         title: "TICKET 1.3 (TỔ 3): NHẤN MẠNH DÒNG LƯU Ý",
         targetText: "Dòng cuối bài: \"Lưu ý: Thực hiện cẩn thận khi dùng dao...\"",
-        reqText: "• <b>Kiểu chữ:</b> Bấm cả 2 nút <b>In nghiêng (I)</b> và <b>Gạch chân (U)</b><br>• <b>Màu chữ:</b> Tím (Purple)<br><i>(Làm xong bấm Ctrl + S lưu tệp của Tổ 3 và kéo vào ô chấm điểm)</i>",
+        reqText: "• <b>Kiểu chữ:</b> Bấm cả 2 nút <b>In nghiêng (I)</b> và <b>Gạch chân (U)</b><br>• <b>Màu chữ:</b> Tím (Dark Purple)<br><i>(Làm xong bấm Ctrl + S lưu tệp của Tổ 3 và kéo vào ô chấm điểm)</i>",
         timeLimit: 45,
         rules: [
           {
@@ -299,8 +299,8 @@ window.QUESTS_DATA = {
         teamId: 0,
         teamName: "Thầy/Cô Làm Mẫu (Demo)",
         title: "TICKET DEMO: THẦY/CÔ HƯỚNG DẪN BỐ TRÍ ẢNH",
-        targetText: "Hình ảnh que kem dưa hấu",
-        reqText: "• Mở tệp Word thực hành mẫu<br>• Nháy chuột chọn <b>ảnh que kem</b> → Bấm nút <b>Layout Options</b> → Chọn kiểu <b>Square (Bao quanh)</b><br>• Bấm <b>Ctrl + S</b> lưu và kéo vào ô nộp bài để xem Auto-Grader kiểm tra thẻ xml Square tự động!",
+        targetText: "Hình ảnh que kem dưa hấu (Trên tệp Demo của Thầy/Cô)",
+        reqText: "• Mở tiếp tệp Word <b>BaiThucHanh_Demo_KemDuaHau.docx</b> Thầy/Cô đã làm ở Chặng 1 (đã có Tiêu đề đỏ 18pt Arial)<br>• Nháy chuột chọn <b>ảnh que kem</b> → Bấm nút <b>Layout Options</b> (góc trên bên phải ảnh) → Chọn kiểu <b>Square (Bao quanh)</b><br>• Giữ nguyên định dạng tiêu đề Chặng 1 → Bấm <b>Ctrl + S</b> lưu và nộp bài để cả lớp quan sát quy trình tiếp nối giữa 2 chặng!",
         timeLimit: 120,
         isDemo: true,
         rules: [
@@ -314,6 +314,15 @@ window.QUESTS_DATA = {
             name: "Đã chọn kiểu bố cục Square (wp:wrapSquare)",
             type: "image_wrap",
             expectedWrap: "square"
+          },
+          {
+            id: "r2-demo-keep-s1",
+            name: "Giữ nguyên định dạng Tiêu đề Demo đã làm ở Chặng 1 (18pt, In đậm, Đỏ)",
+            type: "paragraph_format",
+            match: "CÁCH LÀM KEM DƯA HẤU",
+            fontSize: 18,
+            bold: true,
+            color: "RED"
           }
         ]
       },

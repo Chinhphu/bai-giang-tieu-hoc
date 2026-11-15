@@ -219,6 +219,18 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
     * Bằng điểm thứ nhì: **"ĐỒNG Á QUÂN"** 🥈.
     * Bằng điểm thứ ba: **"ĐỒNG HẠNG BA"** 🥉.
     * Các thứ hạng sau: **"KHUYẾN KHÍCH"** 🌟 / **"NỖ LỰC"** 🎖️.
+* **QUY CHUẨN BẢNG VÀNG VINH DANH (LEADERBOARD): BẮT BUỘC XẾP DỌC (VERTICAL STACK — CẤM XẾP LƯỚI NGANG):**
+  * **Lý do sư phạm & Hiển thị màn chiếu TV:**
+    * Khi xếp các thẻ vinh danh dạng lưới ngang (`grid` nhiều cột), bề ngang mỗi thẻ bị bóp hẹp, tên tổ, huy chương và điểm số bị co cụm, rất khó quan sát từ khoảng cách xa 8–10m cuối phòng máy.
+    * Ngược lại, **xếp dọc từ trên xuống dưới (Vertical Stack)** giúp mỗi tổ là 1 hàng ngang rộng rãi, phản ánh thứ bậc từ cao xuống thấp một cách trang trọng, trực quan và công bằng.
+  * **Bố cục chuẩn mực (Tham khảo Tiết 07 Khối 5):**
+    * Khung chứa `.rankings-box`: `width: 100%; max-width: 920px; display: flex; flex-direction: column; gap: 14px; margin: 10px auto 20px;`
+    * Mỗi thẻ tổ `.rank-card`: Là 1 hàng ngang `display: flex; align-items: center; justify-content: space-between; border-radius: 20px; padding: 14px 28px;`
+    * **Cấu trúc 3 cụm ngang chuẩn:**
+      1. **Bên trái (`.rank-left`):** Huy chương lớn `🥇/🥈/🥉` ($\ge 42\text{px} - 46\text{px}$) + Badge thứ hạng (`Hạng 1`, `Đồng Hạng 1`...).
+      2. **Ở giữa (`.rank-mid`):** Tên tổ chữ to (`font-size: 28px - 32px`, font-weight 900) + Danh hiệu (`QUÁN QUÂN`, `ĐỒNG Á QUÂN`, `HOÀN THÀNH XUẤT SẮC`...).
+      3. **Bên phải (`.rank-right`):** Con số điểm to nổi bật (`font-size: 36px - 40px`, font-weight 900) + Đơn vị `XU` / `ĐIỂM`.
+    * Phân cấp màu sắc theo thứ hạng: Hạng 1 viền vàng rực rỡ + nền gradient vàng nhẹ, Hạng 2 bạc/xanh biển, Hạng 3 đồng/cam, Hạng 4-6 xanh ngọc / tím / xám.
 * **Đồng bộ Báo cáo CSV:** Bảng xếp hạng trong file CSV phải có cột *"Đồng Hạng"* (`Có (Đồng điểm)` / `Không`), hiển thị thứ hạng chuẩn (`Hạng 1`, `Hạng 1`, `Hạng 3`...) và cột "Huy Chương" dùng văn bản thuần (`Huy chương Vàng`, `Huy chương Bạc`, `Huy chương Đồng`), tuyệt đối không phân biệt đối xử khi bằng điểm.
 
 ### 14. Màn Hình Chốt Kiến Thức / Ghi Nhớ Cuối Tiết (Summary Screen before Leaderboard)
@@ -421,6 +433,7 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Điểm khởi đầu mặc định có được thiết lập 1000đ (đối với các tiết/game có hệ thống tính điểm) không?
 - [ ] Bảng điểm tổ tối giản: Không có nút +/- 50, +/- 100 rác UI? Đã hỗ trợ click trực tiếp vào điểm để nhập sửa điểm và nút phạt ồn `🤫 -10%` kèm Toast thông báo chưa?
 - [ ] Luồng bài dạy là gọi học sinh lên bảng lần lượt từng em, tuyệt đối KHÔNG có tính năng "Chấm hàng loạt" gây dư thừa trên UI?
+- [ ] Bảng vàng vinh danh (Leaderboard) được thiết kế xếp dọc (Vertical Stack, flex-column, mỗi tổ 1 hàng ngang), TUYỆT ĐỐI CẤM xếp lưới ngang (grid)?
 - [ ] Bảng xếp hạng và xuất CSV có cơ chế xử lý đồng hạng (bằng điểm → cùng hạng, cùng cúp/huy chương, danh hiệu "Đồng Quán quân / Đồng Á quân") không?
 - [ ] Nếu là Khối 5 và kích hoạt Phe Quỷ: Đã tuân thủ cơ chế Bất Công Công Khai (chỉ áp dụng Khối 5, tuyệt đối không áp dụng Khối 1-4; không trao quyền Quỷ Vương cầm máy, đúng +50% max 1000đ, sai/phạt -200đ vào Quỹ Cứu Trợ, rớt sàn <800đ, ân xá hoàn lương) chưa?
 - [ ] Tên file CSV xuất ra có đúng quy cách `KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}...` không?

@@ -769,7 +769,18 @@ function clearSessionData() {
   }
   ```
 
-* **Hiển thị Vinh Danh trên Màn chiếu TV Lớp học:**
+* **Hiển thị Vinh Danh trên Màn chiếu TV Lớp học — BẮT BUỘC XẾP DỌC (VERTICAL STACK — CẤM LƯỚI NGANG):**
+  * **Lý do sư phạm & Hiển thị nhìn xa:**
+    * Màn chiếu TV trong phòng máy cần hiển thị to rõ cho học sinh ngồi xa 8–10m.
+    * Bảng vinh danh dạng lưới ngang (`grid` 4–6 cột) làm từng thẻ tổ bị ép hẹp bề ngang, chữ tên tổ, cúp huy chương và số điểm bị co cụm li ti, khó nhìn và thiếu sự trang trọng.
+    * **BẮT BUỘC thiết kế xếp dọc (Vertical Stack, `flex-direction: column`):** Mỗi tổ chiếm trọn 1 hàng ngang rộng rãi, xếp từ trên xuống dưới theo thứ bậc.
+  * **Cấu trúc HTML/CSS chuẩn (Mẫu Tiết 07 Khối 5):**
+    * Container `.rankings-box`: `display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 920px; margin: 10px auto 20px;`
+    * Mỗi thẻ `.rank-card`: Là 1 hàng ngang `display: flex; align-items: center; justify-content: space-between; border-radius: 20px; padding: 14px 28px;`
+    * Cấu trúc 3 cụm ngang:
+      1. `.rank-left`: Huy chương lớn `🥇/🥈/🥉` ($\ge 42\text{px} - 46\text{px}$) + Badge pill thứ hạng (`Hạng 1`, `Đồng Hạng 1`...).
+      2. `.rank-mid`: Tên tổ to đậm (`font-size: 28px - 32px`, font-weight 900) + Danh hiệu (`QUÁN QUÂN`, `ĐỒNG Á QUÂN`, `HOÀN THÀNH XUẤT SẮC`...).
+      3. `.rank-right`: Con số điểm to rõ (`font-size: 36px - 40px`, font-weight 900) + Đơn vị `XU` / `ĐIỂM`.
   * **Banner chúc mừng chiến thắng (`winnerBanner`):**
     * Khi có 1 đội nhất: `🏆 CHÚC MỪNG TỔ 1 LÀ QUÁN QUÂN (1200 ĐIỂM)! 🏆`
     * Khi có từ 2 đội đồng điểm cao nhất: `🏆 ĐỒNG QUÁN QUÂN: TỔ 1 & TỔ 3 (CÙNG ĐẠT 1200 ĐIỂM)! 🏆`
