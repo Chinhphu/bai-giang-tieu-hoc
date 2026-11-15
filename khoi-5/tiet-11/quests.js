@@ -45,6 +45,28 @@ window.QUESTS_DATA = {
     },
     tickets: [
       {
+        id: "t1-demo",
+        teamId: 0,
+        teamName: "Thầy/Cô Làm Mẫu (Demo)",
+        title: "TICKET DEMO: THẦY/CÔ HƯỚNG DẪN MẪU",
+        targetText: "Dòng tiêu đề: \"CÁCH LÀM KEM DƯA HẤU\"",
+        reqText: "• <b>Phông chữ:</b> Arial<br>• <b>Cỡ chữ:</b> 18<br>• <b>Kiểu chữ:</b> In đậm (nút <b>B</b>)<br>• <b>Màu chữ:</b> Đỏ (Red)<br><i>(💡 Lượt Demo: Thầy/Cô thao tác mẫu để cả lớp nắm rõ quy trình: Bấm Bắt đầu & Tải đề → Định dạng Word → Nộp bài → Auto-Grader chấm điểm)</i>",
+        timeLimit: 120,
+        isDemo: true,
+        rules: [
+          {
+            id: "r1-demo-title-format",
+            name: "Tiêu đề 'CÁCH LÀM KEM DƯA HẤU' (Arial, 18pt, In đậm B, Màu Đỏ)",
+            type: "paragraph_format",
+            match: "CÁCH LÀM KEM DƯA HẤU",
+            fontFamily: "Arial",
+            fontSize: 18,
+            bold: true,
+            color: "RED"
+          }
+        ]
+      },
+      {
         id: "t1-1",
         teamId: 1,
         teamName: "Tổ 1",
@@ -272,6 +294,29 @@ window.QUESTS_DATA = {
       }
     },
     tickets: [
+      {
+        id: "t2-demo",
+        teamId: 0,
+        teamName: "Thầy/Cô Làm Mẫu (Demo)",
+        title: "TICKET DEMO: THẦY/CÔ HƯỚNG DẪN BỐ TRÍ ẢNH",
+        targetText: "Hình ảnh que kem dưa hấu",
+        reqText: "• Mở tệp Word thực hành mẫu<br>• Nháy chuột chọn <b>ảnh que kem</b> → Bấm nút <b>Layout Options</b> → Chọn kiểu <b>Square (Bao quanh)</b><br>• Bấm <b>Ctrl + S</b> lưu và kéo vào ô nộp bài để xem Auto-Grader kiểm tra thẻ xml Square tự động!",
+        timeLimit: 120,
+        isDemo: true,
+        rules: [
+          {
+            id: "r2-demo-img-exists",
+            name: "Có hình ảnh que kem trong tài liệu",
+            type: "image_exists"
+          },
+          {
+            id: "r2-demo-img-square",
+            name: "Đã chọn kiểu bố cục Square (wp:wrapSquare)",
+            type: "image_wrap",
+            expectedWrap: "square"
+          }
+        ]
+      },
       {
         id: "t2-1",
         teamId: 1,

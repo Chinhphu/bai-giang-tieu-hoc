@@ -372,6 +372,50 @@
                 }
             }
 
+            // Paragraph-level run properties (<w:pPr><w:rPr>)
+            let pPrSizePt = null;
+            let pPrSizeCsPt = null;
+            let pPrBold = false;
+            let pPrItalic = false;
+            let pPrUnderline = false;
+            let pPrColorHex = null;
+            let pPrColorTheme = null;
+            let pPrFont = null;
+
+            const pPr = Array.from(pEl.children).find(c => c.localName === 'pPr');
+            if (pPr) {
+                const pRPr = Array.from(pPr.children).find(c => c.localName === 'rPr');
+                if (pRPr) {
+                    Array.from(pRPr.children).forEach(pr => {
+                        const tag = pr.localName;
+                        if (tag === 'b' || tag === 'bCs') {
+                            const val = pr.getAttribute('w:val') || pr.getAttribute('val');
+                            if (val === null || val === 'true' || val === '1') pPrBold = true;
+                        } else if (tag === 'i' || tag === 'iCs') {
+                            const val = pr.getAttribute('w:val') || pr.getAttribute('val');
+                            if (val === null || val === 'true' || val === '1') pPrItalic = true;
+                        } else if (tag === 'u') {
+                            const val = pr.getAttribute('w:val') || pr.getAttribute('val');
+                            if (val !== 'none' && val !== '0' && val !== 'false') pPrUnderline = true;
+                        } else if (tag === 'sz') {
+                            const val = parseInt(pr.getAttribute('w:val') || pr.getAttribute('val'), 10);
+                            if (!isNaN(val)) pPrSizePt = val / 2;
+                        } else if (tag === 'szCs') {
+                            const val = parseInt(pr.getAttribute('w:val') || pr.getAttribute('val'), 10);
+                            if (!isNaN(val)) pPrSizeCsPt = val / 2;
+                        } else if (tag === 'color') {
+                            pPrColorHex = pr.getAttribute('w:val') || pr.getAttribute('val');
+                            pPrColorTheme = pr.getAttribute('w:themeColor') || pr.getAttribute('themeColor');
+                        } else if (tag === 'rFonts') {
+                            pPrFont = pr.getAttribute('w:ascii') || pr.getAttribute('ascii') ||
+                                      pr.getAttribute('w:hAnsi') || pr.getAttribute('hAnsi') ||
+                                      pr.getAttribute('w:cs') || pr.getAttribute('cs') ||
+                                      pr.getAttribute('w:eastAsia') || pr.getAttribute('eastAsia');
+                        }
+                    });
+                }
+            }
+
             // Runs analysis
             const runs = [];
             const rElements = [];
@@ -381,66 +425,87 @@
                 }
             }
 
-            let dominantFontSize = null;
-            let isBold = false;
-            let isItalic = false;
-            let isUnderline = false;
-            let colorHex = null;
-            let colorTheme = null;
-            let fontFamily = null;
+            let dominantFontSize = pPrSizePt || pPrSizeCsPt;
+            let isBold = pPrBold;
+            let isItalic = pPrItalic;
+            let isUnderline = pPrUnderline;
+            let colorHex = pPrColorHex;
+            let colorTheme = pPrColorTheme;
+            let fontFamily = pPrFont;
+            let hasTextRun = false;
 
             rElements.forEach(r => {
                 const rPr = Array.from(r.children).find(c => c.localName === 'rPr');
                 const tEl = Array.from(r.children).find(c => c.localName === 't');
                 const rText = tEl ? (tEl.textContent || '') : '';
+                const hasText = rText.trim().length > 0;
 
-                let rBold = false;
-                let rItalic = false;
-                let rUnderline = false;
-                let rSizePt = null;
-                let rColorHex = null;
-                let rColorTheme = null;
-                let rFont = null;
+                let rBold = pPrBold;
+                let rItalic = pPrItalic;
+                let rUnderline = pPrUnderline;
+                let rExplicitSizePt = null;
+                let rExplicitSizeCsPt = null;
+                let rColorHex = pPrColorHex;
+                let rColorTheme = pPrColorTheme;
+                let rFont = pPrFont;
 
                 if (rPr) {
                     Array.from(rPr.children).forEach(pr => {
                         const tag = pr.localName;
-                        if (tag === 'b') {
+                        if (tag === 'b' || tag === 'bCs') {
                             const val = pr.getAttribute('w:val') || pr.getAttribute('val');
-                            rBold = (val === null || val === 'true' || val === '1');
-                        } else if (tag === 'i') {
+                            if (val === null || val === 'true' || val === '1') rBold = true;
+                        } else if (tag === 'i' || tag === 'iCs') {
                             const val = pr.getAttribute('w:val') || pr.getAttribute('val');
-                            rItalic = (val === null || val === 'true' || val === '1');
+                            if (val === null || val === 'true' || val === '1') rItalic = true;
                         } else if (tag === 'u') {
                             const val = pr.getAttribute('w:val') || pr.getAttribute('val');
-                            rUnderline = (val !== 'none' && val !== '0' && val !== 'false');
+                            if (val !== 'none' && val !== '0' && val !== 'false') rUnderline = true;
                         } else if (tag === 'sz') {
+                            // Primary font size for Latin/Vietnamese
                             const val = parseInt(pr.getAttribute('w:val') || pr.getAttribute('val'), 10);
-                            if (!isNaN(val)) rSizePt = val / 2; // Word half-points
+                            if (!isNaN(val)) rExplicitSizePt = val / 2; // Word half-points
+                        } else if (tag === 'szCs') {
+                            // Complex script size (Word defaults to 28/14pt if not changed)
+                            const val = parseInt(pr.getAttribute('w:val') || pr.getAttribute('val'), 10);
+                            if (!isNaN(val)) rExplicitSizeCsPt = val / 2;
                         } else if (tag === 'color') {
                             rColorHex = pr.getAttribute('w:val') || pr.getAttribute('val');
                             rColorTheme = pr.getAttribute('w:themeColor') || pr.getAttribute('themeColor');
                         } else if (tag === 'rFonts') {
                             rFont = pr.getAttribute('w:ascii') || pr.getAttribute('ascii') ||
-                                    pr.getAttribute('w:hAnsi') || pr.getAttribute('hAnsi');
+                                    pr.getAttribute('w:hAnsi') || pr.getAttribute('hAnsi') ||
+                                    pr.getAttribute('w:cs') || pr.getAttribute('cs') ||
+                                    pr.getAttribute('w:eastAsia') || pr.getAttribute('eastAsia');
                         }
                     });
                 }
 
+                // Explicit <w:sz> takes absolute priority for Latin text (including Vietnamese)
+                const effectiveSizePt = (rExplicitSizePt !== null)
+                    ? rExplicitSizePt
+                    : (rExplicitSizeCsPt !== null ? rExplicitSizeCsPt : (pPrSizePt || pPrSizeCsPt));
+
                 if (rBold) isBold = true;
                 if (rItalic) isItalic = true;
                 if (rUnderline) isUnderline = true;
-                if (rSizePt) dominantFontSize = rSizePt;
-                if (rColorHex) colorHex = rColorHex;
-                if (rColorTheme) colorTheme = rColorTheme;
-                if (rFont) fontFamily = rFont;
+
+                if (hasText || !hasTextRun) {
+                    if (effectiveSizePt) dominantFontSize = effectiveSizePt;
+                    if (rColorHex) colorHex = rColorHex;
+                    if (rColorTheme) colorTheme = rColorTheme;
+                    if (rFont) fontFamily = rFont;
+                    if (hasText) hasTextRun = true;
+                }
 
                 runs.push({
                     text: rText,
                     bold: rBold,
                     italic: rItalic,
                     underline: rUnderline,
-                    fontSize: rSizePt,
+                    fontSize: effectiveSizePt,
+                    szPt: rExplicitSizePt,
+                    szCsPt: rExplicitSizeCsPt,
                     colorHex: rColorHex,
                     colorTheme: rColorTheme,
                     colorGroup: classifyColorGroup(rColorHex, rColorTheme),
@@ -454,6 +519,8 @@
                 rawText: fullText,
                 align,
                 fontSize: dominantFontSize,
+                pPrSizePt,
+                pPrSizeCsPt,
                 bold: isBold,
                 italic: isItalic,
                 underline: isUnderline,
@@ -546,36 +613,50 @@
 
                         const errors = [];
 
-                        // 1. Font Size check (tolerance +/- 0.5pt)
+                        // 1. Font Size check (dung sai +/- 1.0pt, kiểm tra cả paragraph level lẫn từng run chứa text, hỗ trợ cả w:sz và w:szCs)
+                        const allPFontSizes = [
+                            targetP.fontSize,
+                            targetP.pPrSizePt,
+                            targetP.pPrSizeCsPt,
+                            ...targetP.runs.flatMap(r => [r.fontSize, r.szPt, r.szCsPt])
+                        ].filter(v => typeof v === 'number' && !isNaN(v));
+
                         if (rule.fontSize !== undefined) {
                             if (typeof rule.fontSize === 'number') {
-                                if (!targetP.fontSize || Math.abs(targetP.fontSize - rule.fontSize) > 0.5) {
+                                const isMatch = allPFontSizes.some(s => Math.abs(s - rule.fontSize) <= 1.0);
+                                if (!isMatch) {
                                     errors.push(`Cỡ chữ hiện tại là ${targetP.fontSize || 'mặc định'}pt (Yêu cầu: ${rule.fontSize}pt)`);
                                 }
-                            } else if (rule.fontSize.min && targetP.fontSize < rule.fontSize.min) {
-                                errors.push(`Cỡ chữ ${targetP.fontSize || 'mặc định'}pt quá nhỏ (Yêu cầu tối thiểu: ${rule.fontSize.min}pt)`);
+                            } else if (rule.fontSize.min) {
+                                const isMinOk = allPFontSizes.some(s => s >= rule.fontSize.min);
+                                if (!isMinOk) {
+                                    errors.push(`Cỡ chữ ${targetP.fontSize || 'mặc định'}pt quá nhỏ (Yêu cầu tối thiểu: ${rule.fontSize.min}pt)`);
+                                }
                             }
                         }
 
-                        // 2. Bold check
+                        // 2. Bold check (kiểm tra cả paragraph level lẫn từng run)
                         if (rule.bold !== undefined) {
-                            if (rule.bold && !targetP.bold) {
+                            const hasBold = targetP.bold || targetP.runs.some(r => r.bold && r.text && r.text.trim().length > 0);
+                            if (rule.bold && !hasBold) {
                                 errors.push('Chưa in đậm (Nút B)');
-                            } else if (!rule.bold && targetP.bold) {
+                            } else if (!rule.bold && hasBold) {
                                 errors.push('Không được in đậm');
                             }
                         }
 
                         // 3. Italic check
                         if (rule.italic !== undefined) {
-                            if (rule.italic && !targetP.italic) {
+                            const hasItalic = targetP.italic || targetP.runs.some(r => r.italic && r.text && r.text.trim().length > 0);
+                            if (rule.italic && !hasItalic) {
                                 errors.push('Chưa in nghiêng (Nút I)');
                             }
                         }
 
                         // 4. Underline check
                         if (rule.underline !== undefined) {
-                            if (rule.underline && !targetP.underline) {
+                            const hasUnderline = targetP.underline || targetP.runs.some(r => r.underline && r.text && r.text.trim().length > 0);
+                            if (rule.underline && !hasUnderline) {
                                 errors.push('Chưa gạch chân (Nút U)');
                             }
                         }
@@ -583,16 +664,25 @@
                         // 5. Color group check (RED, BLUE, PURPLE, BLACK)
                         if (rule.color) {
                             const expectedColor = String(rule.color).toUpperCase();
-                            if (targetP.colorGroup !== expectedColor) {
-                                errors.push(`Màu chữ là ${targetP.colorGroup} (Yêu cầu: Màu ${expectedColor})`);
+                            const allColorGroups = [
+                                targetP.colorGroup,
+                                ...targetP.runs.filter(r => r.colorGroup && r.text && r.text.trim().length > 0).map(r => r.colorGroup)
+                            ].filter(Boolean);
+                            const isColorMatch = allColorGroups.some(cg => cg === expectedColor);
+                            if (!isColorMatch) {
+                                errors.push(`Màu chữ là ${targetP.colorGroup || 'mặc định'} (Yêu cầu: Màu ${expectedColor})`);
                             }
                         }
 
                         // 6. Font Family check
                         if (rule.fontFamily) {
                             const expFont = normalizeVietnamese(rule.fontFamily);
-                            const curFont = normalizeVietnamese(targetP.fontFamily || '');
-                            if (!curFont.includes(expFont)) {
+                            const allFonts = [
+                                targetP.fontFamily,
+                                ...targetP.runs.map(r => r.fontFamily)
+                            ].filter(Boolean).map(f => normalizeVietnamese(f));
+                            const isFontMatch = allFonts.some(f => f.includes(expFont));
+                            if (!isFontMatch) {
                                 errors.push(`Phông chữ là "${targetP.fontFamily || 'mặc định'}" (Yêu cầu: ${rule.fontFamily})`);
                             }
                         }
