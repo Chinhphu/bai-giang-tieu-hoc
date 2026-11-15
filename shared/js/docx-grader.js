@@ -987,6 +987,36 @@
       </w:r>
     </w:p>
 
+    <!-- HÌNH ẢNH BAN ĐẦU DẠNG INLINE (CẮT NGANG DÒNG VĂN BẢN, CHƯA SQUARE) -->
+    <w:p>
+      <w:r>
+        <w:drawing>
+          <wp:inline distT="0" distB="0" distL="0" distR="0">
+            <wp:extent cx="1440000" cy="3017000"/>
+            <wp:docPr id="1" name="Watermelon Ice Cream"/>
+            <a:graphic>
+              <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                <pic:pic>
+                  <pic:nvPicPr>
+                    <pic:cNvPr id="0" name="image1.png"/>
+                    <pic:cNvPicPr/>
+                  </pic:nvPicPr>
+                  <pic:blipFill>
+                    <a:blip r:embed="rIdImg1"/>
+                    <a:stretch><a:fillRect/></a:stretch>
+                  </pic:blipFill>
+                  <pic:spPr>
+                    <a:xfrm><a:off x="0" y="0"/><a:ext cx="1440000" cy="3017000"/></a:xfrm>
+                    <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
+                  </pic:spPr>
+                </pic:pic>
+              </a:graphicData>
+            </a:graphic>
+          </wp:inline>
+        </w:drawing>
+      </w:r>
+    </w:p>
+
     <!-- ĐỀ MỤC 2 -->
     <w:p>
       <w:r>
@@ -1026,46 +1056,6 @@
         <w:t>Lưu ý: Thực hiện cẩn thận khi dùng dao gọt hoa quả và máy xay.</w:t>
       </w:r>
     </w:p>
-
-    <!-- HÌNH ẢNH BAN ĐẦU DẠNG INLINE Ở DƯỚI CÙNG (CẮT NGANG DÒNG, CHƯA BỐ TRÍ SQUARE) -->
-    <w:p>
-      <w:r>
-        <w:drawing>
-          <wp:inline distT="0" distB="0" distL="0" distR="0">
-            <wp:extent cx="1440000" cy="3017000"/>
-            <wp:effectExtent b="0" l="0" r="0" t="0"/>
-            <wp:docPr id="1" name="Watermelon Ice Cream"/>
-            <wp:cNvGraphicFramePr>
-              <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
-            </wp:cNvGraphicFramePr>
-            <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
-              <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
-                <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
-                  <pic:nvPicPr>
-                    <pic:cNvPr id="1" name="image1.png"/>
-                    <pic:cNvPicPr>
-                      <a:picLocks noChangeAspect="1"/>
-                    </pic:cNvPicPr>
-                  </pic:nvPicPr>
-                  <pic:blipFill>
-                    <a:blip r:embed="rIdImg1"/>
-                    <a:stretch><a:fillRect/></a:stretch>
-                  </pic:blipFill>
-                  <pic:spPr>
-                    <a:xfrm><a:off x="0" y="0"/><a:ext cx="1440000" cy="3017000"/></a:xfrm>
-                    <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
-                  </pic:spPr>
-                </pic:pic>
-              </a:graphicData>
-            </a:graphic>
-          </wp:inline>
-        </w:drawing>
-      </w:r>
-    </w:p>
-    <w:sectPr>
-      <w:pgSz w:w="11906" w:h="16838"/>
-      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/>
-    </w:sectPr>
   </w:body>
 </w:document>`);
 
@@ -1159,19 +1149,13 @@
         <w:drawing>
           <wp:inline distT="0" distB="0" distL="0" distR="0">
             <wp:extent cx="1600000" cy="1600000"/>
-            <wp:effectExtent b="0" l="0" r="0" t="0"/>
             <wp:docPr id="1" name="Watermelon Ice Cream"/>
-            <wp:cNvGraphicFramePr>
-              <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
-            </wp:cNvGraphicFramePr>
-            <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+            <a:graphic>
               <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
-                <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                <pic:pic>
                   <pic:nvPicPr>
-                    <pic:cNvPr id="1" name="image1.png"/>
-                    <pic:cNvPicPr>
-                      <a:picLocks noChangeAspect="1"/>
-                    </pic:cNvPicPr>
+                    <pic:cNvPr id="0" name="image1.png"/>
+                    <pic:cNvPicPr/>
                   </pic:nvPicPr>
                   <pic:blipFill>
                     <a:blip r:embed="rIdImg1"/>
@@ -1203,10 +1187,6 @@
     <w:p>
       <w:r><w:t>Bước 4: Lấy kem ra khỏi khuôn và thưởng thức.</w:t></w:r>
     </w:p>
-    <w:sectPr>
-      <w:pgSz w:w="11906" w:h="16838"/>
-      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/>
-    </w:sectPr>
   </w:body>
 </w:document>`);
         const bytes = zip.buildUint8Array();
@@ -1234,7 +1214,7 @@
         }
     }
 
-    function createChuyenThamQuanVirusBlob(customImageBytes = null) {
+    function createChuyenThamQuanVirusBlob() {
         const zip = new SimpleZipBuilder();
         zip.addFile('[Content_Types].xml', 
 `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -1301,19 +1281,13 @@
         <w:drawing>
           <wp:inline distT="0" distB="0" distL="0" distR="0">
             <wp:extent cx="1600000" cy="1600000"/>
-            <wp:effectExtent b="0" l="0" r="0" t="0"/>
             <wp:docPr id="1" name="Bus Trip"/>
-            <wp:cNvGraphicFramePr>
-              <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
-            </wp:cNvGraphicFramePr>
-            <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+            <a:graphic>
               <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
-                <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                <pic:pic>
                   <pic:nvPicPr>
-                    <pic:cNvPr id="1" name="image1.png"/>
-                    <pic:cNvPicPr>
-                      <a:picLocks noChangeAspect="1"/>
-                    </pic:cNvPicPr>
+                    <pic:cNvPr id="0" name="image1.png"/>
+                    <pic:cNvPicPr/>
                   </pic:nvPicPr>
                   <pic:blipFill>
                     <a:blip r:embed="rIdImg1"/>
@@ -1348,10 +1322,6 @@
         <w:t>11h30: Len xe tro ve truong.</w:t>
       </w:r>
     </w:p>
-    <w:sectPr>
-      <w:pgSz w:w="11906" w:h="16838"/>
-      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/>
-    </w:sectPr>
   </w:body>
 </w:document>`);
         const bytes = zip.buildUint8Array();
