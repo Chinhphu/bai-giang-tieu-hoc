@@ -124,25 +124,35 @@
             box-shadow: 0 0 14px rgba(67, 97, 238, 0.6);
         }
 
-        /* Nút Ẩn/Hiện Sidebar nổi bật trên thanh Navbar */
-        .btn-toggle-sidebar {
-            background: #1e293b;
-            color: #facc15;
+        .btn-hamburger-toggle {
+            position: fixed;
+            top: 14px;
+            left: 14px;
+            width: 44px;
+            height: 44px;
+            padding: 0;
             border: 2px solid #334155;
-            padding: 6px 14px;
             border-radius: 10px;
-            font-weight: 900;
-            font-size: 0.92rem;
+            background: #0f172a;
+            color: #facc15;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 900;
+            line-height: 1;
+            z-index: 9999;
             transition: all 0.15s ease;
         }
 
-        .btn-toggle-sidebar:hover {
+        .btn-hamburger-toggle:hover {
             background: #334155;
             border-color: #facc15;
             transform: scale(1.04);
+        }
+
+        .top-navbar-strip {
+            padding-left: 64px;
         }
 
         /* Notebook Slide 0 - Vở Ghi Chuẩn Section 3.3 STANDARDS.md */
@@ -1022,6 +1032,9 @@
 </head>
 
 <body>
+    <button type="button" class="btn-hamburger-toggle" id="btnToggleSidebar" onclick="toggleSidebar()" title="Thu gọn bảng điểm" aria-label="Thu gọn bảng điểm">
+        ◀
+    </button>
     <div class="layout-container" id="mainLayoutContainer">
         <!-- CỘT CHÍNH (BÊN TRÁI): CÁC SLIDE BÀI HỌC -->
         <main class="main-content">
@@ -1037,10 +1050,6 @@
                     <button class="nav-tab-btn active" id="tabBtn2" onclick="showSlide(2)">⚡ ĐƯỜNG ĐUA TIẾP SỨC</button>
                     <button class="nav-tab-btn" id="tabBtn3" onclick="showSlide(3)">💡 Chốt Ghi Nhớ</button>
                     <button class="nav-tab-btn" id="tabBtn4" onclick="showSlide(4)">🏆 Bảng Vàng Vinh Danh</button>
-                    <!-- NÚT ẨN/HIỆN SIDEBAR NẰM NGAY TRÊN THANH ĐIỀU HƯỚNG -->
-                    <button type="button" class="btn-toggle-sidebar" id="btnToggleSidebar" onclick="toggleSidebar()" title="Ẩn hoặc hiện bảng điểm các tổ bên phải">
-                        📊 Ẩn/Hiện Bảng Điểm
-                    </button>
                 </div>
             </nav>
 
@@ -1370,9 +1379,6 @@
             <div class="sidebar-panel">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                     <span style="font-weight:900; font-size:1rem; color:#facc15;">⚙️ THIẾT LẬP LỚP & TỔ</span>
-                    <button type="button" onclick="toggleSidebar()" style="background:#334155; color:#cbd5e1; border-radius:6px; padding:3px 8px; font-size:0.8rem; font-weight:800;" title="Thu gọn Sidebar">
-                        ◀ Thu gọn
-                    </button>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                     <div>
@@ -1692,7 +1698,10 @@
                     updatedAt: new Date().toISOString()
                 };
                 localStorage.setItem(getStorageKey(), JSON.stringify(state));
-            } catch (e) {}
+            } catch (error) {
+                console.error('Không thể lưu trạng thái Tiết 11 Khối 3.', error);
+                showToast('⚠️ Không thể lưu phiên học. Thầy/Cô hãy xuất CSV và kiểm tra bộ nhớ trình duyệt.');
+            }
         }
 
         function restoreLocalState() {
@@ -1701,6 +1710,15 @@
                 if (!raw) return;
                 const state = JSON.parse(raw);
                 if (state) {
+                    if (Number.isInteger(state.currentSlide) && state.currentSlide >= 0 && state.currentSlide <= 4) {
+                        currentSlide = state.currentSlide;
+                        document.querySelectorAll('.slide-screen').forEach((slide, idx) => {
+                            slide.classList.toggle('active', idx === currentSlide);
+                        });
+                        document.querySelectorAll('.nav-tab-btn').forEach((button, idx) => {
+                            button.classList.toggle('active', idx === currentSlide);
+                        });
+                    }
                     if (state.teams) teams = state.teams;
                     if (state.currentTurnTeamIndex !== undefined) currentTurnTeamIndex = state.currentTurnTeamIndex;
                     if (state.currentPromptIndex !== undefined) currentPromptIndex = state.currentPromptIndex;
@@ -1716,7 +1734,10 @@
                     }
                     showToast("⚡ Đã tự động khôi phục dữ liệu phiên học trước!");
                 }
-            } catch (e) {}
+            } catch (error) {
+                console.error('Không thể khôi phục trạng thái Tiết 11 Khối 3.', error);
+                showToast('⚠️ Không thể khôi phục phiên học đã lưu.');
+            }
         }
 
         function resetLessonSession() {
@@ -1759,10 +1780,18 @@
             if (!container) return;
             if (isSidebarCollapsed) {
                 container.classList.add('sidebar-collapsed');
-                if (btn) btn.innerHTML = '📊 Hiện Bảng Điểm ▶';
+                if (btn) {
+                    btn.textContent = '☰';
+                    btn.title = 'Mở bảng điểm';
+                    btn.setAttribute('aria-label', 'Mở bảng điểm');
+                }
             } else {
                 container.classList.remove('sidebar-collapsed');
-                if (btn) btn.innerHTML = '📊 Ẩn/Hiện Bảng Điểm';
+                if (btn) {
+                    btn.textContent = '◀';
+                    btn.title = 'Thu gọn bảng điểm';
+                    btn.setAttribute('aria-label', 'Thu gọn bảng điểm');
+                }
             }
         }
 
@@ -1805,35 +1834,69 @@
         }
 
         function changeClass(val) {
+            if (val === currentClass) return;
+            saveLocalState();
             currentClass = val;
             const sel = document.getElementById('classSelect');
             if (sel) sel.value = val;
             stagedStudent = null;
-            teams.forEach(t => t.currentStudent = null);
-            renderTeamsSidebar();
+            currentTurnTeamIndex = 0;
+            currentPromptIndex = 0;
+            currentCharIndex = 0;
+            raceRecords = [];
+            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4'];
+            teams = Array.from({ length: teamsCount }, (_, idx) => ({
+                id: idx + 1,
+                name: `Tổ ${idx + 1}`,
+                time: 0,
+                penalties: 0,
+                noisePenalties: 0,
+                completedRuns: 0,
+                color: colors[idx % colors.length],
+                currentStudent: null
+            }));
             restoreLocalState();
+            renderPromptArena();
+            renderTeamsSidebar();
             saveLocalState();
+            loadStudentsData();
             showToast(`👉 Đã chuyển sang danh sách ${val.replace('_', '/')}`);
         }
 
         function changeTeamsCount(count) {
-            teamsCount = parseInt(count, 10);
+            const nextCount = parseInt(count, 10);
+            if (nextCount < teams.length) {
+                const removedTeams = teams.slice(nextCount);
+                const hasProgress = removedTeams.some(t => t.time > 0 || t.completedRuns > 0 || t.currentStudent);
+                if (hasProgress && !confirm('Giảm số tổ sẽ bỏ dữ liệu của các tổ bị xóa khỏi bảng điểm. Thầy/Cô có muốn tiếp tục không?')) {
+                    const select = document.getElementById('teamsCountSelect');
+                    if (select) select.value = String(teams.length);
+                    return;
+                }
+            }
+            teamsCount = nextCount;
             const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4'];
-            teams = [];
-            for (let i = 1; i <= teamsCount; i++) {
-                teams.push({
-                    id: i,
-                    name: `Tổ ${i}`,
+            const previousTeams = teams;
+            teams = Array.from({ length: teamsCount }, (_, idx) => {
+                const existing = previousTeams[idx];
+                return existing ? {
+                    ...existing,
+                    id: idx + 1,
+                    name: `Tổ ${idx + 1}`,
+                    color: colors[idx % colors.length]
+                } : {
+                    id: idx + 1,
+                    name: `Tổ ${idx + 1}`,
                     time: 0,
                     penalties: 0,
                     noisePenalties: 0,
                     completedRuns: 0,
-                    color: colors[(i - 1) % colors.length],
+                    color: colors[idx % colors.length],
                     currentStudent: null
-                });
-            }
-            currentTurnTeamIndex = 0;
-            stagedStudent = null;
+                };
+            });
+            currentTurnTeamIndex = Math.min(currentTurnTeamIndex, teams.length - 1);
+            stagedStudent = teams[currentTurnTeamIndex] ? teams[currentTurnTeamIndex].currentStudent : null;
             renderTeamsSidebar();
             saveLocalState();
             showToast(`⚙️ Đã thiết lập ${teamsCount} tổ thi đua!`);
@@ -1891,6 +1954,7 @@
             closeCompactStudentModal();
             renderTeamsSidebar();
             updateStageRunnerDisplay();
+            saveLocalState();
             showToast('🔄 Đã hủy chọn tên! Em bấm chọn lại đúng tên mình nhé.');
         }
 
@@ -1923,6 +1987,7 @@
             renderTeamsSidebar();
             updateStageRunnerDisplay();
             resetTurnTyping();
+            saveLocalState();
             showToast(`👤 Vận động viên: [${stu.stt}. ${stu.name}] sẵn sàng!`);
         }
 
@@ -2126,6 +2191,7 @@
             }
 
             renderTeamsSidebar();
+            saveLocalState();
             showToast(`❌ Gõ sai! +1s phạt cho ${activeTeam.name}`);
         }
 

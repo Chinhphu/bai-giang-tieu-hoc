@@ -3543,7 +3543,6 @@
         async function startGame() {
             const classSelect = document.getElementById('s-class');
             currentClass = classSelect ? classSelect.value : '5_1';
-            localStorage.setItem(ACTIVE_CLASS_POINTER_KEY, currentClass);
             STORAGE_KEY = buildStorageKey(currentClass);
 
             // Tự động khôi phục nếu có phiên học dở dang (ví dụ khi cúp điện / sập nguồn)
@@ -3594,7 +3593,6 @@
         /* ================= 2. LOCALSTORAGE AUTO-SAVE & PHỤC HỒI ================= */
         function saveLocalStorage() {
             if (!teams || teams.length === 0) return;
-            localStorage.setItem(ACTIVE_CLASS_POINTER_KEY, currentClass);
             STORAGE_KEY = buildStorageKey(currentClass);
 
             const state = {
@@ -3616,8 +3614,14 @@
                 timestamp: Date.now()
             };
             try {
+                localStorage.setItem(ACTIVE_CLASS_POINTER_KEY, currentClass);
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-            } catch(e) {}
+            } catch (error) {
+                console.error('Không thể lưu trạng thái Tiết 11 Khối 5.', error);
+                if (window.toast) {
+                    window.toast('⚠️ Không thể lưu phiên học. Thầy/Cô hãy xuất CSV và kiểm tra bộ nhớ trình duyệt.', 3500, 'var(--coral)');
+                }
+            }
         }
 
         function loadLocalStorage(forClass) {
@@ -3632,7 +3636,6 @@
         async function restoreSession(state) {
             if (!state || !state.teams || state.teams.length === 0) return;
             currentClass = state.currentClass || '5_1';
-            localStorage.setItem(ACTIVE_CLASS_POINTER_KEY, currentClass);
             STORAGE_KEY = buildStorageKey(currentClass);
 
             currentSlide = Math.min(TOTAL_SLIDES, Math.max(1, state.currentSlide || 1));
@@ -3679,6 +3682,7 @@
             if (window.toast) {
                 window.toast('⚡ Đã tự động khôi phục dữ liệu phiên học trước do sự cố tắt máy/cúp điện!', 3500, 'var(--mint)');
             }
+            saveLocalStorage();
         }
 
         function resetLessonSession() {

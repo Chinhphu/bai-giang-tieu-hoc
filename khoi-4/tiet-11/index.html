@@ -160,6 +160,17 @@
             background: #fff;
         }
 
+        .student-select-error {
+            border-color: #dc2626 !important;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+            animation: shakeSelect .35s ease-in-out;
+        }
+
+        @keyframes shakeSelect {
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
         /* HEADER */
         header {
             display: flex;
@@ -1264,42 +1275,51 @@
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
 
-        /* PODIUM CLEAN: LABELS ABOVE PILLARS, PILLARS CONTAIN ONLY STEP NUMBER */
+        /* Vertical leaderboard keeps every team visible, including tied teams. */
         .podium-container {
             display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            gap: 24px;
-            margin: 28px 0 24px;
-            min-height: 380px;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 14px;
+            max-width: 920px;
+            margin: 10px auto 20px;
         }
 
         .podium-slot {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
-            justify-content: flex-end;
-            width: 200px;
+            justify-content: space-between;
+            width: 100%;
+            min-height: 92px;
+            padding: 14px 28px;
+            border: 3px solid #cbd5e1;
+            border-radius: 20px;
+            background: #fff;
+            gap: 16px;
         }
 
-        .podium-slot.rank-1 { order: 2; }
-        .podium-slot.rank-2 { order: 1; }
-        .podium-slot.rank-3 { order: 3; }
+        .podium-slot.rank-1 {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #fff7cc, #ffffff);
+        }
+
+        .podium-slot.rank-2 { border-color: #94a3b8; }
+        .podium-slot.rank-3 { border-color: #d97706; }
 
         .podium-slot-top {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            text-align: center;
-            margin-bottom: 12px;
-            width: 100%;
+            text-align: left;
+            gap: 14px;
+            min-width: 0;
         }
 
         .podium-medal {
             font-size: 2.8rem;
             line-height: 1;
-            margin-bottom: 4px;
             filter: drop-shadow(0 3px 6px rgba(0,0,0,0.25));
+            flex-shrink: 0;
         }
 
         .podium-title-badge {
@@ -1307,7 +1327,7 @@
             font-weight: 900;
             padding: 2px 8px;
             border-radius: 6px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             letter-spacing: 0.5px;
         }
 
@@ -1333,14 +1353,12 @@
             font-size: 1.3rem;
             font-weight: 900;
             color: var(--navy);
-            margin-bottom: 2px;
         }
 
         .podium-corp {
             font-size: 0.95rem;
             font-weight: 700;
             color: #64748b;
-            margin-bottom: 6px;
         }
 
         .podium-score {
@@ -1353,42 +1371,10 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
 
-        .podium-pillar {
-            width: 100%;
-            border-radius: 16px 16px 0 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.18);
-        }
-
-        .podium-pillar.rank-1 {
-            height: 180px;
-            background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
-            border: 4px solid #fef3c7;
-            border-bottom: none;
-        }
-
-        .podium-pillar.rank-2 {
-            height: 130px;
-            background: linear-gradient(180deg, #94a3b8 0%, #475569 100%);
-            border: 4px solid #f1f5f9;
-            border-bottom: none;
-        }
-
-        .podium-pillar.rank-3 {
-            height: 90px;
-            background: linear-gradient(180deg, #d97706 0%, #78350f 100%);
-            border: 4px solid #fed7aa;
-            border-bottom: none;
-        }
-
-        .podium-step-num {
-            font-size: 3.6rem;
-            font-weight: 900;
-            color: rgba(255, 255, 255, 0.75);
-            line-height: 1;
-            user-select: none;
+        @media (max-width: 600px) {
+            .podium-slot { padding: 12px 14px; }
+            .podium-slot-top { gap: 8px; }
+            .podium-score { font-size: 1.1rem; padding: 4px 8px; }
         }
 
         .badge-flash-sale {
@@ -2103,6 +2089,7 @@
             try {
                 const data = {
                     numTeams,
+                    curScreen,
                     curRound,
                     curCustomerIdx,
                     roundTurnsPlayed,
@@ -2117,7 +2104,12 @@
                     statCrackDisasterCount
                 };
                 localStorage.setItem(getStorageKey(), JSON.stringify(data));
-            } catch (e) { }
+            } catch (error) {
+                console.error('Không thể lưu trạng thái Tiết 11 Khối 4.', error);
+                if (typeof window.toast === 'function') {
+                    window.toast('⚠️ Không thể lưu phiên học. Thầy/Cô hãy xuất CSV và kiểm tra bộ nhớ trình duyệt.', 3500, '#dc2626');
+                }
+            }
         }
 
         function loadState() {
@@ -2127,6 +2119,7 @@
                 const d = JSON.parse(raw);
                 if (d && Array.isArray(d.teams) && d.teams.length) {
                     numTeams = d.numTeams || numTeams;
+                    curScreen = Number.isInteger(d.curScreen) && d.curScreen >= 1 && d.curScreen <= 5 ? d.curScreen : 1;
                     curRound = d.curRound || 1;
                     curCustomerIdx = d.curCustomerIdx || 0;
                     roundTurnsPlayed = d.roundTurnsPlayed || 0;
@@ -2286,6 +2279,26 @@
                     revealed: true
                 });
             }
+        }
+
+        function resetClassState() {
+            numTeams = 4;
+            curScreen = 1;
+            curRound = 1;
+            curCustomerIdx = 0;
+            roundTurnsPlayed = 0;
+            maxPriceCeiling = 150;
+            fundQuestionsCorrectCount = 0;
+            isAudited = false;
+            curTargetCorp = null;
+            activeDiscountPrice = null;
+            curFundQIdx = 0;
+            studentLogs = [];
+            tradeLogs = [];
+            tradeLedger = [];
+            statSafeCount = 0;
+            statCrackDisasterCount = 0;
+            initTeams();
         }
 
         function renderMysteryBoxes() {
@@ -2537,27 +2550,50 @@
 
         function initClasses() {
             const sel = $('#selCls');
-            const classes = ['4_1', '4_2', '4_3', '4_4', '4_5'];
+            const classes = ['4_1', '4_2', '4_3', '4_4', '4_5', '4_6'];
             sel.innerHTML = classes.map(c => `<option value="${c}">Lớp ${c.replace('_', '/')}</option>`).join('');
             sel.value = currentClassId;
             sel.onchange = () => {
                 currentClassId = sel.value;
+                $('#selStudentFund').value = '';
+                $('#selStudentCons').value = '';
+                updateStagedStudentDisplay('fund');
+                updateStagedStudentDisplay('cons');
                 if (!loadState()) {
-                    initTeams();
+                    resetClassState();
                     saveState();
                 }
+                selT.value = String(numTeams);
                 renderMysteryBoxes();
                 renderMarketListing();
                 drawTeams();
                 loadStudentsData();
+                go(curScreen);
             };
 
             const selT = $('#selTeams');
-            selT.innerHTML = [3, 4, 5, 6, 7].map(n => `<option value="${n}">${n} tổ</option>`).join('');
+            selT.innerHTML = [2, 3, 4, 5, 6].map(n => `<option value="${n}">${n} tổ</option>`).join('');
             selT.value = numTeams;
             selT.onchange = () => {
-                numTeams = Number(selT.value);
+                const nextCount = Number(selT.value);
+                if (nextCount < teams.length) {
+                    const removedTeams = teams.slice(nextCount);
+                    const hasProgress = removedTeams.some(t =>
+                        t.money !== 1000 ||
+                        (t.inventory && t.inventory.length > 0) ||
+                        (t.history && t.history.length > 1) ||
+                        t.hadPiracyRecord ||
+                        t.hasDetonated
+                    );
+                    if (hasProgress && !confirm('Giảm số tổ sẽ loại các tổ cuối khỏi bảng điểm. Thầy/Cô có muốn tiếp tục không?')) {
+                        selT.value = String(teams.length);
+                        return;
+                    }
+                }
+                const previousTeams = teams;
+                numTeams = nextCount;
                 initTeams();
+                teams = teams.map((team, idx) => previousTeams[idx] || team);
                 renderMysteryBoxes();
                 renderMarketListing();
                 drawTeams();
@@ -2603,12 +2639,35 @@
         }
 
         function updateStudentSelects() {
-            const optsHtml = studentsList.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
-            $('#selStudentFund').innerHTML = optsHtml;
+            const optsHtml = '<option value="">-- Chọn học sinh --</option>' +
+                studentsList.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+            const fundSelect = $('#selStudentFund');
             const selCons = $('#selStudentCons');
-            if (selCons) selCons.innerHTML = optsHtml;
+            const prevFund = fundSelect.value;
+            const prevCons = selCons ? selCons.value : '';
+            fundSelect.innerHTML = optsHtml;
+            if (studentsList.includes(prevFund)) fundSelect.value = prevFund;
+            if (selCons) {
+                selCons.innerHTML = optsHtml;
+                if (studentsList.includes(prevCons)) selCons.value = prevCons;
+            }
             updateStagedStudentDisplay('fund');
             updateStagedStudentDisplay('cons');
+        }
+
+        function requireQuizStudent(selectId, action) {
+            const select = $(selectId);
+            if (select && select.value) return true;
+
+            if (select) {
+                select.classList.add('student-select-error');
+                select.focus();
+                setTimeout(() => select.classList.remove('student-select-error'), 1200);
+            }
+            if (typeof window.toast === 'function') {
+                window.toast(`⚠️ Vui lòng chọn hoặc bấm 🎲 gọi tên học sinh trước khi ${action}!`, 3200, '#dc2626');
+            }
+            return false;
         }
 
         function renderFundQuiz() {
@@ -2630,6 +2689,7 @@
 
             $$('#fundQOpts .quiz-opt-btn').forEach(btn => {
                 btn.onclick = () => {
+                    if (!requireQuizStudent('#selStudentFund', 'trả lời câu hỏi')) return;
                     const chosen = Number(btn.dataset.idx);
                     const isOk = chosen === q.ans;
                     $$('#fundQOpts .quiz-opt-btn').forEach((b, i) => {
@@ -3783,6 +3843,7 @@
 
             $$('#consQOpts .quiz-opt-btn').forEach(btn => {
                 btn.onclick = () => {
+                    if (!requireQuizStudent('#selStudentCons', 'trả lời câu hỏi củng cố')) return;
                     const chosen = Number(btn.dataset.cidx);
                     const isOk = chosen === q.ans;
                     $$('#consQOpts .quiz-opt-btn').forEach((b, i) => {
@@ -3918,58 +3979,43 @@
             if (!teamList || !teamList.length) return [];
             const sorted = [...teamList].sort((a, b) => b.money - a.money);
             let currentRank = 1;
-            for (let i = 0; i < sorted.length; i++) {
-                if (i > 0) {
-                    if (sorted[i].money === sorted[i - 1].money) {
-                        sorted[i].rank = sorted[i - 1].rank;
-                        sorted[i].isTie = true;
-                        sorted[i - 1].isTie = true;
-                    } else {
-                        currentRank = i + 1;
-                        sorted[i].rank = currentRank;
-                        sorted[i].isTie = false;
-                    }
-                } else {
-                    sorted[i].rank = 1;
-                    sorted[i].isTie = false;
+            return sorted.map((team, idx, list) => {
+                if (idx > 0 && team.money !== list[idx - 1].money) currentRank = idx + 1;
+                const isTie = list.filter(item => item.money === team.money).length > 1;
+                let title = 'KHUYẾN KHÍCH';
+                let medal = '🎖️';
+
+                if (currentRank === 1) {
+                    title = isTie ? 'ĐỒNG QUÁN QUÂN' : 'QUÁN QUÂN';
+                    medal = '🥇';
+                } else if (currentRank === 2) {
+                    title = isTie ? 'ĐỒNG Á QUÂN' : 'Á QUÂN';
+                    medal = '🥈';
+                } else if (currentRank === 3) {
+                    title = isTie ? 'ĐỒNG HẠNG BA' : 'HẠNG BA';
+                    medal = '🥉';
                 }
 
-                if (sorted[i].rank === 1) {
-                    sorted[i].title = sorted[i].isTie ? "ĐỒNG QUÁN QUÂN" : "QUÁN QUÂN";
-                    sorted[i].medal = "🥇";
-                } else if (sorted[i].rank === 2) {
-                    sorted[i].title = sorted[i].isTie ? "ĐỒNG Á QUÂN" : "Á QUÂN";
-                    sorted[i].medal = "🥈";
-                } else if (sorted[i].rank === 3) {
-                    sorted[i].title = sorted[i].isTie ? "ĐỒNG HẠNG BA" : "HẠNG BA";
-                    sorted[i].medal = "🥉";
-                } else {
-                    sorted[i].title = "KHUYẾN KHÍCH";
-                    sorted[i].medal = "🎖️";
-                }
-            }
-            return sorted;
+                return { ...team, rank: currentRank, isTie, title, medal };
+            });
         }
 
         function renderPodium() {
             const ranked = calculateCompetitionRankings(teams);
             const podiumArea = $('#podiumArea');
 
-            const top3 = ranked.slice(0, 3);
-            podiumArea.innerHTML = top3.map(t => `
+            podiumArea.innerHTML = ranked.map(t => `
                 <div class="podium-slot rank-${t.rank}">
                     <!-- PHẦN NHÃN HIỂN THỊ TRÊN ĐẦU CỘT: KHÔNG BAO GIỜ BỊ TRÀN CHỮ -->
                     <div class="podium-slot-top">
                         <div class="podium-medal">${t.medal}</div>
-                        <div class="podium-title-badge">${t.title}</div>
-                        <div class="podium-name">${esc(t.name)}</div>
-                        <div class="podium-corp">${esc(t.corpName)}</div>
-                        <div class="podium-score">$${t.money.toLocaleString()}</div>
+                        <div>
+                            <div class="podium-title-badge">${t.isTie ? `Đồng Hạng ${t.rank} · ${t.title}` : `Hạng ${t.rank} · ${t.title}`}</div>
+                            <div class="podium-name">${esc(t.name)}</div>
+                            <div class="podium-corp">${esc(t.corpName)}</div>
+                        </div>
                     </div>
-                    <!-- BỤC ĐỨNG: CHỈ HIỂN THỊ DUY NHẤT SỐ BẬC THỨ HẠNG -->
-                    <div class="podium-pillar rank-${t.rank}">
-                        <div class="podium-step-num">${t.rank}</div>
-                    </div>
+                    <div class="podium-score">$${t.money.toLocaleString()}</div>
                 </div>
             `).join('');
 
@@ -4116,6 +4162,7 @@
                 playSound('fanfare');
                 fireConfetti();
             }
+            saveState();
         }
 
         $$('nav button').forEach(b => {
@@ -4130,8 +4177,9 @@
         window.addEventListener('DOMContentLoaded', () => {
             updateVietnameseDate();
             initClasses();
-            if (!loadState()) {
-                initTeams();
+            const restored = loadState();
+            if (!restored) {
+                resetClassState();
                 saveState();
             }
             renderMysteryBoxes();
@@ -4139,7 +4187,7 @@
             drawTeams();
             renderTradeLog();
             loadStudentsData();
-            go(1);
+            go(restored ? curScreen : 1);
         });
     </script>
 </body>
