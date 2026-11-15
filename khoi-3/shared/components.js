@@ -505,7 +505,7 @@
               <div class="students-search-row">
                 <input type="text" id="search-student" placeholder="Tìm tên..."
                   onkeyup="Khoi3UnifiedSidebar.filterStudents(this.value)">
-                <button type="button" class="btn-gacha-roll" onclick="Khoi3UnifiedSidebar.randomPickStudent()">🎲 Gacha</button>
+                <button type="button" class="btn-gacha-roll" onclick="Khoi3UnifiedSidebar.randomPickStudent()" title="Bốc thăm ngẫu nhiên">🎲</button>
               </div>
             </div>
             <div id="students-list"></div>

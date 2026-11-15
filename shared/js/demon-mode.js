@@ -93,8 +93,8 @@
                             </button>
                         </div>
                         <div style="margin-top:14px; display:flex; justify-content:flex-end;">
-                            <button type="button" class="btn-action" style="background:#334155; color:#f8fafc; font-size:14px; padding:7px 18px; border-color:#64748b;" onclick="window.DemonMode.closePunishModal()">
-                                ✖ Hủy / Đóng lại (Esc)
+                            <button type="button" class="btn-action" style="background:#334155; color:#f8fafc; font-size:16px; padding:6px 16px; border-color:#64748b;" onclick="window.DemonMode.closePunishModal()" title="Hủy / Đóng lại (Esc)">
+                                ✖
                             </button>
                         </div>
                     </div>

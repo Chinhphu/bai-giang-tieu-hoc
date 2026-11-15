@@ -136,15 +136,15 @@ Học sinh tiểu học cần nhìn rõ từ khoảng cách xa (8–10m cuối l
   * Áp lực thời gian khiến học sinh hoảng loạn chép ẩu, chữ xấu và triệt tiêu khả năng tiếp thu. Giáo viên điều phối nhịp độ chép bài bằng cách quan sát thực tế trong lớp.
 * **BẮT BUỘC có nút Chế độ Toàn Màn Hình (Fullscreen Toggle) — Chuẩn Pop-up Toàn Màn Hình (Full-screen Overlay Modal) 1 Nút Zoom / 1 Nút Tắt Duy Nhất:**
   * **Bản chất kỹ thuật:** Tuyệt đối **không phụ thuộc vào API browser fullscreen (F11)** vốn hay bị trình duyệt chặn, hỏi quyền cấp phép hoặc lỗi zoom trên màn chiếu TV. Màn hình chép bài toàn màn hình được thiết kế dưới dạng một **Pop-up Modal Toàn Màn Hình (Full-screen Overlay Modal)** ghim cố định trùm kín 100% diện tích màn hình TV (`position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 9999999; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 100px 40px 60px; overflow-y: auto; box-sizing: border-box;`). Bắt buộc cho phép cuộn trang (`overflow-y: auto`) và phần đệm trên (`padding-top: 90px - 100px`) phải lớn hơn vị trí của nút tắt (`top: 20px - 24px`) để nội dung không bao giờ bị nút đóng che khuất khi chữ nhiều hoặc màn hình có chiều cao hạn chế.
-  * **Trạng thái bình thường:** Chỉ hiển thị **DUY NHẤT 1 NÚT ZOOM** `⛶ Chế độ toàn màn hình chép bài` (`.btn-fs-toggle`). Nút tắt `btn-fs-close` bắt buộc ẩn hoàn toàn (`display: none !important;`).
-  * **Trạng thái Pop-up toàn màn hình:** Khung ghi bài phóng to chiếm trọn 100% màn hình TV (`100vw x 100vh`), che phủ hoàn toàn sidebar và các thanh điều hướng. Chỉ hiển thị **DUY NHẤT 1 NÚT TẮT** `✖ Thu nhỏ (Esc)` (`.btn-fs-close`) ghim cố định ở góc trên bên phải màn hình (`position: fixed; top: 20px; right: 28px; z-index: 10000000;`).
-  * **TUYỆT ĐỐI CẤM:** Không được đổi tên nút Zoom thành nút tắt thứ hai (`btn.innerHTML = '✖ Thu nhỏ'`). Khi ở chế độ phóng to, nút Zoom ban đầu bắt buộc phải tự động ẩn đi (`display: none !important;`) để trên màn hình không bao giờ xuất hiện 2 nút tắt thừa thãi. Hỗ trợ phím `Esc` để đóng pop-up.
+  * **Trạng thái bình thường:** Chỉ hiển thị **DUY NHẤT 1 NÚT ZOOM** `⛶` (`.btn-fs-toggle`, `title="Chế độ toàn màn hình chép bài"`). **TUYỆT ĐỐI KHÔNG DÙNG CHỮ TRÊN NÚT** để tối giản giao diện màn chiếu. Nút tắt `btn-fs-close` bắt buộc ẩn hoàn toàn (`display: none !important;`).
+  * **Trạng thái Pop-up toàn màn hình:** Khung ghi bài phóng to chiếm trọn 100% màn hình TV (`100vw x 100vh`), che phủ hoàn toàn sidebar và các thanh điều hướng. Chỉ hiển thị **DUY NHẤT 1 NÚT TẮT** `✖` (`.btn-fs-close`, `title="Thu nhỏ (Esc)"`) ghim cố định ở góc trên bên phải màn hình (`position: fixed; top: 20px; right: 28px; z-index: 10000000;`). **TUYỆT ĐỐI KHÔNG DÙNG CHỮ TRÊN NÚT TẮT / THU NHỎ**.
+  * **TUYỆT ĐỐI CẤM:** Không được đổi tên nút Zoom thành nút tắt thứ hai (`btn.innerHTML = '✖'`). Khi ở chế độ phóng to, nút Zoom ban đầu bắt buộc phải tự động ẩn đi (`display: none !important;`) để trên màn hình không bao giờ xuất hiện 2 nút tắt thừa thãi. Hỗ trợ phím `Esc` để đóng pop-up.
 
 Mẫu HTML chuẩn:
 ```html
 <div class="notebook clean" id="notebook-box">
-    <button type="button" class="btn-fs-close" onclick="toggleNotebookFullscreen()">
-        ✖ Thu nhỏ (Esc)
+    <button type="button" class="btn-fs-close" onclick="toggleNotebookFullscreen()" title="Thu nhỏ (Esc)">
+        ✖
     </button>
     <div class="nb-date"><span class="notebookDateDisplay" id="current-date-line">Đang cập nhật ngày...</span></div>
     <div class="nb-subject">Môn: Tin học [Khối]</div>
@@ -322,7 +322,7 @@ $$\text{1. Chờ (Waiting)} \xrightarrow[\text{Bấm Gacha lại để quay ti�
 ### 4.3 Bố Trí Widget Chọn Học Sinh & Phân Tách Điểm Số (Logging vs Team Scoring)
 * **Widget Chọn Học Sinh Ở MỌI Vị Trí Phát Biểu:**
   * Bất cứ hoạt động nào cần học sinh giơ tay phát biểu (Khởi động, Khám phá kiến thức mới, Vấn đáp gợi mở, Chốt bài hay Minigame): BẮT BUỘC luôn bố trí cụm Widget:
-    * Ô chọn tên nhanh (Dropdown/Select hoặc Input autocomplete) + Nút `🎲 Gacha` quay ngẫu nhiên.
+    * Ô chọn tên nhanh (Dropdown/Select hoặc Input autocomplete) + Nút `🎲` quay ngẫu nhiên (**chỉ hiển thị duy nhất emoji xúc xắc `🎲`, TUYỆT ĐỐI KHÔNG CÓ CHỮ**, dùng `title="Bốc thăm ngẫu nhiên / Gọi tên"`).
 * **Phân Tách Rạch Ròi: Log Telemetry Cá Nhân vs Điểm Số Tổ Thi Đua:**
   * **1. Khi phát biểu tự do (Khởi động, Khám phá, Vấn đáp giữa giờ, Chốt bài):** Thao tác chọn học sinh và ghi nhận câu trả lời **CHỈ DÙNG ĐỂ GHI NHẬN (LOG) VÀO TELEMETRY CÁ NHÂN** (ghi nhận em đó đã phát biểu, đúng/sai, xếp loại TT27 để xuất file CSV cuối tiết). **TUYỆT ĐỐI KHÔNG tự động cộng/trừ điểm vào Tổ** để giữ cho thang điểm thi đua không bị loãng hoặc mất cân bằng.
   * **2. Chỉ khi bước vào VÒNG ĐẤU GAME / THỬ THÁCH CHÍNH THỨC:** Điểm số câu trả lời mới được kích hoạt cộng/trừ vào điểm số của Tổ thi đua!

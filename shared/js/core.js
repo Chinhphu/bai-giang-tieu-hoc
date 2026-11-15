@@ -144,8 +144,8 @@
             closeBtn = document.createElement('button');
             closeBtn.type = 'button';
             closeBtn.className = 'btn-fs-close';
-            closeBtn.title = 'Nhấn để thu nhỏ hoặc bấm phím Esc';
-            closeBtn.innerHTML = '✖ Thu nhỏ (Esc)';
+            closeBtn.title = 'Thu nhỏ (Esc)';
+            closeBtn.innerHTML = '✖';
             closeBtn.onclick = (e) => {
                 e.stopPropagation();
                 window.toggleNotebookFullscreen(box);
@@ -194,7 +194,8 @@
             // HIỆN LẠI DUY NHẤT 1 NÚT ZOOM BAN ĐẦU
             document.querySelectorAll('.btn-fs-toggle, [data-action="toggle-notebook-fs"]').forEach(btn => {
                 btn.style.display = '';
-                btn.innerHTML = '⛶ Chế độ toàn màn hình chép bài';
+                btn.innerHTML = '⛶';
+                btn.title = 'Chế độ toàn màn hình chép bài';
             });
         }
     };
@@ -207,7 +208,8 @@
             // HIỆN LẠI DUY NHẤT 1 NÚT ZOOM BAN ĐẦU
             document.querySelectorAll('.btn-fs-toggle, [data-action="toggle-notebook-fs"]').forEach(btn => {
                 btn.style.display = '';
-                btn.innerHTML = '⛶ Chế độ toàn màn hình chép bài';
+                btn.innerHTML = '⛶';
+                btn.title = 'Chế độ toàn màn hình chép bài';
             });
         }
     };
