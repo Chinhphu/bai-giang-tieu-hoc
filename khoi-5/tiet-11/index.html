@@ -1051,10 +1051,21 @@
         .ticket-badge {
             font-size: 13px;
             font-weight: 800;
-            padding: 3px 10px;
+            padding: 4px 12px;
             border-radius: 12px;
             background: #fef08a;
             color: #854d0e;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .ticket-badge:hover {
+            background: #fde047;
+            transform: scale(1.04);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
         .ticket-target {
@@ -2302,6 +2313,12 @@
             padding: 10px;
             margin-top: 8px;
             margin-bottom: 6px;
+            transition: all 0.2s ease;
+        }
+        .sidebar-demon-section.turn-active {
+            border: 2.5px solid #c084fc !important;
+            background: rgba(88, 28, 135, 0.55) !important;
+            box-shadow: 0 0 16px rgba(168, 85, 247, 0.5) !important;
         }
         .demon-sec-header {
             display: flex;
@@ -2743,7 +2760,7 @@
                             </div>
                             <div class="ticket-header">
                                 <span class="ticket-title" id="s1-ticket-title">TICKET 1.1: TIÊU ĐỀ NỔI BẬT</span>
-                                <span class="ticket-badge" id="s1-team-badge">Đội thi: Tổ 1</span>
+                                <span class="ticket-badge" id="s1-team-badge" onclick="switchTeamTurn(0)" title="Nhấp vào đây để quay nhanh về Lượt Demo của Thầy/Cô (Lượt 0)">Đội thi: Tổ 1</span>
                             </div>
                             <div class="ticket-target">🎯 Mục tiêu: <span id="s1-target-text">CÁCH LÀM KEM DƯA HẤU</span></div>
                             <div class="ticket-req" id="s1-ticket-req">
@@ -2918,7 +2935,7 @@
                             </div>
                             <div class="ticket-header">
                                 <span class="ticket-title" id="s2-ticket-title">TICKET 2.1: GIẢI CỨU ĐOẠN VĂN GÃY DÒNG</span>
-                                <span class="ticket-badge" id="s2-team-badge">Đội thi: Tổ 1</span>
+                                <span class="ticket-badge" id="s2-team-badge" onclick="switchTeamTurn(0)" title="Nhấp vào đây để quay nhanh về Lượt Demo của Thầy/Cô (Lượt 0)">Đội thi: Tổ 1</span>
                             </div>
                             <div class="ticket-target">
                                 🎯 Mục tiêu: 
@@ -3239,6 +3256,21 @@
                     osc.stop(this.ctx.currentTime + 0.05);
                 } catch(e) {}
             },
+            playBeep() {
+                try {
+                    this.init();
+                    if (!this.ctx) return;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.frequency.setValueAtTime(880, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.08);
+                } catch(e) {}
+            },
             playWin() {
                 try {
                     this.init();
@@ -3407,7 +3439,6 @@
         /* ================= HỆ THỐNG GIAO TIẾP TOÀN CỤC & TƯƠNG THÍCH ================= */
         window.switchAi = function(step) {
             closeEnd();
-            closeBatchModal();
             closeGachaModal();
             goSlideTo(8);
         };
@@ -3458,7 +3489,6 @@
             if (e.key === 'Escape') {
                 window.closeNotebookFullscreen();
                 closeGachaModal();
-                closeBatchModal();
                 closeEnd();
                 closeAddHs();
                 closeDemonManagerModal();
@@ -4130,15 +4160,20 @@
             const demonSection = document.getElementById('sidebar-demon-section');
             if (demonSection) {
                 const activeDemons = demonRecords.filter(d => studentsList.some(s => s.name === d.name && s.isDemon));
+                const isDemonTurn = (manualActiveTeamId === 99);
                 if (!isDemonMode && activeDemons.length === 0) {
                     demonSection.style.display = 'none';
                     demonSection.innerHTML = '';
                 } else {
                     demonSection.style.display = 'block';
+                    demonSection.className = `sidebar-demon-section ${isDemonTurn ? 'turn-active' : ''}`;
                     demonSection.innerHTML = `
-                        <div class="demon-sec-header">
-                            <span class="demon-sec-title">😈 PHE QUỶ (${activeDemons.length})</span>
-                            <button type="button" class="btn-demon-action" style="background:#581c87; color:#fef08a; padding:2px 7px; border:1px solid #c084fc;" onclick="openDemonManagerModal()" title="Mở bảng thêm học sinh vào Phe Quỷ">[+ Thêm / Gỡ]</button>
+                        <div class="demon-sec-header" onclick="switchTeamTurn(99)" style="cursor:pointer;" title="Nhấp vào đây để chuyển lượt sang Phe Quỷ 😈">
+                            <span class="demon-sec-title">
+                                😈 PHE QUỶ (${activeDemons.length})
+                                ${isDemonTurn ? '<span style="font-size:10.5px; font-weight:900; background:#fef08a; color:#581c87; padding:1px 6px; border-radius:5px; margin-left:6px;">🎯 ĐANG LƯỢT</span>' : ''}
+                            </span>
+                            <button type="button" class="btn-demon-action" style="background:#581c87; color:#fef08a; padding:2px 7px; border:1px solid #c084fc;" onclick="event.stopPropagation(); openDemonManagerModal()" title="Mở bảng thêm học sinh vào Phe Quỷ">[+ Thêm / Gỡ]</button>
                         </div>
                         ${activeDemons.length === 0 ? `
                             <div style="font-size:11.5px; color:#cbd5e1; font-style:italic; padding:4px 0;">Chưa có học sinh trong Phe Quỷ. Bấm [+ Thêm / Gỡ] để thêm.</div>
@@ -4227,7 +4262,12 @@
         function switchTeamTurn(teamId) {
             manualActiveTeamId = teamId;
             const stageNum = (currentSlide === 4) ? 1 : ((currentSlide === 6) ? 2 : null);
-            const teamObj = teams.find(t => t.id === teamId);
+            const teamObj = (teamId === 0)
+                ? { id: 0, name: 'Thầy/Cô Làm Mẫu (Demo)', color: '#3b82f6' }
+                : (teamId === 99
+                    ? { id: 99, name: 'Phe Quỷ 😈', color: '#a855f7' }
+                    : teams.find(t => t.id === teamId));
+
             if (!stageNum) {
                 renderTeams();
                 if (window.toast && teamObj) window.toast(`🎯 Đã chọn: ${teamObj.name}`, 1500, teamObj.color || 'var(--mint)');
@@ -4243,7 +4283,7 @@
                 if (typeof saveLocalStorage === 'function') saveLocalStorage();
             } else {
                 renderTeams();
-                if (window.toast) window.toast(`Tổ ${teamObj ? teamObj.name : teamId} không có nhiệm vụ trong chặng này!`, 1500);
+                if (window.toast) window.toast(`⚠️ ${teamObj ? teamObj.name : 'Tổ ' + teamId} chưa có vé nhiệm vụ ở chặng này!`, 1800);
             }
         }
 
@@ -4413,11 +4453,12 @@
                 activeTeam = { id: 0, name: 'Thầy/Cô Làm Mẫu', score: 0, isDemon: false };
                 teamLabel = 'Thầy/Cô Làm Mẫu (Demo)';
                 safeTeamName = 'Demo';
+                manualActiveTeamId = 0;
             } else if (isDemon) {
                 activeTeam = { id: 99, name: 'Phe Quỷ 😈', score: 0, isDemon: true };
                 teamLabel = 'Phe Quỷ 😈 (Thử Thách Ma Giới)';
                 safeTeamName = 'To_Quy';
-                manualActiveTeamId = null;
+                manualActiveTeamId = 99;
             } else {
                 activeTeam = teams.find(t => t.id === ticket.teamId) || teams[0];
                 teamLabel = activeTeam ? activeTeam.name : ticket.teamName;
@@ -4426,7 +4467,13 @@
             }
 
             document.getElementById(`s${stageNum}-ticket-title`).textContent = ticket.title;
-            document.getElementById(`s${stageNum}-team-badge`).textContent = `Đội thi: ${teamLabel} (Lượt ${safeIdx + 1}/${validTickets.length})`;
+            const badgeEl = document.getElementById(`s${stageNum}-team-badge`);
+            if (badgeEl) {
+                badgeEl.textContent = `Đội thi: ${teamLabel} (Lượt ${safeIdx + 1}/${validTickets.length})`;
+                badgeEl.title = isDemo 
+                    ? '💡 Đang ở Lượt Demo của Thầy/Cô (Lượt 0)' 
+                    : 'Nhấp vào đây để quay nhanh về Lượt Demo của Thầy/Cô (Lượt 0)';
+            }
             document.getElementById(`s${stageNum}-target-text`).textContent = ticket.targetText;
             document.getElementById(`s${stageNum}-ticket-req`).innerHTML = ticket.reqText;
 
@@ -4680,7 +4727,8 @@
                     if (window.toast) {
                         window.toast(`⏱️ Đã nạp bài & dừng đồng hồ ở ${timeFormatted}! Mời các tổ đánh giá chéo.`, 3000, 'var(--mint)');
                     }
-                    AudioSys.playBeep();
+                    if (AudioSys && AudioSys.playBeep) AudioSys.playBeep();
+                    else if (AudioSys && AudioSys.playTick) AudioSys.playTick();
                 }
             });
         }
@@ -4699,16 +4747,34 @@
 
             const isDemoTicket = !!(ticket.isDemo || ticket.teamId === 0);
 
-            // KIỂM TRA ĐÁNH GIÁ CHÉO (SỬ DỤNG HÀM CHUẨN WINDOW.CHECKPEERASSESSMENTCOMPLETE TRONG CORE.JS)
+            // KIỂM TRA ĐÁNH GIÁ CHÉO (SỬ DỤNG HÀM CHUẨN WINDOW.CHECKPEERASSESSMENTCOMPLETE TRONG CORE.JS HOẶC FALLBACK)
             if (!isDemoTicket) {
-                const activeTeam = teams.find(t => t.id === ticket.teamId) || teams[0];
-                const otherTeams = teams.filter(t => t.id !== activeTeam.id);
+                const otherTeams = teams.filter(t => !t.isDemon && t.id !== ticket.teamId);
                 const currentBets = stageBets[stageNum] || {};
-                const isComplete = window.checkPeerAssessmentComplete(
-                    otherTeams,
-                    currentBets,
-                    (teamId) => document.getElementById(`bet-row-s${stageNum}-t${teamId}`)
-                );
+                let isComplete = true;
+                if (typeof window.checkPeerAssessmentComplete === 'function') {
+                    isComplete = window.checkPeerAssessmentComplete(
+                        otherTeams,
+                        currentBets,
+                        (teamId) => document.getElementById(`bet-row-s${stageNum}-t${teamId}`)
+                    );
+                } else {
+                    const missingTeams = otherTeams.filter(t => !currentBets[t.id]);
+                    if (missingTeams.length > 0) {
+                        isComplete = false;
+                        const missingNames = missingTeams.map(t => t.name).join(', ');
+                        if (window.toast) {
+                            window.toast(`⚠️ Còn ${missingNames} chưa đánh giá chéo! Vui lòng chọn kết quả cho tất cả các tổ trước khi chấm.`, 3500, '#ef4444');
+                        }
+                        missingTeams.forEach(t => {
+                            const row = document.getElementById(`bet-row-s${stageNum}-t${t.id}`);
+                            if (row) {
+                                row.classList.add('shake-error');
+                                setTimeout(() => row.classList.remove('shake-error'), 1200);
+                            }
+                        });
+                    }
+                }
                 if (!isComplete) return;
             }
 

@@ -83,12 +83,13 @@ $$\text{Chờ (Waiting)} \xrightarrow{\text{Bốc thăm Gacha / Chọn}} \text{L
     * Ngoài ra, nếu có em trong tổ xung phong giơ tay, Giáo viên có thể chọn trực tiếp tên em đó từ danh sách dropdown.
 * **Cơ Chế Bấm Vào Tổ Nào Chuyển Lượt Qua Tổ Đó (Click-to-Switch Turn — Linh Hoạt Khi Tổ Chưa Sẵn Sàng):**
   * **Thực tiễn lớp học:** Trong giờ học, thường xuyên xảy ra tình huống tổ đang đến lượt chưa sẵn sàng (học sinh đang lúng túng, chưa thảo luận xong, vắng mặt hoặc gặp trục trặc kỹ thuật), trong khi một tổ khác đang rất hào hứng xung phong.
-  * **QUY TẮC BẮT BUỘC:** Mọi màn hình thi đấu / bảng điểm Sidebar / trận địa theo tổ **PHẢI CHO PHÉP Giáo viên bấm (click) trực tiếp vào bất kỳ thẻ Tổ nào để chuyển lượt ngay tức khắc sang Tổ đó** (`setTurn(idx)` / `switchActiveTeam(idx)`).
+  * **QUY TẮC BẮT BUỘC:** Mọi màn hình thi đấu / bảng điểm Sidebar / trận địa theo tổ **PHẢI CHO PHÉP Giáo viên bấm (click) trực tiếp vào bất kỳ thẻ Tổ nào để chuyển lượt ngay tức khắc sang Tổ đó** (`setTurn(idx)` / `switchActiveTeam(idx)` / `switchTeamTurn(teamId)`).
   * **UX / Kỹ thuật bắt buộc:**
     * Thẻ tổ phải có con trỏ bàn tay (`cursor: pointer`), hiệu ứng hover nhún nhẹ.
     * Khi bấm vào, thẻ tổ lập tức nhận trạng thái active (class `.active` / `.turn`, đổi viền sáng, hiện icon 🎯 hoặc badge "👉 ĐANG TỚI LƯỢT").
     * Bật thông báo Toast nhẹ trên màn chiếu: *Ví dụ: `🎯 Đã chuyển lượt sang Tổ X!`*
     * Tự động lưu lượt mới vào `localStorage` (thông qua `sessionManager.save`).
+    * **Chuyển nhanh sang Lượt Demo (teamId: 0) và Phe Quỷ (teamId: 99):** Do Thầy/Cô Demo và Phe Quỷ không nằm trong danh sách các tổ học sinh bình thường, hệ thống **bắt buộc hỗ trợ bấm trực tiếp vào tiêu đề 😈 PHE QUỶ trên Sidebar để nhảy sang lượt Quỷ (`switchTeamTurn(99)`)** và **bấm vào badge `Đội thi: ...` trên đầu thẻ Ticket để quay nhanh về lượt Demo (`switchTeamTurn(0)`)**.
     * **Chống bấm nhầm (stopPropagation):** Các nút bấm chức năng bên trong thẻ tổ (như nút Phạt ồn `🔇`, ô sửa điểm inline `<input>` / `.tscore`, dropdown chọn học sinh `<select>`, nút xúc xắc `🎲`) BẮT BUỘC phải có `event.stopPropagation()` để khi giáo viên bấm sửa điểm hoặc phạt không bị vô tình chuyển lượt.
 * **BẮT BUỘC Chọn Học Sinh Trước Khi: Hiện Đáp Án / Ghi Nhận Đúng Sai / Bắt Đầu Quest:**
   * **Mục đích sư phạm:** Tránh việc giáo viên hoặc học sinh vô tình bấm xem trước đáp án, ghi nhận điểm ảo khi chưa có bạn nào phát biểu, hoặc bấm đồng hồ chạy khi chưa có học sinh lên máy.
@@ -100,6 +101,7 @@ $$\text{Chờ (Waiting)} \xrightarrow{\text{Bốc thăm Gacha / Chọn}} \text{L
 * **Kiểm Tra 100% Đánh Giá Chéo Các Tổ Trước Khi Chạy Auto-Grader (Peer Assessment Pre-Check):**
   * Đối với các tiết học hoặc game có cơ chế các tổ quan sát bài làm và đánh giá chéo nhau (Đoán ĐẠT / Bắt LỖI):
   * Trước khi giáo viên bấm nút chạy Auto-Grader chấm điểm: Hệ thống **BẮT BUỘC kiểm tra 100% các tổ còn lại đã hoàn tất biểu quyết đánh giá chéo**.
+  * **Lưu ý kỹ thuật lọc danh sách các tổ cược:** Phải lọc danh sách các tổ đánh giá chéo bằng `teams.filter(t => !t.isDemon && t.id !== ticket.teamId)` để khi tới lượt Phe Quỷ (`ticket.teamId === 99`), toàn bộ các tổ Loài Người (Tổ 1, 2, 3, 4...) đều được yêu cầu đánh giá đầy đủ, tránh bug fallback `teams[0]` làm sót Tổ 1.
   * Nếu còn bất kỳ tổ nào chưa chọn: Hệ thống **chặn không cho chấm điểm**, hiển thị Toast cảnh báo: `⚠️ Còn [Tên các tổ còn thiếu] chưa đánh giá chéo! Vui lòng chọn kết quả cho tất cả các tổ trước khi chấm.` và rung viền đỏ các hàng của các tổ chưa đánh giá để giáo viên nhìn thấy ngay trên màn chiếu.
 
 ### 5. Bộ đo lường hành vi (Telemetry) theo Vai trò người điều khiển (`Actor-based`)
