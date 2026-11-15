@@ -90,6 +90,17 @@ $$\text{Chờ (Waiting)} \xrightarrow{\text{Bốc thăm Gacha / Chọn}} \text{L
     * Bật thông báo Toast nhẹ trên màn chiếu: *Ví dụ: `🎯 Đã chuyển lượt sang Tổ X!`*
     * Tự động lưu lượt mới vào `localStorage` (thông qua `sessionManager.save`).
     * **Chống bấm nhầm (stopPropagation):** Các nút bấm chức năng bên trong thẻ tổ (như nút Phạt ồn `🔇`, ô sửa điểm inline `<input>` / `.tscore`, dropdown chọn học sinh `<select>`, nút xúc xắc `🎲`) BẮT BUỘC phải có `event.stopPropagation()` để khi giáo viên bấm sửa điểm hoặc phạt không bị vô tình chuyển lượt.
+* **BẮT BUỘC Chọn Học Sinh Trước Khi: Hiện Đáp Án / Ghi Nhận Đúng Sai / Bắt Đầu Quest:**
+  * **Mục đích sư phạm:** Tránh việc giáo viên hoặc học sinh vô tình bấm xem trước đáp án, ghi nhận điểm ảo khi chưa có bạn nào phát biểu, hoặc bấm đồng hồ chạy khi chưa có học sinh lên máy.
+  * **Quy tắc chặn tuyệt đối:**
+    * **Hiện đáp án (Reveal):** Khi nhấp vào các thẻ ẩn mở đáp án (`.rev`, summary cards có đáp án), hệ thống phải kiểm tra ô chọn học sinh của câu hỏi đó. Nếu chưa chọn học sinh: **Chặn không cho mở đáp án**, bật Toast cảnh báo `⚠️ Vui lòng chọn hoặc bấm 🎲 gọi tên học sinh trước khi mở đáp án!`, đồng thời rung nhẹ (shake animation) và viền đỏ ô chọn học sinh.
+    * **Ghi nhận Đúng/Sai (Đánh giá TT27):** Bắt buộc phải có tên học sinh trong ô chọn mới cho phép bấm `Ghi nhận ĐÚNG (Mức T)` hoặc `Chưa đúng (Mức H)`. Nếu để trống: chặn lại, báo Toast và rung viền đỏ.
+    * **Bắt đầu Quest / Bấm giờ làm bài:** Khi bấm nút `▶ Bắt Đầu Thực Hiện` hoặc `▶ Bắt Đầu & Tải Đề Bài`: Bắt buộc phải có học sinh đại diện của tổ lên máy (chọn tên hoặc bấm `🎲`). Nếu để trống: chặn lại, không tải đề, không chạy đồng hồ, hiện Toast `⚠️ Vui lòng chọn học sinh đại diện lên máy (hoặc bấm 🎲 Gacha) trước khi bắt đầu!`.
+    * **Ngoại lệ duy nhất:** Lượt làm mẫu (Demo) của Giáo viên (vì Thầy/Cô tự làm mẫu nên không cần chọn học sinh).
+* **Kiểm Tra 100% Đánh Giá Chéo Các Tổ Trước Khi Chạy Auto-Grader (Peer Assessment Pre-Check):**
+  * Đối với các tiết học hoặc game có cơ chế các tổ quan sát bài làm và đánh giá chéo nhau (Đoán ĐẠT / Bắt LỖI):
+  * Trước khi giáo viên bấm nút chạy Auto-Grader chấm điểm: Hệ thống **BẮT BUỘC kiểm tra 100% các tổ còn lại đã hoàn tất biểu quyết đánh giá chéo**.
+  * Nếu còn bất kỳ tổ nào chưa chọn: Hệ thống **chặn không cho chấm điểm**, hiển thị Toast cảnh báo: `⚠️ Còn [Tên các tổ còn thiếu] chưa đánh giá chéo! Vui lòng chọn kết quả cho tất cả các tổ trước khi chấm.` và rung viền đỏ các hàng của các tổ chưa đánh giá để giáo viên nhìn thấy ngay trên màn chiếu.
 
 ### 5. Bộ đo lường hành vi (Telemetry) theo Vai trò người điều khiển (`Actor-based`)
 * **Trường hợp A: Học sinh trực tiếp thao tác trên máy (`Actor: Student`)**
@@ -391,6 +402,8 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Mọi chỗ có học sinh phát biểu đều có ô chọn học sinh + nút Gacha chưa? (Chỉ log telemetry, không cộng điểm tổ khi phát biểu tự do)
 - [ ] Nếu đấu theo tổ: Đã hỗ trợ cơ chế bốc thăm linh hoạt (học sinh đổi chỗ ngồi mỗi tuần nên không gán tổ cố định; giáo viên bấm Gacha nhiều lần tới khi nào trúng bạn thuộc tổ đang tới lượt thì chốt hoặc chọn nhanh từ danh sách, không xem việc ra bạn tổ khác là lỗi) chưa?
 - [ ] UI thi đua có nút linh hoạt từ 2 đến 6 tổ (`[+ Thêm Tổ]` / `[- Bớt Tổ]`) chưa?
+- [ ] Đã bắt buộc chọn học sinh trước khi hiện đáp án / ghi nhận đúng sai / bắt đầu quest chưa? (Có hiệu ứng rung viền đỏ và Toast cảnh báo khi vi phạm)
+- [ ] Nếu có hoạt động đánh giá chéo các tổ: Đã kiểm tra 100% các tổ hoàn tất biểu quyết trước khi cho phép bấm chấm điểm Auto-Grader chưa?
 - [ ] Tương tác 100% không đạo cụ (Zero-Prop): Sử dụng ký hiệu tay (ngón tay 1-2-3-4 cho ABCD, X/O, thả tim) + Gacha, không dùng bảng con/hoa xoay/đạo cụ giấy tờ?
 - [ ] Có Slide khởi động (Hook) khơi gợi tò mò đầu giờ chưa? (Không mở đầu áp đặt một chiều)
 - [ ] Có câu chuyển tiếp logic, mượt mà giữa các hoạt động/chặng trong bài chưa?

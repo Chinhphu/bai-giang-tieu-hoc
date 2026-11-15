@@ -354,6 +354,104 @@
         };
     };
 
+    /* =========================================================================
+     * QUY CHUẨN VÒNG ĐỜI GỌI TÊN: BẮT BUỘC CHỌN HỌC SINH (AGENTS.md MỤC 4)
+     * Dùng chung toàn repo cho mọi khối lớp (Khối 1 - Khối 5)
+     * ========================================================================= */
+
+    /**
+     * Bắt buộc phải chọn học sinh trước khi thực hiện hành động.
+     * @param {string|HTMLElement} target - contextId (ví dụ 'warmup-1' sẽ tìm #sel-warmup-1), ID phần tử, hoặc DOM select element
+     * @param {string} actionDesc - Tên hành động để hiển thị thông báo (ví dụ 'mở đáp án', 'ghi nhận đánh giá', 'bắt đầu quest')
+     * @returns {boolean} true nếu hợp lệ, false nếu chưa chọn
+     */
+    window.requireStudent = function (target, actionDesc = 'tiếp tục') {
+        let el = null;
+        if (typeof target === 'string') {
+            el = document.getElementById(`sel-${target}`) || document.getElementById(target);
+        } else if (target && target.nodeType) {
+            el = target;
+        }
+
+        const studentVal = el ? (el.value || '').trim() : '';
+        if (!studentVal) {
+            if (el) {
+                el.classList.add('select-highlight-error');
+                el.focus();
+                setTimeout(() => el.classList.remove('select-highlight-error'), 1800);
+            }
+            const msg = `⚠️ Vui lòng chọn hoặc bấm 🎲 gọi tên học sinh trước khi ${actionDesc}!`;
+            if (typeof window.showToast === 'function') {
+                window.showToast(msg, 'warning');
+            } else if (typeof window.toast === 'function') {
+                window.toast(msg, 3200, '#ef4444');
+            } else {
+                alert(msg);
+            }
+            if (window.AudioSys && typeof window.AudioSys.playFail === 'function') {
+                window.AudioSys.playFail();
+            }
+            return false;
+        }
+        return true;
+    };
+
+    /**
+     * Mở / ẩn đáp án (.rev) có kiểm tra bắt buộc đã gọi học sinh trước.
+     * @param {HTMLElement} revEl - Thẻ đáp án (.rev)
+     * @param {string|HTMLElement} contextOrSelect - contextId hoặc ô select học sinh
+     */
+    window.toggleRev = function (revEl, contextOrSelect) {
+        if (!revEl) return;
+        if (contextOrSelect) {
+            if (!window.requireStudent(contextOrSelect, 'mở đáp án')) {
+                return;
+            }
+        }
+        revEl.classList.toggle('show');
+        if (revEl.classList.contains('show') && window.AudioSys && typeof window.AudioSys.playTick === 'function') {
+            window.AudioSys.playTick();
+        }
+    };
+
+    /**
+     * Kiểm tra 100% đánh giá chéo giữa các tổ (Peer Assessment Pre-Check).
+     * @param {Array} otherTeams - Danh sách các tổ còn lại cần đánh giá.
+     * @param {Object} votesMap - Bản đồ lưu lượt biểu quyết { [teamId]: 'PASS' | 'BUG', ... }
+     * @param {Function} getRowElFn - Hàm trả về DOM element hàng của tổ (ví dụ: (id) => document.getElementById(`bet-row-...`))
+     * @returns {boolean} true nếu 100% các tổ đã biểu quyết, false nếu còn thiếu.
+     */
+    window.checkPeerAssessmentComplete = function (otherTeams, votesMap = {}, getRowElFn = null) {
+        if (!otherTeams || otherTeams.length === 0) return true;
+        const unvoted = otherTeams.filter(t => !votesMap[t.id]);
+        if (unvoted.length > 0) {
+            const unvotedNames = unvoted.map(t => t.name).join(', ');
+            if (typeof getRowElFn === 'function') {
+                unvoted.forEach(t => {
+                    const row = getRowElFn(t.id);
+                    if (row) {
+                        row.classList.add('peer-check-error', 'bet-row-unvoted-error');
+                        setTimeout(() => row.classList.remove('peer-check-error', 'bet-row-unvoted-error'), 2200);
+                    }
+                });
+            }
+            const msg = `⚠️ Còn [${unvotedNames}] chưa đánh giá chéo! Vui lòng chọn kết quả cho tất cả các tổ trước khi chấm.`;
+            if (typeof window.showToast === 'function') {
+                window.showToast(msg, 'warning');
+            } else if (typeof window.toast === 'function') {
+                window.toast(msg, 3500, '#ef4444');
+            } else {
+                alert(msg);
+            }
+            if (window.AudioSys && typeof window.AudioSys.playFail === 'function') {
+                window.AudioSys.playFail();
+            }
+            return false;
+        }
+        return true;
+    };
+
+
     // Tự động kích hoạt khi DOM sẵn sàng
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => window.updateVietnameseDate());
