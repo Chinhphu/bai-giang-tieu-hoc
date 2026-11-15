@@ -261,21 +261,48 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 * **Đặc Quyền Dành Riêng Cho Khối 5 (Lớp 5):**
   * Cơ chế Phe Quỷ (`shared/js/demon-mode.js`) được thiết kế **ĐỘC QUYỀN DÀNH RIÊNG CHO HỌC SINH KHỐI 5** (học sinh 10–11 tuổi có cá tính mạnh, bắt đầu có tâm lý nổi loạn tiền dậy thì, thích thể hiện cái tôi và quậy phá theo nhóm).
   * **TUYỆT ĐỐI CẤM ÁP DỤNG cho Khối 1, 2, 3, 4:** Học sinh các khối 1–4 còn quá nhỏ, tâm lý nhạy cảm, dễ tủi thân và tiêu cực nếu bị gắn mác "Phe Quỷ" hay chịu chế độ phạt nặng. Ở các khối 1–4 chỉ áp dụng kỷ luật tích cực, nhắc nhở nhẹ nhàng và động viên sự tiến bộ.
-* **Triết Lý "Bất Công Công Khai" (Đập Bỏ Tôn Vinh Ngầm):**
-  * Thực tế lớp học đã chứng minh: cho Phe Quỷ giao diện ngầu, sấm sét tím và phần thưởng "Quỷ Vương lên cầm chuột máy giáo viên" sẽ phản tác dụng — học sinh coi đó là đặc quyền VIP để quậy phá.
-  * Hệ thống tuyên bố thẳng thắn trên UI và trong luật: **"Tổ Quỷ luôn chịu sự bất công của hệ thống"**.
+* **Nguyên Tắc Cốt Lõi: Mỗi Đứa Trong Phe Quỷ Là Một Tổ Độc Lập — CẤM "Điểm Tổ Chung":**
+  * Phe Quỷ KHÔNG PHẢI là một tổ hợp tác đoàn kết! Đây là nơi quản thúc cách ly các cá nhân cá biệt để bảo vệ điểm số của các tổ Loài Người.
+  * **TUYỆT ĐỐI KHÔNG có "Điểm tổ chung của Tổ Quỷ":** Mỗi học sinh trong Phe Quỷ là một cá thể độc lập, sở hữu quỹ điểm cá nhân riêng biệt (khởi điểm 1000 Xu). Điểm số, lỗi vi phạm và hình phạt tính trực tiếp trên đầu từng con quỷ.
 * **Bộ Luật Bất Công (Hardcore Handicap):**
-  1. **Trả lời đúng:** Chỉ nhận **50% điểm thưởng** (+50đ thay vì +100đ), hoặc chỉ được dùng để "chuộc tội" giảm án phạt, trần điểm tối đa không vượt sàn 1000đ.
-  2. **Trả lời sai / Vi phạm trật tự:** Bị phạt **gấp đôi (-200đ)** và số điểm bị trừ này được **bơm thẳng vào "Quỹ Cứu Trợ"** chia cho các tổ Loài Người (hoặc cộng cho tổ Loài Người đang thấp điểm nhất).
-  3. **Gacha Bất Lợi:** Trong các game có yếu tố may rủi (như *IT Tycoon*), tỷ lệ gặp sự cố/virus của Tổ Quỷ mặc định bị nâng lên **60% – 80%** thay vì 30% như tổ thường.
-* **Bãi Bỏ Hoàn Toàn Danh Hiệu "Quỷ Vương Cầm Máy":**
-  * Xóa bỏ hoàn toàn phần thưởng cho phép học sinh cá biệt lên bục giảng điều khiển máy chiếu tiết sau và toàn bộ quy trình 3 bậc xét duyệt rườm rà (so lỗi vi phạm, soi vở tại chỗ, đấu Gacha 1-1).
-  * Học sinh quậy phá tuyệt đối không được trao bất kỳ quyền lực điều khiển lớp học nào.
-* **Đơn Giản Hóa Bảng Điểm, Ngưỡng Rớt Sàn (< 800đ) & Nút Hoàn Lương (Ân Xá):**
-  * Bỏ cơ chế "Zero-Sum Quỷ hút máu Quỷ" phức tạp (tốn thời gian giải thích luật và dễ gây cãi vã).
-  * **Ngưỡng phạt rớt sàn (< 800 Xu):** Bất kỳ con Quỷ nào kết thúc tiết học với tổng điểm dưới 800 Xu sẽ bị xếp loại TT27 là **C (Chưa hoàn thành)**, nhận hình phạt kỷ luật nghiêm khắc (chép phạt bài học 3–5 lần, trực nhật dọn phòng máy, tước quyền thao tác máy tiết sau, và gửi biên bản cho GVCN/phụ huynh).
-  * **Nút Hoàn Lương (Thanh Tẩy / Ân Xá):** Em nào ngồi im chép bài đủ, không bị trừ điểm trong suốt 15–20 phút thì được giáo viên bấm nút "Ân xá" trả về tổ gốc, mang theo 100đ – 200đ tài trợ cho tổ cũ.
+  1. **Trả lời đúng:** Chỉ nhận **50% điểm thưởng** (+50đ thay vì +100đ), trần điểm tối đa không vượt sàn 1000đ. Quỷ chỉ có thể "chuộc tội", không bao giờ được phép tranh cúp Quán quân với các tổ Loài Người.
+  2. **Trả lời sai / Vi phạm trật tự:** Bị phạt **gấp đôi (-200đ)** và số điểm bị trừ này được **bơm thẳng vào "Quỹ Cứu Trợ"** chia đều cho các tổ Loài Người.
+  3. **Gacha Bất Lợi:** Tỷ lệ dính bug/sự cố của Phe Quỷ luôn bị đẩy lên 60% – 80%.
+  4. **Bãi Bỏ Hoàn Toàn Danh Hiệu "Quỷ Vương Cầm Máy":** Học sinh quậy phá tuyệt đối không được trao bất kỳ quyền lực điều khiển máy chiếu lớp học nào.
+* **QUY CHẾ NỔ TUNG (SELF-DESTRUCT / PHẢN PHỆ SLIME & CHIA ĐIỂM CHO LOÀI NGƯỜI):**
+  * **Khi nào một đứa trong Phe Quỷ bị nổ tung?**
+    1. **Tự động kích hoạt khi vi phạm lần thứ 3 (Quá tam ba bận)** HOẶC **khi điểm số cá nhân bị trừ rớt sàn (< 800 Xu)**.
+    2. **Hoặc Giáo viên chủ động bấm nút `💥 Nổ Tung`** ngay cạnh tên em đó khi em quậy phá đỉnh điểm không hợp tác.
+  * **Cơ chế thi hành khi Nổ Tung:**
+    * Toàn bộ số điểm còn lại của con quỷ đó **BỊ NỔ TUNG BÙM 💥** và **chuyển thẳng vào Quỹ Cứu Trợ chia đều cho tất cả các tổ Loài Người**!
+    * Điểm số cá nhân của em lập tức về **0 Xu**.
+    * Em bị giáng cấp thành **"Slime Câm Lặng 🟢🔇"**: Bị tước toàn bộ quyền tham gia phát biểu/thực hành, phải ngồi im chép bài nghiêm túc đến hết giờ, và bị ghi nhận xếp loại TT27 mức **C (Chưa hoàn thành)** gửi biên bản cho GVCN/phụ huynh.
+    * Màn chiếu TV kích hoạt **Banner Sấm Sét Nổ Tung đỏ rực**: `💥 [TÊN HỌC SINH] ĐÃ BỊ NỔ TUNG (-[X] XU)! Điểm phạt chia đều cho Loài Người! Em bị phong ấn thành Slime Câm Lặng 🔇!`
+* **QUY CHUẨN GIAO DIỆN TƯƠNG TÁC PHE QUỶ TỐI GIẢN (DEMON UI/UX COMPONENTS):**
+  * **1. Nút `😈 Phe Quỷ` trên Sidebar:**
+    * Nằm trực quan trong cụm `🛠️ CÔNG CỤ TIẾT HỌC` của Sidebar, bấm là mở ngay Bảng Add Phe Quỷ.
+  * **2. Modal Add Phe Quỷ Tối Giản (Không Lu Bu Rườm Rà):**
+    * Chỉ gồm 2 thành phần tinh gọn:
+      - **Danh sách học sinh cả lớp:** Hiển thị dạng chip/pill $\rightarrow$ Bấm tên em nào là ĐÀY EM ĐÓ VÀO PHE QUỶ (mỗi em bắt đầu 1000 Xu riêng). Có ô gõ nhanh để đày học sinh vãng lai.
+      - **Danh sách Phe Quỷ hiện tại:** Mỗi em hiển thị tên + nút xóa `✕` (hoặc `🕊️ Trả về`), bấm là xóa ngay khỏi Phe Quỷ, đưa em trở lại làm học sinh bình thường.
+  * **3. Khu Vực Phe Quỷ Trên Sidebar (Quản Lý Từng Con Quỷ):**
+    * Không hiển thị thẻ "Tổ Quỷ" giả tạo với 1 điểm chung. Thay vào đó hiển thị danh sách từng con quỷ:
+      - Tên: `😈 [Tên em]` (hoặc `🟢 [Tên em] 🔇` nếu đã hóa Slime).
+      - Điểm cá nhân: `[Điểm] Xu` (sửa điểm inline nếu cần).
+      - Nút `⚡ Phạt`: Phạt nhanh lỗi vi phạm (-100 Xu).
+      - Nút `💥 Nổ`: Kích hoạt Nổ Tung tức khắc chia điểm cho Loài Người.
+      - Nút `🕊️ Trả về`: Xóa khỏi Phe Quỷ.
+  * **4. Pop-up Trừng Phạt Nhanh 1-Chạm (`#demon-punish-modal`):**
+    * Bấm nút `⚡ Phạt` $\rightarrow$ Mở pop-up chọn 1 trong 3 lỗi (thi hành trong 1 giây):
+      - `🗣️ Mất trật tự / Nói leo / Cười cợt: -100 Xu`
+      - `✍️ Không chép bài vào vở / Ngồi chơi: -100 Xu`
+      - `🤡 Cố tình quậy phá / Cà khịa / Phá bĩnh: -150 Xu`
+    * Bấm xong: Trừ điểm em đó, nếu vi phạm $\ge 3$ lần hoặc điểm $< 800$ Xu thì tự động kích hoạt **NỔ TUNG**.
+  * **5. Gacha Phe Quỷ:**
+    * Khi đến lượt Phe Quỷ: Nút `🎲 Gacha Phe Quỷ` chỉ bốc thăm trong số các em quỷ chưa bị biến thành Slime. Nếu chưa có ai ở Phe Quỷ, tự động mở Modal Add Phe Quỷ để giáo viên thêm trước.
 * **Báo cáo CSV Riêng Biệt & Nhận Xét Nghiêm Khắc (Anti-Sugarcoating):**
+  * Tách riêng bảng: `=== THEO DÕI HÀNH VI & KỶ LUẬT (PHE QUỶ) ===`.
+  * Xếp loại TT27: Mặc định là **C (Chưa hoàn thành)** nếu bị nổ tung/rớt sàn, hoặc **H (Hoàn thành nhưng cần rèn luyện thêm ý thức)** nếu chưa nổ tung. Nhận xét trung thực gửi GVCN/phụ huynh.
   * **TUYỆT ĐỐI CẤM** dùng các câu khen ngợi tích cực sáo rỗng cho học sinh thuộc Phe Quỷ.
   * Tách riêng bảng danh sách trong file CSV: `=== THEO DÕI HÀNH VI & KỶ LUẬT (PHE QUỶ) ===`.
   * Xếp loại TT27: Mặc định là **C (Chưa hoàn thành)** hoặc **H (Hoàn thành nhưng cần rèn luyện thêm ý thức)** kèm nhận xét chi tiết, trung thực để làm việc với GVCN và phụ huynh.
@@ -435,7 +462,7 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Luồng bài dạy là gọi học sinh lên bảng lần lượt từng em, tuyệt đối KHÔNG có tính năng "Chấm hàng loạt" gây dư thừa trên UI?
 - [ ] Bảng vàng vinh danh (Leaderboard) được thiết kế xếp dọc (Vertical Stack, flex-column, mỗi tổ 1 hàng ngang), TUYỆT ĐỐI CẤM xếp lưới ngang (grid)?
 - [ ] Bảng xếp hạng và xuất CSV có cơ chế xử lý đồng hạng (bằng điểm → cùng hạng, cùng cúp/huy chương, danh hiệu "Đồng Quán quân / Đồng Á quân") không?
-- [ ] Nếu là Khối 5 và kích hoạt Phe Quỷ: Đã tuân thủ cơ chế Bất Công Công Khai (chỉ áp dụng Khối 5, tuyệt đối không áp dụng Khối 1-4; không trao quyền Quỷ Vương cầm máy, đúng +50% max 1000đ, sai/phạt -200đ vào Quỹ Cứu Trợ, rớt sàn <800đ, ân xá hoàn lương) chưa?
+- [ ] Nếu là Khối 5 và kích hoạt Phe Quỷ: Đã tuân thủ cơ chế Bất Công Công Khai (chỉ áp dụng Khối 5, tuyệt đối không áp dụng Khối 1-4; không trao quyền Quỷ Vương cầm máy, đúng +50% max 1000đ, sai/phạt -200đ vào Quỹ Cứu Trợ, rớt sàn <800đ, ân xá hoàn lương) và có đầy đủ bộ UI tương tác (Nút mở quản lý phe trên Sidebar, Modal đày học sinh dạng chip, Pop-up trừng phạt nhanh 1-chạm, Roster các em quỷ trong thẻ Tổ Quỷ, Gacha chuẩn trong phe) chưa?
 - [ ] Tên file CSV xuất ra có đúng quy cách `KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}...` không?
 - [ ] 100% file HTML đã có cơ chế tự động lưu LocalStorage (Auto-Save) phòng cúp điện/sập nguồn chưa? Đã lưu chi tiết 100% dữ liệu từng học sinh (TT27) và có cơ chế cảnh báo khi bộ nhớ gần đầy để bấm "Dạy lớp mới" chưa?
 - [ ] 100% file HTML đã có nút Xóa dữ liệu phiên (Clear Session Button) có xác nhận confirm và thông báo chưa?

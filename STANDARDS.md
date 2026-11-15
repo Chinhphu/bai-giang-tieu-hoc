@@ -957,6 +957,41 @@ Học sinh bị trục xuất sang Phe Quỷ phải tuân theo 3 hệ số bất
   * Ở lượt của Phe Quỷ, giao diện hiển thị cảnh báo đỏ/tím đậm kèm dòng chữ: *"⚠️ LƯỢT ĐẤU TỔ QUỶ — HỆ SỐ BẤT CÔNG KÍCH HOẠT"*.
   * Khóa quyền xung phong tự do. Giáo viên bấm nút `🎲 Gacha Tổ Quỷ` để hệ thống tự động bốc ngẫu nhiên một em trong danh sách Phe Quỷ lên bảng trả lời.
 
+### 12.6.1 Quy Chuẩn Bắt Buộc Về Bộ Giao Diện Tương Tác Phe Quỷ (Demon UI/UX Components)
+Mọi bài học của Khối 5 khi hỗ trợ Phe Quỷ BẮT BUỘC phải trang bị đầy đủ bộ giao diện điều khiển thực tế, tuyệt đối CẤM chỉ code ngầm hoặc để thẻ rỗng:
+1. **Nguyên Tắc Cốt Lõi: Mỗi Đứa Trong Phe Quỷ Là Một Tổ Độc Lập — CẤM "Điểm Tổ Chung":**
+   * Phe Quỷ KHÔNG PHẢI là một tổ hợp tác đoàn kết! Đây là nơi quản thúc cách ly các cá nhân cá biệt để bảo vệ điểm số của các tổ Loài Người.
+   * **TUYỆT ĐỐI KHÔNG có "Điểm tổ chung của Tổ Quỷ":** Mỗi học sinh trong Phe Quỷ là một cá thể độc lập, sở hữu quỹ điểm cá nhân riêng biệt (khởi điểm 1000 Xu). Điểm số, lỗi vi phạm và hình phạt tính trực tiếp trên đầu từng con quỷ.
+2. **Quy Chế NỔ TUNG (Self-Destruct / Phản Phệ Slime & Chia Điểm Cho Loài Người):**
+   * **Khi nào một đứa trong Phe Quỷ bị nổ tung?**
+     * Tự động kích hoạt khi vi phạm lần thứ 3 (Quá tam ba bận) HOẶC khi điểm số cá nhân bị trừ rớt sàn (< 800 Xu).
+     * Hoặc Giáo viên chủ động bấm nút `💥 Nổ Tung` ngay cạnh tên em đó khi em quậy phá đỉnh điểm không hợp tác.
+   * **Cơ chế thi hành khi Nổ Tung:**
+     * Toàn bộ số điểm còn lại của con quỷ đó **BỊ NỔ TUNG BÙM 💥** và **chuyển thẳng vào Quỹ Cứu Trợ chia đều cho tất cả các tổ Loài Người**!
+     * Điểm số cá nhân của em lập tức về **0 Xu**.
+     * Em bị giáng cấp thành **"Slime Câm Lặng 🟢🔇"**: Bị tước toàn bộ quyền tham gia phát biểu/thực hành, phải ngồi im chép bài nghiêm túc đến hết giờ, và bị ghi nhận xếp loại TT27 mức **C (Chưa hoàn thành)** gửi biên bản cho GVCN/phụ huynh.
+     * Màn chiếu TV kích hoạt **Banner Sấm Sét Nổ Tung đỏ rực**: `💥 [TÊN HỌC SINH] ĐÃ BỊ NỔ TUNG (-[X] XU)! Điểm phạt chia đều cho Loài Người! Em bị phong ấn thành Slime Câm Lặng 🔇!`
+3. **Nút `😈 Phe Quỷ` trên Sidebar:** Đặt ngay trong khu vực công cụ của Giáo viên (cùng cụm Thêm HS, Quản lí HS). Click chuột là mở ngay Modal Add Phe Quỷ mà không cần nhớ phím tắt ngầm `Ctrl + Alt + D`.
+4. **Modal Add Phe Quỷ Tối Giản (Không Lu Bu):**
+   * Danh sách học sinh cả lớp: Nhấp vào tên em nào $\rightarrow$ Lập tức đày em đó sang Phe Quỷ (`isDemon: true`), cấp vốn 1000 Xu cá nhân riêng. Có ô gõ nhanh cho học sinh vãng lai.
+   * Danh sách Phe Quỷ hiện tại: Mỗi em hiển thị tên + nút xóa `✕` (hoặc `🕊️ Trả về`), bấm là xóa ngay khỏi Phe Quỷ, đưa em trở lại làm học sinh bình thường.
+5. **Khu Vực Phe Quỷ Trên Sidebar (Quản Lý Từng Con Quỷ):**
+   * Không hiển thị thẻ "Tổ Quỷ" giả tạo với 1 điểm chung. Thay vào đó hiển thị danh sách từng con quỷ:
+     - Tên: `😈 [Tên em]` (hoặc `🟢 [Tên em] 🔇` nếu đã hóa Slime).
+     - Điểm cá nhân: `[Điểm] Xu` (sửa điểm inline nếu cần).
+     - Nút `⚡ Phạt`: Phạt nhanh lỗi vi phạm (-100 Xu).
+     - Nút `💥 Nổ`: Kích hoạt Nổ Tung tức khắc chia điểm cho Loài Người.
+     - Nút `🕊️ Trả về`: Xóa khỏi Phe Quỷ.
+6. **Pop-up Trừng Phạt Nhanh 1-Chạm (`#demon-punish-modal`):**
+   * Mở khi bấm nút `⚡ Phạt` bên cạnh tên em quỷ.
+   * Gồm 3 nút hành vi vi phạm phổ biến (bấm là thi hành ngay trong 1 giây mà không phải gõ phím):
+     * `🗣️ Mất trật tự / Nói leo / Cười cợt: -100 Xu`
+     * `✍️ Không chép bài vào vở / Ngồi chơi: -100 Xu`
+     * `🤡 Cố tình quậy phá / Cà khịa / Phá bĩnh: -150 Xu`
+   * Bấm xong: Trừ điểm em đó, nếu vi phạm $\ge 3$ lần hoặc điểm $< 800$ Xu thì tự động kích hoạt **NỔ TUNG**.
+7. **Gacha Phe Quỷ:**
+   * Khi đến lượt Phe Quỷ: Nút `🎲 Gacha Phe Quỷ` chỉ bốc thăm trong số các em quỷ chưa bị biến thành Slime. Nếu chưa có ai ở Phe Quỷ, tự động mở Modal Add Phe Quỷ để giáo viên thêm trước.
+
 ### 12.7 Kiến Trúc Kỹ Thuật & Phương Thức Kích Hoạt Ẩn
 1. **Truy cập trực tiếp qua GitHub Pages (`index-mavuong.html`):**
    * Trong thư mục tiết học (ví dụ: `khoi-5/tiet-10/`), file phụ `index-mavuong.html` đóng vai trò redirect:
