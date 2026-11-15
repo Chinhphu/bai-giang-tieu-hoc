@@ -264,11 +264,22 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 * **Nguyên Tắc Cốt Lõi: Mỗi Đứa Trong Phe Quỷ Là Một Tổ Độc Lập — CẤM "Điểm Tổ Chung":**
   * Phe Quỷ KHÔNG PHẢI là một tổ hợp tác đoàn kết! Đây là nơi quản thúc cách ly các cá nhân cá biệt để bảo vệ điểm số của các tổ Loài Người.
   * **TUYỆT ĐỐI KHÔNG có "Điểm tổ chung của Tổ Quỷ":** Mỗi học sinh trong Phe Quỷ là một cá thể độc lập, sở hữu quỹ điểm cá nhân riêng biệt (khởi điểm 1000 Xu). Điểm số, lỗi vi phạm và hình phạt tính trực tiếp trên đầu từng con quỷ.
-* **Bộ Luật Bất Công (Hardcore Handicap):**
+* **Bộ Luật Bất Công (Hardcore Handicap) & Xóa Bỏ Hộp "Quỹ Cứu Trợ" Thừa Thãi:**
   1. **Trả lời đúng:** Chỉ nhận **50% điểm thưởng** (+50đ thay vì +100đ), trần điểm tối đa không vượt sàn 1000đ. Quỷ chỉ có thể "chuộc tội", không bao giờ được phép tranh cúp Quán quân với các tổ Loài Người.
-  2. **Trả lời sai / Vi phạm trật tự:** Bị phạt **gấp đôi (-200đ)** và số điểm bị trừ này được **bơm thẳng vào "Quỹ Cứu Trợ"** chia đều cho các tổ Loài Người.
+  2. **Trả lời sai / Vi phạm trật tự:** Bị phạt trừ điểm cá nhân (-100đ hoặc -150đ), toàn bộ số điểm phạt này được **chia đều ngay lập tức cho các tổ Loài Người** (`+X Xu/tổ`). **TUYỆT ĐỐI KHÔNG để hộp "Quỹ Cứu Trợ" thừa thãi** trên Sidebar/Topbar gây rối mắt.
   3. **Gacha Bất Lợi:** Tỷ lệ dính bug/sự cố của Phe Quỷ luôn bị đẩy lên 60% – 80%.
   4. **Bãi Bỏ Hoàn Toàn Danh Hiệu "Quỷ Vương Cầm Máy":** Học sinh quậy phá tuyệt đối không được trao bất kỳ quyền lực điều khiển máy chiếu lớp học nào.
+* **QUYỀN THỰC HÀNH MÁY TÍNH CỦA PHE QUỶ (VÉ THỬ THÁCH MA GIỚI TRONG CHẶNG 1 & 2):**
+  * **Ý nghĩa sư phạm:** Học sinh cá biệt vẫn có quyền được học và thực hành Tin học (chỉ khi bị nổ tung thành Slime mới bị tước quyền). Việc cho các em lên máy làm bài Word vừa giúp các em rèn luyện kỹ năng, vừa tạo cơ hội chuộc tội gỡ điểm, biến tiết học thành một trận đấu kịch tính cao độ.
+  * **Vòng thi thực hành Chặng 1 & 2:** Nếu lớp có học sinh Phe Quỷ (`demonRecords.length > 0`), hệ thống tự động kích hoạt **Vé Thử Thách Của Phe Quỷ (Lượt Ma Giới)** vào danh sách thi đấu.
+  * **Đến lượt Phe Quỷ:**
+    - Bấm `🎲 Gacha Phe Quỷ` $\rightarrow$ Bốc ngẫu nhiên 1 em quỷ (chưa hóa Slime) **lên máy tính thực hành**.
+    - Em quỷ tải đề `BaiThucHanh_To_Quy_KemDuaHau.docx` về máy để làm.
+    - Toàn bộ các tổ Loài Người quan sát và tham gia Sàn cược: `👍 Đoán ĐẠT` hay `🐛 Bắt LỖI`.
+    - Máy Auto-Grader chấm:
+      + **Nếu PASS:** Em quỷ được cộng điểm cá nhân (+earnedBonus, trần tối đa 1000 Xu để bảo toàn mạng sống).
+      + **Nếu BUG / FAIL:** Em quỷ bị phạt trừ -100 Xu cá nhân, tăng 1 lần vi phạm; 100 Xu phạt chia đều cho Loài Người. Tự động kích hoạt **NỔ TUNG** nếu vi phạm lần 3 hoặc điểm $< 800$ Xu!
+      + Các tổ Loài Người: Đoán đúng được cộng điểm cược (+50đ / +100đ), đoán sai bị trừ điểm.
 * **QUY CHẾ NỔ TUNG (SELF-DESTRUCT / PHẢN PHỆ SLIME & CHIA ĐIỂM CHO LOÀI NGƯỜI):**
   * **Khi nào một đứa trong Phe Quỷ bị nổ tung?**
     1. **Tự động kích hoạt khi vi phạm lần thứ 3 (Quá tam ba bận)** HOẶC **khi điểm số cá nhân bị trừ rớt sàn (< 800 Xu)**.
@@ -281,10 +292,14 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 * **QUY CHUẨN GIAO DIỆN TƯƠNG TÁC PHE QUỶ TỐI GIẢN (DEMON UI/UX COMPONENTS):**
   * **1. Nút `😈 Phe Quỷ` trên Sidebar:**
     * Nằm trực quan trong cụm `🛠️ CÔNG CỤ TIẾT HỌC` của Sidebar, bấm là mở ngay Bảng Add Phe Quỷ.
-  * **2. Modal Add Phe Quỷ Tối Giản (Không Lu Bu Rườm Rà):**
-    * Chỉ gồm 2 thành phần tinh gọn:
-      - **Danh sách học sinh cả lớp:** Hiển thị dạng chip/pill $\rightarrow$ Bấm tên em nào là ĐÀY EM ĐÓ VÀO PHE QUỶ (mỗi em bắt đầu 1000 Xu riêng). Có ô gõ nhanh để đày học sinh vãng lai.
-      - **Danh sách Phe Quỷ hiện tại:** Mỗi em hiển thị tên + nút xóa `✕` (hoặc `🕊️ Trả về`), bấm là xóa ngay khỏi Phe Quỷ, đưa em trở lại làm học sinh bình thường.
+  * **2. Modal Add Phe Quỷ Tối Giản — Chuẩn Danh Sách Dọc (Single Vertical List) & 1 Nút Xong Duy Nhất:**
+    * **TUYỆT ĐỐI CẤM Ô TEXT INPUT:** Không tạo ô gõ chữ nhập tên học sinh thủ công vì danh sách lớp đã có sẵn đầy đủ từ file JSON đồng bộ toàn trường.
+    * **TUYỆT ĐỐI CẤM PHÂN MẢNH 2 BẢNG:** Không chia đôi thành bảng cả lớp dạng chip rồi bảng danh sách quỷ bên dưới gây lu bu rườm rà.
+    * **Cấu trúc chuẩn mực:** Chỉ gồm **DUY NHẤT 1 DANH SÁCH XẾP DỌC** chứa toàn bộ học sinh trong lớp:
+      - Mỗi học sinh là 1 hàng (row) xếp dọc theo thứ tự danh sách lớp (STT, Tên học sinh, Nút trạng thái bên phải).
+      - **Học sinh bình thường:** Nền tối dịu, bên phải có nút `+ Thêm vào Quỷ` $\rightarrow$ bấm là đày ngay sang Phe Quỷ với 1000 Xu cá nhân riêng.
+      - **Học sinh đang ở Phe Quỷ:** Hàng đổi màu tím nổi bật (`😈 [Tên em] ([Score] Xu)`), bên phải có nút đỏ `✕ Xóa khỏi Quỷ` $\rightarrow$ bấm là xóa ngay khỏi Phe Quỷ, đưa em trở lại làm học sinh bình thường.
+    * **Chân Modal chỉ có DUY NHẤT 1 NÚT `✅ Xong` (Done):** Bấm là đóng pop-up lại ngay tức khắc, không có các nút lưu / hoàn tất rườm rà.
   * **3. Khu Vực Phe Quỷ Trên Sidebar (Quản Lý Từng Con Quỷ):**
     * Không hiển thị thẻ "Tổ Quỷ" giả tạo với 1 điểm chung. Thay vào đó hiển thị danh sách từng con quỷ:
       - Tên: `😈 [Tên em]` (hoặc `🟢 [Tên em] 🔇` nếu đã hóa Slime).

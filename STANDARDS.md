@@ -967,14 +967,19 @@ Mọi bài học của Khối 5 khi hỗ trợ Phe Quỷ BẮT BUỘC phải tra
      * Tự động kích hoạt khi vi phạm lần thứ 3 (Quá tam ba bận) HOẶC khi điểm số cá nhân bị trừ rớt sàn (< 800 Xu).
      * Hoặc Giáo viên chủ động bấm nút `💥 Nổ Tung` ngay cạnh tên em đó khi em quậy phá đỉnh điểm không hợp tác.
    * **Cơ chế thi hành khi Nổ Tung:**
-     * Toàn bộ số điểm còn lại của con quỷ đó **BỊ NỔ TUNG BÙM 💥** và **chuyển thẳng vào Quỹ Cứu Trợ chia đều cho tất cả các tổ Loài Người**!
+     * Toàn bộ số điểm còn lại của con quỷ đó **BỊ NỔ TUNG BÙM 💥** và **chia đều ngay lập tức cho tất cả các tổ Loài Người**! **TUYỆT ĐỐI KHÔNG để hộp "Quỹ Cứu Trợ" thừa thãi** trên Sidebar/Topbar gây rối mắt.
      * Điểm số cá nhân của em lập tức về **0 Xu**.
      * Em bị giáng cấp thành **"Slime Câm Lặng 🟢🔇"**: Bị tước toàn bộ quyền tham gia phát biểu/thực hành, phải ngồi im chép bài nghiêm túc đến hết giờ, và bị ghi nhận xếp loại TT27 mức **C (Chưa hoàn thành)** gửi biên bản cho GVCN/phụ huynh.
      * Màn chiếu TV kích hoạt **Banner Sấm Sét Nổ Tung đỏ rực**: `💥 [TÊN HỌC SINH] ĐÃ BỊ NỔ TUNG (-[X] XU)! Điểm phạt chia đều cho Loài Người! Em bị phong ấn thành Slime Câm Lặng 🔇!`
 3. **Nút `😈 Phe Quỷ` trên Sidebar:** Đặt ngay trong khu vực công cụ của Giáo viên (cùng cụm Thêm HS, Quản lí HS). Click chuột là mở ngay Modal Add Phe Quỷ mà không cần nhớ phím tắt ngầm `Ctrl + Alt + D`.
-4. **Modal Add Phe Quỷ Tối Giản (Không Lu Bu):**
-   * Danh sách học sinh cả lớp: Nhấp vào tên em nào $\rightarrow$ Lập tức đày em đó sang Phe Quỷ (`isDemon: true`), cấp vốn 1000 Xu cá nhân riêng. Có ô gõ nhanh cho học sinh vãng lai.
-   * Danh sách Phe Quỷ hiện tại: Mỗi em hiển thị tên + nút xóa `✕` (hoặc `🕊️ Trả về`), bấm là xóa ngay khỏi Phe Quỷ, đưa em trở lại làm học sinh bình thường.
+4. **Modal Add Phe Quỷ Tối Giản — Chuẩn Danh Sách Dọc (Single Vertical List) & 1 Nút Done Duy Nhất:**
+   * **TUYỆT ĐỐI CẤM Ô TEXT INPUT:** Không tạo ô gõ chữ nhập tên học sinh thủ công vì danh sách lớp đã có sẵn đầy đủ từ file JSON đồng bộ toàn trường.
+   * **TUYỆT ĐỐI CẤM PHÂN MẢNH 2 BẢNG:** Không chia đôi thành bảng cả lớp dạng chip rồi bảng danh sách quỷ bên dưới gây lu bu rườm rà.
+   * **Cấu trúc chuẩn mực:** Chỉ gồm **DUY NHẤT 1 DANH SÁCH XẾP DỌC** chứa toàn bộ học sinh trong lớp:
+     - Mỗi học sinh là 1 hàng (row) xếp dọc theo thứ tự danh sách lớp (STT, Tên học sinh, Nút trạng thái bên phải).
+     - **Học sinh bình thường:** Nền tối dịu, bên phải có nút `+ Thêm vào Quỷ` $\rightarrow$ bấm là đày ngay sang Phe Quỷ với 1000 Xu cá nhân riêng.
+     - **Học sinh đang ở Phe Quỷ:** Hàng đổi màu tím nổi bật (`😈 [Tên em] ([Score] Xu)`), bên phải có nút đỏ `✕ Xóa khỏi Quỷ` $\rightarrow$ bấm là xóa ngay khỏi Phe Quỷ, đưa em trở lại làm học sinh bình thường.
+   * **Chân Modal chỉ có DUY NHẤT 1 NÚT `✅ Xong` (Done):** Bấm là đóng pop-up lại ngay tức khắc, không có các nút lưu / hoàn tất rườm rà.
 5. **Khu Vực Phe Quỷ Trên Sidebar (Quản Lý Từng Con Quỷ):**
    * Không hiển thị thẻ "Tổ Quỷ" giả tạo với 1 điểm chung. Thay vào đó hiển thị danh sách từng con quỷ:
      - Tên: `😈 [Tên em]` (hoặc `🟢 [Tên em] 🔇` nếu đã hóa Slime).
@@ -991,6 +996,12 @@ Mọi bài học của Khối 5 khi hỗ trợ Phe Quỷ BẮT BUỘC phải tra
    * Bấm xong: Trừ điểm em đó, nếu vi phạm $\ge 3$ lần hoặc điểm $< 800$ Xu thì tự động kích hoạt **NỔ TUNG**.
 7. **Gacha Phe Quỷ:**
    * Khi đến lượt Phe Quỷ: Nút `🎲 Gacha Phe Quỷ` chỉ bốc thăm trong số các em quỷ chưa bị biến thành Slime. Nếu chưa có ai ở Phe Quỷ, tự động mở Modal Add Phe Quỷ để giáo viên thêm trước.
+
+8. **Quyền Thực Hành Máy Tính Của Phe Quỷ (Vé Thử Thách Ma Giới Chặng 1 & 2):**
+   * Học sinh Phe Quỷ vẫn có quyền được học và thực hành Tin học (chỉ khi hóa Slime mới bị tước quyền).
+   * Trong Chặng 1 và Chặng 2, nếu lớp có học sinh Phe Quỷ, hệ thống tự động kích hoạt **Vé Thử Thách Của Phe Quỷ (Lượt Ma Giới - ticket.teamId: 99)** vào danh sách thi đấu.
+   * Đến lượt Phe Quỷ: Bấm `🎲 Gacha Phe Quỷ` để bốc 1 em quỷ lên máy làm bài Word. Các tổ Loài Người tham gia cược Đoán ĐẠT hay Bắt LỖI.
+   * Máy Auto-Grader chấm: PASS thì cộng điểm cá nhân (trần 1000 Xu); FAIL/BUG thì trừ điểm cá nhân (-100 Xu), điểm phạt chia đều cho Loài Người, kiểm tra nổ tung nếu rớt sàn (< 800 Xu) hoặc vi phạm lần 3.
 
 ### 12.7 Kiến Trúc Kỹ Thuật & Phương Thức Kích Hoạt Ẩn
 1. **Truy cập trực tiếp qua GitHub Pages (`index-mavuong.html`):**

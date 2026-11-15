@@ -2222,6 +2222,78 @@
             box-shadow: 0 0 8px rgba(192, 132, 252, 0.4);
         }
 
+        /* POP-UP DANH SÁCH DỌC THÊM HỌC SINH VÀO PHE QUỶ (TỐI GIẢN) */
+        .demon-vertical-list {
+            max-height: 420px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 4px;
+        }
+        .demon-vertical-item {
+            background: #0f172a;
+            border: 1.5px solid #334155;
+            border-radius: 10px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.15s ease;
+        }
+        .demon-vertical-item:hover {
+            border-color: #64748b;
+            background: #1e293b;
+        }
+        .demon-vertical-item.is-demon {
+            background: #3b0764;
+            border-color: #a855f7;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.25);
+        }
+        .demon-vertical-item.is-slime {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: #22c55e;
+        }
+        .dvi-name {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dvi-name.demon {
+            color: #fef08a;
+        }
+        .dvi-btn {
+            border: none;
+            border-radius: 7px;
+            padding: 5px 12px;
+            font-size: 12.5px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.12s ease;
+        }
+        .dvi-btn.add {
+            background: #334155;
+            color: #f1f5f9;
+            border: 1px solid #64748b;
+        }
+        .dvi-btn.add:hover {
+            background: #dc2626;
+            color: #fff;
+            border-color: #ef4444;
+        }
+        .dvi-btn.remove {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid #ef4444;
+        }
+        .dvi-btn.remove:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
         /* KHU VỰC QUẢN THÚC PHE QUỶ TRÊN SIDEBAR (MỖI ĐỨA LÀ MỘT TỔ ĐỘC LẬP) */
         .sidebar-demon-section {
             background: rgba(88, 28, 135, 0.25);
@@ -2381,12 +2453,6 @@
             <!-- 4. KHU VỰC QUẢN THÚC PHE QUỶ (CÁC THỂ ĐỘC LẬP - KHÔNG ĐIỂM CHUNG) -->
             <div id="sidebar-demon-section" class="sidebar-demon-section" style="display:none;"></div>
 
-            <!-- 5. Quỹ cứu trợ Phe Quỷ (khi bật Demon Mode) -->
-            <div id="sidebar-demon-fund" style="display:none;" class="sidebar-fund-box">
-                <span>😈 Quỹ Cứu Trợ:</span>
-                <b id="sidebar-relief-fund-val">0</b> Xu
-            </div>
-
             <!-- 5. Phân cách & CÁC CÔNG CỤ TIẾT HỌC TIẾP THEO -->
             <div class="sidebar-divider"></div>
 
@@ -2436,9 +2502,6 @@
                     <span class="topbar-slide-badge" id="topbar-slide-badge">Slide 1 / 8</span>
                 </div>
                 <div class="topbar-right">
-                    <span id="demon-relief-fund-display" style="display:none;" class="relief-fund-badge">
-                        😈 Quỹ Cứu Trợ: <b id="relief-fund-val">0</b> Xu
-                    </span>
                     <button class="btn-tb gold" type="button" onclick="goSlideTo(8)" title="Xem ngay Bảng vàng vinh danh">
                         🏆 Bảng Vàng
                     </button>
@@ -3087,27 +3150,22 @@
         </div>
     </div>
 
-    <!-- 8. MODAL THÊM HỌC SINH VÀO PHE QUỶ (TỐI GIẢN - MỖI ĐỨA LÀ MỘT TỔ ĐỘC LẬP) -->
+    <!-- 8. MODAL THÊM HỌC SINH VÀO PHE QUỶ (LIST XẾP DỌC TỐI GIẢN & DONE) -->
     <div class="demon-modal-overlay" id="demon-manager-modal" onclick="if(event.target===this)closeDemonManagerModal()">
-        <div class="demon-modal-box" style="max-width:720px;">
-            <div class="demon-modal-title">
+        <div class="demon-modal-box" style="max-width:560px; padding:20px 24px;">
+            <div class="demon-modal-title" style="margin-bottom:8px;">
                 <span>😈 THÊM HỌC SINH VÀO PHE QUỶ</span>
-                <button type="button" class="btn-modal-close" onclick="closeDemonManagerModal()" title="Đóng bảng (Esc)">✖</button>
+                <button type="button" class="btn-modal-close" onclick="closeDemonManagerModal()" title="Đóng (Esc)">✖</button>
             </div>
-            <div style="font-size:14px; color:#cbd5e1; line-height:1.5; margin-bottom:12px;">
-                Mỗi học sinh trong Phe Quỷ là <b>một cá thể độc lập (1000 Xu riêng)</b>. Bấm tên để thêm vào. Xóa ra khỏi danh sách để trở về bình thường.
+            <div style="font-size:13.5px; color:#cbd5e1; line-height:1.4; margin-bottom:12px;">
+                Danh sách học sinh của lớp. Bấm <b>+ Thêm</b> để đày vào Phe Quỷ (1000 Xu riêng), hoặc <b>✕ Xóa</b> để gỡ ra.
             </div>
-            <div style="display:flex; gap:10px; margin-bottom:12px;">
-                <input type="text" id="custom-demon-input" placeholder="Nhập tên học sinh cá biệt..." style="flex:1; padding:8px 12px; border-radius:8px; border:1px solid #64748b; background:#0f172a; color:#fff; font-size:14px;">
-                <button type="button" class="btn-action coral" style="font-size:14px; padding:8px 16px;" onclick="addCustomDemonStudent()">+ Thêm Vào Phe Quỷ</button>
-            </div>
-            <div style="font-size:13.5px; font-weight:800; color:#f472b6; margin-bottom:6px;">1. DANH SÁCH CẢ LỚP (BẤM TÊN ĐỂ THÊM VÀO PHE QUỶ):</div>
-            <div style="max-height:180px; overflow-y:auto; display:flex; flex-wrap:wrap; gap:6px; background:#0f172a; padding:10px; border-radius:10px; border:1px solid #334155; margin-bottom:14px;" id="all-students-demon-picker"></div>
-            <div style="font-size:13.5px; font-weight:800; color:#fef08a; margin-bottom:6px;">2. DANH SÁCH PHE QUỶ HIỆN TẠI (MỖI EM LÀ 1 TỔ RIÊNG):</div>
-            <div id="manager-demon-roster-list" style="max-height:180px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:14px;"></div>
-            <div style="display:flex; justify-content:flex-end; border-top:1px dashed #475569; padding-top:12px;">
-                <button type="button" class="btn-action mint" style="font-size:15px; padding:8px 22px;" onclick="closeDemonManagerModal()">
-                    Hoàn Tất / Đóng Lại
+            <!-- DANH SÁCH HỌC SINH XẾP DỌC DUY NHẤT -->
+            <div class="demon-vertical-list" id="demon-vertical-student-list"></div>
+            <!-- DUY NHẤT NÚT DONE Ở CHÂN MODAL -->
+            <div style="display:flex; justify-content:flex-end; border-top:1px dashed #475569; padding-top:12px; margin-top:12px;">
+                <button type="button" class="btn-action mint" style="font-size:15px; padding:8px 26px;" onclick="closeDemonManagerModal()">
+                    ✅ Xong
                 </button>
             </div>
         </div>
@@ -4277,8 +4335,18 @@
             const allTickets = stageData.tickets || [];
             const activeTeamIds = new Set(teams.map(t => t.id));
             const demoTicket = allTickets.find(tk => tk.isDemo || tk.teamId === 0);
-            const teamTickets = allTickets.filter(tk => !tk.isDemo && tk.teamId !== 0 && activeTeamIds.has(tk.teamId));
-            return demoTicket ? [demoTicket, ...teamTickets] : (teamTickets.length > 0 ? teamTickets : allTickets.slice(0, 1));
+            const teamTickets = allTickets.filter(tk => !tk.isDemo && tk.teamId !== 0 && tk.teamId !== 99 && activeTeamIds.has(tk.teamId));
+
+            // NẾU CÓ HỌC SINH PHE QUỶ ĐANG HOẠT ĐỘNG: KÍCH HOẠT VÉ THỬ THÁCH MA GIỚI VÀO VÒNG THI!
+            const hasActiveDemons = demonRecords.some(d => studentsList.some(s => s.name === d.name && s.isDemon) && d.status !== 'slime');
+            const demonTicket = hasActiveDemons ? allTickets.find(tk => tk.teamId === 99) : null;
+
+            const combined = [
+                ...(demoTicket ? [demoTicket] : []),
+                ...teamTickets,
+                ...(demonTicket ? [demonTicket] : [])
+            ];
+            return combined.length > 0 ? combined : allTickets.slice(0, 1);
         }
 
         function downloadTeamStarterDocx(stageNum) {
@@ -4335,15 +4403,27 @@
 
             const ticket = validTickets[safeIdx];
             const isDemo = !!(ticket.isDemo || ticket.teamId === 0);
-            const activeTeam = isDemo
-                ? { id: 0, name: 'Thầy/Cô Làm Mẫu', score: 0, isDemon: false }
-                : (teams.find(t => t.id === ticket.teamId) || teams[0]);
-            if (activeTeam && !isDemo) manualActiveTeamId = activeTeam.id;
             const isDemon = (ticket.teamId === 99);
-            const teamLabel = isDemo ? 'Thầy/Cô Làm Mẫu (Demo)' : (activeTeam ? activeTeam.name : ticket.teamName);
-            const safeTeamName = isDemo
-                ? 'Demo'
-                : (ticket ? (ticket.teamId === 99 ? 'To_Quy' : `To_${ticket.teamId}`) : 'Mau');
+
+            let activeTeam = null;
+            let teamLabel = '';
+            let safeTeamName = 'Mau';
+
+            if (isDemo) {
+                activeTeam = { id: 0, name: 'Thầy/Cô Làm Mẫu', score: 0, isDemon: false };
+                teamLabel = 'Thầy/Cô Làm Mẫu (Demo)';
+                safeTeamName = 'Demo';
+            } else if (isDemon) {
+                activeTeam = { id: 99, name: 'Phe Quỷ 😈', score: 0, isDemon: true };
+                teamLabel = 'Phe Quỷ 😈 (Thử Thách Ma Giới)';
+                safeTeamName = 'To_Quy';
+                manualActiveTeamId = null;
+            } else {
+                activeTeam = teams.find(t => t.id === ticket.teamId) || teams[0];
+                teamLabel = activeTeam ? activeTeam.name : ticket.teamName;
+                safeTeamName = `To_${ticket.teamId}`;
+                manualActiveTeamId = activeTeam ? activeTeam.id : null;
+            }
 
             document.getElementById(`s${stageNum}-ticket-title`).textContent = ticket.title;
             document.getElementById(`s${stageNum}-team-badge`).textContent = `Đội thi: ${teamLabel} (Lượt ${safeIdx + 1}/${validTickets.length})`;
@@ -4360,6 +4440,8 @@
                 if (hintEl) {
                     if (isDemo) {
                         hintEl.innerHTML = `Thầy/Cô mở tiếp tệp <b>BaiThucHanh_Demo_KemDuaHau.docx</b> đã lưu ở Chặng 1 để hướng dẫn các em`;
+                    } else if (isDemon) {
+                        hintEl.innerHTML = `Mở tiếp tệp <b>BaiThucHanh_To_Quy_KemDuaHau.docx</b> của <b>Phe Quỷ</b> đã lưu ở Chặng 1`;
                     } else {
                         hintEl.innerHTML = `Mở tiếp tệp <b>BaiThucHanh_${safeTeamName}_KemDuaHau.docx</b> của ${teamLabel} đã lưu ở Chặng 1`;
                     }
@@ -4373,20 +4455,23 @@
                     stSelect.disabled = true;
                     stSelect.style.background = '#eff6ff';
                     stSelect.style.borderColor = '#3b82f6';
+                    stSelect.style.color = '';
                     stSelect.innerHTML = '<option value="">💡 Thầy/Cô thực hiện mẫu</option>';
                     if (diceBtn) diceBtn.style.display = 'none';
                 } else if (isDemon) {
                     stSelect.disabled = true;
-                    stSelect.style.background = '#f3e8ff';
+                    stSelect.style.background = '#3b0764';
+                    stSelect.style.color = '#fef08a';
                     stSelect.style.borderColor = '#a855f7';
-                    stSelect.innerHTML = '<option value="">⚠️ Bắt buộc bấm 🎲 Gacha Tổ Quỷ</option>';
+                    stSelect.innerHTML = '<option value="">⚠️ Bắt buộc bấm 🎲 Gacha Phe Quỷ</option>';
                     if (diceBtn) {
                         diceBtn.style.display = '';
-                        diceBtn.title = '🎲 Gacha Tổ Quỷ';
+                        diceBtn.title = '🎲 Gacha Phe Quỷ (Bốc con quỷ lên máy)';
                     }
                 } else {
                     stSelect.disabled = false;
                     stSelect.style.background = '';
+                    stSelect.style.color = '';
                     stSelect.style.borderColor = '';
                     populateStudentSelects();
                     stSelect.value = '';
@@ -4409,7 +4494,7 @@
                 gradeBtn.disabled = false;
             }
 
-            renderBettingTable(stageNum, activeTeam ? activeTeam.id : ticket.teamId);
+            renderBettingTable(stageNum, ticket.teamId);
             renderTeams();
             updateStageTimerUI(stageNum);
             saveLocalStorage();
@@ -4432,15 +4517,16 @@
                 return;
             }
 
-            const otherTeams = teams.filter(t => t.id !== activeTeamId);
+            // Nếu activeTeamId === 99 (Lượt của Phe Quỷ): Cả lớp (tất cả các tổ Loài Người) đều tham gia cược!
+            const otherTeams = teams.filter(t => !t.isDemon && t.id !== activeTeamId);
             container.innerHTML = otherTeams.map(t => {
                 const currentBet = (stageBets[stageNum] && stageBets[stageNum][t.id]) || null;
                 return `
                     <div class="bet-row" id="bet-row-s${stageNum}-t${t.id}">
-                        <span class="bet-team-name">${t.isDemon ? '😈 ' : ''}${t.name}</span>
+                        <span class="bet-team-name">${t.name}</span>
                         <div class="bet-actions">
                             <button class="btn-bet pass ${currentBet === 'PASS' ? 'active-pass' : ''}" type="button" id="btn-bet-s${stageNum}-t${t.id}-pass" onclick="placeBet(${stageNum}, ${t.id}, 'PASS')" title="Dự đoán tổ bạn làm đúng và đạt yêu cầu">👍 Đoán ĐẠT</button>
-                            <button class="btn-bet bug ${currentBet === 'BUG' ? 'active-bug' : ''}" type="button" id="btn-bet-s${stageNum}-t${t.id}-bug" onclick="placeBet(${stageNum}, ${t.id}, 'BUG')" title="Phát hiện tổ bạn làm còn sót hoặc sai lỗi">❌ Bắt LỖI</button>
+                            <button class="btn-bet bug ${currentBet === 'BUG' ? 'active-bug' : ''}" type="button" id="btn-bet-s${stageNum}-t${t.id}-bug" onclick="placeBet(${stageNum}, ${t.id}, 'BUG')" title="Bắt lỗi nếu nghi ngờ tổ bạn làm sai">🐛 Bắt LỖI</button>
                         </div>
                     </div>
                 `;
@@ -4678,29 +4764,40 @@
                 return;
             }
 
-            const activeTeam = teams.find(t => t.id === ticket.teamId) || teams[0];
+            const isDemonTicket = (ticket.teamId === 99);
+            const activeTeam = isDemonTicket ? { id: 99, name: 'Phe Quỷ 😈', isDemon: true } : (teams.find(t => t.id === ticket.teamId) || teams[0]);
             let scoreDeltaSummary = [];
 
             const elapsedSec = stageTimeElapsed[stageNum] || 0;
             const timeFormatted = formatStageTime(elapsedSec);
             const speedBadge = getSpeedBadge(elapsedSec);
-            const earnedBonus = getStagePassScore(elapsedSec, activeTeam.isDemon, false);
+            const earnedBonus = getStagePassScore(elapsedSec, isDemonTicket, false);
 
-            if (activeTeam.isDemon) {
+            const stSelect = document.getElementById(`sel-stage-${stageNum}`);
+            const studentName = stSelect ? stSelect.value : '';
+
+            if (isDemonTicket) {
+                let demon = demonRecords.find(d => d.name === studentName);
                 if (isPass) {
-                    activeTeam.score = Math.min(STARTING_SCORE, activeTeam.score + earnedBonus); // Trần tối đa 1000 Xu
-                    scoreDeltaSummary.push(`${activeTeam.name} thi PASS sau ${timeFormatted} (${speedBadge.title}): +${earnedBonus} Xu (Trần tối đa ${STARTING_SCORE} Xu)`);
+                    if (demon) demon.score = Math.min(STARTING_SCORE, demon.score + earnedBonus);
+                    scoreDeltaSummary.push(`😈 <b>${demon ? demon.name : 'Con Quỷ'}</b> thi PASS sau ${timeFormatted} (${speedBadge.title}): +${earnedBonus} Xu vào quỹ cá nhân (Trần 1000 Xu)!`);
                 } else {
-                    const actualPenalty = Math.min(200, activeTeam.score);
-                    activeTeam.score = Math.max(0, activeTeam.score - 200);
-                    demonReliefFund += actualPenalty;
-                    scoreDeltaSummary.push(`${activeTeam.name} FAIL: Phạt -${actualPenalty} Xu chuyển vào Quỹ Cứu Trợ!`);
+                    const penalty = 100;
+                    if (demon) {
+                        demon.score = Math.max(0, demon.score - penalty);
+                        demon.violations = (demon.violations || 0) + 1;
+                    }
+                    scoreDeltaSummary.push(`⚡ <b>${demon ? demon.name : 'Con Quỷ'}</b> thi FAIL dính bug: -${penalty} Xu phạt cá nhân!`);
 
                     const humanTeams = teams.filter(t => !t.isDemon);
-                    if (humanTeams.length > 0 && actualPenalty > 0) {
-                        const share = Math.floor(actualPenalty / humanTeams.length);
+                    if (humanTeams.length > 0) {
+                        const share = Math.floor(penalty / humanTeams.length);
                         humanTeams.forEach(ht => ht.score += share);
-                        scoreDeltaSummary.push(`Quỹ Cứu Trợ chia đều +${share} Xu cho mỗi tổ Loài Người!`);
+                        scoreDeltaSummary.push(`🎁 Điểm phạt của quỷ chia đều +${share} Xu cho mỗi tổ Loài Người!`);
+                    }
+
+                    if (demon && (demon.violations >= 3 || demon.score < 800)) {
+                        setTimeout(() => explodeDemon(demon.name), 1200);
                     }
                 }
             } else {
@@ -4714,15 +4811,15 @@
             }
 
             const bets = stageBets[stageNum] || {};
-            teams.forEach(t => {
-                if (t.id === activeTeam.id) return;
+            const bettingTeams = teams.filter(t => !t.isDemon && t.id !== ticket.teamId);
+            bettingTeams.forEach(t => {
                 const bet = bets[t.id];
                 if (!bet) return;
 
                 if (isPass) {
                     if (bet === 'PASS') {
                         const bonus = 50;
-                        t.score = t.isDemon ? Math.min(STARTING_SCORE, t.score + bonus) : t.score + bonus;
+                        t.score += bonus;
                         scoreDeltaSummary.push(`${t.name} đánh giá đúng: 👍 Dự đoán ĐẠT (+${bonus} Xu)`);
                     } else if (bet === 'BUG') {
                         t.score = Math.max(0, t.score - 50);
@@ -4730,8 +4827,8 @@
                     }
                 } else {
                     if (bet === 'BUG') {
-                        const bonus = t.isDemon ? 50 : 100;
-                        t.score = t.isDemon ? Math.min(STARTING_SCORE, t.score + bonus) : t.score + bonus;
+                        const bonus = 100;
+                        t.score += bonus;
                         scoreDeltaSummary.push(`${t.name} phát hiện đúng: ❌ Bắt trúng lỗi (+${bonus} Xu)`);
                     } else if (bet === 'PASS') {
                         t.score = Math.max(0, t.score - 50);
@@ -5230,59 +5327,57 @@
             if (modal) modal.classList.remove('open');
             renderTeams();
             updateDemonFundUI();
+            if (currentSlide === 4) loadStageTicket(1, currentTicketIdx[1] || 0);
+            if (currentSlide === 6) loadStageTicket(2, currentTicketIdx[2] || 0);
+            if (currentSlide === 7) renderConsolidationQuestions();
             populateStudentSelects();
             saveLocalStorage();
         }
 
         function renderDemonManagerData() {
-            const picker = document.getElementById('all-students-demon-picker');
-            const roster = document.getElementById('manager-demon-roster-list');
-            if (!picker || !roster) return;
+            const listEl = document.getElementById('demon-vertical-student-list');
+            if (!listEl) return;
 
-            // 1. Render danh sách học sinh cả lớp dạng chip (Bấm là đày sang Phe Quỷ với 1000 Xu riêng)
             if (studentsList.length === 0) {
-                picker.innerHTML = '<span style="color:#94a3b8; font-size:13px; font-style:italic;">Chưa có dữ liệu danh sách học sinh.</span>';
-            } else {
-                picker.innerHTML = studentsList.map(s => {
-                    const isDem = !!s.isDemon;
-                    const rec = demonRecords.find(d => d.name === s.name);
-                    const isSlime = rec && rec.status === 'slime';
-                    return `
-                        <button type="button" class="student-chip ${isDem ? 'is-demon' : ''}" onclick="toggleStudentDemonRole('${s.name}')" title="${isDem ? 'Nhấp để xóa khỏi Phe Quỷ' : 'Nhấp để thêm vào Phe Quỷ (1000 Xu riêng)'}">
-                            ${isSlime ? '🟢' : (isDem ? '😈' : '👤')} ${s.name} ${isDem ? (isSlime ? '(Slime)' : '✓') : ''}
-                        </button>
-                    `;
-                }).join('');
+                listEl.innerHTML = '<div style="color:#94a3b8; font-size:13px; font-style:italic; padding:16px; text-align:center;">Chưa có dữ liệu danh sách học sinh.</div>';
+                return;
             }
 
-            // 2. Render danh sách các con quỷ hiện tại (Mỗi đứa là một tổ độc lập, có điểm riêng và nút xóa ra)
-            const demonList = demonRecords.filter(d => studentsList.some(s => s.name === d.name && s.isDemon));
-            if (demonList.length === 0) {
-                roster.innerHTML = '<div style="color:#94a3b8; font-size:13px; font-style:italic; padding:8px 0;">Chưa có học sinh nào trong Phe Quỷ. Bấm vào tên học sinh ở trên để thêm vào.</div>';
-            } else {
-                roster.innerHTML = demonList.map(d => {
-                    const isSlime = (d.status === 'slime');
-                    return `
-                        <div style="background:#0f172a; border:1px solid ${isSlime ? '#22c55e' : '#6b21a8'}; border-radius:10px; padding:8px 12px; display:flex; justify-content:space-between; align-items:center;">
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <span style="font-weight:800; font-size:14.5px; color:${isSlime ? '#86efac' : '#fef08a'};">
-                                    ${isSlime ? '🟢' : '😈'} ${d.name} ${isSlime ? '🔇 (Slime)' : ''}
+            listEl.innerHTML = studentsList.map((s, idx) => {
+                const isDem = !!s.isDemon;
+                const rec = demonRecords.find(d => d.name === s.name);
+                const isSlime = rec && rec.status === 'slime';
+                const score = rec ? rec.score : STARTING_SCORE;
+
+                let rowClass = 'demon-vertical-item';
+                if (isSlime) rowClass += ' is-slime';
+                else if (isDem) rowClass += ' is-demon';
+
+                return `
+                    <div class="${rowClass}">
+                        <div class="dvi-name ${isDem ? 'demon' : ''}">
+                            <span style="font-size:12px; color:#94a3b8; width:24px;">${idx + 1}.</span>
+                            <span>${isSlime ? '🟢' : (isDem ? '😈' : '👤')} <b>${s.name}</b></span>
+                            ${isDem ? `
+                                <span style="font-size:11.5px; background:rgba(0,0,0,0.35); padding:2px 8px; border-radius:6px; color:#fef08a; font-weight:normal;">
+                                    ${isSlime ? 'Slime Câm Lặng' : `${score} Xu`}
                                 </span>
-                                <span style="font-size:12px; color:#cbd5e1; background:rgba(255,255,255,0.08); padding:2px 8px; border-radius:6px;">
-                                    ${d.score} Xu · Phạt: ${d.violations || 0}/3
-                                </span>
-                            </div>
-                            <div style="display:flex; gap:6px;">
-                                ${!isSlime ? `
-                                    <button type="button" class="btn-tb danger" style="font-size:12px; padding:4px 10px;" onclick="openDemonPunishForName('${d.name}')">⚡ Phạt</button>
-                                    <button type="button" class="btn-tb coral" style="font-size:12px; padding:4px 10px; background:#7e22ce; border-color:#c084fc; color:#fef08a;" onclick="explodeDemon('${d.name}')" title="Kích hoạt nổ tung chia điểm">💥 Nổ</button>
-                                ` : ''}
-                                <button type="button" class="btn-tb" style="font-size:12px; padding:4px 10px; background:#334155; color:#f1f5f9; border-color:#64748b;" onclick="pardonStudentFromDemon('${d.name}')" title="Xóa em này khỏi Phe Quỷ, quay về học sinh bình thường">✕ Xóa khỏi Phe Quỷ</button>
-                            </div>
+                            ` : ''}
                         </div>
-                    `;
-                }).join('');
-            }
+                        <div>
+                            ${isDem ? `
+                                <button type="button" class="dvi-btn remove" onclick="pardonStudentFromDemon('${s.name}')" title="Xóa em này khỏi Phe Quỷ, đưa về học sinh bình thường">
+                                    ✕ Xóa khỏi Quỷ
+                                </button>
+                            ` : `
+                                <button type="button" class="dvi-btn add" onclick="banishStudentToDemon('${s.name}')" title="Đày em này sang Phe Quỷ (1000 Xu riêng)">
+                                    + Thêm vào Quỷ
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function toggleStudentDemonRole(studentName) {
@@ -5341,28 +5436,6 @@
             renderTeams();
             updateDemonFundUI();
             saveLocalStorage();
-        }
-
-        function addCustomDemonStudent() {
-            const input = document.getElementById('custom-demon-input');
-            if (!input || !input.value.trim()) return;
-            const name = input.value.trim();
-            let student = studentsList.find(s => s.name === name);
-            if (!student) {
-                student = { id: studentsList.length + 1, name: name, isDemon: true };
-                studentsList.push(student);
-            }
-            banishStudentToDemon(name);
-            input.value = '';
-        }
-
-        function promptPardonDemonFast() {
-            const demonList = demonRecords.filter(d => studentsList.some(s => s.name === d.name && s.isDemon));
-            if (demonList.length === 0) {
-                if (window.toast) window.toast('⚠️ Phe Quỷ hiện không có học sinh nào!', 2000);
-                return;
-            }
-            pardonStudentFromDemon(demonList[0].name);
         }
 
         function openDemonPunishModal(studentIdx = 0) {
@@ -5519,18 +5592,6 @@
 
         function updateDemonFundUI() {
             const isDemon = isDemonMode;
-            const fundDisplay = document.getElementById('demon-relief-fund-display');
-            const fundVal = document.getElementById('relief-fund-val');
-            if (fundDisplay && fundVal) {
-                fundDisplay.style.display = isDemon ? 'inline-flex' : 'none';
-                fundVal.textContent = demonReliefFund;
-            }
-            const sbFund = document.getElementById('sidebar-demon-fund');
-            const sbVal = document.getElementById('sidebar-relief-fund-val');
-            if (sbFund && sbVal) {
-                sbFund.style.display = isDemon ? 'flex' : 'none';
-                sbVal.textContent = demonReliefFund;
-            }
             const demonBtn = document.getElementById('btn-sidebar-demon');
             if (demonBtn) {
                 demonBtn.style.background = isDemon ? '#7e22ce' : 'rgba(255, 255, 255, 0.08)';
