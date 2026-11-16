@@ -1581,7 +1581,7 @@
                                     💰 Bước 2: Vượt Câu Hỏi Bài 5 – Nâng Trần Giá Bán Cho Cả Lớp!
                                 </span>
                                 <div style="font-size:0.95rem; font-weight:700; color:#475569; margin-top:4px">
-                                    Cả lớp cùng trả lời tự do (gọi cá nhân). Mỗi câu đúng sẽ cộng thêm <b>+$50</b> vào Trần giá bán / tài trợ cho tất cả các tổ!
+                                    Cả lớp cùng trả lời tự do (gọi cá nhân). Mỗi câu đúng sẽ cộng thêm <b>+$20</b> vào Trần giá bán / tài trợ cho tất cả các tổ!
                                 </div>
                             </div>
                             <div style="background:#dcfce7; border:2px solid #22c55e; border-radius:10px; padding:6px 14px; text-align:right">
@@ -1600,7 +1600,7 @@
 
                         <div class="quiz-container" style="margin-top:0">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px">
-                                <span id="fundQIndex" style="font-weight:900; color:var(--blue); font-size:1.1rem">CÂU HỎI 1 / 4 THỰC HÀNH TỆP & THƯ MỤC</span>
+                                <span id="fundQIndex" style="font-weight:900; color:var(--blue); font-size:1.1rem">CÂU HỎI 1 / 5 THỰC HÀNH TỆP & THƯ MỤC</span>
                                 <span id="fundRewardDesc" style="font-weight:800; color:var(--green); font-size:1.05rem">Quyền lợi: +$20 trần giá bán cho cả lớp</span>
                             </div>
                             <div class="quiz-q-title" id="fundQText">Nội dung câu hỏi...</div>
@@ -2271,6 +2271,12 @@
         /* HELPER: GET VISUAL STATUS BADGE WITH EMOJI INSTEAD OF CRYPTIC (Lv1) */
         function getSoftwareStatusDisplay(team, softwareName) {
             const lvl = team.softwareLevels?.[softwareName] ?? 0;
+            const isCrack = (team.softwareOrigins?.[softwareName] === 'crack')
+                || (team.infectedSoftwares?.includes(softwareName))
+                || (team.detonatedSoftwares?.includes(softwareName));
+            if (isCrack) {
+                return { label: '☠️ Hàng lậu (Crack)', isOwned: true, isCrack: true };
+            }
             if (softwareName === 'Photoshop' && lvl === 0) {
                 return { label: '🔴 Hết hạn thuê bao', isOwned: false, isCrack: false };
             }
@@ -2279,13 +2285,6 @@
                     return { label: '⚪ Chưa cài', isOwned: false, isCrack: false };
                 }
                 return { label: '⚪ Chưa mua', isOwned: false, isCrack: false };
-            }
-
-            const isCrack = (team.softwareOrigins?.[softwareName] === 'crack')
-                || (team.infectedSoftwares?.includes(softwareName))
-                || (team.detonatedSoftwares?.includes(softwareName));
-            if (isCrack) {
-                return { label: '☠️ Hàng lậu (Crack)', isOwned: true, isCrack: true };
             }
 
             if (softwareName === 'Photoshop') {
@@ -2450,12 +2449,21 @@
                         t.icon = corp.icon;
                         t.defaultPrice = Math.min(maxPriceCeiling, corp.basePrice || 100);
                         t.currentPrice = t.defaultPrice;
+                        t.money = 1000;
+                        t.baseInterest = 5;
+                        t.currentInterest = 5;
                         t.inventory = [];
                         t.softwareLevels = {};
                         t.softwareOrigins = {};
                         t.subStart = {};
                         t.timesChosenAsVendor = 0;
+                        t.history = [{ month: 0, money: 1000 }];
+                        t.infected = false;
+                        t.infectedSoftwares = [];
+                        t.detonatedSoftwares = [];
+                        t.hasDetonated = false;
                         t.hadPiracyRecord = false;
+                        t.auditResult = null;
                         t.revealed = true;
                     });
 
@@ -3042,9 +3050,12 @@
             $('#corpStageArea').style.display = 'none';
             $('#gachaRollingBox').style.display = 'block';
 
+            if (gachaTimer) { clearInterval(gachaTimer); clearTimeout(gachaTimer); gachaTimer = null; }
+
             // BÁO ỨNG CƠ CHẾ A: NỔ BẤT NGỜ Ở LƯỢT GACHA TỪ THÁNG 2 TRỞ ĐI
             if (custTeam.infected && curRound >= 2 && Math.random() < 0.45) {
-                setTimeout(() => {
+                gachaTimer = setTimeout(() => {
+                    gachaTimer = null;
                     $('#gachaRollingBox').style.display = 'none';
                     triggerDelayedKarmaAttack(custTeam);
                 }, 700);
@@ -3090,12 +3101,17 @@
             infectedTeam.currentInterest = 0;
             infectedTeam.infected = false; // Bom đã nổ
             infectedTeam.hasDetonated = true;
-            infectedTeam.detonatedSoftwares = [...new Set([...(infectedTeam.detonatedSoftwares || []), ...(infectedTeam.infectedSoftwares || [])])];
+            const crackedList = infectedTeam.infectedSoftwares || [];
+            infectedTeam.detonatedSoftwares = [...new Set([...(infectedTeam.detonatedSoftwares || []), ...crackedList])];
+            // Mã độc khóa sạch các phần mềm lậu đã cài -> đưa cấp độ về 0 để bắt buộc cài lại từ đầu
+            if (!infectedTeam.softwareLevels) infectedTeam.softwareLevels = {};
+            crackedList.forEach(sw => {
+                infectedTeam.softwareLevels[sw] = 0;
+                if (infectedTeam.subStart) delete infectedTeam.subStart[sw];
+            });
             statCrackDisasterCount++;
 
-            const swList = (infectedTeam.infectedSoftwares && infectedTeam.infectedSoftwares.length > 0)
-                ? infectedTeam.infectedSoftwares.join(', ')
-                : 'phần mềm lậu';
+            const swList = crackedList.length > 0 ? crackedList.join(', ') : 'phần mềm lậu';
             infectedTeam.infectedSoftwares = []; // Xóa khỏi danh sách đang nhiễm để không bị phạt kép ở cuối giờ!
             $('#karmaModalDesc').innerHTML = `
                 <div style="background:#fef2f2; border:2px solid #ef4444; border-radius:12px; padding:16px; margin-bottom:14px; text-align:left;">
@@ -3110,7 +3126,7 @@
                 </div>
             `;
             $('#karmaPenaltyText').innerHTML = `
-                💸 <b>HÌNH PHẠT:</b> Bị tống tiền mất <b>-$${penalty.toLocaleString()}</b> (50% gia tài) và Lãi suất tháng này bị xóa sạch về <b>0%</b>!
+                💸 <b>HÌNH PHẠT:</b> Mất <b>-$${penalty.toLocaleString()}</b> (50% gia tài), phần mềm lậu bị khóa sạch (về cấp 0) và Lãi tích lũy đầu tháng bị xóa về <b>0%</b>!
             `;
             $('#karmaModal').style.display = 'flex';
 
@@ -3486,12 +3502,18 @@
                 pushDecisionLog();
                 playSound('fanfare');
                 fireConfetti();
+                if (!custTeam.softwareOrigins) custTeam.softwareOrigins = {};
+                const prevOrig = custTeam.softwareOrigins[ownerTeam.software];
+                if (prevOrig === 'official' || prevOrig === 'free') {
+                    // Nếu trước đó đã nhận +2% lãi cơ bản nhờ bản chính hãng mà nay cài đè bản Crack -> thu hồi +2% lãi cơ bản!
+                    custTeam.baseInterest = Math.max(5, custTeam.baseInterest - 2);
+                    custTeam.currentInterest -= 2;
+                }
                 custTeam.currentInterest += (choice.interestDelta || 30);
                 custTeam.infected = true;
                 if (!custTeam.infectedSoftwares.includes(ownerTeam.software)) {
                     custTeam.infectedSoftwares.push(ownerTeam.software);
                 }
-                if (!custTeam.softwareOrigins) custTeam.softwareOrigins = {};
                 custTeam.softwareOrigins[ownerTeam.software] = 'crack';
 
                 if (!custTeam.softwareLevels) custTeam.softwareLevels = {};
@@ -3596,21 +3618,25 @@
 
             // CƠ CHẾ HOÀN LƯƠNG: Nếu tổ này từng dùng bản crack của phần mềm này và nay mua/dùng bản chính hãng
             const wasCracked = (custTeam.infectedSoftwares && custTeam.infectedSoftwares.includes(ownerTeam.software)) ||
+                               (custTeam.detonatedSoftwares && custTeam.detonatedSoftwares.includes(ownerTeam.software)) ||
                                (custTeam.softwareOrigins && custTeam.softwareOrigins[ownerTeam.software] === 'crack');
             // "Duy trì" thuê bao của bản crack chỉ là dùng tiếp bản lậu: không được hóa giải bom
             const keepsPiracy = wasCracked && choice.key === 'maintain';
             if (wasCracked && !keepsPiracy) {
-                // Gỡ bỏ phần mềm lậu khỏi danh sách bom mã độc
+                // Gỡ bỏ phần mềm lậu khỏi danh sách bom mã độc và danh sách đã nổ
                 if (custTeam.infectedSoftwares) {
                     custTeam.infectedSoftwares = custTeam.infectedSoftwares.filter(s => s !== ownerTeam.software);
+                }
+                if (custTeam.detonatedSoftwares) {
+                    custTeam.detonatedSoftwares = custTeam.detonatedSoftwares.filter(s => s !== ownerTeam.software);
                 }
                 if (!custTeam.infectedSoftwares || custTeam.infectedSoftwares.length === 0) {
                     custTeam.infected = false; // Hóa giải hoàn toàn quả bom!
                 }
                 custTeam.hadPiracyRecord = true; // Lưu vết nhơ tiền án xài lậu
-                logTrade(`🕊️ HOÀN LƯƠNG: ${custTeam.name} đã mua/dùng bản quyền chính hãng [${ownerTeam.software}], gỡ bỏ thành công bom mã độc!`);
+                logTrade(`🕊️ HOÀN LƯƠNG: ${custTeam.name} đã mua/dùng bản quyền chính hãng [${ownerTeam.software}], khôi phục hệ thống an toàn!`);
                 if (typeof window.toast === 'function') {
-                    window.toast(`🕊️ HOÀN LƯƠNG: ${custTeam.name} đã dùng bản quyền chính hãng gỡ bỏ mã độc!`, 4000, '#0284c7');
+                    window.toast(`🕊️ HOÀN LƯƠNG: ${custTeam.name} đã dùng bản quyền chính hãng khôi phục hệ thống an toàn!`, 4000, '#0284c7');
                 }
             }
 
