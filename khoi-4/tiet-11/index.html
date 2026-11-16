@@ -2271,9 +2271,11 @@
         /* HELPER: GET VISUAL STATUS BADGE WITH EMOJI INSTEAD OF CRYPTIC (Lv1) */
         function getSoftwareStatusDisplay(team, softwareName) {
             const lvl = team.softwareLevels?.[softwareName] ?? 0;
+            if (team.detonatedSoftwares?.includes(softwareName) && lvl === 0) {
+                return { label: '🔒 Bị khóa (Mã độc)', isOwned: false, isCrack: true };
+            }
             const isCrack = (team.softwareOrigins?.[softwareName] === 'crack')
-                || (team.infectedSoftwares?.includes(softwareName))
-                || (team.detonatedSoftwares?.includes(softwareName));
+                || (team.infectedSoftwares?.includes(softwareName));
             if (isCrack) {
                 return { label: '☠️ Hàng lậu (Crack)', isOwned: true, isCrack: true };
             }
@@ -2305,9 +2307,25 @@
         }
 
         /* ================= 4. KHỞI TẠO CÁC TỔ & GÁN TẬP ĐOÀN ================= */
+        function getBalancedCorpPool(shuffle = false) {
+            let paidCorps = DB.corporations.filter(c => c.type === 'paid');
+            let freeCorps = DB.corporations.filter(c => c.type !== 'paid');
+            if (shuffle) {
+                paidCorps = [...paidCorps].sort(() => Math.random() - 0.5);
+                freeCorps = [...freeCorps].sort(() => Math.random() - 0.5);
+            }
+            const pool = [];
+            const maxLen = Math.max(paidCorps.length, freeCorps.length);
+            for (let i = 0; i < maxLen; i++) {
+                if (i < paidCorps.length) pool.push(paidCorps[i]);
+                if (i < freeCorps.length) pool.push(freeCorps[i]);
+            }
+            return pool;
+        }
+
         function initTeams() {
             teams = [];
-            const corpPool = [...DB.corporations];
+            const corpPool = getBalancedCorpPool(false);
             for (let i = 0; i < numTeams; i++) {
                 const corp = corpPool[i % corpPool.length];
                 teams.push({
@@ -2344,7 +2362,7 @@
         }
 
         function resetClassState() {
-            numTeams = 4;
+            numTeams = Number($('#selTeams')?.value || numTeams || 4);
             curScreen = 1;
             curRound = 1;
             curCustomerIdx = 0;
@@ -2407,7 +2425,7 @@
             if (btnReroll) btnReroll.disabled = true;
 
             const grid = $('#mysteryBoxesGrid');
-            const corpPool = [...DB.corporations].sort(() => Math.random() - 0.5);
+            const corpPool = getBalancedCorpPool(true);
 
             let spins = 0;
             const maxSpins = 12;
@@ -3039,6 +3057,96 @@
             drawTeams();
         }
 
+        // THUẬT TOÁN GACHA NHÀ CUNG CẤP THÔNG MINH (TRÁNH LẶP LẠI & PHÙ HỢP TIẾN ĐỘ)
+        window.pickBestVendorForCustomer = function (custTeam) {
+            const otherTeams = teams.filter(t => t.id !== custTeam.id);
+            if (!custTeam.vendorHistory) custTeam.vendorHistory = [];
+            if (!custTeam.softwareLevels) custTeam.softwareLevels = {};
+
+            // Tính điểm ưu tiên cho từng nhà cung cấp trong lớp
+            const scoredTeamVendors = otherTeams.map(t => {
+                const sw = t.software;
+                const curLvl = custTeam.softwareLevels[sw] || 0;
+                const corpDef = DB.corporations.find(c => c.id === t.corpId);
+                const maxLvl = corpDef ? (Object.keys(corpDef.events || {}).length - 1) : 2;
+                const isMaxed = curLvl >= maxLvl;
+
+                let score = 50;
+                if (curLvl === 0) score += 70; // Chưa từng trang bị: ưu tiên số 1
+                else if (!isMaxed) score += 35; // Còn cấp nâng cấp
+                else score -= 30; // Đã max cấp: hạn chế
+
+                const lastVendorId = custTeam.vendorHistory[custTeam.vendorHistory.length - 1];
+                if (lastVendorId === t.id) score -= 50; // Tránh gặp lại đúng tổ vừa gặp tháng trước!
+
+                const timesWithCust = custTeam.vendorHistory.filter(id => id === t.id).length;
+                score -= (timesWithCust * 20);
+
+                return { team: t, score, isMaxed };
+            });
+
+            scoredTeamVendors.sort((a, b) => b.score - a.score);
+
+            let chosenVendor = null;
+            const validTeamCandidates = scoredTeamVendors.filter(v => !v.isMaxed || v.score > 15);
+
+            if (validTeamCandidates.length > 0) {
+                const topScore = validTeamCandidates[0].score;
+                const topCandidates = validTeamCandidates.filter(v => v.score >= topScore - 20);
+                chosenVendor = topCandidates[Math.floor(Math.random() * topCandidates.length)].team;
+            } else {
+                // Nếu tất cả các tổ trong lớp đều đã MAX CẤP (xảy ra khi số tổ là 2 hoặc 3 tổ, vào các tháng 4, 5, 6):
+                // MỞ RỘNG THƯƠNG TRƯỜNG TOÀN CẦU: Đưa các tập đoàn chưa có tổ nào sở hữu vào sàn!
+                const ownedSoftwareSet = new Set(teams.map(t => t.software));
+                const unownedCorps = DB.corporations.filter(c => !ownedSoftwareSet.has(c.software));
+
+                const scoredExternalCorps = unownedCorps.map(c => {
+                    const curLvl = custTeam.softwareLevels[c.software] || 0;
+                    const maxLvl = Object.keys(c.events || {}).length - 1;
+                    const isMaxed = curLvl >= maxLvl;
+                    let score = 50;
+                    if (curLvl === 0) score += 60;
+                    else if (!isMaxed) score += 25;
+                    else score -= 25;
+
+                    const lastVendorId = custTeam.vendorHistory[custTeam.vendorHistory.length - 1];
+                    if (lastVendorId === `ext_${c.id}`) score -= 50;
+
+                    return { corp: c, score, isMaxed };
+                });
+                scoredExternalCorps.sort((a, b) => b.score - a.score);
+
+                if (scoredExternalCorps.length > 0 && scoredExternalCorps[0].score > 0) {
+                    const topScore = scoredExternalCorps[0].score;
+                    const topCandidates = scoredExternalCorps.filter(c => c.score >= topScore - 20);
+                    const pickedCorp = topCandidates[Math.floor(Math.random() * topCandidates.length)].corp;
+
+                    chosenVendor = {
+                        id: `ext_${pickedCorp.id}`,
+                        name: 'Thị Trường Quốc Tế',
+                        corpId: pickedCorp.id,
+                        corpName: pickedCorp.name,
+                        software: pickedCorp.software,
+                        img: pickedCorp.img || 'powerpoint.png',
+                        corpType: pickedCorp.type,
+                        typeLabel: pickedCorp.typeLabel,
+                        model: pickedCorp.model,
+                        icon: pickedCorp.icon,
+                        defaultPrice: Math.min(maxPriceCeiling, pickedCorp.basePrice || 100),
+                        currentPrice: Math.min(maxPriceCeiling, pickedCorp.basePrice || 100),
+                        money: 0,
+                        isExternal: true
+                    };
+                } else {
+                    // Fallback: chọn tổ ít được bán nhất trong lớp
+                    const minTimes = Math.min(...otherTeams.map(t => t.timesChosenAsVendor || 0));
+                    const leastChosen = otherTeams.filter(t => (t.timesChosenAsVendor || 0) === minTimes);
+                    chosenVendor = leastChosen[Math.floor(Math.random() * leastChosen.length)];
+                }
+            }
+            return chosenVendor;
+        };
+
         /* AUTO GACHA CHO LƯỢT KHÁCH HÀNG MỚI */
         function startAutoGachaForCustomer() {
             if (curCustomerIdx >= teams.length) curCustomerIdx = 0;
@@ -3052,30 +3160,33 @@
 
             if (gachaTimer) { clearInterval(gachaTimer); clearTimeout(gachaTimer); gachaTimer = null; }
 
-            // BÁO ỨNG CƠ CHẾ A: NỔ BẤT NGỜ Ở LƯỢT GACHA TỪ THÁNG 2 TRỞ ĐI
-            if (custTeam.infected && curRound >= 2 && Math.random() < 0.45) {
-                gachaTimer = setTimeout(() => {
-                    gachaTimer = null;
-                    $('#gachaRollingBox').style.display = 'none';
-                    triggerDelayedKarmaAttack(custTeam);
-                }, 700);
-                return;
+            // 1. KIỂM TRA BÁO ỨNG BOM MÃ ĐỘC (RANSOMWARE) ĐỐI VỚI TỔ ĐANG DÙNG CRACK
+            if (custTeam.infected && (custTeam.infectedSoftwares && custTeam.infectedSoftwares.length > 0)) {
+                const numCracks = custTeam.infectedSoftwares.length;
+                const roundsActive = custTeam.crackTurnsActive || 0;
+                // Nếu cài từ 2 bản crack trở lên hoặc nằm vùng từ 2 tháng trở lên -> 100% nổ bom!
+                // Nếu mới 1 tháng và từ tháng 2 trở đi -> 60% nổ bom!
+                const detonateChance = (numCracks >= 2 || roundsActive >= 2) ? 1.0 : (curRound >= 2 ? 0.6 : 0);
+                if (detonateChance > 0 && Math.random() < detonateChance) {
+                    gachaTimer = setTimeout(() => {
+                        gachaTimer = null;
+                        $('#gachaRollingBox').style.display = 'none';
+                        triggerDelayedKarmaAttack(custTeam);
+                    }, 700);
+                    return;
+                }
             }
 
-            // Gacha nhà cung cấp phần mềm khác với chính tổ này (Tuyệt đối không bán cho chính mình)
-            const availableTeams = teams.filter(t => t.id !== custTeam.id);
-            const pool = availableTeams.length > 0 ? availableTeams : teams;
+            // 2. THUẬT TOÁN GACHA NHÀ CUNG CẤP THÔNG MINH (TRÁNH LẶP LẠI & PHÙ HỢP TIẾN ĐỘ)
+            const otherTeams = teams.filter(t => t.id !== custTeam.id);
+            const chosenVendor = pickBestVendorForCustomer(custTeam);
+            custTeam.vendorHistory.push(chosenVendor.id);
 
-            // CƠ CHẾ BAG RNG (HỘP BỐC THĂM CÔNG BẰNG): Ưu tiên các tổ chưa được / ít được gọi bán hàng nhất
-            const minTimes = Math.min(...pool.map(t => t.timesChosenAsVendor || 0));
-            const leastChosenTeams = pool.filter(t => (t.timesChosenAsVendor || 0) === minTimes);
-            const finalChosen = leastChosenTeams[Math.floor(Math.random() * leastChosenTeams.length)];
-
-            if (gachaTimer) { clearInterval(gachaTimer); gachaTimer = null; }
+            const rollCandidates = otherTeams.length > 0 ? otherTeams : teams;
             let spins = 0;
             const maxSpins = 14;
             const timer = gachaTimer = setInterval(() => {
-                const temp = pool[Math.floor(Math.random() * pool.length)];
+                const temp = rollCandidates[Math.floor(Math.random() * rollCandidates.length)];
                 $('#gachaRollIconWrap').innerHTML = renderSoftwareIcon(temp, 64);
                 $('#gachaRollCorp').textContent = temp.corpName;
                 $('#gachaRollSw').textContent = temp.software;
@@ -3084,11 +3195,13 @@
                 if (spins >= maxSpins) {
                     clearInterval(timer);
                     if (gachaTimer === timer) gachaTimer = null;
-                    finalChosen.timesChosenAsVendor = (finalChosen.timesChosenAsVendor || 0) + 1;
+                    if (!chosenVendor.isExternal) {
+                        chosenVendor.timesChosenAsVendor = (chosenVendor.timesChosenAsVendor || 0) + 1;
+                    }
                     playSound('beep_ok');
                     $('#gachaRollingBox').style.display = 'none';
                     $('#corpStageArea').style.display = 'block';
-                    setupEventForTarget(finalChosen);
+                    setupEventForTarget(chosenVendor);
                 }
             }, 75);
         }
@@ -3101,12 +3214,15 @@
             infectedTeam.currentInterest = 0;
             infectedTeam.infected = false; // Bom đã nổ
             infectedTeam.hasDetonated = true;
-            const crackedList = infectedTeam.infectedSoftwares || [];
+            infectedTeam.hadPiracyRecord = true;
+            const crackedList = [...(infectedTeam.infectedSoftwares || [])];
             infectedTeam.detonatedSoftwares = [...new Set([...(infectedTeam.detonatedSoftwares || []), ...crackedList])];
             // Mã độc khóa sạch các phần mềm lậu đã cài -> đưa cấp độ về 0 để bắt buộc cài lại từ đầu
             if (!infectedTeam.softwareLevels) infectedTeam.softwareLevels = {};
+            if (!infectedTeam.softwareOrigins) infectedTeam.softwareOrigins = {};
             crackedList.forEach(sw => {
                 infectedTeam.softwareLevels[sw] = 0;
+                infectedTeam.softwareOrigins[sw] = 'locked';
                 if (infectedTeam.subStart) delete infectedTeam.subStart[sw];
             });
             statCrackDisasterCount++;
@@ -3126,7 +3242,7 @@
                 </div>
             `;
             $('#karmaPenaltyText').innerHTML = `
-                💸 <b>HÌNH PHẠT:</b> Mất <b>-$${penalty.toLocaleString()}</b> (50% gia tài), phần mềm lậu bị khóa sạch (về cấp 0) và Lãi tích lũy đầu tháng bị xóa về <b>0%</b>!
+                💸 <b>HÌNH PHẠT:</b> Bị phạt mất <b>$${penalty.toLocaleString()}</b> (50% gia tài), toàn bộ phần mềm lậu bị khóa chặt (về cấp 0) và Lãi tích lũy đầu tháng bị xóa về <b>0%</b>!
             `;
             $('#karmaModal').style.display = 'flex';
 
@@ -3145,7 +3261,7 @@
                 'trap'
             );
 
-            logTrade(`☠️ BÁO ỨNG NỔ BOM: ${infectedTeam.name} bị mã độc crack tống tiền thức tỉnh do xài lậu [${swList}]! Mất -$${penalty} và lãi về 0%!`);
+            logTrade(`☠️ BÁO ỨNG NỔ BOM: ${infectedTeam.name} bị mã độc crack tống tiền thức tỉnh do xài lậu [${swList}]! Bị phạt -$${penalty.toLocaleString()} và lãi về 0%!`);
             drawTeams();
             saveState();
         }
@@ -3235,7 +3351,7 @@
                         <div class="sol-info">
                             <div class="sol-name">${esc(ownerTeam.software)}</div>
                             <div class="sol-purpose">💡 <b>Công dụng:</b> ${esc(ownerTeam.model || 'Phần mềm chuyên dụng')}</div>
-                            <div class="sol-owner">🏢 <b>Bản quyền:</b> ${esc(ownerTeam.corpName)} (do <b>${esc(ownerTeam.name)}</b> sở hữu)</div>
+                            <div class="sol-owner">🏢 <b>Bản quyền:</b> ${esc(ownerTeam.corpName)} (${ownerTeam.isExternal ? 'Thị trường công nghệ toàn cầu' : `do <b>${esc(ownerTeam.name)}</b> sở hữu`})</div>
                         </div>
                     </div>
                     <div class="sol-right">
@@ -3515,6 +3631,8 @@
                     custTeam.infectedSoftwares.push(ownerTeam.software);
                 }
                 custTeam.softwareOrigins[ownerTeam.software] = 'crack';
+                custTeam.hadPiracyRecord = true;
+                custTeam.crackTurnsActive = 0;
 
                 if (!custTeam.softwareLevels) custTeam.softwareLevels = {};
                 setSoftwareLevel(custTeam, ownerTeam.software, choice.nextLevel ?? 1);
@@ -3595,7 +3713,9 @@
                     return;
                 }
                 custTeam.money -= cost;
-                ownerTeam.money += cost;
+                if (!ownerTeam.isExternal) {
+                    ownerTeam.money += cost;
+                }
                 triggerCoinAnimation();
                 statSafeCount++;
             }
@@ -3605,14 +3725,16 @@
             if (choice.interestDelta) {
                 custTeam.currentInterest += choice.interestDelta;
             }
-            if (choice.permInterestDelta) {
+            if (choice.permInterestDelta && !ownerTeam.isExternal) {
                 ownerTeam.baseInterest += choice.permInterestDelta;
                 ownerTeam.currentInterest += choice.permInterestDelta;
             }
             let sponsorReward = 0;
             if (choice.corpReward) {
                 sponsorReward = getSponsorAmount(choice, ownerTeam, custTeam);
-                ownerTeam.money += sponsorReward;
+                if (!ownerTeam.isExternal) {
+                    ownerTeam.money += sponsorReward;
+                }
                 statSafeCount++;
             }
 
@@ -3663,18 +3785,19 @@
                 `THÁNG ${curRound}`,
                 custTeam.name,
                 custTeam.corpName,
-                ownerTeam.name,
+                ownerTeam.isExternal ? 'THỊ TRƯỜNG QUỐC TẾ' : ownerTeam.name,
                 `${ownerTeam.corpName} - ${ownerTeam.software}`,
                 choice.label,
                 -cost,
                 custTeam.money,
-                cost || sponsorReward,
-                ownerTeam.money,
+                ownerTeam.isExternal ? 0 : (cost || sponsorReward),
+                ownerTeam.isExternal ? 0 : ownerTeam.money,
                 choice.interestDelta ? `Lãi suất +${choice.interestDelta}%` : (sponsorReward ? `Nhận tài trợ +$${sponsorReward}` : 'Bản quyền an toàn'),
                 'buy'
             );
 
-            logTrade(`✅ ${custTeam.name} chọn [${choice.label}]. Giao dịch với ${ownerTeam.name} (${ownerTeam.software}) thành công! ${sponsorReward ? `(${ownerTeam.name} nhận +$${sponsorReward} tài trợ)` : ''}`);
+            const sellerLabel = ownerTeam.isExternal ? ownerTeam.corpName : ownerTeam.name;
+            logTrade(`✅ ${custTeam.name} chọn [${choice.label}]. Giao dịch với ${sellerLabel} (${ownerTeam.software}) thành công! ${(!ownerTeam.isExternal && sponsorReward) ? `(${ownerTeam.name} nhận +$${sponsorReward} tài trợ)` : ''}`);
 
             if (typeof window.toast === 'function') {
                 window.toast(`🎉 Giao dịch thành công! ${custTeam.name} đạt cấp độ mới đối với ${ownerTeam.software}!`, 3000, '#16a34a');
@@ -3694,7 +3817,7 @@
             markCurrentTeamPlayed();
             saveState();
 
-            if (roundTurnsPlayed >= numTeams) {
+            if (roundTurnsPlayed >= teams.length) {
                 // TẤT CẢ CÁC TỔ ĐÃ HOÀN THÀNH LƯỢT TRONG THÁNG NÀY -> TỰ ĐỘNG CHỐT THÁNG!
                 turnStepTimer = setTimeout(() => {
                     autoSettleRound();
@@ -3715,9 +3838,9 @@
 
         function advanceToNextCustomer() {
             // Chuyển sang tổ kế tiếp CHƯA chơi trong tháng này
-            let next = (curCustomerIdx + 1) % numTeams;
-            for (let k = 0; k < numTeams; k++) {
-                const cand = (curCustomerIdx + 1 + k) % numTeams;
+            let next = (curCustomerIdx + 1) % teams.length;
+            for (let k = 0; k < teams.length; k++) {
+                const cand = (curCustomerIdx + 1 + k) % teams.length;
                 if (teams[cand] && teams[cand].playedRound !== curRound) { next = cand; break; }
             }
             curCustomerIdx = next;
@@ -3735,7 +3858,7 @@
             markCurrentTeamPlayed();
             drawTeams();
             saveState();
-            if (roundTurnsPlayed >= numTeams) {
+            if (roundTurnsPlayed >= teams.length) {
                 autoSettleRound();
             } else {
                 advanceToNextCustomer();
@@ -3758,6 +3881,11 @@
                 const interestEarned = Math.round(t.money * (t.currentInterest / 100));
                 t.money += interestEarned;
                 const totalGrowthPercent = Math.round(((t.money - 1000) / 1000) * 100);
+
+                // Tăng số tháng nằm vùng của bom mã độc nếu tổ đang nhiễm crack
+                if (t.infected) {
+                    t.crackTurnsActive = (t.crackTurnsActive || 0) + 1;
+                }
 
                 // Lưu lịch sử tài chính từng tháng
                 if (!t.history) t.history = [{ month: 0, money: 1000 }];
@@ -3794,15 +3922,19 @@
                 }
             });
 
-            curRound++;
+            if (finishedMonth >= 6) {
+                curRound = 6;
+                logTrade(`🏁 KẾT THÚC THÁNG 6: Tất cả các tổ đã nhận lãi suất! Thương trường hoàn tất 6 tháng!`);
+            } else {
+                curRound++;
+                logTrade(`🏁 KẾT THÚC THÁNG ${finishedMonth}: Tất cả các tổ đã nhận lãi suất và kết chuyển sang Tháng ${curRound}!`);
+            }
             roundTurnsPlayed = 0;
             curCustomerIdx = 0;
             curTargetCorp = null;
 
             playSound('cash');
             fireConfetti();
-
-            logTrade(`🏁 KẾT THÚC THÁNG ${finishedMonth}: Tất cả các tổ đã nhận lãi suất và kết chuyển sang Tháng ${curRound}!`);
 
             // Hiển thị Pop-up Toàn Màn Hình Báo Cáo Tài Chính
             $('#reportRoundNum').textContent = finishedMonth;
@@ -3836,6 +3968,24 @@
             renderFinancialChart('#reportChartSvgWrap', '#reportChartLegends');
 
             $('#roundReportModal').style.display = 'flex';
+            if (finishedMonth >= 6) {
+                $('#btnReportNextRound').style.display = 'none';
+                const finishBtn = $('#btnReportEarlyFinish');
+                if (finishBtn) {
+                    finishBtn.textContent = '⚖️ KẾT THÚC 6 THÁNG & TIẾN VÀO THANH TRA BẢN QUYỀN';
+                    finishBtn.className = 'btn-primary';
+                    finishBtn.style.fontSize = '1.15rem';
+                    finishBtn.style.padding = '12px 24px';
+                }
+            } else {
+                $('#btnReportNextRound').style.display = 'inline-block';
+                $('#btnReportNextRound').textContent = `▶ Tiếp Tục Sang Tháng ${curRound}`;
+                const finishBtn = $('#btnReportEarlyFinish');
+                if (finishBtn) {
+                    finishBtn.textContent = '🏁 Kết Thúc Sớm & Thanh Tra';
+                    finishBtn.className = 'btn-danger';
+                }
+            }
             drawTeams();
             saveState();
         }
@@ -3846,11 +3996,11 @@
             startAutoGachaForCustomer();
         };
 
-        // NÚT KẾT THÚC BÀI HỌC SỚM Ở POP-UP CUỐI THÁNG
+        // NÚT KẾT THÚC BÀI HỌC Ở POP-UP CUỐI THÁNG
         $('#btnReportEarlyFinish').onclick = () => {
-            if (confirm('Thầy/Cô có muốn kết thúc bài học ngay bây giờ để tiến hành Thanh tra bản quyền và tổng kết Bảng vàng không?')) {
+            if (curRound >= 6 || confirm('Thầy/Cô có muốn kết thúc thương trường ngay bây giờ để tiến hành Thanh tra bản quyền và tổng kết Bảng vàng không?')) {
                 $('#roundReportModal').style.display = 'none';
-                triggerAuditingProcess();
+                go(4); // Chuyển thẳng sang Screen 4: Tổng kết & Thanh tra bản quyền
             }
         };
 
@@ -4032,7 +4182,7 @@
                 const iconDisplay = t.revealed ? renderSoftwareIcon(t, 28) : '<span style="font-size:1.15rem">🎁</span>';
 
                 return `
-                    <div class="team-card ${idx === curCustomerIdx ? 'active-turn' : ''}" style="cursor:pointer;" onclick="if(!event.target.closest('button')) switchCustomerTurn(${idx})" title="Bấm để chuyển lượt sang ${esc(t.name)}">
+                    <div class="team-card ${idx === curCustomerIdx ? 'active-turn' : ''}" style="cursor:pointer;" onclick="if(!event.target.closest('button') && !event.target.closest('input')) switchCustomerTurn(${idx})" title="Bấm để chuyển lượt sang ${esc(t.name)}">
                         <div class="team-header-row">
                             <span class="team-name">
                                 ${iconDisplay}
@@ -4255,23 +4405,72 @@
                 teams.forEach(t => {
                     const isCurrentlyInfected = (t.infectedSoftwares && t.infectedSoftwares.length > 0) || t.infected;
                     if (isCurrentlyInfected) {
-                        // 1. Tổ xài lậu ngoan cố (bom chưa gỡ): Phạt -50% tài sản
-                        const penalty = Math.round(t.money * 0.5);
+                        // 1. Tổ xài lậu ngoan cố (bom chưa gỡ): Phạt tịch thu -60% tài sản
+                        const penalty = Math.round(t.money * 0.6);
                         t.money = Math.max(0, t.money - penalty);
-                        t.auditResult = { type: 'penalty', penalty, softwares: [...t.infectedSoftwares] };
+                        const swNames = (t.infectedSoftwares && t.infectedSoftwares.length > 0) ? t.infectedSoftwares.join(', ') : 'Bản crack VIP';
+                        t.auditResult = { type: 'penalty', penalty, softwares: [...(t.infectedSoftwares || [])] };
+                        logTrade(`🚨 THANH TRA TOÀN QUỐC: ${t.name} bị xử phạt -$${penalty.toLocaleString()} (60% tài sản) do cố tình sử dụng phần mềm lậu [${swNames}] không hoàn lương!`);
+                        recordLedgerTrade(
+                            'THANH TRA BẢN QUYỀN',
+                            t.name,
+                            t.corpName,
+                            'ĐOÀN THANH TRA LIÊN NGÀNH',
+                            'XỬ PHẠT VI PHẠM BẢN QUYỀN',
+                            `Phạt 60% tài sản do xài lậu [${swNames}]`,
+                            -penalty,
+                            t.money,
+                            0,
+                            0,
+                            'Tịch thu 60% tài sản · Xóa sổ phần mềm lậu',
+                            'trap'
+                        );
                     } else if (t.hadPiracyRecord || t.hasDetonated) {
                         // 2. Tổ từng xài lậu nhưng đã mua bản quyền khắc phục (hoàn lương) hoặc đã nổ bom:
-                        // Miễn phạt nhưng KHÔNG ĐƯỢC THƯỞNG +$300
+                        // Phạt truy thu 35% tài sản do thu lợi bất chính từ bản crack quá khứ
+                        const clawback = Math.round(t.money * 0.35);
+                        t.money = Math.max(0, t.money - clawback);
                         t.auditResult = {
                             type: 'reformed',
+                            penalty: clawback,
                             reason: t.hasDetonated
-                                ? 'Đã từng chịu thảm họa mã độc tống tiền ở tháng trước'
-                                : 'Đã có ý thức mua/dùng bản quyền khắc phục hậu quả (từng có tiền án xài lậu)'
+                                ? 'Đã từng chịu thảm họa mã độc tống tiền ở tháng trước do xài lậu'
+                                : 'Từng có tiền án xài lậu thu lợi bất chính quá khứ'
                         };
+                        logTrade(`⚖️ THANH TRA TOÀN QUỐC: ${t.name} bị truy thu -$${clawback.toLocaleString()} (35% tài sản) do từng có tiền án sử dụng phần mềm lậu thu lợi bất chính!`);
+                        recordLedgerTrade(
+                            'THANH TRA BẢN QUYỀN',
+                            t.name,
+                            t.corpName,
+                            'ĐOÀN THANH TRA LIÊN NGÀNH',
+                            'TRUY THU LỢI NHUẬN BẤT CHÍNH',
+                            'Truy thu 35% tài sản do từng vi phạm bản quyền quá khứ',
+                            -clawback,
+                            t.money,
+                            0,
+                            0,
+                            'Truy thu 35% tài sản',
+                            'trap'
+                        );
                     } else {
-                        // 3. Tổ 100% trong sạch từ đầu: Thưởng +$300 Doanh nghiệp uy tín
-                        t.money += 300;
-                        t.auditResult = { type: 'reward', bonus: 300 };
+                        // 3. Tổ 100% trong sạch từ đầu: Thưởng +$500 Doanh nghiệp uy tín tiêu biểu
+                        t.money += 500;
+                        t.auditResult = { type: 'reward', bonus: 500 };
+                        logTrade(`👑 THANH TRA TOÀN QUỐC: ${t.name} được vinh danh Doanh nghiệp trung thực & an toàn tuyệt đối! Thưởng +$500!`);
+                        recordLedgerTrade(
+                            'THANH TRA BẢN QUYỀN',
+                            t.name,
+                            t.corpName,
+                            'HIỆP HỘI BẢN QUYỀN',
+                            'VINH DANH DOANH NGHIỆP TRUNG THỰC',
+                            'Thưởng $500 Doanh nghiệp kiểu mẫu tuân thủ bản quyền',
+                            500,
+                            t.money,
+                            0,
+                            0,
+                            'Thưởng +$500',
+                            'buy'
+                        );
                     }
                 });
                 drawTeams();
@@ -4280,7 +4479,7 @@
 
             let auditHtml = '';
             teams.forEach(t => {
-                const res = t.auditResult || {};
+                const res = t.auditResult || { type: 'reward', bonus: 500 };
                 if (res.type === 'penalty') {
                     const swNames = (res.softwares && res.softwares.length > 0) ? res.softwares.join(', ') : 'Bản crack VIP';
                     auditHtml += `
@@ -4288,11 +4487,11 @@
                             <div>
                                 <span style="font-weight:900; font-size:1.2rem; color:#991b1b">❌ ${esc(t.name)} (${esc(t.corpName)}): PHÁT HIỆN DÙNG PHẦN MỀM LẬU!</span>
                                 <div style="font-size:.95rem; font-weight:700; color:#b91c1c; margin-top:4px">
-                                    Các phần mềm bẻ khóa chưa bị xử lý: <b>${esc(swNames)}</b>
+                                    Các phần mềm bẻ khóa chưa xử lý: <b>${esc(swNames)}</b> · Tịch thu 60% tài sản & xóa sổ phần mềm lậu!
                                 </div>
                             </div>
                             <span style="font-weight:900; font-size:1.25rem; color:#dc2626; background:#fff; padding:6px 14px; border-radius:8px">
-                                PHẠT -$${res.penalty}
+                                PHẠT -$${(res.penalty || 0).toLocaleString()}
                             </span>
                         </div>
                     `;
@@ -4300,13 +4499,13 @@
                     auditHtml += `
                         <div style="background:#fffbeb; border:2px solid #f59e0b; border-radius:12px; padding:14px; display:flex; justify-content:space-between; align-items:center;">
                             <div>
-                                <span style="font-weight:900; font-size:1.2rem; color:#b45309">⚠️ ${esc(t.name)} (${esc(t.corpName)}): ĐÃ CÓ Ý THỨC KHẮC PHỤC HẬU QUẢ!</span>
+                                <span style="font-weight:900; font-size:1.2rem; color:#b45309">⚠️ ${esc(t.name)} (${esc(t.corpName)}): TỪNG CÓ TIỀN ÁN XÀI LẬU!</span>
                                 <div style="font-size:.95rem; font-weight:700; color:#92400e; margin-top:4px">
-                                    ${esc(res.reason)} · Đoàn thanh tra miễn xử phạt nhưng không đạt danh hiệu Doanh nghiệp trong sạch!
+                                    ${esc(res.reason || 'Từng sử dụng phần mềm lậu thu lợi bất chính')} · Đoàn thanh tra ra quyết định: <b>TRUY THU 35% TÀI SẢN BẤT CHÍNH</b> & xóa tư cách Quán Quân!
                                 </div>
                             </div>
-                            <span style="font-weight:900; font-size:1.15rem; color:#b45309; background:#fff; padding:6px 14px; border-radius:8px">
-                                KHẮC PHỤC ($0)
+                            <span style="font-weight:900; font-size:1.2rem; color:#b45309; background:#fff; padding:6px 14px; border-radius:8px">
+                                TRUY THU -$${(res.penalty || 0).toLocaleString()}
                             </span>
                         </div>
                     `;
@@ -4314,13 +4513,13 @@
                     auditHtml += `
                         <div style="background:#dcfce7; border:2px solid #16a34a; border-radius:12px; padding:14px; display:flex; justify-content:space-between; align-items:center;">
                             <div>
-                                <span style="font-weight:900; font-size:1.2rem; color:#14532d">✅ ${esc(t.name)} (${esc(t.corpName)}): DOANH NGHIỆP TRUNG THỰC & AN TOÀN!</span>
+                                <span style="font-weight:900; font-size:1.2rem; color:#14532d">👑 ${esc(t.name)} (${esc(t.corpName)}): DOANH NGHIỆP TRUNG THỰC & TIÊU BIỂU!</span>
                                 <div style="font-size:.95rem; font-weight:700; color:#15803d; margin-top:4px">
-                                    100% phần mềm có bản quyền chính hãng từ đầu · Máy tính sạch virus tuyệt đối!
+                                    100% phần mềm có bản quyền chính hãng từ đầu · Máy tính sạch virus tuyệt đối, xứng đáng là tấm gương công nghệ!
                                 </div>
                             </div>
                             <span style="font-weight:900; font-size:1.25rem; color:#15803d; background:#fff; padding:6px 14px; border-radius:8px">
-                                THƯỞNG +$300
+                                THƯỞNG +$${(res.bonus || 500).toLocaleString()}
                             </span>
                         </div>
                     `;
@@ -4340,9 +4539,15 @@
         };
 
         /* ================= 11. BẢNG VÀNG & VINH DANH (QUY CHUẨN 13 TIE-RANKING) ================= */
-        function calculateCompetitionRankings(teamList) {
+        function calculateCompetitionRankings(teamList = teams) {
             if (!teamList || !teamList.length) return [];
-            const sorted = [...teamList].sort((a, b) => b.money - a.money);
+            const sorted = [...teamList].sort((a, b) => {
+                if (b.money !== a.money) return b.money - a.money;
+                const aClean = !a.hadPiracyRecord && !a.hasDetonated && !a.infected;
+                const bClean = !b.hadPiracyRecord && !b.hasDetonated && !b.infected;
+                if (aClean !== bClean) return aClean ? -1 : 1;
+                return 0;
+            });
             let currentRank = 1;
             return sorted.map((team, idx, list) => {
                 if (idx > 0 && team.money !== list[idx - 1].money) currentRank = idx + 1;
@@ -4361,7 +4566,10 @@
                     medal = '🥉';
                 }
 
-                return { ...team, rank: currentRank, isTie, title, medal };
+                const isClean = !team.hadPiracyRecord && !team.hasDetonated && !team.infected;
+                const cleanBadge = isClean ? '🛡️ Bản quyền 100%' : '⚠️ Từng vi phạm';
+
+                return { ...team, rank: currentRank, isTie, title, medal, isClean, cleanBadge };
             });
         }
 
@@ -4378,6 +4586,7 @@
                             <div class="podium-title-badge">${t.isTie ? `Đồng Hạng ${t.rank} · ${t.title}` : `Hạng ${t.rank} · ${t.title}`}</div>
                             <div class="podium-name">${esc(t.name)}</div>
                             <div class="podium-corp">${esc(t.corpName)}</div>
+                            <div style="font-size:0.75rem; font-weight:800; color:${t.isClean ? '#15803d' : '#b45309'}; margin-top:2px">${t.cleanBadge}</div>
                         </div>
                     </div>
                     <div class="podium-score">$${t.money.toLocaleString()}</div>
@@ -4435,10 +4644,10 @@
             };
 
             csv += '=== BẢNG XẾP HẠNG THI ĐUA CÁC TỔ ===\r\n';
-            csv += 'Thứ hạng,Huy chương,Danh hiệu,Tên tổ,Tập đoàn công nghệ,Phần mềm sở hữu,Tổng tài sản,Lãi suất cuối,Đồng hạng\r\n';
+            csv += 'Thứ hạng,Huy chương,Danh hiệu,Tên tổ,Tập đoàn công nghệ,Phần mềm sở hữu,Tổng tài sản,Lãi suất cuối,Tuân thủ bản quyền,Đồng hạng\r\n';
             ranked.forEach(t => {
                 const medalText = csvMedals[t.rank] || 'Huy hiệu Khuyến khích';
-                csv += `Hạng ${t.rank},"${q(medalText)}","${q(t.title)}","${q(t.name)}","${q(t.corpName)}","${q(t.software)}",$${t.money},${t.currentInterest}%,${t.isTie ? 'Có (Đồng điểm)' : 'Không'}\r\n`;
+                csv += `Hạng ${t.rank},"${q(medalText)}","${q(t.title)}","${q(t.name)}","${q(t.corpName)}","${q(t.software)}",$${t.money},${t.currentInterest}%,${t.isClean ? 'Bản quyền 100%' : 'Từng vi phạm'},${t.isTie ? 'Có (Đồng điểm)' : 'Không'}\r\n`;
             });
             csv += '\r\n';
 
@@ -4458,6 +4667,14 @@
             tradeLogs.forEach(log => {
                 csv += `"${log.replace(/"/g, '""')}"\r\n`;
             });
+
+            if (tradeLedger.length) {
+                csv += '\r\n=== SỔ CÁI GIAO DỊCH CHI TIẾT (LEDGER) ===\r\n';
+                csv += 'Thời gian,Vòng đấu,Khách hàng,Tập đoàn khách,Bên bán / Đối tác,Sản phẩm / Dịch vụ,Quyết định,Biến động tiền khách,Số dư khách,Biến động tiền bán,Số dư bên bán,Hiệu ứng\r\n';
+                tradeLedger.forEach(e => {
+                    csv += `"${q(e.time)}","${q(e.round)}","${q(e.custName)}","${q(e.custCorp)}","${q(e.sellerName)}","${q(e.sellerCorp)}","${q(e.actionTitle)}",$${e.custDelta},$${e.custBalance},$${e.sellerDelta},$${e.sellerBalance},"${q(e.interestEffect)}"\r\n`;
+                });
+            }
 
             return csv;
         }
@@ -4519,8 +4736,12 @@
                 renderFundQuiz();
             }
             if (idx === 3) {
-                // CHỈ GACHA NẾU CHƯA CÓ SỰ CỐ HOẶC BẮT ĐẦU VÒNG ĐẦU TIÊN
-                if (!curTargetCorp) {
+                if (curRound >= 6 && roundTurnsPlayed >= teams.length) {
+                    updateArena();
+                    if (typeof window.toast === 'function') {
+                        window.toast('🏁 Thương trường 6 tháng đã hoàn tất! Vui lòng sang tab 4 để Thanh tra Bản quyền.', 3500, '#2563eb');
+                    }
+                } else if (!curTargetCorp) {
                     startAutoGachaForCustomer();
                 } else {
                     updateArena();

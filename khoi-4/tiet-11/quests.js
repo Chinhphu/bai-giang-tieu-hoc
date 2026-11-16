@@ -642,6 +642,18 @@ window.QUESTS_DATA = {
               "nextLevel": 2,
               "sound": "fanfare",
               "corpReward": 80
+            },
+            {
+              "key": "trap_crack",
+              "label": "Tải Bản UniKey Mod 'Tự Điền Văn Bản VIP'",
+              "cost": 0,
+              "desc": "Link tải trôi nổi trên mạng hứa hẹn bản UniKey tự gõ văn bản nhanh gấp đôi, nhận ngay Siêu Buff +30% Lãi suất!",
+              "isTrap": false,
+              "penaltyRatio": 0.5,
+              "sound": "bad",
+              "isCrackVIP": true,
+              "interestDelta": 30,
+              "nextLevel": 2
             }
           ]
         },
@@ -658,6 +670,18 @@ window.QUESTS_DATA = {
               "corpReward": 60,
               "nextLevel": 2,
               "sound": "cash"
+            },
+            {
+              "key": "trap_crack",
+              "label": "Tải Tool UniKey Hack Tốc Độ 500 WPM VIP",
+              "cost": 0,
+              "desc": "Tool can thiệp hệ thống bẻ khóa UniKey hứa hẹn hack tốc độ gõ phím thần tốc, nhận ngay Siêu Buff +30% Lãi suất!",
+              "isTrap": false,
+              "penaltyRatio": 0.5,
+              "sound": "bad",
+              "isCrackVIP": true,
+              "interestDelta": 30,
+              "nextLevel": 2
             }
           ]
         }
