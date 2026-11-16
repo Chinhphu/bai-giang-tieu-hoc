@@ -2063,7 +2063,7 @@
                         o.frequency.setValueAtTime(freq, now + idx * 0.1);
                         g.gain.setValueAtTime(0.18, now + idx * 0.1);
                         g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.45);
-                        o.connect(gain); gain.connect(ctx.destination);
+                        o.connect(g); g.connect(ctx.destination);
                         o.start(now + idx * 0.1); o.stop(now + idx * 0.1 + 0.48);
                     });
                 }
@@ -2102,6 +2102,16 @@
         // Cơ chế trần giá bán
         let maxPriceCeiling = 150;
         let fundQuestionsCorrectCount = 0;
+        let answeredFund = {};   // id câu gọi vốn đã trả lời -> đáp án đã chọn (chống làm lại để farm thưởng)
+        let answeredCons = {};   // id câu củng cố đã trả lời
+        let gachaTimer = null;   // chống chạy chồng interval quay gacha
+        let quizSeed = Math.random().toString(36).slice(2); // hạt giống xáo đáp án câu gọi vốn (mỗi lớp một kiểu)
+
+        // Thuê bao có hiệu lực 2 tháng: tháng mua + tháng kế tiếp, hết tháng kế tiếp thì về mức reset
+        const SUBSCRIPTIONS = {
+            'Photoshop': { threshold: 1, resetTo: 0 },
+            'CapCut': { threshold: 2, resetTo: 1 }
+        };
 
         // Cơ chế giảm giá cho sự cố đang diễn ra
         let activeDiscountPrice = null; // null = giá gốc, number = giá sau giảm
@@ -2133,6 +2143,9 @@
                     roundTurnsPlayed,
                     maxPriceCeiling,
                     fundQuestionsCorrectCount,
+                    answeredFund,
+                    answeredCons,
+                    quizSeed,
                     isAudited,
                     teams,
                     studentLogs,
@@ -2176,6 +2189,9 @@
                     roundTurnsPlayed = d.roundTurnsPlayed || 0;
                     maxPriceCeiling = d.maxPriceCeiling || 150;
                     fundQuestionsCorrectCount = d.fundQuestionsCorrectCount || 0;
+                    answeredFund = d.answeredFund || {};
+                    answeredCons = d.answeredCons || {};
+                    quizSeed = d.quizSeed || quizSeed;
                     isAudited = d.isAudited || false;
                     teams = d.teams;
                     studentLogs = d.studentLogs || [];
@@ -2242,7 +2258,8 @@
                 'CapCut': { img: 'capcut.png', emoji: '🎬' },
                 'Google Chrome': { img: 'chrome.png', emoji: '🌐' },
                 'Chrome': { img: 'chrome.png', emoji: '🌐' },
-                'UniKey': { img: 'unikey.png', emoji: '⌨️' },
+                'UniKey': { img: 'unikey.png', emoji: '🇻🇳' },
+                'Bộ Gõ UniKey': { img: 'unikey.png', emoji: '🇻🇳' },
                 "Kiran's Typing Tutor": { img: 'kiran.png', emoji: '⌨️' },
                 'Kiran': { img: 'kiran.png', emoji: '⌨️' }
             };
@@ -2314,6 +2331,7 @@
                     inventory: [],
                     softwareLevels: {},
                     softwareOrigins: {},
+                    subStart: {},
                     timesChosenAsVendor: 0,
                     history: [{ month: 0, money: 1000 }],
                     infected: false,
@@ -2334,6 +2352,9 @@
             roundTurnsPlayed = 0;
             maxPriceCeiling = 150;
             fundQuestionsCorrectCount = 0;
+            answeredFund = {};
+            answeredCons = {};
+            quizSeed = Math.random().toString(36).slice(2);
             isAudited = false;
             curTargetCorp = null;
             activeDiscountPrice = null;
@@ -2432,6 +2453,7 @@
                         t.inventory = [];
                         t.softwareLevels = {};
                         t.softwareOrigins = {};
+                        t.subStart = {};
                         t.timesChosenAsVendor = 0;
                         t.hadPiracyRecord = false;
                         t.revealed = true;
@@ -2516,7 +2538,13 @@
                             <div style="margin-top:8px; background:#f0fdf4; border-radius:10px; padding:10px; text-align:center">
                                 <div style="font-size:0.95rem; font-weight:900; color:#16a34a">🎁 MIỄN PHÍ CHO NGƯỜI DÙNG: $0</div>
                                 <div style="font-size:0.85rem; font-weight:700; color:#15803d; margin-top:4px">
-                                    Tài trợ quảng cáo: <b>+$${t.currentPrice} / lượt</b> (Trần: $${maxPriceCeiling})
+                                    Tài trợ quảng cáo lần cài đầu (TRẦN: $${maxPriceCeiling}):
+                                </div>
+                                <div class="price-stepper-box">
+                                    <button type="button" class="sm" onclick="adjustTeamPrice(${idx}, -10)">-10</button>
+                                    <span style="font-weight:900; color:var(--navy); font-size:1.35rem">$</span>
+                                    <input type="number" id="teamPriceInput_${idx}" class="price-stepper-input" value="${t.currentPrice}" min="20" max="${maxPriceCeiling}" step="10" onchange="setTeamPrice(${idx}, this.value)">
+                                    <button type="button" class="sm" onclick="adjustTeamPrice(${idx}, 10)">+10</button>
                                 </div>
                             </div>
                         `}
@@ -2527,7 +2555,7 @@
 
         window.adjustTeamPrice = function (idx, delta) {
             if (!teams[idx]) return;
-            const newPrice = Math.max(40, Math.min(maxPriceCeiling, (teams[idx].currentPrice || 100) + delta));
+            const newPrice = Math.max(20, Math.min(maxPriceCeiling, (teams[idx].currentPrice || 100) + delta));
             teams[idx].currentPrice = newPrice;
             playSound('tick');
             renderMarketListing();
@@ -2607,12 +2635,6 @@
                 window.closeNotebookModal();
                 window.closeLedgerModal();
                 if (typeof closeCustomDiscountModal === 'function') closeCustomDiscountModal();
-                const karma = $('#karmaModal');
-                if (karma) karma.style.display = 'none';
-                const audit = $('#auditModal');
-                if (audit) audit.style.display = 'none';
-                const rep = $('#roundReportModal');
-                if (rep) rep.style.display = 'none';
                 const giant = $('#giantGachaModal');
                 if (giant) giant.style.display = 'none';
             } else if (e.key === 'ArrowRight' && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
@@ -2632,6 +2654,15 @@
             sel.value = currentClassId;
             sel.onchange = () => {
                 currentClassId = sel.value;
+                try { localStorage.setItem('bgtieu_hoc_k4_tiet_11_last_class', currentClassId); } catch (e) { }
+                // Dọn trạng thái giao diện/timers của lớp trước
+                if (turnStepTimer) { clearTimeout(turnStepTimer); turnStepTimer = null; }
+                if (gachaTimer) { clearInterval(gachaTimer); gachaTimer = null; }
+                curTargetCorp = null;
+                activeDiscountPrice = null;
+                curFundQIdx = 0;
+                curConsQIdx = 0;
+                revealedSummaryCards.clear();
                 $('#selStudentFund').value = '';
                 $('#selStudentCons').value = '';
                 updateStagedStudentDisplay('fund');
@@ -2644,6 +2675,7 @@
                 renderMysteryBoxes();
                 renderMarketListing();
                 drawTeams();
+                renderTradeLog();
                 loadStudentsData();
                 go(curScreen);
             };
@@ -2671,6 +2703,25 @@
                 numTeams = nextCount;
                 initTeams();
                 teams = teams.map((team, idx) => previousTeams[idx] || team);
+                // Tổ mới không được trùng tập đoàn với các tổ đã có
+                const usedCorpIds = new Set(previousTeams.slice(0, teams.length).map(t => t.corpId));
+                const prevRevealed = previousTeams.length > 0 && previousTeams.every(t => t.revealed);
+                teams.forEach((t, idx) => {
+                    if (previousTeams[idx]) return;
+                    let corp = DB.corporations.find(c => c.id === t.corpId && !usedCorpIds.has(c.id))
+                        || DB.corporations.find(c => !usedCorpIds.has(c.id));
+                    if (corp) {
+                        t.corpId = corp.id; t.corpName = corp.name; t.software = corp.software;
+                        t.img = corp.img || 'powerpoint.png'; t.corpType = corp.type; t.typeLabel = corp.typeLabel;
+                        t.model = corp.model; t.icon = corp.icon;
+                        t.defaultPrice = Math.min(maxPriceCeiling, corp.basePrice || 100);
+                        t.currentPrice = t.defaultPrice;
+                    }
+                    usedCorpIds.add(t.corpId);
+                    t.revealed = prevRevealed;
+                });
+                if (curCustomerIdx >= teams.length) curCustomerIdx = 0;
+                roundTurnsPlayed = teams.filter(t => t.playedRound === curRound).length;
                 renderMysteryBoxes();
                 renderMarketListing();
                 drawTeams();
@@ -2775,10 +2826,42 @@
             return false;
         }
 
+        /* Xáo thứ tự đáp án theo hạt giống của lớp (ổn định khi tải lại), gõ lại nhãn A/B/C/D */
+        function seededRng(seedStr) {
+            let h = 1779033703 ^ seedStr.length;
+            for (let i = 0; i < seedStr.length; i++) {
+                h = Math.imul(h ^ seedStr.charCodeAt(i), 3432918353);
+                h = (h << 13) | (h >>> 19);
+            }
+            let a = h >>> 0;
+            return () => {
+                a = (a + 0x6D2B79F5) >>> 0;
+                let t = a;
+                t = Math.imul(t ^ (t >>> 15), t | 1);
+                t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+                return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+            };
+        }
+
+        function getShuffledFundQuiz(q) {
+            const rawOpts = q.opts.map(o => String(o).replace(/^\s*[A-Da-d]\s*[\.\)]\s*/, ''));
+            const order = rawOpts.map((_, i) => i);
+            const rnd = seededRng(`${quizSeed}|${q.id}`);
+            for (let i = order.length - 1; i > 0; i--) {
+                const j = Math.floor(rnd() * (i + 1));
+                [order[i], order[j]] = [order[j], order[i]];
+            }
+            return {
+                ...q,
+                opts: order.map((origIdx, pos) => `${String.fromCharCode(65 + pos)}. ${rawOpts[origIdx]}`),
+                ans: order.indexOf(q.ans)
+            };
+        }
+
         function renderFundQuiz() {
             const qList = DB.funding_quizzes || [];
             if (!qList.length) return;
-            const q = qList[curFundQIdx];
+            const q = getShuffledFundQuiz(qList[curFundQIdx]);
             $('#fundQIndex').textContent = `CÂU HỎI ${curFundQIdx + 1} / ${qList.length} THỰC HÀNH TỆP & THƯ MỤC`;
             $('#fundQText').textContent = q.q;
 
@@ -2797,6 +2880,7 @@
                     if (!requireQuizStudent('#selStudentFund', 'trả lời câu hỏi')) return;
                     const chosen = Number(btn.dataset.idx);
                     const isOk = chosen === q.ans;
+                    answeredFund[q.id || curFundQIdx] = chosen;
                     $$('#fundQOpts .quiz-opt-btn').forEach((b, i) => {
                         b.disabled = true;
                         if (i === q.ans) b.classList.add('correct');
@@ -2810,17 +2894,13 @@
                     fb.style.color = isOk ? '#14532d' : '#991b1b';
                     fb.innerHTML = `
                         <b>${isOk ? '🎉 CHÍNH XÁC!' : '❌ CHƯA ĐÚNG!'}</b> ${esc(q.exp || q.expl || '')}
-                        ${isOk ? '<br>✨ <i>Cả lớp đã nâng trần giá bán / tài trợ thêm +$50!</i>' : ''}
+                        ${isOk ? '<br>✨ <i>Trần giá bán / tài trợ của cả lớp tăng thêm +$50! Các tổ có thể nâng giá niêm yết ở Bước 1.</i>' : ''}
                     `;
 
                     if (isOk) {
                         maxPriceCeiling += 50;
                         fundQuestionsCorrectCount++;
                         updateCeilingUI();
-                        // Tăng giá các tổ tương ứng
-                        teams.forEach(t => {
-                            t.currentPrice = Math.min(maxPriceCeiling, t.currentPrice + 50);
-                        });
                         renderMarketListing();
                         drawTeams();
                     }
@@ -2838,6 +2918,21 @@
                     saveState();
                 };
             });
+
+            // Câu đã trả lời: hiện lại kết quả, khóa nút, KHÔNG cộng thưởng lần nữa
+            const prevAns = answeredFund[q.id || curFundQIdx];
+            if (prevAns !== undefined) {
+                const okPrev = prevAns === q.ans;
+                $$('#fundQOpts .quiz-opt-btn').forEach((b, i) => {
+                    b.disabled = true;
+                    if (i === q.ans) b.classList.add('correct');
+                    else if (i === prevAns && !okPrev) b.classList.add('wrong');
+                });
+                fb.style.display = 'block';
+                fb.style.background = okPrev ? '#dcfce7' : '#fee2e2';
+                fb.style.color = okPrev ? '#14532d' : '#991b1b';
+                fb.innerHTML = `<b>${okPrev ? '🎉 CHÍNH XÁC!' : '❌ CHƯA ĐÚNG!'}</b> ${esc(q.exp || q.expl || '')}<br><i>(Câu này đã trả lời, không tính thưởng lần nữa)</i>`;
+            }
         }
 
         $('#btnPrevFundQ').onclick = () => {
@@ -2916,10 +3011,7 @@
 
         /* AUTO GACHA CHO LƯỢT KHÁCH HÀNG MỚI */
         function startAutoGachaForCustomer() {
-            // Khi tiếp tục quay lượt khách mới (hoặc chơi thêm tháng), tự động reset cờ thanh tra
-            isAudited = false;
-            teams.forEach(t => t.auditResult = null);
-
+            if (curCustomerIdx >= teams.length) curCustomerIdx = 0;
             const custTeam = teams[curCustomerIdx];
             updateArena();
             activeDiscountPrice = null; // reset giảm giá cho lượt mới
@@ -2946,9 +3038,10 @@
             const leastChosenTeams = pool.filter(t => (t.timesChosenAsVendor || 0) === minTimes);
             const finalChosen = leastChosenTeams[Math.floor(Math.random() * leastChosenTeams.length)];
 
+            if (gachaTimer) { clearInterval(gachaTimer); gachaTimer = null; }
             let spins = 0;
             const maxSpins = 14;
-            const timer = setInterval(() => {
+            const timer = gachaTimer = setInterval(() => {
                 const temp = pool[Math.floor(Math.random() * pool.length)];
                 $('#gachaRollIconWrap').innerHTML = renderSoftwareIcon(temp, 64);
                 $('#gachaRollCorp').textContent = temp.corpName;
@@ -2957,6 +3050,7 @@
                 spins++;
                 if (spins >= maxSpins) {
                     clearInterval(timer);
+                    if (gachaTimer === timer) gachaTimer = null;
                     finalChosen.timesChosenAsVendor = (finalChosen.timesChosenAsVendor || 0) + 1;
                     playSound('beep_ok');
                     $('#gachaRollingBox').style.display = 'none';
@@ -2974,7 +3068,7 @@
             infectedTeam.currentInterest = 0;
             infectedTeam.infected = false; // Bom đã nổ
             infectedTeam.hasDetonated = true;
-            infectedTeam.detonatedSoftwares = [...(infectedTeam.infectedSoftwares || [])];
+            infectedTeam.detonatedSoftwares = [...new Set([...(infectedTeam.detonatedSoftwares || []), ...(infectedTeam.infectedSoftwares || [])])];
             statCrackDisasterCount++;
 
             const swList = (infectedTeam.infectedSoftwares && infectedTeam.infectedSoftwares.length > 0)
@@ -3065,9 +3159,11 @@
                     priceDisplayHtml = `<span style="font-size:1.45rem; font-weight:900; color:var(--navy)">$${eventBasePrice}</span>`;
                 }
             } else {
+                const sponsorChoice = ev.choices.find(c => c.corpReward);
+                const sponsorAmt = sponsorChoice ? getSponsorAmount(sponsorChoice, ownerTeam, custTeam) : 0;
                 priceDisplayHtml = `
                     <div style="font-size:1.25rem; font-weight:900; color:var(--green)">MIỄN PHÍ ($0)</div>
-                    <div style="font-size:0.8rem; font-weight:700; color:#16a34a">Tài trợ: +$${ownerTeam.currentPrice || 100}</div>
+                    ${sponsorAmt > 0 ? `<div style="font-size:0.8rem; font-weight:700; color:#16a34a">Tài trợ: +$${sponsorAmt}</div>` : ''}
                 `;
             }
 
@@ -3180,7 +3276,7 @@
         };
 
         window.applyFixedDiscountPrice = function (fixedPrice) {
-            activeDiscountPrice = Math.max(0, fixedPrice);
+            activeDiscountPrice = Math.max(0, Math.min(currentDiscountModalBase, fixedPrice));
             playSound('cash');
             closeCustomDiscountModal();
             if (typeof window.toast === 'function') {
@@ -3193,7 +3289,7 @@
             const raw = $('#txtCustomDiscountInput').value;
             const val = parseInt(raw, 10);
             if (!isNaN(val) && val >= 0) {
-                activeDiscountPrice = val;
+                activeDiscountPrice = Math.min(val, currentDiscountModalBase);
                 playSound('cash');
                 closeCustomDiscountModal();
                 if (typeof window.toast === 'function') {
@@ -3214,6 +3310,26 @@
             if (curTargetCorp) {
                 setupEventForTarget(curTargetCorp);
             }
+        }
+
+        /* Đặt level phần mềm; nếu là thuê bao và vừa chuyển từ chưa có sang đang có thì ghi nhớ tháng bắt đầu */
+        function setSoftwareLevel(team, software, newLevel) {
+            if (!team.softwareLevels) team.softwareLevels = {};
+            const prev = team.softwareLevels[software] || 0;
+            const sub = SUBSCRIPTIONS[software];
+            if (sub && prev < sub.threshold && newLevel >= sub.threshold) {
+                if (!team.subStart) team.subStart = {};
+                team.subStart[software] = curRound;
+            }
+            team.softwareLevels[software] = newLevel;
+        }
+
+        function getSponsorAmount(c, ownerTeam, custTeam) {
+            if (!c || !c.corpReward) return 0;
+            const isNewInstall = (custTeam.softwareLevels?.[ownerTeam.software] ?? 0) === 0;
+            return (ownerTeam.corpType !== 'paid' && isNewInstall && ownerTeam.currentPrice)
+                ? ownerTeam.currentPrice
+                : c.corpReward;
         }
 
         function renderChoicesHtml(choices, ownerTeam, custTeam, eventBasePrice) {
@@ -3248,9 +3364,7 @@
                     badgeClass = 'free';
                     badgeLabel = '🎁 MIỄN PHÍ';
                     const isNewInstall = (custTeam.softwareLevels?.[ownerTeam.software] ?? 0) === 0;
-                    const dynamicSponsor = (ownerTeam.corpType !== 'paid' && isNewInstall && ownerTeam.currentPrice)
-                        ? ownerTeam.currentPrice
-                        : (c.corpReward || 0);
+                    const dynamicSponsor = getSponsorAmount(c, ownerTeam, custTeam);
                     costHtml = dynamicSponsor > 0
                         ? `<span style="font-size:1.35rem; font-weight:900; color:var(--green)">$0 (Tài trợ +$${dynamicSponsor})</span>`
                         : `<span style="font-size:1.35rem; font-weight:900; color:var(--green)">$0 (Miễn phí 100%)</span>`;
@@ -3290,10 +3404,15 @@
 
         function handleChoiceAction(choice, ownerTeam, custTeam, eventBasePrice) {
             $$('#choicesGrid .choice-btn').forEach(b => b.disabled = true);
+            // Có hoạt động mới sau lần thanh tra trước -> cho phép thanh tra lại (nhưng không cho bấm lặp khi chưa chơi gì)
+            if (isAudited) {
+                isAudited = false;
+                teams.forEach(t => t.auditResult = null);
+            }
 
             // Ghi nhận Telemetry học sinh đại diện tổ ra quyết định theo chuẩn Thông tư 27
             const repStudent = $('#selStudentArena')?.value?.trim();
-            if (repStudent) {
+            const pushDecisionLog = () => { if (repStudent) {
                 const isSafe = !choice.isCrackVIP && !choice.isTrap;
                 studentLogs.push({
                     studentName: repStudent,
@@ -3306,10 +3425,11 @@
                             : 'Ý thức bản quyền tốt, ưu tiên giải pháp chính hãng / an toàn'),
                     tt27: isSafe ? 'T' : 'H'
                 });
-            }
+            } };
 
             // 1. BẪY CRACK PHẦN MỀM MIỄN PHÍ
             if (choice.isTrap) {
+                pushDecisionLog();
                 playSound('bad');
                 triggerScreenShake();
                 const penalty = Math.round(custTeam.money * (choice.penaltyRatio || 0.5));
@@ -3341,6 +3461,7 @@
 
             // 2. MỒI NHỬ SIÊU BUFF: CRACK TRÓT LỌT 100% + BOM HẸN GIỜ
             if (choice.isCrackVIP) {
+                pushDecisionLog();
                 playSound('fanfare');
                 fireConfetti();
                 custTeam.currentInterest += (choice.interestDelta || 30);
@@ -3352,7 +3473,7 @@
                 custTeam.softwareOrigins[ownerTeam.software] = 'crack';
 
                 if (!custTeam.softwareLevels) custTeam.softwareLevels = {};
-                custTeam.softwareLevels[ownerTeam.software] = choice.nextLevel ?? 1;
+                setSoftwareLevel(custTeam, ownerTeam.software, choice.nextLevel ?? 1);
                 if (!custTeam.inventory.includes(ownerTeam.software)) {
                     custTeam.inventory.push(ownerTeam.software);
                 }
@@ -3382,6 +3503,7 @@
 
             // 3. TỪ CHỐI / BỎ QUA (ÂM THANH DỊU NHẸ, KHÔNG BÁO FAIL)
             if (choice.key === 'skip') {
+                pushDecisionLog();
                 playSound('neutral');
                 if (choice.interestDelta === -999) {
                     custTeam.currentInterest = 0;
@@ -3434,6 +3556,8 @@
                 statSafeCount++;
             }
 
+            pushDecisionLog();
+
             if (choice.interestDelta) {
                 custTeam.currentInterest += choice.interestDelta;
             }
@@ -3443,12 +3567,7 @@
             }
             let sponsorReward = 0;
             if (choice.corpReward) {
-                const isNewInstall = (custTeam.softwareLevels?.[ownerTeam.software] ?? 0) === 0;
-                if (ownerTeam.corpType !== 'paid' && isNewInstall && ownerTeam.currentPrice) {
-                    sponsorReward = ownerTeam.currentPrice;
-                } else {
-                    sponsorReward = choice.corpReward;
-                }
+                sponsorReward = getSponsorAmount(choice, ownerTeam, custTeam);
                 ownerTeam.money += sponsorReward;
                 statSafeCount++;
             }
@@ -3456,7 +3575,9 @@
             // CƠ CHẾ HOÀN LƯƠNG: Nếu tổ này từng dùng bản crack của phần mềm này và nay mua/dùng bản chính hãng
             const wasCracked = (custTeam.infectedSoftwares && custTeam.infectedSoftwares.includes(ownerTeam.software)) ||
                                (custTeam.softwareOrigins && custTeam.softwareOrigins[ownerTeam.software] === 'crack');
-            if (wasCracked) {
+            // "Duy trì" thuê bao của bản crack chỉ là dùng tiếp bản lậu: không được hóa giải bom
+            const keepsPiracy = wasCracked && choice.key === 'maintain';
+            if (wasCracked && !keepsPiracy) {
                 // Gỡ bỏ phần mềm lậu khỏi danh sách bom mã độc
                 if (custTeam.infectedSoftwares) {
                     custTeam.infectedSoftwares = custTeam.infectedSoftwares.filter(s => s !== ownerTeam.software);
@@ -3472,12 +3593,14 @@
             }
 
             if (!custTeam.softwareLevels) custTeam.softwareLevels = {};
-            custTeam.softwareLevels[ownerTeam.software] = choice.nextLevel ?? 1;
+            setSoftwareLevel(custTeam, ownerTeam.software, choice.nextLevel ?? 1);
             if (!custTeam.inventory.includes(ownerTeam.software)) {
                 custTeam.inventory.push(ownerTeam.software);
             }
             if (!custTeam.softwareOrigins) custTeam.softwareOrigins = {};
-            custTeam.softwareOrigins[ownerTeam.software] = ownerTeam.corpType === 'paid' ? 'official' : 'free';
+            if (!keepsPiracy) {
+                custTeam.softwareOrigins[ownerTeam.software] = ownerTeam.corpType === 'paid' ? 'official' : 'free';
+            }
 
             playSound(choice.sound || 'cash');
 
@@ -3513,8 +3636,8 @@
                 turnStepTimer = null;
             }
             drawTeams();
+            markCurrentTeamPlayed();
             saveState();
-            roundTurnsPlayed++;
 
             if (roundTurnsPlayed >= numTeams) {
                 // TẤT CẢ CÁC TỔ ĐÃ HOÀN THÀNH LƯỢT TRONG THÁNG NÀY -> TỰ ĐỘNG CHỐT THÁNG!
@@ -3529,8 +3652,20 @@
             }
         }
 
+        function markCurrentTeamPlayed() {
+            const t = teams[curCustomerIdx];
+            if (t) t.playedRound = curRound;
+            roundTurnsPlayed = teams.filter(x => x.playedRound === curRound).length;
+        }
+
         function advanceToNextCustomer() {
-            curCustomerIdx = (curCustomerIdx + 1) % numTeams;
+            // Chuyển sang tổ kế tiếp CHƯA chơi trong tháng này
+            let next = (curCustomerIdx + 1) % numTeams;
+            for (let k = 0; k < numTeams; k++) {
+                const cand = (curCustomerIdx + 1 + k) % numTeams;
+                if (teams[cand] && teams[cand].playedRound !== curRound) { next = cand; break; }
+            }
+            curCustomerIdx = next;
             startAutoGachaForCustomer();
             saveState();
         }
@@ -3542,7 +3677,7 @@
             }
             const custTeam = teams[curCustomerIdx];
             logTrade(`⏭️ ${custTeam ? custTeam.name : 'Khách hàng'} đã bỏ qua lượt chơi.`);
-            roundTurnsPlayed++;
+            markCurrentTeamPlayed();
             drawTeams();
             saveState();
             if (roundTurnsPlayed >= numTeams) {
@@ -3589,10 +3724,18 @@
                 // Reset lãi suất về lãi suất cơ bản
                 t.currentInterest = t.baseInterest;
 
-                // Chu kỳ thuê bao: reset Photoshop về 0 và CapCut về 1
+                // Chu kỳ thuê bao 2 tháng: hết tháng kế tiếp sau tháng mua thì hết hạn
                 if (t.softwareLevels) {
-                    if (t.softwareLevels["Photoshop"] > 0) t.softwareLevels["Photoshop"] = 0;
-                    if (t.softwareLevels["CapCut"] > 1) t.softwareLevels["CapCut"] = 1;
+                    if (!t.subStart) t.subStart = {};
+                    Object.entries(SUBSCRIPTIONS).forEach(([sw, cfg]) => {
+                        if ((t.softwareLevels[sw] || 0) >= cfg.threshold) {
+                            const start = t.subStart[sw];
+                            if (start === undefined || finishedMonth - start >= 1) {
+                                t.softwareLevels[sw] = cfg.resetTo;
+                                delete t.subStart[sw];
+                            }
+                        }
+                    });
                 }
             });
 
@@ -3864,7 +4007,7 @@
                 b.onclick = (e) => {
                     e.stopPropagation();
                     const idx = Number(b.dataset.pen);
-                    const pen = Math.max(20, Math.round(teams[idx].money * 0.1));
+                    const pen = Math.round(teams[idx].money * 0.1);
                     teams[idx].money = Math.max(0, teams[idx].money - pen);
                     playSound('beep_wrong');
                     drawTeams();
@@ -3921,7 +4064,7 @@
             if (typeof startAutoGachaForCustomer === 'function') {
                 startAutoGachaForCustomer();
             }
-            playSound('tap');
+            playSound('tick');
             saveState();
             if (typeof window.toast === 'function') {
                 window.toast(`🎯 Đã chuyển lượt sang: ${teams[idx].name}`, 1500, '#2563eb');
@@ -3983,6 +4126,7 @@
                     if (!requireQuizStudent('#selStudentCons', 'trả lời câu hỏi củng cố')) return;
                     const chosen = Number(btn.dataset.cidx);
                     const isOk = chosen === q.ans;
+                    answeredCons[q.id || curConsQIdx] = chosen;
                     $$('#consQOpts .quiz-opt-btn').forEach((b, i) => {
                         b.disabled = true;
                         if (i === q.ans) b.classList.add('correct');
@@ -4022,6 +4166,20 @@
                     saveState();
                 };
             });
+
+            const prevCons = answeredCons[q.id || curConsQIdx];
+            if (prevCons !== undefined) {
+                const okPrev = prevCons === q.ans;
+                $$('#consQOpts .quiz-opt-btn').forEach((b, i) => {
+                    b.disabled = true;
+                    if (i === q.ans) b.classList.add('correct');
+                    else if (i === prevCons && !okPrev) b.classList.add('wrong');
+                });
+                fb.style.display = 'block';
+                fb.style.background = okPrev ? '#dcfce7' : '#fee2e2';
+                fb.style.color = okPrev ? '#14532d' : '#991b1b';
+                fb.innerHTML = `<b>${okPrev ? '🎉 CHÍNH XÁC!' : '❌ CHƯA ĐÚNG!'}</b> ${esc(q.exp)}<br><i>(Câu này đã trả lời, không tính thưởng lần nữa)</i>`;
+            }
         }
 
         $('#btnNextConsQ').onclick = () => {
@@ -4203,6 +4361,7 @@
             const timeStr = now.toLocaleTimeString('vi-VN');
 
             let csv = '\uFEFF';
+            const q = v => String(v ?? '').replace(/"/g, '""');
 
             csv += '=== BÁO CÁO TIẾT DẠY TIN HỌC TIỂU HỌC ===\r\n';
             csv += `Môn học,Tin học 4\r\n`;
@@ -4221,7 +4380,7 @@
             csv += 'Thứ hạng,Huy chương,Danh hiệu,Tên tổ,Tập đoàn công nghệ,Phần mềm sở hữu,Tổng tài sản,Lãi suất cuối,Đồng hạng\r\n';
             ranked.forEach(t => {
                 const medalText = csvMedals[t.rank] || 'Huy hiệu Khuyến khích';
-                csv += `Hạng ${t.rank},"${medalText}","${t.title}","${t.name}","${t.corpName}","${t.software}",$${t.money},${t.currentInterest}%,${t.isTie ? 'Có (Đồng điểm)' : 'Không'}\r\n`;
+                csv += `Hạng ${t.rank},"${q(medalText)}","${q(t.title)}","${q(t.name)}","${q(t.corpName)}","${q(t.software)}",$${t.money},${t.currentInterest}%,${t.isTie ? 'Có (Đồng điểm)' : 'Không'}\r\n`;
             });
             csv += '\r\n';
 
@@ -4229,7 +4388,7 @@
             csv += 'STT,Họ và tên học sinh,Nội dung tham gia,Kết quả,Xếp loại TT27,Nhận xét SMAS sư phạm\r\n';
             if (studentLogs.length) {
                 studentLogs.forEach((s, idx) => {
-                    csv += `${idx + 1},"${s.studentName}","${s.activity}","${s.isCorrect ? 'Đúng' : 'Chưa đúng'}","${s.tt27}","${s.note}"\r\n`;
+                    csv += `${idx + 1},"${q(s.studentName)}","${q(s.activity)}","${s.isCorrect ? 'Đúng' : 'Chưa đúng'}","${q(s.tt27)}","${q(s.note)}"\r\n`;
                 });
             } else {
                 csv += '1,"Cả lớp","Tham gia phát biểu và giao dịch sôi nổi","Đạt","T","Tích cực tương tác và nắm vững bài học"\r\n';
@@ -4237,7 +4396,7 @@
             csv += '\r\n';
 
             csv += '=== NHẬT KÝ GIAO DỊCH THƯƠNG TRƯỜNG ===\r\n';
-            csv += 'Thời gian,Nội dung giao dịch\r\n';
+            csv += 'Nhật ký giao dịch (kèm thời gian)\r\n';
             tradeLogs.forEach(log => {
                 csv += `"${log.replace(/"/g, '""')}"\r\n`;
             });
@@ -4337,6 +4496,10 @@
                 const btn = document.getElementById('btnToggleSidebar');
                 if (btn) btn.textContent = '☰';
             }
+            try {
+                const lastCls = localStorage.getItem('bgtieu_hoc_k4_tiet_11_last_class');
+                if (lastCls && ['4_1', '4_2', '4_3', '4_4', '4_5', '4_6'].includes(lastCls)) currentClassId = lastCls;
+            } catch (e) { }
             initClasses();
             const restored = loadState();
             if (!restored) {

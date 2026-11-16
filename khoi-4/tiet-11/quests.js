@@ -317,14 +317,14 @@ window.QUESTS_DATA = {
       "software": "Photoshop",
       "type": "paid",
       "typeLabel": "THU PHÍ",
-      "model": "Thuê bao định kỳ theo chu kỳ vòng (Subscription)",
+      "model": "Thuê bao 2 tháng/lần (Subscription)",
       "icon": "🎨",
       "color": "#dc2626",
       "basePrice": 60,
       "upgradePrice": 60,
       "events": {
         "level_0": {
-          "title": "Hạn Thuê Bao Thiết Kế Đồ Họa Hàng Tháng",
+          "title": "Hạn Thuê Bao Thiết Kế Đồ Họa",
           "desc": "Hệ thống thông báo: Gói thuê bao phần mềm thiết kế đồ họa Photoshop chuyên nghiệp đã đến kỳ gia hạn tháng mới!",
           "choices": [
             {
@@ -365,7 +365,7 @@ window.QUESTS_DATA = {
               "key": "maintain",
               "label": "Duy Trì Sử Dụng Bình Thường",
               "cost": 0,
-              "desc": "Hệ thống ổn định tuyệt đối! Buff +5% Lãi suất vòng. (Cuối vòng này thuê bao sẽ hết hạn và quay về Level 0 để gia hạn tiếp).",
+              "desc": "Hệ thống ổn định tuyệt đối! Buff +5% Lãi suất vòng. (Cuối tháng này thuê bao 2 tháng sẽ hết hạn và quay về Level 0 để gia hạn tiếp).",
               "interestDelta": 5,
               "nextLevel": 1,
               "sound": "cash"
