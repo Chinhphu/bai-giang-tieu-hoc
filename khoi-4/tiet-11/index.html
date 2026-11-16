@@ -171,12 +171,41 @@
             75% { transform: translateX(4px); }
         }
 
+        /* NÚT HAMBURGER VUÔNG ĐỘC LẬP TOP-LEFT THEO QUY CHUẨN STANDARDS.md */
+        .btn-hamburger-toggle {
+            position: fixed;
+            top: 10px;
+            left: 12px;
+            width: 44px;
+            height: 44px;
+            background: #ffffff;
+            color: var(--navy);
+            border: 2px solid var(--navy);
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.45rem;
+            font-weight: 900;
+            cursor: pointer;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+            user-select: none;
+            padding: 0;
+        }
+
+        .btn-hamburger-toggle:hover {
+            background: #fde68a;
+            transform: scale(1.05);
+        }
+
         /* HEADER */
         header {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 8px 16px;
+            padding: 8px 16px 8px 66px; /* Chừa lề trái để không bị đè bởi nút Hamburger */
             background: var(--ink);
             color: #fff;
             flex-wrap: wrap;
@@ -206,7 +235,7 @@
         nav {
             display: flex;
             gap: 6px;
-            padding: 8px 16px 0;
+            padding: 8px 16px 0 66px; /* Cùng lề trái với header */
             background: var(--bg);
             border-bottom: 2px solid #cbd5e1;
             overflow-x: auto;
@@ -227,7 +256,7 @@
             border-color: var(--ink);
         }
 
-        /* MAIN LAYOUT */
+        /* MAIN LAYOUT CO GIÃN THEO SIDEBAR */
         .layout {
             flex: 1;
             display: grid;
@@ -236,6 +265,16 @@
             padding: 12px 16px 14px;
             min-height: 0;
             overflow: hidden;
+            transition: all 0.22s ease-in-out;
+        }
+
+        body.sidebar-collapsed .layout {
+            grid-template-columns: minmax(0, 1fr) 0px;
+            gap: 0;
+        }
+
+        body.sidebar-collapsed aside {
+            display: none !important;
         }
 
         main {
@@ -252,6 +291,7 @@
             gap: 12px;
             overflow-y: auto;
             padding-bottom: 120px;
+            transition: all 0.22s ease;
         }
 
         .screen {
@@ -1456,15 +1496,15 @@
 </head>
 
 <body>
+    <!-- NÚT HAMBURGER VUÔNG ĐỘC LẬP TOP-LEFT THEO QUY CHUẨN STANDARDS.md MỤC 7.3 -->
+    <button type="button" class="btn-hamburger-toggle" id="btnToggleSidebar" onclick="toggleSidebar()" title="Ẩn/Hiện Bảng Điểm & Công Cụ (☰)">☰</button>
+
     <!-- HEADER -->
     <header>
         <div class="nb-date" id="current-date-line" style="font-size:13px; font-weight:700; color:#ffd84d; margin-right:12px;">Đang nạp ngày tháng...</div>
-        <h1>🎮 Bài 6: Sử Dụng Phần Mềm Khi Được Phép – Thương Trường Phần Mềm (Tiết 11)</h1>
+        <h1>🎮 Bài 6: Sử Dụng Phần Mềm Khi Được Phép – Thương Trường Phần Mềm</h1>
         <label>Lớp: <select id="selCls"></select></label>
         <label>Số tổ: <select id="selTeams"></select></label>
-        <button type="button" class="warn sm" id="btnClearSession" title="Xóa dữ liệu phiên của bài này để bắt đầu lớp mới">
-            🗑️ Xóa phiên
-        </button>
     </header>
 
     <!-- NAVIGATION TABS -->
@@ -1513,17 +1553,19 @@
                         Mỗi tổ đại diện cho 1 Tập đoàn công nghệ với vốn khởi nghiệp <b>$1.000</b>. Bấm bốc thăm 1 lần để nhận sản phẩm, cả lớp cùng trả lời câu hỏi Bài 5 để nâng trần giá bán và thiết lập giá chào hàng!
                     </p>
 
-                    <!-- BƯỚC 1: BỐC THĂM ĐỊNH MỆNH (NHẬN TẬP ĐOÀN) - 1 LẦN DUY NHẤT -->
+                    <!-- BƯỚC 1: BỐC THĂM ĐỊNH MỆNH (NHẬN TẬP ĐOÀN) -->
                     <div style="background:#fff; border:2px solid var(--navy); border-radius:16px; padding:18px; margin-bottom:20px;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px">
                             <span style="font-weight:900; font-size:1.2rem; color:var(--navy)">
-                                🎁 Bước 1: Hộp Quà Bí Ẩn – Bốc Thăm Tập Đoàn (Bấm 1 Lần Duy Nhất)
+                                🎁 Bước 1: Hộp Quà Bí Ẩn – Bốc Thăm Tập Đoàn Cho Các Tổ
                             </span>
-                            <div style="display:flex; gap:8px">
-                                <button type="button" class="go" id="btnRevealAllCorps" style="font-size:1.05rem; padding:8px 20px">
-                                    🎲 Bốc Thăm Tập Đoàn Cả Lớp
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <button type="button" class="go" id="btnRevealAllCorps" style="font-size:1.15rem; padding:8px 20px; display:inline-flex; align-items:center; gap:8px;" title="Bốc thăm ngẫu nhiên Tập đoàn cho các tổ">
+                                    🎲 Bốc Thăm Tập Đoàn
                                 </button>
-                                <button type="button" class="sm" id="btnRerollCorps">🔄 Bốc Thăm Lại</button>
+                                <button type="button" class="sm amber-btn" id="btnRerollCorps" style="font-size:1rem; padding:8px 14px; display:inline-flex; align-items:center; gap:6px;" title="Bốc thăm lại / Xáo trộn lại Tập đoàn cho các tổ">
+                                    🔄 Bốc Thăm Lại
+                                </button>
                             </div>
                         </div>
                         <div id="mysteryBoxesGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px">
@@ -1612,6 +1654,14 @@
                         </div>
                     </div>
 
+                    <!-- THANH GỌI HỌC SINH ĐẠI DIỆN TỔ RA QUYẾT ĐỊNH VỚI GACHA -->
+                    <div class="gacha-call-bar" id="arenaStudentBar" style="margin-bottom:14px; background:#f8fafc; border:2px solid var(--navy); border-radius:14px; padding:10px 16px;">
+                        <span style="font-weight:900; color:var(--navy); font-size:1.1rem">🎯 Đại diện <b id="lblArenaTeamRep" style="color:var(--coral);">Tổ 1</b> lên máy:</span>
+                        <select id="selStudentArena" style="min-width:220px; font-weight:800;"></select>
+                        <button type="button" class="amber-btn" id="btnGachaArena" title="Bốc thăm ngẫu nhiên / Gọi tên">🎲</button>
+                        <span id="stagedArenaTag" style="font-weight:800; color:var(--blue); font-size:1.05rem">Chưa chọn học sinh</span>
+                    </div>
+
                     <!-- GACHA AUTO SPINNER BOX (HIỂN THỊ KHI ĐANG QUAY GACHA TỰ ĐỘNG) -->
                     <div id="gachaRollingBox" style="text-align:center; padding:36px 20px; background:#fff; border:3px solid var(--navy); border-radius:18px; margin-bottom:16px; display:none">
                         <div style="font-size:1.25rem; font-weight:900; color:var(--blue); margin-bottom:14px">
@@ -1668,11 +1718,17 @@
                     <!-- CÂU HỎI CỦNG CỐ LẤY ĐIỂM CHÓT CHO CÁC TỔ -->
                     <div class="quiz-container" style="text-align:left; margin-top:24px">
                         <!-- THANH GỌI HỌC SINH CỦNG CỐ VỚI GACHA -->
-                        <div class="gacha-call-bar" style="margin-bottom:14px">
-                            <span style="font-weight:900; color:var(--navy); font-size:1.1rem">🎯 Học sinh trả lời củng cố:</span>
-                            <select id="selStudentCons" style="min-width:220px; font-weight:800;"></select>
-                            <button type="button" class="amber-btn" id="btnGachaCons" title="Bốc thăm ngẫu nhiên">🎲</button>
-                            <span id="stagedConsTag" style="font-weight:800; color:var(--blue); font-size:1.05rem">Chưa chọn học sinh</span>
+                        <div class="gacha-call-bar" style="margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-weight:900; color:var(--navy); font-size:1.1rem">🎯 Học sinh trả lời củng cố:</span>
+                                <select id="selStudentCons" style="min-width:200px; font-weight:800;"></select>
+                                <button type="button" class="amber-btn" id="btnGachaCons" title="Bốc thăm ngẫu nhiên / Gọi tên">🎲</button>
+                                <span id="stagedConsTag" style="font-weight:800; color:var(--blue); font-size:1.05rem">Chưa chọn học sinh</span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:8px; margin-left:auto;">
+                                <span style="font-weight:900; color:var(--navy); font-size:1.05rem">🎁 Cộng +$50 cho:</span>
+                                <select id="selConsTeam" style="min-width:110px; font-weight:800;"></select>
+                            </div>
                         </div>
 
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px">
@@ -1773,6 +1829,13 @@
                     <div style="color:#94a3b8; font-style:italic">Chưa có giao dịch nào diễn ra.</div>
                 </div>
             </div>
+
+            <!-- NÚT DUY NHẤT LÀM MỚI TIẾT HỌC CHO LỚP TIẾP THEO THEO STANDARDS.md MỤC 9.4 -->
+            <div style="margin-top:auto; padding-top:4px;">
+                <button type="button" class="warn sm" id="btnResetLessonSession" onclick="resetLessonSession()" style="width:100%; justify-content:center; padding:10px; font-size:0.95rem;" title="Bắt đầu tiết dạy mới cho lớp tiếp theo (xóa dữ liệu lớp này)">
+                    🔄 Dạy Lớp Mới
+                </button>
+            </div>
         </aside>
     </div>
 
@@ -1853,31 +1916,6 @@
         </div>
     </div>
 
-    <!-- MODAL INLINE SỬA TIỀN THỦ CÔNG (QUY CHUẨN 17 - FOOLPROOF 100%) -->
-    <div class="modal-overlay" id="editMoneyModal" style="display:none">
-        <div class="modal-card" style="max-width:480px">
-            <h3 style="font-size:1.5rem; font-weight:900; color:var(--navy); margin:0 0 12px" id="editMoneyTitle">
-                ✏️ Điều Chỉnh Tiền Cho Tổ
-            </h3>
-            <div style="margin:16px 0">
-                <input type="number" id="txtEditMoneyInput" style="font-size:1.8rem; font-weight:900; width:100%; text-align:center; padding:10px; border:3px solid var(--navy); border-radius:12px; color:var(--navy)">
-            </div>
-            <div style="display:flex; justify-content:center; gap:8px; margin-bottom:20px; flex-wrap:wrap">
-                <button type="button" class="sm info" onclick="adjustModalInput(-100)">-100</button>
-                <button type="button" class="sm info" onclick="adjustModalInput(100)">+100</button>
-                <button type="button" class="sm info" onclick="adjustModalInput(500)">+500</button>
-                <button type="button" class="sm amber-btn" onclick="setModalInput(1000)">Sàn $1000</button>
-            </div>
-            <div style="display:flex; justify-content:center; gap:12px">
-                <button type="button" class="go" id="btnSaveEditedMoney" style="font-size:1.15rem; padding:10px 24px">
-                    ✅ Lưu Số Tiền
-                </button>
-                <button type="button" class="sm" onclick="closeEditMoneyModal()">
-                    ✖ Hủy Bỏ
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- MODAL TỰ ĐẶT GIÁ KHUYẾN MÃI TỰ DO CHO TỔ BÁN -->
     <div class="modal-overlay" id="customDiscountModal" style="display:none">
@@ -2103,11 +2141,24 @@
                     statSafeCount,
                     statCrackDisasterCount
                 };
-                localStorage.setItem(getStorageKey(), JSON.stringify(data));
+                const serialized = JSON.stringify(data);
+                
+                // Cơ chế cảnh báo Quota LocalStorage theo STANDARDS.md Mục 9.1
+                let totalStorage = 0;
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    totalStorage += ((localStorage.getItem(k) || '').length + (k || '').length) * 2;
+                }
+                if (totalStorage > 4 * 1024 * 1024) {
+                    if (typeof window.toast === 'function') {
+                        window.toast('⚠️ Bộ nhớ tạm trên trình duyệt gần đầy! Thầy/Cô hãy kiểm tra xuất file CSV rồi bấm "🔄 Dạy Lớp Mới" ở Sidebar để làm mới bộ nhớ cho lớp tiếp theo nhé!', 5000, '#eab308');
+                    }
+                }
+                localStorage.setItem(getStorageKey(), serialized);
             } catch (error) {
                 console.error('Không thể lưu trạng thái Tiết 11 Khối 4.', error);
                 if (typeof window.toast === 'function') {
-                    window.toast('⚠️ Không thể lưu phiên học. Thầy/Cô hãy xuất CSV và kiểm tra bộ nhớ trình duyệt.', 3500, '#dc2626');
+                    window.toast('⚠️ Bộ nhớ tạm trên trình duyệt gần đầy hoặc lỗi lưu! Thầy/Cô hãy xuất file CSV rồi bấm "🔄 Dạy Lớp Mới" ở Sidebar để làm mới bộ nhớ nhé!', 4500, '#dc2626');
                 }
             }
         }
@@ -2132,42 +2183,36 @@
                     tradeLedger = d.tradeLedger || [];
                     statSafeCount = d.statSafeCount || 0;
                     statCrackDisasterCount = d.statCrackDisasterCount || 0;
+                    
+                    if (typeof window.toast === 'function') {
+                        window.toast('⚡ Đã tự động khôi phục dữ liệu phiên học trước do sự cố tắt máy/cúp điện!', 3500, '#0d9488');
+                    }
                     return true;
                 }
             } catch (e) { }
             return false;
         }
 
-        function clearSession() {
-            if (confirm("Bạn có chắc muốn xóa dữ liệu phiên của bài này để bắt đầu lớp mới không?")) {
-                localStorage.removeItem(getStorageKey());
-                maxPriceCeiling = 150;
-                fundQuestionsCorrectCount = 0;
-                isAudited = false;
-                initTeams();
-                curRound = 1;
-                curCustomerIdx = 0;
-                roundTurnsPlayed = 0;
-                curTargetCorp = null;
-                activeDiscountPrice = null;
-                studentLogs = [];
-                tradeLogs = [];
-                tradeLedger = [];
-                statSafeCount = 0;
-                statCrackDisasterCount = 0;
-                updateCeilingUI();
-                renderMysteryBoxes();
-                renderMarketListing();
-                drawTeams();
-                renderTradeLog();
-                saveState();
-                if (typeof window.toast === 'function') {
-                    window.toast('✅ Đã xóa dữ liệu phiên học thành công!', 3000, '#16a34a');
-                }
-            }
-        }
+        /* NÚT DUY NHẤT LÀM MỚI PHIÊN HỌC CHO LỚP TIẾP THEO THEO STANDARDS.md MỤC 9.4 */
+        window.resetLessonSession = function () {
+            if (!confirm('Bắt đầu tiết dạy mới cho lớp tiếp theo? Toàn bộ điểm và tiến trình của lớp này sẽ được làm mới.')) return;
+            localStorage.removeItem(getStorageKey());
+            if (window.allowPageReload) window.allowPageReload();
+            location.reload();
+        };
 
-        $('#btnClearSession').onclick = clearSession;
+        /* CÔNG TẮC ĐÓNG/MỞ SIDEBAR BẰNG NÚT HAMBURGER VUÔNG TOP-LEFT */
+        window.toggleSidebar = function () {
+            const isCollapsed = document.body.classList.toggle('sidebar-collapsed');
+            const btn = document.getElementById('btnToggleSidebar');
+            if (btn) btn.textContent = isCollapsed ? '☰' : '✕';
+            if (typeof window.toast === 'function') {
+                window.toast(isCollapsed ? '📺 Đã thu gọn Sidebar để tối đa diện tích bài giảng!' : '📋 Đã mở Sidebar bảng điểm & công cụ!', 1800, '#2563eb');
+            }
+            try {
+                localStorage.setItem('bgtieu_hoc_k4_sidebar_collapsed', isCollapsed ? '1' : '0');
+            } catch (e) { }
+        };
 
         /* HELPER: RENDER SOFTWARE ICON WITH PNG AND FALLBACK */
         function renderSoftwareIcon(corp, size = 64) {
@@ -2276,7 +2321,7 @@
                     detonatedSoftwares: [],
                     hasDetonated: false,
                     hadPiracyRecord: false,
-                    revealed: true
+                    revealed: false
                 });
             }
         }
@@ -2330,59 +2375,86 @@
             }).join('');
         }
 
-        /* BỐC THĂM 1 LẦN DUY NHẤT VỚI ANIMATION VUI NHỘN */
+        /* BỐC THĂM TẬP ĐOÀN CHO CÁC TỔ VỚI ANIMATION VUI NHỘN */
+        let isSpinningCorps = false;
         function revealAllCorpsAnimated() {
-            const grid = $('#mysteryBoxesGrid');
-            $$('.mystery-box-card').forEach(b => b.classList.add('wobble'));
-            playSound('tick');
+            if (isSpinningCorps) return;
+            isSpinningCorps = true;
 
-            let timerCount = 0;
+            const btnReveal = $('#btnRevealAllCorps');
+            const btnReroll = $('#btnRerollCorps');
+            if (btnReveal) btnReveal.disabled = true;
+            if (btnReroll) btnReroll.disabled = true;
+
+            const grid = $('#mysteryBoxesGrid');
+            const corpPool = [...DB.corporations].sort(() => Math.random() - 0.5);
+
+            let spins = 0;
+            const maxSpins = 12;
             const timer = setInterval(() => {
                 playSound('tick');
-                timerCount++;
-                if (timerCount >= 10) {
+                spins++;
+
+                // Trong lúc quay, hiển thị các icon & tên tập đoàn ngẫu nhiên nhảy liên tục tạo hiệu ứng Gacha
+                if (grid) {
+                    grid.innerHTML = teams.map((t, idx) => {
+                        const randomCorp = DB.corporations[Math.floor(Math.random() * DB.corporations.length)];
+                        return `
+                            <div class="mystery-box-card wobble" style="border-color:${randomCorp.type === 'paid' ? '#ef4444' : '#22c55e'}">
+                                <div style="font-weight:900; font-size:1.1rem; color:var(--navy)">${esc(t.name)}</div>
+                                <div style="margin:6px 0">${renderSoftwareIcon(randomCorp, 64)}</div>
+                                <div style="font-weight:900; font-size:1.35rem; color:var(--navy); line-height:1.2">${esc(randomCorp.software)}</div>
+                                <div style="font-weight:700; font-size:.92rem; color:#64748b; margin-top:3px">🏢 Thuộc: <b>${esc(randomCorp.name)}</b></div>
+                                <div class="corp-stamp ${randomCorp.type}" style="margin-top:6px">${randomCorp.typeLabel}</div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                if (spins >= maxSpins) {
                     clearInterval(timer);
                     playSound('fanfare');
                     fireConfetti();
-                    teams.forEach(t => t.revealed = true);
+
+                    // Chốt tập đoàn ngẫu nhiên phân bổ cho từng tổ
+                    teams.forEach((t, i) => {
+                        const corp = corpPool[i % corpPool.length];
+                        t.corpId = corp.id;
+                        t.corpName = corp.name;
+                        t.software = corp.software;
+                        t.img = corp.img || 'powerpoint.png';
+                        t.corpType = corp.type;
+                        t.typeLabel = corp.typeLabel;
+                        t.model = corp.model;
+                        t.icon = corp.icon;
+                        t.defaultPrice = Math.min(maxPriceCeiling, corp.basePrice || 100);
+                        t.currentPrice = t.defaultPrice;
+                        t.inventory = [];
+                        t.softwareLevels = {};
+                        t.softwareOrigins = {};
+                        t.timesChosenAsVendor = 0;
+                        t.hadPiracyRecord = false;
+                        t.revealed = true;
+                    });
+
                     renderMysteryBoxes();
                     renderMarketListing();
                     drawTeams();
                     saveState();
+
+                    isSpinningCorps = false;
+                    if (btnReveal) btnReveal.disabled = false;
+                    if (btnReroll) btnReroll.disabled = false;
+
                     if (typeof window.toast === 'function') {
-                        window.toast('🎉 ĐÃ BỐC THĂM THÀNH CÔNG TẬP ĐOÀN CHO CẢ LỚP!', 3500, '#16a34a');
+                        window.toast('🎉 ĐÃ BỐC THĂM THÀNH CÔNG TẬP ĐOÀN CHO CÁC TỔ!', 3500, '#16a34a');
                     }
                 }
-            }, 100);
+            }, 80);
         }
 
         function rerollCorps() {
-            if (!confirm('Bạn có muốn xáo trộn và bốc thăm lại Tập đoàn cho các tổ không?')) return;
-            const corpPool = [...DB.corporations].sort(() => Math.random() - 0.5);
-            teams.forEach((t, i) => {
-                const corp = corpPool[i % corpPool.length];
-                t.corpId = corp.id;
-                t.corpName = corp.name;
-                t.software = corp.software;
-                t.img = corp.img || 'powerpoint.png';
-                t.corpType = corp.type;
-                t.typeLabel = corp.typeLabel;
-                t.model = corp.model;
-                t.icon = corp.icon;
-                t.defaultPrice = Math.min(maxPriceCeiling, corp.basePrice || 100);
-                t.currentPrice = t.defaultPrice;
-                t.inventory = [];
-                t.softwareLevels = {};
-                t.softwareOrigins = {};
-                t.timesChosenAsVendor = 0;
-                t.hadPiracyRecord = false;
-                t.revealed = true;
-            });
-            renderMysteryBoxes();
-            renderMarketListing();
-            drawTeams();
-            saveState();
-            playSound('tick');
+            revealAllCorpsAnimated();
         }
 
         $('#btnRevealAllCorps').onclick = revealAllCorpsAnimated;
@@ -2534,14 +2606,19 @@
             if (e.key === 'Escape') {
                 window.closeNotebookModal();
                 window.closeLedgerModal();
-                closeEditMoneyModal();
-                closeCustomDiscountModal();
+                if (typeof closeCustomDiscountModal === 'function') closeCustomDiscountModal();
                 const karma = $('#karmaModal');
                 if (karma) karma.style.display = 'none';
                 const audit = $('#auditModal');
                 if (audit) audit.style.display = 'none';
                 const rep = $('#roundReportModal');
                 if (rep) rep.style.display = 'none';
+                const giant = $('#giantGachaModal');
+                if (giant) giant.style.display = 'none';
+            } else if (e.key === 'ArrowRight' && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+                if (curScreen < 5) go(curScreen + 1);
+            } else if (e.key === 'ArrowLeft' && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+                if (curScreen > 1) go(curScreen - 1);
             }
         });
 
@@ -2635,6 +2712,23 @@
                     const name = sel?.value?.trim();
                     tag.textContent = name ? `🎯 Đang gọi: ${name}` : 'Chưa chọn học sinh';
                 }
+            } else if (type === 'arena') {
+                const sel = $('#selStudentArena');
+                const tag = $('#stagedArenaTag');
+                if (tag) {
+                    const name = sel?.value?.trim();
+                    tag.textContent = name ? `🎯 Đang gọi: ${name}` : 'Chưa chọn học sinh';
+                }
+            }
+        }
+
+        function updateConsTeamSelect() {
+            const sel = $('#selConsTeam');
+            if (!sel || !teams || !teams.length) return;
+            const prevVal = sel.value;
+            sel.innerHTML = teams.map((t, idx) => `<option value="${idx}">${esc(t.name)}</option>`).join('');
+            if (prevVal !== '' && Number(prevVal) < teams.length) {
+                sel.value = prevVal;
             }
         }
 
@@ -2643,16 +2737,27 @@
                 studentsList.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
             const fundSelect = $('#selStudentFund');
             const selCons = $('#selStudentCons');
-            const prevFund = fundSelect.value;
+            const selArena = $('#selStudentArena');
+            const prevFund = fundSelect ? fundSelect.value : '';
             const prevCons = selCons ? selCons.value : '';
-            fundSelect.innerHTML = optsHtml;
-            if (studentsList.includes(prevFund)) fundSelect.value = prevFund;
+            const prevArena = selArena ? selArena.value : '';
+            
+            if (fundSelect) {
+                fundSelect.innerHTML = optsHtml;
+                if (studentsList.includes(prevFund)) fundSelect.value = prevFund;
+            }
             if (selCons) {
                 selCons.innerHTML = optsHtml;
                 if (studentsList.includes(prevCons)) selCons.value = prevCons;
             }
+            if (selArena) {
+                selArena.innerHTML = optsHtml;
+                if (studentsList.includes(prevArena)) selArena.value = prevArena;
+            }
             updateStagedStudentDisplay('fund');
             updateStagedStudentDisplay('cons');
+            updateStagedStudentDisplay('arena');
+            updateConsTeamSelect();
         }
 
         function requireQuizStudent(selectId, action) {
@@ -2768,7 +2873,7 @@
             const picked = pool[Math.floor(Math.random() * pool.length)];
             $('#giantStudentName').textContent = picked;
 
-            const selId = gachaTargetType === 'fund' ? '#selStudentFund' : '#selStudentCons';
+            const selId = gachaTargetType === 'fund' ? '#selStudentFund' : (gachaTargetType === 'cons' ? '#selStudentCons' : '#selStudentArena');
             const sel = $(selId);
             if (sel) {
                 sel.value = picked;
@@ -2779,6 +2884,8 @@
         $('#btnGachaFund').onclick = () => openGiantGacha('fund');
         const btnGachaCons = $('#btnGachaCons');
         if (btnGachaCons) btnGachaCons.onclick = () => openGiantGacha('cons');
+        const btnGachaArena = $('#btnGachaArena');
+        if (btnGachaArena) btnGachaArena.onclick = () => openGiantGacha('arena');
         $('#btnGiantGachaReroll').onclick = () => rollGiantGacha();
 
         $('#btnGiantGachaConfirm').onclick = () => {
@@ -2792,12 +2899,18 @@
         if (selFundElem) selFundElem.onchange = () => updateStagedStudentDisplay('fund');
         const selConsElem = $('#selStudentCons');
         if (selConsElem) selConsElem.onchange = () => updateStagedStudentDisplay('cons');
+        const selArenaElem = $('#selStudentArena');
+        if (selArenaElem) selArenaElem.onchange = () => updateStagedStudentDisplay('arena');
 
         /* ================= 8. GIAI ĐOẠN 2: THƯƠNG TRƯỜNG PHẦN MỀM (ARENA) ================= */
         function updateArena() {
             $('#lblRound').textContent = `THÁNG THỨ ${curRound}`;
             const custTeam = teams[curCustomerIdx];
-            $('#lblTurnCustomer').textContent = `Lượt Khách: ${custTeam.name} (${custTeam.corpName})`;
+            if (custTeam) {
+                $('#lblTurnCustomer').textContent = `Lượt Khách: ${custTeam.name} (${custTeam.corpName})`;
+                const rep = $('#lblArenaTeamRep');
+                if (rep) rep.textContent = custTeam.name;
+            }
             drawTeams();
         }
 
@@ -3168,6 +3281,7 @@
         function attachChoiceHandlers(choices, ownerTeam, custTeam, eventBasePrice) {
             $$('#choicesGrid .choice-btn').forEach(btn => {
                 btn.onclick = () => {
+                    if (!requireQuizStudent('#selStudentArena', 'đại diện tổ ra quyết định bản quyền')) return;
                     const c = choices[Number(btn.dataset.cidx)];
                     handleChoiceAction(c, ownerTeam, custTeam, eventBasePrice);
                 };
@@ -3176,6 +3290,23 @@
 
         function handleChoiceAction(choice, ownerTeam, custTeam, eventBasePrice) {
             $$('#choicesGrid .choice-btn').forEach(b => b.disabled = true);
+
+            // Ghi nhận Telemetry học sinh đại diện tổ ra quyết định theo chuẩn Thông tư 27
+            const repStudent = $('#selStudentArena')?.value?.trim();
+            if (repStudent) {
+                const isSafe = !choice.isCrackVIP && !choice.isTrap;
+                studentLogs.push({
+                    studentName: repStudent,
+                    activity: `Thương trường Tháng ${curRound} - ${custTeam.name} quyết định [${choice.label}]`,
+                    isCorrect: isSafe,
+                    note: choice.isCrackVIP
+                        ? 'Ham của rẻ chọn dùng bản lậu, chịu rủi ro mã độc tống tiền'
+                        : (choice.isTrap
+                            ? 'Cố tình crack phần mềm miễn phí, dính bẫy phạt 50% tài sản'
+                            : 'Ý thức bản quyền tốt, ưu tiên giải pháp chính hãng / an toàn'),
+                    tt27: isSafe ? 'T' : 'H'
+                });
+            }
 
             // 1. BẪY CRACK PHẦN MỀM MIỄN PHÍ
             if (choice.isTrap) {
@@ -3698,19 +3829,24 @@
                         return `<span class="inv-chip ${chipClass}">${getSoftwareMiniIcon(sw)}<b>${esc(sw)}</b><span class="inv-chip-badge">${statusObj.label}</span></span>`;
                     }).join('');
 
+                const corpDisplay = t.revealed ? esc(t.corpName) : 'Chờ bốc thăm';
+                const corpTagClass = t.revealed ? t.corpType : 'free';
+                const iconDisplay = t.revealed ? renderSoftwareIcon(t, 28) : '<span style="font-size:1.15rem">🎁</span>';
+
                 return `
                     <div class="team-card ${idx === curCustomerIdx ? 'active-turn' : ''}" style="cursor:pointer;" onclick="if(!event.target.closest('button')) switchCustomerTurn(${idx})" title="Bấm để chuyển lượt sang ${esc(t.name)}">
                         <div class="team-header-row">
                             <span class="team-name">
-                                ${renderSoftwareIcon(t, 28)}
+                                ${iconDisplay}
                                 ${esc(t.name)}
                             </span>
-                            <span class="team-corp-badge corp-type-tag ${t.corpType}" style="font-size:.78rem; padding:2px 8px">
-                                ${esc(t.corpName)}
+                            <span class="team-corp-badge corp-type-tag ${corpTagClass}" style="font-size:.78rem; padding:2px 8px">
+                                ${corpDisplay}
                             </span>
                         </div>
-                        <div class="team-score-row">
-                            <span class="team-money">$${t.money.toLocaleString()}</span>
+                        <div class="team-score-row" style="align-items:center;">
+                            <span class="team-money" id="team-money-span-${idx}" onclick="startInlineMoneyEdit(${idx}, event)" title="Nhấp chuột vào số tiền để chỉnh sửa trực tiếp">$${t.money.toLocaleString()}</span>
+                            <input type="number" class="team-money-input" id="team-money-input-${idx}" style="display:none; width:95px; padding:2px 6px; font-size:1.15rem; font-weight:900; border:2px solid var(--navy); border-radius:6px;" value="${t.money}" onclick="event.stopPropagation()">
                             <span class="team-rate">Lãi: <b>${formatInterest(t.currentInterest)}</b></span>
                         </div>
                         <div class="team-inventory">
@@ -3718,37 +3854,61 @@
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px">
                             <span style="font-size:.78rem; font-weight:700; color:#64748b">Giá bán: $${t.currentPrice}</span>
-                            <div style="display:flex; gap:4px">
-                                <button type="button" class="noise-btn" data-pen="${idx}" title="Trừ 5% điểm khi làm ồn">🔇 -5%</button>
-                                <button type="button" class="sm" data-edit="${idx}" title="Chỉnh sửa số tiền thủ công (Quy chuẩn 17)">✏️ Sửa</button>
-                            </div>
+                            <button type="button" class="noise-btn" data-pen="${idx}" onclick="event.stopPropagation()" title="Trừ 10% điểm số khi làm ồn / mất trật tự (STANDARDS.md Mục 10.3)">🤫 -10%</button>
                         </div>
                     </div>
                 `;
             }).join('');
 
             $$('#teamsListContainer [data-pen]').forEach(b => {
-                b.onclick = () => {
+                b.onclick = (e) => {
+                    e.stopPropagation();
                     const idx = Number(b.dataset.pen);
-                    const pen = Math.max(20, Math.round(teams[idx].money * 0.05));
+                    const pen = Math.max(20, Math.round(teams[idx].money * 0.1));
                     teams[idx].money = Math.max(0, teams[idx].money - pen);
                     playSound('beep_wrong');
                     drawTeams();
                     saveState();
                     if (typeof window.toast === 'function') {
-                        window.toast(`🔇 Đã trừ -$${pen} của ${teams[idx].name} do mất trật tự!`, 2500, '#dc2626');
+                        window.toast(`📢 [${teams[idx].name}] Mất trật tự: Đã bị trừ 10% (-$${pen}), còn lại: $${teams[idx].money.toLocaleString()}! 🤫`, 3500, '#dc2626');
                     }
                 };
             });
-
-            // SỬA ĐIỂM THỦ CÔNG QUA MODAL INLINE (QUY CHUẨN 17 - FOOLPROOF 100%)
-            $$('#teamsListContainer [data-edit]').forEach(b => {
-                b.onclick = () => {
-                    const idx = Number(b.dataset.edit);
-                    openEditMoneyModal(idx);
-                };
-            });
         }
+
+        /* SỬA ĐIỂM TRỰC TIẾP TẠI CHỖ (INLINE EDIT THEO STANDARDS.md MỤC 10.3) */
+        window.startInlineMoneyEdit = function(idx, event) {
+            if (event) event.stopPropagation();
+            const span = document.getElementById(`team-money-span-${idx}`);
+            const input = document.getElementById(`team-money-input-${idx}`);
+            if (!span || !input) return;
+
+            span.style.display = 'none';
+            input.style.display = 'inline-block';
+            input.focus();
+            input.select();
+
+            let committed = false;
+            const finish = () => {
+                if (committed) return;
+                committed = true;
+                const val = parseInt(input.value, 10);
+                if (!isNaN(val) && teams[idx]) {
+                    teams[idx].money = Math.max(0, val);
+                    saveState();
+                    if (typeof window.toast === 'function') {
+                        window.toast(`✅ Đã cập nhật tiền của ${teams[idx].name} thành $${teams[idx].money.toLocaleString()}!`, 2000, '#16a34a');
+                    }
+                }
+                drawTeams();
+            };
+
+            input.onkeydown = (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); finish(); }
+                else if (e.key === 'Escape') { e.preventDefault(); committed = true; drawTeams(); }
+            };
+            input.onblur = finish;
+        };
 
         function switchCustomerTurn(idx) {
             if (idx < 0 || idx >= teams.length) return;
@@ -3768,63 +3928,40 @@
             }
         }
 
-        let editingTeamIdx = 0;
-        function openEditMoneyModal(idx) {
-            editingTeamIdx = idx;
-            $('#editMoneyTitle').textContent = `✏️ Điều Chỉnh Tiền Cho ${teams[idx].name}`;
-            $('#txtEditMoneyInput').value = teams[idx].money;
-            $('#editMoneyModal').style.display = 'flex';
-            playSound('tick');
-        }
-
-        window.closeEditMoneyModal = function () {
-            $('#editMoneyModal').style.display = 'none';
-        };
-
-        window.adjustModalInput = function (delta) {
-            const input = $('#txtEditMoneyInput');
-            let val = parseInt(input.value, 10) || 0;
-            val = Math.max(0, val + delta);
-            input.value = val;
-            playSound('tick');
-        };
-
-        window.setModalInput = function (val) {
-            $('#txtEditMoneyInput').value = val;
-            playSound('tick');
-        };
-
-        $('#btnSaveEditedMoney').onclick = () => {
-            const val = parseInt($('#txtEditMoneyInput').value, 10);
-            if (!isNaN(val)) {
-                teams[editingTeamIdx].money = Math.max(0, val);
-                closeEditMoneyModal();
-                playSound('cash');
-                drawTeams();
-                saveState();
-                if (typeof window.toast === 'function') {
-                    window.toast(`✅ Đã cập nhật tiền của ${teams[editingTeamIdx].name} thành $${teams[editingTeamIdx].money.toLocaleString()}!`, 2500, '#16a34a');
-                }
-            }
-        };
-
         /* ================= 10. MÀN HÌNH CHỐT KIẾN THỨC & BÁO ỨNG THANH TRA BẢN QUYỀN ================= */
+        let revealedSummaryCards = new Set();
         function renderSummaryScreen() {
             const grid = $('#summaryCardsGrid');
             const cards = DB.summary_cards || [];
-            grid.innerHTML = cards.map(c => `
-                <div class="summary-card">
-                    <span class="sc-badge">${esc(c.badge)}</span>
-                    <div class="sc-title">
-                        <span>${c.icon}</span> ${esc(c.title)}
+            grid.innerHTML = cards.map((c, idx) => {
+                const isRevealed = revealedSummaryCards.has(idx);
+                return `
+                    <div class="summary-card" style="cursor:pointer; border: 2px solid ${isRevealed ? 'var(--blue)' : '#cbd5e1'};" onclick="toggleSummaryCard(${idx})" title="Nhấp chuột để mở hoặc ẩn nội dung chốt (Active Recall)">
+                        <span class="sc-badge">${esc(c.badge)}</span>
+                        <div class="sc-title">
+                            <span>${c.icon}</span> ${esc(c.title)}
+                        </div>
+                        <div class="sc-desc" style="${isRevealed ? '' : 'filter: blur(5px); opacity: 0.4; user-select: none;'}">
+                            ${c.desc}
+                        </div>
+                        <div style="margin-top: 10px; font-size: 0.82rem; font-weight: 800; color: ${isRevealed ? '#15803d' : '#2563eb'};">
+                            ${isRevealed ? '✅ Đã khắc sâu kiến thức' : '👉 Nhấp chuột để mở nội dung'}
+                        </div>
                     </div>
-                    <div class="sc-desc">${c.desc}</div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
+
+        window.toggleSummaryCard = function (idx) {
+            if (revealedSummaryCards.has(idx)) revealedSummaryCards.delete(idx);
+            else revealedSummaryCards.add(idx);
+            playSound('tick');
+            renderSummaryScreen();
+        };
 
         let curConsQIdx = 0;
         function renderConsolidationQuiz() {
+            updateConsTeamSelect();
             const qList = DB.consolidation_quizzes || [];
             if (!qList.length) return;
             const q = qList[curConsQIdx % qList.length];
@@ -3856,11 +3993,23 @@
                     fb.style.display = 'block';
                     fb.style.background = isOk ? '#dcfce7' : '#fee2e2';
                     fb.style.color = isOk ? '#14532d' : '#991b1b';
-                    fb.innerHTML = `<b>${isOk ? '🎉 CHÍNH XÁC!' : '❌ CHƯA ĐÚNG!'}</b> ${esc(q.exp)}`;
-
-                    if (isOk) fireConfetti();
 
                     const stName = $('#selStudentCons')?.value;
+                    let bonusMsg = '';
+                    if (isOk) {
+                        fireConfetti();
+                        const teamIdx = Number($('#selConsTeam')?.value ?? 0);
+                        if (teams[teamIdx]) {
+                            teams[teamIdx].money += 50;
+                            bonusMsg = `<br>✨ <i>Đã cộng thưởng <b>+$50</b> cho <b>${esc(teams[teamIdx].name)}</b>!</i>`;
+                            drawTeams();
+                            if (typeof window.toast === 'function') {
+                                window.toast(`🎉 ${stName || 'Học sinh'} trả lời xuất sắc! Đã cộng +$50 cho ${teams[teamIdx].name}!`, 3000, '#16a34a');
+                            }
+                        }
+                    }
+                    fb.innerHTML = `<b>${isOk ? '🎉 CHÍNH XÁC!' : '❌ CHƯA ĐÚNG!'}</b> ${esc(q.exp)}${bonusMsg}`;
+
                     if (stName) {
                         studentLogs.push({
                             studentName: stName,
@@ -4057,15 +4206,22 @@
 
             csv += '=== BÁO CÁO TIẾT DẠY TIN HỌC TIỂU HỌC ===\r\n';
             csv += `Môn học,Tin học 4\r\n`;
-            csv += `Bài học,Bài 6: Sử dụng phần mềm khi được phép (Tiết 11 - Thương Trường Phần Mềm)\r\n`;
+            csv += `Bài học,Bài 6: Sử dụng phần mềm khi được phép (Thương Trường Phần Mềm)\r\n`;
             csv += `Lớp học,${currentClassId.replace('_', '/')}\r\n`;
             csv += `Thời gian xuất báo cáo,${timeStr} ngày ${dateStr}\r\n`;
             csv += `Tổng tài sản thương trường,$${teams.reduce((acc, t) => acc + t.money, 0)}\r\n\r\n`;
 
+            const csvMedals = {
+                1: 'Huy chương Vàng',
+                2: 'Huy chương Bạc',
+                3: 'Huy chương Đồng'
+            };
+
             csv += '=== BẢNG XẾP HẠNG THI ĐUA CÁC TỔ ===\r\n';
-            csv += 'Thứ hạng,Danh hiệu,Tên tổ,Tập đoàn công nghệ,Phần mềm sở hữu,Tổng tài sản,Lãi suất cuối,Đồng hạng\r\n';
+            csv += 'Thứ hạng,Huy chương,Danh hiệu,Tên tổ,Tập đoàn công nghệ,Phần mềm sở hữu,Tổng tài sản,Lãi suất cuối,Đồng hạng\r\n';
             ranked.forEach(t => {
-                csv += `Hạng ${t.rank},"${t.title}","${t.name}","${t.corpName}","${t.software}",$${t.money},${t.currentInterest}%,${t.isTie ? 'Có (Đồng điểm)' : 'Không'}\r\n`;
+                const medalText = csvMedals[t.rank] || 'Huy hiệu Khuyến khích';
+                csv += `Hạng ${t.rank},"${medalText}","${t.title}","${t.name}","${t.corpName}","${t.software}",$${t.money},${t.currentInterest}%,${t.isTie ? 'Có (Đồng điểm)' : 'Không'}\r\n`;
             });
             csv += '\r\n';
 
@@ -4176,6 +4332,11 @@
         // KHỞI ĐỘNG HỆ THỐNG
         window.addEventListener('DOMContentLoaded', () => {
             updateVietnameseDate();
+            if (localStorage.getItem('bgtieu_hoc_k4_sidebar_collapsed') === '1') {
+                document.body.classList.add('sidebar-collapsed');
+                const btn = document.getElementById('btnToggleSidebar');
+                if (btn) btn.textContent = '☰';
+            }
             initClasses();
             const restored = loadState();
             if (!restored) {
