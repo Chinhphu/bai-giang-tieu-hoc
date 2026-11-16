@@ -1601,7 +1601,7 @@
                         <div class="quiz-container" style="margin-top:0">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px">
                                 <span id="fundQIndex" style="font-weight:900; color:var(--blue); font-size:1.1rem">CÂU HỎI 1 / 4 THỰC HÀNH TỆP & THƯ MỤC</span>
-                                <span id="fundRewardDesc" style="font-weight:800; color:var(--green); font-size:1.05rem">Quyền lợi: +$50 trần giá bán cho cả lớp</span>
+                                <span id="fundRewardDesc" style="font-weight:800; color:var(--green); font-size:1.05rem">Quyền lợi: +$20 trần giá bán cho cả lớp</span>
                             </div>
                             <div class="quiz-q-title" id="fundQText">Nội dung câu hỏi...</div>
                             <div class="quiz-opts-grid" id="fundQOpts"></div>
@@ -2490,9 +2490,21 @@
             if (sub) sub.textContent = `$${maxPriceCeiling}`;
         }
 
+        /* TỰ ĐỘNG THIẾT LẬP TIỀN TÀI TRỢ CHO PHẦN MỀM MIỄN PHÍ THEO TRẦN QUỸ GỌI VỐN */
+        function updateFreeSoftwareSponsorship() {
+            teams.forEach(t => {
+                if (t.corpType !== 'paid') {
+                    const growth = Math.max(0, maxPriceCeiling - 150);
+                    // Tự động nâng tài trợ theo mức tăng trần quỹ (70% mức tăng), tối đa không vượt trần
+                    t.currentPrice = Math.min(maxPriceCeiling, Math.round((t.defaultPrice || 100) + growth * 0.5));
+                }
+            });
+        }
+
         function renderMarketListing() {
             const grid = $('#marketListingGrid');
             if (!grid) return;
+            updateFreeSoftwareSponsorship();
             updateCeilingUI();
 
             grid.innerHTML = teams.map((t, idx) => {
@@ -2535,16 +2547,20 @@
                                 </div>
                             </div>
                         ` : `
-                            <div style="margin-top:8px; background:#f0fdf4; border-radius:10px; padding:10px; text-align:center">
-                                <div style="font-size:0.95rem; font-weight:900; color:#16a34a">🎁 MIỄN PHÍ CHO NGƯỜI DÙNG: $0</div>
-                                <div style="font-size:0.85rem; font-weight:700; color:#15803d; margin-top:4px">
-                                    Tài trợ quảng cáo lần cài đầu (TRẦN: $${maxPriceCeiling}):
+                            <div style="margin-top:8px; background:#f0fdf4; border:2px solid #86efac; border-radius:12px; padding:10px; text-align:center">
+                                <div style="font-size:0.95rem; font-weight:900; color:#16a34a">
+                                    🎁 MIỄN PHÍ CHO NGƯỜI DÙNG: $0
                                 </div>
-                                <div class="price-stepper-box">
-                                    <button type="button" class="sm" onclick="adjustTeamPrice(${idx}, -10)">-10</button>
-                                    <span style="font-weight:900; color:var(--navy); font-size:1.35rem">$</span>
-                                    <input type="number" id="teamPriceInput_${idx}" class="price-stepper-input" value="${t.currentPrice}" min="20" max="${maxPriceCeiling}" step="10" onchange="setTeamPrice(${idx}, this.value)">
-                                    <button type="button" class="sm" onclick="adjustTeamPrice(${idx}, 10)">+10</button>
+                                <div style="margin-top:6px; background:#fff; border-radius:8px; padding:8px 10px; border:1px dashed #22c55e">
+                                    <div style="font-size:0.82rem; font-weight:700; color:#15803d">
+                                        🏛️ Quỹ Tài Trợ Tự Động Chi Trả:
+                                    </div>
+                                    <div style="font-size:1.45rem; font-weight:900; color:#16a34a; margin:3px 0">
+                                        +$${t.currentPrice} <span style="font-size:0.85rem; font-weight:700; color:#64748b">/ lượt cài</span>
+                                    </div>
+                                    <div style="font-size:0.75rem; font-weight:700; color:#475569">
+                                        ⚡ Tự động tăng theo tiến độ gọi vốn (Không để tổ bị thiệt thòi)
+                                    </div>
                                 </div>
                             </div>
                         `}
@@ -2554,7 +2570,7 @@
         }
 
         window.adjustTeamPrice = function (idx, delta) {
-            if (!teams[idx]) return;
+            if (!teams[idx] || teams[idx].corpType !== 'paid') return;
             const newPrice = Math.max(20, Math.min(maxPriceCeiling, (teams[idx].currentPrice || 100) + delta));
             teams[idx].currentPrice = newPrice;
             playSound('tick');
@@ -2564,7 +2580,7 @@
         };
 
         window.setTeamPrice = function (idx, val) {
-            if (!teams[idx]) return;
+            if (!teams[idx] || teams[idx].corpType !== 'paid') return;
             const n = parseInt(val, 10);
             if (!isNaN(n)) {
                 teams[idx].currentPrice = Math.max(20, Math.min(maxPriceCeiling, n));
@@ -2576,7 +2592,12 @@
         };
 
         $('#btnResetAllPrices').onclick = () => {
-            teams.forEach(t => t.currentPrice = Math.min(maxPriceCeiling, t.defaultPrice));
+            teams.forEach(t => {
+                if (t.corpType === 'paid') {
+                    t.currentPrice = Math.min(maxPriceCeiling, t.defaultPrice);
+                }
+            });
+            updateFreeSoftwareSponsorship();
             playSound('tick');
             renderMarketListing();
             drawTeams();
@@ -2894,12 +2915,13 @@
                     fb.style.color = isOk ? '#14532d' : '#991b1b';
                     fb.innerHTML = `
                         <b>${isOk ? '🎉 CHÍNH XÁC!' : '❌ CHƯA ĐÚNG!'}</b> ${esc(q.exp || q.expl || '')}
-                        ${isOk ? '<br>✨ <i>Trần giá bán / tài trợ của cả lớp tăng thêm +$50! Các tổ có thể nâng giá niêm yết ở Bước 1.</i>' : ''}
+                        ${isOk ? '<br>✨ <i>Trần thị trường tăng thêm +$20! Các tổ bán phần mềm có thể nâng giá niêm yết, các tổ phần mềm miễn phí được Quỹ tự động nâng tiền tài trợ!</i>' : ''}
                     `;
 
                     if (isOk) {
-                        maxPriceCeiling += 50;
+                        maxPriceCeiling += 20;
                         fundQuestionsCorrectCount++;
+                        updateFreeSoftwareSponsorship();
                         updateCeilingUI();
                         renderMarketListing();
                         drawTeams();
@@ -3593,13 +3615,20 @@
             }
 
             if (!custTeam.softwareLevels) custTeam.softwareLevels = {};
+            if (!custTeam.softwareOrigins) custTeam.softwareOrigins = {};
+            const prevOrigin = custTeam.softwareOrigins[ownerTeam.software];
             setSoftwareLevel(custTeam, ownerTeam.software, choice.nextLevel ?? 1);
             if (!custTeam.inventory.includes(ownerTeam.software)) {
                 custTeam.inventory.push(ownerTeam.software);
             }
-            if (!custTeam.softwareOrigins) custTeam.softwareOrigins = {};
             if (!keepsPiracy) {
-                custTeam.softwareOrigins[ownerTeam.software] = ownerTeam.corpType === 'paid' ? 'official' : 'free';
+                const newOrigin = ownerTeam.corpType === 'paid' ? 'official' : 'free';
+                if (prevOrigin !== 'official' && prevOrigin !== 'free') {
+                    // Trang bị phần mềm bản quyền/chính hãng lần đầu giúp tăng +2% lãi cơ bản vĩnh viễn!
+                    custTeam.baseInterest += 2;
+                    custTeam.currentInterest += 2;
+                }
+                custTeam.softwareOrigins[ownerTeam.software] = newOrigin;
             }
 
             playSound(choice.sound || 'cash');
@@ -3996,7 +4025,10 @@
                             ${invHtml}
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px">
-                            <span style="font-size:.78rem; font-weight:700; color:#64748b">Giá bán: $${t.currentPrice}</span>
+                            ${t.corpType === 'paid'
+                                ? `<span style="font-size:.78rem; font-weight:700; color:#64748b">Giá bán: $${t.currentPrice}</span>`
+                                : `<span style="font-size:.78rem; font-weight:800; color:#16a34a">Tài trợ: +$${t.currentPrice}</span>`
+                            }
                             <button type="button" class="noise-btn" data-pen="${idx}" onclick="event.stopPropagation()" title="Trừ 10% điểm số khi làm ồn / mất trật tự (STANDARDS.md Mục 10.3)">🤫 -10%</button>
                         </div>
                     </div>
@@ -4203,7 +4235,7 @@
                         t.auditResult = { type: 'penalty', penalty, softwares: [...t.infectedSoftwares] };
                     } else if (t.hadPiracyRecord || t.hasDetonated) {
                         // 2. Tổ từng xài lậu nhưng đã mua bản quyền khắc phục (hoàn lương) hoặc đã nổ bom:
-                        // Miễn phạt nhưng KHÔNG ĐƯỢC THƯỞNG +$200
+                        // Miễn phạt nhưng KHÔNG ĐƯỢC THƯỞNG +$300
                         t.auditResult = {
                             type: 'reformed',
                             reason: t.hasDetonated
@@ -4211,9 +4243,9 @@
                                 : 'Đã có ý thức mua/dùng bản quyền khắc phục hậu quả (từng có tiền án xài lậu)'
                         };
                     } else {
-                        // 3. Tổ 100% trong sạch từ đầu: Thưởng +$200 Doanh nghiệp uy tín
-                        t.money += 200;
-                        t.auditResult = { type: 'reward', bonus: 200 };
+                        // 3. Tổ 100% trong sạch từ đầu: Thưởng +$300 Doanh nghiệp uy tín
+                        t.money += 300;
+                        t.auditResult = { type: 'reward', bonus: 300 };
                     }
                 });
                 drawTeams();
@@ -4262,7 +4294,7 @@
                                 </div>
                             </div>
                             <span style="font-weight:900; font-size:1.25rem; color:#15803d; background:#fff; padding:6px 14px; border-radius:8px">
-                                THƯỞNG +$200
+                                THƯỞNG +$300
                             </span>
                         </div>
                     `;

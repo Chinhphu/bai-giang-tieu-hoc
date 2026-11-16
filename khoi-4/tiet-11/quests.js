@@ -1,4 +1,4 @@
-﻿/* QUESTS & CORPORATIONS DATA (OFFLINE-FIRST) */
+/* QUESTS & CORPORATIONS DATA (OFFLINE-FIRST) */
 window.QUESTS_DATA = {
   "funding_quizzes": [
     {
@@ -11,7 +11,7 @@ window.QUESTS_DATA = {
         "D. Nhấn Shift + C để sao chép, rồi sang nơi mới nhấn Shift + V để dán"
       ],
       "ans": 0,
-      "reward": 50,
+      "reward": 20,
       "exp": "Phím tắt chuẩn: Ctrl + C là Copy (Sao chép), Ctrl + V là Paste (Dán tệp vào vị trí mới).",
       "expl": "Phím tắt chuẩn: Ctrl + C là Copy (Sao chép), Ctrl + V là Paste (Dán tệp vào vị trí mới)."
     },
@@ -25,7 +25,7 @@ window.QUESTS_DATA = {
         "D. Nhấp chuột trái kéo tệp vứt ra ngoài màn hình Desktop"
       ],
       "ans": 0,
-      "reward": 50,
+      "reward": 20,
       "exp": "Nhấp chuột phải chọn Rename (hoặc nhấn phím F2) để gõ tên mới rồi nhấn Enter để hoàn thành.",
       "expl": "Nhấp chuột phải chọn Rename (hoặc nhấn phím F2) để gõ tên mới rồi nhấn Enter để hoàn thành."
     },
@@ -39,7 +39,7 @@ window.QUESTS_DATA = {
         "D. Nhấp chuột phải ra màn hình nền rồi chọn New Folder"
       ],
       "ans": 0,
-      "reward": 50,
+      "reward": 20,
       "exp": "Lệnh Cut (Cắt) dùng để di chuyển hẳn tệp đi, còn Copy sẽ nhân đôi tệp thành 2 bản.",
       "expl": "Lệnh Cut (Cắt) dùng để di chuyển hẳn tệp đi, còn Copy sẽ nhân đôi tệp thành 2 bản."
     },
@@ -53,7 +53,7 @@ window.QUESTS_DATA = {
         "D. Bấm phím Esc"
       ],
       "ans": 0,
-      "reward": 50,
+      "reward": 20,
       "exp": "Phím Delete (hoặc chuột phải chọn Delete) sẽ đưa tệp vào Thùng rác (Recycle Bin).",
       "expl": "Phím Delete (hoặc chuột phải chọn Delete) sẽ đưa tệp vào Thùng rác (Recycle Bin)."
     },
@@ -67,7 +67,7 @@ window.QUESTS_DATA = {
         "D. Bấm phím Tab"
       ],
       "ans": 0,
-      "reward": 50,
+      "reward": 20,
       "exp": "Phím Esc (Escape) dùng để hủy bỏ nhanh thao tác đổi tên đang dang dở.",
       "expl": "Phím Esc (Escape) dùng để hủy bỏ nhanh thao tác đổi tên đang dang dở."
     }
@@ -93,8 +93,8 @@ window.QUESTS_DATA = {
               "key": "buy",
               "label": "Mua Bản Gốc Chính Hãng",
               "costType": "pay_corp",
-              "desc": "Tăng năng suất làm việc! Khách được +15% Lãi suất vòng. Microsoft nhận tiền bán bản quyền.",
-              "interestDelta": 15,
+              "desc": "Tăng năng suất làm việc! Khách được +20% Lãi suất vòng (+2% lãi cơ bản vĩnh viễn). Microsoft nhận tiền bán bản quyền.",
+              "interestDelta": 20,
               "nextLevel": 1,
               "sound": "cash"
             },
@@ -128,8 +128,8 @@ window.QUESTS_DATA = {
               "label": "Nâng Cấp Bản AI",
               "cost": 80,
               "costType": "pay_corp_fixed",
-              "desc": "Được trang bị công nghệ AI hiện đại nhất! Khách được cộng thêm +10% Lãi suất vòng. Lên Level 2!",
-              "interestDelta": 10,
+              "desc": "Được trang bị công nghệ AI hiện đại nhất! Khách được cộng thêm +15% Lãi suất vòng. Lên Level 2!",
+              "interestDelta": 15,
               "nextLevel": 2,
               "sound": "cash"
             },
@@ -163,8 +163,8 @@ window.QUESTS_DATA = {
               "label": "Đóng Phí Bảo Trì",
               "cost": 30,
               "costType": "pay_corp_fixed",
-              "desc": "Dịch vụ đám mây hoạt động liên tục 24/7 không gián đoạn! Microsoft thu $30.",
-              "interestDelta": 5,
+              "desc": "Dịch vụ đám mây hoạt động liên tục 24/7 không gián đoạn! Khách được +10% Lãi suất vòng. Microsoft thu $30.",
+              "interestDelta": 10,
               "nextLevel": 2,
               "sound": "cash"
             },
@@ -212,8 +212,8 @@ window.QUESTS_DATA = {
               "key": "buy",
               "label": "Mua Bản Quyền Game Gốc",
               "costType": "pay_corp",
-              "desc": "Nhân viên hào hứng, tinh thần lên cao! Buff +10% Lãi suất vòng. Mojang nhận tiền bản quyền. Lên Level 1!",
-              "interestDelta": 10,
+              "desc": "Nhân viên hào hứng, tinh thần lên cao! Buff +15% Lãi suất vòng (+2% lãi cơ bản vĩnh viễn). Mojang nhận tiền bản quyền. Lên Level 1!",
+              "interestDelta": 15,
               "nextLevel": 1,
               "sound": "cash"
             },
@@ -247,8 +247,8 @@ window.QUESTS_DATA = {
               "label": "Nạp Minecoins Mua DLC",
               "cost": 50,
               "costType": "pay_corp_fixed",
-              "desc": "Cả công ty chơi game vui hết nấc! Khách được buff thêm +5% Lãi suất vòng. Mojang thu $50. Lên Level 2!",
-              "interestDelta": 5,
+              "desc": "Cả công ty chơi game vui hết nấc! Khách được buff thêm +12% Lãi suất vòng. Mojang thu $50. Lên Level 2!",
+              "interestDelta": 12,
               "nextLevel": 2,
               "sound": "cash"
             },
@@ -282,8 +282,8 @@ window.QUESTS_DATA = {
               "label": "Thuê Server Realms",
               "cost": 30,
               "costType": "pay_corp_fixed",
-              "desc": "Server chạy siêu mượt không giật lag! Buff +5% Lãi suất. Mojang nhận $30.",
-              "interestDelta": 5,
+              "desc": "Server chạy siêu mượt không giật lag! Buff +10% Lãi suất vòng. Mojang nhận $30.",
+              "interestDelta": 10,
               "nextLevel": 2,
               "sound": "cash"
             },
@@ -320,8 +320,8 @@ window.QUESTS_DATA = {
       "model": "Thuê bao 2 tháng/lần (Subscription)",
       "icon": "🎨",
       "color": "#dc2626",
-      "basePrice": 60,
-      "upgradePrice": 60,
+      "basePrice": 80,
+      "upgradePrice": 50,
       "events": {
         "level_0": {
           "title": "Hạn Thuê Bao Thiết Kế Đồ Họa",
@@ -331,8 +331,8 @@ window.QUESTS_DATA = {
               "key": "buy",
               "label": "Gia Hạn Thuê Bao Photoshop",
               "costType": "pay_corp",
-              "desc": "Giữ vững tiến độ thiết kế banner quảng cáo đỉnh cao! Khách được buff +5% Lãi suất vòng. Lên Level 1!",
-              "interestDelta": 5,
+              "desc": "Giữ vững tiến độ thiết kế banner quảng cáo đỉnh cao! Khách được buff +12% Lãi suất vòng (+2% lãi cơ bản vĩnh viễn). Lên Level 1!",
+              "interestDelta": 12,
               "nextLevel": 1,
               "sound": "cash"
             },
@@ -358,15 +358,35 @@ window.QUESTS_DATA = {
           ]
         },
         "level_1": {
-          "title": "Gói Thuê Bao Photoshop Đang Hoạt Động",
-          "desc": "Phòng thiết kế đang sử dụng Photoshop bản quyền rất mượt mà. Hệ thống đang đồng bộ kho ảnh đám mây ổn định!",
+          "title": "Gói Kho Ảnh Stock Đám Mây & AI Tô Màu Tự Động",
+          "desc": "Phòng thiết kế đang dùng Photoshop bản quyền rất mượt! Adobe vừa ra mắt Gói Kho Ảnh Bản Quyền & AI Generative Fill giúp cắt ghép ảnh chỉ trong 3 giây!",
           "choices": [
             {
+              "key": "upgrade",
+              "label": "Mua Gói Kho Ảnh & AI Đám Mây",
+              "cost": 50,
+              "costType": "pay_corp_fixed",
+              "desc": "Thiết kế poster nhanh gấp 3 lần! Khách được buff +12% Lãi suất vòng. Adobe thu $50.",
+              "interestDelta": 12,
+              "nextLevel": 1,
+              "sound": "cash"
+            },
+            {
               "key": "maintain",
-              "label": "Duy Trì Sử Dụng Bình Thường",
+              "label": "Chỉ Dùng Bản Cơ Bản Hiện Có",
               "cost": 0,
-              "desc": "Hệ thống ổn định tuyệt đối! Buff +5% Lãi suất vòng. (Cuối tháng này thuê bao 2 tháng sẽ hết hạn và quay về Level 0 để gia hạn tiếp).",
+              "desc": "Giữ nguyên công cụ hiện tại, không mua thêm kho ảnh. Vẫn được +5% Lãi suất vòng.",
               "interestDelta": 5,
+              "nextLevel": 1,
+              "sound": "neutral"
+            },
+            {
+              "key": "crack",
+              "label": "Tải Kho Ảnh & Plugin AI Lậu",
+              "cost": 0,
+              "desc": "Tiết kiệm $50! Không tốn một đồng nào mà được kích hoạt Siêu Buff +30% Lãi suất vòng!",
+              "interestDelta": 30,
+              "isCrackVIP": true,
               "nextLevel": 1,
               "sound": "cash"
             }
@@ -395,8 +415,8 @@ window.QUESTS_DATA = {
               "key": "free_download",
               "label": "Tải Bản CapCut Miễn Phí Chính Hãng",
               "cost": 0,
-              "desc": "Khách dùng miễn phí an toàn. Tổ CapCut nhận $50 tiền tài trợ quảng cáo trong ứng dụng! Lên Level 1.",
-              "interestDelta": 0,
+              "desc": "Khách dùng miễn phí an toàn và được +5% Lãi suất vòng! Tổ CapCut nhận tiền tài trợ quảng cáo trong ứng dụng! Lên Level 1.",
+              "interestDelta": 5,
               "corpReward": 50,
               "nextLevel": 1,
               "sound": "cash"
@@ -410,7 +430,8 @@ window.QUESTS_DATA = {
               "penaltyRatio": 0.5,
               "sound": "bad",
               "isCrackVIP": true,
-              "interestDelta": 30
+              "interestDelta": 30,
+              "nextLevel": 1
             },
             {
               "key": "skip",
@@ -432,8 +453,8 @@ window.QUESTS_DATA = {
               "label": "Mua Gói CapCut PRO Bản Quyền",
               "costType": "pay_corp",
               "cost": 80,
-              "desc": "Video xuất ra sắc nét triệu view, đối tác khen ngợi! Buff +10% Lãi suất tháng. CapCut nhận tiền gói PRO. Lên Level 2!",
-              "interestDelta": 10,
+              "desc": "Video xuất ra sắc nét triệu view, đối tác khen ngợi! Buff +15% Lãi suất tháng (+2% lãi cơ bản vĩnh viễn). CapCut nhận tiền gói PRO. Lên Level 2!",
+              "interestDelta": 15,
               "nextLevel": 2,
               "sound": "cash"
             },
@@ -467,8 +488,8 @@ window.QUESTS_DATA = {
               "label": "Mua Gói Hiệu Ứng Tết Độc Quyền",
               "costType": "pay_corp_fixed",
               "cost": 50,
-              "desc": "Video lên xu hướng số 1 mạng xã hội, đơn hàng nổ ầm ầm! Buff +10% Lãi suất tháng. CapCut nhận $50.",
-              "interestDelta": 10,
+              "desc": "Video lên xu hướng số 1 mạng xã hội, đơn hàng nổ ầm ầm! Buff +12% Lãi suất tháng. CapCut nhận $50.",
+              "interestDelta": 12,
               "nextLevel": 2,
               "sound": "cash"
             },
@@ -505,7 +526,7 @@ window.QUESTS_DATA = {
       "model": "Miễn phí 100% (Doanh thu từ Quảng cáo các nhãn hàng)",
       "icon": "🌐",
       "color": "#2563eb",
-      "basePrice": 120,
+      "basePrice": 100,
       "upgradePrice": 0,
       "events": {
         "level_0": {
@@ -516,9 +537,9 @@ window.QUESTS_DATA = {
               "key": "free_download",
               "label": "Tải Bản Chrome Chính Hãng",
               "cost": 0,
-              "desc": "Khách dùng miễn phí an toàn 100%! Các nhãn hàng thưởng Google $120 tài trợ quảng cáo và buff +5% Lãi suất vòng.",
+              "desc": "Khách dùng miễn phí an toàn 100%! Các nhãn hàng thưởng Google $100 tài trợ quảng cáo và buff +5% Lãi suất vòng (+2% lãi cơ bản vĩnh viễn).",
               "interestDelta": 5,
-              "corpReward": 120,
+              "corpReward": 100,
               "nextLevel": 1,
               "sound": "cash"
             },
@@ -531,7 +552,8 @@ window.QUESTS_DATA = {
               "penaltyRatio": 0.5,
               "sound": "bad",
               "isCrackVIP": true,
-              "interestDelta": 30
+              "interestDelta": 30,
+              "nextLevel": 1
             }
           ]
         },
@@ -543,9 +565,9 @@ window.QUESTS_DATA = {
               "key": "free_download",
               "label": "Cập Nhật Tự Động Miễn Phí",
               "cost": 0,
-              "desc": "Trình duyệt được bảo vệ an toàn tối đa! Doanh nghiệp đối tác tài trợ Google thêm $50 quảng cáo và buff +5% Lãi suất.",
+              "desc": "Trình duyệt được bảo vệ an toàn tối đa! Doanh nghiệp đối tác tài trợ Google thêm $60 quảng cáo và buff +5% Lãi suất.",
               "interestDelta": 5,
-              "corpReward": 50,
+              "corpReward": 60,
               "nextLevel": 1,
               "sound": "cash"
             },
@@ -558,7 +580,8 @@ window.QUESTS_DATA = {
               "penaltyRatio": 0.5,
               "sound": "bad",
               "isCrackVIP": true,
-              "interestDelta": 30
+              "interestDelta": 30,
+              "nextLevel": 1
             }
           ]
         }
@@ -585,8 +608,8 @@ window.QUESTS_DATA = {
               "key": "free_download",
               "label": "Tải UniKey Miễn Phí Từ Trang Chính Chủ",
               "cost": 0,
-              "desc": "Gõ tiếng Việt mượt mà! Quỹ Cộng Đồng gửi tặng tác giả Chú Phạm Kim Long $100 tiền cà phê cảm ơn vì phần mềm quá hữu ích!",
-              "interestDelta": 0,
+              "desc": "Gõ tiếng Việt mượt mà, khách được +5% Lãi suất vòng (+2% lãi cơ bản vĩnh viễn)! Quỹ Cộng Đồng gửi tặng tác giả Chú Phạm Kim Long $100 tiền cà phê cảm ơn!",
+              "interestDelta": 5,
               "corpReward": 100,
               "nextLevel": 1,
               "sound": "cash"
@@ -600,7 +623,8 @@ window.QUESTS_DATA = {
               "penaltyRatio": 0.5,
               "sound": "bad",
               "isCrackVIP": true,
-              "interestDelta": 30
+              "interestDelta": 30,
+              "nextLevel": 1
             }
           ]
         },
@@ -612,11 +636,12 @@ window.QUESTS_DATA = {
               "key": "auto_fame",
               "label": "Đồng Ý Trải Nghiệm Ngay",
               "cost": 0,
-              "desc": "Gõ tiếng Việt siêu mượt trên thiết bị Apple! Khách hàng nhận ngay Buff +5% Lãi suất tháng. Tác giả Chú Phạm Kim Long vang danh toàn cầu: Lãi suất cơ bản của tổ UniKey tăng vĩnh viễn +10%/vòng!",
+              "desc": "Gõ tiếng Việt siêu mượt trên thiết bị Apple! Khách nhận +5% Lãi suất tháng. Tổ UniKey nhận $80 tài trợ & Lãi suất cơ bản tăng vĩnh viễn +5%/vòng!",
               "interestDelta": 5,
-              "permInterestDelta": 10,
+              "permInterestDelta": 5,
               "nextLevel": 2,
-              "sound": "fanfare"
+              "sound": "fanfare",
+              "corpReward": 80
             }
           ]
         },
@@ -628,9 +653,9 @@ window.QUESTS_DATA = {
               "key": "free_download",
               "label": "Gửi Lời Cảm Ơn Tác Giả",
               "cost": 0,
-              "desc": "Quỹ Người Yêu Công Nghệ gửi tặng tác giả thêm $50 tiền tài trợ cống hiến!",
-              "interestDelta": 0,
-              "corpReward": 50,
+              "desc": "Gõ tiếng Việt ổn định (+5% Lãi suất cho khách)! Quỹ Người Yêu Công Nghệ gửi tặng tác giả thêm $60 tiền tài trợ cống hiến!",
+              "interestDelta": 5,
+              "corpReward": 60,
               "nextLevel": 2,
               "sound": "cash"
             }
@@ -648,7 +673,7 @@ window.QUESTS_DATA = {
       "model": "Phần mềm giáo dục miễn phí (Quỹ Khuyến học Quốc tế)",
       "icon": "⌨️",
       "color": "#8b5cf6",
-      "basePrice": 120,
+      "basePrice": 100,
       "upgradePrice": 0,
       "events": {
         "level_0": {
@@ -659,9 +684,9 @@ window.QUESTS_DATA = {
               "key": "free_download",
               "label": "Tải Kiran's Typing Tutor Miễn Phí",
               "cost": 0,
-              "desc": "Nhân viên thành thạo gõ 10 ngón nhanh như chớp! Quỹ Giáo Dục Quốc Tế thưởng tác giả Kiran $120 tiền tài trợ khuyến học!",
+              "desc": "Nhân viên thành thạo gõ 10 ngón nhanh như chớp! Quỹ Giáo Dục Quốc Tế thưởng tác giả Kiran $100 tài trợ khuyến học & khách được +5% Lãi suất (+2% lãi cơ bản vĩnh viễn)!",
               "interestDelta": 5,
-              "corpReward": 120,
+              "corpReward": 100,
               "nextLevel": 1,
               "sound": "cash"
             },
@@ -674,7 +699,8 @@ window.QUESTS_DATA = {
               "penaltyRatio": 0.5,
               "sound": "bad",
               "isCrackVIP": true,
-              "interestDelta": 30
+              "interestDelta": 30,
+              "nextLevel": 1
             }
           ]
         },
@@ -686,9 +712,9 @@ window.QUESTS_DATA = {
               "key": "free_download",
               "label": "Cập Nhật Bài Học Miễn Phí",
               "cost": 0,
-              "desc": "Tốc độ soạn thảo văn bản của nhân viên tăng vọt! Quỹ Khuyến Học tiếp tục tài trợ tác giả Kiran $50 và buff +5% Lãi suất vòng.",
+              "desc": "Tốc độ soạn thảo văn bản của nhân viên tăng vọt! Quỹ Khuyến Học tiếp tục tài trợ tác giả Kiran $60 và buff +5% Lãi suất vòng.",
               "interestDelta": 5,
-              "corpReward": 50,
+              "corpReward": 60,
               "nextLevel": 1,
               "sound": "cash"
             },
@@ -701,7 +727,8 @@ window.QUESTS_DATA = {
               "penaltyRatio": 0.5,
               "sound": "bad",
               "isCrackVIP": true,
-              "interestDelta": 30
+              "interestDelta": 30,
+              "nextLevel": 1
             }
           ]
         }
