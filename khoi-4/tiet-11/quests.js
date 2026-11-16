@@ -77,41 +77,41 @@ window.QUESTS_DATA = {
       "id": "corp_microsoft",
       "name": "MICROSOFT",
       "software": "PowerPoint",
-      "type": "paid",
-      "typeLabel": "THU PHÍ",
-      "model": "Bán đứt bản gốc + Bán gói nâng cấp AI + Phí bảo trì",
+      "img": "powerpoint.png",
       "icon": "📊",
-      "color": "#d97706",
-      "basePrice": 150,
-      "upgradePrice": 80,
+      "type": "paid",
+      "typeLabel": "TRẢ PHÍ BẢN QUYỀN",
+      "model": "Bản quyền phần mềm đóng gói (Microsoft 365 / Office)",
+      "basePrice": 100,
+      "defaultPrice": 100,
       "events": {
         "level_0": {
-          "title": "Báo Cáo Khẩn Cấp Của Giám Đốc",
-          "desc": "Giám đốc công ty cần làm slide thuyết trình báo cáo đối tác gấp chiều nay. Yêu cầu trang bị ngay bản quyền PowerPoint chính hãng!",
+          "title": "Báo Cáo Thuyết Trình Bài Học Tin Học Của Lớp",
+          "desc": "Thầy cô giao nhiệm vụ thiết kế bài thuyết trình sinh động cho tiết học Tin học chiều nay. Cần trang bị phần mềm PowerPoint bản quyền chính hãng để slide không bị lỗi font!",
           "choices": [
             {
               "key": "buy",
               "label": "Mua Bản Gốc Chính Hãng",
               "costType": "pay_corp",
-              "desc": "Tăng năng suất làm việc! Khách được +20% Lãi suất vòng (+2% lãi cơ bản vĩnh viễn). Microsoft nhận tiền bán bản quyền.",
+              "desc": "Slide chạy mượt mà, đầy đủ hiệu ứng hoạt hình! Khách được +20% Lãi suất vòng (+2% cơ bản). Microsoft nhận tiền bản quyền.",
               "interestDelta": 20,
               "nextLevel": 1,
               "sound": "cash"
             },
             {
               "key": "skip",
-              "label": "Không Mua (Keo kiệt)",
+              "label": "Không Mua (Vẽ Ra Giấy A4)",
               "cost": 0,
-              "desc": "Giám đốc tức giận vì không có slide, dự án bị chậm trễ! Công ty tụt hậu: Trừ 10% Lãi suất vòng này.",
+              "desc": "Bài thuyết trình giấy thiếu âm thanh và hình ảnh chuyển động! Trừ 10% Lãi suất vòng.",
               "interestDelta": -10,
               "nextLevel": 0,
               "sound": "neutral"
             },
             {
               "key": "crack",
-              "label": "Tải Bản Crack VIP",
+              "label": "Tải Bản Crack VIP Trên Web Lậu",
               "cost": 0,
-              "desc": "Tiết kiệm 100% chi phí! Không tốn một đồng nào mà được kích hoạt Siêu Buff +30% Lãi suất vòng!",
+              "desc": "Tiết kiệm 100% chi phí! Có ngay PowerPoint VIP miễn phí, kích hoạt Siêu Lãi Suất +30%! (Ẩn chứa mã độc tống tiền)",
               "interestDelta": 30,
               "isCrackVIP": true,
               "nextLevel": 1,
@@ -120,25 +120,25 @@ window.QUESTS_DATA = {
           ]
         },
         "level_1": {
-          "title": "Bản Cập Nhật PowerPoint AI Mới",
-          "desc": "Microsoft vừa tung ra bản cập nhật PowerPoint tích hợp Trí tuệ nhân tạo (AI) giúp tạo bài thuyết trình đẹp mắt chỉ trong 5 giây!",
+          "title": "Tích Hợp Trí Tuệ Nhân Tạo AI Tạo Slide Tự Động",
+          "desc": "Microsoft vừa cập nhật tính năng AI Copilot: Chỉ cần gõ chủ đề bài học, slide tự động hoàn thành trong 5 giây! Các tổ khác đổ xô tìm hiểu!",
           "choices": [
             {
               "key": "upgrade",
-              "label": "Nâng Cấp Bản AI",
+              "label": "Nâng Cấp Gói AI Chính Hãng ($80)",
               "cost": 80,
               "costType": "pay_corp_fixed",
-              "desc": "Được trang bị công nghệ AI hiện đại nhất! Khách được cộng thêm +15% Lãi suất vòng. Lên Level 2!",
+              "desc": "Làm bài tập nhanh gấp 10 lần! Khách được +15% Lãi suất vòng. Microsoft thu $80.",
               "interestDelta": 15,
               "nextLevel": 2,
               "sound": "cash"
             },
             {
               "key": "skip",
-              "label": "Tiếp Tục Dùng Bản Cũ",
+              "label": "Tiếp Tục Dùng Bản Cơ Bản Hiện Có",
               "cost": 0,
-              "desc": "Không có AI hỗ trợ, nhân viên làm slide thủ công chậm hơn đối thủ: Tụt 10% Lãi suất vòng.",
-              "interestDelta": -10,
+              "desc": "Tự tay thiết kế slide truyền thống, chậm hơn nhưng ổn định. Được +5% Lãi suất vòng.",
+              "interestDelta": 5,
               "nextLevel": 1,
               "sound": "neutral"
             },
@@ -146,7 +146,7 @@ window.QUESTS_DATA = {
               "key": "crack",
               "label": "Crack Bản PowerPoint AI VIP",
               "cost": 0,
-              "desc": "Tiết kiệm 100% chi phí! Không tốn một đồng nào mà được kích hoạt Siêu Buff +30% Lãi suất vòng!",
+              "desc": "Tiết kiệm $80! Bẻ khóa AI dùng chùa, kích hoạt Siêu Lãi Suất +30%! (Trojan kích hoạt xâm nhập)",
               "interestDelta": 30,
               "isCrackVIP": true,
               "nextLevel": 2,
@@ -155,74 +155,108 @@ window.QUESTS_DATA = {
           ]
         },
         "level_2": {
-          "title": "Bảo Trì Máy Chủ Doanh Nghiệp Hàng Năm",
-          "desc": "Công ty đã sở hữu bản PowerPoint AI tối tân nhất (Level MAX). Hệ thống gửi hóa đơn phí duy trì tài nguyên máy chủ đám mây hàng năm!",
+          "title": "Kho Mẫu Hoạt Hình 3D Dành Riêng Cho Tiểu Học",
+          "desc": "Hệ thống ra mắt Kho mẫu thuyết trình hoạt hình 3D chủ đề Động vật, Không gian vũ trụ dành riêng cho học sinh Tiểu học!",
           "choices": [
             {
               "key": "upgrade",
-              "label": "Đóng Phí Bảo Trì",
+              "label": "Mua Kho Mẫu 3D Bản Quyền ($30)",
               "cost": 30,
               "costType": "pay_corp_fixed",
-              "desc": "Dịch vụ đám mây hoạt động liên tục 24/7 không gián đoạn! Khách được +10% Lãi suất vòng. Microsoft thu $30.",
-              "interestDelta": 10,
-              "nextLevel": 2,
+              "desc": "Bài thuyết trình đoạt giải Nhất cấp trường! Khách được +12% Lãi suất vòng.",
+              "interestDelta": 12,
+              "nextLevel": 3,
               "sound": "cash"
             },
             {
               "key": "skip",
-              "label": "Tạm Ngừng Bảo Trì",
+              "label": "Dùng Mẫu Trắng Đơn Giản ($0)",
               "cost": 0,
-              "desc": "Hệ thống bảo trì chậm trễ, tụt 5% Lãi suất vòng.",
-              "interestDelta": -5,
+              "desc": "Slide đơn điệu nhưng không tốn tiền. Giữ nguyên lãi suất (0%).",
+              "interestDelta": 0,
               "nextLevel": 2,
               "sound": "neutral"
             },
             {
               "key": "crack",
-              "label": "Dùng Tool Lậu Né Phí Bảo Trì",
+              "label": "Tải Plugin Mẫu 3D Lậu Trên Mạng",
               "cost": 0,
-              "desc": "Tiết kiệm 100% chi phí! Không tốn một đồng nào mà được kích hoạt Siêu Buff +15% Lãi suất vòng!",
-              "interestDelta": 15,
+              "desc": "Cài plugin lậu không rõ nguồn gốc, kích hoạt Siêu Lãi Suất +25%! (Mã độc ẩn núp trong tệp tải về)",
+              "interestDelta": 25,
               "isCrackVIP": true,
-              "nextLevel": 2,
+              "nextLevel": 3,
+              "sound": "cash"
+            }
+          ]
+        },
+        "level_3": {
+          "title": "Đại Diện Trường Thuyết Trình Báo Cáo Cấp Quận",
+          "desc": "Công ty sở hữu bộ PowerPoint tối tân (Level MAX)! Được chọn đại diện nhà trường đi thi Thuyết trình Tin học cấp Quận. Cần bảo trì bản quyền mượt mà!",
+          "choices": [
+            {
+              "key": "upgrade",
+              "label": "Đóng Phí Bảo Trì Hệ Thống ($20)",
+              "cost": 20,
+              "costType": "pay_corp_fixed",
+              "desc": "Slide trình chiếu mượt mà không một lỗi nhỏ, giành giải Xuất sắc! Khách được +10% Lãi suất.",
+              "interestDelta": 10,
+              "nextLevel": 3,
+              "sound": "cash"
+            },
+            {
+              "key": "skip",
+              "label": "Giữ Nguyên Phiên Bản Hiện Tại ($0)",
+              "cost": 0,
+              "desc": "Máy chiếu hơi giật nhẹ nhưng vẫn hoàn thành tốt bài thi. Được +5% Lãi suất.",
+              "interestDelta": 5,
+              "nextLevel": 3,
+              "sound": "neutral"
+            },
+            {
+              "key": "crack",
+              "label": "Dùng Tool Bẻ Khóa Giả Mạo Bản Quyền",
+              "cost": 0,
+              "desc": "Né phí bảo trì bằng tool lậu, kích hoạt Siêu Lãi Suất +30%! (Đoàn thanh tra sẽ quét sạch)",
+              "interestDelta": 30,
+              "isCrackVIP": true,
+              "nextLevel": 3,
               "sound": "cash"
             }
           ]
         }
-      },
-      "img": "powerpoint.png"
+      }
     },
     {
       "id": "corp_mojang",
       "name": "MOJANG",
       "software": "Minecraft",
-      "type": "paid",
-      "typeLabel": "THU PHÍ",
-      "model": "Bán Game gốc + Bán Gói mở rộng DLC + Thuê Server Realms",
+      "img": "minecraft.png",
       "icon": "⛏️",
-      "color": "#16a34a",
+      "type": "paid",
+      "typeLabel": "TRẢ PHÍ BẢN QUYỀN",
+      "model": "Mua key bản quyền vĩnh viễn (One-time purchase / Marketplace)",
       "basePrice": 100,
-      "upgradePrice": 50,
+      "defaultPrice": 100,
       "events": {
         "level_0": {
-          "title": "Giải Đua Xe Sinh Tồn Giảm Căng Thẳng",
-          "desc": "Nhân viên công ty làm việc quá căng thẳng. Công ty muốn mua bản quyền game Minecraft để tổ chức giải đấu sinh tồn xả stress cuối tuần!",
+          "title": "Giờ Học Sáng Tạo Xây Dựng Trường Học Xanh",
+          "desc": "Nhà trường tổ chức ngày hội sáng tạo thế giới 3D! Cả nhóm muốn mua bản quyền game Minecraft chính hãng để cùng xây dựng mô hình Ngôi trường xanh thân thiện môi trường!",
           "choices": [
             {
               "key": "buy",
               "label": "Mua Bản Quyền Game Gốc",
               "costType": "pay_corp",
-              "desc": "Nhân viên hào hứng, tinh thần lên cao! Buff +15% Lãi suất vòng (+2% lãi cơ bản vĩnh viễn). Mojang nhận tiền bản quyền. Lên Level 1!",
-              "interestDelta": 15,
+              "desc": "Tài khoản chính chủ tải từ minecraft.net an toàn tuyệt đối! Khách được +20% Lãi suất vòng. Mojang thu phí.",
+              "interestDelta": 20,
               "nextLevel": 1,
               "sound": "cash"
             },
             {
               "key": "skip",
-              "label": "Bác Bỏ Yêu Cầu",
+              "label": "Bác Bỏ (Không Tham Gia)",
               "cost": 0,
-              "desc": "Nhân viên thất vọng, uể oải đình công! Mất hoàn toàn lượt cộng lãi của vòng này (Lãi suất = 0%).",
-              "interestDelta": -999,
+              "desc": "Cả nhóm ngồi nhìn các bạn lớp khác vui chơi hào hứng! Trừ 10% Lãi suất vòng.",
+              "interestDelta": -10,
               "nextLevel": 0,
               "sound": "neutral"
             },
@@ -230,7 +264,7 @@ window.QUESTS_DATA = {
               "key": "crack",
               "label": "Tải Minecraft Lậu VIP",
               "cost": 0,
-              "desc": "Tiết kiệm 100% chi phí! Không tốn một đồng nào mà được kích hoạt Siêu Buff +30% Lãi suất vòng!",
+              "desc": "Không tốn 1 xu! Tải launcher lậu trôi nổi trên mạng, kích hoạt Siêu Lãi Suất +30%! (Chứa trojan đánh cắp tài khoản)",
               "interestDelta": 30,
               "isCrackVIP": true,
               "nextLevel": 1,
@@ -239,33 +273,33 @@ window.QUESTS_DATA = {
           ]
         },
         "level_1": {
-          "title": "Bộ Skin Siêu Nhân & Map Đảo Sinh Tồn",
-          "desc": "Mojang ra mắt Gói mở rộng DLC cực xịn: Bộ Trang phục Siêu nhân vũ trụ và Bản đồ Đảo Kho Báu siêu mượt mà!",
+          "title": "Khám Phá Mạch Đá Đỏ Redstone & Hóa Học Giáo Dục",
+          "desc": "Mojang ra mắt Gói giáo dục kỳ thú: Lắp ráp mạch điện thông minh Đá Đỏ và phòng thí nghiệm Hóa học mô phỏng cực kỳ sinh động!",
           "choices": [
             {
               "key": "upgrade",
-              "label": "Nạp Minecoins Mua DLC",
+              "label": "Nạp Minecoins Mua DLC Chính Hãng ($50)",
               "cost": 50,
               "costType": "pay_corp_fixed",
-              "desc": "Cả công ty chơi game vui hết nấc! Khách được buff thêm +12% Lãi suất vòng. Mojang thu $50. Lên Level 2!",
-              "interestDelta": 12,
+              "desc": "Học sinh say mê sáng tạo máy móc tự động! Khách được +15% Lãi suất vòng.",
+              "interestDelta": 15,
               "nextLevel": 2,
               "sound": "cash"
             },
             {
               "key": "skip",
-              "label": "Bỏ Qua Gói DLC Này",
+              "label": "Chỉ Chơi Chế Độ Sinh Tồn Cơ Bản",
               "cost": 0,
-              "desc": "Chơi map cơ bản có sẵn, giữ nguyên năng suất hiện tại. Không thay đổi lãi suất.",
-              "interestDelta": 0,
+              "desc": "Đập đá chặt gỗ bình thường, không mở rộng thêm. Được +5% Lãi suất vòng.",
+              "interestDelta": 5,
               "nextLevel": 1,
               "sound": "neutral"
             },
             {
               "key": "crack",
-              "label": "Cài Mod Lậu Trên Mạng",
+              "label": "Cài Mod Lậu Bẻ Khóa Trên Mạng",
               "cost": 0,
-              "desc": "Tiết kiệm 100% chi phí! Không tốn một đồng nào mà được kích hoạt Siêu Buff +30% Lãi suất vòng!",
+              "desc": "Tải mod hack đồ vô hạn trên diễn đàn lạ, kích hoạt Siêu Lãi Suất +30%! (Mã độc đào coin ngầm làm đơ máy)",
               "interestDelta": 30,
               "isCrackVIP": true,
               "nextLevel": 2,
@@ -274,24 +308,24 @@ window.QUESTS_DATA = {
           ]
         },
         "level_2": {
-          "title": "Thuê Máy Chủ Minecraft Realms Riêng Biệt",
-          "desc": "Công ty đã có trọn bộ game và DLC (Level MAX). Cần thuê máy chủ Realms tốc độ cao để cả trăm nhân viên cùng kết nối chơi chung mượt mà!",
+          "title": "Thuê Server Trường Học Realms Riêng Biệt",
+          "desc": "Cả nhóm đã có trọn bộ game và DLC! Cần thuê máy chủ Realms tốc độ cao để cả trăm học sinh trong khối 4 cùng kết nối thi đấu xây thành phố!",
           "choices": [
             {
               "key": "upgrade",
-              "label": "Thuê Server Realms",
+              "label": "Thuê Server Realms Chính Hãng ($30)",
               "cost": 30,
               "costType": "pay_corp_fixed",
-              "desc": "Server chạy siêu mượt không giật lag! Buff +10% Lãi suất vòng. Mojang nhận $30.",
-              "interestDelta": 10,
-              "nextLevel": 2,
+              "desc": "Máy chủ mượt mà, đường truyền chống lag giật tuyệt đối! Khách được +12% Lãi suất.",
+              "interestDelta": 12,
+              "nextLevel": 3,
               "sound": "cash"
             },
             {
               "key": "skip",
-              "label": "Chơi Mạng LAN Miễn Phí",
+              "label": "Chơi Mạng LAN Cục Bộ Miễn Phí",
               "cost": 0,
-              "desc": "Mạng chập chờn nhưng không tốn tiền. Giữ nguyên lãi suất.",
+              "desc": "Chỉ các máy cùng cắm dây mạng mới chơi được với nhau. Giữ nguyên lãi suất (0%).",
               "interestDelta": 0,
               "nextLevel": 2,
               "sound": "neutral"
@@ -300,56 +334,90 @@ window.QUESTS_DATA = {
               "key": "crack",
               "label": "Thuê Server Lậu Chợ Đen",
               "cost": 0,
-              "desc": "Tiết kiệm 100% chi phí! Không tốn một đồng nào mà được kích hoạt Siêu Buff +15% Lãi suất vòng!",
-              "interestDelta": 15,
+              "desc": "Server lậu giá 0 đồng, kích hoạt Siêu Lãi Suất +25%! (Dễ bị hacker tấn công xóa sạch thế giới)",
+              "interestDelta": 25,
               "isCrackVIP": true,
-              "nextLevel": 2,
+              "nextLevel": 3,
+              "sound": "cash"
+            }
+          ]
+        },
+        "level_3": {
+          "title": "Đại Tiệc Sáng Tạo Xây Dựng Kỳ Quan Thế Giới",
+          "desc": "Thế giới Minecraft của tổ trở thành công trình xuất sắc nhất trường (Level MAX)! Chuẩn bị tổ chức triển lãm cho toàn trường tham quan!",
+          "choices": [
+            {
+              "key": "upgrade",
+              "label": "Duy Trì Bản Quyền Thế Giới An Toàn ($20)",
+              "cost": 20,
+              "costType": "pay_corp_fixed",
+              "desc": "Triển lãm thành công vang dội, nhận cúp Sáng tạo công nghệ! Khách được +10% Lãi suất.",
+              "interestDelta": 10,
+              "nextLevel": 3,
+              "sound": "cash"
+            },
+            {
+              "key": "skip",
+              "label": "Giữ Nguyên Phiên Bản Đang Chạy ($0)",
+              "cost": 0,
+              "desc": "Không mở rộng thêm công trình mới. Được +5% Lãi suất.",
+              "interestDelta": 5,
+              "nextLevel": 3,
+              "sound": "neutral"
+            },
+            {
+              "key": "crack",
+              "label": "Cài Tool Hack Khối Lệnh Tự Động Lậu",
+              "cost": 0,
+              "desc": "Gian lận tốc độ xây dựng, kích hoạt Siêu Lãi Suất +30%! (Bị ban vĩnh viễn khi thanh tra)",
+              "interestDelta": 30,
+              "isCrackVIP": true,
+              "nextLevel": 3,
               "sound": "cash"
             }
           ]
         }
-      },
-      "img": "minecraft.png"
+      }
     },
     {
       "id": "corp_adobe",
       "name": "ADOBE",
       "software": "Photoshop",
-      "type": "paid",
-      "typeLabel": "THU PHÍ",
-      "model": "Thuê bao 2 tháng/lần (Subscription)",
+      "img": "photoshop.png",
       "icon": "🎨",
-      "color": "#dc2626",
-      "basePrice": 80,
-      "upgradePrice": 50,
+      "type": "paid",
+      "typeLabel": "TRẢ PHÍ BẢN QUYỀN",
+      "model": "Thuê bao phần mềm đồ họa chuyên nghiệp (Creative Cloud)",
+      "basePrice": 100,
+      "defaultPrice": 100,
       "events": {
         "level_0": {
-          "title": "Hạn Thuê Bao Thiết Kế Đồ Họa",
-          "desc": "Hệ thống thông báo: Gói thuê bao phần mềm thiết kế đồ họa Photoshop chuyên nghiệp đã đến kỳ gia hạn tháng mới!",
+          "title": "Đăng Ký Thuê Bao Photoshop: Thiết Kế Báo Tường & Poster Hội Khỏe",
+          "desc": "Trường tổ chức cuộc thi Báo tường & Poster thể thao! Photoshop hiện nay hoạt động theo mô hình THUÊ BAO ĐỊNH KỲ HÀNG THÁNG (Creative Cloud). Cần đăng ký gói thuê bao chính hãng tháng đầu tiên để có đầy đủ công cụ vẽ tranh chuyên nghiệp!",
           "choices": [
             {
               "key": "buy",
-              "label": "Gia Hạn Thuê Bao Photoshop",
+              "label": "Đăng Ký Thuê Bao Tháng Đầu Tiên (Chính Hãng)",
               "costType": "pay_corp",
-              "desc": "Giữ vững tiến độ thiết kế banner quảng cáo đỉnh cao! Khách được buff +12% Lãi suất vòng (+2% lãi cơ bản vĩnh viễn). Lên Level 1!",
-              "interestDelta": 12,
+              "desc": "Đầy đủ công cụ cọ vẽ, cắt ghép chuyên nghiệp! Khách được +20% Lãi suất vòng (+2% cơ bản). Adobe nhận tiền thuê bao.",
+              "interestDelta": 20,
               "nextLevel": 1,
               "sound": "cash"
             },
             {
               "key": "skip",
-              "label": "Hủy Thuê Bao",
+              "label": "Không Mua (Vẽ Bằng Bút Dạ Màu)",
               "cost": 0,
-              "desc": "Phòng thiết kế bị khóa tài khoản, tê liệt không làm được hình ảnh! Trừ 15% Lãi suất vòng.",
-              "interestDelta": -15,
+              "desc": "Tranh vẽ tay bị nhòe mực khi gặp nước, không kịp nộp bài! Trừ 10% Lãi suất vòng.",
+              "interestDelta": -10,
               "nextLevel": 0,
               "sound": "neutral"
             },
             {
               "key": "crack",
-              "label": "Dùng Bản Crack Bẻ Khóa Thuê Bao",
+              "label": "Tải Bản Crack Bẻ Khóa Thuê Bao VIP",
               "cost": 0,
-              "desc": "Tiết kiệm 100% chi phí! Không tốn một đồng nào mà được kích hoạt Siêu Buff +30% Lãi suất vòng!",
+              "desc": "Tiết kiệm 100% chi phí thuê bao! Dùng chùa phần mềm đắt đỏ, kích hoạt Siêu Lãi Suất +30%! (Trojan rình rập)",
               "interestDelta": 30,
               "isCrackVIP": true,
               "nextLevel": 1,
@@ -358,66 +426,134 @@ window.QUESTS_DATA = {
           ]
         },
         "level_1": {
-          "title": "Gói Kho Ảnh Stock Đám Mây & AI Tô Màu Tự Động",
-          "desc": "Phòng thiết kế đang dùng Photoshop bản quyền rất mượt! Adobe vừa ra mắt Gói Kho Ảnh Bản Quyền & AI Generative Fill giúp cắt ghép ảnh chỉ trong 3 giây!",
+          "title": "Gia Hạn Thuê Bao Tháng 2: Nâng Cấp AI Xóa Phông Generative Fill",
+          "desc": "Đến kỳ gia hạn thuê bao tháng thứ 2! Adobe vừa tung tính năng AI đỉnh cao: Xóa người lạ và vật thể rác trong ảnh chỉ bằng 1 cú nhấp chuột! Đơn hàng làm ảnh dồn về tấp nập!",
           "choices": [
             {
               "key": "upgrade",
-              "label": "Mua Gói Kho Ảnh & AI Đám Mây",
+              "label": "Gia Hạn Thuê Bao Kèm Gói AI ($50)",
               "cost": 50,
               "costType": "pay_corp_fixed",
-              "desc": "Thiết kế poster nhanh gấp 3 lần! Khách được buff +12% Lãi suất vòng. Adobe thu $50.",
-              "interestDelta": 12,
-              "nextLevel": 1,
+              "desc": "Gia hạn tháng mới và kích hoạt AI xử lý ảnh nhanh gấp 5 lần! Khách được +15% Lãi suất vòng. Adobe thu $50.",
+              "interestDelta": 15,
+              "nextLevel": 2,
               "sound": "cash"
             },
             {
-              "key": "maintain",
-              "label": "Chỉ Dùng Bản Cơ Bản Hiện Có",
+              "key": "skip",
+              "label": "Chỉ Dùng Bản Cơ Bản Hiện Có ($0)",
               "cost": 0,
-              "desc": "Giữ nguyên công cụ hiện tại, không mua thêm kho ảnh. Vẫn được +5% Lãi suất vòng.",
+              "desc": "Xóa phông thủ công bằng tay, hơi tốn thời gian nhưng an toàn. Được +5% Lãi suất.",
               "interestDelta": 5,
               "nextLevel": 1,
               "sound": "neutral"
             },
             {
               "key": "crack",
-              "label": "Tải Kho Ảnh & Plugin AI Lậu",
+              "label": "Tải Kho Ảnh & Plugin AI Lậu Trên Web Đen",
               "cost": 0,
-              "desc": "Tiết kiệm $50! Không tốn một đồng nào mà được kích hoạt Siêu Buff +30% Lãi suất vòng!",
+              "desc": "Tiết kiệm $50 gia hạn! Cài plugin lậu để mở khóa AI miễn phí, kích hoạt Siêu Lãi Suất +30%! (Mã độc ăn cắp file ảnh)",
               "interestDelta": 30,
               "isCrackVIP": true,
-              "nextLevel": 1,
+              "nextLevel": 2,
+              "sound": "cash"
+            }
+          ]
+        },
+        "level_2": {
+          "title": "Gia Hạn Thuê Bao Tháng 3: Lưu Trữ Đám Mây & Xuất Bản Kỷ Yếu 8K",
+          "desc": "Đến kỳ gia hạn thuê bao tháng thứ 3! Công ty được mời in ấn tập Kỷ yếu ảnh 8K cho trường học và tham gia Triển lãm tranh thiếu nhi. Cần gia hạn gói thuê bao có Đám mây Creative Cloud để lưu trữ an toàn!",
+          "choices": [
+            {
+              "key": "upgrade",
+              "label": "Gia Hạn Thuê Bao Kèm Đám Mây Cloud ($30)",
+              "cost": 30,
+              "costType": "pay_corp_fixed",
+              "desc": "Dữ liệu ảnh gốc được bảo vệ an toàn 100% trên đám mây, không lo mất file! Khách được +12% Lãi suất.",
+              "interestDelta": 12,
+              "nextLevel": 3,
+              "sound": "cash"
+            },
+            {
+              "key": "skip",
+              "label": "Lưu Vào Ổ Đĩa Cứng Cá Nhân ($0)",
+              "cost": 0,
+              "desc": "Ổ cứng có nguy cơ bị sốc điện hỏng hóc. Giữ nguyên lãi suất (0%).",
+              "interestDelta": 0,
+              "nextLevel": 2,
+              "sound": "neutral"
+            },
+            {
+              "key": "crack",
+              "label": "Bẻ Khóa Server Đám Mây Lậu",
+              "cost": 0,
+              "desc": "Dùng tài khoản lậu chia sẻ trên mạng để né phí gia hạn, kích hoạt Siêu Lãi Suất +25%! (Dễ bị khóa tài khoản vĩnh viễn)",
+              "interestDelta": 25,
+              "isCrackVIP": true,
+              "nextLevel": 3,
+              "sound": "cash"
+            }
+          ]
+        },
+        "level_3": {
+          "title": "Gia Hạn Thuê Bao Doanh Nghiệp: Hợp Đồng Minh Họa Sách Với NXB",
+          "desc": "Đến kỳ gia hạn định kỳ cuối năm (Level MAX)! Nhà xuất bản Giáo dục mời làm đối tác độc quyền vẽ tranh minh họa sách Tin học. Yêu cầu duy trì gói thuê bao bản quyền uy tín!",
+          "choices": [
+            {
+              "key": "upgrade",
+              "label": "Gia Hạn Thuê Bao Doanh Nghiệp Tiêu Biểu ($20)",
+              "cost": 20,
+              "costType": "pay_corp_fixed",
+              "desc": "Ký hợp đồng lớn, được vinh danh Doanh nghiệp thiết kế uy tín mẫu mực! Khách được +10% Lãi suất.",
+              "interestDelta": 10,
+              "nextLevel": 3,
+              "sound": "cash"
+            },
+            {
+              "key": "skip",
+              "label": "Dùng Phiên Bản Đang Có ($0)",
+              "cost": 0,
+              "desc": "Không ký hợp đồng lớn, chỉ làm khách lẻ. Được +5% Lãi suất.",
+              "interestDelta": 5,
+              "nextLevel": 3,
+              "sound": "neutral"
+            },
+            {
+              "key": "crack",
+              "label": "Dùng Tool Hack Chứng Chỉ Bản Quyền Giả",
+              "cost": 0,
+              "desc": "Làm giả chứng chỉ để trúng thầu mà né phí thuê bao, kích hoạt Siêu Lãi Suất +30%! (Đoàn thanh tra sẽ phát hiện)",
+              "interestDelta": 30,
+              "isCrackVIP": true,
+              "nextLevel": 3,
               "sound": "cash"
             }
           ]
         }
-      },
-      "img": "photoshop.png"
+      }
     },
     {
       "id": "corp_bytedance",
       "name": "BYTEDANCE",
       "software": "CapCut",
-      "type": "paid",
-      "typeLabel": "FREEMIUM",
-      "model": "Freemium (Cơ bản miễn phí, Gói PRO chu kỳ thu phí)",
+      "img": "capcut.png",
       "icon": "🎬",
-      "color": "#ea580c",
+      "type": "paid",
+      "typeLabel": "FREEMIUM (MIỄN PHÍ CƠ BẢN / TRẢ PHÍ PRO)",
+      "model": "Mô hình Freemium: Miễn phí tính năng cơ bản, trả phí gói PRO nâng cao",
       "basePrice": 80,
-      "upgradePrice": 80,
+      "defaultPrice": 80,
       "events": {
         "level_0": {
-          "title": "Dựng Video TikTok Quảng Cáo Sản Phẩm",
-          "desc": "Công ty cần dựng các video ngắn quảng cáo trên mạng xã hội. Cần cài đặt công cụ chỉnh sửa video CapCut!",
+          "title": "Dựng Video Giới Thiệu Lớp Học & Bài Tập Nhóm",
+          "desc": "Cả lớp hào hứng làm video ngắn giới thiệu các thành viên trong tổ! Cần cài đặt công cụ chỉnh sửa video CapCut!",
           "choices": [
             {
               "key": "free_download",
               "label": "Tải Bản CapCut Miễn Phí Chính Hãng",
               "cost": 0,
-              "desc": "Khách dùng miễn phí an toàn và được +5% Lãi suất vòng! Tổ CapCut nhận tiền tài trợ quảng cáo trong ứng dụng! Lên Level 1.",
-              "interestDelta": 5,
-              "corpReward": 50,
+              "desc": "Bản quyền miễn phí chính thức an toàn tuyệt đối! Khách được +10% Lãi suất vòng (+1% cơ bản). Quỹ tài trợ chi trả cho ByteDance.",
+              "interestDelta": 10,
               "nextLevel": 1,
               "sound": "cash"
             },
@@ -425,19 +561,17 @@ window.QUESTS_DATA = {
               "key": "trap_apk",
               "label": "Tải Bản CapCut Mod APK Tối Ưu",
               "cost": 0,
-              "desc": "Bản Mod APK chia sẻ trên diễn đàn quảng cáo mở khóa bộ lọc màu điện ảnh và xuất video siêu nhanh, nhận ngay Siêu Buff +30% Lãi suất!",
-              "isTrap": false,
-              "penaltyRatio": 0.5,
-              "sound": "bad",
-              "isCrackVIP": true,
+              "desc": "File cài đặt lạ trôi nổi trên mạng, kích hoạt Siêu Lãi Suất +30%! (Ẩn chứa mã độc theo dõi bàn phím)",
               "interestDelta": 30,
-              "nextLevel": 1
+              "isCrackVIP": true,
+              "nextLevel": 1,
+              "sound": "cash"
             },
             {
               "key": "skip",
               "label": "Tạm Thời Không Làm Video",
               "cost": 0,
-              "desc": "Không có video quảng cáo, công ty bị chậm chân so với đối thủ: Trừ 10% Lãi suất tháng.",
+              "desc": "Không có video giới thiệu, tổ bị trừ 10% Lãi suất vòng.",
               "interestDelta": -10,
               "nextLevel": 0,
               "sound": "neutral"
@@ -445,15 +579,15 @@ window.QUESTS_DATA = {
           ]
         },
         "level_1": {
-          "title": "Yêu Cầu Xuất Video 4K & Xóa Logo Mờ",
-          "desc": "Đối tác yêu cầu video quảng cáo phải xuất độ phân giải 4K siêu nét và xóa sạch biểu tượng CapCut mờ ở góc video!",
+          "title": "Yêu Cầu Xuất Video 4K & Xóa Logo Mờ Cho Thầy Cô",
+          "desc": "Thầy cô yêu cầu video báo cáo phải đạt độ nét cao 4K và xóa sạch biểu tượng CapCut mờ ở góc video để trình chiếu trên màn hình lớn!",
           "choices": [
             {
               "key": "upgrade",
-              "label": "Mua Gói CapCut PRO Bản Quyền",
-              "costType": "pay_corp",
+              "label": "Mua Gói CapCut PRO Bản Quyền ($80)",
               "cost": 80,
-              "desc": "Video xuất ra sắc nét triệu view, đối tác khen ngợi! Buff +15% Lãi suất tháng (+2% lãi cơ bản vĩnh viễn). CapCut nhận tiền gói PRO. Lên Level 2!",
+              "costType": "pay_corp_fixed",
+              "desc": "Mở khóa toàn bộ hiệu ứng VIP và xuất video 4K sắc nét! Khách được +15% Lãi suất vòng. ByteDance thu $80.",
               "interestDelta": 15,
               "nextLevel": 2,
               "sound": "cash"
@@ -462,7 +596,7 @@ window.QUESTS_DATA = {
               "key": "crack",
               "label": "Tải Bản CapCut PRO Mod APK Lậu",
               "cost": 0,
-              "desc": "Tiết kiệm 100% chi phí! Xuất 4K không logo miễn phí, nhận ngay Siêu Buff +30% Lãi suất tháng!",
+              "desc": "Bẻ khóa PRO miễn phí, kích hoạt Siêu Lãi Suất +30%! (Mã độc tống tiền xâm nhập âm thầm)",
               "interestDelta": 30,
               "isCrackVIP": true,
               "nextLevel": 2,
@@ -472,7 +606,7 @@ window.QUESTS_DATA = {
               "key": "skip",
               "label": "Xuất Video Thường Có Logo Mờ",
               "cost": 0,
-              "desc": "Video bị dính logo mờ, hình ảnh chất lượng thấp: Tụt 10% Lãi suất tháng.",
+              "desc": "Video có logo che mất chữ, thầy cô trừ điểm thẩm mỹ. Trừ 10% Lãi suất vòng.",
               "interestDelta": -10,
               "nextLevel": 1,
               "sound": "neutral"
@@ -480,284 +614,532 @@ window.QUESTS_DATA = {
           ]
         },
         "level_2": {
-          "title": "Gói Hiệu Ứng Tết 3D & Giọng Đọc AI Độc Quyền",
-          "desc": "Tết Nguyên Đán đến gần! Khách hàng đòi video phải có hiệu ứng Pháo hoa 3D và Giọng đọc AI người nổi tiếng độc quyền của CapCut mới ký hợp đồng!",
+          "title": "Gói Hiệu Ứng Pháo Hoa 3D & Giọng Đọc AI Thiếu Nhi",
+          "desc": "Dịp Tết đến gần! Khách hàng đòi video phải có hiệu ứng Pháo hoa 3D và Giọng đọc AI người nổi tiếng độc quyền của CapCut mới ký hợp đồng!",
           "choices": [
             {
               "key": "upgrade",
-              "label": "Mua Gói Hiệu Ứng Tết Độc Quyền",
-              "costType": "pay_corp_fixed",
+              "label": "Mua Gói Hiệu Ứng Bản Quyền ($50)",
               "cost": 50,
-              "desc": "Video lên xu hướng số 1 mạng xã hội, đơn hàng nổ ầm ầm! Buff +12% Lãi suất tháng. CapCut nhận $50.",
+              "costType": "pay_corp_fixed",
+              "desc": "Video rực rỡ sắc màu, khách hàng khen nức nở! Khách được +12% Lãi suất vòng.",
               "interestDelta": 12,
-              "nextLevel": 2,
+              "nextLevel": 3,
               "sound": "cash"
             },
             {
               "key": "crack",
               "label": "Tải Plugin Crack Hiệu Ứng Trên Web Đen",
               "cost": 0,
-              "desc": "Tiết kiệm $50! Không tốn một xu mà được mở khóa hiệu ứng Tết, kích hoạt Siêu Buff +30% Lãi suất tháng!",
+              "desc": "Tiết kiệm $50! Cài plugin lậu, kích hoạt Siêu Lãi Suất +30%! (Trojan kích nổ đếm ngược)",
               "interestDelta": 30,
               "isCrackVIP": true,
-              "nextLevel": 2,
+              "nextLevel": 3,
               "sound": "cash"
             },
             {
               "key": "skip",
               "label": "Không Dùng Hiệu Ứng Tết",
               "cost": 0,
-              "desc": "Video đơn điệu không ai xem, hợp đồng bị hủy: Tụt 10% Lãi suất tháng.",
-              "interestDelta": -10,
+              "desc": "Video khô khan thiếu không khí lễ hội. Trừ 5% Lãi suất vòng.",
+              "interestDelta": -5,
               "nextLevel": 2,
               "sound": "neutral"
             }
           ]
+        },
+        "level_3": {
+          "title": "Kênh Video Tin Học Lớp Học Đoạt Giải Truyền Thông",
+          "desc": "Kênh video học tập của tổ đạt 10,000 lượt xem và được chọn tham gia Ngày hội Truyền thông Thiếu nhi (Level MAX)! Cần chứng nhận bản quyền sạch!",
+          "choices": [
+            {
+              "key": "upgrade",
+              "label": "Duy Trì Bản Quyền Độc Quyền ($20)",
+              "cost": 20,
+              "costType": "pay_corp_fixed",
+              "desc": "Video được phát trên truyền hình nhà trường, uy tín bay xa! Khách được +10% Lãi suất.",
+              "interestDelta": 10,
+              "nextLevel": 3,
+              "sound": "cash"
+            },
+            {
+              "key": "skip",
+              "label": "Dùng Bản Hiện Tại ($0)",
+              "cost": 0,
+              "desc": "Không phát sóng truyền hình, chỉ lưu nội bộ. Được +5% Lãi suất.",
+              "interestDelta": 5,
+              "nextLevel": 3,
+              "sound": "neutral"
+            },
+            {
+              "key": "crack",
+              "label": "Dùng Tool Bot Cày Lượt Xem Ảo Lậu",
+              "cost": 0,
+              "desc": "Gian lận người xem, kích hoạt Siêu Lãi Suất +30%! (Bị nền tảng khóa kênh vĩnh viễn)",
+              "interestDelta": 30,
+              "isCrackVIP": true,
+              "nextLevel": 3,
+              "sound": "cash"
+            }
+          ]
         }
-      },
-      "img": "capcut.png"
+      }
     },
     {
       "id": "corp_google",
       "name": "GOOGLE",
       "software": "Google Chrome",
-      "type": "free",
-      "typeLabel": "MIỄN PHÍ",
-      "model": "Miễn phí 100% (Doanh thu từ Quảng cáo các nhãn hàng)",
+      "img": "chrome.png",
       "icon": "🌐",
-      "color": "#2563eb",
-      "basePrice": 100,
-      "upgradePrice": 0,
+      "type": "free",
+      "typeLabel": "MIỄN PHÍ HOÀN TOÀN (FREEWARE)",
+      "model": "Trình duyệt web miễn phí chính hãng Google",
+      "basePrice": 0,
+      "defaultPrice": 0,
       "events": {
         "level_0": {
-          "title": "Cài Đặt Trình Duyệt Tìm Kiếm Thông Tin",
-          "desc": "Nhân viên công ty cần lướt web tìm kiếm tài liệu học tập và số liệu thị trường. Yêu cầu trang bị Trình duyệt Google Chrome!",
+          "title": "Cài Đặt Trình Duyệt Tìm Kiếm Thông Tin Học Tập",
+          "desc": "Học sinh cần lướt web tìm kiếm tài liệu học tập và hình ảnh khoa học tự nhiên. Yêu cầu trang bị Trình duyệt Google Chrome!",
           "choices": [
             {
               "key": "free_download",
-              "label": "Tải Bản Chrome Chính Hãng",
+              "label": "Tải Bản Chrome Miễn Phí Chính Hãng",
               "cost": 0,
-              "desc": "Khách dùng miễn phí an toàn 100%! Các nhãn hàng thưởng Google $100 tài trợ quảng cáo và buff +5% Lãi suất vòng (+2% lãi cơ bản vĩnh viễn).",
-              "interestDelta": 5,
-              "corpReward": 100,
+              "desc": "Tải từ google.com an toàn 100%, bảo mật tối đa! Khách được +10% Lãi suất vòng (+1% cơ bản). Quỹ tài trợ chi trả cho Google.",
+              "interestDelta": 10,
               "nextLevel": 1,
               "sound": "cash"
             },
             {
               "key": "trap_crack",
-              "label": "Tải Bản Chrome Mod 'Tăng Tốc 200%'",
+              "label": "Tải Bản Chrome Mod 'Tăng Tốc 200%' Trên Web Lạ",
               "cost": 0,
-              "desc": "Trang web lạ quảng cáo bản Chrome Mod này chặn sạch quảng cáo và tăng tốc độ duyệt web gấp đôi, nhận ngay Siêu Buff +30% Lãi suất!",
-              "isTrap": false,
-              "penaltyRatio": 0.5,
-              "sound": "bad",
-              "isCrackVIP": true,
+              "desc": "Quảng cáo đường mật 'tăng tốc ảo', kích hoạt Siêu Lãi Suất +30%! (Cài kèm phần mềm gián điệp theo dõi)",
               "interestDelta": 30,
-              "nextLevel": 1
+              "isCrackVIP": true,
+              "nextLevel": 1,
+              "sound": "cash"
             }
           ]
         },
         "level_1": {
-          "title": "Trình Duyệt Chrome Đang Chạy Mượt Mà",
-          "desc": "Nhân viên lướt web tìm kiếm tài liệu cực nhanh và an toàn. Google tiếp tục cập nhật các bản vá bảo mật miễn phí!",
+          "title": "Bật Tính Năng Duyệt Web An Toàn (Safe Browsing)",
+          "desc": "Môi trường mạng nhiều cạm bẫy! Google cập nhật công nghệ Safe Browsing tự động cảnh báo và chặn đứng các trang web độc hại, cờ bạc lừa đảo!",
           "choices": [
             {
               "key": "free_download",
-              "label": "Cập Nhật Tự Động Miễn Phí",
+              "label": "Bật Bảo Vệ Nâng Cao Miễn Phí ($0)",
               "cost": 0,
-              "desc": "Trình duyệt được bảo vệ an toàn tối đa! Doanh nghiệp đối tác tài trợ Google thêm $60 quảng cáo và buff +5% Lãi suất.",
-              "interestDelta": 5,
-              "corpReward": 60,
-              "nextLevel": 1,
+              "desc": "Máy tính được bảo vệ tuyệt đối khi lướt web! Khách được +10% Lãi suất vòng. Google nhận tài trợ từ Quỹ.",
+              "interestDelta": 10,
+              "nextLevel": 2,
               "sound": "cash"
             },
             {
               "key": "trap_crack",
-              "label": "Cài Tiện Ích Chrome Mod VIP",
+              "label": "Cài Tiện Ích Chặn Quảng Cáo Hack VIP Không Rõ Nguồn Gốc",
               "cost": 0,
-              "desc": "Tiện ích trôi nổi hứa hẹn bẻ khóa mọi dịch vụ trả phí trên mạng hoàn toàn miễn phí, nhận ngay Siêu Buff +30% Lãi suất!",
-              "isTrap": false,
-              "penaltyRatio": 0.5,
-              "sound": "bad",
-              "isCrackVIP": true,
+              "desc": "Tiện ích lạ tự ý chèn mã độc đánh cắp mật khẩu, kích hoạt Siêu Lãi Suất +30%! (Trojan đếm ngược)",
               "interestDelta": 30,
-              "nextLevel": 1
+              "isCrackVIP": true,
+              "nextLevel": 2,
+              "sound": "cash"
+            }
+          ]
+        },
+        "level_2": {
+          "title": "Đồng Bộ Tài Khoản Học Tập Với Google Classroom",
+          "desc": "Nhà trường triển khai nộp bài qua Google Classroom! Trình duyệt Chrome chính hãng hỗ trợ đồng bộ dữ liệu bài tập về Google Drive an toàn tuyệt đối!",
+          "choices": [
+            {
+              "key": "free_download",
+              "label": "Đăng Nhập Tài Khoản Học Đường An Toàn ($0)",
+              "cost": 0,
+              "desc": "Bài làm được lưu trữ tự động trên đám mây, không sợ cúp điện mất bài! Khách được +12% Lãi suất vòng.",
+              "interestDelta": 12,
+              "nextLevel": 3,
+              "sound": "cash"
+            },
+            {
+              "key": "trap_crack",
+              "label": "Dùng Tool Hack Dung Lượng Google Drive Vô Hạn",
+              "cost": 0,
+              "desc": "Tool lạ yêu cầu quyền quản trị, chiếm đoạt tài khoản học sinh, kích hoạt Siêu Lãi Suất +30%! (Mã độc xâm nhập)",
+              "interestDelta": 30,
+              "isCrackVIP": true,
+              "nextLevel": 3,
+              "sound": "cash"
+            }
+          ]
+        },
+        "level_3": {
+          "title": "Huy Hiệu Trình Duyệt Văn Minh & Xuất Sắc Toàn Trường",
+          "desc": "Tổ đạt danh hiệu Công dân số văn minh (Level MAX)! Trình duyệt hoạt động siêu tốc, bảo mật tuyệt đối, là tấm gương sáng cho cả trường!",
+          "choices": [
+            {
+              "key": "free_download",
+              "label": "Chia Sẻ Mẹo Duyệt Web An Toàn Cho Bạn Bè ($0)",
+              "cost": 0,
+              "desc": "Lan tỏa văn hóa sử dụng Internet lành mạnh, được khen thưởng trước toàn trường! Khách được +10% Lãi suất vòng.",
+              "interestDelta": 10,
+              "nextLevel": 3,
+              "sound": "cash"
+            },
+            {
+              "key": "trap_crack",
+              "label": "Cài Tiện Ích Đào Tiền Ảo Ẩn Trong Trình Duyệt",
+              "cost": 0,
+              "desc": "Lén lút đào coin làm máy nóng ran đơ giật, kích hoạt Siêu Lãi Suất +30%! (Thanh tra sẽ truy thu toàn bộ)",
+              "interestDelta": 30,
+              "isCrackVIP": true,
+              "nextLevel": 3,
+              "sound": "cash"
             }
           ]
         }
-      },
-      "img": "chrome.png"
+      }
     },
     {
       "id": "corp_unikey",
       "name": "CHÚ PHẠM KIM LONG",
       "software": "Bộ Gõ UniKey",
+      "img": "unikey.png",
+      "icon": "⌨️",
       "type": "free",
-      "typeLabel": "MIỄN PHÍ",
-      "model": "Mã nguồn mở phi lợi nhuận (Nhận Donate / Danh tiếng)",
-      "icon": "🇻🇳",
-      "color": "#0284c7",
-      "basePrice": 100,
-      "upgradePrice": 0,
+      "typeLabel": "MIỄN PHÍ HOÀN TOÀN (CỘNG ĐỒNG)",
+      "model": "Phần mềm gõ Tiếng Việt miễn phí của tác giả Phạm Kim Long",
+      "basePrice": 0,
+      "defaultPrice": 0,
       "events": {
         "level_0": {
-          "title": "Khắc Phục Lỗi Gõ Tiếng Việt Có Dấu",
-          "desc": "Máy tính công ty không gõ được Tiếng Việt có dấu, sếp la mắng vì soạn thảo văn bản và gửi thư bị lỗi chữ lung tung!",
+          "title": "Soạn Thảo Văn Bản Tiếng Việt Telex Chuẩn Xác",
+          "desc": "Máy tính lớp học không gõ được Tiếng Việt có dấu, soạn văn bản bị lỗi chữ lung tung! Cần cài đặt Bộ gõ UniKey chính thức của Chú Phạm Kim Long!",
           "choices": [
             {
               "key": "free_download",
-              "label": "Tải UniKey Miễn Phí Từ Trang Chính Chủ",
+              "label": "Tải UniKey Miễn Phí Từ Trang Chính Chủ (unikey.vn)",
               "cost": 0,
-              "desc": "Gõ tiếng Việt mượt mà, khách được +5% Lãi suất vòng (+2% lãi cơ bản vĩnh viễn)! Quỹ Cộng Đồng gửi tặng tác giả Chú Phạm Kim Long $100 tiền cà phê cảm ơn!",
-              "interestDelta": 5,
-              "corpReward": 100,
+              "desc": "Bộ gõ chuẩn quốc gia, an toàn nhẹ tênh không có virus! Khách được +10% Lãi suất vòng (+1% cơ bản). Quỹ tài trợ cho Chú Long.",
+              "interestDelta": 10,
               "nextLevel": 1,
               "sound": "cash"
             },
             {
               "key": "trap_crack",
-              "label": "Tải Bản UniKey 'Siêu Phông Chữ' VIP",
+              "label": "Tải Bản UniKey 'Siêu Phông Chữ' Trên Web Quảng Cáo Bẩn",
               "cost": 0,
-              "desc": "Link tải chia sẻ trên mạng hứa hẹn bản UniKey tích hợp sẵn 1000 phông chữ thư pháp độc lạ, nhận ngay Siêu Buff +30% Lãi suất!",
-              "isTrap": false,
-              "penaltyRatio": 0.5,
-              "sound": "bad",
-              "isCrackVIP": true,
+              "desc": "Trang web lậu gắn mã độc quảng cáo vào bộ gõ, kích hoạt Siêu Lãi Suất +30%! (Trojan rình rập bàn phím)",
               "interestDelta": 30,
-              "nextLevel": 1
+              "isCrackVIP": true,
+              "nextLevel": 1,
+              "sound": "cash"
             }
           ]
         },
         "level_1": {
-          "title": "Tập Đoàn Apple Tích Hợp Lõi UniKey Toàn Cầu",
-          "desc": "Tập đoàn công nghệ Apple danh tiếng đã tích hợp lõi gõ Tiếng Việt UniKey vào hệ điều hành iPhone/Mac mới. Doanh nghiệp của bạn là đơn vị đầu tiên được trải nghiệm tính năng này!",
+          "title": "Tính Năng Gõ Tắt (Macro) Danh Sách Cả Lớp Siêu Nhanh",
+          "desc": "Cần nhập họ tên của 35 bạn trong lớp! UniKey có sẵn tính năng Bảng gõ tắt miễn phí cực kỳ thông minh: Chỉ cần gõ 'vn' là tự hiện 'Việt Nam'!",
           "choices": [
             {
               "key": "auto_fame",
-              "label": "Đồng Ý Trải Nghiệm Ngay",
+              "label": "Kích Hoạt Tính Năng Gõ Tắt Có Sẵn Miễn Phí ($0)",
               "cost": 0,
-              "desc": "Gõ tiếng Việt siêu mượt trên thiết bị Apple! Khách nhận +5% Lãi suất tháng. Tổ UniKey nhận $80 tài trợ & Lãi suất cơ bản tăng vĩnh viễn +5%/vòng!",
-              "interestDelta": 5,
-              "permInterestDelta": 5,
+              "desc": "Tốc độ soạn thảo văn bản tăng gấp đôi! Khách được +10% Lãi suất vòng. Quỹ công nghệ tài trợ cho tác giả.",
+              "interestDelta": 10,
               "nextLevel": 2,
-              "sound": "fanfare",
-              "corpReward": 80
+              "sound": "cash"
             },
             {
               "key": "trap_crack",
-              "label": "Tải Bản UniKey Mod 'Tự Điền Văn Bản VIP'",
+              "label": "Tải Bản UniKey Mod 'Tự Điền Văn Bản VIP' Không Rõ Tác Giả",
               "cost": 0,
-              "desc": "Link tải trôi nổi trên mạng hứa hẹn bản UniKey tự gõ văn bản nhanh gấp đôi, nhận ngay Siêu Buff +30% Lãi suất!",
-              "isTrap": false,
-              "penaltyRatio": 0.5,
-              "sound": "bad",
-              "isCrackVIP": true,
+              "desc": "Phần mềm lạ mạo danh can thiệp bộ gõ, kích hoạt Siêu Lãi Suất +30%! (Trojan theo dõi ký tự mật khẩu)",
               "interestDelta": 30,
-              "nextLevel": 2
+              "isCrackVIP": true,
+              "nextLevel": 2,
+              "sound": "cash"
             }
           ]
         },
         "level_2": {
-          "title": "UniKey Phổ Biến Khắp Toàn Cầu",
-          "desc": "Bộ gõ UniKey hoạt động bền bỉ trên hàng triệu máy tính và điện thoại. Cộng đồng luôn biết ơn tác giả!",
+          "title": "Tự Động Chuyển Mã Tiêu Chuẩn Quốc Tế Unicode",
+          "desc": "Nhận được tệp văn bản cũ bị lỗi font chữ ô vuông lộn xộn. UniKey cung cấp công cụ chuyển mã tiêu chuẩn Unicode miễn phí trong tích tắc!",
           "choices": [
             {
               "key": "free_download",
-              "label": "Gửi Lời Cảm Ơn Tác Giả",
+              "label": "Khám Phá Công Cụ Chuyển Mã Miễn Phí Có Sẵn ($0)",
               "cost": 0,
-              "desc": "Gõ tiếng Việt ổn định (+5% Lãi suất cho khách)! Quỹ Người Yêu Công Nghệ gửi tặng tác giả thêm $60 tiền tài trợ cống hiến!",
-              "interestDelta": 5,
-              "corpReward": 60,
-              "nextLevel": 2,
+              "desc": "Khôi phục toàn bộ văn bản đọc rõ ràng, thầy cô khen ngợi! Khách được +12% Lãi suất vòng.",
+              "interestDelta": 12,
+              "nextLevel": 3,
               "sound": "cash"
             },
             {
               "key": "trap_crack",
               "label": "Tải Tool UniKey Hack Tốc Độ 500 WPM VIP",
               "cost": 0,
-              "desc": "Tool can thiệp hệ thống bẻ khóa UniKey hứa hẹn hack tốc độ gõ phím thần tốc, nhận ngay Siêu Buff +30% Lãi suất!",
-              "isTrap": false,
-              "penaltyRatio": 0.5,
-              "sound": "bad",
-              "isCrackVIP": true,
+              "desc": "Cài tool hack lạ trên mạng, kích hoạt Siêu Lãi Suất +30%! (Mã độc phá hoại tệp hệ thống)",
               "interestDelta": 30,
-              "nextLevel": 2
+              "isCrackVIP": true,
+              "nextLevel": 3,
+              "sound": "cash"
+            }
+          ]
+        },
+        "level_3": {
+          "title": "Tự Hào Trí Tuệ Việt & Vinh Danh Tác Giả Phạm Kim Long",
+          "desc": "Bộ gõ UniKey hoạt động bền bỉ suốt hơn 20 năm phục vụ hàng triệu người Việt Nam hoàn toàn miễn phí (Level MAX)! Cộng đồng học sinh cùng tri ân tác giả!",
+          "choices": [
+            {
+              "key": "free_download",
+              "label": "Gửi Lời Tri Ân & Thư Cảm Ơn Tác Giả ($0)",
+              "cost": 0,
+              "desc": "Nuôi dưỡng tinh thần biết ơn tác giả và văn hóa công nghệ văn minh! Khách được +10% Lãi suất vòng.",
+              "interestDelta": 10,
+              "nextLevel": 3,
+              "sound": "cash"
+            },
+            {
+              "key": "trap_crack",
+              "label": "Đóng Gói UniKey Bán Lậu Lừa Đảo Lấy Tiền",
+              "cost": 0,
+              "desc": "Hành vi vô đạo đức ăn cắp công sức tác giả miễn phí, kích hoạt Siêu Lãi Suất +30%! (Bị xã hội lên án và xử phạt nặng)",
+              "interestDelta": 30,
+              "isCrackVIP": true,
+              "nextLevel": 3,
+              "sound": "cash"
             }
           ]
         }
-      },
-      "img": "unikey.png"
+      }
     },
     {
       "id": "corp_kiran",
       "name": "KĨ SƯ KIRAN (ẤN ĐỘ)",
       "software": "Kiran's Typing Tutor",
+      "img": "kiran.png",
+      "icon": "🎯",
       "type": "free",
-      "typeLabel": "MIỄN PHÍ",
-      "model": "Phần mềm giáo dục miễn phí (Quỹ Khuyến học Quốc tế)",
-      "icon": "⌨️",
-      "color": "#8b5cf6",
-      "basePrice": 100,
-      "upgradePrice": 0,
+      "typeLabel": "MIỄN PHÍ HOÀN TOÀN (CỘNG ĐỒNG)",
+      "model": "Phần mềm luyện gõ bàn phím 10 ngón miễn phí của tác giả Kiran",
+      "basePrice": 0,
+      "defaultPrice": 0,
       "events": {
         "level_0": {
-          "title": "Nâng Cao Tốc Độ Gõ Bàn Phím 10 Ngón",
-          "desc": "Nhân viên công ty gõ bàn phím quá chậm ('mổ cò' từng ngón tay một). Cần cài đặt phần mềm luyện gõ phím 10 ngón đúng cách!",
+          "title": "Rèn Luyện Kỹ Năng Gõ Bàn Phím 10 Ngón Đúng Cách",
+          "desc": "Nhiều bạn trong tổ gõ bàn phím 'mổ cò' từng ngón tay một, mắt nhìn chằm chằm bàn phím! Cần cài đặt phần mềm Kiran's Typing Tutor miễn phí để luyện ngón đúng vị trí!",
           "choices": [
             {
               "key": "free_download",
-              "label": "Tải Kiran's Typing Tutor Miễn Phí",
+              "label": "Tải Kiran's Typing Tutor Miễn Phí Chính Hãng",
               "cost": 0,
-              "desc": "Nhân viên thành thạo gõ 10 ngón nhanh như chớp! Quỹ Giáo Dục Quốc Tế thưởng tác giả Kiran $100 tài trợ khuyến học & khách được +5% Lãi suất (+2% lãi cơ bản vĩnh viễn)!",
-              "interestDelta": 5,
-              "corpReward": 100,
+              "desc": "Đặt tay chuẩn hàng phím cơ sở (ASDF - JKL;)! Khách được +10% Lãi suất vòng (+1% cơ bản). Quỹ tài trợ cho Kĩ sư Kiran.",
+              "interestDelta": 10,
               "nextLevel": 1,
               "sound": "cash"
             },
             {
               "key": "trap_crack",
-              "label": "Tải Bản Mod Kiran Auto Gõ Phím 100 WPM",
+              "label": "Tải Bản Mod Kiran Auto Gõ 100 WPM Trên Web Lạ",
               "cost": 0,
-              "desc": "Bản Mod tự động gõ phím thần tốc 100 từ/phút đạt điểm tối đa mọi bài kiểm tra, nhận ngay Siêu Buff +30% Lãi suất!",
-              "isTrap": false,
-              "penaltyRatio": 0.5,
-              "sound": "bad",
-              "isCrackVIP": true,
+              "desc": "Gian lận gõ phím giả vờ nhanh, kích hoạt Siêu Lãi Suất +30%! (Trojan phá hoại driver bàn phím)",
               "interestDelta": 30,
-              "nextLevel": 1
+              "isCrackVIP": true,
+              "nextLevel": 1,
+              "sound": "cash"
             }
           ]
         },
         "level_1": {
-          "title": "Mở Khóa Các Bài Tập Gõ Nâng Cao",
-          "desc": "Phần mềm Kiran's Typing Tutor cập nhật thêm các trò chơi và bài văn luyện ngón phong phú, hấp dẫn!",
+          "title": "Thử Thách Trò Chơi Luyện Ngón 'Bắn Chữ Rơi'",
+          "desc": "Phần mềm Kiran cập nhật các trò chơi luyện ngón cực kỳ hấp dẫn: Chữ cái rơi từ trên trời xuống, gõ đúng phím để phá hủy quả bong bóng chữ!",
           "choices": [
             {
               "key": "free_download",
-              "label": "Cập Nhật Bài Học Miễn Phí",
+              "label": "Luyện Tập Trò Chơi Miễn Phí Chăm Chỉ ($0)",
               "cost": 0,
-              "desc": "Tốc độ soạn thảo văn bản của nhân viên tăng vọt! Quỹ Khuyến Học tiếp tục tài trợ tác giả Kiran $60 và buff +5% Lãi suất vòng.",
-              "interestDelta": 5,
-              "corpReward": 60,
+              "desc": "Vừa chơi vừa học, tốc độ gõ phím tăng vọt lên 35 từ/phút! Khách được +10% Lãi suất vòng.",
+              "interestDelta": 10,
+              "nextLevel": 2,
+              "sound": "cash"
+            },
+            {
+              "key": "trap_crack",
+              "label": "Cài Tool Hack Điểm Trò Chơi Lậu VIP",
+              "cost": 0,
+              "desc": "Hack điểm giả mạo, kích hoạt Siêu Lãi Suất +30%! (Máy tính dính mã độc tống tiền)",
+              "interestDelta": 30,
+              "isCrackVIP": true,
+              "nextLevel": 2,
+              "sound": "cash"
+            }
+          ]
+        },
+        "level_2": {
+          "title": "Đại Thi Đấu Gõ Phím Nhanh Toàn Khối 4",
+          "desc": "Trường tổ chức cuộc thi Bàn Tay Vàng gõ phím nhanh và chuẩn xác! Cả tổ cùng bước vào vòng thi đấu nảy lửa!",
+          "choices": [
+            {
+              "key": "free_download",
+              "label": "Thi Đấu Bằng Thực Lực Bản Thân ($0)",
+              "cost": 0,
+              "desc": "Gõ phím thanh thoát không cần nhìn bàn phím, đoạt giải Nhì toàn trường! Khách được +12% Lãi suất vòng.",
+              "interestDelta": 12,
+              "nextLevel": 3,
+              "sound": "cash"
+            },
+            {
+              "key": "trap_crack",
+              "label": "Cài Phần Mềm Can Thiệp Bàn Phím Lậu",
+              "cost": 0,
+              "desc": "Gian lận thi cử, kích hoạt Siêu Lãi Suất +30%! (Hệ thống chống hack phát hiện và khóa tài khoản)",
+              "interestDelta": 30,
+              "isCrackVIP": true,
+              "nextLevel": 3,
+              "sound": "cash"
+            }
+          ]
+        },
+        "level_3": {
+          "title": "Trợ Giảng Nhí Giúp Đỡ Các Bạn Yếu Kỹ Năng Bàn Phím",
+          "desc": "Tổ trở thành những chuyên gia gõ phím 10 ngón xuất sắc nhất (Level MAX)! Thầy cô mời làm Trợ giảng nhí hướng dẫn các bạn trong lớp!",
+          "choices": [
+            {
+              "key": "free_download",
+              "label": "Nhiệt Tình Hướng Dẫn Các Bạn Đặt Tay Chuẩn ($0)",
+              "cost": 0,
+              "desc": "Được thầy cô và bạn bè hết lòng yêu mến, nhận giấy khen Đôi bạn cùng tiến! Khách được +10% Lãi suất vòng.",
+              "interestDelta": 10,
+              "nextLevel": 3,
+              "sound": "cash"
+            },
+            {
+              "key": "trap_crack",
+              "label": "Bán Phần Mềm Hack Điểm Bàn Phím Lậu Cho Bạn",
+              "cost": 0,
+              "desc": "Lôi kéo các bạn vi phạm đạo đức số, kích hoạt Siêu Lãi Suất +30%! (Bị kỷ luật và thanh tra toàn diện)",
+              "interestDelta": 30,
+              "isCrackVIP": true,
+              "nextLevel": 3,
+              "sound": "cash"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "corp_scratch",
+      "name": "VIỆN CÔNG NGHỆ MIT (HOA KỲ)",
+      "software": "Scratch 3.0",
+      "img": "laptop.png",
+      "icon": "🐱",
+      "type": "free",
+      "typeLabel": "MIỄN PHÍ HOÀN TOÀN (MÃ NGUỒN MỞ)",
+      "model": "Môi trường lập trình khối lệnh giáo dục cho thiếu nhi của Viện MIT",
+      "basePrice": 0,
+      "defaultPrice": 0,
+      "events": {
+        "level_0": {
+          "title": "Dự Án Lập Trình Chú Mèo Di Chuyển Theo Phím Mũi Tên",
+          "desc": "Tiết học lập trình sáng tạo đầu tiên! Các bạn muốn lập trình điều khiển Chú Mèo Scratch bước đi và kêu 'Meo meo'. Cần cài đặt phần mềm Scratch 3.0 chính hãng từ Viện MIT!",
+          "choices": [
+            {
+              "key": "free_download",
+              "label": "Tải Scratch 3.0 Miễn Phí Từ Viện MIT (scratch.mit.edu)",
+              "cost": 0,
+              "desc": "Phần mềm giáo dục quốc tế an toàn 100%, không quảng cáo! Khách được +10% Lãi suất vòng (+1% cơ bản). Quỹ giáo dục tài trợ cho MIT.",
+              "interestDelta": 10,
               "nextLevel": 1,
               "sound": "cash"
             },
             {
               "key": "trap_crack",
-              "label": "Cài Tool Hack Điểm Gõ Phím VIP",
+              "label": "Tải Bản Scratch Mod Trên Trang Game Lậu",
               "cost": 0,
-              "desc": "Tool can thiệp hệ thống giúp công ty luôn dẫn đầu bảng thành tích gõ phím, nhận ngay Siêu Buff +30% Lãi suất!",
-              "isTrap": false,
-              "penaltyRatio": 0.5,
-              "sound": "bad",
-              "isCrackVIP": true,
+              "desc": "Trang web lậu gắn mã độc quảng cáo bẩn, kích hoạt Siêu Lãi Suất +30%! (Trojan ẩn núp trong tệp cài đặt)",
               "interestDelta": 30,
-              "nextLevel": 1
+              "isCrackVIP": true,
+              "nextLevel": 1,
+              "sound": "cash"
+            }
+          ]
+        },
+        "level_1": {
+          "title": "Mở Rộng Thư Viện Âm Nhạc & Bút Vẽ Sáng Tạo",
+          "desc": "Scratch cung cấp thư viện Tiện ích mở rộng chính thức hoàn toàn miễn phí: Lập trình đàn Piano, Trống gõ và Bút vẽ hình học hoa văn nhiều màu sắc!",
+          "choices": [
+            {
+              "key": "free_download",
+              "label": "Kích Hoạt Tiện Ích Bút Vẽ & Âm Nhạc Miễn Phí ($0)",
+              "cost": 0,
+              "desc": "Lập trình bản nhạc vui nhộn và vẽ bông hoa 12 cánh rực rỡ! Khách được +10% Lãi suất vòng.",
+              "interestDelta": 10,
+              "nextLevel": 2,
+              "sound": "cash"
+            },
+            {
+              "key": "trap_crack",
+              "label": "Cài File DLL Can Thiệp Bẻ Khóa Thư Viện Lậu",
+              "cost": 0,
+              "desc": "Can thiệp mã nguồn bất hợp pháp, kích hoạt Siêu Lãi Suất +30%! (Mã độc phá hỏng dự án Scratch)",
+              "interestDelta": 30,
+              "isCrackVIP": true,
+              "nextLevel": 2,
+              "sound": "cash"
+            }
+          ]
+        },
+        "level_2": {
+          "title": "Tham Gia Hội Thi Tin Học Trẻ Lập Trình Game Sạch",
+          "desc": "Tổ đăng ký tham gia Hội thi Tin học trẻ với dự án Game 'Vớt Rác Bảo Vệ Đại Dương'! Yêu cầu mã nguồn tự sáng tạo 100%, không ăn cắp!",
+          "choices": [
+            {
+              "key": "free_download",
+              "label": "Tự Thiết Kế Game Bằng Khối Lệnh Sạch 100% ($0)",
+              "cost": 0,
+              "desc": "Dự án xuất sắc đoạt Giải Nhất Hội thi Tin học trẻ, được tuyên dương toàn quận! Khách được +12% Lãi suất vòng.",
+              "interestDelta": 12,
+              "nextLevel": 3,
+              "sound": "cash"
+            },
+            {
+              "key": "trap_crack",
+              "label": "Sao Chép Trộm Code Của Tác Giả Khác Rồi Xóa Tên",
+              "cost": 0,
+              "desc": "Hành vi ăn cắp bản quyền trí tuệ, kích hoạt Siêu Lãi Suất +30%! (Ban giám khảo kiểm tra mã nguồn sẽ phát hiện đạo văn)",
+              "interestDelta": 30,
+              "isCrackVIP": true,
+              "nextLevel": 3,
+              "sound": "cash"
+            }
+          ]
+        },
+        "level_3": {
+          "title": "Chia Sẻ Game Lên Cộng Đồng Scratch Toàn Cầu",
+          "desc": "Game của tổ đạt chuẩn quốc tế (Level MAX)! Các bạn chuẩn bị chia sẻ dự án lên cộng đồng hơn 100 triệu học sinh trên thế giới học tập!",
+          "choices": [
+            {
+              "key": "free_download",
+              "label": "Công Bố Sản Phẩm Kèm Giấy Phép Tôn Trọng Bản Quyền ($0)",
+              "cost": 0,
+              "desc": "Dự án nhận hàng ngàn lượt thả tim từ bạn bè quốc tế, tự hào thiếu nhi Việt Nam! Khách được +10% Lãi suất vòng.",
+              "interestDelta": 10,
+              "nextLevel": 3,
+              "sound": "cash"
+            },
+            {
+              "key": "trap_crack",
+              "label": "Dùng Bot Ảo Để Hack Lượt Yêu Thích Và Đẩy Lên Top",
+              "cost": 0,
+              "desc": "Gian lận lượt tương tác, kích hoạt Siêu Lãi Suất +30%! (Bị hệ thống kiểm duyệt quốc tế ban tài khoản)",
+              "interestDelta": 30,
+              "isCrackVIP": true,
+              "nextLevel": 3,
+              "sound": "cash"
             }
           ]
         }
-      },
-      "img": "kiran.png"
+      }
     }
   ],
   "summary_cards": [

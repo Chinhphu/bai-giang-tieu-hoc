@@ -1505,6 +1505,10 @@
         <h1>🎮 Bài 6: Sử Dụng Phần Mềm Khi Được Phép – Thương Trường Phần Mềm</h1>
         <label>Lớp: <select id="selCls"></select></label>
         <label>Số tổ: <select id="selTeams"></select></label>
+        <label>Thời lượng: <select id="selTotalRounds">
+            <option value="4" selected>4 tháng (Chuẩn 35p)</option>
+            <option value="6">6 tháng (Mở rộng)</option>
+        </select></label>
     </header>
 
     <!-- NAVIGATION TABS -->
@@ -1646,11 +1650,20 @@
                     <!-- ARENA TOP BAR: THÁNG & LƯỢT -->
                     <div class="arena-topbar">
                         <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap">
-                            <span class="round-badge" id="lblRound">THÁNG THỨ 1</span>
+                            <span class="round-badge" id="lblRound">THÁNG THỨ 1 / 4</span>
                             <span id="lblTurnCustomer" style="font-weight:800; font-size:1.25rem">Đang mở phiên giao dịch...</span>
                         </div>
                         <div style="font-size:1.05rem; font-weight:700; color:#cbd5e1">
                             🏢 Thương Trường Phần Mềm Tin Học 4
+                        </div>
+                    </div>
+
+                    <!-- BẢN TIN THỜI SỰ CÔNG NGHỆ THƯƠNG TRƯỜNG ĐẦU MỖI THÁNG -->
+                    <div class="market-news-ticker" id="marketNewsTicker" style="margin-bottom:12px; background:linear-gradient(90deg, #1e1b4b, #312e81); border:2px solid #818cf8; border-radius:14px; padding:10px 18px; color:#fff; display:flex; align-items:center; gap:12px; box-shadow:0 4px 14px rgba(99,102,241,0.22);">
+                        <span style="font-size:1.5rem; animation:pulse 1.5s infinite">📰</span>
+                        <div style="flex:1">
+                            <div style="font-size:0.75rem; font-weight:800; color:#a5b4fc; text-transform:uppercase; letter-spacing:1px">BẢN TIN THỜI SỰ THƯƠNG TRƯỜNG · THÁNG <span id="newsMonthNum">1</span></div>
+                            <div id="marketNewsContent" style="font-size:1.02rem; font-weight:800; color:#f8fafc; margin-top:2px; line-height:1.4">Đang cập nhật tình hình thương trường...</div>
                         </div>
                     </div>
 
@@ -1745,7 +1758,7 @@
 
                     <div style="margin-top:26px">
                         <button type="button" class="go" id="btnTriggerAuditing" style="font-size:1.35rem; padding:14px 36px">
-                            🏆 Xem Bảng Vàng Vinh Danh & Nhận Cúp ▶
+                            ⚖️ Bắt Đầu Đại Thanh Tra Bản Quyền & Nhận Cúp 🏆 ▶
                         </button>
                     </div>
                 </div>
@@ -2092,6 +2105,7 @@
         /* ================= 3. TRẠNG THÁI TOÀN CỤC & LOCALSTORAGE ================= */
         let currentClassId = '4_1';
         let numTeams = 4;
+        let maxRounds = 4; // Mặc định 4 tháng (chuẩn 35 phút cho 4 tổ), hoặc 6 tháng (mở rộng)
         let studentsList = [];
         let curScreen = 1;
         let curRound = 1; // Đại diện cho "Tháng"
@@ -2107,11 +2121,8 @@
         let gachaTimer = null;   // chống chạy chồng interval quay gacha
         let quizSeed = Math.random().toString(36).slice(2); // hạt giống xáo đáp án câu gọi vốn (mỗi lớp một kiểu)
 
-        // Thuê bao có hiệu lực 2 tháng: tháng mua + tháng kế tiếp, hết tháng kế tiếp thì về mức reset
-        const SUBSCRIPTIONS = {
-            'Photoshop': { threshold: 1, resetTo: 0 },
-            'CapCut': { threshold: 2, resetTo: 1 }
-        };
+        // Bỏ cơ chế reset cấp cưỡng bức để học sinh trải nghiệm tiến trình lên cấp đầy đủ từ Level 0 đến Level 3
+        const SUBSCRIPTIONS = {};
 
         // Cơ chế giảm giá cho sự cố đang diễn ra
         let activeDiscountPrice = null; // null = giá gốc, number = giá sau giảm
@@ -2137,6 +2148,7 @@
             try {
                 const data = {
                     numTeams,
+                    maxRounds,
                     curScreen,
                     curRound,
                     curCustomerIdx,
@@ -2183,6 +2195,8 @@
                 const d = JSON.parse(raw);
                 if (d && Array.isArray(d.teams) && d.teams.length) {
                     numTeams = d.numTeams || numTeams;
+                    maxRounds = d.maxRounds || maxRounds || 4;
+                    if ($('#selTotalRounds')) $('#selTotalRounds').value = String(maxRounds);
                     curScreen = Number.isInteger(d.curScreen) && d.curScreen >= 1 && d.curScreen <= 5 ? d.curScreen : 1;
                     curRound = d.curRound || 1;
                     curCustomerIdx = d.curCustomerIdx || 0;
@@ -2363,6 +2377,7 @@
 
         function resetClassState() {
             numTeams = Number($('#selTeams')?.value || numTeams || 4);
+            maxRounds = Number($('#selTotalRounds')?.value || maxRounds || 4);
             curScreen = 1;
             curRound = 1;
             curCustomerIdx = 0;
@@ -2774,6 +2789,19 @@
                 drawTeams();
                 saveState();
             };
+
+            const selR = $('#selTotalRounds');
+            if (selR) {
+                selR.value = String(maxRounds);
+                selR.onchange = () => {
+                    maxRounds = Number(selR.value) || 4;
+                    updateArena();
+                    saveState();
+                    if (typeof window.toast === 'function') {
+                        window.toast(`⏱️ Đã đặt thời lượng thương trường: ${maxRounds} tháng!`, 2000, '#2563eb');
+                    }
+                };
+            }
         }
 
         async function loadStudentsData() {
@@ -3046,14 +3074,27 @@
         if (selArenaElem) selArenaElem.onchange = () => updateStagedStudentDisplay('arena');
 
         /* ================= 8. GIAI ĐOẠN 2: THƯƠNG TRƯỜNG PHẦN MỀM (ARENA) ================= */
+        const MARKET_NEWS_LIST = {
+            1: "🎉 KHỞI ĐỘNG THƯƠNG TRƯỜNG: Mỗi tổ nhận $1,000 vốn khởi nghiệp. Cuộc đua trang bị phần mềm chính thức bùng nổ khắp học đường!",
+            2: "🚨 CẢNH BÁO MÃ ĐỘC TỐNG TIỀN: Chuyên gia an ninh mạng phát hiện hàng loạt mã độc Trojan ẩn mình trong các bản Crack và Mod lậu trên mạng!",
+            3: "🌟 MÙA GIẢI TIN HỌC TRẺ: Các dự án lập trình, thiết kế và video bùng nổ khắp các lớp. Nhu cầu phần mềm bản quyền chính hãng tăng vọt!",
+            4: "🏷️ NGÀY SỞ HỮU TRÍ TUỆ TOÀN CẦU (26/4): Tuần lễ tôn vinh tác giả phần mềm! Quỹ công nghệ tài trợ lớn cho các doanh nghiệp tiên phong dùng bản quyền!",
+            5: "⚡ CHẶNG ĐUA NƯỚC RÚT CUỐI NĂM: Thị trường sôi động, các tổ tăng tốc nâng cấp công cụ làm việc trước kỳ kiểm toán doanh nghiệp!",
+            6: "⚖️ ĐẠI THANH TRA BẢN QUYỀN TOÀN QUỐC: Đoàn thanh tra liên ngành tiến hành rà soát bản quyền! Vinh danh doanh nghiệp kiểu mẫu, xử phạt nghiêm vi phạm!"
+        };
+
         function updateArena() {
-            $('#lblRound').textContent = `THÁNG THỨ ${curRound}`;
+            $('#lblRound').textContent = `THÁNG THỨ ${curRound} / ${maxRounds}`;
             const custTeam = teams[curCustomerIdx];
             if (custTeam) {
                 $('#lblTurnCustomer').textContent = `Lượt Khách: ${custTeam.name} (${custTeam.corpName})`;
                 const rep = $('#lblArenaTeamRep');
                 if (rep) rep.textContent = custTeam.name;
             }
+            const newsEl = $('#marketNewsContent');
+            const newsNum = $('#newsMonthNum');
+            if (newsEl) newsEl.textContent = MARKET_NEWS_LIST[curRound] || MARKET_NEWS_LIST[1];
+            if (newsNum) newsNum.textContent = curRound;
             drawTeams();
         }
 
@@ -3290,7 +3331,8 @@
             const statusObj = getSoftwareStatusDisplay(custTeam, ownerTeam.software);
 
             const corpDef = DB.corporations.find(c => c.id === ownerTeam.corpId);
-            const levelKey = `level_${Math.min(2, curLevel)}`;
+            const maxLvl = corpDef?.events ? Math.max(0, Object.keys(corpDef.events).length - 1) : 3;
+            const levelKey = `level_${Math.min(maxLvl, curLevel)}`;
             const ev = corpDef?.events?.[levelKey] || corpDef?.events?.level_0 || {
                 title: "Giao Dịch Thương Trường",
                 desc: "Đang mở phiên giao dịch...",
@@ -3299,6 +3341,25 @@
 
             const eventBasePrice = getCurrentEventBasePrice(ev, ownerTeam);
             const isPaid = ownerTeam.corpType === 'paid' && eventBasePrice > 0;
+
+            // Sự kiện bất ngờ của thị trường (Flash Dilemma)
+            let flashBannerHtml = '';
+            if (isPaid && activeDiscountPrice === null && Math.random() < 0.25) {
+                activeDiscountPrice = Math.round(eventBasePrice * 0.5);
+                flashBannerHtml = `
+                    <div style="margin-bottom:12px; background:linear-gradient(90deg, #dc2626, #b91c1c); color:#fff; border-radius:12px; padding:10px 16px; font-weight:800; font-size:1rem; display:flex; align-items:center; gap:10px; box-shadow:0 4px 12px rgba(220,38,38,0.25);">
+                        <span style="font-size:1.3rem">⚡</span>
+                        <span>SỰ KIỆN ĐẶC BIỆT: Nhà phát hành tung khuyến mãi GIẢM GIÁ 50% cho học sinh! Chỉ còn <b>$${activeDiscountPrice}</b>!</span>
+                    </div>
+                `;
+            } else if (custTeam.infected && Math.random() < 0.4) {
+                flashBannerHtml = `
+                    <div style="margin-bottom:12px; background:linear-gradient(90deg, #991b1b, #7f1d1d); color:#fff; border-radius:12px; padding:10px 16px; font-weight:800; font-size:0.95rem; display:flex; align-items:center; gap:10px;">
+                        <span style="font-size:1.3rem">⚠️</span>
+                        <span>CẢNH BÁO AN NINH MẠNG: Máy tính của ${esc(custTeam.name)} có dấu hiệu bị mã độc lạ quét dữ liệu! Hãy mua bản quyền chính hãng để hóa giải!</span>
+                    </div>
+                `;
+            }
 
             // Giá niêm yết HTML
             let priceDisplayHtml = '';
@@ -3333,6 +3394,8 @@
                         💰 Số dư: <b style="color:var(--navy); font-size:1.3rem">$${custTeam.money.toLocaleString()}</b> | Lãi tháng: <b style="color:${custTeam.currentInterest >= 0 ? 'var(--green)' : 'var(--coral)'}">${formatInterest(custTeam.currentInterest)}</b>
                     </div>
                 </div>
+
+                ${flashBannerHtml}
 
                 <!-- DÒNG 2: VẤN ĐỀ KHẨN CẤP (NGẮN GỌN, SÚC TÍCH) -->
                 <div class="arena-problem-strip">
@@ -3922,9 +3985,9 @@
                 }
             });
 
-            if (finishedMonth >= 6) {
-                curRound = 6;
-                logTrade(`🏁 KẾT THÚC THÁNG 6: Tất cả các tổ đã nhận lãi suất! Thương trường hoàn tất 6 tháng!`);
+            if (finishedMonth >= maxRounds) {
+                curRound = maxRounds;
+                logTrade(`🏁 KẾT THÚC THÁNG ${maxRounds}: Tất cả các tổ đã nhận lãi suất! Thương trường hoàn tất ${maxRounds} tháng!`);
             } else {
                 curRound++;
                 logTrade(`🏁 KẾT THÚC THÁNG ${finishedMonth}: Tất cả các tổ đã nhận lãi suất và kết chuyển sang Tháng ${curRound}!`);
@@ -3968,11 +4031,11 @@
             renderFinancialChart('#reportChartSvgWrap', '#reportChartLegends');
 
             $('#roundReportModal').style.display = 'flex';
-            if (finishedMonth >= 6) {
+            if (finishedMonth >= maxRounds) {
                 $('#btnReportNextRound').style.display = 'none';
                 const finishBtn = $('#btnReportEarlyFinish');
                 if (finishBtn) {
-                    finishBtn.textContent = '⚖️ KẾT THÚC 6 THÁNG & TIẾN VÀO THANH TRA BẢN QUYỀN';
+                    finishBtn.textContent = `⚖️ KẾT THÚC ${maxRounds} THÁNG & TIẾN VÀO TỔNG KẾT`;
                     finishBtn.className = 'btn-primary';
                     finishBtn.style.fontSize = '1.15rem';
                     finishBtn.style.padding = '12px 24px';
@@ -3982,7 +4045,7 @@
                 $('#btnReportNextRound').textContent = `▶ Tiếp Tục Sang Tháng ${curRound}`;
                 const finishBtn = $('#btnReportEarlyFinish');
                 if (finishBtn) {
-                    finishBtn.textContent = '🏁 Kết Thúc Sớm & Thanh Tra';
+                    finishBtn.textContent = '🏁 Kết Thúc Sớm & Tổng Kết';
                     finishBtn.className = 'btn-danger';
                 }
             }
@@ -3998,9 +4061,9 @@
 
         // NÚT KẾT THÚC BÀI HỌC Ở POP-UP CUỐI THÁNG
         $('#btnReportEarlyFinish').onclick = () => {
-            if (curRound >= 6 || confirm('Thầy/Cô có muốn kết thúc thương trường ngay bây giờ để tiến hành Thanh tra bản quyền và tổng kết Bảng vàng không?')) {
+            if (curRound >= maxRounds || confirm('Thầy/Cô có muốn kết thúc thương trường ngay bây giờ để tiến vào Vòng Củng Cố & Thanh Tra Bản Quyền không?')) {
                 $('#roundReportModal').style.display = 'none';
-                go(4); // Chuyển thẳng sang Screen 4: Tổng kết & Thanh tra bản quyền
+                go(4); // Chuyển thẳng sang Screen 4: Tổng kết & Vòng Củng cố trắc nghiệm TT27
             }
         };
 
