@@ -1,12 +1,12 @@
 /**
- * NGÂN HÀNG NHIỆM VỤ & MẢNH GHÉP ĐỀ LEGO TIẾT 12
+ * NGÂN HÀNG NHIỆM VỤ & MẢNH GHÉP ĐỀ THI ĐẤU TIẾT 12
  * Môn: Tin học 5 (KNTT) - Bài 6 (Tiết 2): Thực hành Định dạng kí tự và Bố trí hình ảnh trong văn bản
- * Hoạt động Độc quyền: "XƯỞNG LẮP RÁP ĐỀ LEGO & ĐẤU TRƯỜNG THỰC HÀNH CHÉO"
- * Sử dụng 1 Template Word chuẩn duy nhất tương thích 100% mọi mảnh ghép Lego.
+ * Hoạt động: "XƯỞNG THIẾT KẾ ĐỀ BÀI & ĐẤU TRƯỜNG THỰC HÀNH CHÉO"
+ * Sử dụng 1 Template Word chuẩn duy nhất tương thích 100% mọi mảnh ghép yêu cầu.
  */
 
 window.QUESTS_DATA = {
-  title: "Tin học 5 – Bài 6: Định dạng kí tự và bố trí hình ảnh trong văn bản (Tiết 2: Xưởng Lắp Ráp Lego & Thực Hành Chéo)",
+  title: "Tin học 5 – Bài 6: Định dạng kí tự và bố trí hình ảnh trong văn bản (Tiết 2: Xưởng Thiết Kế Đề & Thực Hành Chéo)",
 
   // 1. Khởi động: Trò chơi ghép nối biểu tượng lệnh Word & Vấn đáp
   warmup: {
@@ -54,7 +54,7 @@ window.QUESTS_DATA = {
     ]
   },
 
-  // 2. TEMPLATE VĂN BẢN MẪU DÙNG CHUNG CHO MỌI TỔ (ĐÁP ỨNG 100% MẢNH GHÉP LEGO)
+  // 2. TEMPLATE VĂN BẢN MẪU DÙNG CHUNG CHO MỌI TỔ (ĐÁP ỨNG 100% MẢNH GHÉP YÊU CẦU)
   sharedTemplate: {
     id: "master-template-tiet12",
     name: "Cẩm Nang An Toàn & Văn Minh Internet",
@@ -79,14 +79,15 @@ window.QUESTS_DATA = {
     }
   },
 
-  // 3. KHO ĐỀ CHUNG: CÁC VIÊN GẠCH LEGO NHIỆM VỤ (4 NHÓM KỸ NĂNG)
-  // Mỗi viên gạch chỉ được 1 tổ bốc dùng 1 lần, khi lấy khỏi kho thì các tổ khác không được lấy nữa.
-  legoBricks: {
+  // 3. KHO ĐỀ CHUNG: CÁC MẢNH GHÉP NHIỆM VỤ (4 NHÓM KỸ NĂNG)
+  // Mỗi mảnh ghép chỉ được 1 tổ bốc dùng 1 lần, khi lấy khỏi kho thì các tổ khác không được lấy nữa.
+  questBricks: {
     // NHÓM 1: ĐỊNH DẠNG TIÊU ĐỀ (HEADING BRICKS - MÀU ĐỎ / CORAL)
     headings: [
       {
         id: "h-1",
         category: "heading",
+        categoryLabel: "Tiêu đề",
         name: "Arial 20 Đỏ Đậm Giữa",
         icon: "🅰️",
         color: "#ef4444",
@@ -95,6 +96,7 @@ window.QUESTS_DATA = {
       {
         id: "h-2",
         category: "heading",
+        categoryLabel: "Tiêu đề",
         name: "Times 22 Xanh Dương Đậm Giữa",
         icon: "🔠",
         color: "#ef4444",
@@ -103,6 +105,7 @@ window.QUESTS_DATA = {
       {
         id: "h-3",
         category: "heading",
+        categoryLabel: "Tiêu đề",
         name: "Tahoma 20 Tím Đậm Gạch Chân",
         icon: "🎨",
         color: "#ef4444",
@@ -111,6 +114,7 @@ window.QUESTS_DATA = {
       {
         id: "h-4",
         category: "heading",
+        categoryLabel: "Tiêu đề",
         name: "Verdana 18 Xanh Lá Đậm Nghiêng",
         icon: "🌿",
         color: "#ef4444",
@@ -119,6 +123,7 @@ window.QUESTS_DATA = {
       {
         id: "h-5",
         category: "heading",
+        categoryLabel: "Tiêu đề",
         name: "Times 20 Cam Đậm Gạch Chân",
         icon: "🍊",
         color: "#ef4444",
@@ -127,6 +132,7 @@ window.QUESTS_DATA = {
       {
         id: "h-6",
         category: "heading",
+        categoryLabel: "Tiêu đề",
         name: "Calibri 22 Đỏ Đậm Nghiêng",
         icon: "💎",
         color: "#ef4444",
@@ -139,6 +145,7 @@ window.QUESTS_DATA = {
       {
         id: "b-1",
         category: "body",
+        categoryLabel: "Đoạn văn",
         name: "Times 13 & Nghiêng Câu Khẩu Hiệu",
         icon: "📄",
         color: "#f59e0b",
@@ -147,6 +154,7 @@ window.QUESTS_DATA = {
       {
         id: "b-2",
         category: "body",
+        categoryLabel: "Đoạn văn",
         name: "Arial 12 & In Đậm 3 Nguyên Tắc",
         icon: "📑",
         color: "#f59e0b",
@@ -155,6 +163,7 @@ window.QUESTS_DATA = {
       {
         id: "b-3",
         category: "body",
+        categoryLabel: "Đoạn văn",
         name: "Tahoma 12 & Gạch Chân 3 Nguyên Tắc",
         icon: "📜",
         color: "#f59e0b",
@@ -163,6 +172,7 @@ window.QUESTS_DATA = {
       {
         id: "b-4",
         category: "body",
+        categoryLabel: "Đoạn văn",
         name: "Calibri 13 & Đậm Nghiêng Khẩu Hiệu",
         icon: "📋",
         color: "#f59e0b",
@@ -171,6 +181,7 @@ window.QUESTS_DATA = {
       {
         id: "b-5",
         category: "body",
+        categoryLabel: "Đoạn văn",
         name: "Verdana 12 & Màu Xanh Câu Khẩu Hiệu",
         icon: "📝",
         color: "#f59e0b",
@@ -179,6 +190,7 @@ window.QUESTS_DATA = {
       {
         id: "b-6",
         category: "body",
+        categoryLabel: "Đoạn văn",
         name: "Times 14 & Đậm Mục 1-2-3 + Nghiêng Kết",
         icon: "📚",
         color: "#f59e0b",
@@ -191,6 +203,7 @@ window.QUESTS_DATA = {
       {
         id: "img-1",
         category: "image",
+        categoryLabel: "Hình ảnh",
         name: "Ảnh Square Đặt Sát Lề Phải",
         icon: "🖼️",
         color: "#10b981",
@@ -199,6 +212,7 @@ window.QUESTS_DATA = {
       {
         id: "img-2",
         category: "image",
+        categoryLabel: "Hình ảnh",
         name: "Ảnh Square Đặt Sát Lề Trái",
         icon: "🖼️",
         color: "#10b981",
@@ -207,6 +221,7 @@ window.QUESTS_DATA = {
       {
         id: "img-3",
         category: "image",
+        categoryLabel: "Hình ảnh",
         name: "Ảnh Tight Ôm Sát Góc Phải",
         icon: "🖼️",
         color: "#10b981",
@@ -215,6 +230,7 @@ window.QUESTS_DATA = {
       {
         id: "img-4",
         category: "image",
+        categoryLabel: "Hình ảnh",
         name: "Ảnh Top & Bottom Giữa Bài",
         icon: "🖼️",
         color: "#10b981",
@@ -223,6 +239,7 @@ window.QUESTS_DATA = {
       {
         id: "img-5",
         category: "image",
+        categoryLabel: "Hình ảnh",
         name: "Ảnh Square Giữa Trang Văn Bản",
         icon: "🖼️",
         color: "#10b981",
@@ -231,6 +248,7 @@ window.QUESTS_DATA = {
       {
         id: "img-6",
         category: "image",
+        categoryLabel: "Hình ảnh",
         name: "Ảnh Tight Đặt Sát Lề Trái",
         icon: "🖼️",
         color: "#10b981",
@@ -238,11 +256,12 @@ window.QUESTS_DATA = {
       }
     ],
 
-    // NHÓM 4: MẢNH LEGO THỬ THÁCH BONUS (SPECIAL BONUS BRICKS - MÀU TÍM / PURPLE)
+    // NHÓM 4: MẢNH THỬ THÁCH BONUS (SPECIAL BONUS BRICKS - MÀU TÍM / PURPLE)
     bonuses: [
       {
         id: "bon-1",
         category: "bonus",
+        categoryLabel: "Bonus",
         name: "Viền Ảnh Nghệ Thuật (Picture Border)",
         icon: "⭐",
         color: "#8b5cf6",
@@ -251,6 +270,7 @@ window.QUESTS_DATA = {
       {
         id: "bon-2",
         category: "bonus",
+        categoryLabel: "Bonus",
         name: "Khung Ảnh Đổ Bóng (Picture Styles)",
         icon: "⭐",
         color: "#8b5cf6",
@@ -259,6 +279,7 @@ window.QUESTS_DATA = {
       {
         id: "bon-3",
         category: "bonus",
+        categoryLabel: "Bonus",
         name: "Dấu Đầu Dòng Tự Động (Bullets)",
         icon: "⭐",
         color: "#8b5cf6",
@@ -267,6 +288,7 @@ window.QUESTS_DATA = {
       {
         id: "bon-4",
         category: "bonus",
+        categoryLabel: "Bonus",
         name: "Bút Dạ Quang Nổi Bật (Highlight)",
         icon: "⭐",
         color: "#8b5cf6",
@@ -275,6 +297,7 @@ window.QUESTS_DATA = {
       {
         id: "bon-5",
         category: "bonus",
+        categoryLabel: "Bonus",
         name: "Căn Giữa Câu Khẩu Hiệu Cuối",
         icon: "⭐",
         color: "#8b5cf6",
@@ -283,44 +306,15 @@ window.QUESTS_DATA = {
       {
         id: "bon-6",
         category: "bonus",
+        categoryLabel: "Bonus",
         name: "Thụt Lề Đoạn Mở Đầu (Tab)",
         icon: "⭐",
         color: "#8b5cf6",
         desc: "Thưởng +50 Xu: Đặt con trỏ ở đầu đoạn văn mở đầu → Nhấn phím Tab để thụt đầu dòng gọn gàng chuẩn văn bản"
       }
     ]
-  },
-
-  // 4. TỔNG KẾT & CHỐT KIẾN THỨC CUỐI GIỜ (5 PHÚT VÀNG)
-  summary: {
-    title: "5 Phút Vàng: 2 Quy Tắc Cốt Lõi Để Văn Bản Đạt Điểm 10 Thẩm Mỹ",
-    rules: [
-      {
-        id: "rule-1",
-        icon: "🎨",
-        title: "Quy tắc 1: Định dạng kí tự hài hòa, có điểm nhấn",
-        desc: "• Tiêu đề phải to rõ (cỡ 18–24pt), in đậm (B) và có màu sắc nổi bật để tạo ấn tượng đầu tiên.<br>• Thân bài dùng phông chữ dễ đọc (Arial, Times New Roman, Verdana...), cỡ chữ vừa phải (12–14pt), căn đều 2 bên (Justify) để hai mép trang thẳng tắp.<br>• Trong một bài viết không nên dùng quá 2 phông chữ và 3 màu sắc khác nhau để tránh rối mắt."
-      },
-      {
-        id: "rule-2",
-        icon: "📐",
-        title: "Quy tắc 2: Bố trí hình ảnh thông minh với Wrap Text",
-        desc: "• Luôn chủ động nhấp vào biểu tượng <b>Layout Options (Wrap Text)</b> và chọn kiểu <b>Square</b> hoặc <b>Tight</b> sau khi chèn ảnh.<br>• Kéo rê chuột ở <b>4 góc của ảnh</b> để thay đổi kích thước cân đối, không làm biến dạng méo hình.<br>• Đặt ảnh sát mép trái hoặc mép phải để dòng chữ tự động ôm gọn gàng như một tờ báo chuyên nghiệp!"
-      }
-    ],
-    questions: [
-      {
-        id: "sum-q1",
-        label: "Câu hỏi 1 (Thẩm mỹ văn bản):",
-        question: "Theo em, một bài văn bản đạt điểm 10 thẩm mỹ thì phần tiêu đề và phần thân bài cần được định dạng như thế nào?",
-        answer: "Tiêu đề cần cỡ chữ to (18–24pt), in đậm, màu sắc nổi bật và căn giữa. Thân bài dùng cỡ vừa phải (12–14pt), phông chữ dễ đọc, căn đều 2 bên (Justify) và không lạm dụng quá nhiều màu sắc."
-      },
-      {
-        id: "sum-q2",
-        label: "Câu hỏi 2 (Xử lý hình ảnh):",
-        question: "Khi cần thu nhỏ một bức ảnh để vừa vặn với trang văn bản, em nên kéo chuột ở đâu và tại sao?",
-        answer: "Em nên kéo chuột ở <b>4 góc của ảnh</b> (thay vì kéo ở cạnh trên/dưới hay hai bên). Vì kéo ở góc sẽ giữ nguyên tỉ lệ chiều dài và chiều rộng, không làm bức ảnh bị méo mó, mất thẩm mỹ."
-      }
-    ]
   }
 };
+
+// Tương thích ngược
+window.QUESTS_DATA.legoBricks = window.QUESTS_DATA.questBricks;
