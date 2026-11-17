@@ -1031,7 +1031,7 @@ window.QUESTS_DATA = {
       "id": "corp_scratch",
       "name": "VIỆN CÔNG NGHỆ MIT (HOA KỲ)",
       "software": "Scratch 3.0",
-      "img": "laptop.png",
+      "img": "scratch.png",
       "icon": "🐱",
       "type": "free",
       "typeLabel": "MIỄN PHÍ HOÀN TOÀN (MÃ NGUỒN MỞ)",

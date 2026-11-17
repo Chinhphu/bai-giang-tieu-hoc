@@ -2217,6 +2217,13 @@
                     quizSeed = d.quizSeed || quizSeed;
                     isAudited = d.isAudited || false;
                     teams = d.teams;
+                    if (Array.isArray(teams)) {
+                        teams.forEach(t => {
+                            if (t && t.software && t.software.includes('Scratch')) {
+                                t.img = 'scratch.png';
+                            }
+                        });
+                    }
                     studentLogs = d.studentLogs || [];
                     tradeLogs = d.tradeLogs || [];
                     tradeLedger = d.tradeLedger || [];
@@ -2255,11 +2262,15 @@
 
         /* HELPER: RENDER SOFTWARE ICON WITH PNG AND FALLBACK */
         function renderSoftwareIcon(corp, size = 64) {
-            const imgSrc = `../../assets/images/minh-hoa/${corp.img || 'powerpoint.png'}`;
+            let imgName = corp.img || 'powerpoint.png';
+            if (corp.software && (corp.software.includes('Scratch') || corp.software === 'Scratch 3.0')) {
+                imgName = 'scratch.png';
+            }
+            const imgSrc = `../../assets/images/minh-hoa/${imgName}`;
             return `
                 <div class="sw-icon-wrap" style="width:${size}px; height:${size}px; min-width:${size}px; max-width:${size}px; border-radius:${Math.round(size * 0.22)}px;">
                     <img src="${imgSrc}" alt="${esc(corp.software)}" class="sw-img-fluid" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';">
-                    <span class="sw-fallback-emoji" style="display:none; font-size:${Math.round(size * 0.48)}px;">${corp.icon || '💻'}</span>
+                    <span class="sw-fallback-emoji" style="display:none; font-size:${Math.round(size * 0.48)}px;">${corp.icon || '🐱'}</span>
                 </div>
             `;
         }
@@ -2284,7 +2295,9 @@
                 'UniKey': { img: 'unikey.png', emoji: '🇻🇳' },
                 'Bộ Gõ UniKey': { img: 'unikey.png', emoji: '🇻🇳' },
                 "Kiran's Typing Tutor": { img: 'kiran.png', emoji: '⌨️' },
-                'Kiran': { img: 'kiran.png', emoji: '⌨️' }
+                'Kiran': { img: 'kiran.png', emoji: '⌨️' },
+                'Scratch 3.0': { img: 'scratch.png', emoji: '🐱' },
+                'Scratch': { img: 'scratch.png', emoji: '🐱' }
             };
             const item = iconMap[swName] || { img: 'powerpoint.png', emoji: '💻' };
             const imgSrc = `../../assets/images/minh-hoa/${item.img}`;
@@ -2306,7 +2319,7 @@
                 return { label: '🔴 Hết hạn thuê bao', isOwned: false, isCrack: false };
             }
             if (lvl === 0) {
-                if (['CapCut', 'Google Chrome', 'Bộ Gõ UniKey', "Kiran's Typing Tutor"].includes(softwareName)) {
+                if (['CapCut', 'Google Chrome', 'Bộ Gõ UniKey', "Kiran's Typing Tutor", 'Scratch 3.0', 'Scratch'].includes(softwareName)) {
                     return { label: '⚪ Chưa cài', isOwned: false, isCrack: false };
                 }
                 return { label: '⚪ Chưa mua', isOwned: false, isCrack: false };
@@ -2320,7 +2333,7 @@
                 if (lvl === 1) return { label: '🎬 Bản thường (Free)', isOwned: true, isCrack: false };
                 return { label: '👑 Gói PRO 4K', isOwned: true, isCrack: false };
             }
-            if (['Google Chrome', 'Bộ Gõ UniKey', "Kiran's Typing Tutor"].includes(softwareName)) {
+            if (['Google Chrome', 'Bộ Gõ UniKey', "Kiran's Typing Tutor", 'Scratch 3.0', 'Scratch'].includes(softwareName)) {
                 if (lvl === 1) return { label: '🛡️ Bản chuẩn miễn phí', isOwned: true, isCrack: false };
                 return { label: '👑 Cập nhật tối tân', isOwned: true, isCrack: false };
             }
