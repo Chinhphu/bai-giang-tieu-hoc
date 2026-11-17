@@ -1768,6 +1768,15 @@
             <section class="screen" id="s5">
                 <div class="card" style="text-align:center">
                     <h2 style="font-size:2.4rem; justify-content:center">🏆 Bảng Vàng Doanh Nhân Công Nghệ Khối 4</h2>
+                    <div id="quickAuditBanner" style="margin:12px auto 18px; max-width:850px; background:#eff6ff; border:2px dashed #3b82f6; border-radius:14px; padding:12px 18px; display:none; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+                        <div style="text-align:left;">
+                            <span style="font-weight:900; color:var(--navy); font-size:1.05rem">⚖️ Kiểm tra Bản Quyền Toàn Khóa:</span>
+                            <span style="font-size:0.95rem; color:#475569; display:block">Chưa kích hoạt đại thanh tra để thưởng +$500 cho tổ tuân thủ bản quyền 100%!</span>
+                        </div>
+                        <button type="button" class="btn-primary" onclick="triggerAuditingProcess()" style="font-size:0.95rem; padding:8px 18px; margin:0;">
+                            ⚖️ Quét & Trao Thưởng Bản Quyền Ngay
+                        </button>
+                    </div>
                     <div id="podiumBanner" style="font-size:1.4rem; font-weight:900; color:#b45309; background:#fef3c7; border:3px solid #f59e0b; border-radius:16px; padding:14px 24px; margin:14px auto 20px; max-width:900px; display:none">
                         🏆 ĐỒNG QUÁN QUÂN: TỔ 1 & TỔ 2 (CÙNG ĐẠT 1050 ĐIỂM)! 🏆
                     </div>
@@ -2936,6 +2945,9 @@
         function renderFundQuiz() {
             const qList = DB.funding_quizzes || [];
             if (!qList.length) return;
+            const selFund = $('#selStudentFund');
+            if (selFund) selFund.value = '';
+            updateStagedStudentDisplay('fund');
             const q = getShuffledFundQuiz(qList[curFundQIdx]);
             $('#fundQIndex').textContent = `CÂU HỎI ${curFundQIdx + 1} / ${qList.length} THỰC HÀNH TỆP & THƯ MỤC`;
             $('#fundQText').textContent = q.q;
@@ -3194,6 +3206,11 @@
             const custTeam = teams[curCustomerIdx];
             updateArena();
             activeDiscountPrice = null; // reset giảm giá cho lượt mới
+
+            // Bắt buộc reset học sinh đại diện của lượt cũ để tránh gán nhầm học sinh giữa các tổ (theo chuẩn Picked ≠ Done)
+            const selArena = $('#selStudentArena');
+            if (selArena) selArena.value = '';
+            updateStagedStudentDisplay('arena');
 
             // Ẩn nội dung tình huống cũ
             $('#corpStageArea').style.display = 'none';
@@ -3631,15 +3648,44 @@
             const repStudent = $('#selStudentArena')?.value?.trim();
             const pushDecisionLog = () => { if (repStudent) {
                 const isSafe = !choice.isCrackVIP && !choice.isTrap;
+                let note = '';
+                if (choice.isCrackVIP) {
+                    const crackNotes = [
+                        'Cần nâng cao cảnh giác với phần mềm bẻ khóa, nhận thức rõ rủi ro mã độc tống tiền',
+                        'Ham của rẻ dùng phần mềm lậu, chịu rủi ro bảo mật và thiệt hại tài chính nặng nề',
+                        'Đã rút ra bài học sâu sắc về tác hại của phần mềm crack đối với an toàn dữ liệu'
+                    ];
+                    note = crackNotes[Math.floor(Math.random() * crackNotes.length)];
+                } else if (choice.isTrap) {
+                    note = 'Cố tình tìm bản bẻ khóa phần mềm miễn phí, dính bẫy phạt và mất dữ liệu';
+                } else if (choice.costType === 'refuse' || choice.costType === 'substitute' || choice.costType === 'paper_sketch' || choice.costType === 'free_draw' || (choice.label && (choice.label.includes('Không Mua') || choice.label.includes('Bác Bỏ')))) {
+                    const refuseNotes = [
+                        'Tư duy quản lý tài chính thông minh, biết cân nhắc nhu cầu và không lạm dụng bản quyền',
+                        'Lựa chọn giải pháp thay thế hợp lý, kiên quyết không mua khi chưa thật sự cần thiết',
+                        'Biết quản lý ngân sách hiệu quả, tránh lãng phí khi chưa có nhu cầu sử dụng thực tế'
+                    ];
+                    note = refuseNotes[Math.floor(Math.random() * refuseNotes.length)];
+                } else if (ownerTeam.corpType === 'free' || choice.costType === 'free_sponsor' || choice.costType === 'free_official' || (choice.cost === 0 && !choice.isCrackVIP)) {
+                    const freeNotes = [
+                        'Khai thác thông minh phần mềm miễn phí chính hãng, tiết kiệm và an toàn tuyệt đối',
+                        'Biết tìm và sử dụng đúng nguồn phần mềm miễn phí hợp pháp từ nhà phát hành chính thức',
+                        'Ưu tiên giải pháp phần mềm miễn phí chính chủ, bảo vệ an toàn cho thiết bị học tập'
+                    ];
+                    note = freeNotes[Math.floor(Math.random() * freeNotes.length)];
+                } else {
+                    const buyNotes = [
+                        'Ý thức bản quyền xuất sắc, chủ động đầu tư công cụ học tập chính hãng và an toàn',
+                        'Tôn trọng quyền tác giả phần mềm, ưu tiên bảo mật dữ liệu và sự ổn định hệ thống',
+                        'Hiểu rõ giá trị của bản quyền phần mềm, sẵn sàng trả phí cho sản phẩm công nghệ'
+                    ];
+                    note = buyNotes[Math.floor(Math.random() * buyNotes.length)];
+                }
+
                 studentLogs.push({
                     studentName: repStudent,
                     activity: `Thương trường Tháng ${curRound} - ${custTeam.name} quyết định [${choice.label}]`,
                     isCorrect: isSafe,
-                    note: choice.isCrackVIP
-                        ? 'Ham của rẻ chọn dùng bản lậu, chịu rủi ro mã độc tống tiền'
-                        : (choice.isTrap
-                            ? 'Cố tình crack phần mềm miễn phí, dính bẫy phạt 50% tài sản'
-                            : 'Ý thức bản quyền tốt, ưu tiên giải pháp chính hãng / an toàn'),
+                    note: note,
                     tt27: isSafe ? 'T' : 'H'
                 });
             } };
@@ -4378,6 +4424,9 @@
             updateConsTeamSelect();
             const qList = DB.consolidation_quizzes || [];
             if (!qList.length) return;
+            const selCons = $('#selStudentCons');
+            if (selCons) selCons.value = '';
+            updateStagedStudentDisplay('cons');
             const q = qList[curConsQIdx % qList.length];
             $('#consQTag').textContent = `Câu hỏi ${curConsQIdx + 1} / ${qList.length}`;
             $('#consQText').textContent = q.q;
@@ -4637,6 +4686,11 @@
         }
 
         function renderPodium() {
+            const auditBanner = $('#quickAuditBanner');
+            if (auditBanner) {
+                auditBanner.style.display = isAudited ? 'none' : 'flex';
+            }
+
             const ranked = calculateCompetitionRankings(teams);
             const podiumArea = $('#podiumArea');
 
@@ -4692,13 +4746,20 @@
 
             let csv = '\uFEFF';
             const q = v => String(v ?? '').replace(/"/g, '""');
+            const fmtDelta = (val) => {
+                const n = Number(val) || 0;
+                if (n < 0) return `-$${Math.abs(n)}`;
+                if (n > 0) return `+$${n}`;
+                return '$0';
+            };
+            const fmtBal = (val) => `$${Number(val) || 0}`;
 
             csv += '=== BÁO CÁO TIẾT DẠY TIN HỌC TIỂU HỌC ===\r\n';
             csv += `Môn học,Tin học 4\r\n`;
             csv += `Bài học,Bài 6: Sử dụng phần mềm khi được phép (Thương Trường Phần Mềm)\r\n`;
             csv += `Lớp học,${currentClassId.replace('_', '/')}\r\n`;
             csv += `Thời gian xuất báo cáo,${timeStr} ngày ${dateStr}\r\n`;
-            csv += `Tổng tài sản thương trường,$${teams.reduce((acc, t) => acc + t.money, 0)}\r\n\r\n`;
+            csv += `Tổng tài sản thương trường,$${teams.reduce((acc, t) => acc + t.money, 0).toLocaleString()}\r\n\r\n`;
 
             const csvMedals = {
                 1: 'Huy chương Vàng',
@@ -4735,7 +4796,7 @@
                 csv += '\r\n=== SỔ CÁI GIAO DỊCH CHI TIẾT (LEDGER) ===\r\n';
                 csv += 'Thời gian,Vòng đấu,Khách hàng,Tập đoàn khách,Bên bán / Đối tác,Sản phẩm / Dịch vụ,Quyết định,Biến động tiền khách,Số dư khách,Biến động tiền bán,Số dư bên bán,Hiệu ứng\r\n';
                 tradeLedger.forEach(e => {
-                    csv += `"${q(e.time)}","${q(e.round)}","${q(e.custName)}","${q(e.custCorp)}","${q(e.sellerName)}","${q(e.sellerCorp)}","${q(e.actionTitle)}",$${e.custDelta},$${e.custBalance},$${e.sellerDelta},$${e.sellerBalance},"${q(e.interestEffect)}"\r\n`;
+                    csv += `"${q(e.time)}","${q(e.round)}","${q(e.custName)}","${q(e.custCorp)}","${q(e.sellerName)}","${q(e.sellerCorp)}","${q(e.actionTitle)}",${fmtDelta(e.custDelta)},${fmtBal(e.custBalance)},${fmtDelta(e.sellerDelta)},${fmtBal(e.sellerBalance)},"${q(e.interestEffect)}"\r\n`;
                 });
             }
 
