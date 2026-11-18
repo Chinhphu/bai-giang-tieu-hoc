@@ -272,14 +272,18 @@
         if (!raw || raw === 'AUTO') return 'BLACK';
 
         // Known hex mapping
-        const REDS = ['FF0000', 'C00000', 'E00000', 'CC0000', 'ED7D31', 'E74C3C', 'D32F2F', 'EF4444', 'DC2626'];
+        const REDS = ['FF0000', 'C00000', 'E00000', 'CC0000', 'E74C3C', 'D32F2F', 'EF4444', 'DC2626'];
         const BLUES = ['0070C0', '002060', '418AB3', '2E75B6', '1F4E79', '4472C4', '0000FF', '1A73E8', '0284C7', '0369A1', '2563EB', '3B82F6', '0EA5E9'];
         const PURPLES = ['7030A0', '800080', '660066', '8E44AD', '9B59B6', 'A855F7', '7C3AED', '9333EA', '6B21A8'];
+        const GREENS = ['00B050', '70AD47', '385723', '548235', '10B981', '059669', '15803D', '16A34A', '22C55E', '008000'];
+        const ORANGES = ['ED7D31', 'F59E0B', 'F97316', 'FFC000', 'C65911', 'FF7F00', 'FFA500', 'FB923C'];
         const BLACKS = ['000000', '262626', '595959', '1F2937', '111827', '333333', '0F172A', '000'];
 
         if (REDS.includes(raw)) return 'RED';
         if (BLUES.includes(raw)) return 'BLUE';
         if (PURPLES.includes(raw)) return 'PURPLE';
+        if (GREENS.includes(raw)) return 'GREEN';
+        if (ORANGES.includes(raw)) return 'ORANGE';
         if (BLACKS.includes(raw)) return 'BLACK';
 
         // RGB numeric heuristics
@@ -289,9 +293,11 @@
             const b = parseInt(raw.slice(4, 6), 16) || 0;
 
             if (r < 70 && g < 70 && b < 70) return 'BLACK';
-            if (r > 150 && g < 100 && b < 100) return 'RED';
+            if (r > 150 && g < 90 && b < 90) return 'RED';
             if (r > 100 && b > 120 && g < 100) return 'PURPLE';
             if (b > 130 && b > r + 25 && b > g + 15) return 'BLUE';
+            if (g > 120 && g > r + 20 && g > b + 20) return 'GREEN';
+            if (r > 180 && g > 90 && g < 180 && b < 80) return 'ORANGE';
         }
 
         return raw ? 'CUSTOM' : 'BLACK';
@@ -320,6 +326,30 @@
             // Check Square Wrap
             const wrapSquares = this.getElementsByTagNames(['wp:wrapSquare', 'wrapSquare']);
             this.hasSquareWrap = (wrapSquares.length > 0) || (this.rawXml.indexOf('wrapSquare') !== -1);
+            const wrapTights = this.getElementsByTagNames(['wp:wrapTight', 'wrapTight']);
+            this.hasTightWrap = (wrapTights.length > 0) || (this.rawXml.indexOf('wrapTight') !== -1);
+            const wrapTopAndBottoms = this.getElementsByTagNames(['wp:wrapTopAndBottom', 'wrapTopAndBottom']);
+            this.hasTopAndBottomWrap = (wrapTopAndBottoms.length > 0) || (this.rawXml.indexOf('wrapTopAndBottom') !== -1);
+
+            // Check Picture Border: <a:ln> with outline / stroke inside drawing or rawXml
+            const lnElements = this.getElementsByTagNames(['a:ln', 'ln']);
+            this.hasPictureBorder = (lnElements.length > 0) || (this.rawXml.indexOf('<a:ln') !== -1) || (this.rawXml.indexOf('strokecolor=') !== -1);
+
+            // Check Picture Styles / Effects: shadow, rounded corners, glow, reflection
+            const effectElements = this.getElementsByTagNames(['a:effectLst', 'effectLst', 'a:outerShdw', 'outerShdw']);
+            this.hasPictureStyle = (effectElements.length > 0) ||
+                (this.rawXml.indexOf('<a:effectLst') !== -1) ||
+                (this.rawXml.indexOf('<a:outerShdw') !== -1) ||
+                (this.rawXml.indexOf('roundRect') !== -1) ||
+                (this.rawXml.indexOf('snipRound') !== -1) ||
+                (this.rawXml.indexOf('<a:glow') !== -1) ||
+                (this.rawXml.indexOf('<a:reflection') !== -1);
+
+            // Check Page Background / Page Color
+            this.hasPageColor = (this.rawXml.indexOf('<w:background') !== -1) || (this.rawXml.indexOf('background') !== -1 && this.rawXml.indexOf('w:color') !== -1);
+
+            // Check Page Border
+            this.hasPageBorder = (this.rawXml.indexOf('<w:pgBorders') !== -1) || (this.rawXml.indexOf('pgBorders') !== -1);
 
             // Parse Paragraphs
             const pElements = this.getElementsByTagNames(['w:p', 'p']);
@@ -381,9 +411,24 @@
             let pPrColorHex = null;
             let pPrColorTheme = null;
             let pPrFont = null;
+            let hasBullets = false;
+            let hasInd = false;
+            let hasTab = false;
+            let hasHighlight = false;
+            let hasShading = false;
 
             const pPr = Array.from(pEl.children).find(c => c.localName === 'pPr');
             if (pPr) {
+                Array.from(pPr.children).forEach(c => {
+                    const tag = c.localName;
+                    if (tag === 'numPr') hasBullets = true;
+                    if (tag === 'ind') {
+                        const fl = c.getAttribute('w:firstLine') || c.getAttribute('firstLine');
+                        const lf = c.getAttribute('w:left') || c.getAttribute('left');
+                        if (fl || lf) hasInd = true;
+                    }
+                    if (tag === 'shd') hasShading = true;
+                });
                 const pRPr = Array.from(pPr.children).find(c => c.localName === 'rPr');
                 if (pRPr) {
                     Array.from(pRPr.children).forEach(pr => {
@@ -411,6 +456,11 @@
                                       pr.getAttribute('w:hAnsi') || pr.getAttribute('hAnsi') ||
                                       pr.getAttribute('w:cs') || pr.getAttribute('cs') ||
                                       pr.getAttribute('w:eastAsia') || pr.getAttribute('eastAsia');
+                        } else if (tag === 'highlight') {
+                            const val = pr.getAttribute('w:val') || pr.getAttribute('val');
+                            if (val && val !== 'none') hasHighlight = true;
+                        } else if (tag === 'shd') {
+                            hasShading = true;
                         }
                     });
                 }
@@ -420,8 +470,13 @@
             const runs = [];
             const rElements = [];
             for (let i = 0; i < childNodes.length; i++) {
-                if (childNodes[i].localName === 'r') {
+                const nodeTag = childNodes[i].localName;
+                if (nodeTag === 'r') {
                     rElements.push(childNodes[i]);
+                } else if (nodeTag === 'tab') {
+                    hasTab = true;
+                } else if (nodeTag === 'numPr') {
+                    hasBullets = true;
                 }
             }
 
@@ -448,6 +503,8 @@
                 let rColorHex = pPrColorHex;
                 let rColorTheme = pPrColorTheme;
                 let rFont = pPrFont;
+                let rHighlight = false;
+                let rShading = false;
 
                 if (rPr) {
                     Array.from(rPr.children).forEach(pr => {
@@ -477,6 +534,15 @@
                                     pr.getAttribute('w:hAnsi') || pr.getAttribute('hAnsi') ||
                                     pr.getAttribute('w:cs') || pr.getAttribute('cs') ||
                                     pr.getAttribute('w:eastAsia') || pr.getAttribute('eastAsia');
+                        } else if (tag === 'highlight') {
+                            const val = pr.getAttribute('w:val') || pr.getAttribute('val');
+                            if (val && val !== 'none') {
+                                rHighlight = true;
+                                hasHighlight = true;
+                            }
+                        } else if (tag === 'shd') {
+                            rShading = true;
+                            hasShading = true;
                         }
                     });
                 }
@@ -509,7 +575,9 @@
                     colorHex: rColorHex,
                     colorTheme: rColorTheme,
                     colorGroup: classifyColorGroup(rColorHex, rColorTheme),
-                    fontFamily: rFont
+                    fontFamily: rFont,
+                    hasHighlight: rHighlight,
+                    hasShading: rShading
                 });
             });
 
@@ -528,6 +596,11 @@
                 colorTheme,
                 colorGroup: classifyColorGroup(colorHex, colorTheme),
                 fontFamily,
+                hasBullets,
+                hasInd,
+                hasTab,
+                hasHighlight,
+                hasShading,
                 runs
             };
         }
@@ -721,6 +794,30 @@
                                 isPass = false;
                                 message = 'Chưa chọn nút Layout Options -> Square (Văn bản chưa chảy bao quanh ảnh)!';
                             }
+                        } else if (expectedWrap === 'tight') {
+                            if (doc.hasTightWrap || doc.hasSquareWrap) {
+                                isPass = true;
+                                message = 'Hình ảnh đã được thiết lập bố cục bao quanh Tight/Square chính xác!';
+                            } else {
+                                isPass = false;
+                                message = 'Chưa chọn nút Layout Options -> Tight (Văn bản chưa ôm sát ảnh)!';
+                            }
+                        } else if (expectedWrap === 'topandbottom' || expectedWrap === 'top_and_bottom') {
+                            if (doc.hasTopAndBottomWrap || doc.hasSquareWrap) {
+                                isPass = true;
+                                message = 'Hình ảnh đã được thiết lập bố cục Top and Bottom chính xác!';
+                            } else {
+                                isPass = false;
+                                message = 'Chưa chọn nút Layout Options -> Top and Bottom!';
+                            }
+                        } else {
+                            if (doc.hasSquareWrap || doc.hasTightWrap || doc.hasTopAndBottomWrap) {
+                                isPass = true;
+                                message = 'Hình ảnh đã được thiết lập Layout Options bao quanh văn bản!';
+                            } else {
+                                isPass = false;
+                                message = 'Chưa thiết lập Layout Options cho hình ảnh!';
+                            }
                         }
                         break;
                     }
@@ -745,6 +842,103 @@
                         } else {
                             isPass = false;
                             message = `Thiếu đoạn văn bản hoặc từ khóa: "${rule.expectedText}"`;
+                        }
+                        break;
+                    }
+
+                    case 'picture_border': {
+                        if (!doc.hasImages) {
+                            isPass = false;
+                            message = 'Không tìm thấy hình ảnh nào trong văn bản!';
+                        } else if (doc.hasPictureBorder || doc.rawXml.includes('<a:ln') || doc.rawXml.includes('strokecolor=')) {
+                            isPass = true;
+                            message = 'Hình ảnh đã được tạo viền nghệ thuật (Picture Border) thành công!';
+                        } else {
+                            isPass = false;
+                            message = 'Chưa tạo viền cho ảnh (Chọn ảnh -> Picture Format -> Picture Border)!';
+                        }
+                        break;
+                    }
+
+                    case 'picture_style': {
+                        if (!doc.hasImages) {
+                            isPass = false;
+                            message = 'Không tìm thấy hình ảnh nào trong văn bản!';
+                        } else if (doc.hasPictureStyle || doc.rawXml.includes('<a:effectLst') || doc.rawXml.includes('<a:outerShdw') || doc.rawXml.includes('roundRect') || doc.rawXml.includes('snipRound')) {
+                            isPass = true;
+                            message = 'Hình ảnh đã áp dụng kiểu khung bo góc/đổ bóng (Picture Styles)!';
+                        } else {
+                            isPass = false;
+                            message = 'Chưa chọn kiểu khung/đổ bóng cho ảnh (Picture Format -> Picture Styles)!';
+                        }
+                        break;
+                    }
+
+                    case 'has_bullets': {
+                        const matches = doc.paragraphs.filter(p => {
+                            if (rule.match) return normalizeVietnamese(p.text).includes(normalizeVietnamese(rule.match));
+                            const nt = normalizeVietnamese(p.text);
+                            return nt.includes('bao mat') || nt.includes('canh giac') || nt.includes('ung xu');
+                        });
+                        const hasAnyBullet = matches.some(p => p.hasBullets) || doc.rawXml.includes('numPr') || doc.rawXml.includes('w:numPr');
+                        if (hasAnyBullet) {
+                            isPass = true;
+                            message = 'Đã tạo dấu đầu dòng Bullets tự động cho các nguyên tắc!';
+                        } else {
+                            isPass = false;
+                            message = 'Chưa tạo dấu đầu dòng Bullets (Thẻ Home -> nút Bullets)!';
+                        }
+                        break;
+                    }
+
+                    case 'highlight': {
+                        const targetP = rule.match
+                            ? doc.paragraphs.find(p => normalizeVietnamese(p.text).includes(normalizeVietnamese(rule.match)))
+                            : doc.paragraphs.find(p => normalizeVietnamese(p.text).includes('thong minh'));
+                        const hasHi = targetP && (targetP.hasHighlight || targetP.hasShading || targetP.runs.some(r => r.hasHighlight || r.hasShading));
+                        if (hasHi || doc.rawXml.includes('w:highlight') || doc.rawXml.includes('highlight') || doc.rawXml.includes('w:shd')) {
+                            isPass = true;
+                            message = 'Đã tô màu dạ quang nổi bật cho câu khẩu hiệu (Highlight)!';
+                        } else {
+                            isPass = false;
+                            message = 'Chưa tô màu dạ quang cho câu khẩu hiệu (Thẻ Home -> Text Highlight Color)!';
+                        }
+                        break;
+                    }
+
+                    case 'first_line_indent': {
+                        const targetP = rule.match
+                            ? doc.paragraphs.find(p => normalizeVietnamese(p.text).includes(normalizeVietnamese(rule.match)))
+                            : doc.paragraphs.find(p => normalizeVietnamese(p.text).includes('internet mang lai'));
+                        const hasInd = targetP && (targetP.hasTab || targetP.hasInd || targetP.rawText.startsWith('\t') || targetP.rawText.startsWith('   '));
+                        if (hasInd || doc.rawXml.includes('<w:tab/>') || doc.rawXml.includes('w:firstLine')) {
+                            isPass = true;
+                            message = 'Đoạn văn mở đầu đã được thụt lề đầu dòng (Tab / First Line Indent)!';
+                        } else {
+                            isPass = false;
+                            message = 'Chưa thụt đầu dòng đoạn mở đầu (Nhấn phím Tab hoặc kéo First Line Indent)!';
+                        }
+                        break;
+                    }
+
+                    case 'page_color': {
+                        if (doc.hasPageColor || doc.rawXml.includes('<w:background') || doc.rawXml.includes('background')) {
+                            isPass = true;
+                            message = 'Đã thiết lập màu nền cho trang văn bản (Page Color)!';
+                        } else {
+                            isPass = false;
+                            message = 'Chưa đổi màu nền trang văn bản (Design -> Page Color)!';
+                        }
+                        break;
+                    }
+
+                    case 'page_border': {
+                        if (doc.hasPageBorder || doc.rawXml.includes('<w:pgBorders') || doc.rawXml.includes('pgBorders')) {
+                            isPass = true;
+                            message = 'Đã tạo khung viền bao quanh trang văn bản (Page Borders)!';
+                        } else {
+                            isPass = false;
+                            message = 'Chưa tạo viền trang văn bản (Design -> Page Borders)!';
                         }
                         break;
                     }

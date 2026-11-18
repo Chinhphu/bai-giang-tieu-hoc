@@ -1694,28 +1694,176 @@
         .tc-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 12px;
-            background: #f8fafc;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 10px;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 14px;
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 14.5px;
-            font-weight: 800;
-            color: #1e293b;
-            transition: all 0.12s ease;
+            transition: all 0.15s ease;
+            color: #ffffff;
+            user-select: none;
         }
 
         .tc-item:hover {
             border-color: #38bdf8;
-            background: #f0f9ff;
+            background: #1e293b;
         }
 
-        .tc-item input {
-            width: 20px;
-            height: 20px;
+        .tc-item.tc-pass {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.12);
+        }
+
+        .tc-item.tc-fail {
+            border-color: #f43f5e;
+            background: rgba(244, 63, 94, 0.12);
+        }
+
+        .tc-item input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
             accent-color: #10b981;
             cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .tc-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .tc-title {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: #f8fafc;
+            line-height: 1.3;
+        }
+
+        .tc-sub {
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        .tc-badge {
+            font-size: 11.5px;
+            font-weight: 900;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: #334155;
+            color: #cbd5e1;
+            white-space: nowrap;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .tc-badge.pass {
+            background: #059669;
+            color: #ffffff;
+        }
+
+        .tc-badge.fail {
+            background: #dc2626;
+            color: #ffffff;
+        }
+
+        /* Dropzone nộp file .docx & Auto-Grader Result */
+        .docx-dropzone {
+            border: 2.5px dashed #38bdf8;
+            background: rgba(56, 189, 248, 0.08);
+            border-radius: 14px;
+            padding: 16px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #f1f5f9;
+        }
+        .docx-dropzone:hover, .docx-dropzone.dragover {
+            border-color: #0284c7;
+            background: rgba(56, 189, 248, 0.18);
+            transform: scale(1.01);
+        }
+        .dz-icon {
+            font-size: 32px;
+            margin-bottom: 4px;
+        }
+        .dz-text {
+            font-size: 15px;
+            font-weight: 800;
+            color: #38bdf8;
+            margin-bottom: 2px;
+        }
+        .dz-sub {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .dz-file-badge {
+            display: none;
+            background: #1e293b;
+            border: 2px solid #38bdf8;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #7dd3fc;
+            margin-top: 8px;
+            word-break: break-all;
+        }
+
+        /* Khung kết quả Auto-Grader */
+        .grader-result-box {
+            display: none;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-top: 10px;
+            animation: fadeIn 0.2s ease;
+        }
+        .grader-result-box.pass {
+            background: #064e3b;
+            border: 2px solid #10b981;
+            color: #a7f3d0;
+        }
+        .grader-result-box.fail {
+            background: #4c0519;
+            border: 2px solid #f43f5e;
+            color: #fecdd3;
+        }
+        .gr-title {
+            font-size: 15px;
+            font-weight: 900;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .gr-list {
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 6px 0 0;
+            padding-left: 18px;
+        }
+        .gr-list li {
+            margin-bottom: 4px;
+        }
+
+        /* Lắc viền báo lỗi */
+        @keyframes shakeErr {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .shake-error {
+            animation: shakeErr 0.4s ease !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.6) !important;
         }
 
         /* ================= CÁC NÚT HÀNH ĐỘNG CHÍNH ================= */
@@ -2343,7 +2491,7 @@
                                 <button class="btn-action"
                                     style="background:#475569; color:#fff; font-size:14.5px; padding:8px 16px;"
                                     type="button" onclick="downloadCurrentMissionDocx()">
-                                    📥 Tải Tệp Word Mẫu (.docx)
+                                    📥 Tải Lại Đề Bài (.docx)
                                 </button>
                             </div>
                         </div>
@@ -2369,19 +2517,32 @@
                         <div class="speed-gauge-bar">
                             <div class="speed-gauge-fill" id="cross-speed-gauge"></div>
                         </div>
+                        <div style="font-size:11.5px; color:#94a3b8; text-align:center; margin-top:-2px;">
+                            ⏱️ 0–60s: 1000 Xu · 1–3 phút: giảm dần · Sàn: 400 Xu (Nộp tệp để chốt điểm tốc độ)
+                        </div>
 
                         <div style="display:flex; flex-direction:column; gap:8px;">
                             <button class="btn-action mint" id="btn-start-battle" type="button"
-                                onclick="startCrossBattle()" style="width:100%; font-size:17px;">
-                                ▶ BẮT ĐẦU LÀM BÀI
-                            </button>
-                            <button class="btn-action coral" id="btn-finish-battle" type="button"
-                                onclick="finishCrossBattle()" style="width:100%; font-size:17px; display:none;">
-                                ⏹ BÁO CÁO HOÀN THÀNH
+                                onclick="startCrossBattle()" style="width:100%; font-size:16px;">
+                                ▶ BẮT ĐẦU & TẢI ĐỀ BÀI (.docx)
                             </button>
                         </div>
 
-                        <!-- KHU VỰC NGHIỆM THU & ĐÁNH GIÁ CHÉO (HIỆN KHI BẤM HOÀN THÀNH) -->
+                        <!-- KHUNG NỘP BÀI (DROPZONE) & DỪNG ĐỒNG HỒ -->
+                        <div id="cross-dropzone-container" style="display:none;">
+                            <div class="docx-dropzone" id="cross-dropzone">
+                                <div class="dz-icon">📥</div>
+                                <div class="dz-text">Kéo thả hoặc nhấp để nộp file .docx đã làm xong</div>
+                                <div class="dz-sub">Tự động dừng đồng hồ & khóa điểm tốc độ ngay khi nộp</div>
+                            </div>
+                            <div class="dz-file-badge" id="cross-file-badge"></div>
+                            <button class="btn-action coral" id="btn-finish-battle" type="button"
+                                onclick="finishCrossBattle()" style="width:100%; font-size:14px; margin-top:8px;">
+                                ⏹ Báo cáo hoàn thành (Nghiệm thu thủ công)
+                            </button>
+                        </div>
+
+                        <!-- KHU VỰC NGHIỆM THU & ĐÁNH GIÁ CHÉO (HIỆN KHI NỘP FILE HOẶC BẤM HOÀN THÀNH) -->
                         <div id="cross-grading-box"
                             style="display:none; background:#1e293b; border-radius:14px; padding:14px; border:1px solid #475569;">
                             <div style="font-size:14px; font-weight:900; color:#fef08a; margin-bottom:8px;">
@@ -2389,29 +2550,56 @@
                             </div>
                             <div class="peer-vote-grid" id="peer-vote-grid"></div>
 
-                            <div style="font-size:14px; font-weight:900; color:#38bdf8; margin:12px 0 8px;">
-                                2. GIÁO VIÊN NGHIỆM THU TIÊU CHÍ BỘ ĐỀ:
+                            <div style="margin: 12px 0 10px;">
+                                <button class="btn-action blue" id="btn-cross-autograde" type="button"
+                                    onclick="runCrossAutoGrader()" style="width:100%; font-size:16px;">
+                                    ⚡ CHẠY MÁY CHẤM ĐIỂM (.docx)
+                                </button>
                             </div>
-                            <div class="teacher-checklist">
-                                <label class="tc-item">
-                                    <input type="checkbox" id="tc-check-heading" checked
-                                        onchange="recalculateAwardScore()" />
-                                    <span>🅰️ Đúng định dạng Tiêu đề</span>
-                                </label>
-                                <label class="tc-item">
-                                    <input type="checkbox" id="tc-check-body" checked
-                                        onchange="recalculateAwardScore()" />
-                                    <span>📄 Đúng định dạng Đoạn văn</span>
-                                </label>
-                                <label class="tc-item">
-                                    <input type="checkbox" id="tc-check-image" checked
-                                        onchange="recalculateAwardScore()" />
-                                    <span>🖼️ Đúng vị trí & bố trí Square ảnh</span>
-                                </label>
-                                <label class="tc-item" id="tc-row-bonus" style="display:none;">
-                                    <input type="checkbox" id="tc-check-bonus" onchange="recalculateAwardScore()" />
-                                    <span style="color:#d8b4fe;">⭐ Hoàn thành Thử thách Bonus (+50 Xu)</span>
-                                </label>
+
+                            <div style="margin: 10px 0 8px;">
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
+                                    <span style="font-size:14px; font-weight:900; color:#38bdf8;">2. KẾT QUẢ MÁY CHẤM THEO TIÊU CHÍ:</span>
+                                    <span id="tc-status-summary" style="font-size:12px; font-weight:700; color:#94a3b8;">(Bấm vào ô để sửa nếu máy chấm nhầm)</span>
+                                </div>
+                                <div class="teacher-checklist">
+                                    <label class="tc-item" id="tc-card-heading">
+                                        <input type="checkbox" id="tc-check-heading" checked
+                                            onchange="onTcCheckboxChange('heading')" />
+                                        <div class="tc-content">
+                                            <div class="tc-title" id="tc-title-heading">🅰️ Tiêu đề: Arial 20pt Đỏ Căn giữa</div>
+                                            <div class="tc-sub" id="tc-msg-heading">Chờ máy chấm...</div>
+                                        </div>
+                                        <span class="tc-badge" id="tc-badge-heading">Chờ chấm</span>
+                                    </label>
+                                    <label class="tc-item" id="tc-card-body">
+                                        <input type="checkbox" id="tc-check-body" checked
+                                            onchange="onTcCheckboxChange('body')" />
+                                        <div class="tc-content">
+                                            <div class="tc-title" id="tc-title-body">📄 Đoạn văn: Times New Roman...</div>
+                                            <div class="tc-sub" id="tc-msg-body">Chờ máy chấm...</div>
+                                        </div>
+                                        <span class="tc-badge" id="tc-badge-body">Chờ chấm</span>
+                                    </label>
+                                    <label class="tc-item" id="tc-card-image">
+                                        <input type="checkbox" id="tc-check-image" checked
+                                            onchange="onTcCheckboxChange('image')" />
+                                        <div class="tc-content">
+                                            <div class="tc-title" id="tc-title-image">🖼️ Bố trí ảnh: Square...</div>
+                                            <div class="tc-sub" id="tc-msg-image">Chờ máy chấm...</div>
+                                        </div>
+                                        <span class="tc-badge" id="tc-badge-image">Chờ chấm</span>
+                                    </label>
+                                    <label class="tc-item" id="tc-row-bonus" style="display:none;">
+                                        <input type="checkbox" id="tc-check-bonus" onchange="onTcCheckboxChange('bonus')" />
+                                        <div class="tc-content">
+                                            <div class="tc-title" id="tc-title-bonus" style="color:#d8b4fe;">⭐ Thử thách Bonus (+50 Xu)</div>
+                                            <div class="tc-sub" id="tc-msg-bonus">Chờ máy chấm...</div>
+                                        </div>
+                                        <span class="tc-badge" id="tc-badge-bonus">Chờ chấm</span>
+                                    </label>
+                                </div>
                             </div>
 
                             <div style="margin-top:14px; border-top:1px dashed #475569; padding-top:10px;">
@@ -2731,12 +2919,13 @@
         let crossCurrentTeamId = 1;
         let crossAssignedStudent = '';
         let crossPickedMission = null;
-        let crossStatus = 'idle'; // 'idle' | 'spinning' | 'working' | 'finished' | 'graded'
+        let crossStatus = 'idle'; // 'idle' | 'spinning' | 'working' | 'submitted' | 'finished' | 'graded'
         let crossTimerInterval = null;
         let crossSpinInterval = null;
         let crossTimeElapsed = 0;
         let crossSpeedScore = 1000;
         let crossPeerVotes = {}; // teamId -> 'PASS' | 'BUG'
+        let uploadedCrossFile = null;
 
         // Gacha Modal State
         let gachaTargetKey = null;
@@ -3021,6 +3210,7 @@
         window.addEventListener('DOMContentLoaded', async () => {
             updateLocalVietnameseDate();
             initQuestVault(true);
+            initCrossDropzone();
             if (isDemonMode) activateDemonModeUI();
         });
 
@@ -3185,7 +3375,9 @@
             demonReliefFund = state.demonReliefFund || 0;
             demonRecords = state.demonRecords || [];
 
-            if (state.questVaultCards && state.questVaultCards.length > 0) {
+            const rawBank = window.QUESTS_DATA ? (window.QUESTS_DATA.questBricks || window.QUESTS_DATA.legoBricks) : null;
+            const expectedBrickCount = rawBank ? ((rawBank.headings || []).length + (rawBank.bodies || []).length + (rawBank.images || []).length + (rawBank.bonuses || []).length) : 0;
+            if (state.questVaultCards && state.questVaultCards.length >= expectedBrickCount && expectedBrickCount > 0) {
                 questVaultCards = state.questVaultCards;
             } else {
                 initQuestVault(true);
@@ -3300,6 +3492,7 @@
             }
             if (currentSlide === 4) {
                 updateCrossTeamDisplay();
+                initCrossDropzone();
             }
             if (currentSlide === 6) renderLeaderboard();
             saveLocalStorage();
@@ -4227,6 +4420,7 @@
             crossPickedMission = null;
             crossAssignedStudent = '';
             crossPeerVotes = {};
+            uploadedCrossFile = null;
 
             const sel = document.getElementById('sel-cross-student');
             if (sel) sel.value = '';
@@ -4273,11 +4467,53 @@
                 startBtn.disabled = false;
             }
 
+            const dropContainer = document.getElementById('cross-dropzone-container');
+            if (dropContainer) dropContainer.style.display = 'none';
+
+            const badge = document.getElementById('cross-file-badge');
+            if (badge) {
+                badge.style.display = 'none';
+                badge.textContent = '';
+            }
+
+            const resBox = document.getElementById('cross-result-box');
+            if (resBox) {
+                resBox.style.display = 'none';
+                resBox.className = 'grader-result-box';
+                resBox.innerHTML = '';
+            }
+
             const finishBtn = document.getElementById('btn-finish-battle');
             if (finishBtn) finishBtn.style.display = 'none';
 
             const gradingBox = document.getElementById('cross-grading-box');
             if (gradingBox) gradingBox.style.display = 'none';
+
+            const dz = document.getElementById('cross-dropzone');
+            if (dz) {
+                const fileInput = dz.querySelector('input[type="file"]');
+                if (fileInput) fileInput.value = '';
+            }
+
+            // Reset các tiêu chí về trạng thái ban đầu
+            ['heading', 'body', 'image', 'bonus'].forEach(cat => {
+                const chk = document.getElementById(`tc-check-${cat}`);
+                const card = document.getElementById(`tc-card-${cat}`) || (cat === 'bonus' ? document.getElementById('tc-row-bonus') : null);
+                const badge = document.getElementById(`tc-badge-${cat}`);
+                const msg = document.getElementById(`tc-msg-${cat}`);
+                if (chk) chk.checked = (cat !== 'bonus');
+                if (card) card.className = 'tc-item';
+                if (badge) {
+                    badge.className = 'tc-badge';
+                    badge.textContent = 'CHỜ CHẤM';
+                }
+                if (msg) {
+                    msg.textContent = 'Chờ máy chấm...';
+                    msg.style.color = '#94a3b8';
+                }
+            });
+            const summaryEl = document.getElementById('tc-status-summary');
+            if (summaryEl) summaryEl.innerHTML = '(Bấm vào ô để sửa nếu máy chấm nhầm)';
 
             updateCrossTeamDisplay();
         }
@@ -4307,11 +4543,22 @@
                 pool = humanTeams.map(t => teamMissions[t.id]).filter(m => m && m.heading && m.body && m.image);
             }
             if (pool.length === 0) {
-                if (window.toast) {
-                    window.toast('⚠️ Chưa có bộ đề nào được thiết kế ở Slide 3! Hãy quay lại Slide 3 để các tổ chọn đề.', 3000, 'var(--coral)');
-                }
-                AudioSys.playFail();
-                return;
+                // Tự động tạo bộ đề mẫu thách đấu nếu chưa tổ nào hoàn thành thiết kế ở Slide 3
+                const humanTeams = teams.filter(t => !t.isDemon);
+                const bricks = (window.QUESTS_DATA && (window.QUESTS_DATA.questBricks || window.QUESTS_DATA.legoBricks)) || {};
+                const headings = bricks.headings || [];
+                const bodies = bricks.bodies || [];
+                const images = bricks.images || [];
+                const bonuses = bricks.bonuses || [];
+                pool = humanTeams.map((t, idx) => ({
+                    id: `default-m-${t.id}`,
+                    name: `Bộ Đề Thách Đấu - ${t.name}`,
+                    teamId: t.id,
+                    heading: headings[idx % headings.length],
+                    body: bodies[idx % bodies.length],
+                    image: images[idx % images.length],
+                    bonus: bonuses[idx % bonuses.length]
+                }));
             }
 
             let unsolvedPool = pool.filter(m => !solvedMissionTeamIds.has(m.teamId));
@@ -4428,11 +4675,17 @@
                     </div>
                 ` : ''}
             `;
+            updateGraderChecklistTitles(m);
         }
 
-        function startCrossBattle() {
+        async function startCrossBattle() {
             if (!crossPickedMission) {
                 if (window.toast) window.toast('⚠️ Vui lòng bấm 🎲 Quay Bốc Thăm Đề Bài trước khi bắt đầu!', 2500, 'var(--coral)');
+                const rouBtn = document.getElementById('btn-spin-roulette');
+                if (rouBtn) {
+                    rouBtn.classList.add('shake-error');
+                    setTimeout(() => rouBtn.classList.remove('shake-error'), 1200);
+                }
                 AudioSys.playFail();
                 return;
             }
@@ -4441,16 +4694,45 @@
                 crossAssignedStudent = sel.value;
             }
             if (!crossAssignedStudent) {
-                if (window.toast) window.toast('⚠️ Vui lòng chọn học sinh đại diện lên máy!', 2200, 'var(--coral)');
+                if (window.toast) window.toast('⚠️ Vui lòng chọn học sinh đại diện lên máy (hoặc bấm 🎲 Gacha) trước khi bắt đầu!', 2500, 'var(--coral)');
+                if (sel) {
+                    sel.classList.add('shake-error');
+                    setTimeout(() => sel.classList.remove('shake-error'), 1200);
+                    sel.focus();
+                }
                 AudioSys.playFail();
                 return;
             }
 
+            // Tự động tải tệp .docx đề bài về máy cho học sinh
+            await downloadCurrentMissionDocx();
+
             crossStatus = 'working';
             crossTimeElapsed = 0;
             crossSpeedScore = 1000;
+            uploadedCrossFile = null;
+
             document.getElementById('btn-start-battle').style.display = 'none';
-            document.getElementById('btn-finish-battle').style.display = 'block';
+
+            const dropContainer = document.getElementById('cross-dropzone-container');
+            if (dropContainer) dropContainer.style.display = 'block';
+
+            const finishBtn = document.getElementById('btn-finish-battle');
+            if (finishBtn) finishBtn.style.display = 'block';
+
+            const badge = document.getElementById('cross-file-badge');
+            if (badge) {
+                badge.style.display = 'none';
+                badge.textContent = '';
+            }
+
+            const resBox = document.getElementById('cross-result-box');
+            if (resBox) {
+                resBox.style.display = 'none';
+                resBox.className = 'grader-result-box';
+                resBox.innerHTML = '';
+            }
+
             document.getElementById('cross-grading-box').style.display = 'none';
             AudioSys.playBeep();
 
@@ -4497,6 +4779,686 @@
             }, 1000);
         }
 
+        /* --- Khởi tạo Dropzone Nộp Bài --- */
+        function initCrossDropzone() {
+            const dz = document.getElementById('cross-dropzone');
+            if (!dz || !window.DocxGrader) return;
+
+            window.DocxGrader.setupDropzone(dz, {
+                onResult: (result, file) => {
+                    uploadedCrossFile = file;
+
+                    // 1. TỰ ĐỘNG DỪNG ĐỒNG HỒ TÍNH GIỜ KHI NẠP TỆP
+                    if (crossTimerInterval) {
+                        clearInterval(crossTimerInterval);
+                        crossTimerInterval = null;
+                    }
+                    crossStatus = 'submitted';
+
+                    const mins = String(Math.floor(crossTimeElapsed / 60)).padStart(2, '0');
+                    const secs = String(crossTimeElapsed % 60).padStart(2, '0');
+                    const timeFormatted = `${mins}:${secs}`;
+
+                    // Hiển thị badge nhận tệp
+                    const badge = document.getElementById('cross-file-badge');
+                    if (badge) {
+                        badge.style.display = 'block';
+                        badge.textContent = `📎 Đã nhận tệp: ${file.name} (${(file.size / 1024).toFixed(1)} KB) — Đã dừng tại ${timeFormatted} (${crossSpeedScore} Xu)`;
+                    }
+
+                    const finishBtn = document.getElementById('btn-finish-battle');
+                    if (finishBtn) finishBtn.style.display = 'none';
+
+                    // Mở khu vực nghiệm thu & đánh giá chéo
+                    const gradingBox = document.getElementById('cross-grading-box');
+                    if (gradingBox) gradingBox.style.display = 'block';
+
+                    updateGraderChecklistTitles(crossPickedMission);
+                    renderPeerAssessmentGrid();
+
+                    const bonusRow = document.getElementById('tc-row-bonus');
+                    if (bonusRow) bonusRow.style.display = (crossPickedMission && crossPickedMission.bonus) ? 'flex' : 'none';
+
+                    recalculateAwardScore();
+
+                    if (window.toast) {
+                        window.toast(`⏱️ Đã nạp bài & dừng đồng hồ ở ${timeFormatted}! Mời các tổ đánh giá chéo.`, 3000, 'var(--mint)');
+                    }
+                    if (window.AudioSys && AudioSys.playBeep) AudioSys.playBeep();
+                }
+            });
+        }
+
+        /* --- Xây dựng Bộ Quy Tắc Test Case Động Từ Mảnh Ghép Bộ Đề --- */
+        function buildRulesForMission(mission) {
+            const rules = [];
+            if (!mission) return rules;
+
+            // 1. Heading rules
+            const h = mission.heading;
+            if (h) {
+                const hRule = {
+                    id: 'rule-heading',
+                    name: `Tiêu đề: ${h.name || h.desc}`,
+                    category: 'heading',
+                    type: 'paragraph_format',
+                    match: 'CẨM NANG AN TOÀN',
+                    align: 'center',
+                    bold: true
+                };
+                const hid = h.id || '';
+                if (hid === 'h-1') {
+                    hRule.fontFamily = 'Arial';
+                    hRule.fontSize = 20;
+                    hRule.color = 'RED';
+                } else if (hid === 'h-2') {
+                    hRule.fontFamily = 'Times New Roman';
+                    hRule.fontSize = 22;
+                    hRule.color = 'BLUE';
+                } else if (hid === 'h-3') {
+                    hRule.fontFamily = 'Tahoma';
+                    hRule.fontSize = 20;
+                    hRule.underline = true;
+                    hRule.color = 'PURPLE';
+                } else if (hid === 'h-4') {
+                    hRule.fontFamily = 'Verdana';
+                    hRule.fontSize = 18;
+                    hRule.italic = true;
+                } else if (hid === 'h-5') {
+                    hRule.fontFamily = 'Times New Roman';
+                    hRule.fontSize = 20;
+                    hRule.underline = true;
+                } else if (hid === 'h-6') {
+                    hRule.fontFamily = 'Calibri';
+                    hRule.fontSize = 22;
+                    hRule.italic = true;
+                    hRule.color = 'RED';
+                } else if (hid === 'h-7') {
+                    hRule.fontFamily = 'Tahoma';
+                    hRule.fontSize = 18;
+                    hRule.color = 'RED';
+                } else if (hid === 'h-8') {
+                    hRule.fontFamily = 'Segoe UI';
+                    hRule.fontSize = 20;
+                    hRule.color = 'BLUE';
+                } else if (hid === 'h-9') {
+                    hRule.fontFamily = 'Arial';
+                    hRule.fontSize = 22;
+                    hRule.italic = true;
+                    hRule.color = 'PURPLE';
+                } else if (hid === 'h-10') {
+                    hRule.fontFamily = 'Times New Roman';
+                    hRule.fontSize = 18;
+                    hRule.underline = true;
+                    hRule.color = 'GREEN';
+                } else if (hid === 'h-11') {
+                    hRule.fontFamily = 'Calibri';
+                    hRule.fontSize = 20;
+                    hRule.color = 'ORANGE';
+                } else if (hid === 'h-12') {
+                    hRule.fontFamily = 'Verdana';
+                    hRule.fontSize = 20;
+                    hRule.underline = true;
+                    hRule.color = 'RED';
+                } else {
+                    const d = (h.desc || h.name || '').toLowerCase();
+                    if (d.includes('arial')) hRule.fontFamily = 'Arial';
+                    else if (d.includes('times')) hRule.fontFamily = 'Times New Roman';
+                    else if (d.includes('tahoma')) hRule.fontFamily = 'Tahoma';
+                    else if (d.includes('verdana')) hRule.fontFamily = 'Verdana';
+                    else if (d.includes('calibri')) hRule.fontFamily = 'Calibri';
+                    else if (d.includes('segoe')) hRule.fontFamily = 'Segoe UI';
+
+                    if (d.includes('22')) hRule.fontSize = 22;
+                    else if (d.includes('20')) hRule.fontSize = 20;
+                    else if (d.includes('18')) hRule.fontSize = 18;
+
+                    if (d.includes('đỏ') || d.includes('red')) hRule.color = 'RED';
+                    else if (d.includes('xanh dương') || d.includes('blue')) hRule.color = 'BLUE';
+                    else if (d.includes('tím') || d.includes('purple')) hRule.color = 'PURPLE';
+                    else if (d.includes('xanh lá') || d.includes('green')) hRule.color = 'GREEN';
+                    else if (d.includes('cam') || d.includes('orange')) hRule.color = 'ORANGE';
+
+                    if (d.includes('gạch chân')) hRule.underline = true;
+                    if (d.includes('nghiêng')) hRule.italic = true;
+                }
+                rules.push(hRule);
+            }
+
+            // 2. Body rules
+            const b = mission.body;
+            if (b) {
+                const bid = b.id || '';
+                if (bid === 'b-1') {
+                    rules.push({
+                        id: 'rule-body-font',
+                        name: 'Thân bài: Phông Times New Roman',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Internet mang lại',
+                        fontFamily: 'Times New Roman'
+                    });
+                    rules.push({
+                        id: 'rule-body-quote',
+                        name: 'In nghiêng (I) câu khẩu hiệu cuối bài',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'thông minh',
+                        italic: true
+                    });
+                } else if (bid === 'b-2') {
+                    rules.push({
+                        id: 'rule-body-font',
+                        name: 'Thân bài: Phông Arial',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Internet mang lại',
+                        fontFamily: 'Arial'
+                    });
+                    rules.push({
+                        id: 'rule-body-items',
+                        name: 'In đậm (B) 3 nguyên tắc',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Bảo mật',
+                        bold: true
+                    });
+                } else if (bid === 'b-3') {
+                    rules.push({
+                        id: 'rule-body-font',
+                        name: 'Thân bài: Phông Tahoma',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Internet mang lại',
+                        fontFamily: 'Tahoma'
+                    });
+                    rules.push({
+                        id: 'rule-body-items',
+                        name: 'Gạch chân (U) 3 nguyên tắc',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Bảo mật',
+                        underline: true
+                    });
+                } else if (bid === 'b-4') {
+                    rules.push({
+                        id: 'rule-body-font',
+                        name: 'Thân bài: Phông Calibri',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Internet mang lại',
+                        fontFamily: 'Calibri'
+                    });
+                    rules.push({
+                        id: 'rule-body-quote',
+                        name: 'In đậm (B) + In nghiêng (I) câu khẩu hiệu',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'thông minh',
+                        bold: true,
+                        italic: true
+                    });
+                } else if (bid === 'b-5') {
+                    rules.push({
+                        id: 'rule-body-font',
+                        name: 'Thân bài: Phông Verdana',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Internet mang lại',
+                        fontFamily: 'Verdana'
+                    });
+                    rules.push({
+                        id: 'rule-body-quote',
+                        name: 'Màu Xanh dương câu khẩu hiệu cuối bài',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'thông minh',
+                        color: 'BLUE'
+                    });
+                } else if (bid === 'b-6') {
+                    rules.push({
+                        id: 'rule-body-font',
+                        name: 'Thân bài: Phông Times New Roman',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Internet mang lại',
+                        fontFamily: 'Times New Roman'
+                    });
+                    rules.push({
+                        id: 'rule-body-items',
+                        name: 'In đậm (B) 3 nguyên tắc',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Bảo mật',
+                        bold: true
+                    });
+                } else if (bid === 'b-7') {
+                    rules.push({
+                        id: 'rule-body-font',
+                        name: 'Thân bài: Phông Arial',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Internet mang lại',
+                        fontFamily: 'Arial'
+                    });
+                    rules.push({
+                        id: 'rule-body-quote',
+                        name: 'Gạch chân (U) câu khẩu hiệu cuối bài',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'thông minh',
+                        underline: true
+                    });
+                } else if (bid === 'b-8') {
+                    rules.push({
+                        id: 'rule-body-font',
+                        name: 'Thân bài: Phông Calibri',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Internet mang lại',
+                        fontFamily: 'Calibri'
+                    });
+                    rules.push({
+                        id: 'rule-body-quote',
+                        name: 'Màu Đỏ câu khẩu hiệu cuối bài',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'thông minh',
+                        color: 'RED'
+                    });
+                } else if (bid === 'b-9') {
+                    rules.push({
+                        id: 'rule-body-font',
+                        name: 'Thân bài: Phông Tahoma',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Internet mang lại',
+                        fontFamily: 'Tahoma'
+                    });
+                    rules.push({
+                        id: 'rule-body-items',
+                        name: 'In đậm (B) + In nghiêng (I) 3 nguyên tắc',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Bảo mật',
+                        bold: true,
+                        italic: true
+                    });
+                } else if (bid === 'b-10') {
+                    rules.push({
+                        id: 'rule-body-font',
+                        name: 'Thân bài: Phông Times New Roman',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Internet mang lại',
+                        fontFamily: 'Times New Roman'
+                    });
+                    rules.push({
+                        id: 'rule-body-quote',
+                        name: 'Màu Tím câu khẩu hiệu cuối bài',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'thông minh',
+                        color: 'PURPLE'
+                    });
+                } else if (bid === 'b-11') {
+                    rules.push({
+                        id: 'rule-body-font',
+                        name: 'Thân bài: Phông Verdana',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Internet mang lại',
+                        fontFamily: 'Verdana'
+                    });
+                    rules.push({
+                        id: 'rule-body-items',
+                        name: 'Gạch chân (U) 3 nguyên tắc',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Bảo mật',
+                        underline: true
+                    });
+                } else if (bid === 'b-12') {
+                    rules.push({
+                        id: 'rule-body-font',
+                        name: 'Thân bài: Phông Calibri',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'Internet mang lại',
+                        fontFamily: 'Calibri'
+                    });
+                    rules.push({
+                        id: 'rule-body-quote',
+                        name: 'In nghiêng (I) câu khẩu hiệu cuối bài',
+                        category: 'body',
+                        type: 'paragraph_format',
+                        match: 'thông minh',
+                        italic: true
+                    });
+                } else {
+                    rules.push({
+                        id: 'rule-body-default',
+                        name: 'Đoạn văn: Có nội dung văn bản chuẩn',
+                        category: 'body',
+                        type: 'text_contains',
+                        expectedText: 'Internet mang lại'
+                    });
+                }
+            }
+
+            // 3. Image rules
+            const img = mission.image;
+            rules.push({
+                id: 'rule-img-exists',
+                name: 'Có hình ảnh minh họa trong văn bản',
+                category: 'image',
+                type: 'image_exists'
+            });
+            const wrapType = (img && img.name && (img.name.toLowerCase().includes('tight') || (img.desc && img.desc.toLowerCase().includes('tight'))))
+                ? 'tight'
+                : ((img && img.name && (img.name.toLowerCase().includes('top') || (img.desc && img.desc.toLowerCase().includes('top and bottom'))))
+                    ? 'topandbottom'
+                    : 'square');
+            rules.push({
+                id: 'rule-img-wrap',
+                name: (img && img.name) ? `Bố trí ảnh: ${img.name}` : 'Bố trí Layout Options cho hình ảnh',
+                category: 'image',
+                type: 'image_wrap',
+                expectedWrap: wrapType
+            });
+
+            // 4. Bonus rules
+            const bon = mission.bonus;
+            if (bon) {
+                const bonid = bon.id || '';
+                if (bonid === 'bon-1') {
+                    rules.push({
+                        id: 'rule-bonus-border',
+                        name: 'Bonus: Viền ảnh nghệ thuật (Picture Border)',
+                        category: 'bonus',
+                        type: 'picture_border'
+                    });
+                } else if (bonid === 'bon-2') {
+                    rules.push({
+                        id: 'rule-bonus-style',
+                        name: 'Bonus: Khung ảnh bo góc/đổ bóng (Picture Styles)',
+                        category: 'bonus',
+                        type: 'picture_style'
+                    });
+                } else if (bonid === 'bon-3') {
+                    rules.push({
+                        id: 'rule-bonus-bullets',
+                        name: 'Bonus: Dấu đầu dòng tự động (Bullets)',
+                        category: 'bonus',
+                        type: 'has_bullets',
+                        match: 'Bảo mật'
+                    });
+                } else if (bonid === 'bon-4') {
+                    rules.push({
+                        id: 'rule-bonus-highlight',
+                        name: 'Bonus: Bút dạ quang nổi bật (Highlight)',
+                        category: 'bonus',
+                        type: 'highlight',
+                        match: 'thông minh'
+                    });
+                } else if (bonid === 'bon-5') {
+                    rules.push({
+                        id: 'rule-bonus-center',
+                        name: 'Bonus: Căn giữa câu khẩu hiệu cuối bài',
+                        category: 'bonus',
+                        type: 'paragraph_format',
+                        match: 'thông minh',
+                        align: 'center',
+                        fontSize: { min: 14 }
+                    });
+                } else if (bonid === 'bon-6') {
+                    rules.push({
+                        id: 'rule-bonus-indent',
+                        name: 'Bonus: Thụt lề đoạn mở đầu (Tab)',
+                        category: 'bonus',
+                        type: 'first_line_indent',
+                        match: 'Internet mang lại'
+                    });
+                } else if (bonid === 'bon-7') {
+                    rules.push({
+                        id: 'rule-bonus-pagecolor',
+                        name: 'Bonus: Đổi màu nền trang văn bản (Page Color)',
+                        category: 'bonus',
+                        type: 'page_color'
+                    });
+                } else if (bonid === 'bon-8') {
+                    rules.push({
+                        id: 'rule-bonus-italic3',
+                        name: 'Bonus: In nghiêng giải thích 3 nguyên tắc',
+                        category: 'bonus',
+                        type: 'paragraph_format',
+                        match: 'Bảo mật',
+                        italic: true
+                    });
+                } else if (bonid === 'bon-9') {
+                    rules.push({
+                        id: 'rule-bonus-pageborder',
+                        name: 'Bonus: Kẻ viền toàn trang văn bản (Page Borders)',
+                        category: 'bonus',
+                        type: 'page_border'
+                    });
+                } else if (bonid === 'bon-10') {
+                    rules.push({
+                        id: 'rule-bonus-heading-u',
+                        name: 'Bonus: Gạch chân tiêu đề chính (Underline)',
+                        category: 'bonus',
+                        type: 'paragraph_format',
+                        match: 'CẨM NANG AN TOÀN',
+                        underline: true
+                    });
+                } else if (bonid === 'bon-11') {
+                    rules.push({
+                        id: 'rule-bonus-quote-purple',
+                        name: 'Bonus: Màu Tím nổi bật câu khẩu hiệu',
+                        category: 'bonus',
+                        type: 'paragraph_format',
+                        match: 'thông minh',
+                        color: 'PURPLE'
+                    });
+                } else if (bonid === 'bon-12') {
+                    rules.push({
+                        id: 'rule-bonus-quote-bold16',
+                        name: 'Bonus: In đậm & Cỡ 16pt khẩu hiệu cuối',
+                        category: 'bonus',
+                        type: 'paragraph_format',
+                        match: 'thông minh',
+                        bold: true,
+                        fontSize: 16
+                    });
+                } else {
+                    rules.push({
+                        id: 'rule-bonus-generic',
+                        name: `Bonus: ${bon.name || bon.desc}`,
+                        category: 'bonus',
+                        type: 'text_contains',
+                        expectedText: 'thông minh'
+                    });
+                }
+            }
+
+            return rules;
+        }
+
+        /* --- Cập nhật Tiêu Đề Checklist Theo Mảnh Ghép Bộ Đề Đang Thi Đấu --- */
+        function updateGraderChecklistTitles(m) {
+            if (!m) return;
+            const hTitle = document.getElementById('tc-title-heading');
+            if (hTitle) hTitle.textContent = `🅰️ Tiêu đề: ${m.heading ? (m.heading.name || m.heading.desc) : 'Định dạng Tiêu đề'}`;
+
+            const bTitle = document.getElementById('tc-title-body');
+            if (bTitle) bTitle.textContent = `📄 Đoạn văn: ${m.body ? (m.body.name || m.body.desc) : 'Định dạng Đoạn văn'}`;
+
+            const iTitle = document.getElementById('tc-title-image');
+            if (iTitle) iTitle.textContent = `🖼️ Hình ảnh: ${m.image ? (m.image.name || m.image.desc) : 'Bố trí ảnh Square'}`;
+
+            const bonRow = document.getElementById('tc-row-bonus');
+            const bonTitle = document.getElementById('tc-title-bonus');
+            if (m.bonus) {
+                if (bonRow) bonRow.style.display = 'flex';
+                if (bonTitle) bonTitle.textContent = `⭐ Thử thách Bonus (+50 Xu): ${m.bonus.name || m.bonus.desc}`;
+            } else {
+                if (bonRow) bonRow.style.display = 'none';
+            }
+        }
+
+        /* --- Xử Lý Giáo Viên Sửa Dấu Tick Tiêu Chí Máy Chấm --- */
+        function onTcCheckboxChange(cat) {
+            const chk = document.getElementById(`tc-check-${cat}`);
+            const card = document.getElementById(`tc-card-${cat}`) || (cat === 'bonus' ? document.getElementById('tc-row-bonus') : null);
+            const badge = document.getElementById(`tc-badge-${cat}`);
+            const msg = document.getElementById(`tc-msg-${cat}`);
+
+            if (chk && card && badge) {
+                if (chk.checked) {
+                    card.className = 'tc-item tc-pass';
+                    badge.className = 'tc-badge pass';
+                    badge.textContent = 'ĐẠT ✓';
+                    if (msg) {
+                        msg.textContent = '✓ Tiêu chí được công nhận đạt';
+                        msg.style.color = '#34d399';
+                    }
+                } else {
+                    card.className = 'tc-item tc-fail';
+                    badge.className = 'tc-badge fail';
+                    badge.textContent = 'CHƯA ĐẠT ✗';
+                    if (msg) {
+                        msg.textContent = '✗ Tiêu chí chưa đạt';
+                        msg.style.color = '#f87171';
+                    }
+                }
+            }
+
+            const awardScore = recalculateAwardScore();
+            if (window.toast) {
+                window.toast(`✏️ Đã chỉnh sửa tiêu chí! Điểm mới: ${awardScore} Xu`, 1800, 'var(--gold)');
+            }
+            if (window.AudioSys && AudioSys.playTick) AudioSys.playTick();
+        }
+
+        /* --- Chạy Máy Chấm Điểm Bài Nộp (.docx) --- */
+        async function runCrossAutoGrader() {
+            if (!uploadedCrossFile) {
+                if (window.toast) {
+                    window.toast('⚠️ Vui lòng nộp hoặc kéo thả tệp .docx vào khung trước khi chạy máy chấm!', 3000, 'var(--coral)');
+                } else {
+                    alert('Vui lòng nộp hoặc kéo thả tệp .docx vào khung trước khi chạy máy chấm!');
+                }
+                AudioSys.playFail();
+                return;
+            }
+
+            // DIRECTIVE 4: KIỂM TRA 100% CÁC TỔ ĐÁNH GIÁ CHÉO
+            const otherTeams = teams.filter(t => !t.isDemon && t.id !== crossCurrentTeamId);
+            const missingVotes = otherTeams.filter(t => !crossPeerVotes[t.id]);
+            if (missingVotes.length > 0) {
+                const missingNames = missingVotes.map(t => t.name).join(', ');
+                if (window.toast) {
+                    window.toast(`⚠️ Còn ${missingNames} chưa đánh giá chéo! Vui lòng chọn kết quả cho tất cả các tổ trước khi chấm.`, 3500, 'var(--coral)');
+                }
+                missingVotes.forEach(t => {
+                    const row = document.getElementById(`pv-row-${t.id}`);
+                    if (row) {
+                        row.classList.add('shake-error');
+                        setTimeout(() => row.classList.remove('shake-error'), 1200);
+                    }
+                });
+                AudioSys.playFail();
+                return;
+            }
+
+            updateGraderChecklistTitles(crossPickedMission);
+
+            const rules = buildRulesForMission(crossPickedMission);
+            const result = await window.DocxGrader.gradeFile(uploadedCrossFile, rules);
+
+            // Tách kết quả theo từng danh mục
+            const headingDetails = result.details.filter(d => {
+                const r = rules.find(rule => rule.id === d.id);
+                return r && r.category === 'heading';
+            });
+            const bodyDetails = result.details.filter(d => {
+                const r = rules.find(rule => rule.id === d.id);
+                return r && r.category === 'body';
+            });
+            const imageDetails = result.details.filter(d => {
+                const r = rules.find(rule => rule.id === d.id);
+                return r && r.category === 'image';
+            });
+            const bonusDetails = result.details.filter(d => {
+                const r = rules.find(rule => rule.id === d.id);
+                return r && r.category === 'bonus';
+            });
+
+            // Cập nhật từng tiêu chí trực tiếp bằng dấu tick của máy chấm
+            const updateCategoryUI = (cat, details) => {
+                const chk = document.getElementById(`tc-check-${cat}`);
+                const card = document.getElementById(`tc-card-${cat}`) || (cat === 'bonus' ? document.getElementById('tc-row-bonus') : null);
+                const badge = document.getElementById(`tc-badge-${cat}`);
+                const msg = document.getElementById(`tc-msg-${cat}`);
+                if (!chk || !card || !badge) return;
+
+                if (details.length === 0) return;
+
+                const allPassed = details.every(d => d.passed);
+                chk.checked = allPassed;
+
+                if (allPassed) {
+                    card.className = 'tc-item tc-pass';
+                    badge.className = 'tc-badge pass';
+                    badge.textContent = 'ĐẠT ✓';
+                    if (msg) {
+                        msg.textContent = `✓ ${details.map(d => d.message).join('; ')}`;
+                        msg.style.color = '#34d399';
+                    }
+                } else {
+                    card.className = 'tc-item tc-fail';
+                    badge.className = 'tc-badge fail';
+                    badge.textContent = 'CHƯA ĐẠT ✗';
+                    const failed = details.filter(d => !d.passed);
+                    if (msg) {
+                        msg.textContent = `✗ ${failed.map(d => d.message).join('; ')}`;
+                        msg.style.color = '#f87171';
+                    }
+                }
+            };
+
+            updateCategoryUI('heading', headingDetails);
+            updateCategoryUI('body', bodyDetails);
+            updateCategoryUI('image', imageDetails);
+            if (crossPickedMission && crossPickedMission.bonus) {
+                updateCategoryUI('bonus', bonusDetails);
+            }
+
+            // Cập nhật tóm tắt máy chấm
+            const summaryEl = document.getElementById('tc-status-summary');
+            if (summaryEl) {
+                if (result.pass) {
+                    summaryEl.innerHTML = `<span style="color:#34d399; font-weight:800;">🎉 Máy chấm: ĐẠT 100% TIÊU CHÍ (Có thể sửa dấu tick nếu cần)</span>`;
+                } else {
+                    summaryEl.innerHTML = `<span style="color:#f87171; font-weight:800;">⚠️ Máy chấm: Có tiêu chí chưa đạt (Bấm vào ô để sửa nếu máy chấm nhầm)</span>`;
+                }
+            }
+
+            recalculateAwardScore();
+
+            if (result.pass) {
+                AudioSys.playWin();
+                if (window.toast) {
+                    window.toast(`🎉 Máy chấm: Bài làm đạt 100%! Thầy/Cô kiểm tra lại dấu tick và bấm Xác nhận cộng điểm.`, 3200, 'var(--mint)');
+                }
+            } else {
+                AudioSys.playFail();
+                if (window.toast) {
+                    window.toast(`⚠️ Máy chấm: Phát hiện tiêu chí chưa đạt! Thầy/Cô có thể bấm vào ô để sửa nếu máy chấm nhầm.`, 3500, 'var(--coral)');
+                }
+            }
+        }
+
         function finishCrossBattle() {
             if (crossTimerInterval) {
                 clearInterval(crossTimerInterval);
@@ -4504,25 +5466,51 @@
             }
             crossStatus = 'finished';
             AudioSys.playBeep();
-            document.getElementById('btn-finish-battle').style.display = 'none';
+            const finishBtn = document.getElementById('btn-finish-battle');
+            if (finishBtn) finishBtn.style.display = 'none';
 
-            // Reset các checkbox nghiệm thu về mặc định
-            const chkH = document.getElementById('tc-check-heading');
-            const chkB = document.getElementById('tc-check-body');
-            const chkI = document.getElementById('tc-check-image');
+            // Thiết lập tiêu chí và cập nhật tiêu đề
+            updateGraderChecklistTitles(crossPickedMission);
+
+            ['heading', 'body', 'image'].forEach(cat => {
+                const chk = document.getElementById(`tc-check-${cat}`);
+                const card = document.getElementById(`tc-card-${cat}`);
+                const badge = document.getElementById(`tc-badge-${cat}`);
+                const msg = document.getElementById(`tc-msg-${cat}`);
+                if (chk) chk.checked = true;
+                if (card) card.className = 'tc-item tc-pass';
+                if (badge) {
+                    badge.className = 'tc-badge pass';
+                    badge.textContent = 'ĐẠT ✓';
+                }
+                if (msg) {
+                    msg.textContent = '✓ Nghiệm thu đạt tiêu chuẩn';
+                    msg.style.color = '#34d399';
+                }
+            });
+
             const chkBon = document.getElementById('tc-check-bonus');
-            if (chkH) chkH.checked = true;
-            if (chkB) chkB.checked = true;
-            if (chkI) chkI.checked = true;
+            const cardBon = document.getElementById('tc-row-bonus');
+            const badgeBon = document.getElementById('tc-badge-bonus');
+            const msgBon = document.getElementById('tc-msg-bonus');
             if (chkBon) chkBon.checked = false;
+            if (cardBon) cardBon.className = 'tc-item';
+            if (badgeBon) {
+                badgeBon.className = 'tc-badge';
+                badgeBon.textContent = 'TÙY CHỌN';
+            }
+            if (msgBon) {
+                msgBon.textContent = 'Thử thách điểm thưởng thêm';
+                msgBon.style.color = '#94a3b8';
+            }
+
+            const summaryEl = document.getElementById('tc-status-summary');
+            if (summaryEl) summaryEl.innerHTML = '(Bấm vào ô để sửa dấu tick nếu cần)';
 
             const gradingBox = document.getElementById('cross-grading-box');
             if (gradingBox) gradingBox.style.display = 'block';
 
             renderPeerAssessmentGrid();
-
-            const bonusRow = document.getElementById('tc-row-bonus');
-            if (bonusRow) bonusRow.style.display = (crossPickedMission && crossPickedMission.bonus) ? 'flex' : 'none';
 
             recalculateAwardScore();
         }
@@ -4535,7 +5523,7 @@
 
             grid.innerHTML = otherTeams.map(t => {
                 return `
-                    <div class="peer-vote-row">
+                    <div class="peer-vote-row" id="pv-row-${t.id}">
                         <span>${t.name}:</span>
                         <div style="display:flex; gap:6px;">
                             <button type="button" class="btn-vote-tag pass" id="pv-${t.id}-pass" onclick="setPeerVote(${t.id}, 'PASS')">Đoán ĐẠT ✅</button>
@@ -4562,14 +5550,22 @@
             if (document.getElementById('tc-check-image').checked) checks++;
 
             const rate = checks / 3;
-            let finalScore = Math.round(crossSpeedScore * rate);
+            const baseScore = Math.round(crossSpeedScore * rate);
+            let bonusScore = 0;
 
             if (crossPickedMission && crossPickedMission.bonus && document.getElementById('tc-check-bonus').checked) {
-                finalScore += 50;
+                bonusScore = 50;
             }
+            const finalScore = baseScore + bonusScore;
 
             const disp = document.getElementById('final-award-display');
-            if (disp) disp.textContent = `${finalScore} Xu (${Math.round(rate * 100)}% tiêu chí cốt lõi)`;
+            if (disp) {
+                if (bonusScore > 0) {
+                    disp.textContent = `${finalScore} Xu (Tốc độ: ${crossSpeedScore} Xu × ${Math.round(rate * 100)}% + ${bonusScore} Xu Bonus)`;
+                } else {
+                    disp.textContent = `${finalScore} Xu (Tốc độ: ${crossSpeedScore} Xu × ${Math.round(rate * 100)}% cốt lõi)`;
+                }
+            }
             return finalScore;
         }
 
@@ -4579,9 +5575,17 @@
             const otherTeams = teams.filter(t => !t.isDemon && t.id !== crossCurrentTeamId);
             const missingVotes = otherTeams.filter(t => !crossPeerVotes[t.id]);
             if (missingVotes.length > 0) {
+                const missingNames = missingVotes.map(t => t.name).join(', ');
                 if (window.toast) {
-                    window.toast(`⚠️ Còn ${missingVotes.map(t => t.name).join(', ')} chưa đánh giá chéo! Vui lòng chọn kết quả cho tất cả các tổ trước khi chấm.`, 3000, 'var(--coral)');
+                    window.toast(`⚠️ Còn ${missingNames} chưa đánh giá chéo! Vui lòng chọn kết quả cho tất cả các tổ trước khi chấm.`, 3000, 'var(--coral)');
                 }
+                missingVotes.forEach(t => {
+                    const row = document.getElementById(`pv-row-${t.id}`);
+                    if (row) {
+                        row.classList.add('shake-error');
+                        setTimeout(() => row.classList.remove('shake-error'), 1200);
+                    }
+                });
                 AudioSys.playFail();
                 return;
             }
@@ -4662,6 +5666,8 @@
             saveLocalStorage();
 
             document.getElementById('cross-grading-box').style.display = 'none';
+            const dropContainer = document.getElementById('cross-dropzone-container');
+            if (dropContainer) dropContainer.style.display = 'none';
             document.getElementById('btn-spin-roulette').disabled = false;
         }
 

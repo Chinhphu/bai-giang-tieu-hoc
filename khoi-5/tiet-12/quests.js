@@ -137,6 +137,60 @@ window.QUESTS_DATA = {
         icon: "💎",
         color: "#ef4444",
         desc: "Tiêu đề: Phông Calibri, Cỡ 22pt, In đậm (B) + In nghiêng (I), Màu Đỏ sẫm (Dark Red), Căn giữa (Center)"
+      },
+      {
+        id: "h-7",
+        category: "heading",
+        categoryLabel: "Tiêu đề",
+        name: "Tahoma 18 Đỏ Đậm Giữa",
+        icon: "📕",
+        color: "#ef4444",
+        desc: "Tiêu đề: Phông Tahoma, Cỡ 18pt, In đậm (B), Màu Đỏ (Red), Căn giữa (Center)"
+      },
+      {
+        id: "h-8",
+        category: "heading",
+        categoryLabel: "Tiêu đề",
+        name: "Segoe 20 Xanh Dương Đậm Giữa",
+        icon: "📘",
+        color: "#ef4444",
+        desc: "Tiêu đề: Phông Segoe UI, Cỡ 20pt, In đậm (B), Màu Xanh dương (Blue), Căn giữa (Center)"
+      },
+      {
+        id: "h-9",
+        category: "heading",
+        categoryLabel: "Tiêu đề",
+        name: "Arial 22 Tím Đậm Nghiêng",
+        icon: "🔮",
+        color: "#ef4444",
+        desc: "Tiêu đề: Phông Arial, Cỡ 22pt, In đậm (B) + In nghiêng (I), Màu Tím (Purple), Căn giữa (Center)"
+      },
+      {
+        id: "h-10",
+        category: "heading",
+        categoryLabel: "Tiêu đề",
+        name: "Times 18 Xanh Lá Đậm Gạch Chân",
+        icon: "📗",
+        color: "#ef4444",
+        desc: "Tiêu đề: Phông Times New Roman, Cỡ 18pt, In đậm (B) + Gạch chân (U), Màu Xanh lá (Green), Căn giữa (Center)"
+      },
+      {
+        id: "h-11",
+        category: "heading",
+        categoryLabel: "Tiêu đề",
+        name: "Calibri 20 Cam Đậm Giữa",
+        icon: "📙",
+        color: "#ef4444",
+        desc: "Tiêu đề: Phông Calibri, Cỡ 20pt, In đậm (B), Màu Cam (Orange), Căn giữa (Center)"
+      },
+      {
+        id: "h-12",
+        category: "heading",
+        categoryLabel: "Tiêu đề",
+        name: "Verdana 20 Đỏ Đậm Gạch Chân",
+        icon: "🎯",
+        color: "#ef4444",
+        desc: "Tiêu đề: Phông Verdana, Cỡ 20pt, In đậm (B) + Gạch chân (U), Màu Đỏ (Red), Căn giữa (Center)"
       }
     ],
 
@@ -195,6 +249,60 @@ window.QUESTS_DATA = {
         icon: "📚",
         color: "#f59e0b",
         desc: "Thân bài: Phông Times New Roman, Cỡ 14pt, Căn đều 2 bên; In đậm (B) số 1-2-3 và In nghiêng (I) câu cuối"
+      },
+      {
+        id: "b-7",
+        category: "body",
+        categoryLabel: "Đoạn văn",
+        name: "Arial 13 & Căn Đều + Gạch Chân Khẩu Hiệu",
+        icon: "📰",
+        color: "#f59e0b",
+        desc: "Thân bài: Phông Arial, Cỡ 13pt, Căn đều 2 bên (Justify); Gạch chân (U) câu khẩu hiệu cuối bài"
+      },
+      {
+        id: "b-8",
+        category: "body",
+        categoryLabel: "Đoạn văn",
+        name: "Calibri 12 & Màu Đỏ Câu Khẩu Hiệu",
+        icon: "🏷️",
+        color: "#f59e0b",
+        desc: "Thân bài: Phông Calibri, Cỡ 12pt, Căn đều 2 bên (Justify); Đổi màu Đỏ (Red) cho câu khẩu hiệu cuối"
+      },
+      {
+        id: "b-9",
+        category: "body",
+        categoryLabel: "Đoạn văn",
+        name: "Tahoma 13 & Đậm Nghiêng 3 Nguyên Tắc",
+        icon: "📌",
+        color: "#f59e0b",
+        desc: "Thân bài: Phông Tahoma, Cỡ 13pt, Căn đều 2 bên (Justify); In đậm (B) + In nghiêng (I) 3 nguyên tắc 1-2-3"
+      },
+      {
+        id: "b-10",
+        category: "body",
+        categoryLabel: "Đoạn văn",
+        name: "Times 12 & Màu Tím Câu Khẩu Hiệu",
+        icon: "🪶",
+        color: "#f59e0b",
+        desc: "Thân bài: Phông Times New Roman, Cỡ 12pt, Căn đều 2 bên; Đổi màu Tím (Purple) cho câu khẩu hiệu cuối"
+      },
+      {
+        id: "b-11",
+        category: "body",
+        categoryLabel: "Đoạn văn",
+        name: "Verdana 13 & Gạch Chân Số 1-2-3",
+        icon: "🔢",
+        color: "#f59e0b",
+        desc: "Thân bài: Phông Verdana, Cỡ 13pt, Căn trái; Gạch chân (U) các số 1., 2., 3. đầu dòng nguyên tắc"
+      },
+      {
+        id: "b-12",
+        category: "body",
+        categoryLabel: "Đoạn văn",
+        name: "Calibri 14 & Căn Đều + Nghiêng Khẩu Hiệu",
+        icon: "🖋️",
+        color: "#f59e0b",
+        desc: "Thân bài: Phông Calibri, Cỡ 14pt, Căn đều 2 bên; In nghiêng (I) câu khẩu hiệu cuối bài"
       }
     ],
 
@@ -253,6 +361,60 @@ window.QUESTS_DATA = {
         icon: "🖼️",
         color: "#10b981",
         desc: "Hình ảnh: Chọn Layout Options → Tight (chữ ôm sát mép ảnh), đặt sát LỀ TRÁI ngang hàng với mục 1, 2, 3"
+      },
+      {
+        id: "img-7",
+        category: "image",
+        categoryLabel: "Hình ảnh",
+        name: "Ảnh Square Đặt Dưới Đoạn Mở Đầu",
+        icon: "🖼️",
+        color: "#10b981",
+        desc: "Hình ảnh: Chọn Layout Options → Square, kéo đặt ngay dưới đoạn mở đầu bên phải"
+      },
+      {
+        id: "img-8",
+        category: "image",
+        categoryLabel: "Hình ảnh",
+        name: "Ảnh Tight Đặt Cạnh Câu Khẩu Hiệu",
+        icon: "🖼️",
+        color: "#10b981",
+        desc: "Hình ảnh: Chọn Layout Options → Tight, kéo đặt bên cạnh câu khẩu hiệu cuối bài"
+      },
+      {
+        id: "img-9",
+        category: "image",
+        categoryLabel: "Hình ảnh",
+        name: "Ảnh Square Ôm Sát Góc Phải Mục 3",
+        icon: "🖼️",
+        color: "#10b981",
+        desc: "Hình ảnh: Chọn Layout Options → Square, kéo đặt ở góc phải ngang hàng với nguyên tắc 3"
+      },
+      {
+        id: "img-10",
+        category: "image",
+        categoryLabel: "Hình ảnh",
+        name: "Ảnh Top & Bottom Dưới Tiêu Đề",
+        icon: "🖼️",
+        color: "#10b981",
+        desc: "Hình ảnh: Chọn Layout Options → Top and Bottom, đặt ngay dưới tiêu đề chính"
+      },
+      {
+        id: "img-11",
+        category: "image",
+        categoryLabel: "Hình ảnh",
+        name: "Ảnh Square Sát Lề Trái Đoạn Mở Đầu",
+        icon: "🖼️",
+        color: "#10b981",
+        desc: "Hình ảnh: Chọn Layout Options → Square, đặt sát lề trái của đoạn mở đầu"
+      },
+      {
+        id: "img-12",
+        category: "image",
+        categoryLabel: "Hình ảnh",
+        name: "Ảnh Tight Đặt Giữa Bài Viết",
+        icon: "🖼️",
+        color: "#10b981",
+        desc: "Hình ảnh: Chọn Layout Options → Tight, thu nhỏ ảnh và đặt vào giữa các dòng văn bản"
       }
     ],
 
@@ -311,6 +473,60 @@ window.QUESTS_DATA = {
         icon: "⭐",
         color: "#8b5cf6",
         desc: "Thưởng +50 Xu: Đặt con trỏ ở đầu đoạn văn mở đầu → Nhấn phím Tab để thụt đầu dòng gọn gàng chuẩn văn bản"
+      },
+      {
+        id: "bon-7",
+        category: "bonus",
+        categoryLabel: "Bonus",
+        name: "Màu Nền Trang Văn Bản (Page Color)",
+        icon: "🎨",
+        color: "#8b5cf6",
+        desc: "Thưởng +50 Xu: Thẻ Design → Nút Page Color → Chọn 1 màu nền nhạt cho trang văn bản"
+      },
+      {
+        id: "bon-8",
+        category: "bonus",
+        categoryLabel: "Bonus",
+        name: "In Nghiêng 3 Lời Khuyên (Italic)",
+        icon: "✨",
+        color: "#8b5cf6",
+        desc: "Thưởng +50 Xu: Bôi đen và In nghiêng (I) toàn bộ câu chữ giải thích của 3 nguyên tắc"
+      },
+      {
+        id: "bon-9",
+        category: "bonus",
+        categoryLabel: "Bonus",
+        name: "Kẻ Viền Toàn Trang (Page Borders)",
+        icon: "🖼️",
+        color: "#8b5cf6",
+        desc: "Thưởng +50 Xu: Thẻ Design → Page Borders → Chọn khung viền Box bao quanh toàn bộ trang"
+      },
+      {
+        id: "bon-10",
+        category: "bonus",
+        categoryLabel: "Bonus",
+        name: "Gạch Chân Tiêu Đề Chính (Underline)",
+        icon: "✍️",
+        color: "#8b5cf6",
+        desc: "Thưởng +50 Xu: Bôi đen toàn bộ dòng tiêu đề chính → Nhấp nút Gạch chân (U)"
+      },
+      {
+        id: "bon-11",
+        category: "bonus",
+        categoryLabel: "Bonus",
+        name: "Màu Tím Nổi Bật Cho Khẩu Hiệu",
+        icon: "💜",
+        color: "#8b5cf6",
+        desc: "Thưởng +50 Xu: Bôi đen câu khẩu hiệu cuối bài → Đổi màu chữ sang màu Tím (Purple)"
+      },
+      {
+        id: "bon-12",
+        category: "bonus",
+        categoryLabel: "Bonus",
+        name: "In Đậm & Cỡ 16pt Khẩu Hiệu Cuối",
+        icon: "🔥",
+        color: "#8b5cf6",
+        desc: "Thưởng +50 Xu: Bôi đen câu khẩu hiệu cuối → In đậm (B) và tăng cỡ chữ lên 16pt"
       }
     ]
   }
