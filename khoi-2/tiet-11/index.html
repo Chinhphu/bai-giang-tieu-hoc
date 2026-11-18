@@ -381,6 +381,13 @@
             transition: all 0.15s ease;
         }
 
+        .letter-slot-box.drag-over {
+            border-color: #0284c7;
+            background: #e0f2fe;
+            transform: scale(1.08);
+            box-shadow: 0 0 0 5px rgba(2, 132, 199, 0.3);
+        }
+
         .letter-slot-box.fixed {
             background: #e0f2fe;
             border: 3.5px solid #0284c7;
@@ -428,7 +435,9 @@
             font-size: 3.2rem;
             font-weight: 900;
             color: #0f172a;
-            cursor: pointer;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
             box-shadow: 0 4px 0 #94a3b8;
             display: flex;
             align-items: center;
@@ -436,16 +445,23 @@
             transition: all 0.12s ease;
         }
 
+        .letter-choice-btn:active {
+            cursor: grabbing;
+            transform: translateY(3px);
+            box-shadow: none;
+        }
+
+        .letter-choice-btn.dragging {
+            opacity: 0.35;
+            transform: scale(0.92);
+            box-shadow: none;
+        }
+
         .letter-choice-btn:hover {
             transform: translateY(-2px);
             border-color: #0284c7;
             color: #0284c7;
             box-shadow: 0 6px 0 #0284c7;
-        }
-
-        .letter-choice-btn:active {
-            transform: translateY(3px);
-            box-shadow: none;
         }
 
         .letter-choice-btn.used {
@@ -515,6 +531,13 @@
             transform: translateX(4px);
         }
 
+        .matching-card.drag-target-hover {
+            border-color: #f59e0b;
+            background: #fefce8;
+            transform: scale(1.04);
+            box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.35);
+        }
+
         .matching-card.selected {
             border-color: #f59e0b;
             background: #fefce8;
@@ -558,15 +581,52 @@
             font-size: 2.1rem;
             font-weight: 900;
             color: #0f172a;
-            cursor: pointer;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
             transition: all 0.15s ease;
             box-shadow: var(--shadow-sm);
+        }
+
+        .matching-word-btn:active {
+            cursor: grabbing;
+        }
+
+        .matching-word-btn.dragging {
+            opacity: 0.35;
+            transform: scale(0.92);
+            box-shadow: none;
         }
 
         .matching-word-btn:hover {
             border-color: #0284c7;
             color: #0284c7;
             transform: translateX(-4px);
+        }
+
+        .matching-word-btn.selected {
+            border-color: #f59e0b;
+            background: #fefce8;
+            color: #b45309;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.25);
+        }
+
+        .matching-word-btn.matched {
+            border-color: #10b981;
+            background: #f0fdf4;
+            color: #15803d;
+            pointer-events: none;
+        }
+
+        .auto-close-pill {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 1.05rem;
+            margin-left: 8px;
+            font-weight: 900;
         }
 
         .matching-word-btn.selected {
@@ -1659,8 +1719,8 @@
                 🎯 Thử thách: Điền chữ cái từ vựng
             </div>
 
-            <button type="button" class="btn-confirm-next-turn" onclick="confirmTurnScore()">
-                <span>🎉</span> XÁC NHẬN CỘNG ĐIỂM & ĐẾN LƯỢT TIẾP THEO ❯
+            <button type="button" class="btn-confirm-next-turn" id="btnConfirmNextTurn" onclick="confirmTurnScore()">
+                <span>🎉</span> XÁC NHẬN CỘNG ĐIỂM • <span class="auto-close-pill" id="autoCloseCountdown">Tự chuyển sau 3s</span> ❯
             </button>
         </div>
     </div>
@@ -1965,11 +2025,21 @@
         function populateStudentSelect() {
             const select = document.getElementById('studentSelectBox');
             if (!select) return;
+
+            const playedNames = new Set(playedHistory.map(h => h.studentName));
             select.innerHTML = '<option value="">-- Mời em lên máy --</option>';
+
             classList.forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s;
-                opt.textContent = s;
+                const hasPlayed = playedNames.has(s);
+                if (hasPlayed) {
+                    opt.textContent = `✅ ${s} (Đã hoàn thành)`;
+                    opt.disabled = true;
+                    opt.style.color = '#94a3b8';
+                } else {
+                    opt.textContent = s;
+                }
                 select.appendChild(opt);
             });
         }
@@ -1990,10 +2060,13 @@
                 return;
             }
 
-            // Ưu tiên các bạn chưa tham gia phát biểu/lên máy
+            // Ưu tiên các bạn chưa tham gia phát biểu/lên máy (đã lên là loại trừ khỏi bể quay)
             const playedNames = new Set(playedHistory.map(h => h.studentName));
             let pool = classList.filter(name => !playedNames.has(name));
-            if (pool.length === 0) pool = [...classList];
+            if (pool.length === 0) {
+                showToast("🎉 Tất cả học sinh trong lớp đều đã được lên máy!");
+                pool = [...classList]; // Nếu tất cả đã xong thì cho phép quay vòng 2
+            }
 
             const picked = pool[Math.floor(Math.random() * pool.length)];
 
@@ -2076,10 +2149,11 @@
         }
 
         /* -------------------------------------------------------------
-           DẠNG 1: HOÀN THÀNH TỪ (MISSING LETTERS) - TỐI GIẢN
+           DẠNG 1: HOÀN THÀNH TỪ (MISSING LETTERS) - KÉO THẢ & CHỌN CHỮ
            ------------------------------------------------------------- */
         let currentWordSlots = [];
         let availableChoiceLetters = [];
+        let draggedChoiceIdx = null;
 
         function renderMissingWordGame(container, quest) {
             currentWordSlots = quest.word.split('').map((char, idx) => {
@@ -2092,6 +2166,7 @@
             });
 
             availableChoiceLetters = [...quest.options].sort(() => 0.5 - Math.random());
+            draggedChoiceIdx = null;
 
             container.innerHTML = `
                 <div class="missing-word-game">
@@ -2113,10 +2188,8 @@
                         ${renderLetterChoicesHtml()}
                     </div>
 
-                    <div>
-                        <button type="button" class="btn-check-word" onclick="checkMissingWordAnswer()">
-                            <span>⚡</span> KIỂM TRA ĐÁP ÁN
-                        </button>
+                    <div style="font-size: 1.15rem; color: #64748b; font-weight: 800; text-align: center; margin-top: 4px;">
+                        💡 Kéo thả chữ cái vào ô trống (hoặc bấm chọn) • Điền đủ sẽ tự động kiểm tra!
                     </div>
                 </div>
             `;
@@ -2129,34 +2202,114 @@
                 if (slot.isFixed) {
                     return `<div class="letter-slot-box fixed">${slot.currentChar}</div>`;
                 } else if (slot.currentChar) {
-                    return `<div class="letter-slot-box filled" onclick="returnLetterFromSlot(${idx})">${slot.currentChar}</div>`;
+                    return `<div class="letter-slot-box filled" onclick="returnLetterFromSlot(${idx})" title="Bấm để trả lại chữ cái">${slot.currentChar}</div>`;
                 } else {
-                    return `<div class="letter-slot-box"></div>`;
+                    return `
+                        <div class="letter-slot-box"
+                             data-slot-idx="${idx}"
+                             ondragover="onSlotDragOver(event)"
+                             ondragleave="onSlotDragLeave(event)"
+                             ondrop="onSlotDrop(event, ${idx})"
+                             title="Kéo thả chữ cái vào đây hoặc bấm chữ ở dưới">
+                        </div>
+                    `;
                 }
             }).join('');
         }
 
         function renderLetterChoicesHtml() {
             return availableChoiceLetters.map((item, idx) => {
-                const usedClass = item.used ? 'used' : '';
+                const isUsed = item && item.used;
+                const usedClass = isUsed ? 'used' : '';
+                const char = typeof item === 'string' ? item : item.char;
                 return `
-                    <button type="button" class="letter-choice-btn ${usedClass}" onclick="pickLetterChoice(${idx})">
-                        ${typeof item === 'string' ? item : item.char}
+                    <button type="button"
+                            class="letter-choice-btn ${usedClass}"
+                            ${isUsed ? 'disabled' : ''}
+                            draggable="${!isUsed}"
+                            ondragstart="onLetterDragStart(event, ${idx})"
+                            ondragend="onLetterDragEnd(event)"
+                            onclick="pickLetterChoice(${idx})"
+                            title="${isUsed ? 'Đã dùng' : 'Kéo thả hoặc bấm để điền'}">
+                        ${char}
                     </button>
                 `;
             }).join('');
         }
 
+        function onLetterDragStart(ev, choiceIdx) {
+            if (!requireStudentSelected()) {
+                ev.preventDefault();
+                return;
+            }
+            draggedChoiceIdx = choiceIdx;
+            const letter = availableChoiceLetters[choiceIdx];
+            const char = typeof letter === 'string' ? letter : letter.char;
+            ev.dataTransfer.setData('text/plain', JSON.stringify({ choiceIdx, char }));
+            ev.dataTransfer.effectAllowed = 'move';
+            if (ev.target) ev.target.classList.add('dragging');
+        }
+
+        function onLetterDragEnd(ev) {
+            draggedChoiceIdx = null;
+            if (ev.target) ev.target.classList.remove('dragging');
+            document.querySelectorAll('.letter-slot-box').forEach(s => s.classList.remove('drag-over'));
+        }
+
+        function onSlotDragOver(ev) {
+            ev.preventDefault();
+            ev.dataTransfer.dropEffect = 'move';
+            if (!ev.currentTarget.classList.contains('fixed') && !ev.currentTarget.classList.contains('filled')) {
+                ev.currentTarget.classList.add('drag-over');
+            }
+        }
+
+        function onSlotDragLeave(ev) {
+            ev.currentTarget.classList.remove('drag-over');
+        }
+
+        function onSlotDrop(ev, slotIdx) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drag-over');
+            if (!requireStudentSelected()) return;
+
+            const slot = currentWordSlots[slotIdx];
+            if (slot.isFixed || slot.currentChar) return;
+
+            let choiceIdx = draggedChoiceIdx;
+            try {
+                const data = JSON.parse(ev.dataTransfer.getData('text/plain'));
+                if (data && data.choiceIdx !== undefined) choiceIdx = data.choiceIdx;
+            } catch (e) {}
+
+            if (choiceIdx === null || choiceIdx === undefined || !availableChoiceLetters[choiceIdx]) return;
+
+            const letter = availableChoiceLetters[choiceIdx];
+            if (letter && letter.used) return;
+            const char = typeof letter === 'string' ? letter : letter.char;
+
+            slot.currentChar = char;
+            slot.fromChoiceIdx = choiceIdx;
+            availableChoiceLetters[choiceIdx] = { char: char, used: true };
+
+            playSound('pop');
+            updateMissingWordDisplay();
+
+            if (currentWordSlots.every(s => s.currentChar !== "")) {
+                checkMissingWordAnswer();
+            }
+        }
+
         function pickLetterChoice(choiceIdx) {
-            // BẮT BUỘC CHỌN HỌC SINH TRƯỚC
             if (!requireStudentSelected()) return;
 
             const letter = availableChoiceLetters[choiceIdx];
+            if (letter && letter.used) return;
             const char = typeof letter === 'string' ? letter : letter.char;
 
             const emptySlotIdx = currentWordSlots.findIndex(s => !s.isFixed && !s.currentChar);
             if (emptySlotIdx === -1) {
-                showToast("⚠️ Đã điền đủ chữ cái! Hãy bấm KIỂM TRA ĐÁP ÁN");
+                showToast("⚠️ Đã điền đủ chữ cái!");
                 return;
             }
 
@@ -2224,12 +2377,13 @@
         }
 
         /* -------------------------------------------------------------
-           DẠNG 2: GHÉP HÌNH VỚI TỪ (MATCHING) - TỐI GIẢN
+           DẠNG 2: GHÉP HÌNH VỚI TỪ (MATCHING) - KÉO THẢ & CHỌN CẶP
            ------------------------------------------------------------- */
         let matchingPairs = [];
         let selectedPic = null;
         let selectedWord = null;
         let matchedCount = 0;
+        let draggedMatchingWord = null;
 
         function renderMatchingGame(container) {
             const list = window.QUESTS_DATA || [];
@@ -2242,12 +2396,19 @@
             selectedPic = null;
             selectedWord = null;
             matchedCount = 0;
+            draggedMatchingWord = null;
 
             container.innerHTML = `
                 <div class="matching-board-game">
                     <div class="matching-col">
                         ${picCards.map(p => `
-                            <div class="matching-card" id="mpic_${p.id}" onclick="onSelectPic('${p.id}', '${p.word}')">
+                            <div class="matching-card"
+                                 id="mpic_${p.id}"
+                                 ondragover="onPicDragOver(event)"
+                                 ondragleave="onPicDragLeave(event)"
+                                 ondrop="onPicDrop(event, '${p.id}', '${p.word}')"
+                                 onclick="onSelectPic('${p.id}', '${p.word}')"
+                                 title="Kéo từ tiếng Anh thả vào đây hoặc bấm chọn">
                                 <div class="matching-card-pic">${p.icon}</div>
                                 <div class="matching-card-text">${p.vietnamese}</div>
                             </div>
@@ -2256,13 +2417,73 @@
 
                     <div class="matching-col">
                         ${wordCards.map(w => `
-                            <div class="matching-word-btn" id="mword_${w.id}" onclick="onSelectWord('${w.id}', '${w.word}')">
+                            <div class="matching-word-btn"
+                                 id="mword_${w.id}"
+                                 draggable="true"
+                                 ondragstart="onWordDragStart(event, '${w.id}', '${w.word}')"
+                                 ondragend="onWordDragEnd(event)"
+                                 onclick="onSelectWord('${w.id}', '${w.word}')"
+                                 title="Kéo sang tranh tương ứng hoặc bấm chọn">
                                 ${w.word}
                             </div>
                         `).join('')}
                     </div>
                 </div>
+
+                <div style="font-size: 1.15rem; color: #64748b; font-weight: 800; text-align: center; margin-top: 10px;">
+                    💡 Kéo từ tiếng Anh thả vào hình tương ứng (hoặc bấm chọn cặp hình & từ)!
+                </div>
             `;
+        }
+
+        function onWordDragStart(ev, wordId, wordText) {
+            if (!requireStudentSelected()) {
+                ev.preventDefault();
+                return;
+            }
+            draggedMatchingWord = { id: wordId, word: wordText };
+            ev.dataTransfer.setData('text/plain', JSON.stringify({ id: wordId, word: wordText }));
+            ev.dataTransfer.effectAllowed = 'move';
+            if (ev.target) ev.target.classList.add('dragging');
+        }
+
+        function onWordDragEnd(ev) {
+            draggedMatchingWord = null;
+            if (ev.target) ev.target.classList.remove('dragging');
+            document.querySelectorAll('.matching-card').forEach(c => c.classList.remove('drag-target-hover'));
+        }
+
+        function onPicDragOver(ev) {
+            ev.preventDefault();
+            ev.dataTransfer.dropEffect = 'move';
+            if (!ev.currentTarget.classList.contains('matched')) {
+                ev.currentTarget.classList.add('drag-target-hover');
+            }
+        }
+
+        function onPicDragLeave(ev) {
+            ev.currentTarget.classList.remove('drag-target-hover');
+        }
+
+        function onPicDrop(ev, picId, picWord) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drag-target-hover');
+            if (!requireStudentSelected()) return;
+
+            if (ev.currentTarget.classList.contains('matched')) return;
+
+            let wordObj = draggedMatchingWord;
+            try {
+                const data = JSON.parse(ev.dataTransfer.getData('text/plain'));
+                if (data && data.id) wordObj = data;
+            } catch (e) {}
+
+            if (!wordObj) return;
+
+            selectedPic = { id: picId, word: picWord };
+            selectedWord = wordObj;
+
+            evaluateMatching();
         }
 
         function onSelectPic(id, word) {
@@ -2296,14 +2517,20 @@
 
                 const pEl = document.getElementById(`mpic_${selectedPic.id}`);
                 const wEl = document.getElementById(`mword_${selectedWord.id}`);
-                pEl.classList.remove('selected');
-                wEl.classList.remove('selected');
-                pEl.classList.add('matched');
-                wEl.classList.add('matched');
+                if (pEl) {
+                    pEl.classList.remove('selected', 'drag-target-hover');
+                    pEl.classList.add('matched');
+                }
+                if (wEl) {
+                    wEl.classList.remove('selected', 'dragging');
+                    wEl.classList.add('matched');
+                    wEl.setAttribute('draggable', 'false');
+                }
 
                 matchedCount++;
                 selectedPic = null;
                 selectedWord = null;
+                draggedMatchingWord = null;
 
                 if (matchedCount >= matchingPairs.length) {
                     launchConfetti(1500);
@@ -2311,13 +2538,22 @@
                 }
             } else {
                 playSound('wrong');
-                showToast("❌ Chưa đúng cặp! Hãy chọn lại nhé!");
+                showToast("❌ Chưa đúng cặp! Hãy kéo hoặc chọn lại nhé!");
                 const pEl = document.getElementById(`mpic_${selectedPic.id}`);
                 const wEl = document.getElementById(`mword_${selectedWord.id}`);
-                if (pEl) pEl.classList.remove('selected');
-                if (wEl) wEl.classList.remove('selected');
+                if (pEl) {
+                    pEl.classList.remove('selected', 'drag-target-hover');
+                    pEl.style.animation = 'shake 0.35s ease';
+                    setTimeout(() => { pEl.style.animation = ''; }, 400);
+                }
+                if (wEl) {
+                    wEl.classList.remove('selected');
+                    wEl.style.animation = 'shake 0.35s ease';
+                    setTimeout(() => { wEl.style.animation = ''; }, 400);
+                }
                 selectedPic = null;
                 selectedWord = null;
+                draggedMatchingWord = null;
             }
         }
 
@@ -2369,9 +2605,24 @@
         }
 
         /* =========================================================================
-           7. POP-UP KẾT QUẢ TỐI GIẢN & CỘNG ĐIỂM THEO LƯỢT (CHUẨN TT27)
+           7. POP-UP KẾT QUẢ TỐI GIẢN & TỰ ĐỘNG ĐÓNG SAU 3S (CHUẨN TT27)
            ========================================================================= */
+        let resultAutoCloseTimer = null;
+        let resultCountdownInterval = null;
+
+        function clearResultAutoClose() {
+            if (resultAutoCloseTimer) {
+                clearTimeout(resultAutoCloseTimer);
+                resultAutoCloseTimer = null;
+            }
+            if (resultCountdownInterval) {
+                clearInterval(resultCountdownInterval);
+                resultCountdownInterval = null;
+            }
+        }
+
         function openMinimalResultModal() {
+            clearResultAutoClose();
             const activeTeam = teams[activeTeamIndex];
             const studentName = activeStudentName || "Bạn Dũng Sĩ";
 
@@ -2399,10 +2650,29 @@
             const tt27El = document.getElementById('modalTt27Assessment');
             if (tt27El) tt27El.textContent = `Mức T (Tốt)`;
 
+            let countdownSec = 3;
+            const countdownEl = document.getElementById('autoCloseCountdown');
+            if (countdownEl) countdownEl.textContent = `${countdownSec}s`;
+
             document.getElementById('scoringModalBackdrop').classList.add('active');
+
+            // Đếm ngược 3 giây tự động đóng và chuyển lượt
+            resultCountdownInterval = setInterval(() => {
+                countdownSec--;
+                if (countdownEl) countdownEl.textContent = `${Math.max(0, countdownSec)}s`;
+                if (countdownSec <= 0) {
+                    clearInterval(resultCountdownInterval);
+                    resultCountdownInterval = null;
+                }
+            }, 1000);
+
+            resultAutoCloseTimer = setTimeout(() => {
+                confirmTurnScore();
+            }, 3000);
         }
 
         function confirmTurnScore() {
+            clearResultAutoClose();
             const activeTeam = teams[activeTeamIndex];
             const studentName = activeStudentName || "Bạn Dũng Sĩ";
             const elapsedSec = Math.max(3, Math.round((Date.now() - questionStartTime) / 1000));
@@ -2439,10 +2709,11 @@
 
             triggerScoreFloat(activeTeam.id, 100);
 
-            // Reset ô chọn học sinh để mời bạn tiếp theo
+            // Reset ô chọn học sinh để mời bạn tiếp theo & cập nhật dropdown để đánh dấu/disable bạn vừa hoàn thành
             const selectBox = document.getElementById('studentSelectBox');
             if (selectBox) selectBox.value = "";
             activeStudentName = "";
+            populateStudentSelect();
 
             // Chuyển lượt sang tổ tiếp theo: Tổ 1 ➔ Tổ 2 ➔ Tổ 3 ➔ Tổ 4 ➔ Tổ 1
             activeTeamIndex = (activeTeamIndex + 1) % teams.length;
@@ -2470,23 +2741,28 @@
         }
 
         /* =========================================================================
-           8. BẢNG ĐIỂM, BỤC VINH DANH TỔ & BẢNG VÀNG CÁ NHÂN
+           8. BẢNG ĐIỂM CỐ ĐỊNH THỨ TỰ TỔ TRÊN SIDEBAR (KHÔNG NHẢY VỊ TRÍ) & VINH DANH
            ========================================================================= */
         function renderScoreboard() {
             const container = document.getElementById('teamsListContainer');
             if (!container) return;
 
+            // Tính bảng xếp hạng và huy chương chuẩn đồng hạng
             const ranked = window.calculateRankings(teams);
+            const rankMap = {};
+            ranked.forEach(r => { rankMap[r.id] = r; });
 
-            container.innerHTML = ranked.map(t => {
+            // RENDER CỐ ĐỊNH THỨ TỰ TỔ: Tổ 1 ➔ Tổ 2 ➔ Tổ 3 ➔ Tổ 4 (Không bao giờ nhảy vị trí gây rối mắt học sinh)
+            container.innerHTML = teams.map(t => {
+                const rInfo = rankMap[t.id] || t;
                 const isActive = (teams[activeTeamIndex] && teams[activeTeamIndex].id === t.id);
                 return `
                     <div class="team-card-row ${isActive ? 'active-turn' : ''}" id="teamRow_${t.id}" onclick="switchTeamTurn(${t.id})">
                         <div class="team-info-left">
-                            <span class="team-medal-badge">${t.medal}</span>
+                            <span class="team-medal-badge">${rInfo.medal}</span>
                             <div class="team-name-col">
                                 <span class="team-name-text" style="color: ${t.color}">${t.name}</span>
-                                ${isActive ? '<span class="team-turn-indicator">👉 ĐANG TỚI LƯỢT</span>' : `<span style="font-size: 0.95rem; color:#64748b; font-weight:800;">${t.badgeText}</span>`}
+                                ${isActive ? '<span class="team-turn-indicator">👉 ĐANG TỚI LƯỢT</span>' : `<span style="font-size: 0.95rem; color:#64748b; font-weight:800;">${rInfo.badgeText}</span>`}
                             </div>
                         </div>
                         <div class="team-score-right">
