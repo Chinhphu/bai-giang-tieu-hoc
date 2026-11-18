@@ -23,7 +23,17 @@ window.ARENA_CONFIG = {
     // 4. Niên khóa hiện tại để nạp dữ liệu học sinh
     SCHOOL_YEAR: '2026_2027',
 
-    // 5. Danh mục các minigames trong Đấu Trường
+    // 5. Quy chế thưởng Sao Danh Vọng (Arena Stars ⭐) cho Bảng Vàng Tổng Hợp Toàn Trường
+    STAR_REWARDS: {
+        TOP_1: 100,      // Quán quân mỗi game: +100 ⭐
+        TOP_2: 80,       // Á quân: +80 ⭐
+        TOP_3: 60,       // Hạng ba: +60 ⭐
+        TOP_4_5: 40,     // Top 4 - 5: +40 ⭐
+        TOP_6_10: 25,    // Top 6 - 10: +25 ⭐
+        PARTICIPATION: 10 // Hoàn thành game: +10 ⭐
+    },
+
+    // 6. Danh mục các minigames trong Đấu Trường
     GAMES: {
         'speed_click': {
             id: 'speed_click',
@@ -32,6 +42,22 @@ window.ARENA_CONFIG = {
             unit: 'điểm',
             higherIsBetter: true,
             description: 'Thử thách phản xạ và tốc độ ngón tay trong 15 giây đếm ngược!'
+        },
+        'typing_race': {
+            id: 'typing_race',
+            name: 'Đua Gõ Phím Siêu Tốc',
+            icon: '⌨️',
+            unit: 'WPM',
+            higherIsBetter: true,
+            description: 'Thử thách gõ 10 ngón đúng phím cơ sở và tốc độ cao!'
+        },
+        'memory_card': {
+            id: 'memory_card',
+            name: 'Trí Nhớ Siêu Phàm',
+            icon: '🧠',
+            unit: 'điểm',
+            higherIsBetter: true,
+            description: 'Lật thẻ tìm cặp thiết bị phần cứng trong thời gian ngắn nhất!'
         }
     }
 };

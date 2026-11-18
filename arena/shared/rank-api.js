@@ -147,8 +147,12 @@
     /**
      * Dữ liệu mẫu khởi đầu (seed) phòng khi chưa cấu hình Google Sheets CSV
      */
-    function getSeedLeaderboard(gameId) {
-        return [
+    /**
+     * Dữ liệu mẫu khởi đầu (seed) phong phú qua nhiều minigames
+     */
+    function getSeedLeaderboard(gameId = null) {
+        const allSeeds = [
+            // Game 1: speed_click (Bấm Chuột Siêu Tốc - Điểm số)
             { ten: 'Lâm Khánh Băng', lop: '2/2', khoi: 2, gameId: 'speed_click', score: 135, timestamp: Date.now() - 3600000 },
             { ten: 'Trương Minh Bách', lop: '2/2', khoi: 2, gameId: 'speed_click', score: 128, timestamp: Date.now() - 7200000 },
             { ten: 'Nguyễn Hoàng Bách (1)', lop: '3/2', khoi: 3, gameId: 'speed_click', score: 122, timestamp: Date.now() - 10800000 },
@@ -156,8 +160,47 @@
             { ten: 'Nguyễn Tuệ Nhi (1)', lop: '4/3', khoi: 4, gameId: 'speed_click', score: 110, timestamp: Date.now() - 18000000 },
             { ten: 'Lê Nguyễn Thảo An', lop: '1/6', khoi: 1, gameId: 'speed_click', score: 98, timestamp: Date.now() - 21600000 },
             { ten: 'Phan Minh Khôi', lop: '2/5', khoi: 2, gameId: 'speed_click', score: 92, timestamp: Date.now() - 25200000 },
-            { ten: 'Trần Gia Hân', lop: '2/2', khoi: 2, gameId: 'speed_click', score: 88, timestamp: Date.now() - 28800000 }
+            { ten: 'Trần Gia Hân', lop: '2/2', khoi: 2, gameId: 'speed_click', score: 88, timestamp: Date.now() - 28800000 },
+
+            // Game 2: typing_race (Đua Gõ Phím - WPM)
+            { ten: 'Nguyễn Tuệ Nhi (1)', lop: '4/3', khoi: 4, gameId: 'typing_race', score: 52, timestamp: Date.now() - 3000000 },
+            { ten: 'Trương Minh Bách', lop: '2/2', khoi: 2, gameId: 'typing_race', score: 45, timestamp: Date.now() - 6000000 },
+            { ten: 'Nguyễn Hoàng Bách (1)', lop: '3/2', khoi: 3, gameId: 'typing_race', score: 40, timestamp: Date.now() - 9000000 },
+            { ten: 'Lâm Khánh Băng', lop: '2/2', khoi: 2, gameId: 'typing_race', score: 38, timestamp: Date.now() - 12000000 },
+            { ten: 'Phan Minh Khôi', lop: '2/5', khoi: 2, gameId: 'typing_race', score: 32, timestamp: Date.now() - 15000000 },
+
+            // Game 3: memory_card (Trí Nhớ Siêu Phàm - Điểm số)
+            { ten: 'Đặng Quỳnh Chi', lop: '2/4', khoi: 2, gameId: 'memory_card', score: 850, timestamp: Date.now() - 4000000 },
+            { ten: 'Trương Minh Bách', lop: '2/2', khoi: 2, gameId: 'memory_card', score: 720, timestamp: Date.now() - 8000000 },
+            { ten: 'Lâm Khánh Băng', lop: '2/2', khoi: 2, gameId: 'memory_card', score: 690, timestamp: Date.now() - 11000000 },
+            { ten: 'Lê Nguyễn Thảo An', lop: '1/6', khoi: 1, gameId: 'memory_card', score: 580, timestamp: Date.now() - 16000000 }
         ];
+
+        if (gameId && gameId !== 'overall' && gameId !== 'all') {
+            return allSeeds.filter(item => item.gameId === gameId);
+        }
+        return allSeeds;
+    }
+
+    /**
+     * Quy đổi thứ hạng trong từng game thành Sao Danh Vọng (Arena Stars ⭐)
+     */
+    function calculateStarsForRank(rank) {
+        const config = window.ARENA_CONFIG || {};
+        const rewards = config.STAR_REWARDS || {
+            TOP_1: 100,
+            TOP_2: 80,
+            TOP_3: 60,
+            TOP_4_5: 40,
+            TOP_6_10: 25,
+            PARTICIPATION: 10
+        };
+        if (rank === 1) return rewards.TOP_1;
+        if (rank === 2) return rewards.TOP_2;
+        if (rank === 3) return rewards.TOP_3;
+        if (rank <= 5) return rewards.TOP_4_5;
+        if (rank <= 10) return rewards.TOP_6_10;
+        return rewards.PARTICIPATION;
     }
 
     /**
@@ -203,21 +246,21 @@
         let idxGame = header.findIndex(h => h.includes('game') || h.includes('mã') || h.includes('tro choi'));
         let idxScore = header.findIndex(h => h.includes('điểm') || h.includes('score') || h.includes('diem') || h.includes('max'));
 
-        // Fallback vị trí mặc định nếu QUERY sinh thứ tự: Họ và Tên, Lớp, Khối, Mã Game, Điểm Số
         if (idxTen === -1) idxTen = 0;
         if (idxLop === -1) idxLop = 1;
         if (idxKhoi === -1) idxKhoi = 2;
         if (idxGame === -1) idxGame = 3;
         if (idxScore === -1) idxScore = 4;
 
+        const isOverall = !targetGameId || targetGameId === 'overall' || targetGameId === 'all';
         const records = [];
+
         for (let i = 1; i < lines.length; i++) {
             const cols = parseCsvRow(lines[i]);
             if (cols.length <= Math.max(idxTen, idxScore)) continue;
 
             const ten = cols[idxTen] ? cols[idxTen].trim() : '';
             let lop = cols[idxLop] ? cols[idxLop].trim().replace(/^['"\s]+|['"\s]+$/g, '') : '';
-            // Chuẩn hóa lớp "2_2" thành "2/2"
             lop = lop.replace('_', '/');
 
             let khoi = cols[idxKhoi] ? parseInt(cols[idxKhoi], 10) : 0;
@@ -230,8 +273,8 @@
             const score = cols[idxScore] ? Number(cols[idxScore].replace(/[^\d.-]/g, '')) || 0 : 0;
 
             if (!ten) continue;
-            // Nếu có targetGameId và dòng có ghi gameId, chỉ lấy dòng đúng game
-            if (targetGameId && gameId && gameId !== targetGameId) continue;
+            // Nếu lọc theo game cụ thể, bỏ qua dòng của game khác
+            if (!isOverall && gameId && gameId !== targetGameId) continue;
 
             records.push({
                 ten,
@@ -367,19 +410,20 @@
         },
 
         /**
-         * Lấy Bảng xếp hạng và tự động trộn với điểm Optimistic của localStorage
+         * Lấy Bảng xếp hạng (Hỗ trợ 2 Tầng: Tầng 1 theo từng Game & Tầng 2 Bảng Vàng Sao Danh Vọng)
          * @param {Object} params
-         * @param {string} params.gameId - Mã minigame
+         * @param {string} [params.gameId='overall'] - 'overall' (tổng hợp điểm Sao) hoặc mã game cụ thể (VD: 'speed_click')
          * @param {string} [params.scope='all'] - 'all' (toàn trường) | 'khoi' (theo khối) | 'lop' (theo lớp)
          * @param {string|number} [params.filterValue] - Giá trị khối (1-5) hoặc lớp ("2/2")
-         * @returns {Promise<{ list: Array, totalCount: number, myRank: number|null, myRecord: Object|null }>}
+         * @returns {Promise<{ list: Array, totalCount: number, myRank: number|null, myRecord: Object|null, isOverall: boolean, unit: string }>}
          */
-        async fetchLeaderboard({ gameId = 'speed_click', scope = 'all', filterValue = null } = {}) {
+        async fetchLeaderboard({ gameId = 'overall', scope = 'all', filterValue = null } = {}) {
             const config = window.ARENA_CONFIG || {};
             const csvUrl = config.CSV_LEADERBOARD_URL;
             const isPlaceholderCsv = !csvUrl || csvUrl.includes('PLACEHOLDER');
+            const isOverall = !gameId || gameId === 'overall' || gameId === 'all';
 
-            let records = [];
+            let rawRecords = [];
 
             // 1. Đọc dữ liệu từ CSV nếu URL hợp lệ
             if (!isPlaceholderCsv) {
@@ -388,7 +432,7 @@
                     const res = await fetch(fetchUrl);
                     if (res.ok) {
                         const csvText = await res.text();
-                        records = parseCsvLeaderboard(csvText, gameId);
+                        rawRecords = parseCsvLeaderboard(csvText, isOverall ? null : gameId);
                     } else {
                         console.warn(`[RankAPI] Lỗi tải CSV HTTP ${res.status}, sử dụng dữ liệu mẫu dự phòng.`);
                     }
@@ -397,25 +441,34 @@
                 }
             }
 
-            // Nếu chưa có bản ghi nào từ CSV, nạp seed demo để giao diện không bị trống
-            if (records.length === 0) {
-                records = getSeedLeaderboard(gameId);
+            // Nếu chưa có bản ghi nào từ CSV, nạp seed demo phong phú
+            if (rawRecords.length === 0) {
+                rawRecords = getSeedLeaderboard(isOverall ? null : gameId);
             }
 
-            // 2. Trộn với các lượt nộp Optimistic từ localStorage
-            const localSubmissions = getLocalSubmissions(gameId);
-            const recordMap = new Map();
+            // 2. Lấy dữ liệu local submissions (trộn Optimistic UI)
+            const localSubmissions = getLocalSubmissions(isOverall ? null : gameId);
 
-            // Đưa các bản ghi CSV vào Map theo key: `${ten}__${normalizeClass(lop)}`
-            records.forEach(r => {
-                const key = `${r.ten.toLowerCase()}__${normalizeClassStr(r.lop)}`;
-                recordMap.set(key, { ...r });
+            // Gộp rawRecords và localSubmissions: Đảm bảo với mỗi học sinh trong cùng 1 game luôn lấy High Score
+            const gameStudentMap = new Map(); // key: `${gameId}__${studentKey}` -> row
+
+            rawRecords.forEach(r => {
+                const gId = r.gameId || 'speed_click';
+                const sKey = `${r.ten.toLowerCase()}__${normalizeClassStr(r.lop)}`;
+                const rowKey = `${gId}__${sKey}`;
+                const existing = gameStudentMap.get(rowKey);
+                if (!existing || Number(r.score) > Number(existing.score)) {
+                    gameStudentMap.set(rowKey, { ...r, gameId: gId, score: Number(r.score) });
+                }
             });
 
-            // Trộn điểm cục bộ: nếu điểm cục bộ cao hơn thì ghi đè, nếu chưa có thì thêm mới
             localSubmissions.forEach(local => {
-                const key = `${local.ten.toLowerCase()}__${normalizeClassStr(local.lop)}`;
-                const existing = recordMap.get(key);
+                const gId = local.gameId || 'speed_click';
+                if (!isOverall && gId !== gameId) return;
+
+                const sKey = `${local.ten.toLowerCase()}__${normalizeClassStr(local.lop)}`;
+                const rowKey = `${gId}__${sKey}`;
+                const existing = gameStudentMap.get(rowKey);
 
                 if (existing) {
                     if (Number(local.score) > Number(existing.score)) {
@@ -424,11 +477,11 @@
                         existing.timestamp = local.timestamp;
                     }
                 } else {
-                    recordMap.set(key, {
+                    gameStudentMap.set(rowKey, {
                         ten: local.ten,
                         lop: local.lop,
                         khoi: Number(local.khoi) || 2,
-                        gameId: local.gameId,
+                        gameId: gId,
                         score: Number(local.score),
                         timestamp: local.timestamp,
                         isOptimistic: true
@@ -436,31 +489,98 @@
                 }
             });
 
-            // Chuyển Map về Array
-            let mergedList = Array.from(recordMap.values());
+            let finalRecords = [];
+            let scoreUnit = 'điểm';
 
-            // 3. Sắp xếp giảm dần theo điểm số (điểm cao xếp trước, nếu bằng điểm ai nộp trước xếp trước)
-            mergedList.sort((a, b) => {
-                const diff = (Number(b.score) || 0) - (Number(a.score) || 0);
-                if (diff !== 0) return diff;
-                return (Number(a.timestamp) || 0) - (Number(b.timestamp) || 0);
-            });
+            if (isOverall) {
+                // TẦNG 2: BẢNG VÀNG TỔNG HỢP TOÀN TRƯỜNG (QUY ĐỔI SAO DANH VỌNG ⭐)
+                scoreUnit = 'Sao ⭐';
 
-            // 4. Lọc theo Scope
-            let filteredList = mergedList;
+                // Phân nhóm theo gameId
+                const gamesMap = new Map();
+                gameStudentMap.forEach(row => {
+                    if (!gamesMap.has(row.gameId)) gamesMap.set(row.gameId, []);
+                    gamesMap.get(row.gameId).push(row);
+                });
+
+                // Với mỗi game: xếp hạng học sinh và thưởng Sao theo rank
+                const studentStarAgg = new Map(); // studentKey -> { ten, lop, khoi, score, gamesCount, isOptimistic, timestamp }
+
+                gamesMap.forEach((rows) => {
+                    rows.sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
+                    let rk = 1;
+                    rows.forEach((row, idx, arr) => {
+                        if (idx > 0 && Number(row.score) === Number(arr[idx - 1].score)) {
+                            // đồng hạng
+                        } else {
+                            rk = idx + 1;
+                        }
+                        const stars = calculateStarsForRank(rk);
+                        const sKey = `${row.ten.toLowerCase()}__${normalizeClassStr(row.lop)}`;
+
+                        if (!studentStarAgg.has(sKey)) {
+                            studentStarAgg.set(sKey, {
+                                ten: row.ten,
+                                lop: row.lop,
+                                khoi: row.khoi,
+                                score: 0,
+                                gamesCount: 0,
+                                isOptimistic: false,
+                                timestamp: row.timestamp || Date.now()
+                            });
+                        }
+                        const agg = studentStarAgg.get(sKey);
+                        agg.score += stars;
+                        agg.gamesCount += 1;
+                        if (row.isOptimistic) agg.isOptimistic = true;
+                        if (row.timestamp && row.timestamp > agg.timestamp) agg.timestamp = row.timestamp;
+                    });
+                });
+
+                finalRecords = Array.from(studentStarAgg.values());
+                // Sắp xếp tổng Sao giảm dần; nếu bằng Sao, ai tham gia nhiều game hơn xếp trước
+                finalRecords.sort((a, b) => {
+                    const diffStars = (Number(b.score) || 0) - (Number(a.score) || 0);
+                    if (diffStars !== 0) return diffStars;
+                    const diffGames = (Number(b.gamesCount) || 0) - (Number(a.gamesCount) || 0);
+                    if (diffGames !== 0) return diffGames;
+                    return (Number(a.timestamp) || 0) - (Number(b.timestamp) || 0);
+                });
+            } else {
+                // TẦNG 1: BẢNG RANK RIÊNG CỦA TỪNG GAME (CHỈ LẤY HIGH SCORE CỦA TỪNG EM)
+                const gameMeta = (config.GAMES && config.GAMES[gameId]) || {};
+                scoreUnit = gameMeta.unit || 'điểm';
+
+                const targetRows = [];
+                gameStudentMap.forEach(row => {
+                    if (row.gameId === gameId) {
+                        targetRows.push(row);
+                    }
+                });
+
+                finalRecords = targetRows;
+                finalRecords.sort((a, b) => {
+                    const diff = (Number(b.score) || 0) - (Number(a.score) || 0);
+                    if (diff !== 0) return diff;
+                    return (Number(a.timestamp) || 0) - (Number(b.timestamp) || 0);
+                });
+            }
+
+            // Lọc theo Scope (All / Khối / Lớp)
+            let filteredList = finalRecords;
             if (scope === 'khoi' && filterValue) {
                 const targetKhoi = parseInt(filterValue, 10);
-                filteredList = mergedList.filter(item => {
+                filteredList = finalRecords.filter(item => {
                     if (Number(item.khoi) === targetKhoi) return true;
                     const parsedK = parseInt(normalizeClassStr(item.lop).match(/^\d+/)?.[0] || '0', 10);
                     return parsedK === targetKhoi;
                 });
             } else if (scope === 'lop' && filterValue) {
                 const targetLopNorm = normalizeClassStr(filterValue);
-                filteredList = mergedList.filter(item => normalizeClassStr(item.lop) === targetLopNorm);
+                filteredList = finalRecords.filter(item => normalizeClassStr(item.lop) === targetLopNorm);
             }
 
-            // 5. Gán thứ tự Rank chuẩn (1, 2, 3...)
+            // Gán thứ tự Rank chuẩn (1, 2, 3...)
             let currentRank = 1;
             const rankedList = filteredList.map((item, idx, arr) => {
                 if (idx > 0 && Number(item.score) === Number(arr[idx - 1].score)) {
@@ -470,11 +590,12 @@
                 }
                 return {
                     ...item,
-                    rank: currentRank
+                    rank: currentRank,
+                    unit: scoreUnit
                 };
             });
 
-            // 6. Xác định vị trí của học sinh hiện tại đang đăng nhập
+            // Xác định vị trí của học sinh hiện tại đang đăng nhập
             let myRecord = null;
             let myRank = null;
             const currentStudent = window.StudentPicker ? window.StudentPicker.getStudent() : null;
@@ -492,7 +613,9 @@
                 list: rankedList,
                 totalCount: rankedList.length,
                 myRank,
-                myRecord
+                myRecord,
+                isOverall,
+                unit: scoreUnit
             };
         }
     };

@@ -55,7 +55,42 @@ Khi triển khai tính năng lưu trữ lịch sử:
 
 ---
 
-## 🚀 3. HƯỚNG DẪN NHÂN BẢN MINIGAME MỚI
+## 🌟 3. HỆ THỐNG 2 TẦNG BẢNG XẾP HẠNG (2-TIER LEADERBOARD SYSTEM)
+
+Do thang điểm của mỗi minigame hoàn toàn khác nhau (ví dụ: game gõ phím tính theo WPM tầm 15–50 điểm, còn game bắn phi thuyền hay giải đố có thể lên tới 5.000–10.000 điểm), hệ thống **tuyệt đối không cộng gộp điểm thô**, mà chia thành **2 tầng bảng xếp hạng** thông minh từ **1 file CSV duy nhất**:
+
+### 3.1 Tầng 1: Bảng Rank riêng của từng Game (Single-Game Leaderboard)
+* **Vị trí hiển thị:** Ngay trong màn hình kết thúc của game đó hoặc nút `[🏆 Bảng Vàng]` trên topbar của game.
+* **Nguyên tắc High Score:** Dữ liệu lọc đúng theo `GameID`. Hệ thống **chỉ lấy Điểm cao nhất (High Score)** của mỗi học sinh trong game đó để xếp hạng (triệt tiêu tình trạng một em cày 30 ván cộng dồn điểm để vượt bạn khác).
+* **Bộ lọc 3 cấp:** Học sinh dễ dàng chuyển tab ngay tại chỗ: **🌐 Toàn Trường** | **🏫 Theo Khối** | **🎒 Theo Lớp mình**.
+
+### 3.2 Tầng 2: Bảng Vàng Tổng Hợp Toàn Trường (All-Game Hall of Fame)
+* **Vị trí hiển thị:** Trang cổng `arena/index.html`.
+* **Cơ chế Quy đổi Sao Danh Vọng (Arena Stars ⭐):**
+  Thay vì cộng điểm thô, hệ thống tự động quy đổi thứ hạng đạt được ở từng minigame thành **Sao Danh Vọng**:
+  * 🥇 **Top 1:** Thưởng **100 ⭐**
+  * 🥈 **Top 2:** Thưởng **80 ⭐**
+  * 🥉 **Top 3:** Thưởng **60 ⭐**
+  * 🌟 **Top 4 – 5:** Thưởng **40 ⭐**
+  * 🎖️ **Top 6 – 10:** Thưởng **25 ⭐**
+  * 🎮 **Tham gia hoàn thành:** Thưởng **10 ⭐**
+* **Ý nghĩa sư phạm:** 
+  * Tạo sự công bằng tuyệt đối giữa các game có thang điểm chênh lệch.
+  * Kích thích học sinh không chỉ cày 1 game mà tích cực vào chơi thử thách đều tất cả các minigames trong trường để gom nhiều Sao nhất.
+
+### 3.3 Kiến trúc Google Sheets & CSV Duy Nhất (Single Source of Truth)
+* Trên Google Sheets, chỉ cần **1 tab `Leaderboard` chung** có cột `GameID` được Publish ra 1 link CSV duy nhất:
+  ```excel
+  =QUERY(Raw_Scores!A:G, "SELECT B, C, D, E, MAX(F) WHERE B IS NOT NULL AND B != 'Họ và Tên' GROUP BY B, C, D, E ORDER BY E, MAX(F) DESC LABEL B 'Họ và Tên', C 'Lớp', D 'Khối', E 'Mã Game', MAX(F) 'Điểm Số'")
+  ```
+* Khi tải CSV về trình duyệt:
+  * Khi gọi `RankAPI.fetchLeaderboard({ gameId: 'speed_click' })`: Frontend tự lọc các dòng của game đó và xếp hạng High Score.
+  * Khi gọi `RankAPI.fetchLeaderboard({ gameId: 'overall' })`: Frontend tự tính toán ma trận Sao Danh Vọng của từng em qua tất cả các game.
+  * Sau này có thêm 20–30 minigames mới thì hệ thống **hoàn toàn tự động co giãn**, không cần sửa backend hay tạo thêm tab Sheet mới!
+
+---
+
+## 🚀 4. HƯỚNG DẪN NHÂN BẢN MINIGAME MỚI
 
 Khi muốn tạo một game mới đua top trong `arena/`:
 1. Sao chép thư mục `arena/_template/` thành `arena/<ten-game-moi>/` (ví dụ `arena/ban-tao/`).

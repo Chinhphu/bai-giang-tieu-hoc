@@ -563,4 +563,10 @@ Mọi minigame trong `arena/` BẮT BUỘC phải nhúng và sử dụng các th
   - Bảng rank chính thức luôn reset trắng 100% đầu năm; có thể mở rộng nút "Bảng Vàng Lưu Trữ" ở `arena/index.html` trỏ về CSV của mùa cũ.
   - Xem tài liệu hướng dẫn chi tiết tại 👉 **[arena/README.md](./arena/README.md)**.
 
+### 5.6 Quy Chuẩn 2 Tầng Bảng Xếp Hạng & Sao Danh Vọng (2-Tier Leaderboard)
+* **Tầng 1 (Từng Game riêng biệt):** Lọc theo `gameId`, **chỉ lấy High Score (điểm cao nhất)** của mỗi học sinh để xếp hạng (Top Trường / Khối / Lớp). Tuyệt đối không cộng dồn nhiều ván chơi.
+* **Tầng 2 (Bảng Vàng Tổng Hợp `arena/index.html`):** Tuyệt đối **không cộng điểm thô** giữa các game khác nhau (do lệch thang điểm). Hệ thống tự động **quy đổi thứ hạng từng game thành Sao Danh Vọng ⭐** (Top 1: 100⭐, Top 2: 80⭐, Top 3: 60⭐, Top 4-5: 40⭐, Top 6-10: 25⭐, tham gia: 10⭐) và cộng tổng Sao để vinh danh.
+* **1 Nguồn Dữ Liệu Duy Nhất:** Google Sheets chỉ cần duy nhất 1 tab `Leaderboard` chung có cột `GameID` xuất ra 1 file CSV. Frontend `RankAPI` tự động phân tách và tính toán theo `gameId`.
+
+
 

@@ -235,8 +235,18 @@
             const top2 = list[1] || null;
             const top3 = list[2] || null;
             const restList = list.slice(3);
+            const scoreUnit = this.data.unit || (this.data.isOverall ? 'Sao ⭐' : 'điểm');
 
             let html = '';
+
+            // Nếu là Bảng Vàng Danh Vọng Tổng Hợp, hiển thị thanh giải thích quy đổi
+            if (this.data.isOverall) {
+                html += `
+                    <div style="background: linear-gradient(90deg, #eff6ff, #fef3c7); padding: 8px 16px; border-bottom: 2px solid #e2e8f0; font-size: 0.82rem; font-weight: 800; color: #1e3a8a; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;">
+                        <span>⭐ <strong>Hệ Thống Sao Danh Vọng:</strong> Top 1: +100⭐ | Top 2: +80⭐ | Top 3: +60⭐ | Top 4-5: +40⭐ | Top 6-10: +25⭐ | Tham gia: +10⭐</span>
+                    </div>
+                `;
+            }
 
             // BỤC VINH DANH TOP 3
             html += `<div class="rankboard-podium">`;
@@ -254,7 +264,8 @@
                         <div class="podium-class">Lớp ${escapeHtml(top2.lop)}</div>
                         <div class="podium-pillar">
                             <div class="podium-score">${Number(top2.score).toLocaleString('vi-VN')}</div>
-                            <div style="font-size: 0.75rem; opacity: 0.9;">điểm</div>
+                            <div style="font-size: 0.75rem; opacity: 0.9;">${escapeHtml(scoreUnit)}</div>
+                            ${top2.gamesCount ? `<span style="background: rgba(255,255,255,0.25); font-size: 0.65rem; padding: 1px 6px; border-radius: 9999px; margin-top: 3px;">🎮 ${top2.gamesCount} game</span>` : ''}
                             ${isMe2 ? '<span style="background: #3b82f6; font-size: 0.65rem; padding: 1px 6px; border-radius: 9999px; margin-top: 4px;">BẠN</span>' : ''}
                         </div>
                     </div>
@@ -278,7 +289,8 @@
                         <div class="podium-class">Lớp ${escapeHtml(top1.lop)}</div>
                         <div class="podium-pillar">
                             <div class="podium-score" style="font-size: 1.35rem;">${Number(top1.score).toLocaleString('vi-VN')}</div>
-                            <div style="font-size: 0.75rem; opacity: 0.9;">điểm</div>
+                            <div style="font-size: 0.75rem; opacity: 0.9;">${escapeHtml(scoreUnit)}</div>
+                            ${top1.gamesCount ? `<span style="background: rgba(255,255,255,0.3); font-size: 0.68rem; padding: 1px 6px; border-radius: 9999px; margin-top: 3px;">🎮 ${top1.gamesCount} game</span>` : ''}
                             ${isMe1 ? '<span style="background: #3b82f6; font-size: 0.65rem; padding: 1px 6px; border-radius: 9999px; margin-top: 4px;">BẠN</span>' : ''}
                         </div>
                     </div>
@@ -298,7 +310,8 @@
                         <div class="podium-class">Lớp ${escapeHtml(top3.lop)}</div>
                         <div class="podium-pillar">
                             <div class="podium-score">${Number(top3.score).toLocaleString('vi-VN')}</div>
-                            <div style="font-size: 0.75rem; opacity: 0.9;">điểm</div>
+                            <div style="font-size: 0.75rem; opacity: 0.9;">${escapeHtml(scoreUnit)}</div>
+                            ${top3.gamesCount ? `<span style="background: rgba(255,255,255,0.25); font-size: 0.65rem; padding: 1px 6px; border-radius: 9999px; margin-top: 3px;">🎮 ${top3.gamesCount} game</span>` : ''}
                             ${isMe3 ? '<span style="background: #3b82f6; font-size: 0.65rem; padding: 1px 6px; border-radius: 9999px; margin-top: 4px;">BẠN</span>' : ''}
                         </div>
                     </div>
@@ -320,11 +333,12 @@
                             <div class="rank-user-info">
                                 <span class="rank-user-name">${escapeHtml(item.ten)}</span>
                                 <span class="rank-user-class">Lớp ${escapeHtml(item.lop)}</span>
+                                ${item.gamesCount ? `<span style="background: #e0e7ff; color: #4338ca; font-size: 0.72rem; font-weight: 800; padding: 2px 7px; border-radius: 9999px;">🎮 ${item.gamesCount} game</span>` : ''}
                                 ${item.isOptimistic ? '<span class="rank-pending-pill">⏱️ Mới nộp</span>' : ''}
                             </div>
                             <div class="rank-score-badge">
                                 <span>${Number(item.score).toLocaleString('vi-VN')}</span>
-                                <span style="font-size: 0.8rem; color: #64748b; font-weight: 700;">điểm</span>
+                                <span style="font-size: 0.8rem; color: #64748b; font-weight: 700;">${escapeHtml(scoreUnit)}</span>
                             </div>
                         </div>
                     `;

@@ -314,9 +314,12 @@
                 </h2>
                 <!-- Bộ chọn Game để xem Bảng Vàng -->
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-weight: 700; color: #cbd5e1; font-size: 0.95rem;">Xem minigame:</span>
-                    <select id="select-arena-game" class="rankboard-select">
-                        <option value="speed_click" selected>⚡ Bấm Chuột Siêu Tốc</option>
+                    <span style="font-weight: 700; color: #cbd5e1; font-size: 0.95rem;">Bảng xếp hạng:</span>
+                    <select id="select-arena-game" class="rankboard-select" style="min-width: 260px;">
+                        <option value="overall" selected>🌟 Bảng Vàng Tổng Hợp (Sao Danh Vọng ⭐)</option>
+                        <option value="speed_click">⚡ Bấm Chuột Siêu Tốc (Điểm)</option>
+                        <option value="typing_race">⌨️ Đua Gõ Phím Siêu Tốc (WPM)</option>
+                        <option value="memory_card">🧠 Trí Nhớ Siêu Phàm (Điểm)</option>
                     </select>
                 </div>
             </div>
@@ -329,7 +332,7 @@
         <footer class="portal-footer">
             <p>Hệ thống Đấu Trường Tin Học Tiểu Học &bull; Niên khóa 2026 - 2027</p>
             <p style="font-size: 0.8rem; color: #475569; margin-top: 4px;">
-                Kiến trúc tự chủ tài nguyên (Offline-First) &bull; Đồng bộ đám mây Google Apps Script &bull; Chống gian lận SHA-256
+                Kiến trúc tự chủ tài nguyên (Offline-First) &bull; 2 Tầng Bảng Vàng (High Score & Sao Danh Vọng) &bull; Chống gian lận SHA-256
             </p>
         </footer>
     </div>
@@ -340,30 +343,28 @@
             const container = document.getElementById('arena-main-rankboard');
             let currentBoard = null;
 
-            function loadBoard(gameId) {
+            function loadBoard(gameId, title) {
                 if (window.RankBoard) {
                     currentBoard = window.RankBoard.render(container, {
                         gameId: gameId,
                         scope: 'all',
-                        title: 'BẢNG VÀNG: BẤM CHUỘT SIÊU TỐC'
+                        title: title || (gameId === 'overall' ? 'BẢNG VÀNG DANH VỌNG TOÀN TRƯỜNG' : 'BẢNG VÀNG THỬ THÁCH')
                     });
                 }
             }
 
-            loadBoard('speed_click');
+            // Mặc định nạp Bảng Vàng Danh Vọng Tổng Hợp Toàn Trường (Quy đổi Sao ⭐)
+            loadBoard('overall', 'BẢNG VÀNG DANH VỌNG TOÀN TRƯỜNG');
 
             const selectGame = document.getElementById('select-arena-game');
             if (selectGame) {
                 selectGame.addEventListener('change', (e) => {
                     const gameId = e.target.value;
                     const gameName = e.target.options[e.target.selectedIndex].text;
-                    if (window.RankBoard) {
-                        window.RankBoard.render(container, {
-                            gameId: gameId,
-                            scope: 'all',
-                            title: `BẢNG VÀNG: ${gameName}`
-                        });
-                    }
+                    const title = gameId === 'overall' 
+                        ? 'BẢNG VÀNG DANH VỌNG TOÀN TRƯỜNG' 
+                        : `BẢNG VÀNG: ${gameName.replace(/\(.*?\)/g, '').trim()}`;
+                    loadBoard(gameId, title);
                 });
             }
         });
