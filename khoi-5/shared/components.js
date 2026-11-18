@@ -15,7 +15,7 @@
     ? value
     : fallback;
 
-  window.toast = function toast(message, duration = 2200, background = 'var(--mint)') {
+  window.toast = function toast(message, duration = 2500, background = 'var(--mint)') {
     let element = document.getElementById('toast');
     if (!element) {
       element = document.createElement('div');
@@ -24,15 +24,23 @@
       document.body.appendChild(element);
     }
 
-    element.textContent = message;
-    element.style.background = background;
-    element.style.display = 'block';
+    element.innerHTML = message;
+    element.style.background = (background && background.startsWith('var(')) ? background : (background || 'var(--mint)');
+    element.style.display = 'inline-block';
     element.classList.add('show');
     window.clearTimeout(toastTimer);
     toastTimer = window.setTimeout(() => {
       element.classList.remove('show');
       element.style.display = 'none';
     }, duration);
+  };
+
+  window.showToast = function showToast(message, type = 'info', duration = 2500) {
+    const bg = (type === 'ok' || type === 'success') ? '#10b981'
+      : (type === 'warn' || type === 'warning' || type === 'coral' || type === 'error' || type === 'bad') ? 'var(--coral)'
+      : (type === 'gold') ? 'var(--gold)'
+      : '#0284c7';
+    window.toast(message, duration, bg);
   };
 
   /* ================= 2. ĐẨY CSV BÁO CÁO LÊN GOOGLE DRIVE ================= */

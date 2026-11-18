@@ -421,6 +421,28 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
   * **3. Cung cấp 4 phương án trắc nghiệm thứ tự:** Các phương án thứ tự to rõ (ví dụ: `1️⃣ (A) → (B) → (D) → (C)`, `2️⃣ (B) → (D) → (C) → (A)`...).
   * **4. Nhấp chọn & Phản hồi trực quan:** Giáo viên hoặc học sinh nhấp vào phương án được chọn → Nút đổi màu (Xanh nếu đúng, Đỏ nếu sai), phát âm thanh khen thưởng `playWin()` / `playFail()`, hiển thị lời giải thích sư phạm cốt lõi (nhấn mạnh thao tác nào luôn phải làm đầu tiên, ví dụ: *Luôn chọn bôi đen trước!*) và tự động ghi nhận Telemetry (T / H) cho học sinh.
 
+### 23. Quy Chuẩn Tinh Lọc Giao Diện (Zero-Clutter UI Copy), Chống Lỗi Scrollbar Bóp Nghẹt Element & Bố Cục 2 Cột Cố Định (1/3 — 2/3)
+* **1. Triết Lý Zero-Clutter UI Copy — Slide Bài Giảng Không Phải Sách Hướng Dẫn Kỹ Thuật:**
+  * **Đặc thù màn chiếu lớp học:** Màn hình TV/máy chiếu phòng máy tiểu học được quan sát từ cự ly xa (8–10m). Giao diện slide phải **thoáng đãng, tinh gọn tối đa, các khối hành động to rõ**, tuyệt đối **KHÔNG nhồi nhét các đoạn văn mô tả lê thê, chú thích trong ngoặc đơn, nhãn thừa thãi hay câu chữ hướng dẫn kỹ thuật dài dòng**.
+  * **Các quy tắc cắt bỏ bắt buộc:**
+    * **Không giải thích cơ chế ngầm:** Tuyệt đối không ghi các câu giải thích cách vận hành code của hệ thống (ví dụ: *"Mảnh ghép cùng loại sẽ tự động đá nhau ra"*, *"(Tiêu đề + Đoạn văn + Ảnh + Bonus)"*, *"⏱️ Đếm ngược 1 phút trên thanh đỉnh..."*). Giáo viên hướng dẫn ngắn gọn bằng lời và học sinh tự ngầm hiểu khi thao tác thực tế.
+    * **Không dùng nhãn thừa khi đã có Placeholder:** Khi ô nhập liệu `<input>` đã có `placeholder="..."` rõ nghĩa (ví dụ `placeholder="Đặt tên bộ đề..."`), **TUYỆT ĐỐI KHÔNG thêm thẻ nhãn `<label>` đặt tên bên trên** gây chật chội chiều dọc.
+    * **Không đặt tiêu đề chú thích kiểu nhật ký:** Tuyệt đối không ghi các tiêu đề thừa như *"📋 CÁC MẢNH GHÉP YÊU CẦU ĐÃ CHỌN:"*. Chỉ cần tiêu đề khối ngắn gọn (`Bộ Đề Tổ X`) hoặc khung thẻ trực quan.
+    * **Banner khóa / Trạng thái tối giản:** Khi khu vực bị khóa hoặc chờ sẵn sàng, chỉ hiển thị biểu tượng lớn (`🔒` hoặc `✅`) + 1 dòng khẩu lệnh ngắn gọn, dứt khoát (Ví dụ: `🔒 BẤM "▶ SẴN SÀNG" ĐỂ MỞ KHO CHỌN ĐỀ (1 PHÚT)`), tuyệt đối không viết cả đoạn văn giải thích lý do dài dòng.
+* **2. Quy Chuẩn Thanh Điều Khiển / Toolbar — Chống Lỗi Scrollbar Bóp Nghẹt Element:**
+  * **Nguyên nhân bug chí mạng trên Windows Chrome:** Thuộc tính `overflow-x: auto` hoặc `overflow: hidden` khi đặt trên các thanh toolbar/tab bar có padding hẹp kết hợp với thanh cuộn mặc định 17px của Windows sẽ **cướp mất không gian bên trong**, làm thụt hơn một nửa chiều cao thực tế của thanh bar và **chém cụt ngang thân các nút bấm**. Nếu thanh bar còn đặt `position: sticky; top: X` tính toán lệch chiều cao thanh đỉnh sẽ bị chui tọt dưới mép thanh đỉnh.
+  * **Quy tắc thiết kế thanh điều khiển chuẩn mực:**
+    * **Hợp nhất thành 1 Panel duy nhất (Unified Panel):** Tuyệt đối không xếp chồng 2–3 thanh ngang rời rạc (thanh chọn tổ riêng, thanh gọi học sinh riêng, thanh nút hành động riêng) làm nuốt trọn không gian chiều dọc. Gom toàn bộ vào **1 thanh điều khiển duy nhất (`.builder-unified-panel`)** phân thành cụm trái (chọn tổ) và cụm phải (học sinh + nút sẵn sàng/xong).
+    * **Luôn đặt `overflow: visible;`:** Thiết lập `min-height: 54px - 58px; padding: 10px 16px; overflow: visible; flex-wrap: wrap;`. **Tuyệt đối không để scrollbar xuất hiện làm bóp méo nút bấm.** Mọi nút bấm và dropdown phải hiển thị 100% nguyên vẹn, sắc nét.
+* **3. Quy Chuẩn Bố Cục 2 Cột Tỉ Lệ Vàng (1/3 — 2/3) & CẤM Gộp Cột Bằng Media Query Trên Slide:**
+  * **Tỉ lệ vàng 1/3 — 2/3 cho màn hình chia đôi:** Đối với màn hình xưởng thiết kế/làm bài gồm 1 bên là Khay bài làm của tổ và 1 bên là Kho tài nguyên/Mảnh ghép chung:
+    * **Cột trái (Khay làm bài / Bộ đề):** Chiếm **1/3** (`grid-template-columns: 1fr 2fr;` hoặc `~33%`).
+    * **Cột phải (Kho mảnh ghép / Lưới thẻ):** Chiếm **2/3** (`~67%`).
+  * **TUYỆT ĐỐI CẤM dùng Media Query gộp thành 1 cột dọc (`grid-template-columns: 1fr`):**
+    * Màn hình laptop giáo viên và TV phòng máy thường có độ phân giải 1366x768 hoặc 1280x720 (stage còn khoảng 900px – 1000px sau khi trừ sidebar 350px).
+    * Nếu đặt `@media (max-width: 1200px) { grid-template-columns: 1fr; }`, giao diện sẽ tự động sập thành 1 cột dọc dài lê thê > 1400px, ép người dùng phải cuộn lên cuộn xuống liên tục và phá nát bố cục quan sát.
+    * Bố cục 2 cột song song 1/3 — 2/3 **phải được duy trì cố định trên mọi độ phân giải màn chiếu**!
+
 ---
 
 ## 🛠️ 2. QUY TRÌNH 5 BƯỚC KHI TẠO HOẶC CHỈNH SỬA TIẾT HỌC MỚI
@@ -483,6 +505,9 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Tên file CSV xuất ra có đúng quy cách `KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}...` không?
 - [ ] 100% file HTML đã có cơ chế tự động lưu LocalStorage (Auto-Save) phòng cúp điện/sập nguồn chưa? Đã lưu chi tiết 100% dữ liệu từng học sinh (TT27) và có cơ chế cảnh báo khi bộ nhớ gần đầy để bấm "Dạy lớp mới" chưa?
 - [ ] 100% file HTML đã có nút Xóa dữ liệu phiên (Clear Session Button) có xác nhận confirm và thông báo chưa?
+- [ ] Giao diện đã tinh lọc tối đa chữ mô tả (Zero-Clutter), không nhồi nhét văn bản giải thích cơ chế ngầm, nhãn thừa thãi hay câu chữ kỹ thuật lê thê làm rác màn chiếu?
+- [ ] Thanh điều khiển/chọn tổ có thiết kế thoáng đãng, hợp nhất (`min-height: 54px - 58px; overflow: visible;`), tuyệt đối KHÔNG bị lỗi scrollbar Windows chém cụt nút bấm?
+- [ ] Bố cục chia đôi Khay làm bài & Kho tài nguyên có tuân thủ chuẩn 2 cột cố định tỉ lệ 1/3 - 2/3 (CẤM dùng media query sập thành 1 cột dọc)?
 
 ---
 
