@@ -60,12 +60,12 @@
         const sorted = [...teamList].sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
 
         const rankTemplates = [
-            { rank: 1, medal: '🥇', title: 'QUÁN QUÂN', sharedTitle: 'ĐỒNG QUÁN QUÂN', themeClass: 'rank-1', border: '#facc15' },
-            { rank: 2, medal: '🥈', title: 'Á QUÂN', sharedTitle: 'ĐỒNG Á QUÂN', themeClass: 'rank-2', border: '#94a3b8' },
-            { rank: 3, medal: '🥉', title: 'HẠNG BA', sharedTitle: 'ĐỒNG HẠNG BA', themeClass: 'rank-3', border: '#d97706' },
-            { rank: 4, medal: '🌟', title: 'KHUYẾN KHÍCH', sharedTitle: 'KHUYẾN KHÍCH', themeClass: 'rank-4', border: '#3b82f6' },
-            { rank: 5, medal: '🎖️', title: 'NỖ LỰC', sharedTitle: 'NỖ LỰC', themeClass: 'rank-5', border: '#10b981' },
-            { rank: 6, medal: '🎗️', title: 'GẮN KẾT', sharedTitle: 'GẮN KẾT', themeClass: 'rank-6', border: '#64748b' }
+            { rank: 1, medal: '🥇', csvMedal: 'Huy chương Vàng', title: 'QUÁN QUÂN', sharedTitle: 'ĐỒNG QUÁN QUÂN', themeClass: 'rank-1', border: '#facc15' },
+            { rank: 2, medal: '🥈', csvMedal: 'Huy chương Bạc', title: 'Á QUÂN', sharedTitle: 'ĐỒNG Á QUÂN', themeClass: 'rank-2', border: '#94a3b8' },
+            { rank: 3, medal: '🥉', csvMedal: 'Huy chương Đồng', title: 'HẠNG BA', sharedTitle: 'ĐỒNG HẠNG BA', themeClass: 'rank-3', border: '#d97706' },
+            { rank: 4, medal: '🌟', csvMedal: 'Huy hiệu Khuyến khích', title: 'KHUYẾN KHÍCH', sharedTitle: 'KHUYẾN KHÍCH', themeClass: 'rank-4', border: '#3b82f6' },
+            { rank: 5, medal: '🎖️', csvMedal: 'Huy hiệu Nỗ lực', title: 'NỖ LỰC', sharedTitle: 'NỖ LỰC', themeClass: 'rank-5', border: '#10b981' },
+            { rank: 6, medal: '🎗️', csvMedal: 'Huy hiệu Gắn kết', title: 'GẮN KẾT', sharedTitle: 'GẮN KẾT', themeClass: 'rank-6', border: '#64748b' }
         ];
 
         let currentRankIdx = 0;
@@ -88,7 +88,9 @@
                 rank: currentRankIdx + 1,
                 isShared,
                 medal: tpl.medal,
+                csvMedal: tpl.csvMedal || (tpl.rank === 1 ? 'Huy chương Vàng' : tpl.rank === 2 ? 'Huy chương Bạc' : tpl.rank === 3 ? 'Huy chương Đồng' : 'Huy hiệu Khuyến khích'),
                 title: title,
+                themeClass: tpl.themeClass,
                 border: tpl.border,
                 badgeText: isShared ? `Đồng Hạng ${tpl.rank}` : `Hạng ${tpl.rank}`
             };
