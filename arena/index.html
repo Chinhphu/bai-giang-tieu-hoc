@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cổng Đấu Trường Tin Học - Bảng Vàng Toàn Trường</title>
+    
+    <!-- CSS cốt lõi & Giao diện Đấu Trường -->
+    <link rel="stylesheet" href="../shared/css/core.css">
+    <link rel="stylesheet" href="./shared/arena.css">
+    
+    <!-- Bộ bảo vệ chống reload nhầm -->
+    <script src="../shared/js/prevent-reload.js"></script>
+
+    <!-- Thư viện Đấu Trường lõi -->
+    <script src="./shared/config.js"></script>
+    <script src="./shared/student-picker.js"></script>
+    <script src="./shared/rank-api.js"></script>
+    <script src="./shared/rank-board.js"></script>
+
+    <style>
+        .portal-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px 20px 80px;
+            box-sizing: border-box;
+        }
+
+        /* Top Header */
+        .portal-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .portal-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #ffffff;
+        }
+
+        .portal-brand-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.35);
+        }
+
+        .portal-brand-title {
+            font-family: var(--arena-font-head);
+            font-size: 1.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+        }
+
+        .portal-brand-sub {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* Hero Banner */
+        .portal-hero {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.8) 0%, rgba(67, 56, 202, 0.8) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 32px;
+            padding: 40px 32px;
+            text-align: center;
+            box-shadow: var(--arena-shadow-lg);
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portal-hero::before {
+            content: '🏆';
+            position: absolute;
+            right: -20px;
+            bottom: -30px;
+            font-size: 10rem;
+            opacity: 0.12;
+            pointer-events: none;
+        }
+
+        .portal-hero-title {
+            font-family: var(--arena-font-head);
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin: 0 0 12px;
+            color: #ffffff;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .portal-hero-desc {
+            font-size: 1.15rem;
+            color: #cbd5e1;
+            max-width: 650px;
+            margin: 0 auto 24px;
+            line-height: 1.6;
+        }
+
+        /* Danh mục Minigame Cards */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-family: var(--arena-font-head);
+            font-size: 1.6rem;
+            font-weight: 900;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 48px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .game-card:hover {
+            transform: translateY(-6px);
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.35);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-card-icon {
+            font-size: 3.2rem;
+            margin-bottom: 12px;
+        }
+
+        .game-card-title {
+            font-family: var(--arena-font-head);
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin: 0 0 8px;
+            color: #ffffff;
+        }
+
+        .game-card-desc {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            line-height: 1.5;
+            flex: 1;
+            margin-bottom: 20px;
+        }
+
+        .game-card-badge {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            text-transform: uppercase;
+        }
+
+        .badge-active {
+            background: #10b981;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+        }
+
+        .badge-soon {
+            background: rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+        }
+
+        /* Container Bảng Vàng */
+        .leaderboard-section {
+            margin-top: 10px;
+        }
+
+        /* Footer */
+        .portal-footer {
+            margin-top: 60px;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 24px;
+        }
+    </style>
+</head>
+<body class="arena-body">
+
+    <div class="portal-wrapper">
+        <!-- 1. TOP BAR -->
+        <header class="portal-top-bar">
+            <a href="./index.html" class="portal-brand">
+                <div class="portal-brand-logo">🏆</div>
+                <div>
+                    <div class="portal-brand-title">ĐẤU TRƯỜNG TIN HỌC</div>
+                    <div class="portal-brand-sub">HỆ THỐNG ĐUA TOP TOÀN TRƯỜNG</div>
+                </div>
+            </a>
+
+            <!-- Component Thanh Học Sinh Hiện Tại -->
+            <div id="arena-student-bar" class="arena-student-bar-target"></div>
+        </header>
+
+        <!-- 2. HERO BANNER -->
+        <section class="portal-hero">
+            <h1 class="portal-hero-title">BẢNG VÀNG DANH DỰ TOÀN TRƯỜNG</h1>
+            <p class="portal-hero-desc">
+                Nơi vinh danh những kiện tướng công nghệ nhí xuất sắc nhất! Hãy chọn minigame yêu thích, chinh phục các kỷ lục và ghi tên mình lên Bảng Vàng toàn trường!
+            </p>
+            <a href="#games-section" class="arena-btn arena-btn-gold" style="font-size: 1.15rem; padding: 12px 32px;">
+                <span>⚡</span> Khám Phá Trò Chơi Ngay
+            </a>
+        </section>
+
+        <!-- 3. DANH MỤC CÁC MINIGAME -->
+        <section id="games-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span>🎮</span> DANH MỤC THỬ THÁCH MINIGAME
+                </h2>
+            </div>
+
+            <div class="games-grid">
+                <!-- GAME 1: SPEED CLICKER (TEMPLATE CHÍNH) -->
+                <div class="game-card">
+                    <span class="game-card-badge badge-active">Đang Mở</span>
+                    <div class="game-card-icon">⚡</div>
+                    <h3 class="game-card-title">Bấm Chuột Siêu Tốc</h3>
+                    <p class="game-card-desc">
+                        Thử thách phản xạ và tốc độ bấm ngón tay trong 15 giây đếm ngược. Nhấp nhịp nhàng để tạo chuỗi Combo nhân đôi điểm số!
+                    </p>
+                    <a href="./_template/index.html" class="arena-btn arena-btn-primary" style="width: 100%; box-sizing: border-box;">
+                        <span>🚀</span> Tham Gia Ngay
+                    </a>
+                </div>
+
+                <!-- GAME 2: GÕ PHÍM TIẾP SỨC (SẮP RA MẮT) -->
+                <div class="game-card" style="opacity: 0.85;">
+                    <span class="game-card-badge badge-soon">Sắp Ra Mắt</span>
+                    <div class="game-card-icon">⌨️</div>
+                    <h3 class="game-card-title">Đua Gõ Phím Siêu Tốc</h3>
+                    <p class="game-card-desc">
+                        Thử thách gõ phím đúng 10 ngón trên hàng phím cơ sở và các ký tự công nghệ. Rèn luyện sự chính xác và dẻo dai!
+                    </p>
+                    <button type="button" class="arena-btn" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.12); color: #94a3b8; cursor: not-allowed;" disabled>
+                        <span>⏳</span> Sắp Mở
+                    </button>
+                </div>
+
+                <!-- GAME 3: TRÍ NHỚ CÔNG NGHỆ (SẮP RA MẮT) -->
+                <div class="game-card" style="opacity: 0.85;">
+                    <span class="game-card-badge badge-soon">Sắp Ra Mắt</span>
+                    <div class="game-card-icon">🧠</div>
+                    <h3 class="game-card-title">Trí Nhớ Siêu Phàm</h3>
+                    <p class="game-card-desc">
+                        Lật mở nhanh các cặp thẻ bài thiết bị máy tính, chuột, bàn phím và CPU trong thời gian ngắn nhất!
+                    </p>
+                    <button type="button" class="arena-btn" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.12); color: #94a3b8; cursor: not-allowed;" disabled>
+                        <span>⏳</span> Sắp Mở
+                    </button>
+                </div>
+
+                <!-- GAME 4: BẮN TÁO LUYỆN CHUỘT (SẮP RA MẮT) -->
+                <div class="game-card" style="opacity: 0.85;">
+                    <span class="game-card-badge badge-soon">Sắp Ra Mắt</span>
+                    <div class="game-card-icon">🎯</div>
+                    <h3 class="game-card-title">Bắn Táo Luyện Chuột</h3>
+                    <p class="game-card-desc">
+                        Thử thách tinh mắt nhanh tay: di chuyển chuột và nhấp đúp chuẩn xác vào những trái táo vàng xuất hiện bất ngờ!
+                    </p>
+                    <button type="button" class="arena-btn" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.12); color: #94a3b8; cursor: not-allowed;" disabled>
+                        <span>⏳</span> Sắp Mở
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. KHU VỰC BẢNG VÀNG TỔNG HỢP TOÀN TRƯỜNG -->
+        <section class="leaderboard-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span>👑</span> BẢNG VÀNG THỬ THÁCH
+                </h2>
+                <!-- Bộ chọn Game để xem Bảng Vàng -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-weight: 700; color: #cbd5e1; font-size: 0.95rem;">Xem minigame:</span>
+                    <select id="select-arena-game" class="rankboard-select">
+                        <option value="speed_click" selected>⚡ Bấm Chuột Siêu Tốc</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Khung render Bảng Xếp Hạng RankBoard -->
+            <div id="arena-main-rankboard"></div>
+        </section>
+
+        <!-- 5. CHÂN TRANG -->
+        <footer class="portal-footer">
+            <p>Hệ thống Đấu Trường Tin Học Tiểu Học &bull; Niên khóa 2026 - 2027</p>
+            <p style="font-size: 0.8rem; color: #475569; margin-top: 4px;">
+                Kiến trúc tự chủ tài nguyên (Offline-First) &bull; Đồng bộ đám mây Google Apps Script &bull; Chống gian lận SHA-256
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Khởi tạo Bảng Vàng trên trang chủ
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('arena-main-rankboard');
+            let currentBoard = null;
+
+            function loadBoard(gameId) {
+                if (window.RankBoard) {
+                    currentBoard = window.RankBoard.render(container, {
+                        gameId: gameId,
+                        scope: 'all',
+                        title: 'BẢNG VÀNG: BẤM CHUỘT SIÊU TỐC'
+                    });
+                }
+            }
+
+            loadBoard('speed_click');
+
+            const selectGame = document.getElementById('select-arena-game');
+            if (selectGame) {
+                selectGame.addEventListener('change', (e) => {
+                    const gameId = e.target.value;
+                    const gameName = e.target.options[e.target.selectedIndex].text;
+                    if (window.RankBoard) {
+                        window.RankBoard.render(container, {
+                            gameId: gameId,
+                            scope: 'all',
+                            title: `BẢNG VÀNG: ${gameName}`
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
