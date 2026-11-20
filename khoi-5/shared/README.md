@@ -5,7 +5,7 @@ Các bài giảng có cùng khung lớp học theo chuẩn Tiết 07. Nội dung
 ## Thành phần hiện có
 
 - `style.css`: giao diện cơ sở và kiểu cho khung cài đặt, sidebar, slide, bảng điểm, modal và màn hình tổng kết.
-- `components.js`: Web Components dùng cho cài đặt (`<khoi5-setup>`), sidebar (`<khoi5-sidebar>`), modal danh sách học sinh (`<khoi5-student-modal>`) và màn hình tổng kết (`<khoi5-summary>`); đồng thời cung cấp `toast(message, duration, background)` dùng chung.
+- `components.js`: Web Components dùng cho cài đặt (`<khoi5-setup>`), sidebar (`<khoi5-sidebar>`), modal danh sách học sinh (`<khoi5-student-modal>`) và màn hình tổng kết (`<khoi5-summary>`); hỗ trợ bộ chọn lớp linh hoạt từ Khối 1 đến Khối 5 phục vụ nhu cầu đảo bài/dạy chéo khối; đồng thời cung cấp `toast(message, duration, background)` dùng chung.
 - `audio.js`, `slides.js`, `scoreboard.js`, `students.js`, `gacha.js`, `utils.js`, `tracker.js`: các module chức năng độc lập. Chỉ sử dụng module khi trang nạp trực tiếp tệp đó và tích hợp đúng API của module; `core.js` hiện là bundle độc lập, không tự được các trang nạp.
 - `template.html`: khung tạo tiết mới; thay thông tin bài học và nội dung slide, không sao chép lại markup cài đặt/sidebar.
 
@@ -60,8 +60,9 @@ Modal chấp nhận `cancel-label`; summary chấp nhận `export-label` và `go
 
 Toàn bộ các tiết Tin học 5 xuất file báo cáo ở định dạng **CSV chuẩn UTF-8 có BOM (`\uFEFF`)**:
 1. **Quy cách đặt tên file chuẩn thống nhất (Đưa Ngày lên trước Giờ để tự động sort theo tên):**
-   `KetQua_TinHoc5_Lop_{Lop}_Tiet_{Tiet}_Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s.csv`
+   `KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}_Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s.csv`
    *(Ví dụ: `KetQua_TinHoc5_Lop_5-2_Tiet_07_Ngay_2026-10-31_15h40p12s.csv`)*
+   *(Khi dạy chéo khối/đảo bài: Tự động cập nhật Khối và Lớp theo lớp thực tế, ví dụ chọn lớp 4/1 thì tên file sẽ là `KetQua_TinHoc4_Lop_4-1_...`)*
 2. Báo cáo nhiều sheet (Bảng Điểm Tổ, Đánh Giá Từng Em TT27/SMAS, Nhật Ký Chi Tiết) được chuyển đổi thành multi-section CSV chuẩn, phân chia trực quan bằng tiêu đề `=== TÊN PHẦN ===`.
 3. Hàm `uploadCsvToDrive(sections, fileName)` trong `components.js` mã hóa dữ liệu Base64 với MIME `text/csv;charset=utf-8` gửi lên Google Apps Script Web App và fallback tải file về máy giáo viên nếu không có kết nối mạng.
 

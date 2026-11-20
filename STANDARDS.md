@@ -23,7 +23,8 @@
 11. [Hệ thống Quản lý Quests & Câu hỏi bằng File quests.js Duy Nhất](#11-hệ-thống-quản-lý-quests--câu-hỏi-bằng-file-questsjs-duy-nhất)
 12. [Hệ thống Tính Năng Ẩn: Cơ Chế "Phe Quỷ" Bất Công Công Khai (Chỉ Dành Riêng Cho Khối 5)](#12-hệ-thống-tính-năng-ẩn-cơ-chế-phe-quỷ-bất-công-công-khai-chỉ-áp-dụng-riêng-cho-khối-5--lớp-5)
 13. [Hệ thống Dàn Dựng Bàn Phím Máy Tính Ảo Chuẩn Công Thái Học (Realistic ANSI Keyboard Layout)](#13-hệ-thống-dàn-dựng-bàn-phím-máy-tính-ảo-chuẩn-công-thái-học-realistic-ansi-keyboard-layout)
-14. [Giao thức Cập nhật Quy chuẩn (Living Document Protocol)](#14-giao-thức-cập-nhật-quy-chuẩn-living-document-protocol)
+14. [Hệ thống Chọn Lớp Đa Khối Linh Hoạt & Nạp Dữ Liệu Học Sinh Toàn Repo](#14-hệ-thống-chọn-lớp-đa-khối-linh-hoạt--nạp-dữ-liệu-học-sinh-toàn-repo)
+15. [Giao thức Cập nhật Quy chuẩn (Living Document Protocol)](#15-giao-thức-cập-nhật-quy-chuẩn-living-document-protocol)
 
 ---
 
@@ -410,14 +411,15 @@ function evaluateTT27({ isCorrect, misclicks, rightClicks, spamClicks, invalidKe
 
 ## 6. HỆ THỐNG BÁO CÁO CSV CHUẨN UTF-8 BOM & ĐỒNG BỘ DRIVE
 
-### 6.1 Định dạng tên file chuẩn thống nhất (Sắp xếp thời gian tự nhiên)
+### 6.1 Định dạng tên file chuẩn thống nhất (Sắp xếp thời gian tự nhiên & Đồng bộ Khối thực tế)
 ```text
 KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}_Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s.csv
 ```
 * **Khối:** `1`, `2`, `3`, `4`, `5`.
-* **Lớp:** Ký tự `/` hoặc `_` tự động đổi thành dấu `-` (Ví dụ: `2/2` thành `2-2`).
+* **Lớp:** Ký tự `/` hoặc `_` tự động đổi thành dấu `-` (Ví dụ: `2/2` thành `2-2`, `4_1` thành `4-1`).
 * **Tiết:** Định dạng 2 chữ số (Ví dụ: `Tiet_09`).
 * **Thời gian & Ngày chuẩn ISO:** `Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s` (Ví dụ: `Ngay_2026-11-03_16h45p10s`).
+* **Quy tắc Đảo bài / Dạy chéo khối (Tự động nhận diện Khối thực tế):** Khi giáo viên mang bài giảng Khối này dạy cho lớp Khối khác (ví dụ: bài Khối 5 nhưng chọn lớp `4_1` / `4-1`), hàm `buildExportFileName` và hệ thống xuất báo cáo **tự động xác định `{Khoi}` dựa theo chữ số đầu của mã lớp được chọn** (ví dụ `4_1` -> `{Khoi} = 4`, sinh ra `KetQua_TinHoc4_Lop_4-1_...csv`), bảo đảm báo cáo lưu trữ và gửi lên Google Drive phản ánh chuẩn xác 100% lớp học sinh thực tế đang học.
 * **Lợi thế:** Khi giáo viên mở thư mục trên Windows hoặc Google Drive và bấm sắp xếp theo Tên (Sort by Name), toàn bộ các file báo cáo sẽ tự động xếp theo đúng trình tự thời gian tăng dần hoặc giảm dần một cách chuẩn xác 100%.
 
 ### 6.2 Cấu trúc Multi-Section CSV (UTF-8 có BOM `\uFEFF`)
@@ -1178,7 +1180,68 @@ Mẫu CSS chuẩn:
 
 ---
 
-## 14. GIAO THỨC CẬP NHẬT QUY CHUẨN (LIVING DOCUMENT PROTOCOL)
+## 14. HỆ THỐNG CHỌN LỚP ĐA KHỐI LINH HOẠT & NẠP DỮ LIỆU HỌC SINH TOÀN REPO
+
+### 14.1 Bối Cảnh Thực Tế & Nhu Cầu Đảo Bài / Dạy Chéo Khối
+* Trong thực tiễn giảng dạy bộ môn Tin học tại trường tiểu học, giáo viên thường xuyên phải đối mặt với các tình huống biến động:
+  * Đảo bài học nâng cao của Khối 4 lên cho Khối 5 học trước.
+  * Đảo bài nền tảng của Khối 3 cho Khối 4 học bù/ôn tập.
+  * Tổ chức các tiết thi đấu, ngoại khóa hoặc chuyên đề liên khối.
+  * Dạy thay, dạy bù giữa các lớp thuộc các khối khác nhau.
+* Nếu giao diện bài giảng bị khóa cứng chỉ cho chọn lớp của khối đó (ví dụ bài Khối 5 chỉ chọn được 5/1 -> 5/6), giáo viên sẽ bị bế tắc khi đem bài dạy cho lớp Khối khác.
+
+### 14.2 Quy Chuẩn Bộ Chọn Lớp Đa Khối (Universal Multi-Grade Class Picker)
+* **Toàn bộ bài giảng (Khối 1 -> Khối 5)** trong repo BẮT BUỘC cung cấp dropdown chọn lớp chứa **toàn bộ các lớp trong trường từ Khối 1 đến Khối 5**:
+  ```html
+  <select id="classSelect" onchange="onClassChange(this.value)">
+    <optgroup label="Khối 1">
+      <option value="1_6">Lớp 1/6</option>
+    </optgroup>
+    <optgroup label="Khối 2">
+      <option value="2_2">Lớp 2/2</option>
+      <option value="2_4">Lớp 2/4</option>
+      <option value="2_5">Lớp 2/5</option>
+    </optgroup>
+    <optgroup label="Khối 3">
+      <option value="3_2">Lớp 3/2</option>
+      <option value="3_3">Lớp 3/3</option>
+      <option value="3_4">Lớp 3/4</option>
+      <option value="3_5">Lớp 3/5</option>
+      <option value="3_6">Lớp 3/6</option>
+    </optgroup>
+    <optgroup label="Khối 4">
+      <option value="4_1">Lớp 4/1</option>
+      <option value="4_2">Lớp 4/2</option>
+      <option value="4_3">Lớp 4/3</option>
+      <option value="4_4">Lớp 4/4</option>
+      <option value="4_5">Lớp 4/5</option>
+      <option value="4_6">Lớp 4/6</option>
+    </optgroup>
+    <optgroup label="Khối 5">
+      <option value="5_1">Lớp 5/1</option>
+      <option value="5_2">Lớp 5/2</option>
+      <option value="5_3">Lớp 5/3</option>
+      <option value="5_4">Lớp 5/4</option>
+      <option value="5_5">Lớp 5/5</option>
+      <option value="5_6">Lớp 5/6</option>
+    </optgroup>
+  </select>
+  ```
+* **Lớp mặc định thông minh:** Khi mở trang, lớp được chọn sẵn mặc định theo khối của bài học (ví dụ: bài Khối 5 mặc định `5_1`, Khối 4 mặc định `4_1`, Khối 3 mặc định `3_2`, Khối 2 mặc định `2_2`, Khối 1 mặc định `1_6`).
+
+### 14.3 Cơ Chế Nạp Dữ Liệu Tự Động & Xử Lý Trùng Họ Tên
+* Hệ thống tự động phân tích tiền tố của mã lớp (ví dụ `classKey = '4_2'` -> Khối 4) để tải dữ liệu từ `../../assets/data/students_4_2026_2027.json`.
+* Tự động cache dữ liệu các khối đã tải để chuyển đổi lớp siêu tốc mà không cần tải lại nhiều lần.
+* Tự động xử lý phân biệt các em trùng họ tên bằng cách thêm hậu tố số thứ tự `(1)`, `(2)` (theo chuẩn sư phạm toàn trường).
+
+### 14.4 Xuất Báo Cáo CSV & Gửi Google Drive Tương Thích Hoàn Hảo
+* Khi giáo viên chọn một lớp bất kỳ (kể cả khác khối với bài giảng), tên file CSV sinh ra sẽ tự động phản ánh đúng **Khối và Lớp thực tế đang học**:
+  - Ví dụ: Bài Khối 5 nhưng dạy cho Lớp 4/2 -> Tên file: `KetQua_TinHoc4_Lop_4-2_Tiet_...csv`.
+  - Cột "Lớp" trong bảng đánh giá chi tiết (TT27 / SMAS) ghi nhận đúng `4-2`.
+
+---
+
+## 15. GIAO THỨC CẬP NHẬT QUY CHUẨN (LIVING DOCUMENT PROTOCOL)
 
 * Cả hai tài liệu **`AGENTS.md`** và **`STANDARDS.md`** đều là **Tài liệu sống (Living Documents)**.
 * Trong quá trình giảng dạy và phát triển bài giảng mới, khi Giáo viên phát hiện một quy tắc sư phạm mới, một mẹo hay hoặc muốn điều chỉnh bất kỳ thông số nào:

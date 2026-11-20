@@ -3285,6 +3285,20 @@
         }
 
         async function loadStudentsForClass(classKey) {
+            if (typeof window.loadLessonStudents === 'function') {
+                try {
+                    const loaded = await window.loadLessonStudents(classKey);
+                    if (Array.isArray(loaded) && loaded.length > 0) {
+                        studentsList = loaded.map((item, idx) => ({
+                            id: idx + 1,
+                            name: item.displayName || item.name,
+                            isDemon: false
+                        }));
+                        populateStudentDropdowns();
+                        return;
+                    }
+                } catch (e) { }
+            }
             try {
                 const res = await fetch(`../../assets/data/students_5_2026_2027.json`);
                 if (res.ok) {

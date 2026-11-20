@@ -49,13 +49,38 @@ const Khoi3Students = (() => {
     });
   }
 
-  /** Tải danh sách học sinh theo mã lớp (ví dụ: '3_2', '3/2', ...) */
+  /** Tải danh sách học sinh theo mã lớp (hỗ trợ linh hoạt từ Khối 1 đến Khối 5) */
   async function loadStudents(classKey = '3_2') {
     currentClassKey = String(classKey).replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
+    if (typeof window !== 'undefined' && typeof window.loadLessonStudents === 'function') {
+      try {
+        const loaded = await window.loadLessonStudents(currentClassKey);
+        if (Array.isArray(loaded) && loaded.length > 0) {
+          allStudents = loaded.map((s, idx) => ({
+            id: idx + 1,
+            name: s.name || s.displayName,
+            rawName: s.rawName || s.name,
+            displayName: s.displayName || s.name,
+            team: null,
+            total: 0,
+            correct: 0,
+            actions: []
+          }));
+          return allStudents;
+        }
+      } catch (err) {
+        console.warn('Lỗi khi nạp qua window.loadLessonStudents:', err);
+      }
+    }
+
+    const gradeMatch = currentClassKey.match(/^[1-5]/);
+    const grade = gradeMatch ? gradeMatch[0] : '3';
+
     try {
       const paths = [
-        '../../assets/data/students_3_2026_2027.json'
+        `../../assets/data/students_${grade}_2026_2027.json`,
+        `../assets/data/students_${grade}_2026_2027.json`
       ];
 
       let rawData = null;

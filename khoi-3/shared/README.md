@@ -5,8 +5,8 @@ Các bài giảng Tin học khối 3 có cùng khung lớp học theo chuẩn gi
 ## Thành phần hiện có
 
 - `style.css`: Giao diện cơ sở định nghĩa theo Tiết 06 (Quicksand, màu sắc tươi sáng: `--primary: #4361ee`, `--secondary: #ffb703`, `--navy: #101b35`, `--green: #2a9d8f`, `--red: #e63946`, ...), bố cục `.main` và `.side` (cho phép menu điều khiển, thanh công cụ hoặc sidebar ẩn/hiện bằng nút Hamburger `☰` để tối ưu diện tích màn chiếu), các thẻ `.tcard`, linh kiện 4 ô `.core-slots-grid`, kho đồ cuộn ngang `.inv-scroll`, modal, toast và Kanban.
-- `components.js`: Web Components cho cài đặt đầu giờ (`<khoi3-setup>`), sidebar (`<khoi3-sidebar>`), modal thêm học sinh (`<khoi3-student-modal>`) và màn hình tổng kết (`<khoi3-summary>`); đồng thời cung cấp hàm `toast(msg)` và **`uploadExcelToDrive(wb, fileName)`** tự động bắn file nhật ký lên Google Drive.
-- `students.js`: Quản lý danh sách học sinh Khối 3 nạp trực tiếp tự động từ JSON (`assets/data/students_3_2026_2027.json`). Hoàn toàn không dùng import Excel, chỉ dùng JSON và cho phép giáo viên thêm nhanh học sinh bằng tay.
+- `components.js`: Web Components cho cài đặt đầu giờ (`<khoi3-setup>`), sidebar (`<khoi3-sidebar>`, `<khoi3-unified-sidebar>`), modal thêm học sinh (`<khoi3-student-modal>`) và màn hình tổng kết (`<khoi3-summary>`); hỗ trợ bộ chọn lớp đa khối từ Khối 1 đến Khối 5; đồng thời cung cấp hàm `toast(msg)` và **`uploadExcelToDrive(wb, fileName)`** tự động bắn file nhật ký lên Google Drive.
+- `students.js`: Quản lý danh sách học sinh toàn trường, tự động nạp từ JSON tương ứng theo mã lớp (`assets/data/students_{khoi}_2026_2027.json`). Hoàn toàn không dùng import Excel, chỉ dùng JSON và cho phép giáo viên thêm nhanh học sinh bằng tay. Hỗ trợ chọn linh hoạt từ Khối 1 đến Khối 5 khi đảo bài.
 - `tracker.js`: Ghi nhật ký chi tiết theo thời gian thực, tính toán thứ hạng chuẩn sư phạm (xử lý đồng hạng) và xuất báo cáo 3 sheets (Bảng Xếp Hạng, Nhật Ký Chi Tiết, Danh Sách Học Sinh) tự động đồng bộ về Google Drive.
 - `audio.js`: Phát âm thanh Web Audio API (trả lời đúng, chiến thắng, phạt mất trật tự, click, quay gacha), 100% offline không cần mp3 ngoài.
 - `slides.js`: Quản lý chuyển đổi màn hình và slide trình chiếu.
@@ -19,8 +19,9 @@ Các bài giảng Tin học khối 3 có cùng khung lớp học theo chuẩn gi
 
 Toàn bộ hệ thống xuất file báo cáo ở định dạng **CSV chuẩn UTF-8 có BOM (`\uFEFF`)**:
 1. **Quy cách đặt tên file chuẩn thống nhất (Đưa Ngày lên trước Giờ để tự động sort theo tên):**
-   `KetQua_TinHoc3_Lop_{Lop}_Tiet_{Tiet}_Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s.csv`
+   `KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}_Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s.csv`
    *(Ví dụ: `KetQua_TinHoc3_Lop_3-2_Tiet_06_Ngay_2026-10-31_14h30p25s.csv`)*
+   *(Khi dạy chéo khối/đảo bài: Tự động cập nhật Khối và Lớp theo lớp thực tế, ví dụ chọn lớp 4/2 thì tên file sẽ là `KetQua_TinHoc4_Lop_4-2_...`)*
 2. Khi giáo viên bấm nút **"📥 Xuất CSV báo cáo"** ở màn hình tổng kết:
 3. Hệ thống sử dụng hàm `uploadCsvToDrive(csvDataOrSections, fileName)` (cung cấp sẵn từ `../shared/components.js`, với alias tương thích `uploadExcelToDrive`).
 4. Với báo cáo nhiều phần (Bảng Xếp Hạng, Nhật Ký Chi Tiết, Danh Sách Học Sinh), hệ thống tự động gộp thành định dạng multi-section CSV ngăn cách bởi tiêu đề `=== TÊN PHẦN ===`, lưu giữ trọn vẹn dữ liệu.

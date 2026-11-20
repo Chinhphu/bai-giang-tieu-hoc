@@ -69,12 +69,17 @@
       const startLabel = escapeHtml(this.getAttribute('start-label') || 'Bắt đầu ➔');
       const startingScoreLabel = escapeHtml(this.getAttribute('starting-score-label') || 'Điểm khởi đầu mỗi tổ:');
       const defaultScore = escapeHtml(this.getAttribute('default-score') || '1000');
-      const selectedClass = /^3_[1-6]$/.test(this.getAttribute('default-class') || '')
-        ? this.getAttribute('default-class')
-        : '3_2';
+      const selectedClass = this.getAttribute('default-class') || '3_2';
       const selectedTeams = /^[2-6]$/.test(this.getAttribute('default-teams') || '')
         ? this.getAttribute('default-teams')
         : '4';
+
+      const classOptionsMarkup = (typeof window.renderAllClassOptions === 'function')
+        ? window.renderAllClassOptions(selectedClass)
+        : Array.from({ length: 6 }, (_, idx) => {
+            const val = `3_${idx + 1}`;
+            return `<option value="${val}" ${selectedClass === val ? 'selected' : ''}>Lớp 3/${idx + 1}</option>`;
+          }).join('');
 
       this.innerHTML = `
         <div id="setup-screen">
@@ -85,10 +90,7 @@
             <div class="setup-row">
               <span>Lớp học:</span>
               <select id="classSel" onchange="if(typeof setupClass==='function')setupClass()">
-                ${Array.from({ length: 6 }, (_, idx) => {
-                  const val = `3_${idx + 1}`;
-                  return `<option value="${val}" ${selectedClass === val ? 'selected' : ''}>Lớp 3/${idx + 1}</option>`;
-                }).join('')}
+                ${classOptionsMarkup}
               </select>
             </div>
             <div class="setup-row">
@@ -316,13 +318,39 @@
       this.classId = cid;
       this.selectedStudent = null;
       this.calledStudents = new Set();
-      let names = FALLBACK_STUDENTS_KHOI_3[cid] || FALLBACK_STUDENTS_KHOI_3['3_2'];
+
+      if (typeof window !== 'undefined' && typeof window.loadLessonStudents === 'function') {
+        try {
+          const loaded = await window.loadLessonStudents(cid);
+          if (Array.isArray(loaded) && loaded.length > 0) {
+            this.students = loaded.map((s, i) => ({
+              id: cid + '_' + (i + 1),
+              no: i + 1,
+              name: s.displayName || s.name
+            }));
+            this.renderStudentList();
+            return;
+          }
+        } catch (_) {}
+      }
+
+      let names = FALLBACK_STUDENTS_KHOI_3[cid] || FALLBACK_STUDENTS_KHOI_3['3_2'] || [];
+      const gradeMatch = String(cid).match(/^[1-5]/);
+      const grade = gradeMatch ? gradeMatch[0] : '3';
 
       try {
-        const res = await fetch('../../assets/data/students_3_2026_2027.json');
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data[cid])) names = data[cid];
+        const paths = [
+          `../../assets/data/students_${grade}_2026_2027.json`,
+          `../assets/data/students_${grade}_2026_2027.json`
+        ];
+        for (const p of paths) {
+          try {
+            const res = await fetch(p);
+            if (res.ok) {
+              const data = await res.json();
+              if (Array.isArray(data[cid])) { names = data[cid]; break; }
+            }
+          } catch (_) {}
         }
       } catch (_) {}
 
@@ -472,18 +500,24 @@
       const defaultClass = this.getAttribute('default-class') || '3_2';
       const defaultTeams = parseInt(this.getAttribute('default-teams')) || 4;
 
+      const classOptionsMarkup = (typeof window.renderAllClassOptions === 'function')
+        ? window.renderAllClassOptions(defaultClass)
+        : `
+          <option value="3_2" ${defaultClass==='3_2'?'selected':''}>Lớp 3/2</option>
+          <option value="3_3" ${defaultClass==='3_3'?'selected':''}>Lớp 3/3</option>
+          <option value="3_4" ${defaultClass==='3_4'?'selected':''}>Lớp 3/4</option>
+          <option value="3_5" ${defaultClass==='3_5'?'selected':''}>Lớp 3/5</option>
+          <option value="3_6" ${defaultClass==='3_6'?'selected':''}>Lớp 3/6</option>
+        `;
+
       this.innerHTML = `
         <aside class="scoreboard" style="width:100%; border:0; padding:0; background:transparent;">
           <div class="scoreboard-panel">
             <div class="score-head">
               <span>🏆 ĐIỂM CÁC TỔ</span>
               <div style="display:flex; gap:6px; align-items:center;">
-                <select id="classSelect" onchange="Khoi3UnifiedSidebar.loadClassStudents(this.value)" title="Chọn lớp Khối 3">
-                  <option value="3_2" ${defaultClass==='3_2'?'selected':''}>Lớp 3/2</option>
-                  <option value="3_3" ${defaultClass==='3_3'?'selected':''}>Lớp 3/3</option>
-                  <option value="3_4" ${defaultClass==='3_4'?'selected':''}>Lớp 3/4</option>
-                  <option value="3_5" ${defaultClass==='3_5'?'selected':''}>Lớp 3/5</option>
-                  <option value="3_6" ${defaultClass==='3_6'?'selected':''}>Lớp 3/6</option>
+                <select id="classSelect" onchange="Khoi3UnifiedSidebar.loadClassStudents(this.value)" title="Chọn lớp">
+                  ${classOptionsMarkup}
                 </select>
                 <select id="teamCount" onchange="Khoi3UnifiedSidebar.initTeams(Number(this.value))" title="Số tổ">
                   <option value="2" ${defaultTeams===2?'selected':''}>2 tổ</option>

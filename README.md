@@ -53,11 +53,20 @@ KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}_Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s.
   - `KetQua_TinHoc5_Lop_5-1_Tiet_07_Ngay_2026-10-31_09h15p40s.csv`
 
 ### 2. Các hàm dùng chung (Đã tích hợp trong `shared/js/core.js`, `shared/js/prevent-reload.js` và `components.js` của từng khối):
-- **`window.buildExportFileName({ grade, classId, lesson, prefix, ext })`**: Sinh tên file chuẩn theo quy cách trên.
+- **`window.buildExportFileName({ grade, classId, lesson, prefix, ext })`**: Sinh tên file chuẩn theo quy cách trên. Khi giáo viên dạy chéo khối (ví dụ bài Khối 5 dạy cho Lớp 4/2), hàm tự động nhận diện Khối thực tế `4` từ mã lớp `4_2` để sinh đúng tên file `KetQua_TinHoc4_Lop_4-2_...csv`.
 - **`window.exportToCsv(data, fileName, options)`**: Xuất dữ liệu bảng hoặc dữ liệu nhiều phần (multi-section) ra file CSV UTF-8 có BOM.
 - **`window.uploadCsvToDrive(data, fileName, options)`**: Gửi Base64 CSV đồng bộ về Google Apps Script Web App và Google Drive, tự động fallback tải file về máy giáo viên nếu offline.
 - **`window.uploadExcelToDrive`**: Bridge tương thích ngược, tự động gọi `uploadCsvToDrive` để đảm bảo không gãy code cũ.
 - **Báo cáo nhiều bảng/sheet**: Được phân chia tự động và trực quan bằng tiêu đề `=== TÊN PHẦN ===`, mở tốt trên mọi phần mềm bảng tính.
+
+---
+
+## 🏫 Bộ Chọn Lớp Đa Khối Linh Hoạt (Khối 1 - Khối 5) & Dạy Đảo Bài Toàn Repo
+
+Để phục vụ các tình huống giảng dạy thực tế đặc thù của Giáo viên (đảo bài Khối 4 lên Khối 5, Khối 3 cho Khối 4, ôn tập hoặc dạy bù liên khối):
+1. **Dropdown chọn lớp hỗ trợ 100% các lớp trong toàn trường:** Mọi bài giảng từ Khối 1 đến Khối 5 đều cho phép chọn bất kỳ lớp nào từ Khối 1 đến Khối 5 qua menu phân nhóm `<optgroup>` gọn gàng.
+2. **Nạp dữ liệu học sinh động:** Tự động nạp đúng danh sách học sinh từ file JSON tương ứng của khối đó (`students_1_...` đến `students_5_...`) và tự động phân biệt học sinh trùng họ tên `(1)`, `(2)`.
+3. **Báo cáo CSV thích ứng linh hoạt:** Dù là bài giảng của khối nào, khi chọn lớp nào thì file CSV xuất ra sẽ ghi nhận chính xác Khối & Lớp thực tế đó.
 
 ---
 

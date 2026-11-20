@@ -468,13 +468,17 @@
     const GAS_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbywqn9mgeON9fTqp3xmnGbuqWW-eChABhvaotV4qHezosaqlYuWpF0c4vnB7APkuXBSRw/exec';
 
     function buildExportFileName({ grade = '1', classId = '1_1', lesson = '01', prefix = null, date = new Date() } = {}) {
-        const g = String(grade).replace(/\D/g, '') || '1';
-
         let c = String(classId || '').trim();
-        if (!c) c = `${g}-1`;
         c = c.replace(/^(?:l[oớ]p)[_\s-]*/i, '');
         c = c.replace(/\//g, '-').replace(/_/g, '-');
         c = c.replace(/[^a-zA-Z0-9\-]/g, '');
+
+        // Tự động nhận diện khối thực tế từ ký tự đầu của mã lớp nếu có (hỗ trợ đảo bài/dạy chéo khối)
+        let inferredGrade = null;
+        const gradeMatch = c.match(/^[1-5]/);
+        if (gradeMatch) inferredGrade = gradeMatch[0];
+
+        const g = inferredGrade || (String(grade).replace(/\D/g, '') || '1');
         if (!c) c = `${g}-1`;
 
         let l = String(lesson || '').trim().replace(/^(?:ti[eế]t)[_\s-]*/i, '');
@@ -493,7 +497,10 @@
         const yyyy = d.getFullYear();
         const sortDateStr = `Ngay_${yyyy}-${mo}-${dd}_${timeStr}`;
 
-        const mainPrefix = prefix || `KetQua_TinHoc${g}`;
+        let mainPrefix = prefix;
+        if (!mainPrefix || /^KetQua_TinHoc\d*$/i.test(mainPrefix)) {
+            mainPrefix = `KetQua_TinHoc${g}`;
+        }
         return `${mainPrefix}_Lop_${c}_Tiet_${l}_${sortDateStr}.csv`;
     }
 
@@ -547,7 +554,7 @@
         return tableToCsv(data);
     }
 
-    function downloadCsv(csvContent, fileName) {
+    function normalizeExportFileName(fileName) {
         let name = String(fileName || 'Bao_Cao.csv').trim();
         if (name.toLowerCase().endsWith('.xlsx') || name.toLowerCase().endsWith('.xls')) {
             name = name.replace(/\.xlsx?$/i, '.csv');
@@ -555,6 +562,19 @@
             name += '.csv';
         }
 
+        // Tự động nhận diện và đồng bộ số Khối trong tiền tố KetQua_TinHocX theo mã lớp thực tế
+        // Ví dụ: KetQua_TinHoc5_Lop_4-2_... -> KetQua_TinHoc4_Lop_4-2_...
+        const match = name.match(/KetQua_TinHoc\d*(_Lop_([1-5])[-_].*)/i);
+        if (match) {
+            const actualGrade = match[2];
+            const restOfName = match[1];
+            name = `KetQua_TinHoc${actualGrade}${restOfName}`;
+        }
+        return name;
+    }
+
+    function downloadCsv(csvContent, fileName) {
+        const name = normalizeExportFileName(fileName);
         const csv = (typeof csvContent === 'string') ? csvContent : convertToCsv(csvContent);
         const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
@@ -568,13 +588,7 @@
     }
 
     async function uploadCsvToDrive(csvData, fileName) {
-        let name = String(fileName || 'Bao_Cao.csv').trim();
-        if (name.toLowerCase().endsWith('.xlsx') || name.toLowerCase().endsWith('.xls')) {
-            name = name.replace(/\.xlsx?$/i, '.csv');
-        } else if (!name.toLowerCase().endsWith('.csv')) {
-            name += '.csv';
-        }
-
+        const name = normalizeExportFileName(fileName);
         const csv = (typeof csvData === 'string') ? csvData : convertToCsv(csvData);
 
         const showMsg = (msg, type = 'info') => {
@@ -644,4 +658,262 @@
     window.uploadExcelToDrive = function (wbOrData, fileName) {
         return uploadCsvToDrive(wbOrData, fileName);
     };
+
+    /* =========================================================================
+     * QUY CHUẨN BỘ CHỌN LỚP ĐA KHỐI (KHỐI 1 - KHỐI 5) & DỮ LIỆU HỌC SINH TOÀN REPO
+     * ========================================================================= */
+    const ALL_SCHOOL_CLASSES = [
+        {
+            grade: 1,
+            name: 'Khối 1',
+            classes: [
+                { id: '1_6', name: 'Lớp 1/6' }
+            ]
+        },
+        {
+            grade: 2,
+            name: 'Khối 2',
+            classes: [
+                { id: '2_2', name: 'Lớp 2/2' },
+                { id: '2_4', name: 'Lớp 2/4' },
+                { id: '2_5', name: 'Lớp 2/5' }
+            ]
+        },
+        {
+            grade: 3,
+            name: 'Khối 3',
+            classes: [
+                { id: '3_2', name: 'Lớp 3/2' },
+                { id: '3_3', name: 'Lớp 3/3' },
+                { id: '3_4', name: 'Lớp 3/4' },
+                { id: '3_5', name: 'Lớp 3/5' },
+                { id: '3_6', name: 'Lớp 3/6' }
+            ]
+        },
+        {
+            grade: 4,
+            name: 'Khối 4',
+            classes: [
+                { id: '4_1', name: 'Lớp 4/1' },
+                { id: '4_2', name: 'Lớp 4/2' },
+                { id: '4_3', name: 'Lớp 4/3' },
+                { id: '4_4', name: 'Lớp 4/4' },
+                { id: '4_5', name: 'Lớp 4/5' },
+                { id: '4_6', name: 'Lớp 4/6' }
+            ]
+        },
+        {
+            grade: 5,
+            name: 'Khối 5',
+            classes: [
+                { id: '5_1', name: 'Lớp 5/1' },
+                { id: '5_2', name: 'Lớp 5/2' },
+                { id: '5_3', name: 'Lớp 5/3' },
+                { id: '5_4', name: 'Lớp 5/4' },
+                { id: '5_5', name: 'Lớp 5/5' },
+                { id: '5_6', name: 'Lớp 5/6' }
+            ]
+        }
+    ];
+
+    window.ALL_SCHOOL_CLASSES = ALL_SCHOOL_CLASSES;
+
+    // Sinh danh sách <optgroup> và <option> cho thẻ <select>
+    window.renderAllClassOptions = function (selectedClassKey = '') {
+        const norm = s => String(s || '').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const selNorm = norm(selectedClassKey);
+        return ALL_SCHOOL_CLASSES.map(group => {
+            const options = group.classes.map(cls => {
+                const isSelected = norm(cls.id) === selNorm;
+                return `<option value="${cls.id}" ${isSelected ? 'selected' : ''}>${cls.name}</option>`;
+            }).join('\n        ');
+            return `<optgroup label="${group.name}">\n        ${options}\n      </optgroup>`;
+        }).join('\n      ');
+    };
+
+    // Bộ nhớ đệm danh sách học sinh toàn trường
+    let _allStudentsDataCache = null;
+
+    // Nạp toàn bộ dữ liệu học sinh của cả 5 khối (tổng hợp 21 lớp)
+    window.loadAllStudents = async function (basePath = '../../assets/data/') {
+        if (_allStudentsDataCache && Object.keys(_allStudentsDataCache).length > 0) {
+            return _allStudentsDataCache;
+        }
+
+        const candidatePaths = [
+            `${basePath}students_all_2026_2027.json`,
+            `../../assets/data/students_all_2026_2027.json`,
+            `../assets/data/students_all_2026_2027.json`,
+            `assets/data/students_all_2026_2027.json`
+        ];
+
+        for (const p of candidatePaths) {
+            try {
+                const res = await _origFetch(p);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && typeof data === 'object' && Object.keys(data).length >= 5) {
+                        _allStudentsDataCache = data;
+                        return _allStudentsDataCache;
+                    }
+                }
+            } catch (_) {}
+        }
+
+        // Nếu chưa có file all, nạp song song cả 5 file của 5 khối và gộp lại
+        const merged = {};
+        const grades = [1, 2, 3, 4, 5];
+        await Promise.all(grades.map(async (g) => {
+            const gradePaths = [
+                `${basePath}students_${g}_2026_2027.json`,
+                `../../assets/data/students_${g}_2026_2027.json`,
+                `../assets/data/students_${g}_2026_2027.json`,
+                `assets/data/students_${g}_2026_2027.json`
+            ];
+            for (const gp of gradePaths) {
+                try {
+                    const r = await _origFetch(gp);
+                    if (r.ok) {
+                        const json = await r.json();
+                        if (json && typeof json === 'object') {
+                            Object.assign(merged, json);
+                            break;
+                        }
+                    }
+                } catch (_) {}
+            }
+        }));
+
+        if (Object.keys(merged).length > 0) {
+            _allStudentsDataCache = merged;
+            return _allStudentsDataCache;
+        }
+        return {};
+    };
+
+    // Nạp danh sách học sinh theo mã lớp (tự động phát hiện khối và nạp đúng danh sách học sinh)
+    window.loadLessonStudents = async function (classKey, basePath = '../../assets/data/') {
+        const rawKey = String(classKey || '1_6').trim();
+        const norm = s => String(s || '').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const normKey = norm(rawKey);
+
+        const gradeMatch = normKey.match(/^[1-5]/);
+        const grade = gradeMatch ? gradeMatch[0] : '1';
+
+        const allData = await window.loadAllStudents(basePath);
+        let rawList = allData[rawKey] || allData[normKey] || [];
+        if (!rawList || !rawList.length) {
+            const foundKey = Object.keys(allData).find(k => norm(k) === normKey);
+            if (foundKey) rawList = allData[foundKey] || [];
+        }
+
+        // Tự động phân biệt nếu trùng họ tên
+        const nameCounts = {};
+        rawList.forEach(item => {
+            const raw = typeof item === 'string' ? item : (item.name || item.hoTen || item.fullName || '');
+            const trimmed = raw.trim();
+            nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
+        });
+
+        const nameTracker = {};
+        return rawList.map((item, idx) => {
+            const raw = typeof item === 'string' ? item : (item.name || item.hoTen || item.fullName || `Học sinh ${idx + 1}`);
+            const trimmed = raw.trim();
+            let finalName = trimmed;
+            if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
+                nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
+                finalName = `${trimmed} (${nameTracker[trimmed]})`;
+            }
+            return {
+                id: idx + 1,
+                name: finalName,
+                rawName: trimmed,
+                displayName: finalName,
+                code: `HS${grade}_${String(idx + 1).padStart(2, '0')}`
+            };
+        });
+    };
+
+    // =========================================================================
+    // TRANSPARENT FETCH INTERCEPTOR FOR STUDENT DATA
+    // Khi bất kỳ trang nào gọi fetch() file students_*.json, tự động bổ sung
+    // dữ liệu của cả 5 khối để code của bài (ví dụ data[currentClass]) luôn tìm
+    // thấy lớp đang chọn bất kể là bài của khối nào dạy cho khối nào!
+    // =========================================================================
+    const _origFetch = (typeof window !== 'undefined' && window.fetch) ? window.fetch.bind(window) : null;
+    if (_origFetch) {
+        window.fetch = async function (input, init) {
+            const url = (typeof input === 'string') ? input : (input && input.url ? input.url : '');
+            const isStudentJson = /students_.*\.json/i.test(url);
+
+            if (!isStudentJson) {
+                return _origFetch(input, init);
+            }
+
+            try {
+                const response = await _origFetch(input, init);
+                if (!response.ok) return response;
+
+                // Clone response và chèn dữ liệu toàn trường vào json()
+                const origJson = response.json.bind(response);
+                response.json = async function () {
+                    const data = await origJson();
+                    try {
+                        const allData = await window.loadAllStudents();
+                        if (allData && typeof allData === 'object' && Object.keys(allData).length > 0) {
+                            return Object.assign({}, allData, data);
+                        }
+                    } catch (_) {}
+                    return data;
+                };
+                return response;
+            } catch (err) {
+                return _origFetch(input, init);
+            }
+        };
+    }
+
+    // =========================================================================
+    // AUTO-ENHANCE CLASS SELECTORS TRÊN MỌI TRANG
+    // Tự động tìm kiếm các thẻ <select> chọn lớp và nâng cấp thành menu đa khối
+    // có <optgroup> phân nhóm Khối 1 - Khối 5.
+    // =========================================================================
+    window.enhanceClassSelects = function () {
+        const selectors = [
+            '#class-select',
+            '#classSelect',
+            '#settings-class-select',
+            '#selectClass',
+            '#setupClassSelect',
+            '#drawerClassSelect',
+            '#classSel',
+            '#s-class',
+            '#classSelectTiet5',
+            '#cls',
+            '#selCls',
+            '.k1-class-select'
+        ];
+
+        selectors.forEach(sel => {
+            const elements = document.querySelectorAll(sel);
+            elements.forEach(el => {
+                if (!el || el.dataset.allClassesEnhanced === 'true') return;
+                // Nếu chưa có optgroup thì mới nâng cấp
+                if (el.tagName === 'SELECT' && !el.querySelector('optgroup')) {
+                    const currentVal = el.value || el.getAttribute('default-class') || '';
+                    el.innerHTML = window.renderAllClassOptions(currentVal);
+                    if (currentVal) el.value = currentVal;
+                    el.dataset.allClassesEnhanced = 'true';
+                }
+            });
+        });
+    };
+
+    if (typeof document !== 'undefined') {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', window.enhanceClassSelects);
+        } else {
+            setTimeout(window.enhanceClassSelects, 10);
+        }
+    }
 })();

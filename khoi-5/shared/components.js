@@ -59,13 +59,18 @@
       const teamUnit = escapeHtml(this.getAttribute('team-unit') || 'Tổ');
       const startingScoreLabel = escapeHtml(this.getAttribute('starting-score-label') || 'Điểm sàn mỗi tổ:');
       const startLabel = escapeHtml(this.getAttribute('start-label') || 'VÀO TIẾT HỌC 🚀');
-      const selectedClass = /^5_[1-6]$/.test(this.getAttribute('default-class') || '')
-        ? this.getAttribute('default-class')
-        : '5_1';
+      const selectedClass = this.getAttribute('default-class') || '5_1';
       const selectedTeams = /^[2-6]$/.test(this.getAttribute('default-teams') || '')
         ? this.getAttribute('default-teams')
         : '4';
       const defaultScore = escapeHtml(this.getAttribute('default-score') || '1000');
+
+      const classOptionsMarkup = (typeof window.renderAllClassOptions === 'function')
+        ? window.renderAllClassOptions(selectedClass)
+        : Array.from({ length: 6 }, (_, index) => {
+            const value = `5_${index + 1}`;
+            return `<option value="${value}" ${selectedClass === value ? 'selected' : ''}>Lớp 5/${index + 1}</option>`;
+          }).join('');
 
       this.innerHTML = `
         <div id="setup-screen">
@@ -75,10 +80,7 @@
             <div class="setup-row">
               <span>Chọn lớp học:</span>
               <select id="s-class">
-                ${Array.from({ length: 6 }, (_, index) => {
-                  const value = `5_${index + 1}`;
-                  return `<option value="${value}" ${selectedClass === value ? 'selected' : ''}>Lớp 5/${index + 1}</option>`;
-                }).join('')}
+                ${classOptionsMarkup}
               </select>
             </div>
             <div class="setup-row">

@@ -45,13 +45,37 @@ const Khoi5Students = (() => {
     });
   }
 
-  /** Tải danh sách học sinh theo mã lớp (ví dụ: '5_1', '5/1', ...) */
+  /** Tải danh sách học sinh theo mã lớp (hỗ trợ linh hoạt từ Khối 1 đến Khối 5) */
   async function loadStudents(classKey = '5_1') {
     currentClassKey = String(classKey).replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
+    if (typeof window !== 'undefined' && typeof window.loadLessonStudents === 'function') {
+      try {
+        const loaded = await window.loadLessonStudents(currentClassKey);
+        if (Array.isArray(loaded) && loaded.length > 0) {
+          allStudents = loaded.map((s, idx) => ({
+            id: idx + 1,
+            name: s.name || s.displayName,
+            rawName: s.rawName || s.name,
+            displayName: s.displayName || s.name,
+            team: null,
+            actions: []
+          }));
+          return allStudents;
+        }
+      } catch (err) {
+        console.warn('Lỗi khi nạp qua window.loadLessonStudents:', err);
+      }
+    }
+
+    // Tự động nhận diện khối từ mã lớp để nạp đúng file JSON
+    const gradeMatch = currentClassKey.match(/^[1-5]/);
+    const grade = gradeMatch ? gradeMatch[0] : '5';
+
     try {
       const paths = [
-        '../../assets/data/students_5_2026_2027.json'
+        `../../assets/data/students_${grade}_2026_2027.json`,
+        `../assets/data/students_${grade}_2026_2027.json`
       ];
 
       let rawData = null;

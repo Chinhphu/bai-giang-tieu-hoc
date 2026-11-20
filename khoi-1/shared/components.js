@@ -113,10 +113,31 @@
         }
       }
 
+      if (typeof window !== 'undefined' && typeof window.loadLessonStudents === 'function') {
+        try {
+          const loaded = await window.loadLessonStudents(cls);
+          if (Array.isArray(loaded) && loaded.length > 0) {
+            students = loaded.map((s, i) => ({
+              id: i + 1,
+              code: s.code || `HS_${String(i + 1).padStart(2, '0')}`,
+              name: s.displayName || s.name,
+              status: 'waiting',
+              isPriority: false,
+              calledCount: 0,
+              mouseSkill: 'Tốt',
+              note: ''
+            }));
+            return;
+          }
+        } catch (_) {}
+      }
+
       let rawNames = null;
+      const gradeMatch = String(cls).match(/^[1-5]/);
+      const grade = gradeMatch ? gradeMatch[0] : '1';
       const paths = [
-        '../../assets/data/students_1_2026_2027.json',
-        '../assets/data/students_1_2026_2027.json'
+        `../../assets/data/students_${grade}_2026_2027.json`,
+        `../assets/data/students_${grade}_2026_2027.json`
       ];
       for (const p of paths) {
         try {
@@ -281,13 +302,17 @@
 
       const list = currentTab === 'waiting' ? waiting : (currentTab === 'called' ? called : stars);
 
+      const classOptionsMarkup = (typeof window.renderAllClassOptions === 'function')
+        ? window.renderAllClassOptions(currentClass)
+        : ['1_1', '1_2', '1_3', '1_4', '1_5', '1_6'].map(c => `
+            <option value="${c}" ${c === currentClass ? 'selected' : ''}>Lớp 1/${c.split('_')[1]}</option>
+          `).join('');
+
       sb.innerHTML = `
         <div class="k1-sb-header">
-          <div class="k1-sb-brand">TIN HỌC LỚP 1</div>
+          <div class="k1-sb-brand">TIN HỌC TIỂU HỌC</div>
           <select class="k1-class-select" onchange="Khoi1Components.setClass(this.value)">
-            ${['1_1', '1_2', '1_3', '1_4', '1_5', '1_6'].map(c => `
-              <option value="${c}" ${c === currentClass ? 'selected' : ''}>Lớp 1/${c.split('_')[1]}</option>
-            `).join('')}
+            ${classOptionsMarkup}
           </select>
         </div>
 

@@ -112,23 +112,34 @@ $$\text{Chờ (Waiting)} \xrightarrow{\text{Bốc thăm Gacha / Chọn}} \text{L
   * **Vô hiệu hóa việc đếm thao tác vật lý** (không đếm click trượt/phím sai của giáo viên).
   * Chỉ track nhật ký sư phạm: Tổ nào, Em nào trả lời, Câu hỏi, Đúng/Sai, Thời gian suy nghĩ, Biến động điểm (+/-), Đánh giá.
 
-### 6. Xuất Báo cáo CSV Chuẩn UTF-8 có BOM (`\uFEFF`) & Đảo thứ tự thời gian Sort
+### 6. Xuất Báo cáo CSV Chuẩn UTF-8 có BOM (`\uFEFF`) & Đảo thứ tự thời gian Sort (Đồng bộ Khối & Lớp Thực Tế)
 * **100% CSV UTF-8 có BOM (`\uFEFF`)**, không dùng định dạng `.xlsx`.
 * **Cú pháp tên file chuẩn theo thứ tự Năm-Tháng-Ngày-Giờ-Phút-Giây (Dễ sort trong thư mục):**
   ```text
   KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}_Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s.csv
   ```
   *(Ví dụ: `KetQua_TinHoc2_Lop_2-2_Tiet_09_Ngay_2026-11-03_16h45p10s.csv`)*
-  * **Lợi ích:** Tên file tự động sắp xếp theo thứ tự thời gian từ cũ đến mới (hoặc mới đến cũ) khi sắp xếp theo Tên (Name) trong Windows File Explorer hoặc Google Drive.
+  * **Tự động nhận diện Khối & Lớp thực tế khi dạy chéo khối / đảo bài:** Trong các trường hợp giáo viên mang bài Khối 5 dạy cho Khối 4 (hoặc Khối 3 cho Khối 4, v.v.), tên file CSV và bảng đánh giá **BẮT BUỘC tự động suy luận Khối theo mã lớp thực tế được chọn** (ví dụ: bài Khối 5 nhưng chọn lớp `4_2` thì Khối tự động là `4` → `KetQua_TinHoc4_Lop_4-2_Tiet_...csv`).
+  * **Lợi ích:** Tên file tự động sắp xếp theo thứ tự thời gian từ cũ đến mới (hoặc mới đến cũ) khi sắp xếp theo Tên (Name) trong Windows File Explorer hoặc Google Drive, đồng thời quản lý chuẩn xác lớp học sinh thực tế.
 * **Cấu trúc multi-section:** Phân chia các sheet/bảng bằng dòng tiêu đề `=== TÊN PHẦN ===`.
 * **Cơ chế gửi:** Sử dụng hàm `window.uploadCsvToDrive(data, fileName)` gửi ngầm lên Google Apps Script Web App. Nếu mất mạng hoặc lỗi kết nối, hệ thống **tự động fallback** tải file CSV trực tiếp về máy giáo viên.
 
-### 7. Dữ liệu Học sinh Đồng bộ Toàn Trường
-* Nạp tự động từ thư mục dữ liệu gốc:
-  `../../assets/data/students_{khoi}_2026_2027.json` (hoặc đường dẫn tương đối phù hợp).
-* **Nạp dữ liệu Same-Origin trên GitHub Pages:** Do toàn bộ trang web và file JSON nằm trên cùng domain GitHub Pages, hàm `fetch()` dữ liệu học sinh hoạt động hoàn hảo 100%, không bao giờ bị lỗi chặn CORS. Biến `FALLBACK_STUDENTS` trong code chỉ đóng vai trò dự phòng khi mạng gặp sự cố tải file.
-* **Danh sách phẳng — Tuyệt đối KHÔNG gán tổ cố định:** Do học sinh đổi chỗ ngồi liên tục sau mỗi tuần/buổi học, tệp JSON chỉ lưu trữ danh sách họ tên phẳng của lớp, TUYỆT ĐỐI KHÔNG gán cứng thuộc tính tổ (`team`). Việc bốc thăm theo tổ vận hành theo cơ chế *"Gacha tới khi nào trúng thì thôi"*.
-* Luôn cung cấp Modal hoặc ô cho giáo viên thêm nhanh/bổ sung học sinh vãng lai khi cần.
+### 7. Dữ Liệu Học Sinh Toàn Trường & Bộ Chọn Lớp Linh Hoạt Đa Khối (Khối 1 - Khối 5)
+* **Thực tế giảng dạy đảo bài / dạy chéo khối:** Giáo viên tiểu học thường xuyên gặp các tình huống đặc biệt: đảo bài Khối 4 lên dạy Khối 5, bài Khối 3 mang dạy Khối 4, dạy ôn tập liên khối hoặc dạy bù bài giữa các khối lớp.
+* **QUY CHUẨN BẮT BUỘC — Bộ Chọn Lớp Đa Khối (Universal Multi-Grade Class Picker):**
+  * **1. Chọn lớp toàn trường từ Khối 1 đến Khối 5:** Mọi bài giảng trong toàn bộ repo (dù là bài của Khối 1, 2, 3, 4 hay 5) **BẮT BUỘC cho phép chọn linh hoạt toàn bộ các lớp trong trường từ Khối 1 đến Khối 5**, TUYỆT ĐỐI KHÔNG giới hạn chỉ chọn lớp của khối bài giảng đó.
+  * **2. Gom nhóm trực quan (`<optgroup>`):** Ô chọn lớp trong thanh cấu hình / Sidebar được gom nhóm rõ ràng:
+    * `Khối 1`: 1/6 (mã `1_6`)
+    * `Khối 2`: 2/2, 2/4, 2/5 (mã `2_2`, `2_4`, `2_5`)
+    * `Khối 3`: 3/2, 3/3, 3/4, 3/5, 3/6 (mã `3_2`, `3_3`, `3_4`, `3_5`, `3_6`)
+    * `Khối 4`: 4/1, 4/2, 4/3, 4/4, 4/5, 4/6 (mã `4_1` đến `4_6`)
+    * `Khối 5`: 5/1, 5/2, 5/3, 5/4, 5/5, 5/6 (mã `5_1` đến `5_6`)
+  * **3. Lớp mặc định thông minh:** Khi mở bài giảng, lớp mặc định được chọn theo khối của bài (ví dụ: bài Khối 5 mặc định `5_1`, Khối 4 mặc định `4_1`, Khối 3 mặc định `3_2`, Khối 2 mặc định `2_2`, Khối 1 mặc định `1_6`).
+  * **4. Nạp dữ liệu động từ 5 tệp JSON:**
+    Hệ thống tự động nạp danh sách học sinh từ file JSON tương ứng với lớp được chọn (`../../assets/data/students_{khoi}_2026_2027.json`).
+  * **5. Nạp dữ liệu Same-Origin trên GitHub Pages:** Do toàn bộ trang web và file JSON nằm trên cùng domain GitHub Pages, hàm `fetch()` dữ liệu học sinh hoạt động hoàn hảo 100%, không bao giờ bị lỗi chặn CORS. Biến `FALLBACK_STUDENTS` trong code chỉ đóng vai trò dự phòng khi mạng gặp sự cố tải file.
+  * **6. Danh sách phẳng — Tuyệt đối KHÔNG gán tổ cố định:** Do học sinh đổi chỗ ngồi liên tục sau mỗi tuần/buổi học, tệp JSON chỉ lưu trữ danh sách họ tên phẳng của lớp, TUYỆT ĐỐI KHÔNG gán cứng thuộc tính tổ (`team`). Việc bốc thăm theo tổ vận hành theo cơ chế *"Gacha tới khi nào trúng thì thôi"*.
+  * **7. Thêm học sinh vãng lai:** Luôn cung cấp Modal hoặc ô cho giáo viên thêm nhanh/bổ sung học sinh vãng lai khi cần.
 
 ### 8. Định danh Typography & Bản sắc theo từng Khối (Grade Identity)
 Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng **TRONG CÙNG MỘT KHỐI PHẢI ĐỒNG NHẤT 100%**:
@@ -453,8 +464,9 @@ Khi nhận được yêu cầu viết tiết học mới từ người dùng (v�
 2. **Bước 2 — Nạp Khung sườn Chuẩn (Boilerplate):** 
    * Kiểm tra xem khối đó đã có `template.html` chưa. Nếu có, nhân bản từ `template.html` của khối.
    * Chèn đúng 2 file bảo vệ: `../../shared/js/prevent-reload.js` và `../../shared/js/core.js`.
-3. **Bước 3 — Nạp Dữ liệu Học sinh & Thiết lập Chế độ:**
-   * Trỏ đúng file JSON `../../assets/data/students_{khoi}_2026_2027.json`.
+3. **Bước 3 — Nạp Dữ liệu Học sinh & Thiết lập Chế độ (Hỗ trợ Linh Hoạt Từ Khối 1 Đến Khối 5):**
+   * **Bộ chọn lớp linh hoạt toàn trường:** Dropdown chọn lớp hỗ trợ đầy đủ các lớp từ Khối 1 đến Khối 5 (gom nhóm `<optgroup>` rõ ràng theo từng khối), lớp mặc định theo khối của bài học nhưng giáo viên có thể chuyển sang bất kỳ lớp nào khi đảo bài.
+   * **Nạp dữ liệu tương ứng:** Tự động nạp đúng file JSON `../../assets/data/students_{khoi}_2026_2027.json` tương ứng với lớp được chọn.
    * Xác định tiết này là **Chế độ Toàn lớp cá nhân** (gacha tự động, bật full telemetry) hay **Chế độ Đấu theo tổ** (chọn tên thủ công hoặc `spinGacha(teamId)`, ghi log sư phạm).
    * **Bố trí Widget chọn học sinh:** Bất kỳ slide/hoạt động nào có học sinh phát biểu đều bố trí dropdown chọn tên + nút Gacha (chỉ log telemetry, không cộng điểm tổ khi phát biểu tự do; chỉ cộng điểm khi vào game chính thức).
    * **Nếu tiết học có tính điểm:** Khởi tạo điểm sàn mặc định `STARTING_SCORE = 1000`, hỗ trợ nút linh hoạt từ 2 đến 6 tổ (`[+ Thêm Tổ]` / `[- Bớt Tổ]`), và tích hợp hàm tính thứ hạng xử lý đồng hạng (`calculateRankings`). Đồng thời cung cấp công cụ sửa điểm/chuỗi streak khi bấm nhầm.
@@ -502,7 +514,8 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Bảng vàng vinh danh (Leaderboard) được thiết kế xếp dọc (Vertical Stack, flex-column, mỗi tổ 1 hàng ngang), TUYỆT ĐỐI CẤM xếp lưới ngang (grid)?
 - [ ] Bảng xếp hạng và xuất CSV có cơ chế xử lý đồng hạng (bằng điểm → cùng hạng, cùng cúp/huy chương, danh hiệu "Đồng Quán quân / Đồng Á quân") không?
 - [ ] Nếu là Khối 5 và kích hoạt Phe Quỷ: Đã tuân thủ cơ chế Bất Công Công Khai (chỉ áp dụng Khối 5, tuyệt đối không áp dụng Khối 1-4; không trao quyền Quỷ Vương cầm máy, đúng +50% max 1000đ, sai/phạt -200đ vào Quỹ Cứu Trợ, rớt sàn <800đ, ân xá hoàn lương) và có đầy đủ bộ UI tương tác (Nút mở quản lý phe trên Sidebar, Modal đày học sinh dạng chip, Pop-up trừng phạt nhanh 1-chạm, Roster các em quỷ trong thẻ Tổ Quỷ, Gacha chuẩn trong phe) chưa?
-- [ ] Tên file CSV xuất ra có đúng quy cách `KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}...` không?
+- [ ] Bộ chọn lớp có hỗ trợ linh hoạt toàn bộ các lớp từ Khối 1 đến Khối 5 (gom nhóm `<optgroup>` theo khối, phục vụ hoàn hảo tình huống đảo bài/dạy chéo khối) không?
+- [ ] Tên file CSV xuất ra có đúng quy cách `KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}...` và tự động cập nhật đúng Khối & Lớp thực tế của lớp được chọn khi dạy chéo khối không?
 - [ ] 100% file HTML đã có cơ chế tự động lưu LocalStorage (Auto-Save) phòng cúp điện/sập nguồn chưa? Đã lưu chi tiết 100% dữ liệu từng học sinh (TT27) và có cơ chế cảnh báo khi bộ nhớ gần đầy để bấm "Dạy lớp mới" chưa?
 - [ ] 100% file HTML đã có nút Xóa dữ liệu phiên (Clear Session Button) có xác nhận confirm và thông báo chưa?
 - [ ] Giao diện đã tinh lọc tối đa chữ mô tả (Zero-Clutter), không nhồi nhét văn bản giải thích cơ chế ngầm, nhãn thừa thãi hay câu chữ kỹ thuật lê thê làm rác màn chiếu?
