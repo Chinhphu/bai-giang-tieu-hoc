@@ -1351,6 +1351,49 @@
             gap: 8px;
         }
 
+        .vault-filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .btn-vault-filter {
+            font-size: 12.5px;
+            font-weight: 800;
+            padding: 5px 11px;
+            border-radius: 999px;
+            border: 2px solid #cbd5e1;
+            background: #f8fafc;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.14s ease;
+            white-space: nowrap;
+        }
+
+        .btn-vault-filter:hover {
+            border-color: #0284c7;
+            color: #0284c7;
+            background: #f0f9ff;
+        }
+
+        .btn-vault-filter.active {
+            background: #0f172a;
+            border-color: #0f172a !important;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25);
+        }
+
+        .peer-rules-hint {
+            font-size: 11.5px;
+            color: #cbd5e1;
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px dashed #475569;
+            border-radius: 8px;
+            padding: 6px 10px;
+            margin-top: 8px;
+            line-height: 1.45;
+        }
+
         .vault-cards-grid-wrap {
             position: relative;
             min-height: 200px;
@@ -2408,6 +2451,13 @@
                             <div class="builder-vault-title">
                                 <span>🗃️</span> KHO MẢNH GHÉP DÙNG CHUNG
                             </div>
+                            <div class="vault-filter-bar" id="vault-filter-bar">
+                                <button type="button" class="btn-vault-filter active" data-filter="all" onclick="setVaultFilter('all')">Tất cả</button>
+                                <button type="button" class="btn-vault-filter" data-filter="heading" onclick="setVaultFilter('heading')" style="border-color:#fca5a5;">🅰️ Tiêu đề</button>
+                                <button type="button" class="btn-vault-filter" data-filter="body" onclick="setVaultFilter('body')" style="border-color:#93c5fd;">📄 Đoạn văn</button>
+                                <button type="button" class="btn-vault-filter" data-filter="image" onclick="setVaultFilter('image')" style="border-color:#6ee7b7;">🖼️ Hình ảnh</button>
+                                <button type="button" class="btn-vault-filter" data-filter="bonus" onclick="setVaultFilter('bonus')" style="border-color:#c4b5fd;">⭐ Bonus</button>
+                            </div>
                         </div>
 
                         <!-- LƯỚI CÁC MẢNH GHÉP TRONG KHO -->
@@ -2522,9 +2572,17 @@
                         </div>
 
                         <div style="display:flex; flex-direction:column; gap:8px;">
+                            <button class="btn-action blue" id="btn-prepare-docx" type="button"
+                                onclick="prepareCrossMissionDocx()" style="width:100%; font-size:15px;">
+                                📥 Bước 1: Tải & Mở Sẵn Đề Word (.docx)
+                            </button>
                             <button class="btn-action mint" id="btn-start-battle" type="button"
                                 onclick="startCrossBattle()" style="width:100%; font-size:16px;">
-                                ▶ BẮT ĐẦU & TẢI ĐỀ BÀI (.docx)
+                                ▶ Bước 2: Bắt Đầu Tính Giờ Đua Tốc Độ
+                            </button>
+                            <button class="btn-action gold" id="btn-next-team-turn" type="button"
+                                onclick="advanceCrossTeamTurn()" style="display:none; width:100%; font-size:15px;">
+                                ⏭ CHUYỂN SANG LƯỢT TỔ TIẾP THEO
                             </button>
                         </div>
 
@@ -2549,6 +2607,9 @@
                                 1. CÁC TỔ ĐÁNH GIÁ CHÉO (PEER ASSESSMENT):
                             </div>
                             <div class="peer-vote-grid" id="peer-vote-grid"></div>
+                            <div class="peer-rules-hint">
+                                💡 <b>Luật điểm chéo:</b> Đoán đúng ĐẠT <b>+50 Xu</b> · Bắt đúng LỖI <b>+100 Xu</b> · Đoán sai <b>-50 Xu</b> · Tổ tác giả đề <b>+100 Xu</b>.
+                            </div>
 
                             <div style="margin: 12px 0 10px;">
                                 <button class="btn-action blue" id="btn-cross-autograde" type="button"
@@ -2868,6 +2929,7 @@
         const GRADE = 5;
         const LESSON = 12;
         const STARTING_SCORE = 1000;
+        let configuredStartingScore = STARTING_SCORE;
         const ACTIVE_CLASS_POINTER_KEY = 'bgtieu_hoc_k5_active_class';
         let currentClass = localStorage.getItem(ACTIVE_CLASS_POINTER_KEY) || '5_1';
 
@@ -2926,6 +2988,7 @@
         let crossSpeedScore = 1000;
         let crossPeerVotes = {}; // teamId -> 'PASS' | 'BUG'
         let uploadedCrossFile = null;
+        let crossDocDownloaded = false;
 
         // Gacha Modal State
         let gachaTargetKey = null;
@@ -3153,7 +3216,7 @@
             const newTeam = {
                 id: newId,
                 name: `Tổ ${newId}`,
-                score: STARTING_SCORE,
+                score: configuredStartingScore,
                 isDemon: false
             };
             teams.push(newTeam);
@@ -3240,6 +3303,7 @@
 
             const scoreInput = document.getElementById('s-score');
             const baseScore = scoreInput ? (parseInt(scoreInput.value, 10) || STARTING_SCORE) : STARTING_SCORE;
+            configuredStartingScore = baseScore;
 
             teams = [];
             teamMissions = {};
@@ -3340,6 +3404,7 @@
             const state = {
                 currentClass,
                 currentSlide,
+                configuredStartingScore,
                 teams,
                 manualActiveTeamId,
                 studentsList,
@@ -3380,6 +3445,7 @@
         async function restoreSession(state) {
             currentClass = state.currentClass || '5_1';
             currentSlide = state.currentSlide || 1;
+            configuredStartingScore = (typeof state.configuredStartingScore === 'number') ? state.configuredStartingScore : STARTING_SCORE;
             teams = state.teams || [];
             manualActiveTeamId = state.manualActiveTeamId || (teams[0] ? teams[0].id : 1);
             studentsList = state.studentsList || [];
@@ -4083,27 +4149,54 @@
             }, 1000);
         }
 
-        function finishBuilderSession(isTimeout) {
-            if (builderTimerInterval) clearInterval(builderTimerInterval);
-            isBuilderTimerRunning = false;
+        function setVaultFilter(cat) {
+            currentLegoFilter = cat || 'all';
+            document.querySelectorAll('#vault-filter-bar .btn-vault-filter').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === currentLegoFilter);
+            });
+            renderQuestVault();
+        }
 
+        function finishBuilderSession(isTimeout) {
             const team = teams.find(t => t.id === selectedBuilderTeamId);
             initTeamMission(selectedBuilderTeamId);
             const mission = teamMissions[selectedBuilderTeamId];
 
-            // Tự động bổ sung đủ 3 mảnh cốt lõi nếu chưa chọn đủ
+            // Nếu giáo viên/học sinh bấm "✅ XONG" thủ công mà chưa đủ 3 mảnh cốt lõi thì cảnh báo, KHÔNG tự điền
+            if (!isTimeout) {
+                const missingMap = [
+                    { key: 'heading', label: '🅰️ Tiêu đề' },
+                    { key: 'body', label: '📄 Đoạn văn' },
+                    { key: 'image', label: '🖼️ Hình ảnh' }
+                ].filter(item => !mission[item.key]);
+                if (missingMap.length > 0) {
+                    AudioSys.playFail();
+                    setVaultFilter(missingMap[0].key);
+                    if (window.toast) {
+                        window.toast(`⚠️ Chưa đủ 3 mảnh cốt lõi! Còn thiếu: ${missingMap.map(m => m.label).join(', ')}.`, 2800, 'var(--coral)');
+                    }
+                    return;
+                }
+            }
+
+            if (builderTimerInterval) clearInterval(builderTimerInterval);
+            isBuilderTimerRunning = false;
+
+            // Chỉ tự động bổ sung mảnh cốt lõi còn thiếu khi thực sự hết giờ (isTimeout === true)
             const coreCats = ['heading', 'body', 'image'];
             let autoFilled = false;
-            coreCats.forEach(cat => {
-                if (!mission[cat]) {
-                    const availableCard = questVaultCards.find(c => c.category === cat && !c.takenBy);
-                    if (availableCard) {
-                        availableCard.takenBy = selectedBuilderTeamId;
-                        mission[cat] = availableCard;
-                        autoFilled = true;
+            if (isTimeout) {
+                coreCats.forEach(cat => {
+                    if (!mission[cat]) {
+                        const availableCard = questVaultCards.find(c => c.category === cat && !c.takenBy);
+                        if (availableCard) {
+                            availableCard.takenBy = selectedBuilderTeamId;
+                            mission[cat] = availableCard;
+                            autoFilled = true;
+                        }
                     }
-                }
-            });
+                });
+            }
 
             mission.isPackaged = true;
             if (mission.assignedStudent) {
@@ -4322,7 +4415,11 @@
                 }
             }
 
-            grid.innerHTML = questVaultCards.map(b => {
+            const filteredCards = currentLegoFilter === 'all'
+                ? questVaultCards
+                : questVaultCards.filter(b => b.category === currentLegoFilter);
+
+            grid.innerHTML = filteredCards.map(b => {
                 const isTakenByOther = (b.takenBy && b.takenBy !== selectedBuilderTeamId);
                 const isTakenByCurrent = (b.takenBy === selectedBuilderTeamId);
                 const otherTeam = isTakenByOther ? teams.find(t => t.id === b.takenBy) : null;
@@ -4435,6 +4532,7 @@
             crossAssignedStudent = '';
             crossPeerVotes = {};
             uploadedCrossFile = null;
+            crossDocDownloaded = false;
 
             const sel = document.getElementById('sel-cross-student');
             if (sel) sel.value = '';
@@ -4475,11 +4573,21 @@
             const spinBtn = document.getElementById('btn-spin-roulette');
             if (spinBtn) spinBtn.disabled = false;
 
+            const prepBtn = document.getElementById('btn-prepare-docx');
+            if (prepBtn) {
+                prepBtn.style.display = 'block';
+                prepBtn.disabled = false;
+                prepBtn.textContent = '📥 Bước 1: Tải & Mở Sẵn Đề Word (.docx)';
+            }
+
             const startBtn = document.getElementById('btn-start-battle');
             if (startBtn) {
                 startBtn.style.display = 'block';
                 startBtn.disabled = false;
             }
+
+            const nextTurnBtn = document.getElementById('btn-next-team-turn');
+            if (nextTurnBtn) nextTurnBtn.style.display = 'none';
 
             const dropContainer = document.getElementById('cross-dropzone-container');
             if (dropContainer) dropContainer.style.display = 'none';
@@ -4488,13 +4596,6 @@
             if (badge) {
                 badge.style.display = 'none';
                 badge.textContent = '';
-            }
-
-            const resBox = document.getElementById('cross-result-box');
-            if (resBox) {
-                resBox.style.display = 'none';
-                resBox.className = 'grader-result-box';
-                resBox.innerHTML = '';
             }
 
             const finishBtn = document.getElementById('btn-finish-battle');
@@ -4632,11 +4733,20 @@
                         `;
                     }
 
+                    crossDocDownloaded = false;
+                    const prepBtn = document.getElementById('btn-prepare-docx');
+                    if (prepBtn) {
+                        prepBtn.style.display = 'block';
+                        prepBtn.disabled = false;
+                        prepBtn.textContent = '📥 Bước 1: Tải & Mở Sẵn Đề Word (.docx)';
+                    }
                     const startBtn = document.getElementById('btn-start-battle');
                     if (startBtn) {
                         startBtn.style.display = 'block';
                         startBtn.disabled = false;
                     }
+                    const nextTurnBtn = document.getElementById('btn-next-team-turn');
+                    if (nextTurnBtn) nextTurnBtn.style.display = 'none';
                     const finishBtn = document.getElementById('btn-finish-battle');
                     if (finishBtn) finishBtn.style.display = 'none';
                     const gradingBox = document.getElementById('cross-grading-box');
@@ -4692,6 +4802,26 @@
             updateGraderChecklistTitles(m);
         }
 
+        async function prepareCrossMissionDocx() {
+            if (!crossPickedMission) {
+                if (window.toast) window.toast('⚠️ Vui lòng bấm 🎲 Quay Bốc Thăm Đề Bài trước khi tải đề!', 2500, 'var(--coral)');
+                const rouBtn = document.getElementById('btn-spin-roulette');
+                if (rouBtn) {
+                    rouBtn.classList.add('shake-error');
+                    setTimeout(() => rouBtn.classList.remove('shake-error'), 1200);
+                }
+                AudioSys.playFail();
+                return;
+            }
+            await downloadCurrentMissionDocx();
+            crossDocDownloaded = true;
+            const prepBtn = document.getElementById('btn-prepare-docx');
+            if (prepBtn) prepBtn.textContent = '✅ Đã Tải Đề Word (Bấm nếu cần tải lại)';
+            if (window.toast) {
+                window.toast('📄 Hãy mở Word, bấm "Enable Editing" sẵn sàng rồi nhấn Bước 2 để bấm giờ!', 3200, 'var(--blue)');
+            }
+        }
+
         async function startCrossBattle() {
             if (!crossPickedMission) {
                 if (window.toast) window.toast('⚠️ Vui lòng bấm 🎲 Quay Bốc Thăm Đề Bài trước khi bắt đầu!', 2500, 'var(--coral)');
@@ -4718,15 +4848,23 @@
                 return;
             }
 
-            // Tự động tải tệp .docx đề bài về máy cho học sinh
-            await downloadCurrentMissionDocx();
+            // Nếu chưa tải ở Bước 1 thì tự động tải tệp .docx đề bài về máy cho học sinh
+            if (!crossDocDownloaded) {
+                await downloadCurrentMissionDocx();
+                crossDocDownloaded = true;
+            }
 
             crossStatus = 'working';
             crossTimeElapsed = 0;
             crossSpeedScore = 1000;
             uploadedCrossFile = null;
 
-            document.getElementById('btn-start-battle').style.display = 'none';
+            const prepBtn = document.getElementById('btn-prepare-docx');
+            if (prepBtn) prepBtn.style.display = 'none';
+            const startBtn = document.getElementById('btn-start-battle');
+            if (startBtn) startBtn.style.display = 'none';
+            const nextTurnBtn = document.getElementById('btn-next-team-turn');
+            if (nextTurnBtn) nextTurnBtn.style.display = 'none';
 
             const dropContainer = document.getElementById('cross-dropzone-container');
             if (dropContainer) dropContainer.style.display = 'block';
@@ -4738,13 +4876,6 @@
             if (badge) {
                 badge.style.display = 'none';
                 badge.textContent = '';
-            }
-
-            const resBox = document.getElementById('cross-result-box');
-            if (resBox) {
-                resBox.style.display = 'none';
-                resBox.className = 'grader-result-box';
-                resBox.innerHTML = '';
             }
 
             document.getElementById('cross-grading-box').style.display = 'none';
@@ -4797,6 +4928,8 @@
         function initCrossDropzone() {
             const dz = document.getElementById('cross-dropzone');
             if (!dz || !window.DocxGrader) return;
+            if (dz.dataset.crossDropzoneInitialized === '1') return;
+            dz.dataset.crossDropzoneInitialized = '1';
 
             window.DocxGrader.setupDropzone(dz, {
                 onResult: (result, file) => {
@@ -4843,14 +4976,28 @@
             });
         }
 
-        /* --- Xây dựng Bộ Quy Tắc Test Case Động Từ Mảnh Ghép Bộ Đề --- */
+        /* --- Xây dựng Bộ Quy Tắc Test Case Động Từ Mảnh Ghép Bộ Đề (Khớp 100% 48 mảnh quests-v2.js) --- */
         function buildRulesForMission(mission) {
             const rules = [];
             if (!mission) return rules;
 
-            // 1. Heading rules
+            // 1. Heading rules (đủ font, cỡ chữ, màu kể cả h-4 GREEN & h-5 ORANGE, B/I/U, căn giữa)
             const h = mission.heading;
             if (h) {
+                const headingMap = {
+                    'h-1':  { fontFamily: 'Arial',           fontSize: 20, color: 'RED' },
+                    'h-2':  { fontFamily: 'Times New Roman', fontSize: 22, color: 'BLUE' },
+                    'h-3':  { fontFamily: 'Tahoma',          fontSize: 20, color: 'PURPLE', underline: true },
+                    'h-4':  { fontFamily: 'Verdana',         fontSize: 18, color: 'GREEN',  italic: true },
+                    'h-5':  { fontFamily: 'Times New Roman', fontSize: 20, color: 'ORANGE', underline: true },
+                    'h-6':  { fontFamily: 'Calibri',         fontSize: 22, color: 'RED',    italic: true },
+                    'h-7':  { fontFamily: 'Tahoma',          fontSize: 18, color: 'RED' },
+                    'h-8':  { fontFamily: 'Segoe UI',        fontSize: 20, color: 'BLUE' },
+                    'h-9':  { fontFamily: 'Arial',           fontSize: 22, color: 'PURPLE', italic: true },
+                    'h-10': { fontFamily: 'Times New Roman', fontSize: 18, color: 'GREEN',  underline: true },
+                    'h-11': { fontFamily: 'Calibri',         fontSize: 20, color: 'ORANGE' },
+                    'h-12': { fontFamily: 'Verdana',         fontSize: 20, color: 'RED',    underline: true }
+                };
                 const hRule = {
                     id: 'rule-heading',
                     name: `Tiêu đề: ${h.name || h.desc}`,
@@ -4860,60 +5007,8 @@
                     align: 'center',
                     bold: true
                 };
-                const hid = h.id || '';
-                if (hid === 'h-1') {
-                    hRule.fontFamily = 'Arial';
-                    hRule.fontSize = 20;
-                    hRule.color = 'RED';
-                } else if (hid === 'h-2') {
-                    hRule.fontFamily = 'Times New Roman';
-                    hRule.fontSize = 22;
-                    hRule.color = 'BLUE';
-                } else if (hid === 'h-3') {
-                    hRule.fontFamily = 'Tahoma';
-                    hRule.fontSize = 20;
-                    hRule.underline = true;
-                    hRule.color = 'PURPLE';
-                } else if (hid === 'h-4') {
-                    hRule.fontFamily = 'Verdana';
-                    hRule.fontSize = 18;
-                    hRule.italic = true;
-                } else if (hid === 'h-5') {
-                    hRule.fontFamily = 'Times New Roman';
-                    hRule.fontSize = 20;
-                    hRule.underline = true;
-                } else if (hid === 'h-6') {
-                    hRule.fontFamily = 'Calibri';
-                    hRule.fontSize = 22;
-                    hRule.italic = true;
-                    hRule.color = 'RED';
-                } else if (hid === 'h-7') {
-                    hRule.fontFamily = 'Tahoma';
-                    hRule.fontSize = 18;
-                    hRule.color = 'RED';
-                } else if (hid === 'h-8') {
-                    hRule.fontFamily = 'Segoe UI';
-                    hRule.fontSize = 20;
-                    hRule.color = 'BLUE';
-                } else if (hid === 'h-9') {
-                    hRule.fontFamily = 'Arial';
-                    hRule.fontSize = 22;
-                    hRule.italic = true;
-                    hRule.color = 'PURPLE';
-                } else if (hid === 'h-10') {
-                    hRule.fontFamily = 'Times New Roman';
-                    hRule.fontSize = 18;
-                    hRule.underline = true;
-                    hRule.color = 'GREEN';
-                } else if (hid === 'h-11') {
-                    hRule.fontFamily = 'Calibri';
-                    hRule.fontSize = 20;
-                    hRule.color = 'ORANGE';
-                } else if (hid === 'h-12') {
-                    hRule.fontFamily = 'Verdana';
-                    hRule.fontSize = 20;
-                    hRule.underline = true;
-                    hRule.color = 'RED';
+                if (headingMap[h.id]) {
+                    Object.assign(hRule, headingMap[h.id]);
                 } else {
                     const d = (h.desc || h.name || '').toLowerCase();
                     if (d.includes('arial')) hRule.fontFamily = 'Arial';
@@ -4939,215 +5034,45 @@
                 rules.push(hRule);
             }
 
-            // 2. Body rules
+            // 2. Body rules (đủ font + size + align đoạn mở đầu; kiểm tra cả 3 mục 1-2-3; đủ bold b-5 & italic b-6)
             const b = mission.body;
             if (b) {
-                const bid = b.id || '';
-                if (bid === 'b-1') {
+                const THREE_ITEMS = ['Bảo mật', 'Cảnh giác', 'Ứng xử'];
+                const bodySpecs = {
+                    'b-1':  { font: 'Times New Roman', size: 14, align: 'justify', extras: [{ match: 'thông minh', italic: true, label: 'In nghiêng (I) câu khẩu hiệu cuối bài' }] },
+                    'b-2':  { font: 'Arial',           size: 12, align: 'justify', extras: [{ matches: THREE_ITEMS, bold: true, label: 'In đậm (B) cả 3 nguyên tắc 1, 2, 3' }] },
+                    'b-3':  { font: 'Tahoma',          size: 12, align: 'justify', extras: [{ matches: THREE_ITEMS, underline: true, label: 'Gạch chân (U) cả 3 nguyên tắc 1, 2, 3' }] },
+                    'b-4':  { font: 'Calibri',         size: 14, align: 'justify', extras: [{ match: 'thông minh', bold: true, italic: true, label: 'In đậm (B) + In nghiêng (I) câu khẩu hiệu' }] },
+                    'b-5':  { font: 'Verdana',         size: 12, align: 'left',    extras: [{ match: 'thông minh', color: 'BLUE', bold: true, label: 'Màu Xanh dương + In đậm (B) câu khẩu hiệu' }] },
+                    'b-6':  { font: 'Times New Roman', size: 14, align: 'justify', extras: [{ matches: THREE_ITEMS, bold: true, label: 'In đậm (B) cả 3 nguyên tắc 1, 2, 3' }, { match: 'thông minh', italic: true, label: 'In nghiêng (I) câu khẩu hiệu cuối' }] },
+                    'b-7':  { font: 'Arial',           size: 14, align: 'justify', extras: [{ match: 'thông minh', underline: true, label: 'Gạch chân (U) câu khẩu hiệu cuối bài' }] },
+                    'b-8':  { font: 'Calibri',         size: 12, align: 'justify', extras: [{ match: 'thông minh', color: 'RED', label: 'Màu Đỏ (Red) câu khẩu hiệu cuối bài' }] },
+                    'b-9':  { font: 'Tahoma',          size: 14, align: 'justify', extras: [{ matches: THREE_ITEMS, bold: true, italic: true, label: 'In đậm (B) + In nghiêng (I) cả 3 nguyên tắc' }] },
+                    'b-10': { font: 'Times New Roman', size: 12, align: 'justify', extras: [{ match: 'thông minh', color: 'PURPLE', label: 'Màu Tím (Purple) câu khẩu hiệu cuối bài' }] },
+                    'b-11': { font: 'Verdana',         size: 14, align: 'left',    extras: [{ matches: THREE_ITEMS, underline: true, label: 'Gạch chân (U) cả 3 nguyên tắc 1, 2, 3' }] },
+                    'b-12': { font: 'Calibri',         size: 14, align: 'justify', extras: [{ match: 'thông minh', italic: true, label: 'In nghiêng (I) câu khẩu hiệu cuối bài' }] }
+                };
+                const bs = bodySpecs[b.id];
+                if (bs) {
                     rules.push({
-                        id: 'rule-body-font',
-                        name: 'Thân bài: Phông Times New Roman',
+                        id: 'rule-body-base',
+                        name: `Đoạn mở đầu: ${bs.font} ${bs.size}pt (${bs.align === 'justify' ? 'Justify' : 'Left'})`,
                         category: 'body',
                         type: 'paragraph_format',
                         match: 'Internet mang lại',
-                        fontFamily: 'Times New Roman'
+                        fontFamily: bs.font,
+                        fontSize: bs.size,
+                        align: bs.align
                     });
-                    rules.push({
-                        id: 'rule-body-quote',
-                        name: 'In nghiêng (I) câu khẩu hiệu cuối bài',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'thông minh',
-                        italic: true
-                    });
-                } else if (bid === 'b-2') {
-                    rules.push({
-                        id: 'rule-body-font',
-                        name: 'Thân bài: Phông Arial',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'Internet mang lại',
-                        fontFamily: 'Arial'
-                    });
-                    rules.push({
-                        id: 'rule-body-items',
-                        name: 'In đậm (B) 3 nguyên tắc',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'Bảo mật',
-                        bold: true
-                    });
-                } else if (bid === 'b-3') {
-                    rules.push({
-                        id: 'rule-body-font',
-                        name: 'Thân bài: Phông Tahoma',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'Internet mang lại',
-                        fontFamily: 'Tahoma'
-                    });
-                    rules.push({
-                        id: 'rule-body-items',
-                        name: 'Gạch chân (U) 3 nguyên tắc',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'Bảo mật',
-                        underline: true
-                    });
-                } else if (bid === 'b-4') {
-                    rules.push({
-                        id: 'rule-body-font',
-                        name: 'Thân bài: Phông Calibri',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'Internet mang lại',
-                        fontFamily: 'Calibri'
-                    });
-                    rules.push({
-                        id: 'rule-body-quote',
-                        name: 'In đậm (B) + In nghiêng (I) câu khẩu hiệu',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'thông minh',
-                        bold: true,
-                        italic: true
-                    });
-                } else if (bid === 'b-5') {
-                    rules.push({
-                        id: 'rule-body-font',
-                        name: 'Thân bài: Phông Verdana',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'Internet mang lại',
-                        fontFamily: 'Verdana'
-                    });
-                    rules.push({
-                        id: 'rule-body-quote',
-                        name: 'Màu Xanh dương câu khẩu hiệu cuối bài',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'thông minh',
-                        color: 'BLUE'
-                    });
-                } else if (bid === 'b-6') {
-                    rules.push({
-                        id: 'rule-body-font',
-                        name: 'Thân bài: Phông Times New Roman',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'Internet mang lại',
-                        fontFamily: 'Times New Roman'
-                    });
-                    rules.push({
-                        id: 'rule-body-items',
-                        name: 'In đậm (B) 3 nguyên tắc',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'Bảo mật',
-                        bold: true
-                    });
-                } else if (bid === 'b-7') {
-                    rules.push({
-                        id: 'rule-body-font',
-                        name: 'Thân bài: Phông Arial',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'Internet mang lại',
-                        fontFamily: 'Arial'
-                    });
-                    rules.push({
-                        id: 'rule-body-quote',
-                        name: 'Gạch chân (U) câu khẩu hiệu cuối bài',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'thông minh',
-                        underline: true
-                    });
-                } else if (bid === 'b-8') {
-                    rules.push({
-                        id: 'rule-body-font',
-                        name: 'Thân bài: Phông Calibri',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'Internet mang lại',
-                        fontFamily: 'Calibri'
-                    });
-                    rules.push({
-                        id: 'rule-body-quote',
-                        name: 'Màu Đỏ câu khẩu hiệu cuối bài',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'thông minh',
-                        color: 'RED'
-                    });
-                } else if (bid === 'b-9') {
-                    rules.push({
-                        id: 'rule-body-font',
-                        name: 'Thân bài: Phông Tahoma',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'Internet mang lại',
-                        fontFamily: 'Tahoma'
-                    });
-                    rules.push({
-                        id: 'rule-body-items',
-                        name: 'In đậm (B) + In nghiêng (I) 3 nguyên tắc',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'Bảo mật',
-                        bold: true,
-                        italic: true
-                    });
-                } else if (bid === 'b-10') {
-                    rules.push({
-                        id: 'rule-body-font',
-                        name: 'Thân bài: Phông Times New Roman',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'Internet mang lại',
-                        fontFamily: 'Times New Roman'
-                    });
-                    rules.push({
-                        id: 'rule-body-quote',
-                        name: 'Màu Tím câu khẩu hiệu cuối bài',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'thông minh',
-                        color: 'PURPLE'
-                    });
-                } else if (bid === 'b-11') {
-                    rules.push({
-                        id: 'rule-body-font',
-                        name: 'Thân bài: Phông Verdana',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'Internet mang lại',
-                        fontFamily: 'Verdana'
-                    });
-                    rules.push({
-                        id: 'rule-body-items',
-                        name: 'Gạch chân (U) 3 nguyên tắc',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'Bảo mật',
-                        underline: true
-                    });
-                } else if (bid === 'b-12') {
-                    rules.push({
-                        id: 'rule-body-font',
-                        name: 'Thân bài: Phông Calibri',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'Internet mang lại',
-                        fontFamily: 'Calibri'
-                    });
-                    rules.push({
-                        id: 'rule-body-quote',
-                        name: 'In nghiêng (I) câu khẩu hiệu cuối bài',
-                        category: 'body',
-                        type: 'paragraph_format',
-                        match: 'thông minh',
-                        italic: true
+                    bs.extras.forEach((ex, i) => {
+                        const { label, ...rest } = ex;
+                        rules.push({
+                            id: `rule-body-extra-${i + 1}`,
+                            name: label,
+                            category: 'body',
+                            type: 'paragraph_format',
+                            ...rest
+                        });
                     });
                 } else {
                     rules.push({
@@ -5160,7 +5085,7 @@
                 }
             }
 
-            // 3. Image rules
+            // 3. Image rules (Square / Tight / Top and Bottom chính xác)
             const img = mission.image;
             rules.push({
                 id: 'rule-img-exists',
@@ -5168,11 +5093,10 @@
                 category: 'image',
                 type: 'image_exists'
             });
-            const wrapType = (img && img.name && (img.name.toLowerCase().includes('tight') || (img.desc && img.desc.toLowerCase().includes('tight'))))
+            const imgText = `${(img && img.name) || ''} ${(img && img.desc) || ''}`.toLowerCase();
+            const wrapType = imgText.includes('tight')
                 ? 'tight'
-                : ((img && img.name && (img.name.toLowerCase().includes('top') || (img.desc && img.desc.toLowerCase().includes('top and bottom'))))
-                    ? 'topandbottom'
-                    : 'square');
+                : (imgText.includes('top & bottom') || imgText.includes('top and bottom') ? 'topandbottom' : 'square');
             rules.push({
                 id: 'rule-img-wrap',
                 name: (img && img.name) ? `Bố trí ảnh: ${img.name}` : 'Bố trí Layout Options cho hình ảnh',
@@ -5181,109 +5105,26 @@
                 expectedWrap: wrapType
             });
 
-            // 4. Bonus rules
+            // 4. Bonus rules (12 mảnh độc lập, khớp 100% quests-v2.js)
             const bon = mission.bonus;
             if (bon) {
-                const bonid = bon.id || '';
-                if (bonid === 'bon-1') {
-                    rules.push({
-                        id: 'rule-bonus-border',
-                        name: 'Bonus: Viền ảnh nghệ thuật (Picture Border)',
-                        category: 'bonus',
-                        type: 'picture_border'
-                    });
-                } else if (bonid === 'bon-2') {
-                    rules.push({
-                        id: 'rule-bonus-style',
-                        name: 'Bonus: Khung ảnh bo góc/đổ bóng (Picture Styles)',
-                        category: 'bonus',
-                        type: 'picture_style'
-                    });
-                } else if (bonid === 'bon-3') {
-                    rules.push({
-                        id: 'rule-bonus-bullets',
-                        name: 'Bonus: Dấu đầu dòng tự động (Bullets)',
-                        category: 'bonus',
-                        type: 'has_bullets',
-                        match: 'Bảo mật'
-                    });
-                } else if (bonid === 'bon-4') {
-                    rules.push({
-                        id: 'rule-bonus-highlight',
-                        name: 'Bonus: Bút dạ quang nổi bật (Highlight)',
-                        category: 'bonus',
-                        type: 'highlight',
-                        match: 'thông minh'
-                    });
-                } else if (bonid === 'bon-5') {
-                    rules.push({
-                        id: 'rule-bonus-center',
-                        name: 'Bonus: Căn giữa câu khẩu hiệu cuối bài',
-                        category: 'bonus',
-                        type: 'paragraph_format',
-                        match: 'thông minh',
-                        align: 'center',
-                        fontSize: { min: 14 }
-                    });
-                } else if (bonid === 'bon-6') {
-                    rules.push({
-                        id: 'rule-bonus-indent',
-                        name: 'Bonus: Thụt lề đoạn mở đầu (Tab)',
-                        category: 'bonus',
-                        type: 'first_line_indent',
-                        match: 'Internet mang lại'
-                    });
-                } else if (bonid === 'bon-7') {
-                    rules.push({
-                        id: 'rule-bonus-pagecolor',
-                        name: 'Bonus: Đổi màu nền trang văn bản (Page Color)',
-                        category: 'bonus',
-                        type: 'page_color'
-                    });
-                } else if (bonid === 'bon-8') {
-                    rules.push({
-                        id: 'rule-bonus-italic3',
-                        name: 'Bonus: In nghiêng giải thích 3 nguyên tắc',
-                        category: 'bonus',
-                        type: 'paragraph_format',
-                        match: 'Bảo mật',
-                        italic: true
-                    });
-                } else if (bonid === 'bon-9') {
-                    rules.push({
-                        id: 'rule-bonus-pageborder',
-                        name: 'Bonus: Kẻ viền toàn trang văn bản (Page Borders)',
-                        category: 'bonus',
-                        type: 'page_border'
-                    });
-                } else if (bonid === 'bon-10') {
-                    rules.push({
-                        id: 'rule-bonus-heading-u',
-                        name: 'Bonus: Gạch chân tiêu đề chính (Underline)',
-                        category: 'bonus',
-                        type: 'paragraph_format',
-                        match: 'CẨM NANG AN TOÀN',
-                        underline: true
-                    });
-                } else if (bonid === 'bon-11') {
-                    rules.push({
-                        id: 'rule-bonus-quote-purple',
-                        name: 'Bonus: Màu Tím nổi bật câu khẩu hiệu',
-                        category: 'bonus',
-                        type: 'paragraph_format',
-                        match: 'thông minh',
-                        color: 'PURPLE'
-                    });
-                } else if (bonid === 'bon-12') {
-                    rules.push({
-                        id: 'rule-bonus-quote-bold16',
-                        name: 'Bonus: In đậm & Cỡ 16pt khẩu hiệu cuối',
-                        category: 'bonus',
-                        type: 'paragraph_format',
-                        match: 'thông minh',
-                        bold: true,
-                        fontSize: 16
-                    });
+                const bonusMap = {
+                    'bon-1':  { type: 'picture_border',    name: 'Bonus: Viền ảnh nghệ thuật (Picture Border)' },
+                    'bon-2':  { type: 'picture_style',     name: 'Bonus: Khung ảnh đổ bóng/bo góc (Picture Styles)' },
+                    'bon-3':  { type: 'has_bullets',       name: 'Bonus: Dấu đầu dòng Bullets cho 3 nguyên tắc', matches: ['Bảo mật', 'Cảnh giác', 'Ứng xử'] },
+                    'bon-4':  { type: 'highlight',         name: 'Bonus: Tô dạ quang câu khẩu hiệu cuối bài', match: 'thông minh' },
+                    'bon-5':  { type: 'paragraph_format',  name: 'Bonus: Căn giữa câu khẩu hiệu cuối bài', match: 'thông minh', align: 'center' },
+                    'bon-6':  { type: 'first_line_indent', name: 'Bonus: Thụt đầu dòng đoạn mở đầu (Tab)', match: 'Internet mang lại' },
+                    'bon-7':  { type: 'page_color',        name: 'Bonus: Đổi màu nền trang văn bản (Page Color)' },
+                    'bon-8':  { type: 'page_border',       name: 'Bonus: Kẻ viền toàn trang văn bản (Page Borders)' },
+                    'bon-9':  { type: 'highlight',         name: 'Bonus: Tô dạ quang dòng Tiêu đề chính', match: 'CẨM NANG AN TOÀN' },
+                    'bon-10': { type: 'paragraph_format',  name: 'Bonus: Căn phải câu khẩu hiệu cuối bài', match: 'thông minh', align: 'right' },
+                    'bon-11': { type: 'paragraph_format',  name: 'Bonus: Phóng to câu khẩu hiệu cỡ 16pt', match: 'thông minh', fontSize: 16 },
+                    'bon-12': { type: 'highlight',         name: 'Bonus: Tô dạ quang Nguyên tắc 1', match: 'Bảo mật' }
+                };
+                const bRule = bonusMap[bon.id];
+                if (bRule) {
+                    rules.push({ id: `rule-${bon.id}`, category: 'bonus', ...bRule });
                 } else {
                     rules.push({
                         id: 'rule-bonus-generic',
@@ -5614,20 +5455,20 @@
             const imagePass = document.getElementById('tc-check-image').checked;
             const isCorePerfect = headingPass && bodyPass && imagePass;
 
+            const peerSummaries = [];
             otherTeams.forEach(t => {
                 const vote = crossPeerVotes[t.id];
+                let delta = 0;
                 if (isCorePerfect) {
-                    if (vote === 'PASS') {
-                        t.score += 50;
-                    } else if (vote === 'BUG') {
-                        t.score = Math.max(0, t.score - 50);
-                    }
+                    if (vote === 'PASS') delta = 50;
+                    else if (vote === 'BUG') delta = -50;
                 } else {
-                    if (vote === 'BUG') {
-                        t.score += 100;
-                    } else if (vote === 'PASS') {
-                        t.score = Math.max(0, t.score - 50);
-                    }
+                    if (vote === 'BUG') delta = 100;
+                    else if (vote === 'PASS') delta = -50;
+                }
+                t.score = Math.max(0, t.score + delta);
+                if (delta !== 0) {
+                    peerSummaries.push(`${t.name} ${delta > 0 ? `+${delta}` : delta}`);
                 }
             });
 
@@ -5640,10 +5481,12 @@
 
             if (currentTeam) currentTeam.score += awardScore;
 
+            let authorNote = '';
             if (crossPickedMission && !isOwnMission) {
                 const authorTeam = teams.find(t => t.id === crossPickedMission.teamId);
                 if (authorTeam) {
                     authorTeam.score += 100;
+                    authorNote = ` | ✍️ Tác giả ${authorTeam.name} +100 Xu`;
                 }
             }
 
@@ -5668,12 +5511,18 @@
                 });
             }
 
-            let toastMsg = `🏆 ${currentTeam ? currentTeam.name : 'Tổ'} được cộng +${awardScore} Xu!`;
+            let toastMsg = `🏆 ${currentTeam ? currentTeam.name : 'Tổ'} +${awardScore} Xu`;
             if (trapBonus > 0) {
-                toastMsg += ` | 🔥 VƯỢT BẪY THÀNH CÔNG (+100 Xu)!`;
+                toastMsg += ` (+100 Xu Vượt bẫy)`;
+            }
+            if (authorNote) {
+                toastMsg += authorNote;
+            }
+            if (peerSummaries.length > 0) {
+                toastMsg += ` | Soi chéo: ${peerSummaries.join(', ')}`;
             }
             if (window.toast) {
-                window.toast(toastMsg, 3200, 'var(--gold)');
+                window.toast(toastMsg, 4500, 'var(--gold)');
             }
 
             renderTeams();
@@ -5683,6 +5532,9 @@
             const dropContainer = document.getElementById('cross-dropzone-container');
             if (dropContainer) dropContainer.style.display = 'none';
             document.getElementById('btn-spin-roulette').disabled = false;
+
+            const nextTurnBtn = document.getElementById('btn-next-team-turn');
+            if (nextTurnBtn) nextTurnBtn.style.display = 'block';
         }
 
         /* ================= RAW TEXT PREVIEW MODAL ================= */
@@ -5719,7 +5571,9 @@
 
             let imgBytes = null;
             try {
-                imgBytes = await window.DocxGrader.loadIceCreamBytes();
+                imgBytes = window.DocxGrader.loadInternetImageBytes
+                    ? await window.DocxGrader.loadInternetImageBytes()
+                    : await window.DocxGrader.loadIceCreamBytes();
             } catch (e) { }
 
             zip.addFile('[Content_Types].xml',
@@ -5802,7 +5656,7 @@
         <w:pBdr><w:left w:val="single" w:sz="24" w:space="8" w:color="0284C7"/></w:pBdr>
         <w:shd w:val="clear" w:color="auto" w:fill="F0F9FF"/>
       </w:pPr>
-      <w:r><w:rPr><w:b/><w:sz w:val="22"/><w:color w:val="D97706"/></w:rPr><w:t>• 📄 Đoạn văn: </w:t></w:r>
+      <w:r><w:rPr><w:b/><w:sz w:val="22"/><w:color w:val="2563EB"/></w:rPr><w:t>• 📄 Đoạn văn: </w:t></w:r>
       <w:r><w:rPr><w:sz w:val="22"/><w:color w:val="1E293B"/></w:rPr><w:t>${bodyDesc}</w:t></w:r>
     </w:p>
     <w:p>
@@ -5844,26 +5698,26 @@
 
     <w:p>
       <w:pPr><w:jc w:val="left"/></w:pPr>
-      <w:r><w:rPr><w:sz w:val="24"/><w:color w:val="000000"/></w:rPr><w:t>CẨM NANG AN TOÀN VÀ VĂN MINH TRÊN MẠNG INTERNET</w:t></w:r>
+      <w:r><w:rPr><w:rFonts w:ascii="Cambria" w:hAnsi="Cambria"/><w:sz w:val="22"/><w:color w:val="000000"/></w:rPr><w:t>CẨM NANG AN TOÀN VÀ VĂN MINH TRÊN MẠNG INTERNET</w:t></w:r>
     </w:p>
 
     <w:p>
       <w:pPr><w:jc w:val="left"/></w:pPr>
-      <w:r><w:rPr><w:sz w:val="24"/><w:color w:val="000000"/></w:rPr><w:t>Internet mang lại kho tàng tri thức rộng lớn giúp học sinh học tập, giải trí và kết nối với bạn bè khắp nơi. Tuy nhiên, môi trường mạng cũng tiềm ẩn nhiều rủi ro nếu chúng ta thiếu cảnh giác khi sử dụng máy tính. Vì vậy, mỗi học sinh lớp 5 cần thực hiện nghiêm túc 3 nguyên tắc vàng dưới đây:</w:t></w:r>
+      <w:r><w:rPr><w:rFonts w:ascii="Cambria" w:hAnsi="Cambria"/><w:sz w:val="22"/><w:color w:val="000000"/></w:rPr><w:t>Internet mang lại kho tàng tri thức rộng lớn giúp học sinh học tập, giải trí và kết nối với bạn bè khắp nơi. Tuy nhiên, môi trường mạng cũng tiềm ẩn nhiều rủi ro nếu chúng ta thiếu cảnh giác khi sử dụng máy tính. Vì vậy, mỗi học sinh lớp 5 cần thực hiện nghiêm túc 3 nguyên tắc vàng dưới đây:</w:t></w:r>
     </w:p>
 
     <w:p>
-      <w:r><w:rPr><w:sz w:val="24"/><w:color w:val="000000"/></w:rPr><w:t>1. Bảo mật thông tin: Tuyệt đối không chia sẻ mật khẩu, địa chỉ nhà hay số điện thoại cho người lạ trên mạng.</w:t></w:r>
+      <w:r><w:rPr><w:rFonts w:ascii="Cambria" w:hAnsi="Cambria"/><w:sz w:val="22"/><w:color w:val="000000"/></w:rPr><w:t>1. Bảo mật thông tin: Tuyệt đối không chia sẻ mật khẩu, địa chỉ nhà hay số điện thoại cho người lạ trên mạng.</w:t></w:r>
     </w:p>
     <w:p>
-      <w:r><w:rPr><w:sz w:val="24"/><w:color w:val="000000"/></w:rPr><w:t>2. Cảnh giác tệp lạ: Không tự ý nhấp vào đường link lạ hoặc tải tệp không rõ nguồn gốc để phòng tránh virus.</w:t></w:r>
+      <w:r><w:rPr><w:rFonts w:ascii="Cambria" w:hAnsi="Cambria"/><w:sz w:val="22"/><w:color w:val="000000"/></w:rPr><w:t>2. Cảnh giác tệp lạ: Không tự ý nhấp vào đường link lạ hoặc tải tệp không rõ nguồn gốc để phòng tránh virus.</w:t></w:r>
     </w:p>
     <w:p>
-      <w:r><w:rPr><w:sz w:val="24"/><w:color w:val="000000"/></w:rPr><w:t>3. Ứng xử văn minh: Luôn dùng lời lẽ lịch sự, tôn trọng mọi người và báo ngay cho thầy cô, cha mẹ khi gặp nội dung xấu.</w:t></w:r>
+      <w:r><w:rPr><w:rFonts w:ascii="Cambria" w:hAnsi="Cambria"/><w:sz w:val="22"/><w:color w:val="000000"/></w:rPr><w:t>3. Ứng xử văn minh: Luôn dùng lời lẽ lịch sự, tôn trọng mọi người và báo ngay cho thầy cô, cha mẹ khi gặp nội dung xấu.</w:t></w:r>
     </w:p>
 
     <w:p>
-      <w:r><w:rPr><w:sz w:val="24"/><w:color w:val="000000"/></w:rPr><w:t>"Hãy là người sử dụng Internet thông minh, an toàn và văn minh mỗi ngày!"</w:t></w:r>
+      <w:r><w:rPr><w:rFonts w:ascii="Cambria" w:hAnsi="Cambria"/><w:sz w:val="22"/><w:color w:val="000000"/></w:rPr><w:t>"Hãy là người sử dụng Internet thông minh, an toàn và văn minh mỗi ngày!"</w:t></w:r>
     </w:p>
 
     ${imgBytes ? `
@@ -5921,10 +5775,10 @@
                 mission = {
                     name: `Bộ Đề Rèn Luyện - ${team ? team.name : 'Tổ 1'}`,
                     authorTeamName: 'Thầy/Cô Giáo',
-                    heading: { desc: 'Tiêu đề: Phông Arial, Cỡ 20pt, In đậm (B), Màu Đỏ tươi (Red), Căn giữa (Center)' },
-                    body: { desc: 'Thân bài: Phông Times New Roman, Cỡ 13pt, Căn đều 2 bên (Justify); In nghiêng (I) câu khẩu hiệu cuối' },
+                    heading: { desc: 'Tiêu đề: Phông Arial, Cỡ 20pt, In đậm (B), Màu Đỏ (Red), Căn giữa (Center)' },
+                    body: { desc: 'Đoạn mở đầu: Phông Times New Roman, Cỡ 14pt, Căn đều 2 bên (Justify); In nghiêng (I) câu khẩu hiệu cuối bài' },
                     image: { desc: 'Hình ảnh: Chọn Layout Options → Square (chữ bao quanh vuông vức), kéo đặt sát LỀ PHẢI đoạn văn' },
-                    bonus: { desc: 'Thử thách Bonus: Thẻ Picture Format → Picture Border → Tạo viền màu Đỏ hoặc Xanh cho ảnh' }
+                    bonus: { desc: 'Thưởng +50 Xu: Chọn ảnh → Thẻ Picture Format (hoặc Format) → Picture Border → Tạo viền màu nổi bật cho ảnh' }
                 };
             }
 

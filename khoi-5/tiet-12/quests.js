@@ -1,8 +1,11 @@
 /**
- * NGÂN HÀNG NHIỆM VỤ & MẢNH GHÉP ĐỀ THI ĐẤU TIẾT 12
+ * NGÂN HÀNG NHIỆM VỤ & MẢNH GHÉP ĐỀ THI ĐẤU TIẾT 12 (BẢN ĐÃ CHUẨN HÓA V2)
  * Môn: Tin học 5 (KNTT) - Bài 6 (Tiết 2): Thực hành Định dạng kí tự và Bố trí hình ảnh trong văn bản
  * Hoạt động: "XƯỞNG THIẾT KẾ ĐỀ BÀI & ĐẤU TRƯỜNG THỰC HÀNH CHÉO"
- * Sử dụng 1 Template Word chuẩn duy nhất tương thích 100% mọi mảnh ghép yêu cầu.
+ * - Cỡ chữ thân thiện lớp 5 (chỉ dùng 12pt, 14pt, 16pt, 18pt, 20pt, 22pt có sẵn trong Word).
+ * - Đồng bộ mã màu 4 nhóm kỹ năng (Tiêu đề: Đỏ #ef4444, Đoạn văn: Xanh dương #3b82f6, Hình ảnh: Xanh lá #10b981, Bonus: Tím #8b5cf6).
+ * - 12 mảnh Bonus hoàn toàn độc lập, KHÔNG xung đột và KHÔNG trùng lặp với 12 Tiêu đề & 12 Đoạn văn.
+ * - Ghi rõ tên thẻ cho cả Office 2010 (Format / Page Layout) và Office 2013+ (Picture Format / Design).
  */
 
 window.QUESTS_DATA = {
@@ -66,7 +69,7 @@ window.QUESTS_DATA = {
       "3. Ứng xử văn minh: Luôn dùng lời lẽ lịch sự, tôn trọng mọi người và báo ngay cho thầy cô, cha mẹ khi gặp nội dung xấu."
     ],
     quoteText: "\"Hãy là người sử dụng Internet thông minh, an toàn và văn minh mỗi ngày!\"",
-    imageHint: "Ảnh minh họa đã được chèn sẵn ở cuối văn bản mẫu (hãy chọn kiểu Wrap Text và kéo tới vị trí theo đề bài)",
+    imageHint: "Ảnh minh họa An toàn Internet đã được chèn sẵn ở cuối văn bản mẫu (hãy chọn kiểu Wrap Text và kéo tới vị trí theo đề bài)",
     imageSrc: "../../assets/images/minh-hoa/chrome.png",
     getRawText() {
       return [
@@ -82,7 +85,7 @@ window.QUESTS_DATA = {
   // 3. KHO ĐỀ CHUNG: CÁC MẢNH GHÉP NHIỆM VỤ (4 NHÓM KỸ NĂNG)
   // Mỗi mảnh ghép chỉ được 1 tổ bốc dùng 1 lần, khi lấy khỏi kho thì các tổ khác không được lấy nữa.
   questBricks: {
-    // NHÓM 1: ĐỊNH DẠNG TIÊU ĐỀ (HEADING BRICKS - MÀU ĐỎ / CORAL)
+    // NHÓM 1: ĐỊNH DẠNG TIÊU ĐỀ (HEADING BRICKS - MÀU ĐỎ #ef4444)
     headings: [
       {
         id: "h-1",
@@ -91,7 +94,7 @@ window.QUESTS_DATA = {
         name: "Arial 20 Đỏ Đậm Giữa",
         icon: "🅰️",
         color: "#ef4444",
-        desc: "Tiêu đề: Phông Arial, Cỡ 20pt, In đậm (B), Màu Đỏ tươi (Red), Căn giữa (Center)"
+        desc: "Tiêu đề: Phông Arial, Cỡ 20pt, In đậm (B), Màu Đỏ (Red), Căn giữa (Center)"
       },
       {
         id: "h-2",
@@ -194,16 +197,16 @@ window.QUESTS_DATA = {
       }
     ],
 
-    // NHÓM 2: ĐỊNH DẠNG ĐOẠN VĂN (BODY BRICKS - MÀU VÀNG / GOLD)
+    // NHÓM 2: ĐỊNH DẠNG ĐOẠN VĂN (BODY BRICKS - MÀU XANH DƯƠNG #3b82f6, CỠ CHỮ CHUẨN 12pt / 14pt)
     bodies: [
       {
         id: "b-1",
         category: "body",
         categoryLabel: "Đoạn văn",
-        name: "Times 13 & Nghiêng Câu Khẩu Hiệu",
+        name: "Times 14 & Nghiêng Khẩu Hiệu",
         icon: "📄",
-        color: "#f59e0b",
-        desc: "Thân bài: Phông Times New Roman, Cỡ 13pt, Căn đều 2 bên (Justify); In nghiêng (I) câu khẩu hiệu cuối bài"
+        color: "#3b82f6",
+        desc: "Đoạn mở đầu: Phông Times New Roman, Cỡ 14pt, Căn đều 2 bên (Justify); In nghiêng (I) câu khẩu hiệu cuối bài"
       },
       {
         id: "b-2",
@@ -211,8 +214,8 @@ window.QUESTS_DATA = {
         categoryLabel: "Đoạn văn",
         name: "Arial 12 & In Đậm 3 Nguyên Tắc",
         icon: "📑",
-        color: "#f59e0b",
-        desc: "Thân bài: Phông Arial, Cỡ 12pt, Căn đều 2 bên (Justify); In đậm (B) cụm từ đầu của mục 1, 2, 3"
+        color: "#3b82f6",
+        desc: "Đoạn mở đầu: Phông Arial, Cỡ 12pt, Căn đều 2 bên (Justify); In đậm (B) cụm từ đầu của cả 3 mục 1, 2, 3"
       },
       {
         id: "b-3",
@@ -220,93 +223,93 @@ window.QUESTS_DATA = {
         categoryLabel: "Đoạn văn",
         name: "Tahoma 12 & Gạch Chân 3 Nguyên Tắc",
         icon: "📜",
-        color: "#f59e0b",
-        desc: "Thân bài: Phông Tahoma, Cỡ 12pt, Căn đều 2 bên (Justify); Gạch chân (U) cụm từ đầu của mục 1, 2, 3"
+        color: "#3b82f6",
+        desc: "Đoạn mở đầu: Phông Tahoma, Cỡ 12pt, Căn đều 2 bên (Justify); Gạch chân (U) cụm từ đầu của cả 3 mục 1, 2, 3"
       },
       {
         id: "b-4",
         category: "body",
         categoryLabel: "Đoạn văn",
-        name: "Calibri 13 & Đậm Nghiêng Khẩu Hiệu",
+        name: "Calibri 14 & Đậm Nghiêng Khẩu Hiệu",
         icon: "📋",
-        color: "#f59e0b",
-        desc: "Thân bài: Phông Calibri, Cỡ 13pt, Căn đều 2 bên (Justify); In đậm (B) + In nghiêng (I) câu khẩu hiệu cuối"
+        color: "#3b82f6",
+        desc: "Đoạn mở đầu: Phông Calibri, Cỡ 14pt, Căn đều 2 bên (Justify); In đậm (B) + In nghiêng (I) câu khẩu hiệu cuối"
       },
       {
         id: "b-5",
         category: "body",
         categoryLabel: "Đoạn văn",
-        name: "Verdana 12 & Màu Xanh Câu Khẩu Hiệu",
+        name: "Verdana 12 & Xanh Đậm Khẩu Hiệu",
         icon: "📝",
-        color: "#f59e0b",
-        desc: "Thân bài: Phông Verdana, Cỡ 12pt, Căn trái (Left); Đổi màu Xanh dương và In đậm câu khẩu hiệu cuối"
+        color: "#3b82f6",
+        desc: "Đoạn mở đầu: Phông Verdana, Cỡ 12pt, Căn trái (Left); Đổi màu Xanh dương (Blue) + In đậm (B) câu khẩu hiệu cuối"
       },
       {
         id: "b-6",
         category: "body",
         categoryLabel: "Đoạn văn",
-        name: "Times 14 & Đậm Mục 1-2-3 + Nghiêng Kết",
+        name: "Times 14 & Đậm 1-2-3 + Nghiêng Kết",
         icon: "📚",
-        color: "#f59e0b",
-        desc: "Thân bài: Phông Times New Roman, Cỡ 14pt, Căn đều 2 bên; In đậm (B) số 1-2-3 và In nghiêng (I) câu cuối"
+        color: "#3b82f6",
+        desc: "Đoạn mở đầu: Phông Times New Roman, Cỡ 14pt, Căn đều 2 bên (Justify); In đậm (B) cả 3 mục 1-2-3 và In nghiêng (I) câu cuối"
       },
       {
         id: "b-7",
         category: "body",
         categoryLabel: "Đoạn văn",
-        name: "Arial 13 & Căn Đều + Gạch Chân Khẩu Hiệu",
+        name: "Arial 14 & Gạch Chân Khẩu Hiệu",
         icon: "📰",
-        color: "#f59e0b",
-        desc: "Thân bài: Phông Arial, Cỡ 13pt, Căn đều 2 bên (Justify); Gạch chân (U) câu khẩu hiệu cuối bài"
+        color: "#3b82f6",
+        desc: "Đoạn mở đầu: Phông Arial, Cỡ 14pt, Căn đều 2 bên (Justify); Gạch chân (U) câu khẩu hiệu cuối bài"
       },
       {
         id: "b-8",
         category: "body",
         categoryLabel: "Đoạn văn",
-        name: "Calibri 12 & Màu Đỏ Câu Khẩu Hiệu",
+        name: "Calibri 12 & Màu Đỏ Khẩu Hiệu",
         icon: "🏷️",
-        color: "#f59e0b",
-        desc: "Thân bài: Phông Calibri, Cỡ 12pt, Căn đều 2 bên (Justify); Đổi màu Đỏ (Red) cho câu khẩu hiệu cuối"
+        color: "#3b82f6",
+        desc: "Đoạn mở đầu: Phông Calibri, Cỡ 12pt, Căn đều 2 bên (Justify); Đổi màu Đỏ (Red) cho câu khẩu hiệu cuối bài"
       },
       {
         id: "b-9",
         category: "body",
         categoryLabel: "Đoạn văn",
-        name: "Tahoma 13 & Đậm Nghiêng 3 Nguyên Tắc",
+        name: "Tahoma 14 & Đậm Nghiêng 3 Nguyên Tắc",
         icon: "📌",
-        color: "#f59e0b",
-        desc: "Thân bài: Phông Tahoma, Cỡ 13pt, Căn đều 2 bên (Justify); In đậm (B) + In nghiêng (I) 3 nguyên tắc 1-2-3"
+        color: "#3b82f6",
+        desc: "Đoạn mở đầu: Phông Tahoma, Cỡ 14pt, Căn đều 2 bên (Justify); In đậm (B) + In nghiêng (I) cả 3 nguyên tắc 1-2-3"
       },
       {
         id: "b-10",
         category: "body",
         categoryLabel: "Đoạn văn",
-        name: "Times 12 & Màu Tím Câu Khẩu Hiệu",
+        name: "Times 12 & Màu Tím Khẩu Hiệu",
         icon: "🪶",
-        color: "#f59e0b",
-        desc: "Thân bài: Phông Times New Roman, Cỡ 12pt, Căn đều 2 bên; Đổi màu Tím (Purple) cho câu khẩu hiệu cuối"
+        color: "#3b82f6",
+        desc: "Đoạn mở đầu: Phông Times New Roman, Cỡ 12pt, Căn đều 2 bên (Justify); Đổi màu Tím (Purple) cho câu khẩu hiệu cuối"
       },
       {
         id: "b-11",
         category: "body",
         categoryLabel: "Đoạn văn",
-        name: "Verdana 13 & Gạch Chân Số 1-2-3",
+        name: "Verdana 14 & Gạch Chân 3 Nguyên Tắc",
         icon: "🔢",
-        color: "#f59e0b",
-        desc: "Thân bài: Phông Verdana, Cỡ 13pt, Căn trái; Gạch chân (U) các số 1., 2., 3. đầu dòng nguyên tắc"
+        color: "#3b82f6",
+        desc: "Đoạn mở đầu: Phông Verdana, Cỡ 14pt, Căn trái (Left); Gạch chân (U) cả 3 mục nguyên tắc 1, 2, 3"
       },
       {
         id: "b-12",
         category: "body",
         categoryLabel: "Đoạn văn",
-        name: "Calibri 14 & Căn Đều + Nghiêng Khẩu Hiệu",
+        name: "Calibri 14 & Nghiêng Khẩu Hiệu",
         icon: "🖋️",
-        color: "#f59e0b",
-        desc: "Thân bài: Phông Calibri, Cỡ 14pt, Căn đều 2 bên; In nghiêng (I) câu khẩu hiệu cuối bài"
+        color: "#3b82f6",
+        desc: "Đoạn mở đầu: Phông Calibri, Cỡ 14pt, Căn đều 2 bên (Justify); In nghiêng (I) câu khẩu hiệu cuối bài"
       }
     ],
 
-    // NHÓM 3: BỐ TRÍ HÌNH ẢNH (IMAGE BRICKS - MÀU XANH LÁ / MINT)
+    // NHÓM 3: BỐ TRÍ HÌNH ẢNH (IMAGE BRICKS - MÀU XANH LÁ #10b981)
     images: [
       {
         id: "img-1",
@@ -342,13 +345,13 @@ window.QUESTS_DATA = {
         name: "Ảnh Top & Bottom Giữa Bài",
         icon: "🖼️",
         color: "#10b981",
-        desc: "Hình ảnh: Chọn Layout Options → Top and Bottom (ngắt dòng trên và dưới), đặt nằm giữa đoạn mở đầu và mục 1"
+        desc: "Hình ảnh: Chọn Layout Options → Top and Bottom (chữ ở trên và dưới), đặt nằm giữa đoạn mở đầu và mục 1"
       },
       {
         id: "img-5",
         category: "image",
         categoryLabel: "Hình ảnh",
-        name: "Ảnh Square Giữa Trang Văn Bản",
+        name: "Ảnh Square Giữa 3 Nguyên Tắc",
         icon: "🖼️",
         color: "#10b981",
         desc: "Hình ảnh: Chọn Layout Options → Square, thu nhỏ vừa vặn và đặt ở chính giữa lòng các dòng nguyên tắc 1-2-3"
@@ -366,7 +369,7 @@ window.QUESTS_DATA = {
         id: "img-7",
         category: "image",
         categoryLabel: "Hình ảnh",
-        name: "Ảnh Square Đặt Dưới Đoạn Mở Đầu",
+        name: "Ảnh Square Dưới Đoạn Mở Đầu",
         icon: "🖼️",
         color: "#10b981",
         desc: "Hình ảnh: Chọn Layout Options → Square, kéo đặt ngay dưới đoạn mở đầu bên phải"
@@ -375,7 +378,7 @@ window.QUESTS_DATA = {
         id: "img-8",
         category: "image",
         categoryLabel: "Hình ảnh",
-        name: "Ảnh Tight Đặt Cạnh Câu Khẩu Hiệu",
+        name: "Ảnh Tight Cạnh Câu Khẩu Hiệu",
         icon: "🖼️",
         color: "#10b981",
         desc: "Hình ảnh: Chọn Layout Options → Tight, kéo đặt bên cạnh câu khẩu hiệu cuối bài"
@@ -384,7 +387,7 @@ window.QUESTS_DATA = {
         id: "img-9",
         category: "image",
         categoryLabel: "Hình ảnh",
-        name: "Ảnh Square Ôm Sát Góc Phải Mục 3",
+        name: "Ảnh Square Góc Phải Mục 3",
         icon: "🖼️",
         color: "#10b981",
         desc: "Hình ảnh: Chọn Layout Options → Square, kéo đặt ở góc phải ngang hàng với nguyên tắc 3"
@@ -402,7 +405,7 @@ window.QUESTS_DATA = {
         id: "img-11",
         category: "image",
         categoryLabel: "Hình ảnh",
-        name: "Ảnh Square Sát Lề Trái Đoạn Mở Đầu",
+        name: "Ảnh Square Sát Lề Trái Mở Đầu",
         icon: "🖼️",
         color: "#10b981",
         desc: "Hình ảnh: Chọn Layout Options → Square, đặt sát lề trái của đoạn mở đầu"
@@ -418,7 +421,8 @@ window.QUESTS_DATA = {
       }
     ],
 
-    // NHÓM 4: MẢNH THỬ THÁCH BONUS (SPECIAL BONUS BRICKS - MÀU TÍM / PURPLE)
+    // NHÓM 4: MẢNH THỬ THÁCH BONUS (SPECIAL BONUS BRICKS - MÀU TÍM #8b5cf6)
+    // Thiết kế 100% độc lập, không bao giờ xung đột hay trùng lặp với Tiêu đề / Đoạn văn / Hình ảnh
     bonuses: [
       {
         id: "bon-1",
@@ -427,7 +431,7 @@ window.QUESTS_DATA = {
         name: "Viền Ảnh Nghệ Thuật (Picture Border)",
         icon: "⭐",
         color: "#8b5cf6",
-        desc: "Thưởng +50 Xu: Chọn ảnh → Thẻ Picture Format → Picture Border → Tạo viền màu Đỏ hoặc Xanh cho ảnh"
+        desc: "Thưởng +50 Xu: Chọn ảnh → Thẻ Picture Format (hoặc Format) → Picture Border → Tạo viền màu nổi bật cho ảnh"
       },
       {
         id: "bon-2",
@@ -436,7 +440,7 @@ window.QUESTS_DATA = {
         name: "Khung Ảnh Đổ Bóng (Picture Styles)",
         icon: "⭐",
         color: "#8b5cf6",
-        desc: "Thưởng +50 Xu: Chọn ảnh → Thẻ Picture Format → Picture Styles → Chọn 1 kiểu khung ảnh bo góc hoặc đổ bóng"
+        desc: "Thưởng +50 Xu: Chọn ảnh → Thẻ Picture Format (hoặc Format) → Picture Styles → Chọn 1 kiểu khung bo góc hoặc đổ bóng"
       },
       {
         id: "bon-3",
@@ -445,34 +449,34 @@ window.QUESTS_DATA = {
         name: "Dấu Đầu Dòng Tự Động (Bullets)",
         icon: "⭐",
         color: "#8b5cf6",
-        desc: "Thưởng +50 Xu: Bôi đen 3 nguyên tắc → Thẻ Home → Nút Bullets → Tạo dấu chấm tròn hoặc tích xanh đầu dòng"
+        desc: "Thưởng +50 Xu: Xóa số 1., 2., 3. ở đầu 3 nguyên tắc, bôi đen 3 dòng → Thẻ Home → Nút Bullets tạo dấu đầu dòng"
       },
       {
         id: "bon-4",
         category: "bonus",
         categoryLabel: "Bonus",
-        name: "Bút Dạ Quang Nổi Bật (Highlight)",
-        icon: "⭐",
+        name: "Bút Dạ Quang Khẩu Hiệu (Highlight)",
+        icon: "🖍️",
         color: "#8b5cf6",
-        desc: "Thưởng +50 Xu: Bôi đen câu khẩu hiệu cuối bài → Nhấp nút Text Highlight Color tô nền màu Vàng chanh"
+        desc: "Thưởng +50 Xu: Bôi đen câu khẩu hiệu cuối bài → Thẻ Home → Nút Text Highlight Color tô nền màu Vàng"
       },
       {
         id: "bon-5",
         category: "bonus",
         categoryLabel: "Bonus",
-        name: "Căn Giữa Câu Khẩu Hiệu Cuối",
-        icon: "⭐",
+        name: "Căn Giữa Câu Khẩu Hiệu (Center)",
+        icon: "↔️",
         color: "#8b5cf6",
-        desc: "Thưởng +50 Xu: Đưa câu khẩu hiệu cuối bài ra Căn giữa (Center) và tăng cỡ chữ lên 15pt thật nổi bật"
+        desc: "Thưởng +50 Xu: Đặt con trỏ vào câu khẩu hiệu cuối bài → Thẻ Home → Nhấp nút Căn giữa (Center)"
       },
       {
         id: "bon-6",
         category: "bonus",
         categoryLabel: "Bonus",
         name: "Thụt Lề Đoạn Mở Đầu (Tab)",
-        icon: "⭐",
+        icon: "⇥",
         color: "#8b5cf6",
-        desc: "Thưởng +50 Xu: Đặt con trỏ ở đầu đoạn văn mở đầu → Nhấn phím Tab để thụt đầu dòng gọn gàng chuẩn văn bản"
+        desc: "Thưởng +50 Xu: Đặt con trỏ ở đầu đoạn văn mở đầu → Nhấn phím Tab để thụt đầu dòng chuẩn văn bản"
       },
       {
         id: "bon-7",
@@ -481,52 +485,52 @@ window.QUESTS_DATA = {
         name: "Màu Nền Trang Văn Bản (Page Color)",
         icon: "🎨",
         color: "#8b5cf6",
-        desc: "Thưởng +50 Xu: Thẻ Design → Nút Page Color → Chọn 1 màu nền nhạt cho trang văn bản"
+        desc: "Thưởng +50 Xu: Thẻ Design (hoặc Page Layout) → Nút Page Color → Chọn 1 màu nền nhạt cho trang văn bản"
       },
       {
         id: "bon-8",
         category: "bonus",
         categoryLabel: "Bonus",
-        name: "In Nghiêng 3 Lời Khuyên (Italic)",
-        icon: "✨",
+        name: "Kẻ Viền Toàn Trang (Page Borders)",
+        icon: "🖼️",
         color: "#8b5cf6",
-        desc: "Thưởng +50 Xu: Bôi đen và In nghiêng (I) toàn bộ câu chữ giải thích của 3 nguyên tắc"
+        desc: "Thưởng +50 Xu: Thẻ Design (hoặc Page Layout) → Page Borders → Chọn khung viền Box bao quanh toàn trang"
       },
       {
         id: "bon-9",
         category: "bonus",
         categoryLabel: "Bonus",
-        name: "Kẻ Viền Toàn Trang (Page Borders)",
-        icon: "🖼️",
+        name: "Bút Dạ Quang Tiêu Đề (Highlight)",
+        icon: "✨",
         color: "#8b5cf6",
-        desc: "Thưởng +50 Xu: Thẻ Design → Page Borders → Chọn khung viền Box bao quanh toàn bộ trang"
+        desc: "Thưởng +50 Xu: Bôi đen dòng tiêu đề chính → Thẻ Home → Nút Text Highlight Color tô nền nổi bật cho tiêu đề"
       },
       {
         id: "bon-10",
         category: "bonus",
         categoryLabel: "Bonus",
-        name: "Gạch Chân Tiêu Đề Chính (Underline)",
-        icon: "✍️",
+        name: "Căn Phải Câu Khẩu Hiệu (Right)",
+        icon: "➡️",
         color: "#8b5cf6",
-        desc: "Thưởng +50 Xu: Bôi đen toàn bộ dòng tiêu đề chính → Nhấp nút Gạch chân (U)"
+        desc: "Thưởng +50 Xu: Đặt con trỏ vào câu khẩu hiệu cuối bài → Thẻ Home → Nhấp nút Căn phải (Align Right)"
       },
       {
         id: "bon-11",
         category: "bonus",
         categoryLabel: "Bonus",
-        name: "Màu Tím Nổi Bật Cho Khẩu Hiệu",
-        icon: "💜",
+        name: "Phóng To Khẩu Hiệu Cỡ 16pt",
+        icon: "🔍",
         color: "#8b5cf6",
-        desc: "Thưởng +50 Xu: Bôi đen câu khẩu hiệu cuối bài → Đổi màu chữ sang màu Tím (Purple)"
+        desc: "Thưởng +50 Xu: Bôi đen câu khẩu hiệu cuối bài → Đổi cỡ chữ lên 16pt cho thật nổi bật"
       },
       {
         id: "bon-12",
         category: "bonus",
         categoryLabel: "Bonus",
-        name: "In Đậm & Cỡ 16pt Khẩu Hiệu Cuối",
-        icon: "🔥",
+        name: "Bút Dạ Quang Nguyên Tắc 1 (Highlight)",
+        icon: "💡",
         color: "#8b5cf6",
-        desc: "Thưởng +50 Xu: Bôi đen câu khẩu hiệu cuối → In đậm (B) và tăng cỡ chữ lên 16pt"
+        desc: "Thưởng +50 Xu: Bôi đen Nguyên tắc 1 (Bảo mật thông tin...) → Nút Text Highlight Color tô màu nổi bật"
       }
     ]
   }

@@ -331,22 +331,34 @@
             const wrapTopAndBottoms = this.getElementsByTagNames(['wp:wrapTopAndBottom', 'wrapTopAndBottom']);
             this.hasTopAndBottomWrap = (wrapTopAndBottoms.length > 0) || (this.rawXml.indexOf('wrapTopAndBottom') !== -1);
 
-            // Check Picture Border: <a:ln> with outline / stroke inside drawing or rawXml
+            // Check Picture Border: <a:ln> must actually have a visible fill/width (ignore empty <a:ln><a:noFill/></a:ln>)
             const lnElements = this.getElementsByTagNames(['a:ln', 'ln']);
-            this.hasPictureBorder = (lnElements.length > 0) || (this.rawXml.indexOf('<a:ln') !== -1) || (this.rawXml.indexOf('strokecolor=') !== -1);
+            const hasVisibleLn = lnElements.some(ln => {
+                const children = Array.from(ln.getElementsByTagName('*')).map(c => c.localName);
+                if (children.includes('noFill')) return false;
+                return children.includes('solidFill') || children.includes('gradFill') || children.includes('pattFill') || !!ln.getAttribute('w');
+            });
+            this.hasPictureBorder = hasVisibleLn || (this.rawXml.indexOf('strokecolor=') !== -1);
 
-            // Check Picture Styles / Effects: shadow, rounded corners, glow, reflection
-            const effectElements = this.getElementsByTagNames(['a:effectLst', 'effectLst', 'a:outerShdw', 'outerShdw']);
-            this.hasPictureStyle = (effectElements.length > 0) ||
-                (this.rawXml.indexOf('<a:effectLst') !== -1) ||
-                (this.rawXml.indexOf('<a:outerShdw') !== -1) ||
+            // Check Picture Styles / Effects: non-empty effectLst or shadow/glow/reflection/3d/rounded preset geometry
+            const effectLstEls = this.getElementsByTagNames(['a:effectLst', 'effectLst']);
+            const hasActiveEffect = effectLstEls.some(el => el.children && el.children.length > 0);
+            const activeEffectTags = this.getElementsByTagNames([
+                'a:outerShdw', 'outerShdw', 'a:innerShdw', 'innerShdw',
+                'a:prstShdw', 'prstShdw', 'a:glow', 'glow',
+                'a:reflection', 'reflection', 'a:softEdge', 'softEdge',
+                'a:bevelT', 'bevelT', 'a:scene3d', 'scene3d'
+            ]);
+            this.hasPictureStyle = hasActiveEffect ||
+                (activeEffectTags.length > 0) ||
                 (this.rawXml.indexOf('roundRect') !== -1) ||
                 (this.rawXml.indexOf('snipRound') !== -1) ||
-                (this.rawXml.indexOf('<a:glow') !== -1) ||
-                (this.rawXml.indexOf('<a:reflection') !== -1);
+                (this.rawXml.indexOf('prst="ellipse"') !== -1) ||
+                (this.rawXml.indexOf('prst="frame"') !== -1);
 
-            // Check Page Background / Page Color
-            this.hasPageColor = (this.rawXml.indexOf('<w:background') !== -1) || (this.rawXml.indexOf('background') !== -1 && this.rawXml.indexOf('w:color') !== -1);
+            // Check Page Background / Page Color (strictly <w:background ...>, avoiding false positives from paragraph shading)
+            const bgEls = this.getElementsByTagNames(['w:background', 'background']);
+            this.hasPageColor = (bgEls.length > 0) || /<w:background\b/i.test(this.rawXml);
 
             // Check Page Border
             this.hasPageBorder = (this.rawXml.indexOf('<w:pgBorders') !== -1) || (this.rawXml.indexOf('pgBorders') !== -1);
@@ -668,6 +680,137 @@
                             break;
                         }
 
+                        const normAlign = (val) => {
+                            const s = String(val || 'left').toLowerCase().trim();
+                            if (s === 'justify' || s === 'both') return 'both';
+                            if (s === 'start') return 'left';
+                            if (s === 'end') return 'right';
+                            return s;
+                        };
+                        const alignLabel = (val) => {
+                            const n = normAlign(val);
+                            if (n === 'both') return 'Căn đều 2 bên (Justify)';
+                            if (n === 'center') return 'Căn giữa (Center)';
+                            if (n === 'right') return 'Căn phải (Right)';
+                            return 'Căn trái (Left)';
+                        };
+
+                        const checkSingleParagraph = (targetP) => {
+                            const pErrors = [];
+
+                            // 1. Font Size check (dung sai +/- 1.0pt, kiểm tra cả paragraph level lẫn từng run chứa text)
+                            const allPFontSizes = [
+                                targetP.fontSize,
+                                targetP.pPrSizePt,
+                                targetP.pPrSizeCsPt,
+                                ...targetP.runs.filter(r => r.text && r.text.trim().length > 0).flatMap(r => [r.fontSize, r.szPt, r.szCsPt])
+                            ].filter(v => typeof v === 'number' && !isNaN(v));
+
+                            if (rule.fontSize !== undefined) {
+                                if (typeof rule.fontSize === 'number') {
+                                    const isMatch = allPFontSizes.some(s => Math.abs(s - rule.fontSize) <= 1.0);
+                                    if (!isMatch) {
+                                        pErrors.push(`Cỡ chữ hiện tại là ${targetP.fontSize || 'mặc định'}pt (Yêu cầu: ${rule.fontSize}pt)`);
+                                    }
+                                } else if (rule.fontSize.min) {
+                                    const isMinOk = allPFontSizes.some(s => s >= rule.fontSize.min);
+                                    if (!isMinOk) {
+                                        pErrors.push(`Cỡ chữ ${targetP.fontSize || 'mặc định'}pt quá nhỏ (Yêu cầu tối thiểu: ${rule.fontSize.min}pt)`);
+                                    }
+                                }
+                            }
+
+                            // 2. Bold check
+                            if (rule.bold !== undefined) {
+                                const hasBold = targetP.bold || targetP.runs.some(r => r.bold && r.text && r.text.trim().length > 0);
+                                if (rule.bold && !hasBold) {
+                                    pErrors.push('Chưa in đậm (Nút B)');
+                                } else if (!rule.bold && hasBold) {
+                                    pErrors.push('Không được in đậm');
+                                }
+                            }
+
+                            // 3. Italic check
+                            if (rule.italic !== undefined) {
+                                const hasItalic = targetP.italic || targetP.runs.some(r => r.italic && r.text && r.text.trim().length > 0);
+                                if (rule.italic && !hasItalic) {
+                                    pErrors.push('Chưa in nghiêng (Nút I)');
+                                }
+                            }
+
+                            // 4. Underline check
+                            if (rule.underline !== undefined) {
+                                const hasUnderline = targetP.underline || targetP.runs.some(r => r.underline && r.text && r.text.trim().length > 0);
+                                if (rule.underline && !hasUnderline) {
+                                    pErrors.push('Chưa gạch chân (Nút U)');
+                                }
+                            }
+
+                            // 5. Color group check (RED, BLUE, PURPLE, GREEN, ORANGE, BLACK)
+                            if (rule.color) {
+                                const expectedColor = String(rule.color).toUpperCase();
+                                const allColorGroups = [
+                                    targetP.colorGroup,
+                                    ...targetP.runs.filter(r => r.colorGroup && r.text && r.text.trim().length > 0).map(r => r.colorGroup)
+                                ].filter(Boolean);
+                                const isColorMatch = allColorGroups.some(cg => cg === expectedColor);
+                                if (!isColorMatch) {
+                                    pErrors.push(`Màu chữ là ${targetP.colorGroup || 'mặc định'} (Yêu cầu: Màu ${expectedColor})`);
+                                }
+                            }
+
+                            // 6. Font Family check
+                            if (rule.fontFamily) {
+                                const expFont = normalizeVietnamese(rule.fontFamily);
+                                const allFonts = [
+                                    targetP.fontFamily,
+                                    ...targetP.runs.filter(r => r.text && r.text.trim().length > 0).map(r => r.fontFamily)
+                                ].filter(Boolean).map(f => normalizeVietnamese(f));
+                                const isFontMatch = allFonts.some(f => f.includes(expFont));
+                                if (!isFontMatch) {
+                                    pErrors.push(`Phông chữ là "${targetP.fontFamily || 'mặc định'}" (Yêu cầu: ${rule.fontFamily})`);
+                                }
+                            }
+
+                            // 7. Alignment check (chuẩn hóa justify <-> both của Word XML)
+                            if (rule.align) {
+                                const expAlign = normAlign(rule.align);
+                                const curAlign = normAlign(targetP.align);
+                                if (curAlign !== expAlign) {
+                                    pErrors.push(`Căn lề đang là ${alignLabel(curAlign)} (Yêu cầu: ${alignLabel(expAlign)})`);
+                                }
+                            }
+
+                            return pErrors;
+                        };
+
+                        // Hỗ trợ kiểm tra nhiều đoạn văn bản cùng lúc (ví dụ cả 3 nguyên tắc 1, 2, 3)
+                        if (Array.isArray(rule.matches) && rule.matches.length > 0) {
+                            const multiErrors = [];
+                            let matchedCount = 0;
+                            rule.matches.forEach((mStr) => {
+                                const normM = normalizeVietnamese(mStr);
+                                const p = doc.paragraphs.find(par => normalizeVietnamese(par.text).includes(normM));
+                                if (!p) {
+                                    multiErrors.push(`Không tìm thấy đoạn "${mStr}"`);
+                                } else {
+                                    matchedCount++;
+                                    const errs = checkSingleParagraph(p);
+                                    if (errs.length > 0) {
+                                        multiErrors.push(`Đoạn "${mStr}": ${errs.join(', ')}`);
+                                    }
+                                }
+                            });
+                            if (multiErrors.length === 0 && matchedCount === rule.matches.length) {
+                                isPass = true;
+                                message = `Đã định dạng chính xác đầy đủ ${matchedCount}/${rule.matches.length} mục!`;
+                            } else {
+                                isPass = false;
+                                message = multiErrors.join('; ');
+                            }
+                            break;
+                        }
+
                         let targetP = null;
                         if (typeof rule.matchIndex === 'number') {
                             targetP = doc.paragraphs[rule.matchIndex];
@@ -684,94 +827,11 @@
                             break;
                         }
 
-                        const errors = [];
-
-                        // 1. Font Size check (dung sai +/- 1.0pt, kiểm tra cả paragraph level lẫn từng run chứa text, hỗ trợ cả w:sz và w:szCs)
-                        const allPFontSizes = [
-                            targetP.fontSize,
-                            targetP.pPrSizePt,
-                            targetP.pPrSizeCsPt,
-                            ...targetP.runs.flatMap(r => [r.fontSize, r.szPt, r.szCsPt])
-                        ].filter(v => typeof v === 'number' && !isNaN(v));
-
-                        if (rule.fontSize !== undefined) {
-                            if (typeof rule.fontSize === 'number') {
-                                const isMatch = allPFontSizes.some(s => Math.abs(s - rule.fontSize) <= 1.0);
-                                if (!isMatch) {
-                                    errors.push(`Cỡ chữ hiện tại là ${targetP.fontSize || 'mặc định'}pt (Yêu cầu: ${rule.fontSize}pt)`);
-                                }
-                            } else if (rule.fontSize.min) {
-                                const isMinOk = allPFontSizes.some(s => s >= rule.fontSize.min);
-                                if (!isMinOk) {
-                                    errors.push(`Cỡ chữ ${targetP.fontSize || 'mặc định'}pt quá nhỏ (Yêu cầu tối thiểu: ${rule.fontSize.min}pt)`);
-                                }
-                            }
-                        }
-
-                        // 2. Bold check (kiểm tra cả paragraph level lẫn từng run)
-                        if (rule.bold !== undefined) {
-                            const hasBold = targetP.bold || targetP.runs.some(r => r.bold && r.text && r.text.trim().length > 0);
-                            if (rule.bold && !hasBold) {
-                                errors.push('Chưa in đậm (Nút B)');
-                            } else if (!rule.bold && hasBold) {
-                                errors.push('Không được in đậm');
-                            }
-                        }
-
-                        // 3. Italic check
-                        if (rule.italic !== undefined) {
-                            const hasItalic = targetP.italic || targetP.runs.some(r => r.italic && r.text && r.text.trim().length > 0);
-                            if (rule.italic && !hasItalic) {
-                                errors.push('Chưa in nghiêng (Nút I)');
-                            }
-                        }
-
-                        // 4. Underline check
-                        if (rule.underline !== undefined) {
-                            const hasUnderline = targetP.underline || targetP.runs.some(r => r.underline && r.text && r.text.trim().length > 0);
-                            if (rule.underline && !hasUnderline) {
-                                errors.push('Chưa gạch chân (Nút U)');
-                            }
-                        }
-
-                        // 5. Color group check (RED, BLUE, PURPLE, BLACK)
-                        if (rule.color) {
-                            const expectedColor = String(rule.color).toUpperCase();
-                            const allColorGroups = [
-                                targetP.colorGroup,
-                                ...targetP.runs.filter(r => r.colorGroup && r.text && r.text.trim().length > 0).map(r => r.colorGroup)
-                            ].filter(Boolean);
-                            const isColorMatch = allColorGroups.some(cg => cg === expectedColor);
-                            if (!isColorMatch) {
-                                errors.push(`Màu chữ là ${targetP.colorGroup || 'mặc định'} (Yêu cầu: Màu ${expectedColor})`);
-                            }
-                        }
-
-                        // 6. Font Family check
-                        if (rule.fontFamily) {
-                            const expFont = normalizeVietnamese(rule.fontFamily);
-                            const allFonts = [
-                                targetP.fontFamily,
-                                ...targetP.runs.map(r => r.fontFamily)
-                            ].filter(Boolean).map(f => normalizeVietnamese(f));
-                            const isFontMatch = allFonts.some(f => f.includes(expFont));
-                            if (!isFontMatch) {
-                                errors.push(`Phông chữ là "${targetP.fontFamily || 'mặc định'}" (Yêu cầu: ${rule.fontFamily})`);
-                            }
-                        }
-
-                        // 7. Alignment check
-                        if (rule.align) {
-                            const expAlign = String(rule.align).toLowerCase();
-                            const curAlign = String(targetP.align || 'left').toLowerCase();
-                            if (curAlign !== expAlign) {
-                                errors.push(`Căn lề là ${curAlign} (Yêu cầu: ${expAlign})`);
-                            }
-                        }
+                        const errors = checkSingleParagraph(targetP);
 
                         if (errors.length === 0) {
                             isPass = true;
-                            message = `Định dạng chính xác: "${targetP.text.substring(0, 30)}..."`;
+                            message = `Định dạng chính xác: "${targetP.text.substring(0, 32)}..."`;
                         } else {
                             isPass = false;
                             message = errors.join('; ');
@@ -792,23 +852,29 @@
                                 message = 'Hình ảnh đã được thiết lập bố cục bao quanh Square chính xác!';
                             } else {
                                 isPass = false;
-                                message = 'Chưa chọn nút Layout Options -> Square (Văn bản chưa chảy bao quanh ảnh)!';
+                                message = 'Chưa chọn Layout Options → Square (Văn bản chưa chảy bao quanh vuông vức)!';
                             }
                         } else if (expectedWrap === 'tight') {
-                            if (doc.hasTightWrap || doc.hasSquareWrap) {
+                            if (doc.hasTightWrap) {
                                 isPass = true;
-                                message = 'Hình ảnh đã được thiết lập bố cục bao quanh Tight/Square chính xác!';
+                                message = 'Hình ảnh đã được thiết lập bố cục bao quanh Tight chính xác!';
+                            } else if (doc.hasSquareWrap) {
+                                isPass = false;
+                                message = 'Đang chọn Square — đề bài yêu cầu chọn Layout Options → Tight!';
                             } else {
                                 isPass = false;
-                                message = 'Chưa chọn nút Layout Options -> Tight (Văn bản chưa ôm sát ảnh)!';
+                                message = 'Chưa chọn Layout Options → Tight (Văn bản chưa ôm sát ảnh)!';
                             }
                         } else if (expectedWrap === 'topandbottom' || expectedWrap === 'top_and_bottom') {
-                            if (doc.hasTopAndBottomWrap || doc.hasSquareWrap) {
+                            if (doc.hasTopAndBottomWrap) {
                                 isPass = true;
                                 message = 'Hình ảnh đã được thiết lập bố cục Top and Bottom chính xác!';
+                            } else if (doc.hasSquareWrap || doc.hasTightWrap) {
+                                isPass = false;
+                                message = 'Đang chọn Square/Tight — đề bài yêu cầu chọn Layout Options → Top and Bottom!';
                             } else {
                                 isPass = false;
-                                message = 'Chưa chọn nút Layout Options -> Top and Bottom!';
+                                message = 'Chưa chọn Layout Options → Top and Bottom!';
                             }
                         } else {
                             if (doc.hasSquareWrap || doc.hasTightWrap || doc.hasTopAndBottomWrap) {
@@ -850,12 +916,12 @@
                         if (!doc.hasImages) {
                             isPass = false;
                             message = 'Không tìm thấy hình ảnh nào trong văn bản!';
-                        } else if (doc.hasPictureBorder || doc.rawXml.includes('<a:ln') || doc.rawXml.includes('strokecolor=')) {
+                        } else if (doc.hasPictureBorder) {
                             isPass = true;
                             message = 'Hình ảnh đã được tạo viền nghệ thuật (Picture Border) thành công!';
                         } else {
                             isPass = false;
-                            message = 'Chưa tạo viền cho ảnh (Chọn ảnh -> Picture Format -> Picture Border)!';
+                            message = 'Chưa tạo viền cho ảnh (Chọn ảnh → Picture Format / Format → Picture Border)!';
                         }
                         break;
                     }
@@ -864,29 +930,33 @@
                         if (!doc.hasImages) {
                             isPass = false;
                             message = 'Không tìm thấy hình ảnh nào trong văn bản!';
-                        } else if (doc.hasPictureStyle || doc.rawXml.includes('<a:effectLst') || doc.rawXml.includes('<a:outerShdw') || doc.rawXml.includes('roundRect') || doc.rawXml.includes('snipRound')) {
+                        } else if (doc.hasPictureStyle) {
                             isPass = true;
                             message = 'Hình ảnh đã áp dụng kiểu khung bo góc/đổ bóng (Picture Styles)!';
                         } else {
                             isPass = false;
-                            message = 'Chưa chọn kiểu khung/đổ bóng cho ảnh (Picture Format -> Picture Styles)!';
+                            message = 'Chưa chọn kiểu khung/đổ bóng cho ảnh (Picture Format / Format → Picture Styles)!';
                         }
                         break;
                     }
 
                     case 'has_bullets': {
-                        const matches = doc.paragraphs.filter(p => {
-                            if (rule.match) return normalizeVietnamese(p.text).includes(normalizeVietnamese(rule.match));
-                            const nt = normalizeVietnamese(p.text);
-                            return nt.includes('bao mat') || nt.includes('canh giac') || nt.includes('ung xu');
-                        });
-                        const hasAnyBullet = matches.some(p => p.hasBullets) || doc.rawXml.includes('numPr') || doc.rawXml.includes('w:numPr');
-                        if (hasAnyBullet) {
+                        const targetKeywords = Array.isArray(rule.matches) && rule.matches.length > 0
+                            ? rule.matches.map(m => normalizeVietnamese(m))
+                            : (rule.match ? [normalizeVietnamese(rule.match)] : ['bao mat', 'canh giac', 'ung xu']);
+                        const matchedParas = targetKeywords
+                            .map(kw => doc.paragraphs.find(p => normalizeVietnamese(p.text).includes(kw)))
+                            .filter(Boolean);
+                        const bulletedCount = matchedParas.filter(p => p.hasBullets).length;
+                        if (matchedParas.length > 0 && bulletedCount === matchedParas.length) {
                             isPass = true;
-                            message = 'Đã tạo dấu đầu dòng Bullets tự động cho các nguyên tắc!';
+                            message = `Đã tạo dấu đầu dòng Bullets đầy đủ cho cả ${bulletedCount}/${matchedParas.length} nguyên tắc!`;
+                        } else if (bulletedCount > 0) {
+                            isPass = false;
+                            message = `Mới tạo Bullets cho ${bulletedCount}/${matchedParas.length} nguyên tắc (cần bôi đen đủ cả 3 mục)!`;
                         } else {
                             isPass = false;
-                            message = 'Chưa tạo dấu đầu dòng Bullets (Thẻ Home -> nút Bullets)!';
+                            message = 'Chưa tạo dấu đầu dòng Bullets cho 3 nguyên tắc (Thẻ Home → nút Bullets)!';
                         }
                         break;
                     }
@@ -895,13 +965,18 @@
                         const targetP = rule.match
                             ? doc.paragraphs.find(p => normalizeVietnamese(p.text).includes(normalizeVietnamese(rule.match)))
                             : doc.paragraphs.find(p => normalizeVietnamese(p.text).includes('thong minh'));
-                        const hasHi = targetP && (targetP.hasHighlight || targetP.hasShading || targetP.runs.some(r => r.hasHighlight || r.hasShading));
-                        if (hasHi || doc.rawXml.includes('w:highlight') || doc.rawXml.includes('highlight') || doc.rawXml.includes('w:shd')) {
-                            isPass = true;
-                            message = 'Đã tô màu dạ quang nổi bật cho câu khẩu hiệu (Highlight)!';
-                        } else {
+                        if (!targetP) {
                             isPass = false;
-                            message = 'Chưa tô màu dạ quang cho câu khẩu hiệu (Thẻ Home -> Text Highlight Color)!';
+                            message = `Không tìm thấy đoạn cần tô dạ quang ("${rule.match || 'khẩu hiệu'}")!`;
+                        } else {
+                            const hasHi = targetP.hasHighlight || targetP.hasShading || targetP.runs.some(r => r.hasHighlight || r.hasShading);
+                            if (hasHi) {
+                                isPass = true;
+                                message = `Đã tô màu dạ quang (Highlight) chính xác cho "${targetP.text.substring(0, 28)}..."!`;
+                            } else {
+                                isPass = false;
+                                message = 'Chưa tô màu dạ quang cho đúng đoạn yêu cầu (Thẻ Home → Text Highlight Color)!';
+                            }
                         }
                         break;
                     }
@@ -911,34 +986,34 @@
                             ? doc.paragraphs.find(p => normalizeVietnamese(p.text).includes(normalizeVietnamese(rule.match)))
                             : doc.paragraphs.find(p => normalizeVietnamese(p.text).includes('internet mang lai'));
                         const hasInd = targetP && (targetP.hasTab || targetP.hasInd || targetP.rawText.startsWith('\t') || targetP.rawText.startsWith('   '));
-                        if (hasInd || doc.rawXml.includes('<w:tab/>') || doc.rawXml.includes('w:firstLine')) {
+                        if (hasInd) {
                             isPass = true;
                             message = 'Đoạn văn mở đầu đã được thụt lề đầu dòng (Tab / First Line Indent)!';
                         } else {
                             isPass = false;
-                            message = 'Chưa thụt đầu dòng đoạn mở đầu (Nhấn phím Tab hoặc kéo First Line Indent)!';
+                            message = 'Chưa thụt đầu dòng đoạn mở đầu (Đặt con trỏ đầu đoạn → nhấn phím Tab)!';
                         }
                         break;
                     }
 
                     case 'page_color': {
-                        if (doc.hasPageColor || doc.rawXml.includes('<w:background') || doc.rawXml.includes('background')) {
+                        if (doc.hasPageColor) {
                             isPass = true;
                             message = 'Đã thiết lập màu nền cho trang văn bản (Page Color)!';
                         } else {
                             isPass = false;
-                            message = 'Chưa đổi màu nền trang văn bản (Design -> Page Color)!';
+                            message = 'Chưa đổi màu nền trang văn bản (Design / Page Layout → Page Color)!';
                         }
                         break;
                     }
 
                     case 'page_border': {
-                        if (doc.hasPageBorder || doc.rawXml.includes('<w:pgBorders') || doc.rawXml.includes('pgBorders')) {
+                        if (doc.hasPageBorder) {
                             isPass = true;
                             message = 'Đã tạo khung viền bao quanh trang văn bản (Page Borders)!';
                         } else {
                             isPass = false;
-                            message = 'Chưa tạo viền trang văn bản (Design -> Page Borders)!';
+                            message = 'Chưa tạo viền trang văn bản (Design / Page Layout → Page Borders)!';
                         }
                         break;
                     }
@@ -1086,8 +1161,42 @@
         return cachedIceCreamBytes;
     }
 
+    // Offline fallback base64 cho ảnh minh họa chủ đề An toàn Internet (Tiết 12)
+    const INTERNET_SAFETY_PNG_BASE64 = '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';
+    let cachedInternetBytes = null;
+
+    async function loadInternetImageBytes() {
+        if (cachedInternetBytes && cachedInternetBytes.length > 0) return cachedInternetBytes;
+        if (typeof fetch === 'function') {
+            const candidatePaths = [
+                '../../assets/images/minh-hoa/chrome.png',
+                '../assets/images/minh-hoa/chrome.png',
+                'assets/images/minh-hoa/chrome.png'
+            ];
+            for (const p of candidatePaths) {
+                try {
+                    const res = await fetch(p);
+                    if (res.ok) {
+                        const buf = await res.arrayBuffer();
+                        if (buf && buf.byteLength > 100) {
+                            cachedInternetBytes = new Uint8Array(buf);
+                            return cachedInternetBytes;
+                        }
+                    }
+                } catch (e) {}
+            }
+        }
+        if (!cachedInternetBytes) {
+            cachedInternetBytes = base64ToUint8(INTERNET_SAFETY_PNG_BASE64);
+        }
+        return cachedInternetBytes;
+    }
+
     if (typeof window !== 'undefined' && typeof fetch === 'function') {
-        setTimeout(() => { loadIceCreamBytes().catch(() => {}); }, 150);
+        setTimeout(() => {
+            loadIceCreamBytes().catch(() => {});
+            loadInternetImageBytes().catch(() => {});
+        }, 150);
     }
 
     function base64ToUint8(b64) {
@@ -1408,7 +1517,7 @@
         }
     }
 
-    function createChuyenThamQuanVirusBlob() {
+    function createChuyenThamQuanVirusBlob(customImageBytes = null) {
         const zip = new SimpleZipBuilder();
         zip.addFile('[Content_Types].xml', 
 `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -1542,6 +1651,14 @@
     // =========================================================================
     function setupDropzone(dropzoneEl, options = {}) {
         if (!dropzoneEl) return;
+
+        // Cập nhật options mới nhất mà không nhân bản event listener
+        dropzoneEl._docxOptions = options;
+        if (dropzoneEl.dataset.docxDropzoneBound === '1') {
+            return;
+        }
+        dropzoneEl.dataset.docxDropzoneBound = '1';
+
         const fileInput = dropzoneEl.querySelector('input[type="file"]') || document.createElement('input');
         fileInput.type = 'file';
         fileInput.accept = '.docx';
@@ -1576,24 +1693,27 @@
             if (e.target.files && e.target.files[0]) {
                 const file = e.target.files[0];
                 await processFile(file);
+                // Reset value để học sinh có thể nộp lại cùng tên file sau khi sửa lỗi
+                fileInput.value = '';
             }
         });
 
         async function processFile(file) {
+            const currentOpts = dropzoneEl._docxOptions || {};
             if (!file.name.toLowerCase().endsWith('.docx')) {
                 if (window.toast) window.toast('⚠️ Vui lòng chỉ nộp tệp văn bản Word (.docx)!', 3000, 'var(--coral)');
                 else alert('Vui lòng chỉ nộp tệp Word .docx!');
                 return;
             }
 
-            if (options.onStart) options.onStart(file);
+            if (currentOpts.onStart) currentOpts.onStart(file);
 
-            const rules = typeof options.getRules === 'function' ? options.getRules() : (options.rules || []);
+            const rules = typeof currentOpts.getRules === 'function' ? currentOpts.getRules() : (currentOpts.rules || []);
             const result = await DocxGraderEngine.gradeFile(file, rules);
             result.fileName = file.name;
 
-            if (options.onResult) {
-                options.onResult(result, file);
+            if (currentOpts.onResult) {
+                currentOpts.onResult(result, file);
             }
         }
     }
@@ -1689,6 +1809,7 @@
         createStarterDocxBlob,
         downloadStarterDocx,
         loadIceCreamBytes,
+        loadInternetImageBytes,
         createCongThucLamKemBlob,
         downloadCongThucLamKemDocx,
         createChuyenThamQuanVirusBlob,
