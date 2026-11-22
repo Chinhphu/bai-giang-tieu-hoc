@@ -94,7 +94,7 @@ window.QUESTS_DATA = {
         name: "Arial 20 Đỏ Đậm Giữa",
         icon: "🅰️",
         color: "#ef4444",
-        desc: "Tiêu đề: Phông Arial, Cỡ 20pt, In đậm (B), Màu Đỏ (Red), Căn giữa (Center)"
+        desc: "Phông Arial, Cỡ 20pt, In đậm (B), Màu Đỏ (Red), Căn giữa (Center)"
       },
       {
         id: "h-2",
@@ -103,7 +103,7 @@ window.QUESTS_DATA = {
         name: "Times 22 Xanh Dương Đậm Giữa",
         icon: "🔠",
         color: "#ef4444",
-        desc: "Tiêu đề: Phông Times New Roman, Cỡ 22pt, In đậm (B), Màu Xanh dương (Blue), Căn giữa (Center)"
+        desc: "Phông Times New Roman, Cỡ 22pt, In đậm (B), Màu Xanh dương (Blue), Căn giữa (Center)"
       },
       {
         id: "h-3",
@@ -112,7 +112,7 @@ window.QUESTS_DATA = {
         name: "Tahoma 20 Tím Đậm Gạch Chân",
         icon: "🎨",
         color: "#ef4444",
-        desc: "Tiêu đề: Phông Tahoma, Cỡ 20pt, In đậm (B) + Gạch chân (U), Màu Tím (Purple), Căn giữa (Center)"
+        desc: "Phông Tahoma, Cỡ 20pt, In đậm (B) + Gạch chân (U), Màu Tím (Purple), Căn giữa (Center)"
       },
       {
         id: "h-4",
@@ -121,7 +121,7 @@ window.QUESTS_DATA = {
         name: "Verdana 18 Xanh Lá Đậm Nghiêng",
         icon: "🌿",
         color: "#ef4444",
-        desc: "Tiêu đề: Phông Verdana, Cỡ 18pt, In đậm (B) + In nghiêng (I), Màu Xanh lá (Green), Căn giữa (Center)"
+        desc: "Phông Verdana, Cỡ 18pt, In đậm (B) + In nghiêng (I), Màu Xanh lá (Green), Căn giữa (Center)"
       },
       {
         id: "h-5",
@@ -130,7 +130,7 @@ window.QUESTS_DATA = {
         name: "Times 20 Cam Đậm Gạch Chân",
         icon: "🍊",
         color: "#ef4444",
-        desc: "Tiêu đề: Phông Times New Roman, Cỡ 20pt, In đậm (B) + Gạch chân (U), Màu Cam (Orange), Căn giữa (Center)"
+        desc: "Phông Times New Roman, Cỡ 20pt, In đậm (B) + Gạch chân (U), Màu Cam (Orange), Căn giữa (Center)"
       },
       {
         id: "h-6",
@@ -139,7 +139,7 @@ window.QUESTS_DATA = {
         name: "Calibri 22 Đỏ Đậm Nghiêng",
         icon: "💎",
         color: "#ef4444",
-        desc: "Tiêu đề: Phông Calibri, Cỡ 22pt, In đậm (B) + In nghiêng (I), Màu Đỏ sẫm (Dark Red), Căn giữa (Center)"
+        desc: "Phông Calibri, Cỡ 22pt, In đậm (B) + In nghiêng (I), Màu Đỏ sẫm (Dark Red), Căn giữa (Center)"
       },
       {
         id: "h-7",
@@ -148,7 +148,7 @@ window.QUESTS_DATA = {
         name: "Tahoma 18 Đỏ Đậm Giữa",
         icon: "📕",
         color: "#ef4444",
-        desc: "Tiêu đề: Phông Tahoma, Cỡ 18pt, In đậm (B), Màu Đỏ (Red), Căn giữa (Center)"
+        desc: "Phông Tahoma, Cỡ 18pt, In đậm (B), Màu Đỏ (Red), Căn giữa (Center)"
       },
       {
         id: "h-8",
@@ -157,7 +157,7 @@ window.QUESTS_DATA = {
         name: "Segoe 20 Xanh Dương Đậm Giữa",
         icon: "📘",
         color: "#ef4444",
-        desc: "Tiêu đề: Phông Segoe UI, Cỡ 20pt, In đậm (B), Màu Xanh dương (Blue), Căn giữa (Center)"
+        desc: "Phông Segoe UI, Cỡ 20pt, In đậm (B), Màu Xanh dương (Blue), Căn giữa (Center)"
       },
       {
         id: "h-9",
@@ -166,7 +166,7 @@ window.QUESTS_DATA = {
         name: "Arial 22 Tím Đậm Nghiêng",
         icon: "🔮",
         color: "#ef4444",
-        desc: "Tiêu đề: Phông Arial, Cỡ 22pt, In đậm (B) + In nghiêng (I), Màu Tím (Purple), Căn giữa (Center)"
+        desc: "Phông Arial, Cỡ 22pt, In đậm (B) + In nghiêng (I), Màu Tím (Purple), Căn giữa (Center)"
       },
       {
         id: "h-10",
@@ -175,7 +175,7 @@ window.QUESTS_DATA = {
         name: "Times 18 Xanh Lá Đậm Gạch Chân",
         icon: "📗",
         color: "#ef4444",
-        desc: "Tiêu đề: Phông Times New Roman, Cỡ 18pt, In đậm (B) + Gạch chân (U), Màu Xanh lá (Green), Căn giữa (Center)"
+        desc: "Phông Times New Roman, Cỡ 18pt, In đậm (B) + Gạch chân (U), Màu Xanh lá (Green), Căn giữa (Center)"
       },
       {
         id: "h-11",
@@ -184,7 +184,7 @@ window.QUESTS_DATA = {
         name: "Calibri 20 Cam Đậm Giữa",
         icon: "📙",
         color: "#ef4444",
-        desc: "Tiêu đề: Phông Calibri, Cỡ 20pt, In đậm (B), Màu Cam (Orange), Căn giữa (Center)"
+        desc: "Phông Calibri, Cỡ 20pt, In đậm (B), Màu Cam (Orange), Căn giữa (Center)"
       },
       {
         id: "h-12",
@@ -193,7 +193,7 @@ window.QUESTS_DATA = {
         name: "Verdana 20 Đỏ Đậm Gạch Chân",
         icon: "🎯",
         color: "#ef4444",
-        desc: "Tiêu đề: Phông Verdana, Cỡ 20pt, In đậm (B) + Gạch chân (U), Màu Đỏ (Red), Căn giữa (Center)"
+        desc: "Phông Verdana, Cỡ 20pt, In đậm (B) + Gạch chân (U), Màu Đỏ (Red), Căn giữa (Center)"
       }
     ],
 
@@ -202,110 +202,110 @@ window.QUESTS_DATA = {
       {
         id: "b-1",
         category: "body",
-        categoryLabel: "Đoạn văn",
+        categoryLabel: "Thân bài",
         name: "Times 14 & Nghiêng Khẩu Hiệu",
         icon: "📄",
         color: "#3b82f6",
-        desc: "Đoạn mở đầu: Phông Times New Roman, Cỡ 14pt, Căn đều 2 bên (Justify); In nghiêng (I) câu khẩu hiệu cuối bài"
+        desc: "Thân bài: Phông Times New Roman, Cỡ 14pt, Căn đều (Justify) • Khẩu hiệu cuối bài: In nghiêng (I)"
       },
       {
         id: "b-2",
         category: "body",
-        categoryLabel: "Đoạn văn",
+        categoryLabel: "Thân bài",
         name: "Arial 12 & In Đậm 3 Nguyên Tắc",
         icon: "📑",
         color: "#3b82f6",
-        desc: "Đoạn mở đầu: Phông Arial, Cỡ 12pt, Căn đều 2 bên (Justify); In đậm (B) cụm từ đầu của cả 3 mục 1, 2, 3"
+        desc: "Thân bài: Phông Arial, Cỡ 12pt, Căn đều (Justify) • Ba nguyên tắc (1, 2, 3): Bôi đen chọn In đậm (B)"
       },
       {
         id: "b-3",
         category: "body",
-        categoryLabel: "Đoạn văn",
+        categoryLabel: "Thân bài",
         name: "Tahoma 12 & Gạch Chân 3 Nguyên Tắc",
         icon: "📜",
         color: "#3b82f6",
-        desc: "Đoạn mở đầu: Phông Tahoma, Cỡ 12pt, Căn đều 2 bên (Justify); Gạch chân (U) cụm từ đầu của cả 3 mục 1, 2, 3"
+        desc: "Thân bài: Phông Tahoma, Cỡ 12pt, Căn đều (Justify) • Ba nguyên tắc (1, 2, 3): Bôi đen chọn Gạch chân (U)"
       },
       {
         id: "b-4",
         category: "body",
-        categoryLabel: "Đoạn văn",
+        categoryLabel: "Thân bài",
         name: "Calibri 14 & Đậm Nghiêng Khẩu Hiệu",
         icon: "📋",
         color: "#3b82f6",
-        desc: "Đoạn mở đầu: Phông Calibri, Cỡ 14pt, Căn đều 2 bên (Justify); In đậm (B) + In nghiêng (I) câu khẩu hiệu cuối"
+        desc: "Thân bài: Phông Calibri, Cỡ 14pt, Căn đều (Justify) • Khẩu hiệu cuối bài: In đậm (B) và In nghiêng (I)"
       },
       {
         id: "b-5",
         category: "body",
-        categoryLabel: "Đoạn văn",
+        categoryLabel: "Thân bài",
         name: "Verdana 12 & Xanh Đậm Khẩu Hiệu",
         icon: "📝",
         color: "#3b82f6",
-        desc: "Đoạn mở đầu: Phông Verdana, Cỡ 12pt, Căn trái (Left); Đổi màu Xanh dương (Blue) + In đậm (B) câu khẩu hiệu cuối"
+        desc: "Thân bài: Phông Verdana, Cỡ 12pt, Căn trái (Left) • Khẩu hiệu cuối bài: Chọn màu Xanh dương và In đậm (B)"
       },
       {
         id: "b-6",
         category: "body",
-        categoryLabel: "Đoạn văn",
+        categoryLabel: "Thân bài",
         name: "Times 14 & Đậm 1-2-3 + Nghiêng Kết",
         icon: "📚",
         color: "#3b82f6",
-        desc: "Đoạn mở đầu: Phông Times New Roman, Cỡ 14pt, Căn đều 2 bên (Justify); In đậm (B) cả 3 mục 1-2-3 và In nghiêng (I) câu cuối"
+        desc: "Thân bài: Phông Times New Roman, Cỡ 14pt, Căn đều (Justify) • Ba nguyên tắc (1, 2, 3): In đậm (B) • Khẩu hiệu cuối: In nghiêng (I)"
       },
       {
         id: "b-7",
         category: "body",
-        categoryLabel: "Đoạn văn",
+        categoryLabel: "Thân bài",
         name: "Arial 14 & Gạch Chân Khẩu Hiệu",
         icon: "📰",
         color: "#3b82f6",
-        desc: "Đoạn mở đầu: Phông Arial, Cỡ 14pt, Căn đều 2 bên (Justify); Gạch chân (U) câu khẩu hiệu cuối bài"
+        desc: "Thân bài: Phông Arial, Cỡ 14pt, Căn đều (Justify) • Khẩu hiệu cuối bài: Gạch chân (U)"
       },
       {
         id: "b-8",
         category: "body",
-        categoryLabel: "Đoạn văn",
+        categoryLabel: "Thân bài",
         name: "Calibri 12 & Màu Đỏ Khẩu Hiệu",
         icon: "🏷️",
         color: "#3b82f6",
-        desc: "Đoạn mở đầu: Phông Calibri, Cỡ 12pt, Căn đều 2 bên (Justify); Đổi màu Đỏ (Red) cho câu khẩu hiệu cuối bài"
+        desc: "Thân bài: Phông Calibri, Cỡ 12pt, Căn đều (Justify) • Khẩu hiệu cuối bài: Chọn chữ màu Đỏ (Red)"
       },
       {
         id: "b-9",
         category: "body",
-        categoryLabel: "Đoạn văn",
+        categoryLabel: "Thân bài",
         name: "Tahoma 14 & Đậm Nghiêng 3 Nguyên Tắc",
         icon: "📌",
         color: "#3b82f6",
-        desc: "Đoạn mở đầu: Phông Tahoma, Cỡ 14pt, Căn đều 2 bên (Justify); In đậm (B) + In nghiêng (I) cả 3 nguyên tắc 1-2-3"
+        desc: "Thân bài: Phông Tahoma, Cỡ 14pt, Căn đều (Justify) • Ba nguyên tắc (1, 2, 3): Bôi đen chọn In đậm (B) và In nghiêng (I)"
       },
       {
         id: "b-10",
         category: "body",
-        categoryLabel: "Đoạn văn",
+        categoryLabel: "Thân bài",
         name: "Times 12 & Màu Tím Khẩu Hiệu",
         icon: "🪶",
         color: "#3b82f6",
-        desc: "Đoạn mở đầu: Phông Times New Roman, Cỡ 12pt, Căn đều 2 bên (Justify); Đổi màu Tím (Purple) cho câu khẩu hiệu cuối"
+        desc: "Thân bài: Phông Times New Roman, Cỡ 12pt, Căn đều (Justify) • Khẩu hiệu cuối bài: Chọn chữ màu Tím (Purple)"
       },
       {
         id: "b-11",
         category: "body",
-        categoryLabel: "Đoạn văn",
+        categoryLabel: "Thân bài",
         name: "Verdana 14 & Gạch Chân 3 Nguyên Tắc",
         icon: "🔢",
         color: "#3b82f6",
-        desc: "Đoạn mở đầu: Phông Verdana, Cỡ 14pt, Căn trái (Left); Gạch chân (U) cả 3 mục nguyên tắc 1, 2, 3"
+        desc: "Thân bài: Phông Verdana, Cỡ 14pt, Căn trái (Left) • Ba nguyên tắc (1, 2, 3): Bôi đen chọn Gạch chân (U)"
       },
       {
         id: "b-12",
         category: "body",
-        categoryLabel: "Đoạn văn",
+        categoryLabel: "Thân bài",
         name: "Calibri 14 & Nghiêng Khẩu Hiệu",
         icon: "🖋️",
         color: "#3b82f6",
-        desc: "Đoạn mở đầu: Phông Calibri, Cỡ 14pt, Căn đều 2 bên (Justify); In nghiêng (I) câu khẩu hiệu cuối bài"
+        desc: "Thân bài: Phông Calibri, Cỡ 14pt, Căn đều (Justify) • Khẩu hiệu cuối bài: In nghiêng (I)"
       }
     ],
 
@@ -318,7 +318,7 @@ window.QUESTS_DATA = {
         name: "Ảnh Square Đặt Sát Lề Phải",
         icon: "🖼️",
         color: "#10b981",
-        desc: "Hình ảnh: Chọn Layout Options → Square (chữ bao quanh vuông vức), kéo đặt sát LỀ PHẢI của đoạn văn"
+        desc: "Chọn Layout Options → Square (chữ bao quanh vuông vức), kéo đặt sát LỀ PHẢI của đoạn văn"
       },
       {
         id: "img-2",
@@ -327,7 +327,7 @@ window.QUESTS_DATA = {
         name: "Ảnh Square Đặt Sát Lề Trái",
         icon: "🖼️",
         color: "#10b981",
-        desc: "Hình ảnh: Chọn Layout Options → Square (chữ bao quanh vuông vức), kéo đặt sát LỀ TRÁI của đoạn văn"
+        desc: "Chọn Layout Options → Square (chữ bao quanh vuông vức), kéo đặt sát LỀ TRÁI của đoạn văn"
       },
       {
         id: "img-3",
@@ -336,7 +336,7 @@ window.QUESTS_DATA = {
         name: "Ảnh Tight Ôm Sát Góc Phải",
         icon: "🖼️",
         color: "#10b981",
-        desc: "Hình ảnh: Chọn Layout Options → Tight (chữ ôm sát viền ảnh), kéo đặt ở góc bên PHẢI của 3 nguyên tắc"
+        desc: "Chọn Layout Options → Tight (chữ ôm sát viền ảnh), kéo đặt ở góc bên PHẢI của 3 nguyên tắc"
       },
       {
         id: "img-4",
@@ -345,7 +345,7 @@ window.QUESTS_DATA = {
         name: "Ảnh Top & Bottom Giữa Bài",
         icon: "🖼️",
         color: "#10b981",
-        desc: "Hình ảnh: Chọn Layout Options → Top and Bottom (chữ ở trên và dưới), đặt nằm giữa đoạn mở đầu và mục 1"
+        desc: "Chọn Layout Options → Top and Bottom (chữ ở trên và dưới), đặt nằm giữa đoạn mở đầu và mục 1"
       },
       {
         id: "img-5",
@@ -354,7 +354,7 @@ window.QUESTS_DATA = {
         name: "Ảnh Square Giữa 3 Nguyên Tắc",
         icon: "🖼️",
         color: "#10b981",
-        desc: "Hình ảnh: Chọn Layout Options → Square, thu nhỏ vừa vặn và đặt ở chính giữa lòng các dòng nguyên tắc 1-2-3"
+        desc: "Chọn Layout Options → Square, thu nhỏ vừa vặn và đặt ở chính giữa lòng các dòng nguyên tắc 1-2-3"
       },
       {
         id: "img-6",
@@ -363,7 +363,7 @@ window.QUESTS_DATA = {
         name: "Ảnh Tight Đặt Sát Lề Trái",
         icon: "🖼️",
         color: "#10b981",
-        desc: "Hình ảnh: Chọn Layout Options → Tight (chữ ôm sát mép ảnh), đặt sát LỀ TRÁI ngang hàng với mục 1, 2, 3"
+        desc: "Chọn Layout Options → Tight (chữ ôm sát mép ảnh), đặt sát LỀ TRÁI ngang hàng với mục 1, 2, 3"
       },
       {
         id: "img-7",
@@ -372,7 +372,7 @@ window.QUESTS_DATA = {
         name: "Ảnh Square Dưới Đoạn Mở Đầu",
         icon: "🖼️",
         color: "#10b981",
-        desc: "Hình ảnh: Chọn Layout Options → Square, kéo đặt ngay dưới đoạn mở đầu bên phải"
+        desc: "Chọn Layout Options → Square, kéo đặt ngay dưới đoạn mở đầu bên phải"
       },
       {
         id: "img-8",
@@ -381,7 +381,7 @@ window.QUESTS_DATA = {
         name: "Ảnh Tight Cạnh Câu Khẩu Hiệu",
         icon: "🖼️",
         color: "#10b981",
-        desc: "Hình ảnh: Chọn Layout Options → Tight, kéo đặt bên cạnh câu khẩu hiệu cuối bài"
+        desc: "Chọn Layout Options → Tight, kéo đặt bên cạnh câu khẩu hiệu cuối bài"
       },
       {
         id: "img-9",
@@ -390,7 +390,7 @@ window.QUESTS_DATA = {
         name: "Ảnh Square Góc Phải Mục 3",
         icon: "🖼️",
         color: "#10b981",
-        desc: "Hình ảnh: Chọn Layout Options → Square, kéo đặt ở góc phải ngang hàng với nguyên tắc 3"
+        desc: "Chọn Layout Options → Square, kéo đặt ở góc phải ngang hàng với nguyên tắc 3"
       },
       {
         id: "img-10",
@@ -399,7 +399,7 @@ window.QUESTS_DATA = {
         name: "Ảnh Top & Bottom Dưới Tiêu Đề",
         icon: "🖼️",
         color: "#10b981",
-        desc: "Hình ảnh: Chọn Layout Options → Top and Bottom, đặt ngay dưới tiêu đề chính"
+        desc: "Chọn Layout Options → Top and Bottom, đặt ngay dưới tiêu đề chính"
       },
       {
         id: "img-11",
@@ -408,7 +408,7 @@ window.QUESTS_DATA = {
         name: "Ảnh Square Sát Lề Trái Mở Đầu",
         icon: "🖼️",
         color: "#10b981",
-        desc: "Hình ảnh: Chọn Layout Options → Square, đặt sát lề trái của đoạn mở đầu"
+        desc: "Chọn Layout Options → Square, đặt sát lề trái của đoạn mở đầu"
       },
       {
         id: "img-12",
@@ -417,7 +417,7 @@ window.QUESTS_DATA = {
         name: "Ảnh Tight Đặt Giữa Bài Viết",
         icon: "🖼️",
         color: "#10b981",
-        desc: "Hình ảnh: Chọn Layout Options → Tight, thu nhỏ ảnh và đặt vào giữa các dòng văn bản"
+        desc: "Chọn Layout Options → Tight, thu nhỏ ảnh và đặt vào giữa các dòng văn bản"
       }
     ],
 

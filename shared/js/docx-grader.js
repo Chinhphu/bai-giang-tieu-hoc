@@ -820,7 +820,18 @@
                             let matchedCount = 0;
                             rule.matches.forEach((mStr) => {
                                 const normM = normalizeVietnamese(mStr);
-                                const p = gradingParagraphs.find(par => normalizeVietnamese(par.text).includes(normM));
+                                const matchingPars = gradingParagraphs.filter(par => normalizeVietnamese(par.text).includes(normM));
+                                let p = null;
+                                if (matchingPars.length === 1) {
+                                    p = matchingPars[0];
+                                } else if (matchingPars.length > 1) {
+                                    // Ưu tiên đoạn có từ khóa xuất hiện ở gần đầu đoạn (đề mục, danh sách số 1-2-3)
+                                    p = matchingPars.find(par => {
+                                        const normText = normalizeVietnamese(par.text);
+                                        const idx = normText.indexOf(normM);
+                                        return idx !== -1 && idx < 30;
+                                    }) || matchingPars[0];
+                                }
                                 if (!p) {
                                     multiErrors.push(`Không tìm thấy đoạn "${mStr}"`);
                                 } else {
@@ -846,7 +857,16 @@
                             targetP = gradingParagraphs[rule.matchIndex];
                         } else if (rule.match) {
                             const normMatch = normalizeVietnamese(rule.match);
-                            targetP = gradingParagraphs.find(p => normalizeVietnamese(p.text).includes(normMatch));
+                            const matchingPars = gradingParagraphs.filter(p => normalizeVietnamese(p.text).includes(normMatch));
+                            if (matchingPars.length === 1) {
+                                targetP = matchingPars[0];
+                            } else if (matchingPars.length > 1) {
+                                targetP = matchingPars.find(par => {
+                                    const normText = normalizeVietnamese(par.text);
+                                    const idx = normText.indexOf(normMatch);
+                                    return idx !== -1 && idx < 30;
+                                }) || matchingPars[0];
+                            }
                         } else {
                             targetP = gradingParagraphs[0]; // fallback title
                         }
