@@ -260,6 +260,42 @@
     // 3. COLOR CLASSIFIER & NORMALIZER
     // =========================================================================
     function classifyColorGroup(hexVal, themeColor) {
+        const raw = (hexVal || '').trim().replace(/^#/, '').toUpperCase();
+
+        // Ưu tiên phân loại theo mã HEX thực tế khi có (tránh themeColor ghi đè sai màu)
+        if (raw && raw !== 'AUTO') {
+            const REDS = ['FF0000', 'C00000', 'E00000', 'CC0000', 'E74C3C', 'D32F2F', 'EF4444', 'DC2626', '800000', '9B0000', 'A50021', 'B91C1C', '991B1B'];
+            const BLUES = ['0070C0', '002060', '418AB3', '2E75B6', '1F4E79', '4472C4', '0000FF', '1A73E8', '0284C7', '0369A1', '2563EB', '3B82F6', '0EA5E9', '2F5597', '5B9BD5', '00B0F0', '1D4ED8'];
+            const PURPLES = ['7030A0', '800080', '660066', '8E44AD', '9B59B6', 'A855F7', '7C3AED', '9333EA', '6B21A8', '5F497A', '403152'];
+            const GREENS = ['00B050', '70AD47', '385723', '375623', '548235', '10B981', '059669', '15803D', '16A34A', '22C55E', '008000', '92D050', '76923C', '4F6228'];
+            const ORANGES = ['ED7D31', 'F59E0B', 'F97316', 'FFC000', 'C65911', 'C55A11', '833C0C', 'FF7F00', 'FFA500', 'FB923C', 'E36C09', '974806', 'F4B183', 'EA580C', 'D97706'];
+            const BLACKS = ['000000', '262626', '595959', '1F2937', '111827', '333333', '0F172A', '000'];
+
+            if (REDS.includes(raw)) return 'RED';
+            if (BLUES.includes(raw)) return 'BLUE';
+            if (PURPLES.includes(raw)) return 'PURPLE';
+            if (GREENS.includes(raw)) return 'GREEN';
+            if (ORANGES.includes(raw)) return 'ORANGE';
+            if (BLACKS.includes(raw)) return 'BLACK';
+
+            // RGB numeric heuristics theo tỷ lệ trội giữa các kênh (bao phủ bảng Theme Colors của Word)
+            if (raw.length === 6) {
+                const r = parseInt(raw.slice(0, 2), 16) || 0;
+                const g = parseInt(raw.slice(2, 4), 16) || 0;
+                const b = parseInt(raw.slice(4, 6), 16) || 0;
+
+                if (r < 70 && g < 70 && b < 70) return 'BLACK';
+                if (r >= 130 && g >= 55 && g <= 195 && b <= 95 && (g - b) >= 35 && r > g * 1.15) return 'ORANGE';
+                if (r >= 110 && r > g * 1.8 && r > b * 1.8) return 'RED';
+                if (r >= 70 && b >= 90 && g < Math.min(r, b) * 0.85) return 'PURPLE';
+                if (b >= 90 && b > r * 1.2 && b >= g) return 'BLUE';
+                if (g >= 75 && g > r * 1.15 && g > b * 1.15) return 'GREEN';
+            }
+
+            return 'CUSTOM';
+        }
+
+        // Fallback theo themeColor khi không có hexVal cụ thể
         const theme = (themeColor || '').toLowerCase();
         if (theme === 'text1' || theme === 'text2' || theme === 'dark1' || theme === 'dark2') {
             return 'BLACK';
@@ -267,40 +303,10 @@
         if (theme === 'hyperlink' || theme === 'accent1' || theme === 'accent5') {
             return 'BLUE';
         }
+        if (theme === 'accent2') return 'ORANGE';
+        if (theme === 'accent6') return 'GREEN';
 
-        const raw = (hexVal || '').trim().replace(/^#/, '').toUpperCase();
-        if (!raw || raw === 'AUTO') return 'BLACK';
-
-        // Known hex mapping
-        const REDS = ['FF0000', 'C00000', 'E00000', 'CC0000', 'E74C3C', 'D32F2F', 'EF4444', 'DC2626'];
-        const BLUES = ['0070C0', '002060', '418AB3', '2E75B6', '1F4E79', '4472C4', '0000FF', '1A73E8', '0284C7', '0369A1', '2563EB', '3B82F6', '0EA5E9'];
-        const PURPLES = ['7030A0', '800080', '660066', '8E44AD', '9B59B6', 'A855F7', '7C3AED', '9333EA', '6B21A8'];
-        const GREENS = ['00B050', '70AD47', '385723', '548235', '10B981', '059669', '15803D', '16A34A', '22C55E', '008000'];
-        const ORANGES = ['ED7D31', 'F59E0B', 'F97316', 'FFC000', 'C65911', 'FF7F00', 'FFA500', 'FB923C'];
-        const BLACKS = ['000000', '262626', '595959', '1F2937', '111827', '333333', '0F172A', '000'];
-
-        if (REDS.includes(raw)) return 'RED';
-        if (BLUES.includes(raw)) return 'BLUE';
-        if (PURPLES.includes(raw)) return 'PURPLE';
-        if (GREENS.includes(raw)) return 'GREEN';
-        if (ORANGES.includes(raw)) return 'ORANGE';
-        if (BLACKS.includes(raw)) return 'BLACK';
-
-        // RGB numeric heuristics
-        if (raw.length === 6) {
-            const r = parseInt(raw.slice(0, 2), 16) || 0;
-            const g = parseInt(raw.slice(2, 4), 16) || 0;
-            const b = parseInt(raw.slice(4, 6), 16) || 0;
-
-            if (r < 70 && g < 70 && b < 70) return 'BLACK';
-            if (r > 150 && g < 90 && b < 90) return 'RED';
-            if (r > 100 && b > 120 && g < 100) return 'PURPLE';
-            if (b > 130 && b > r + 25 && b > g + 15) return 'BLUE';
-            if (g > 120 && g > r + 20 && g > b + 20) return 'GREEN';
-            if (r > 180 && g > 90 && g < 180 && b < 80) return 'ORANGE';
-        }
-
-        return raw ? 'CUSTOM' : 'BLACK';
+        return 'BLACK';
     }
 
     // =========================================================================
@@ -429,6 +435,18 @@
             let hasHighlight = false;
             let hasShading = false;
 
+            const extractFontName = (pr) => {
+                const direct = pr.getAttribute('w:ascii') || pr.getAttribute('ascii') ||
+                               pr.getAttribute('w:hAnsi') || pr.getAttribute('hAnsi');
+                if (direct) return direct;
+                const themeFont = (pr.getAttribute('w:asciiTheme') || pr.getAttribute('asciiTheme') ||
+                                   pr.getAttribute('w:hAnsiTheme') || pr.getAttribute('hAnsiTheme') || '').toLowerCase();
+                if (themeFont.includes('minor')) return 'Calibri';
+                if (themeFont.includes('major')) return 'Calibri Light';
+                return pr.getAttribute('w:cs') || pr.getAttribute('cs') ||
+                       pr.getAttribute('w:eastAsia') || pr.getAttribute('eastAsia') || null;
+            };
+
             const pPr = Array.from(pEl.children).find(c => c.localName === 'pPr');
             if (pPr) {
                 Array.from(pPr.children).forEach(c => {
@@ -441,19 +459,23 @@
                     }
                     if (tag === 'shd') hasShading = true;
                 });
+
                 const pRPr = Array.from(pPr.children).find(c => c.localName === 'rPr');
                 if (pRPr) {
                     Array.from(pRPr.children).forEach(pr => {
                         const tag = pr.localName;
                         if (tag === 'b' || tag === 'bCs') {
                             const val = pr.getAttribute('w:val') || pr.getAttribute('val');
-                            if (val === null || val === 'true' || val === '1') pPrBold = true;
+                            if (val === '0' || val === 'false') pPrBold = false;
+                            else if (val === null || val === 'true' || val === '1') pPrBold = true;
                         } else if (tag === 'i' || tag === 'iCs') {
                             const val = pr.getAttribute('w:val') || pr.getAttribute('val');
-                            if (val === null || val === 'true' || val === '1') pPrItalic = true;
+                            if (val === '0' || val === 'false') pPrItalic = false;
+                            else if (val === null || val === 'true' || val === '1') pPrItalic = true;
                         } else if (tag === 'u') {
                             const val = pr.getAttribute('w:val') || pr.getAttribute('val');
-                            if (val !== 'none' && val !== '0' && val !== 'false') pPrUnderline = true;
+                            if (val === 'none' || val === '0' || val === 'false') pPrUnderline = false;
+                            else pPrUnderline = true;
                         } else if (tag === 'sz') {
                             const val = parseInt(pr.getAttribute('w:val') || pr.getAttribute('val'), 10);
                             if (!isNaN(val)) pPrSizePt = val / 2;
@@ -464,10 +486,7 @@
                             pPrColorHex = pr.getAttribute('w:val') || pr.getAttribute('val');
                             pPrColorTheme = pr.getAttribute('w:themeColor') || pr.getAttribute('themeColor');
                         } else if (tag === 'rFonts') {
-                            pPrFont = pr.getAttribute('w:ascii') || pr.getAttribute('ascii') ||
-                                      pr.getAttribute('w:hAnsi') || pr.getAttribute('hAnsi') ||
-                                      pr.getAttribute('w:cs') || pr.getAttribute('cs') ||
-                                      pr.getAttribute('w:eastAsia') || pr.getAttribute('eastAsia');
+                            pPrFont = extractFontName(pr);
                         } else if (tag === 'highlight') {
                             const val = pr.getAttribute('w:val') || pr.getAttribute('val');
                             if (val && val !== 'none') hasHighlight = true;
@@ -523,13 +542,16 @@
                         const tag = pr.localName;
                         if (tag === 'b' || tag === 'bCs') {
                             const val = pr.getAttribute('w:val') || pr.getAttribute('val');
-                            if (val === null || val === 'true' || val === '1') rBold = true;
+                            if (val === '0' || val === 'false') rBold = false;
+                            else if (val === null || val === 'true' || val === '1') rBold = true;
                         } else if (tag === 'i' || tag === 'iCs') {
                             const val = pr.getAttribute('w:val') || pr.getAttribute('val');
-                            if (val === null || val === 'true' || val === '1') rItalic = true;
+                            if (val === '0' || val === 'false') rItalic = false;
+                            else if (val === null || val === 'true' || val === '1') rItalic = true;
                         } else if (tag === 'u') {
                             const val = pr.getAttribute('w:val') || pr.getAttribute('val');
-                            if (val !== 'none' && val !== '0' && val !== 'false') rUnderline = true;
+                            if (val === 'none' || val === '0' || val === 'false') rUnderline = false;
+                            else rUnderline = true;
                         } else if (tag === 'sz') {
                             // Primary font size for Latin/Vietnamese
                             const val = parseInt(pr.getAttribute('w:val') || pr.getAttribute('val'), 10);
@@ -542,10 +564,7 @@
                             rColorHex = pr.getAttribute('w:val') || pr.getAttribute('val');
                             rColorTheme = pr.getAttribute('w:themeColor') || pr.getAttribute('themeColor');
                         } else if (tag === 'rFonts') {
-                            rFont = pr.getAttribute('w:ascii') || pr.getAttribute('ascii') ||
-                                    pr.getAttribute('w:hAnsi') || pr.getAttribute('hAnsi') ||
-                                    pr.getAttribute('w:cs') || pr.getAttribute('cs') ||
-                                    pr.getAttribute('w:eastAsia') || pr.getAttribute('eastAsia');
+                            rFont = extractFontName(pr);
                         } else if (tag === 'highlight') {
                             const val = pr.getAttribute('w:val') || pr.getAttribute('val');
                             if (val && val !== 'none') {
@@ -563,10 +582,6 @@
                 const effectiveSizePt = (rExplicitSizePt !== null)
                     ? rExplicitSizePt
                     : (rExplicitSizeCsPt !== null ? rExplicitSizeCsPt : (pPrSizePt || pPrSizeCsPt));
-
-                if (rBold) isBold = true;
-                if (rItalic) isItalic = true;
-                if (rUnderline) isUnderline = true;
 
                 if (hasText || !hasTextRun) {
                     if (effectiveSizePt) dominantFontSize = effectiveSizePt;
@@ -592,6 +607,13 @@
                     hasShading: rShading
                 });
             });
+
+            const textRuns = runs.filter(r => r.text && r.text.trim().length > 0);
+            if (textRuns.length > 0) {
+                isBold = textRuns.some(r => r.bold);
+                isItalic = textRuns.some(r => r.italic);
+                isUnderline = textRuns.some(r => r.underline);
+            }
 
             return {
                 index: idx,
@@ -641,6 +663,14 @@
             let passedCount = 0;
             const details = [];
 
+            // Bỏ qua Khung Đề Bài ở đầu file .docx (chỉ chấm phần sau dòng phân cách bài làm của học sinh)
+            const markerIdx = doc.paragraphs.findIndex(p =>
+                normalizeVietnamese(p.text).includes('bai lam cua hoc sinh')
+            );
+            const gradingParagraphs = (markerIdx !== -1 && markerIdx < doc.paragraphs.length - 1)
+                ? doc.paragraphs.slice(markerIdx + 1)
+                : doc.paragraphs;
+
             rules.forEach((rule, idx) => {
                 const ruleId = rule.id || `rule_${idx + 1}`;
                 const ruleName = rule.name || rule.title || `Quy tắc ${idx + 1}`;
@@ -650,7 +680,7 @@
                 switch (rule.type) {
                     case 'paragraph_format': {
                         if (rule.scope === 'all') {
-                            const nonEmpties = doc.paragraphs.filter(p => p.text.length > 0);
+                            const nonEmpties = gradingParagraphs.filter(p => p.text.length > 0);
                             const errors = [];
                             if (nonEmpties.length === 0) {
                                 isPass = false;
@@ -790,7 +820,7 @@
                             let matchedCount = 0;
                             rule.matches.forEach((mStr) => {
                                 const normM = normalizeVietnamese(mStr);
-                                const p = doc.paragraphs.find(par => normalizeVietnamese(par.text).includes(normM));
+                                const p = gradingParagraphs.find(par => normalizeVietnamese(par.text).includes(normM));
                                 if (!p) {
                                     multiErrors.push(`Không tìm thấy đoạn "${mStr}"`);
                                 } else {
@@ -813,12 +843,12 @@
 
                         let targetP = null;
                         if (typeof rule.matchIndex === 'number') {
-                            targetP = doc.paragraphs[rule.matchIndex];
+                            targetP = gradingParagraphs[rule.matchIndex];
                         } else if (rule.match) {
                             const normMatch = normalizeVietnamese(rule.match);
-                            targetP = doc.paragraphs.find(p => normalizeVietnamese(p.text).includes(normMatch));
+                            targetP = gradingParagraphs.find(p => normalizeVietnamese(p.text).includes(normMatch));
                         } else {
-                            targetP = doc.paragraphs[0]; // fallback title
+                            targetP = gradingParagraphs[0]; // fallback title
                         }
 
                         if (!targetP) {
@@ -901,7 +931,7 @@
 
                     case 'text_contains': {
                         const exp = normalizeVietnamese(rule.expectedText);
-                        const allDocText = normalizeVietnamese(doc.paragraphs.map(p => p.text).join(' '));
+                        const allDocText = normalizeVietnamese(gradingParagraphs.map(p => p.text).join(' '));
                         if (allDocText.includes(exp)) {
                             isPass = true;
                             message = `Đã có nội dung yêu cầu: "${rule.expectedText}"`;
@@ -945,7 +975,7 @@
                             ? rule.matches.map(m => normalizeVietnamese(m))
                             : (rule.match ? [normalizeVietnamese(rule.match)] : ['bao mat', 'canh giac', 'ung xu']);
                         const matchedParas = targetKeywords
-                            .map(kw => doc.paragraphs.find(p => normalizeVietnamese(p.text).includes(kw)))
+                            .map(kw => gradingParagraphs.find(p => normalizeVietnamese(p.text).includes(kw)))
                             .filter(Boolean);
                         const bulletedCount = matchedParas.filter(p => p.hasBullets).length;
                         if (matchedParas.length > 0 && bulletedCount === matchedParas.length) {
@@ -963,8 +993,8 @@
 
                     case 'highlight': {
                         const targetP = rule.match
-                            ? doc.paragraphs.find(p => normalizeVietnamese(p.text).includes(normalizeVietnamese(rule.match)))
-                            : doc.paragraphs.find(p => normalizeVietnamese(p.text).includes('thong minh'));
+                            ? gradingParagraphs.find(p => normalizeVietnamese(p.text).includes(normalizeVietnamese(rule.match)))
+                            : gradingParagraphs.find(p => normalizeVietnamese(p.text).includes('thong minh'));
                         if (!targetP) {
                             isPass = false;
                             message = `Không tìm thấy đoạn cần tô dạ quang ("${rule.match || 'khẩu hiệu'}")!`;
@@ -983,8 +1013,8 @@
 
                     case 'first_line_indent': {
                         const targetP = rule.match
-                            ? doc.paragraphs.find(p => normalizeVietnamese(p.text).includes(normalizeVietnamese(rule.match)))
-                            : doc.paragraphs.find(p => normalizeVietnamese(p.text).includes('internet mang lai'));
+                            ? gradingParagraphs.find(p => normalizeVietnamese(p.text).includes(normalizeVietnamese(rule.match)))
+                            : gradingParagraphs.find(p => normalizeVietnamese(p.text).includes('internet mang lai'));
                         const hasInd = targetP && (targetP.hasTab || targetP.hasInd || targetP.rawText.startsWith('\t') || targetP.rawText.startsWith('   '));
                         if (hasInd) {
                             isPass = true;
