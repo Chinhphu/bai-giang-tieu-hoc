@@ -734,33 +734,17 @@
     // Bộ nhớ đệm danh sách học sinh toàn trường
     let _allStudentsDataCache = null;
 
-    // Nạp toàn bộ dữ liệu học sinh của cả 5 khối (tổng hợp 21 lớp)
+    window.clearStudentCache = function () {
+        _allStudentsDataCache = null;
+    };
+
+    // Nạp toàn bộ dữ liệu học sinh của cả 5 khối (tổng hợp 21 lớp) trực tiếp từ 5 file gốc
     window.loadAllStudents = async function (basePath = '../../assets/data/') {
         if (_allStudentsDataCache && Object.keys(_allStudentsDataCache).length > 0) {
             return _allStudentsDataCache;
         }
 
-        const candidatePaths = [
-            `${basePath}students_all_2026_2027.json`,
-            `../../assets/data/students_all_2026_2027.json`,
-            `../assets/data/students_all_2026_2027.json`,
-            `assets/data/students_all_2026_2027.json`
-        ];
-
-        for (const p of candidatePaths) {
-            try {
-                const res = await _origFetch(p);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && typeof data === 'object' && Object.keys(data).length >= 5) {
-                        _allStudentsDataCache = data;
-                        return _allStudentsDataCache;
-                    }
-                }
-            } catch (_) {}
-        }
-
-        // Nếu chưa có file all, nạp song song cả 5 file của 5 khối và gộp lại
+        // Nạp song song cả 5 file của 5 khối và gộp lại thành nguồn dữ liệu duy nhất
         const merged = {};
         const grades = [1, 2, 3, 4, 5];
         await Promise.all(grades.map(async (g) => {
