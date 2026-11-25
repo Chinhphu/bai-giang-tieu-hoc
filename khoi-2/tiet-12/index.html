@@ -1655,6 +1655,107 @@
             display: inline-block;
         }
 
+        /* BADGE & PANEL ƯU TIÊN HỌC SINH CHƯA LÊN TIẾT TRƯỚC */
+        .gacha-priority-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
+            color: #854d0e;
+            border: 2.5px solid #eab308;
+            border-radius: 999px;
+            padding: 6px 18px;
+            font-size: 1.15rem;
+            font-weight: 900;
+            margin-top: 8px;
+            box-shadow: 0 4px 10px rgba(234, 179, 8, 0.25);
+        }
+
+        .priority-pill-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #fefce8;
+            border: 2px solid #facc15;
+            color: #854d0e;
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 1.1rem;
+            font-weight: 900;
+        }
+
+        .priority-pill-banner.all-done {
+            background: #f0fdf4;
+            border-color: #86efac;
+            color: #15803d;
+        }
+
+        .sidebar-priority-summary {
+            background: #fefce8;
+            border: 2px solid #fde047;
+            border-radius: 14px;
+            padding: 8px 12px;
+            font-size: 0.98rem;
+            font-weight: 800;
+            color: #854d0e;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .sidebar-priority-summary:hover {
+            background: #fef9c3;
+            transform: translateY(-1px);
+        }
+
+        .sidebar-priority-summary.all-done {
+            background: #f0fdf4;
+            border-color: #86efac;
+            color: #15803d;
+        }
+
+        .setup-priority-box {
+            background: #fefce8;
+            border: 2px solid #fde047;
+            border-radius: 16px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .setup-priority-box.all-done {
+            background: #f0fdf4;
+            border-color: #86efac;
+        }
+
+        .setup-priority-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            max-height: 130px;
+            overflow-y: auto;
+            padding-top: 4px;
+        }
+
+        .priority-student-chip {
+            background: #ffffff;
+            border: 1.5px solid #f59e0b;
+            color: #92400e;
+            border-radius: 999px;
+            padding: 3px 10px;
+            font-size: 0.9rem;
+            font-weight: 800;
+        }
+
+        .priority-student-chip.done {
+            background: #dcfce7;
+            border-color: #86efac;
+            color: #166534;
+            text-decoration: line-through;
+            opacity: 0.75;
+        }
+
         /* CHÂN TRANG ĐIỀU HƯỚNG SLIDE (BOTTOM NAVBAR) */
         .bottom-navbar-fixed {
             position: fixed;
@@ -2175,7 +2276,11 @@
                     <!-- Render các tổ -->
                 </div>
 
-                <div style="font-size: 0.95rem; color: #64748b; font-weight: 700; text-align: center; margin-top: 6px;">
+                <div class="sidebar-priority-summary" id="sidebarPrioritySummary" onclick="openSetupModal()" title="Bấm để xem danh sách ưu tiên hoặc nạp CSV tiết trước">
+                    ⭐ Đang kiểm tra danh sách ưu tiên...
+                </div>
+
+                <div style="font-size: 0.95rem; color: #64748b; font-weight: 700; text-align: center; margin-top: 2px;">
                     💡 Bấm vào thẻ tổ để chuyển lượt • Bấm điểm để sửa
                 </div>
             </aside>
@@ -2317,6 +2422,9 @@
             <div style="font-size: 1.6rem; font-weight: 900; color: #64748b; margin-top: 8px;">
                 CHÚC MỪNG HIỆP SĨ ĐƯỢC GỌI TÊN
             </div>
+            <div class="gacha-priority-badge" id="gachaPriorityBadge" style="display: none;">
+                🌟 ƯU TIÊN — CHƯA ĐƯỢC LÊN TIẾT TRƯỚC
+            </div>
             <div class="gacha-student-giant-name" id="gachaPickedName">
                 Nguyễn Văn A
             </div>
@@ -2382,7 +2490,15 @@
                 </div>
             </div>
 
+            <div class="setup-priority-box" id="setupPriorityBox">
+                <!-- Render thông tin danh sách ưu tiên tiết trước -->
+            </div>
+            <input type="file" id="csvPriorityInput" accept=".csv" style="display: none;" onchange="handlePriorityCsvFile(event)">
+
             <div class="setup-actions-row">
+                <button type="button" class="btn-setup-action btn-primary" onclick="triggerPriorityCsvUpload()" title="Nạp file CSV Tiết trước để lọc học sinh chưa lên máy">
+                    📁 Nạp CSV Tiết Trước
+                </button>
                 <button type="button" class="btn-setup-action btn-danger" onclick="clearSessionHistory()">
                     🗑️ Xóa Lịch Sử Đấu
                 </button>
@@ -2451,6 +2567,74 @@
         const GAME_MODES = ['missing', 'scramble', 'matching', 'listen'];
         let currentModeIndex = 0;
         let currentMode = 'missing';
+
+        // DANH SÁCH ƯU TIÊN TỪ TIẾT TRƯỚC (BÀI 7 - TIẾT 1): NHỮNG EM CHƯA ĐƯỢC LÊN MÁY
+        // Lớp 2/4 (18/11/2026): 34/47 em đã lên, còn 13 em chưa lên máy -> Ưu tiên 100% ở Tiết 2
+        // Lớp 2/5 (19/11/2026): 46/46 em đã lên máy đầy đủ -> Không còn em nào bị sót
+        const PREV_LESSON_PRIORITY_STUDENTS = {
+            "2_4": [
+                "Bố Trần Thiên An",
+                "Vũ Lê Hoài An",
+                "Nguyễn Ngọc Phương Anh",
+                "Đoàn Nhật Hạ",
+                "Trần Gia Hưng",
+                "Võ Trần Nguyên Khôi",
+                "Nguyễn Lê Thiên Kim",
+                "Kha Tuệ Lâm",
+                "Nguyễn Đặng Tuyết Ngọc",
+                "Vi An Nhiên",
+                "Nguyễn Phúc Thịnh",
+                "Trần Thế Vỹ",
+                "Trần Vương Kim Ý"
+            ],
+            "2_5": []
+        };
+
+        const PREV_LESSON_SUMMARY = {
+            "2_4": { donePrev: 34, totalPrev: 47, date: "18/11/2026" },
+            "2_5": { donePrev: 46, totalPrev: 46, date: "19/11/2026" }
+        };
+
+        function normalizeStudentName(name) {
+            return String(name || '').trim().replace(/\s+/g, ' ').toLowerCase();
+        }
+
+        function escapeHtmlText(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function getPriorityStudentsList(cls = currentClass) {
+            try {
+                const raw = localStorage.getItem(`k2_tiet12_priority_${cls}`);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) return parsed;
+                }
+            } catch (e) {}
+            return PREV_LESSON_PRIORITY_STUDENTS[cls] || [];
+        }
+
+        function getPriorityNormSet(cls = currentClass) {
+            return new Set(getPriorityStudentsList(cls).map(normalizeStudentName));
+        }
+
+        function isPriorityStudentName(name, cls = currentClass) {
+            return getPriorityNormSet(cls).has(normalizeStudentName(name));
+        }
+
+        function getRemainingPriorityStudents(cls = currentClass) {
+            const prioritySet = getPriorityNormSet(cls);
+            if (prioritySet.size === 0) return [];
+            const playedSet = new Set(playedHistory.map(h => normalizeStudentName(h.studentName || h.name)));
+            return classList.filter(name => {
+                const norm = normalizeStudentName(name);
+                return prioritySet.has(norm) && !playedSet.has(norm);
+            });
+        }
 
         // FALLBACK SĨ SỐ LỚP
         const FALLBACK_STUDENTS = {
@@ -2597,7 +2781,7 @@
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                toggleCopyModal(false);
+                if (typeof toggleCopyModal === 'function') toggleCopyModal(false);
                 closeSetupModal();
                 closeGachaModal();
             }
@@ -2606,25 +2790,44 @@
         /* =========================================================================
            5. NẠP DỮ LIỆU HỌC SINH & LƯU TRỮ LOCALSTORAGE
            ========================================================================= */
+        function getClassStorageKey(cls = currentClass) {
+            return `${STORAGE_KEY}_${cls}`;
+        }
+
         async function loadClassData(className = '2_2') {
             currentClass = className;
             try {
-                const res = await fetch('../../assets/data/students_khoi2_2026_2027.json');
-                if (res.ok) {
-                    const data = await res.json();
-                    studentData = data;
-                    classList = data[className] || FALLBACK_STUDENTS[className] || [];
-                } else {
-                    classList = FALLBACK_STUDENTS[className] || [];
+                localStorage.setItem('k2_tiet12_last_class', currentClass);
+            } catch (e) {}
+
+            try {
+                if (typeof window.loadAllStudents === 'function') {
+                    const allData = await window.loadAllStudents('../../assets/data/');
+                    if (allData && Object.keys(allData).length > 0) {
+                        studentData = allData;
+                    }
                 }
+                if (!studentData[className]) {
+                    const res = await fetch('../../assets/data/students_2_2026_2027.json');
+                    if (res.ok) {
+                        const data = await res.json();
+                        studentData = Object.assign({}, studentData, data);
+                    }
+                }
+                classList = studentData[className] || FALLBACK_STUDENTS[className] || [];
             } catch (err) {
                 classList = FALLBACK_STUDENTS[className] || [];
             }
 
-            loadSavedState();
+            loadSavedState(className);
             updateAllStudentDropdowns();
             renderScoreboard();
             updateClassLabels();
+            updatePriorityUI();
+
+            if (currentSlide === 3 && !isGameActive && !activeQuest) {
+                renderReadyCurtain();
+            }
         }
 
         function updateClassLabels() {
@@ -2635,76 +2838,148 @@
             if (sel) sel.value = currentClass;
         }
 
-        function updateAllStudentDropdowns() {
-            const playedNamesSet = new Set(playedHistory.map(h => h.studentName || h.name));
+        function buildStudentOptionsHtml(selectedName = '', placeholder = '-- Mời em lên máy --') {
+            const playedNormSet = new Set(playedHistory.map(h => normalizeStudentName(h.studentName || h.name)));
+            const prioritySet = getPriorityNormSet(currentClass);
 
-            // Dropdown ở Banner
+            const priorityPending = [];
+            const otherPending = [];
+            const doneList = [];
+
+            classList.forEach(name => {
+                const norm = normalizeStudentName(name);
+                if (playedNormSet.has(norm)) {
+                    doneList.push(name);
+                } else if (prioritySet.has(norm)) {
+                    priorityPending.push(name);
+                } else {
+                    otherPending.push(name);
+                }
+            });
+
+            const renderOption = (name, prefix, suffix = '', disabled = false) => {
+                const safeVal = escapeHtmlText(name);
+                const isSel = (!disabled && name === selectedName) ? 'selected' : '';
+                const disAttr = disabled ? 'disabled style="color:#94a3b8;background:#f1f5f9;"' : '';
+                return `<option value="${safeVal}" ${disAttr} ${isSel}>${prefix} ${escapeHtmlText(name)}${suffix}</option>`;
+            };
+
+            let html = `<option value="">${escapeHtmlText(placeholder)}</option>`;
+
+            if (priorityPending.length > 0) {
+                html += `<optgroup label="⭐ ƯU TIÊN — CHƯA LÊN TIẾT TRƯỚC (${priorityPending.length} em)">`;
+                html += priorityPending.map(n => renderOption(n, '⭐', ' (Ưu tiên)')).join('');
+                html += `</optgroup>`;
+            }
+
+            if (otherPending.length > 0) {
+                if (priorityPending.length > 0 || doneList.length > 0) {
+                    html += `<optgroup label="👤 Các bạn khác chưa lên (${otherPending.length} em)">`;
+                    html += otherPending.map(n => renderOption(n, '👤')).join('');
+                    html += `</optgroup>`;
+                } else {
+                    html += otherPending.map(n => renderOption(n, '👤')).join('');
+                }
+            }
+
+            if (doneList.length > 0) {
+                html += `<optgroup label="✅ Đã hoàn thành tiết này (${doneList.length} em)">`;
+                html += doneList.map(n => renderOption(n, '✅', ' (Đã hoàn thành)', true)).join('');
+                html += `</optgroup>`;
+            }
+
+            return html;
+        }
+
+        function updatePriorityUI() {
+            const priorityList = getPriorityStudentsList(currentClass);
+            const remainingPriority = getRemainingPriorityStudents(currentClass);
+            const playedNormSet = new Set(playedHistory.map(h => normalizeStudentName(h.studentName || h.name)));
+            const prevMeta = PREV_LESSON_SUMMARY[currentClass];
+
+            const sidebarBox = document.getElementById('sidebarPrioritySummary');
+            if (sidebarBox) {
+                if (priorityList.length === 0) {
+                    sidebarBox.classList.add('all-done');
+                    sidebarBox.innerHTML = prevMeta
+                        ? `✅ Tiết trước cả lớp đã lên (${prevMeta.donePrev}/${prevMeta.totalPrev})`
+                        : `📋 Chưa lọc ưu tiên lớp ${currentClass.replace('_', '/')}`;
+                } else if (remainingPriority.length === 0) {
+                    sidebarBox.classList.add('all-done');
+                    sidebarBox.innerHTML = `🎉 Đã gọi xong ${priorityList.length}/${priorityList.length} bạn ưu tiên!`;
+                } else {
+                    sidebarBox.classList.remove('all-done');
+                    sidebarBox.innerHTML = `⭐ Ưu tiên chưa lên tiết trước: <b>${remainingPriority.length}</b>/${priorityList.length} em`;
+                }
+            }
+
+            const curtainBanner = document.getElementById('curtainPriorityBanner');
+            if (curtainBanner) {
+                if (priorityList.length === 0) {
+                    curtainBanner.className = 'priority-pill-banner all-done';
+                    curtainBanner.textContent = prevMeta
+                        ? `✅ Tiết trước cả ${prevMeta.totalPrev} bạn đều đã lên máy`
+                        : `📋 Có thể nạp CSV tiết trước trong ⚙️ Thiết đặt lớp`;
+                } else if (remainingPriority.length === 0) {
+                    curtainBanner.className = 'priority-pill-banner all-done';
+                    curtainBanner.textContent = `🎉 Đã hoàn thành toàn bộ ${priorityList.length} lượt ưu tiên!`;
+                } else {
+                    curtainBanner.className = 'priority-pill-banner';
+                    curtainBanner.textContent = `🌟 Đang ưu tiên ${remainingPriority.length} bạn chưa lên ở tiết trước`;
+                }
+            }
+
+            const setupBox = document.getElementById('setupPriorityBox');
+            if (setupBox) {
+                const clsLabel = currentClass.replace('_', '/');
+                if (priorityList.length === 0) {
+                    setupBox.classList.add('all-done');
+                    setupBox.innerHTML = prevMeta
+                        ? `<div style="font-weight:900; color:#15803d; font-size:1.08rem;">✅ Lớp ${clsLabel} (Tiết trước ${prevMeta.date}): ${prevMeta.donePrev}/${prevMeta.totalPrev} em đã lên máy — không còn em nào bị sót!</div>`
+                        : `<div style="font-weight:900; color:#475569; font-size:1.05rem;">📋 Lớp ${clsLabel}: Chưa có dữ liệu ưu tiên tiết trước. Thầy/Cô có thể bấm <b>📁 Nạp CSV Tiết Trước</b> để lọc tự động.</div>`;
+                } else {
+                    setupBox.classList.remove('all-done');
+                    const chipsHtml = priorityList.map(name => {
+                        const isDoneToday = playedNormSet.has(normalizeStudentName(name));
+                        return `<span class="priority-student-chip ${isDoneToday ? 'done' : ''}">${isDoneToday ? '✅ ' : '⭐ '}${escapeHtmlText(name)}</span>`;
+                    }).join('');
+                    setupBox.innerHTML = `
+                        <div style="font-weight:900; color:#854d0e; font-size:1.08rem;">
+                            ⭐ Danh sách ưu tiên Lớp ${clsLabel} (chưa lên tiết trước): còn <b>${remainingPriority.length}</b>/${priorityList.length} em
+                        </div>
+                        <div class="setup-priority-chips">${chipsHtml}</div>
+                    `;
+                }
+            }
+        }
+
+        function updateAllStudentDropdowns() {
+            const playedNormSet = new Set(playedHistory.map(h => normalizeStudentName(h.studentName || h.name)));
+
             const headerSelect = document.getElementById('studentSelectBox');
             if (headerSelect) {
-                const prevVal = headerSelect.value;
-                headerSelect.innerHTML = `<option value="">-- Mời em lên máy --</option>`;
-                classList.forEach(name => {
-                    const hasPlayed = playedNamesSet.has(name);
-                    const opt = document.createElement('option');
-                    opt.value = name;
-                    if (hasPlayed) {
-                        opt.textContent = `✅ ${name} (Đã hoàn thành)`;
-                        opt.disabled = true;
-                        opt.style.color = '#94a3b8';
-                        opt.style.background = '#f1f5f9';
-                    } else {
-                        opt.textContent = `👤 ${name}`;
-                    }
-                    headerSelect.appendChild(opt);
-                });
-                if (prevVal && !playedNamesSet.has(prevVal)) {
+                const prevVal = activeStudentName || headerSelect.value;
+                headerSelect.innerHTML = buildStudentOptionsHtml(prevVal, '-- Mời em lên máy --');
+                if (prevVal && !playedNormSet.has(normalizeStudentName(prevVal))) {
                     headerSelect.value = prevVal;
                 }
             }
 
-            // Dropdown ở Curtain
             const curtainSelect = document.getElementById('curtainStudentSelect');
             if (curtainSelect) {
-                const prevVal = curtainSelect.value;
-                curtainSelect.innerHTML = `<option value="">-- Chọn bạn đại diện lên máy --</option>`;
-                classList.forEach(name => {
-                    const hasPlayed = playedNamesSet.has(name);
-                    const opt = document.createElement('option');
-                    opt.value = name;
-                    if (hasPlayed) {
-                        opt.textContent = `✅ ${name} (Đã hoàn thành)`;
-                        opt.disabled = true;
-                        opt.style.color = '#94a3b8';
-                        opt.style.background = '#f1f5f9';
-                    } else {
-                        opt.textContent = `👤 ${name}`;
-                    }
-                    curtainSelect.appendChild(opt);
-                });
-                if (prevVal && !playedNamesSet.has(prevVal)) {
+                const prevVal = activeStudentName || curtainSelect.value;
+                curtainSelect.innerHTML = buildStudentOptionsHtml(prevVal, '-- Chọn bạn đại diện lên máy --');
+                if (prevVal && !playedNormSet.has(normalizeStudentName(prevVal))) {
                     curtainSelect.value = prevVal;
                 }
             }
 
-            // Dropdown ở Modal chuyển giao lượt
             const modalSelect = document.getElementById('modalNextStudentSelect');
             if (modalSelect) {
-                modalSelect.innerHTML = `<option value="">-- Mời bạn tiếp theo lên máy --</option>`;
-                classList.forEach(name => {
-                    const hasPlayed = playedNamesSet.has(name);
-                    const opt = document.createElement('option');
-                    opt.value = name;
-                    if (hasPlayed) {
-                        opt.textContent = `✅ ${name} (Đã hoàn thành)`;
-                        opt.disabled = true;
-                        opt.style.color = '#94a3b8';
-                        opt.style.background = '#f1f5f9';
-                    } else {
-                        opt.textContent = `👤 ${name}`;
-                    }
-                    modalSelect.appendChild(opt);
-                });
+                modalSelect.innerHTML = buildStudentOptionsHtml('', '-- Mời bạn tiếp theo lên máy --');
             }
+
+            updatePriorityUI();
         }
 
         function saveState() {
@@ -2716,13 +2991,21 @@
                     playedHistory,
                     currentModeIndex
                 };
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                localStorage.setItem(getClassStorageKey(currentClass), JSON.stringify(state));
             } catch (e) {}
         }
 
-        function loadSavedState() {
+        function loadSavedState(className = currentClass) {
+            teams = JSON.parse(JSON.stringify(TEAMS_DEFAULT));
+            activeTeamIndex = 0;
+            playedHistory = [];
+            activeStudentName = "";
+            activeQuest = null;
+            isGameActive = false;
+            stopLiveStopwatch();
+
             try {
-                const saved = localStorage.getItem(STORAGE_KEY);
+                const saved = localStorage.getItem(getClassStorageKey(className));
                 if (saved) {
                     const state = JSON.parse(saved);
                     if (state.teams && Array.isArray(state.teams) && state.teams.length >= 2) {
@@ -2743,7 +3026,7 @@
 
         function clearSessionHistory() {
             if (confirm("Thầy/Cô có chắc chắn muốn xóa lịch sử điểm và lượt đấu của tiết này để bắt đầu lại từ đầu?")) {
-                localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(getClassStorageKey(currentClass));
                 teams = JSON.parse(JSON.stringify(TEAMS_DEFAULT));
                 playedHistory = [];
                 activeTeamIndex = 0;
@@ -2869,25 +3152,52 @@
             }
         }
 
+        function pickNextGachaStudent(excludeName = '') {
+            if (!classList || classList.length === 0) return null;
+            const playedNormSet = new Set(playedHistory.map(h => normalizeStudentName(h.studentName || h.name)));
+            const prioritySet = getPriorityNormSet(currentClass);
+
+            const unplayed = classList.filter(s => !playedNormSet.has(normalizeStudentName(s)));
+            const priorityEligible = unplayed.filter(s => prioritySet.has(normalizeStudentName(s)));
+
+            let pool = priorityEligible.length > 0
+                ? priorityEligible
+                : (unplayed.length > 0 ? unplayed : classList);
+
+            if (excludeName && pool.length > 1) {
+                const exNorm = normalizeStudentName(excludeName);
+                const filtered = pool.filter(s => normalizeStudentName(s) !== exNorm);
+                if (filtered.length > 0) pool = filtered;
+            }
+
+            const picked = pool[Math.floor(Math.random() * pool.length)];
+            return {
+                name: picked,
+                isPriority: prioritySet.has(normalizeStudentName(picked)),
+                remainingPriority: priorityEligible.length
+            };
+        }
+
         function spinGachaStudent() {
             playDiceRollSound();
-            const playedNamesSet = new Set(playedHistory.map(h => h.studentName || h.name));
-            let eligible = classList.filter(s => !playedNamesSet.has(s));
-            if (eligible.length === 0) eligible = classList;
-            if (eligible.length === 0) {
+            const result = pickNextGachaStudent(activeStudentName);
+            if (!result) {
                 showToast("⚠️ Chưa có danh sách học sinh để bốc thăm!");
                 return;
             }
 
-            const picked = eligible[Math.floor(Math.random() * eligible.length)];
-            onStudentSelect(picked);
+            onStudentSelect(result.name);
 
             // Bật Pop-up Gacha Giant Modal
             const gachaModal = document.getElementById('gachaModalBackdrop');
             const gachaName = document.getElementById('gachaPickedName');
             const gachaTeamNotice = document.getElementById('gachaTeamNotice');
+            const gachaPriorityBadge = document.getElementById('gachaPriorityBadge');
             if (gachaModal && gachaName) {
-                gachaName.textContent = picked;
+                gachaName.textContent = result.name;
+                if (gachaPriorityBadge) {
+                    gachaPriorityBadge.style.display = result.isPriority ? 'inline-flex' : 'none';
+                }
                 if (gachaTeamNotice) {
                     gachaTeamNotice.textContent = `Đại diện thi đấu cho ${teams[activeTeamIndex].name}`;
                 }
@@ -2910,7 +3220,6 @@
             if (!container) return;
 
             const currentTeam = teams[activeTeamIndex] || teams[0];
-            const playedNamesSet = new Set(playedHistory.map(h => h.studentName || h.name));
 
             container.innerHTML = `
                 <div class="stage-ready-curtain">
@@ -2925,16 +3234,12 @@
                         </span>
                     </div>
 
+                    <div class="priority-pill-banner" id="curtainPriorityBanner"></div>
+
                     <div style="background: #ffffff; border: 2.5px solid #cbd5e1; border-radius: 20px; padding: 18px 26px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; max-width: 580px; width: 100%; box-shadow: var(--shadow-sm);">
                         <span style="font-size: 1.25rem; font-weight: 800; color: #334155;">👤 Chọn học sinh lên máy:</span>
                         <select class="student-select-box" id="curtainStudentSelect" onchange="onStudentSelect(this.value)" style="flex: 1; min-width: 220px;">
-                            <option value="">-- Mời bạn đại diện lên máy --</option>
-                            ${classList.map(s => {
-                                const hasPlayed = playedNamesSet.has(s);
-                                return `<option value="${s}" ${hasPlayed ? 'disabled style="color:#94a3b8;background:#f1f5f9;"' : ''} ${s === activeStudentName ? 'selected' : ''}>
-                                    ${hasPlayed ? `✅ ${s} (Đã hoàn thành)` : `👤 ${s}`}
-                                </option>`;
-                            }).join('')}
+                            ${buildStudentOptionsHtml(activeStudentName, '-- Mời bạn đại diện lên máy --')}
                         </select>
                         <button type="button" class="btn-gacha-dice" onclick="spinGachaStudent()" title="Bốc thăm ngẫu nhiên / Gọi tên">
                             🎲
@@ -2946,6 +3251,8 @@
                     </button>
                 </div>
             `;
+
+            updatePriorityUI();
         }
 
         function startCurrentTurn() {
@@ -3649,6 +3956,7 @@
             saveState();
 
             renderScoreboard();
+            updatePriorityUI();
 
             setTimeout(() => {
                 openTurnTransitionModal(elapsedSec, questSummaryText);
@@ -3704,26 +4012,12 @@
                 nextTeamEl.style.color = nextTeam.color;
             }
 
-            // Nạp danh sách bạn tiếp theo vào dropdown (disable bạn đã hoàn thành)
+            // Nạp danh sách bạn tiếp theo vào dropdown (ưu tiên nhóm chưa lên tiết trước, disable bạn đã hoàn thành)
             const modalSelect = document.getElementById('modalNextStudentSelect');
             if (modalSelect) {
-                const playedNamesSet = new Set(playedHistory.map(h => h.studentName || h.name));
-                modalSelect.innerHTML = `<option value="">-- Mời bạn tiếp theo lên máy --</option>`;
-                classList.forEach(name => {
-                    const hasPlayed = playedNamesSet.has(name);
-                    const opt = document.createElement('option');
-                    opt.value = name;
-                    if (hasPlayed) {
-                        opt.textContent = `✅ ${name} (Đã hoàn thành)`;
-                        opt.disabled = true;
-                        opt.style.color = '#94a3b8';
-                        opt.style.background = '#f1f5f9';
-                    } else {
-                        opt.textContent = `👤 ${name}`;
-                    }
-                    modalSelect.appendChild(opt);
-                });
+                modalSelect.innerHTML = buildStudentOptionsHtml('', '-- Mời bạn tiếp theo lên máy --');
             }
+            updatePriorityUI();
 
             const btnNext = document.getElementById('btnModalStartNext');
             if (btnNext) {
@@ -3746,16 +4040,17 @@
 
         function spinGachaNextStudent() {
             playDiceRollSound();
-            const playedNamesSet = new Set(playedHistory.map(h => h.studentName || h.name));
-            let eligible = classList.filter(s => !playedNamesSet.has(s));
-            if (eligible.length === 0) eligible = classList;
-            if (eligible.length === 0) return;
-
-            const picked = eligible[Math.floor(Math.random() * eligible.length)];
             const modalSelect = document.getElementById('modalNextStudentSelect');
+            const currentPicked = modalSelect ? modalSelect.value : '';
+            const result = pickNextGachaStudent(currentPicked);
+            if (!result) return;
+
             if (modalSelect) {
-                modalSelect.value = picked;
-                onModalNextStudentChange(picked);
+                modalSelect.value = result.name;
+                onModalNextStudentChange(result.name);
+            }
+            if (result.isPriority) {
+                showToast(`⭐ Bốc trúng bạn ưu tiên (chưa lên tiết trước): ${result.name}!`);
             }
         }
 
@@ -4056,7 +4351,116 @@
             if (modal) {
                 const counter = document.getElementById('setupTeamCountValue');
                 if (counter) counter.textContent = `${teams.length} Tổ`;
+                updatePriorityUI();
                 modal.classList.add('active');
+            }
+        }
+
+        function triggerPriorityCsvUpload() {
+            const inp = document.getElementById('csvPriorityInput');
+            if (inp) inp.click();
+        }
+
+        function handlePriorityCsvFile(e) {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (evt) {
+                parseAndApplyPriorityCsv(evt.target.result || '');
+            };
+            reader.readAsText(file, 'UTF-8');
+            e.target.value = '';
+        }
+
+        function parseCsvRow(line) {
+            const cols = [];
+            let cur = '';
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+                const ch = line[i];
+                if (ch === '"') {
+                    if (inQuotes && line[i + 1] === '"') {
+                        cur += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (ch === ',' && !inQuotes) {
+                    cols.push(cur.trim());
+                    cur = '';
+                } else {
+                    cur += ch;
+                }
+            }
+            cols.push(cur.trim());
+            return cols;
+        }
+
+        function parseAndApplyPriorityCsv(csvText) {
+            try {
+                const lines = csvText.replace(/^\uFEFF/, '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                let detectedCls = currentClass;
+                for (const line of lines.slice(0, 10)) {
+                    const m = line.match(/Lớp\s*[:|,]\s*([1-5]\s*[\/_\-]\s*[1-6])/i);
+                    if (m) {
+                        detectedCls = m[1].replace(/[\s\/\-]+/g, '_');
+                        break;
+                    }
+                }
+
+                // Ưu tiên đọc PHẦN 3 (theo dõi toàn bộ sĩ số lớp) nếu có
+                const p3Idx = lines.findIndex(l => /PHẦN\s*3/i.test(l));
+                let priorityNames = [];
+
+                if (p3Idx !== -1 && p3Idx + 2 < lines.length) {
+                    const header = parseCsvRow(lines[p3Idx + 1]);
+                    const nameIdx = header.findIndex(h => /họ\s*và\s*tên/i.test(h));
+                    const classIdx = header.findIndex(h => /^lớp$/i.test(h));
+                    const statusIdx = header.findIndex(h => /trạng\s*thái/i.test(h));
+                    if (nameIdx !== -1 && statusIdx !== -1) {
+                        for (let i = p3Idx + 2; i < lines.length; i++) {
+                            if (lines[i].startsWith('===')) break;
+                            const row = parseCsvRow(lines[i]);
+                            if (row.length <= Math.max(nameIdx, statusIdx)) continue;
+                            if (classIdx !== -1 && row[classIdx]) {
+                                detectedCls = row[classIdx].replace(/[\s\/\-]+/g, '_');
+                            }
+                            const status = row[statusIdx] || '';
+                            const name = row[nameIdx] || '';
+                            if (name && !/đã\s*lên\s*máy/i.test(status)) {
+                                priorityNames.push(name);
+                            }
+                        }
+                    }
+                } else {
+                    // Fallback: đọc PHẦN 2 và lấy phần bù so với sĩ số lớp
+                    const p2Idx = lines.findIndex(l => /PHẦN\s*2/i.test(l));
+                    const startIdx = p2Idx !== -1 ? p2Idx + 1 : 0;
+                    const header = parseCsvRow(lines[startIdx] || '');
+                    let nameIdx = header.findIndex(h => /họ\s*và\s*tên/i.test(h));
+                    if (nameIdx === -1) nameIdx = 1;
+                    const doneSet = new Set();
+                    for (let i = startIdx + 1; i < lines.length; i++) {
+                        if (lines[i].startsWith('===')) break;
+                        const row = parseCsvRow(lines[i]);
+                        if (row[nameIdx]) doneSet.add(normalizeStudentName(row[nameIdx]));
+                    }
+                    const targetRoster = (studentData[detectedCls] || classList || []);
+                    priorityNames = targetRoster.filter(n => !doneSet.has(normalizeStudentName(n)));
+                }
+
+                localStorage.setItem(`k2_tiet12_priority_${detectedCls}`, JSON.stringify(priorityNames));
+                if (detectedCls !== currentClass) {
+                    loadClassData(detectedCls);
+                } else {
+                    updateAllStudentDropdowns();
+                    if (currentSlide === 3 && !isGameActive && !activeQuest) {
+                        renderReadyCurtain();
+                    }
+                }
+                showToast(`📁 Đã lọc xong Lớp ${detectedCls.replace('_', '/')}: ${priorityNames.length} em ưu tiên chưa lên tiết trước!`);
+            } catch (err) {
+                showToast("⚠️ Không đọc được định dạng file CSV này!");
             }
         }
 
@@ -4179,7 +4583,12 @@
            16. KHỞI CHẠY TRANG KHI TẢI XONG
            ========================================================= */
         window.addEventListener('DOMContentLoaded', () => {
-            loadClassData('2_2');
+            let initialClass = '2_2';
+            try {
+                const savedCls = localStorage.getItem('k2_tiet12_last_class');
+                if (savedCls) initialClass = savedCls;
+            } catch (e) {}
+            loadClassData(initialClass);
             goToSlide(1);
         });
 </script>
