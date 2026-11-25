@@ -1809,6 +1809,16 @@
         }
 
         /* BẢNG ĐÁNH GIÁ CHÉO & CHECKLIST GIÁO VIÊN */
+        .peer-panel-box {
+            background: #1e293b;
+            border: 1.5px solid #475569;
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         .peer-vote-grid {
             display: flex;
             flex-direction: column;
@@ -1819,35 +1829,84 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 8px;
             padding: 8px 12px;
             background: #f1f5f9;
+            border: 2px solid transparent;
             border-radius: 10px;
             font-size: 14.5px;
             font-weight: 800;
             color: #334155;
+            transition: all 0.15s ease;
         }
 
         .btn-vote-tag {
             font-size: 13px;
             font-weight: 900;
-            padding: 4px 10px;
-            border-radius: 6px;
+            padding: 5px 11px;
+            border-radius: 7px;
             border: 1.5px solid #cbd5e1;
             background: #ffffff;
+            color: #1e293b;
             cursor: pointer;
-            transition: all 0.1s ease;
+            transition: all 0.12s ease;
+        }
+
+        .btn-vote-tag:hover:not(.active) {
+            border-color: #64748b;
+            background: #f8fafc;
         }
 
         .btn-vote-tag.pass.active {
             background: #10b981;
-            color: #fff;
+            color: #ffffff;
             border-color: #059669;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
         }
 
         .btn-vote-tag.bug.active {
             background: #ef4444;
-            color: #fff;
+            color: #ffffff;
             border-color: #dc2626;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+        }
+
+        .peer-summary-box {
+            background: #1e293b;
+            border: 1.5px solid #475569;
+            border-radius: 12px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .peer-summary-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .peer-summary-chip {
+            font-size: 12px;
+            font-weight: 800;
+            padding: 4px 9px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: #cbd5e1;
+        }
+
+        .peer-summary-chip.hit {
+            background: rgba(16, 185, 129, 0.18);
+            border-color: #10b981;
+            color: #6ee7b7;
+        }
+
+        .peer-summary-chip.miss {
+            background: rgba(148, 163, 184, 0.12);
+            border-color: #64748b;
+            color: #94a3b8;
         }
 
         .teacher-checklist {
@@ -2025,7 +2084,8 @@
             20%, 60% { transform: translateX(-6px); }
             40%, 80% { transform: translateX(6px); }
         }
-        .shake-error {
+        .shake-error,
+        .peer-check-error {
             animation: shakeErr 0.4s ease !important;
             border-color: #ef4444 !important;
             box-shadow: 0 0 12px rgba(239, 68, 68, 0.6) !important;
@@ -2427,6 +2487,11 @@
             border-color: #0284c7;
             background: #f0f9ff;
             box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+        }
+
+        .arena-step-pill.peer {
+            border-color: #f59e0b;
+            background: #fffbeb;
         }
 
         .arena-step-pill.pass {
@@ -2955,7 +3020,7 @@
 
                             <!-- GỢI Ý THAO TÁC & TIỆN ÍCH -->
                             <div style="font-size:13.5px; color:#475569; line-height:1.5; background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px; padding:10px 14px;">
-                                💡 <b>Cách thực hiện:</b> Học sinh lên máy bấm nút <b>▶ Bắt đầu bấm giờ</b> bên phải ➔ Mở đúng file <b id="af-filename-hint">BaiLam_To1.docx</b> để làm bước này ➔ Bấm <b>Ctrl + S</b> lưu lại ➔ Kéo thả file vào ô nộp bài để dừng đồng hồ & máy tự chấm!
+                                💡 <b>Cách thực hiện:</b> Học sinh lên máy bấm nút <b>▶ Bắt đầu bấm giờ</b> bên phải ➔ Mở đúng file <b id="af-filename-hint">BaiLam_To1.docx</b> để làm bước này ➔ Bấm <b>Ctrl + S</b> lưu lại ➔ Kéo thả file để dừng đồng hồ ➔ Các tổ khác chấm chéo (chấm đúng <b>+50 Xu</b>) ➔ Chạy máy chấm & chốt điểm!
                             </div>
 
                             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:auto;">
@@ -3014,6 +3079,33 @@
                                 </button>
                             </div>
 
+                            <!-- 2.5. TRẠNG THÁI CHỜ CÁC TỔ KHÁC CHẤM CHÉO (TRƯỚC KHI MỞ KẾT QUẢ) -->
+                            <div id="ap-state-peer" style="display:none; flex-direction:column; gap:10px;">
+                                <div class="peer-panel-box">
+                                    <div id="ap-peer-file-info"
+                                        style="font-size:13px; font-weight:800; color:#7dd3fc; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.35); border-radius:8px; padding:7px 10px;">
+                                    </div>
+                                    <div style="font-size:14px; font-weight:900; color:#fef08a;">
+                                        👀 CÁC TỔ KHÁC CHẤM CHÉO (TỔ ĐÃ ĐẠT CHƯA?):
+                                    </div>
+                                    <div class="peer-vote-grid" id="arena-peer-vote-grid"></div>
+                                    <div class="peer-rules-hint" style="margin-top:2px;">
+                                        💡 <b>Luật chấm chéo:</b> Các tổ quan sát bài làm và chấm <b>ĐẠT</b> hoặc <b>CHƯA ĐẠT</b>. Chấm đúng kết quả thực tế được thưởng <b>+50 Xu</b>!
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <button type="button" class="btn-action" onclick="retryCurrentArenaStep()"
+                                        style="background:#475569; color:#fff; font-size:13.5px; padding:10px 12px;"
+                                        title="Hủy lần nộp này và bấm giờ làm lại">
+                                        🔄 Làm lại
+                                    </button>
+                                    <button type="button" class="btn-action blue" id="btn-reveal-step-grade"
+                                        onclick="revealArenaStepResult()" style="flex:1; font-size:15px;">
+                                        ⚡ CHẠY MÁY CHẤM & MỞ KẾT QUẢ
+                                    </button>
+                                </div>
+                            </div>
+
                             <!-- 3. TRẠNG THÁI ĐÃ NỘP: KẾT QUẢ CHẤM & CHỐT ĐIỂM BƯỚC -->
                             <div id="ap-state-submitted" style="display:none; flex-direction:column; gap:10px;">
                                 <div class="step-verdict-box" id="ap-verdict-box">
@@ -3026,6 +3118,8 @@
                                     </div>
                                     <div id="ap-verdict-msg" style="font-size:13.5px; line-height:1.5; color:#e2e8f0;"></div>
                                 </div>
+
+                                <div class="peer-summary-box" id="ap-peer-summary-box" style="display:none;"></div>
 
                                 <div style="display:flex; gap:8px;">
                                     <button type="button" class="btn-action" id="btn-retry-step"
@@ -3463,6 +3557,7 @@
                 } catch (e) { }
             }
         };
+        window.AudioSys = AudioSys;
 
         /* ================= SIDEBAR & HAMBURGER ================= */
         function toggleSidebar(forceState) {
@@ -3625,6 +3720,14 @@
             delete gachaAssignments[lastHuman.id];
             delete gachaDownloaded[lastHuman.id];
             delete arenaState[lastHuman.id];
+            Object.values(arenaState).forEach(st => {
+                if (st && Array.isArray(st.steps)) {
+                    st.steps.forEach(s => {
+                        if (s.peerVotes) delete s.peerVotes[lastHuman.id];
+                        if (s.peerResults) delete s.peerResults[lastHuman.id];
+                    });
+                }
+            });
             readyMissions = readyMissions.filter(m => m.teamId !== lastHuman.id);
             solvedMissionTeamIds.delete(lastHuman.id);
 
@@ -3874,6 +3977,8 @@
                 if (st && Array.isArray(st.steps)) {
                     st.steps.forEach(s => {
                         if (s.status === 'running') s.status = 'idle';
+                        s.peerVotes = s.peerVotes || {};
+                        s.peerResults = s.peerResults || {};
                     });
                 }
             });
@@ -4979,13 +5084,17 @@
                     brickName: mission.heading ? mission.heading.name : 'Định dạng Tiêu đề',
                     brickDesc: mission.heading ? mission.heading.desc : 'Đổi phông chữ, cỡ chữ, màu sắc, căn giữa tiêu đề',
                     student: '',
-                    status: 'idle', // 'idle' | 'running' | 'submitted' | 'done'
+                    status: 'idle', // 'idle' | 'running' | 'peer_review' | 'submitted' | 'done'
                     elapsed: 0,
                     scorePreview: 300,
                     awardedScore: 0,
                     autoPass: null,
                     finalPass: null,
-                    feedback: ''
+                    feedback: '',
+                    submittedFileName: '',
+                    isManualStop: false,
+                    peerVotes: {},
+                    peerResults: {}
                 },
                 {
                     key: 'body',
@@ -5004,7 +5113,11 @@
                     awardedScore: 0,
                     autoPass: null,
                     finalPass: null,
-                    feedback: ''
+                    feedback: '',
+                    submittedFileName: '',
+                    isManualStop: false,
+                    peerVotes: {},
+                    peerResults: {}
                 },
                 {
                     key: 'image',
@@ -5023,7 +5136,11 @@
                     awardedScore: 0,
                     autoPass: null,
                     finalPass: null,
-                    feedback: ''
+                    feedback: '',
+                    submittedFileName: '',
+                    isManualStop: false,
+                    peerVotes: {},
+                    peerResults: {}
                 }
             ];
 
@@ -5045,7 +5162,11 @@
                     awardedScore: 0,
                     autoPass: null,
                     finalPass: null,
-                    feedback: ''
+                    feedback: '',
+                    submittedFileName: '',
+                    isManualStop: false,
+                    peerVotes: {},
+                    peerResults: {}
                 });
             }
             return steps;
@@ -5333,10 +5454,11 @@
                     const isCurrent = (idx === st.currentStepIdx);
                     const cls = s.status === 'done'
                         ? (s.finalPass ? 'pass' : 'fail')
-                        : (isCurrent ? 'current' : '');
+                        : (isCurrent ? 'current' : (s.status === 'peer_review' ? 'peer' : ''));
                     let stLabel = 'Chờ làm';
                     if (s.status === 'running') stLabel = '🔥 Đang bấm giờ';
-                    else if (s.status === 'submitted') stLabel = '🔎 Đã nộp';
+                    else if (s.status === 'peer_review') stLabel = '👀 Chấm chéo';
+                    else if (s.status === 'submitted') stLabel = '🔎 Đã chấm';
                     else if (s.status === 'done') stLabel = s.finalPass ? `✅ +${s.awardedScore} Xu (${s.elapsed}s)` : `❌ Chưa đạt (${s.elapsed}s)`;
 
                     return `
@@ -5386,11 +5508,13 @@
 
             const idleBox = document.getElementById('ap-state-idle');
             const runBox = document.getElementById('ap-state-running');
+            const peerBox = document.getElementById('ap-state-peer');
             const subBox = document.getElementById('ap-state-submitted');
             const doneBox = document.getElementById('ap-state-done');
 
             if (idleBox) idleBox.style.display = (step.status === 'idle') ? 'block' : 'none';
             if (runBox) runBox.style.display = (step.status === 'running') ? 'block' : 'none';
+            if (peerBox) peerBox.style.display = (step.status === 'peer_review') ? 'flex' : 'none';
             if (subBox) subBox.style.display = (step.status === 'submitted') ? 'flex' : 'none';
             if (doneBox) doneBox.style.display = (step.status === 'done') ? 'block' : 'none';
 
@@ -5404,6 +5528,25 @@
             if (step.status === 'running') {
                 const dzText = document.getElementById('ap-dz-text');
                 if (dzText) dzText.innerHTML = `Kéo thả <b>BaiLam_To${arenaActiveTeamId}.docx</b> (đã Ctrl+S) để <b>NỘP BƯỚC ${step.stepNum}</b>`;
+            }
+
+            if (step.status === 'peer_review') {
+                const peerInfo = document.getElementById('ap-peer-file-info');
+                if (peerInfo) {
+                    const safeFileName = String(step.submittedFileName || '')
+                        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    const sourceText = safeFileName
+                        ? `📎 Đã nhận file: <b>${safeFileName}</b>`
+                        : '⏹ Đã dừng đồng hồ (Nghiệm thu trực tiếp)';
+                    peerInfo.innerHTML = `${sourceText} · ⏱️ <b>${formatSeconds(step.elapsed)}</b> · Điểm tốc độ: <b>${step.scorePreview} Xu</b>`;
+                }
+                const revealBtn = document.getElementById('btn-reveal-step-grade');
+                if (revealBtn) {
+                    revealBtn.textContent = step.isManualStop
+                        ? '⚡ MỞ KẾT QUẢ CHẤM'
+                        : '⚡ CHẠY MÁY CHẤM & MỞ KẾT QUẢ';
+                }
+                renderArenaPeerVoteGrid(step);
             }
 
             if (step.status === 'submitted') {
@@ -5421,12 +5564,19 @@
                 }
                 if (vMsg) vMsg.innerHTML = step.feedback || (pass ? '✓ Định dạng chính xác!' : '✗ Chưa khớp yêu cầu đề bài.');
                 if (commitBtn) commitBtn.textContent = `🏆 CHỐT BƯỚC ${step.stepNum} (+${award} Xu) ▶`;
+                renderArenaPeerSummaryBox(step);
             }
 
             if (step.status === 'done') {
                 const doneSummary = document.getElementById('ap-done-summary');
                 if (doneSummary) {
-                    doneSummary.innerHTML = `${step.finalPass ? '✅ ĐẠT' : '❌ CHƯA ĐẠT'} · 👤 <b>${step.student || 'Học sinh'}</b><br>Thời gian: <b>${formatSeconds(step.elapsed)}</b> · Đã cộng: <b>+${step.awardedScore} Xu</b>`;
+                    const peerWinners = Object.values(step.peerResults || {})
+                        .filter(r => r && r.bonus > 0)
+                        .map(r => `${r.teamName} (+${r.bonus} Xu)`);
+                    const peerLine = peerWinners.length > 0
+                        ? `<br><span style="color:#fde047; font-size:13.5px;">👀 Chấm chéo đúng: ${peerWinners.join(', ')}</span>`
+                        : '';
+                    doneSummary.innerHTML = `${step.finalPass ? '✅ ĐẠT' : '❌ CHƯA ĐẠT'} · 👤 <b>${step.student || 'Học sinh'}</b><br>Thời gian: <b>${formatSeconds(step.elapsed)}</b> · Đã cộng: <b>+${step.awardedScore} Xu</b>${peerLine}`;
                 }
                 const nextBtn = document.getElementById('btn-done-next-action');
                 const nextPending = st.steps.findIndex(s => s.status !== 'done');
@@ -5508,6 +5658,134 @@
             }
         }
 
+        const PEER_CORRECT_BONUS = 50;
+
+        function getArenaOtherTeams(activeTeamId) {
+            return teams.filter(t => !t.isDemon && t.id !== activeTeamId);
+        }
+
+        function isPeerVoteCorrect(vote, finalPass) {
+            return (vote === 'PASS' && !!finalPass) || (vote === 'FAIL' && !finalPass);
+        }
+
+        function renderArenaPeerVoteGrid(step) {
+            const grid = document.getElementById('arena-peer-vote-grid');
+            if (!grid || !step) return;
+            step.peerVotes = step.peerVotes || {};
+            const otherTeams = getArenaOtherTeams(arenaActiveTeamId);
+            if (otherTeams.length === 0) {
+                grid.innerHTML = '<div style="font-size:13px; color:#94a3b8; text-align:center;">Không có tổ khác để chấm chéo.</div>';
+                return;
+            }
+            grid.innerHTML = otherTeams.map(t => {
+                const vote = step.peerVotes[t.id] || '';
+                return `
+                    <div class="peer-vote-row" id="ap-pv-row-${t.id}">
+                        <span>🛡️ ${t.name}:</span>
+                        <div style="display:flex; gap:6px;">
+                            <button type="button" class="btn-vote-tag pass ${vote === 'PASS' ? 'active' : ''}"
+                                id="ap-pv-${t.id}-pass" onclick="setArenaPeerVote(${t.id}, 'PASS')">
+                                ĐẠT ✅
+                            </button>
+                            <button type="button" class="btn-vote-tag bug ${vote === 'FAIL' ? 'active' : ''}"
+                                id="ap-pv-${t.id}-fail" onclick="setArenaPeerVote(${t.id}, 'FAIL')">
+                                CHƯA ĐẠT ❌
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function setArenaPeerVote(teamId, vote) {
+            const step = getCurrentArenaStep();
+            if (!step || step.status !== 'peer_review') return;
+            step.peerVotes = step.peerVotes || {};
+            step.peerVotes[teamId] = vote;
+            const passBtn = document.getElementById(`ap-pv-${teamId}-pass`);
+            const failBtn = document.getElementById(`ap-pv-${teamId}-fail`);
+            if (passBtn) passBtn.classList.toggle('active', vote === 'PASS');
+            if (failBtn) failBtn.classList.toggle('active', vote === 'FAIL');
+            AudioSys.playTick();
+            saveLocalStorage();
+        }
+
+        function revealArenaStepResult() {
+            const step = getCurrentArenaStep();
+            if (!step || step.status !== 'peer_review') return;
+            step.peerVotes = step.peerVotes || {};
+            const otherTeams = getArenaOtherTeams(arenaActiveTeamId);
+
+            if (typeof window.checkPeerAssessmentComplete === 'function') {
+                const ok = window.checkPeerAssessmentComplete(
+                    otherTeams,
+                    step.peerVotes,
+                    (id) => document.getElementById(`ap-pv-row-${id}`)
+                );
+                if (!ok) return;
+            } else {
+                const missing = otherTeams.filter(t => !step.peerVotes[t.id]);
+                if (missing.length > 0) {
+                    const missingNames = missing.map(t => t.name).join(', ');
+                    if (window.toast) {
+                        window.toast(`⚠️ Còn [${missingNames}] chưa đánh giá chéo! Vui lòng chọn kết quả cho tất cả các tổ trước khi chấm.`, 3500, 'var(--coral)');
+                    }
+                    missing.forEach(t => {
+                        const row = document.getElementById(`ap-pv-row-${t.id}`);
+                        if (row) {
+                            row.classList.add('shake-error');
+                            setTimeout(() => row.classList.remove('shake-error'), 1200);
+                        }
+                    });
+                    AudioSys.playFail();
+                    return;
+                }
+            }
+
+            step.status = 'submitted';
+            if (step.finalPass) {
+                AudioSys.playWin();
+                if (window.confetti) window.confetti({ particleCount: 40, spread: 60 });
+            } else {
+                AudioSys.playFail();
+            }
+
+            renderStepArena();
+            saveLocalStorage();
+        }
+
+        function renderArenaPeerSummaryBox(step) {
+            const box = document.getElementById('ap-peer-summary-box');
+            if (!box || !step) return;
+            const otherTeams = getArenaOtherTeams(arenaActiveTeamId);
+            const votes = step.peerVotes || {};
+            const votedTeams = otherTeams.filter(t => !!votes[t.id]);
+            if (votedTeams.length === 0) {
+                box.style.display = 'none';
+                box.innerHTML = '';
+                return;
+            }
+
+            const chipsHtml = votedTeams.map(t => {
+                const v = votes[t.id];
+                const hit = isPeerVoteCorrect(v, step.finalPass);
+                const voteLabel = v === 'PASS' ? 'Đạt' : 'Chưa đạt';
+                return `
+                    <span class="peer-summary-chip ${hit ? 'hit' : 'miss'}">
+                        ${t.name}: ${voteLabel} ${hit ? `✅ (+${PEER_CORRECT_BONUS} Xu)` : '❌ (+0 Xu)'}
+                    </span>
+                `;
+            }).join('');
+
+            box.style.display = 'flex';
+            box.innerHTML = `
+                <div style="font-size:12.5px; font-weight:900; color:#fef08a;">
+                    👀 KẾT QUẢ CHẤM CHÉO CÁC TỔ (Chấm đúng +${PEER_CORRECT_BONUS} Xu):
+                </div>
+                <div class="peer-summary-list">${chipsHtml}</div>
+            `;
+        }
+
         function initArenaStepDropzone() {
             const dz = document.getElementById('arena-step-dropzone');
             if (!dz || !window.DocxGrader) return;
@@ -5528,19 +5806,32 @@
                         arenaStepTimerInterval = null;
                     }
 
-                    step.status = 'submitted';
                     step.scorePreview = computeStepSpeedScore(step);
                     step.autoPass = !!result.pass;
                     step.finalPass = !!result.pass;
                     step.feedback = (result.details || [])
                         .map(d => `${d.passed ? '✓' : '✗'} ${d.message}`)
                         .join('<br>');
+                    step.submittedFileName = file ? file.name : '';
+                    step.isManualStop = false;
+                    step.peerVotes = {};
+                    step.peerResults = {};
 
-                    if (step.finalPass) {
-                        AudioSys.playWin();
-                        if (window.confetti) window.confetti({ particleCount: 40, spread: 60 });
+                    const hasOtherTeams = getArenaOtherTeams(arenaActiveTeamId).length > 0;
+                    if (hasOtherTeams) {
+                        step.status = 'peer_review';
+                        AudioSys.playBeep();
+                        if (window.toast) {
+                            window.toast(`⏱️ Đã nhận ${step.submittedFileName || 'file'} & dừng ở ${formatSeconds(step.elapsed)}! Mời các tổ khác chấm chéo.`, 3000, 'var(--mint)');
+                        }
                     } else {
-                        AudioSys.playFail();
+                        step.status = 'submitted';
+                        if (step.finalPass) {
+                            AudioSys.playWin();
+                            if (window.confetti) window.confetti({ particleCount: 40, spread: 60 });
+                        } else {
+                            AudioSys.playFail();
+                        }
                     }
 
                     renderStepArena();
@@ -5557,13 +5848,23 @@
                 clearInterval(arenaStepTimerInterval);
                 arenaStepTimerInterval = null;
             }
-            step.status = 'submitted';
             step.scorePreview = computeStepSpeedScore(step);
             step.autoPass = true;
             step.finalPass = true;
             step.feedback = '✓ Đã dừng đồng hồ (Nghiệm thu trực tiếp trên màn hình Word).';
+            step.submittedFileName = '';
+            step.isManualStop = true;
+            step.peerVotes = {};
+            step.peerResults = {};
+
+            const hasOtherTeams = getArenaOtherTeams(arenaActiveTeamId).length > 0;
+            step.status = hasOtherTeams ? 'peer_review' : 'submitted';
             AudioSys.playBeep();
+            if (hasOtherTeams && window.toast) {
+                window.toast(`⏱️ Đã dừng đồng hồ ở ${formatSeconds(step.elapsed)}! Mời các tổ khác chấm chéo trước khi mở kết quả.`, 3000, 'var(--mint)');
+            }
             renderStepArena();
+            saveLocalStorage();
         }
 
         function toggleCurrentStepOverride() {
@@ -5572,11 +5873,14 @@
             step.finalPass = !step.finalPass;
             AudioSys.playTick();
             renderStepArena();
+            saveLocalStorage();
         }
 
         function retryCurrentArenaStep() {
             const step = getCurrentArenaStep();
-            if (!step || step.status !== 'submitted') return;
+            if (!step || (step.status !== 'submitted' && step.status !== 'peer_review')) return;
+            step.peerVotes = {};
+            step.peerResults = {};
             step.status = 'idle';
             startCurrentArenaStep();
         }
@@ -5593,6 +5897,22 @@
             step.status = 'done';
             if (team) team.score += award;
 
+            // Cộng bonus +50 Xu cho mỗi tổ khác chấm đúng kết quả (Đạt / Chưa đạt)
+            const otherTeams = getArenaOtherTeams(arenaActiveTeamId);
+            const peerVotes = step.peerVotes || {};
+            step.peerResults = {};
+            const peerBonusTeams = [];
+            otherTeams.forEach(ot => {
+                const vote = peerVotes[ot.id];
+                if (!vote) return;
+                const bonus = isPeerVoteCorrect(vote, step.finalPass) ? PEER_CORRECT_BONUS : 0;
+                if (bonus > 0) {
+                    ot.score += bonus;
+                    peerBonusTeams.push(ot.name);
+                }
+                step.peerResults[ot.id] = { teamName: ot.name, vote, bonus };
+            });
+
             if (step.student) {
                 calledStudents.add(step.student);
                 const ratingTT27 = step.finalPass ? (step.elapsed <= 45 ? 'T' : 'H') : 'C';
@@ -5608,6 +5928,9 @@
 
             // Kiểm tra hoàn thành toàn bộ các bước của tổ
             let extraNote = '';
+            if (peerBonusTeams.length > 0) {
+                extraNote += ` | 👀 Chấm chéo (+${PEER_CORRECT_BONUS} Xu): ${peerBonusTeams.join(', ')}`;
+            }
             const allDone = st.steps.every(s => s.status === 'done');
             if (allDone) {
                 st.isTeamCompleted = true;
@@ -5636,7 +5959,7 @@
 
             AudioSys.playWin();
             if (window.toast) {
-                window.toast(`🏆 Chốt ${step.title}: ${team ? team.name : ''} +${award} Xu${extraNote}`, 3200, 'var(--gold)');
+                window.toast(`🏆 Chốt ${step.title}: ${team ? team.name : ''} +${award} Xu${extraNote}`, 3800, 'var(--gold)');
             }
 
             // Tự động chuyển tới bước kế tiếp chưa xong của tổ (nếu còn)
