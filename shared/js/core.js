@@ -432,6 +432,147 @@
     };
 
 
+    let _cachedViVoice = null;
+    let _cachedEnVoice = null;
+
+    function refreshSpeechVoices() {
+        try {
+            if (typeof window.speechSynthesis === 'undefined' || typeof window.speechSynthesis.getVoices !== 'function') {
+                return [];
+            }
+            const voices = window.speechSynthesis.getVoices() || [];
+            if (!voices.length) return voices;
+            _cachedEnVoice =
+                voices.find(v => v.lang && /^en[-_]us$/i.test(v.lang)) ||
+                voices.find(v => v.lang && /^en([-_]|$)/i.test(v.lang)) ||
+                _cachedEnVoice;
+            _cachedViVoice =
+                voices.find(v => v.lang && /^vi([-_]|$)/i.test(v.lang) && /natural|online|hoaimy|namminh|linh|lan|an/i.test(v.name || '')) ||
+                voices.find(v => v.lang && /^vi[-_]vn$/i.test(v.lang)) ||
+                voices.find(v => v.lang && v.lang.toLowerCase().startsWith('vi')) ||
+                voices.find(v => /vietnam|tiếng việt|tieng viet/i.test(v.name || '')) ||
+                _cachedViVoice;
+            return voices;
+        } catch (_) {
+            return [];
+        }
+    }
+
+    function resolveDeductionSpeech(targetName) {
+        const cleanName = String(targetName || '')
+            .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}]/gu, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        const teamMatch = cleanName.match(/^(?:tổ|đội|nhóm|team|group)\s*(\d+)/i);
+        if (teamMatch) {
+            return { text: `Team ${teamMatch[1]}`, lang: 'en-US', voice: _cachedEnVoice };
+        }
+        if (/quỷ|demon/i.test(cleanName)) {
+            return { text: 'Demon', lang: 'en-US', voice: _cachedEnVoice };
+        }
+        if (cleanName && _cachedViVoice) {
+            return { text: cleanName, lang: 'vi-VN', voice: _cachedViVoice };
+        }
+        if (cleanName && /^[\x20-\x7E]+$/.test(cleanName)) {
+            return { text: cleanName, lang: 'en-US', voice: _cachedEnVoice };
+        }
+        return { text: 'Demon', lang: 'en-US', voice: _cachedEnVoice };
+    }
+
+    try {
+        if (typeof window.speechSynthesis !== 'undefined') {
+            refreshSpeechVoices();
+            if (typeof window.speechSynthesis.addEventListener === 'function') {
+                window.speechSynthesis.addEventListener('voiceschanged', refreshSpeechVoices);
+            } else if ('onvoiceschanged' in window.speechSynthesis) {
+                window.speechSynthesis.onvoiceschanged = refreshSpeechVoices;
+            }
+        }
+    } catch (_) {}
+
+    /**
+     * Phát tiếng động cảnh báo kết hợp giọng đọc nhanh tên tổ bằng Tiếng Anh mặc định ("Team 1", "Team 2"...) khi bấm trừ điểm.
+     * Tuân thủ Mục 8.1 STANDARDS.md: chạy chuẩn trên mọi máy Windows/Chrome mặc định, 100% offline, tôn trọng Mute, zero-crash.
+     * @param {string} targetName - Tên tổ (vd 'Tổ 1') hoặc học sinh bị trừ điểm
+     * @param {number} amount - Số điểm bị trừ (dương; nếu truyền <= 0 thì không đọc)
+     * @param {string} unit - Giữ tương thích tham số cũ
+     * @param {Object} options - { skipSound?: boolean, delayMs?: number, queue?: boolean, rate?: number }
+     */
+    window.announcePointDeduction = function (targetName, amount, unit = 'điểm', options = {}) {
+        const opts = options || {};
+        if (window.isMuted || window.muted || window.soundMuted || (window.AudioSys && window.AudioSys.muted)) {
+            return;
+        }
+
+        if (!opts.skipSound) {
+            let played = false;
+            try {
+                if (window.SFX && typeof window.SFX.penalty === 'function') {
+                    window.SFX.penalty();
+                    played = true;
+                } else if (window.AudioSys && typeof window.AudioSys.playNoiseAlert === 'function') {
+                    window.AudioSys.playNoiseAlert();
+                    played = true;
+                } else if (window.AudioSys && typeof window.AudioSys.playFail === 'function') {
+                    window.AudioSys.playFail();
+                    played = true;
+                } else if (typeof window.playPenaltySound === 'function') {
+                    window.playPenaltySound();
+                    played = true;
+                }
+            } catch (_) {}
+
+            if (!played) {
+                try {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) {
+                        const c = new AudioCtx();
+                        const now = c.currentTime;
+                        const osc = c.createOscillator();
+                        const gain = c.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(260, now);
+                        osc.frequency.exponentialRampToValueAtTime(140, now + 0.25);
+                        gain.gain.setValueAtTime(0.14, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.27);
+                        osc.connect(gain);
+                        gain.connect(c.destination);
+                        osc.start(now);
+                        osc.stop(now + 0.29);
+                        osc.onended = () => { try { c.close(); } catch (_) {} };
+                    }
+                } catch (_) {}
+            }
+        }
+
+        if (amount !== undefined && Math.abs(Math.round(Number(amount) || 0)) <= 0) return;
+        if (typeof window.speechSynthesis === 'undefined') return;
+
+        const delayMs = typeof opts.delayMs === 'number' ? Math.max(0, opts.delayMs) : 100;
+        const rate = typeof opts.rate === 'number' ? opts.rate : 1.25;
+
+        setTimeout(() => {
+            try {
+                if (window.isMuted || window.muted || window.soundMuted || (window.AudioSys && window.AudioSys.muted)) {
+                    return;
+                }
+                refreshSpeechVoices();
+                const speech = resolveDeductionSpeech(targetName);
+                if (!opts.queue) {
+                    window.speechSynthesis.cancel();
+                }
+                const utter = new SpeechSynthesisUtterance(speech.text);
+                utter.lang = speech.lang;
+                utter.rate = rate;
+                utter.pitch = 1.0;
+                utter.volume = 1.0;
+                if (speech.voice) utter.voice = speech.voice;
+                window.speechSynthesis.speak(utter);
+            } catch (_) {}
+        }, delayMs);
+    };
+
     // Tự động kích hoạt khi DOM sẵn sàng
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => window.updateVietnameseDate());
@@ -638,59 +779,33 @@
     };
 
     /* =========================================================================
-     * QUY CHUẨN BỘ CHỌN LỚP ĐA KHỐI (KHỐI 1 - KHỐI 5) & DỮ LIỆU HỌC SINH TOÀN REPO
+     * QUY CHUẨN BỘ CHỌN LỚP ĐA KHỐI (KHỐI 1 - KHỐI 5, 48 LỚP) & DỮ LIỆU HỌC SINH TOÀN REPO
      * ========================================================================= */
     const ALL_SCHOOL_CLASSES = [
         {
             grade: 1,
             name: 'Khối 1',
-            classes: [
-                { id: '1_6', name: 'Lớp 1/6' }
-            ]
+            classes: Array.from({ length: 10 }, (_, i) => ({ id: `1_${i + 1}`, name: `Lớp 1/${i + 1}` }))
         },
         {
             grade: 2,
             name: 'Khối 2',
-            classes: [
-                { id: '2_2', name: 'Lớp 2/2' },
-                { id: '2_4', name: 'Lớp 2/4' },
-                { id: '2_5', name: 'Lớp 2/5' }
-            ]
+            classes: Array.from({ length: 9 }, (_, i) => ({ id: `2_${i + 1}`, name: `Lớp 2/${i + 1}` }))
         },
         {
             grade: 3,
             name: 'Khối 3',
-            classes: [
-                { id: '3_2', name: 'Lớp 3/2' },
-                { id: '3_3', name: 'Lớp 3/3' },
-                { id: '3_4', name: 'Lớp 3/4' },
-                { id: '3_5', name: 'Lớp 3/5' },
-                { id: '3_6', name: 'Lớp 3/6' }
-            ]
+            classes: Array.from({ length: 10 }, (_, i) => ({ id: `3_${i + 1}`, name: `Lớp 3/${i + 1}` }))
         },
         {
             grade: 4,
             name: 'Khối 4',
-            classes: [
-                { id: '4_1', name: 'Lớp 4/1' },
-                { id: '4_2', name: 'Lớp 4/2' },
-                { id: '4_3', name: 'Lớp 4/3' },
-                { id: '4_4', name: 'Lớp 4/4' },
-                { id: '4_5', name: 'Lớp 4/5' },
-                { id: '4_6', name: 'Lớp 4/6' }
-            ]
+            classes: Array.from({ length: 9 }, (_, i) => ({ id: `4_${i + 1}`, name: `Lớp 4/${i + 1}` }))
         },
         {
             grade: 5,
             name: 'Khối 5',
-            classes: [
-                { id: '5_1', name: 'Lớp 5/1' },
-                { id: '5_2', name: 'Lớp 5/2' },
-                { id: '5_3', name: 'Lớp 5/3' },
-                { id: '5_4', name: 'Lớp 5/4' },
-                { id: '5_5', name: 'Lớp 5/5' },
-                { id: '5_6', name: 'Lớp 5/6' }
-            ]
+            classes: Array.from({ length: 10 }, (_, i) => ({ id: `5_${i + 1}`, name: `Lớp 5/${i + 1}` }))
         }
     ];
 
@@ -713,11 +828,30 @@
     let _allStudentsDataCache = null;
     let _studentsScriptPromise = null;
 
+    function _extractStudentName(item, fallbackIdx = 0) {
+        if (typeof item === 'string') return item.trim();
+        if (item && typeof item === 'object') {
+            return String(item.hoTen || item.name || item.fullName || item.displayName || (fallbackIdx ? `Học sinh ${fallbackIdx}` : '')).trim();
+        }
+        return fallbackIdx ? `Học sinh ${fallbackIdx}` : '';
+    }
+
+    function _findClassArray(src, classKey, defaultKey = '1_6') {
+        const norm = s => String(s || '').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const tryKeys = [classKey, norm(classKey), defaultKey, norm(defaultKey)].filter(Boolean);
+        for (const k of tryKeys) {
+            if (Array.isArray(src[k]) && src[k].length) return src[k];
+            const found = Object.keys(src).find(sk => norm(sk) === norm(k));
+            if (found && Array.isArray(src[found]) && src[found].length) return src[found];
+        }
+        return [];
+    }
+
     window.clearStudentCache = function () {
         _allStudentsDataCache = null;
     };
 
-    // Nạp file JS hợp nhất students_all_2026_2027.js qua <script> (hoạt động 100% cả khi mở file:///)
+    // Nạp file JS hợp nhất students_all_2026_2027.js qua <script> (hoạt động 100% cả GitHub Pages lẫn file:///)
     window.ensureSchoolStudentsLoaded = function () {
         if (window.SCHOOL_STUDENTS_2026_2027 && typeof window.SCHOOL_STUDENTS_2026_2027 === 'object') {
             return Promise.resolve(window.SCHOOL_STUDENTS_2026_2027);
@@ -735,19 +869,52 @@
         return _studentsScriptPromise;
     };
 
-    // Lấy nhanh danh sách tên học sinh của một lớp từ nguồn tập trung (đồng bộ cho cả fallback offline)
+    // Lấy nhanh mảng tên học sinh (string[]) của một lớp từ nguồn tập trung
     window.getClassStudents = function (classKey, defaultKey = '1_6') {
-        const norm = s => String(s || '').replace(/[^a-z0-9]/gi, '_').toLowerCase();
         const src = (_allStudentsDataCache && Object.keys(_allStudentsDataCache).length)
             ? _allStudentsDataCache
             : (window.SCHOOL_STUDENTS_2026_2027 || {});
-        const tryKeys = [classKey, norm(classKey), defaultKey, norm(defaultKey)].filter(Boolean);
-        for (const k of tryKeys) {
-            if (Array.isArray(src[k]) && src[k].length) return src[k].slice();
-            const found = Object.keys(src).find(sk => norm(sk) === norm(k));
-            if (found && Array.isArray(src[found]) && src[found].length) return src[found].slice();
-        }
-        return [];
+        return _findClassArray(src, classKey, defaultKey)
+            .map((item, idx) => _extractStudentName(item, idx + 1))
+            .filter(Boolean);
+    };
+
+    // Lấy bản đồ { classKey: string[] } đã chuẩn hóa tên để tương thích các bài giảng dùng FALLBACK_STUDENTS
+    window.getStudentNamesMap = function () {
+        const src = (_allStudentsDataCache && Object.keys(_allStudentsDataCache).length)
+            ? _allStudentsDataCache
+            : (window.SCHOOL_STUDENTS_2026_2027 || {});
+        const map = {};
+        Object.keys(src).forEach(cls => {
+            const arr = Array.isArray(src[cls]) ? src[cls] : [];
+            map[cls] = arr.map((item, idx) => _extractStudentName(item, idx + 1)).filter(Boolean);
+        });
+        return map;
+    };
+
+    // Lấy danh sách đầy đủ thông tin học sinh ({ hoTen, ten, ngaySinh, gioiTinh }) của một lớp
+    window.getClassStudentDetails = function (classKey, defaultKey = '1_6') {
+        const src = (_allStudentsDataCache && Object.keys(_allStudentsDataCache).length)
+            ? _allStudentsDataCache
+            : (window.SCHOOL_STUDENTS_2026_2027 || {});
+        return _findClassArray(src, classKey, defaultKey).map((item, idx) => {
+            const hoTen = _extractStudentName(item, idx + 1);
+            if (item && typeof item === 'object') {
+                return {
+                    hoTen,
+                    ten: String(item.ten || '').trim(),
+                    ngaySinh: String(item.ngaySinh || '').trim(),
+                    gioiTinh: String(item.gioiTinh || '').trim()
+                };
+            }
+            const parts = hoTen.replace(/\s*\(\d+\)$/, '').trim().split(/\s+/);
+            return {
+                hoTen,
+                ten: parts[parts.length - 1] || '',
+                ngaySinh: '',
+                gioiTinh: ''
+            };
+        });
     };
 
     // Chỉ kiểm tra/đánh số trùng họ tên khi giáo viên THÊM HỌC SINH THỦ CÔNG trên lớp
@@ -757,7 +924,7 @@
         if (/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) return trimmed;
         const used = new Set(
             (existingNames || [])
-                .map(x => (typeof x === 'string' ? x : (x && (x.name || x.displayName || x.rawName) || '')).trim().toLowerCase())
+                .map(x => _extractStudentName(x).toLowerCase())
                 .filter(Boolean)
         );
         if (!used.has(trimmed.toLowerCase())) return trimmed;
@@ -766,8 +933,8 @@
         return `${trimmed} (${idx})`;
     };
 
-    // Nạp toàn bộ dữ liệu học sinh của cả 5 khối (tổng hợp 21 lớp)
-    window.loadAllStudents = async function (basePath = '../../assets/data/') {
+    // Nạp toàn bộ dữ liệu học sinh của cả 5 khối (tổng hợp 48 lớp từ students_all_2026_2027.js)
+    window.loadAllStudents = async function () {
         if (_allStudentsDataCache && Object.keys(_allStudentsDataCache).length > 0) {
             return _allStudentsDataCache;
         }
@@ -776,46 +943,15 @@
             return _allStudentsDataCache;
         }
 
-        // Nạp song song cả 5 file JSON khi chạy qua HTTP/HTTPS
-        const merged = {};
-        if (typeof location !== 'undefined' && location.protocol.startsWith('http') && _origFetch) {
-            const grades = [1, 2, 3, 4, 5];
-            await Promise.all(grades.map(async (g) => {
-                const gradePaths = [
-                    `${basePath}students_${g}_2026_2027.json`,
-                    `../../assets/data/students_${g}_2026_2027.json`,
-                    `../assets/data/students_${g}_2026_2027.json`,
-                    `assets/data/students_${g}_2026_2027.json`
-                ];
-                for (const gp of gradePaths) {
-                    try {
-                        const r = await _origFetch(gp);
-                        if (r.ok) {
-                            const json = await r.json();
-                            if (json && typeof json === 'object') {
-                                Object.assign(merged, json);
-                                break;
-                            }
-                        }
-                    } catch (_) {}
-                }
-            }));
-        }
-
-        if (Object.keys(merged).length > 0) {
-            _allStudentsDataCache = merged;
-            return _allStudentsDataCache;
-        }
-
-        const jsFallback = await window.ensureSchoolStudentsLoaded();
-        if (jsFallback && Object.keys(jsFallback).length > 0) {
-            _allStudentsDataCache = jsFallback;
+        const jsData = await window.ensureSchoolStudentsLoaded();
+        if (jsData && Object.keys(jsData).length > 0) {
+            _allStudentsDataCache = jsData;
             return _allStudentsDataCache;
         }
         return {};
     };
 
-    // Nạp danh sách học sinh theo mã lớp (tên trùng đã đánh số sẵn (1), (2) trong dữ liệu JSON)
+    // Nạp danh sách học sinh theo mã lớp (tên trùng đã đánh số sẵn (1), (2) trong dữ liệu)
     window.loadLessonStudents = async function (classKey, basePath = '../../assets/data/') {
         const rawKey = String(classKey || '1_6').trim();
         const norm = s => String(s || '').replace(/[^a-z0-9]/gi, '_').toLowerCase();
@@ -825,20 +961,19 @@
         const grade = gradeMatch ? gradeMatch[0] : '1';
 
         const allData = await window.loadAllStudents(basePath);
-        let rawList = allData[rawKey] || allData[normKey] || [];
-        if (!rawList || !rawList.length) {
-            const foundKey = Object.keys(allData).find(k => norm(k) === normKey);
-            if (foundKey) rawList = allData[foundKey] || [];
-        }
+        const rawList = _findClassArray(allData, rawKey, '');
 
         return rawList.map((item, idx) => {
-            const raw = typeof item === 'string' ? item : (item.name || item.hoTen || item.fullName || `Học sinh ${idx + 1}`);
-            const trimmed = raw.trim();
+            const trimmed = _extractStudentName(item, idx + 1);
+            const obj = (item && typeof item === 'object') ? item : {};
             return {
                 id: idx + 1,
                 name: trimmed,
                 rawName: trimmed,
                 displayName: trimmed,
+                ten: String(obj.ten || '').trim(),
+                ngaySinh: String(obj.ngaySinh || '').trim(),
+                gioiTinh: String(obj.gioiTinh || '').trim(),
                 code: `HS${grade}_${String(idx + 1).padStart(2, '0')}`
             };
         });
@@ -846,8 +981,8 @@
 
     // =========================================================================
     // TRANSPARENT FETCH INTERCEPTOR FOR STUDENT DATA
-    // Khi bất kỳ trang nào gọi fetch() file students_*.json, tự động bổ sung
-    // dữ liệu của cả 5 khối (hoặc fallback từ students_all_2026_2027.js khi mở file://).
+    // Trả trực tiếp dữ liệu từ students_all_2026_2027.js cho bất kỳ trang cũ nào
+    // còn gọi fetch('...students_*.json') (tránh 404 vì đã gộp về 1 file JS duy nhất).
     // =========================================================================
     const _origFetch = (typeof window !== 'undefined' && window.fetch) ? window.fetch.bind(window) : null;
     if (_origFetch) {
@@ -859,39 +994,23 @@
                 return _origFetch(input, init);
             }
 
-            try {
-                const response = await _origFetch(input, init);
-                if (response && response.ok) {
-                    const origJson = response.json.bind(response);
-                    response.json = async function () {
-                        const data = await origJson();
-                        try {
-                            const allData = await window.loadAllStudents();
-                            if (allData && typeof allData === 'object' && Object.keys(allData).length > 0) {
-                                return Object.assign({}, allData, data);
-                            }
-                        } catch (_) {}
-                        return data;
-                    };
-                    return response;
-                }
-            } catch (_) {}
-
-            const fallbackAll = await window.loadAllStudents();
-            if (fallbackAll && Object.keys(fallbackAll).length > 0) {
-                return new Response(JSON.stringify(fallbackAll), {
-                    status: 200,
-                    headers: { 'Content-Type': 'application/json' }
-                });
-            }
-            return _origFetch(input, init);
+            const allData = await window.loadAllStudents();
+            const flatAll = {};
+            Object.keys(allData || {}).forEach(cls => {
+                const arr = Array.isArray(allData[cls]) ? allData[cls] : [];
+                flatAll[cls] = arr.map((item, idx) => _extractStudentName(item, idx + 1)).filter(Boolean);
+            });
+            return new Response(JSON.stringify(flatAll), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
         };
     }
 
     // =========================================================================
     // AUTO-ENHANCE CLASS SELECTORS TRÊN MỌI TRANG
     // Tự động tìm kiếm các thẻ <select> chọn lớp và nâng cấp thành menu đa khối
-    // có <optgroup> phân nhóm Khối 1 - Khối 5.
+    // đầy đủ 48 lớp có <optgroup> phân nhóm Khối 1 - Khối 5.
     // =========================================================================
     window.enhanceClassSelects = function () {
         const selectors = [
@@ -906,6 +1025,7 @@
             '#classSelectTiet5',
             '#cls',
             '#selCls',
+            '#clsSel',
             '.k1-class-select'
         ];
 
@@ -913,8 +1033,7 @@
             const elements = document.querySelectorAll(sel);
             elements.forEach(el => {
                 if (!el || el.dataset.allClassesEnhanced === 'true') return;
-                // Nếu chưa có optgroup thì mới nâng cấp
-                if (el.tagName === 'SELECT' && !el.querySelector('optgroup')) {
+                if (el.tagName === 'SELECT') {
                     const currentVal = el.value || el.getAttribute('default-class') || '';
                     el.innerHTML = window.renderAllClassOptions(currentVal);
                     if (currentVal) el.value = currentVal;

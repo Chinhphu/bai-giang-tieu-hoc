@@ -128,17 +128,17 @@ $$\text{Chờ (Waiting)} \xrightarrow{\text{Bốc thăm Gacha / Chọn}} \text{L
 * **Thực tế giảng dạy đảo bài / dạy chéo khối:** Giáo viên tiểu học thường xuyên gặp các tình huống đặc biệt: đảo bài Khối 4 lên dạy Khối 5, bài Khối 3 mang dạy Khối 4, dạy ôn tập liên khối hoặc dạy bù bài giữa các khối lớp.
 * **QUY CHUẨN BẮT BUỘC — Bộ Chọn Lớp Đa Khối (Universal Multi-Grade Class Picker):**
   * **1. Chọn lớp toàn trường từ Khối 1 đến Khối 5:** Mọi bài giảng trong toàn bộ repo (dù là bài của Khối 1, 2, 3, 4 hay 5) **BẮT BUỘC cho phép chọn linh hoạt toàn bộ các lớp trong trường từ Khối 1 đến Khối 5**, TUYỆT ĐỐI KHÔNG giới hạn chỉ chọn lớp của khối bài giảng đó.
-  * **2. Gom nhóm trực quan (`<optgroup>`):** Ô chọn lớp trong thanh cấu hình / Sidebar được gom nhóm rõ ràng:
-    * `Khối 1`: 1/6 (mã `1_6`)
-    * `Khối 2`: 2/2, 2/4, 2/5 (mã `2_2`, `2_4`, `2_5`)
-    * `Khối 3`: 3/2, 3/3, 3/4, 3/5, 3/6 (mã `3_2`, `3_3`, `3_4`, `3_5`, `3_6`)
-    * `Khối 4`: 4/1, 4/2, 4/3, 4/4, 4/5, 4/6 (mã `4_1` đến `4_6`)
-    * `Khối 5`: 5/1, 5/2, 5/3, 5/4, 5/5, 5/6 (mã `5_1` đến `5_6`)
+  * **2. Gom nhóm trực quan (`<optgroup>`):** Ô chọn lớp trong thanh cấu hình / Sidebar được gom nhóm rõ ràng đầy đủ **48 lớp toàn trường**:
+    * `Khối 1`: 1/1 – 1/10 (mã `1_1` đến `1_10`)
+    * `Khối 2`: 2/1 – 2/9 (mã `2_1` đến `2_9`)
+    * `Khối 3`: 3/1 – 3/10 (mã `3_1` đến `3_10`)
+    * `Khối 4`: 4/1 – 4/9 (mã `4_1` đến `4_9`)
+    * `Khối 5`: 5/1 – 5/10 (mã `5_1` đến `5_10`)
   * **3. Lớp mặc định thông minh:** Khi mở bài giảng, lớp mặc định được chọn theo khối của bài (ví dụ: bài Khối 5 mặc định `5_1`, Khối 4 mặc định `4_1`, Khối 3 mặc định `3_2`, Khối 2 mặc định `2_2`, Khối 1 mặc định `1_6`).
-  * **4. Nạp dữ liệu động từ 5 tệp JSON:**
-    Hệ thống tự động nạp danh sách học sinh từ file JSON tương ứng với lớp được chọn (`../../assets/data/students_{khoi}_2026_2027.json`).
-  * **5. Nạp dữ liệu Same-Origin trên GitHub Pages:** Do toàn bộ trang web và file JSON nằm trên cùng domain GitHub Pages, hàm `fetch()` dữ liệu học sinh hoạt động hoàn hảo 100%, không bao giờ bị lỗi chặn CORS. Biến `FALLBACK_STUDENTS` trong code chỉ đóng vai trò dự phòng khi mạng gặp sự cố tải file.
-  * **6. Danh sách phẳng — Tuyệt đối KHÔNG gán tổ cố định:** Do học sinh đổi chỗ ngồi liên tục sau mỗi tuần/buổi học, tệp JSON chỉ lưu trữ danh sách họ tên phẳng của lớp, TUYỆT ĐỐI KHÔNG gán cứng thuộc tính tổ (`team`). Việc bốc thăm theo tổ vận hành theo cơ chế *"Gacha tới khi nào trúng thì thôi"*.
+  * **4. Nạp dữ liệu tập trung từ 1 tệp JS duy nhất:**
+    Hệ thống tự động nạp danh sách học sinh từ tệp duy nhất `../../assets/data/students_all_2026_2027.js` (`window.SCHOOL_STUDENTS_2026_2027`), mỗi học sinh gồm `{ hoTen, ten, ngaySinh, gioiTinh }` (trùng họ tên trong lớp đã đánh số `(1)`, `(2)`). Dùng `window.getClassStudents()` / `window.getStudentNamesMap()` / `window.loadLessonStudents()` / `window.getClassStudentDetails()` từ `shared/js/core.js`.
+  * **5. Nạp dữ liệu 100% không phụ thuộc mạng / CORS:** Do nạp trực tiếp qua thẻ `<script>` từ `students_all_2026_2027.js`, hệ thống hoạt động ổn định 100% cả trên GitHub Pages lẫn mở offline `file:///`.
+  * **6. Danh sách phẳng theo lớp — Tuyệt đối KHÔNG gán tổ cố định:** Do học sinh đổi chỗ ngồi liên tục sau mỗi tuần/buổi học, dữ liệu chỉ lưu trữ thông tin cá nhân của học sinh theo lớp, TUYỆT ĐỐI KHÔNG gán cứng thuộc tính tổ (`team`). Việc bốc thăm theo tổ vận hành theo cơ chế *"Gacha tới khi nào trúng thì thôi"*.
   * **7. Thêm học sinh vãng lai:** Luôn cung cấp Modal hoặc ô cho giáo viên thêm nhanh/bổ sung học sinh vãng lai khi cần.
 
 ### 8. Định danh Typography & Bản sắc theo từng Khối (Grade Identity)
@@ -217,10 +217,16 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
     * Khi học sinh các tổ nói chuyện riêng, gây ồn hoặc hò hét mất trật tự trong lớp: Trên mỗi thẻ tổ có **DUY NHẤT 1 nút phạt ồn nhỏ gọn** (`🤫 -10%`).
     * **Cơ chế tính phạt:** Trừ chính xác 10% trên tổng số điểm hiện tại của tổ đó:  
       $$\text{Điểm trừ} = \text{round}(\text{Score} \times 0.1), \quad \text{Score mới} = \max(0, \text{Score} - \text{Điểm trừ})$$
-    * **BẮT BUỘC có Toast thông báo răn đe trên màn chiếu:** Khi bấm phạt, hệ thống kích hoạt âm thanh cảnh báo ngắn (`playNoiseAlert()`) và hiện thông báo Toast rõ ràng:  
+    * **BẮT BUỘC có Toast thông báo răn đe trên màn chiếu:** Khi bấm phạt, hệ thống hiện thông báo Toast rõ ràng:  
       *Ví dụ: `📢 [Tổ 1] Mất trật tự / ồn ào: Đã bị trừ 10% (-100 Xu), điểm hiện tại còn: 900 Xu! 🤫`*  
       Cả lớp nhìn thấy thông báo trên màn hình lớn sẽ lập tức tự giác nhắc nhau trật tự, giúp giáo viên quản lý lớp hiệu quả mà không cần lớn tiếng nhắc nhở.
     * Tự động lưu lịch sử trừ phạt vào nhật ký telemetry và `localStorage`.
+  * **BẮT BUỘC Phát Tiếng Động + Giọng Đọc Tên Tổ Tiếng Anh Mặc Định (`"Team 1"`, Đọc Nhanh) Khi Bấm Trừ Điểm:**
+    * Mọi thao tác **bấm trừ điểm** trong tiết học hoặc mini-game (bấm nút phạt ồn `🤫 -10%`, trừ điểm trả lời sai / cá cược, nút trừ điểm nhanh, phạt Phe Quỷ `⚡ Phạt`...) **BẮT BUỘC phải phát ra tiếng động cảnh báo** (`SFX.penalty()` / `playPenaltySound()` / `playNoiseAlert()` qua Web Audio API) **kèm giọng đọc qua Web Speech API (`window.speechSynthesis`, hoàn toàn offline, không dùng `.mp3` hay API ngoài)**.
+    * **Quy tắc đọc bắt buộc (Chạy 100% trên mọi máy Windows/Chrome mặc định):**
+      * **Đọc Tiếng Anh mặc định để tương thích mọi máy:** Do các máy Windows/Chrome trường học mặc định chỉ cài sẵn giọng Tiếng Anh (không có sẵn gói giọng Tiếng Việt), hệ thống tự động quy đổi tên tổ sang Tiếng Anh: `"Tổ 1"` $\rightarrow$ **`"Team 1"`**, `"Tổ 2"` $\rightarrow$ **`"Team 2"`**, ..., `"Phe Quỷ"` $\rightarrow$ **`"Demon"`**.
+      * **Chỉ đọc tên tổ, đọc nhanh, dứt khoát:** Chỉ đọc duy nhất `"Team [Số]"` (không đọc dài dòng `"bị trừ ... điểm"`), thiết lập tốc độ đọc nhanh (`utter.rate = 1.25`), phát ngay sau tiếng động (`~100ms`), gán `utter.lang = 'en-US'` và chọn voice Tiếng Anh (`en-US` / `en`). Nếu phạt cá nhân theo tên học sinh có dấu Tiếng Việt mà máy không có voice `vi*`, tự đọc `"Demon"` để tránh giọng Anh đọc méo tên.
+    * **An toàn & Chống dồn giọng:** Gọi `speechSynthesis.cancel()` trước khi đọc lượt mới; tôn trọng nút tắt tiếng (Mute) và bọc `try...catch` an toàn.
 
 ### 13. Cơ Chế Xếp Rank Đồng Hạng & Vinh Danh Công Bằng (Tie-Ranking)
 * **Ý nghĩa sư phạm:** Học sinh tiểu học rất nhạy cảm với việc phân định thứ hạng. Khi các tổ hoặc học sinh bằng điểm nhau, **TUYỆT ĐỐI CẤM** dùng thứ tự ngẫu nhiên hoặc chỉ số mảng để ép một bên xuống hạng dưới.
@@ -466,7 +472,7 @@ Khi nhận được yêu cầu viết tiết học mới từ người dùng (v�
    * Chèn đúng 2 file bảo vệ: `../../shared/js/prevent-reload.js` và `../../shared/js/core.js`.
 3. **Bước 3 — Nạp Dữ liệu Học sinh & Thiết lập Chế độ (Hỗ trợ Linh Hoạt Từ Khối 1 Đến Khối 5):**
    * **Bộ chọn lớp linh hoạt toàn trường:** Dropdown chọn lớp hỗ trợ đầy đủ các lớp từ Khối 1 đến Khối 5 (gom nhóm `<optgroup>` rõ ràng theo từng khối), lớp mặc định theo khối của bài học nhưng giáo viên có thể chuyển sang bất kỳ lớp nào khi đảo bài.
-   * **Nạp dữ liệu tương ứng:** Tự động nạp đúng file JSON `../../assets/data/students_{khoi}_2026_2027.json` tương ứng với lớp được chọn.
+   * **Nạp dữ liệu tương ứng:** Tự động nạp danh sách từ nguồn tập trung `../../assets/data/students_all_2026_2027.js` qua `window.loadLessonStudents()` / `window.getClassStudents()` (hỗ trợ đủ 48 lớp).
    * Xác định tiết này là **Chế độ Toàn lớp cá nhân** (gacha tự động, bật full telemetry) hay **Chế độ Đấu theo tổ** (chọn tên thủ công hoặc `spinGacha(teamId)`, ghi log sư phạm).
    * **Bố trí Widget chọn học sinh:** Bất kỳ slide/hoạt động nào có học sinh phát biểu đều bố trí dropdown chọn tên + nút Gacha (chỉ log telemetry, không cộng điểm tổ khi phát biểu tự do; chỉ cộng điểm khi vào game chính thức).
    * **Nếu tiết học có tính điểm:** Khởi tạo điểm sàn mặc định `STARTING_SCORE = 1000`, hỗ trợ nút linh hoạt từ 2 đến 6 tổ (`[+ Thêm Tổ]` / `[- Bớt Tổ]`), và tích hợp hàm tính thứ hạng xử lý đồng hạng (`calculateRankings`). Đồng thời cung cấp công cụ sửa điểm/chuỗi streak khi bấm nhầm.
@@ -510,6 +516,7 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Cảm biến đo thao tác (Telemetry) có đặt đúng ngữ cảnh (chỉ bật khi học sinh trực tiếp bấm máy)?
 - [ ] Điểm khởi đầu mặc định có được thiết lập 1000đ (đối với các tiết/game có hệ thống tính điểm) không?
 - [ ] Bảng điểm tổ tối giản: Không có nút +/- 50, +/- 100 rác UI? Đã hỗ trợ click trực tiếp vào điểm để nhập sửa điểm và nút phạt ồn `🤫 -10%` kèm Toast thông báo chưa?
+- [ ] Âm thanh & Giọng đọc khi trừ điểm: Mọi nút bấm trừ điểm (phạt ồn `🤫 -10%`, trừ điểm sai/cá cược, phạt Phe Quỷ...) đều phát tiếng động cảnh báo (Web Audio API) **kèm giọng đọc nhanh tên tổ bằng Tiếng Anh mặc định** (`"Team 1"`, `"Team 2"`..., `"Demon"` qua `window.speechSynthesis`, `en-US`, `rate ~ 1.25` để chạy chuẩn trên mọi máy Windows/Chrome), có `cancel()` chống dồn hàng đợi, tôn trọng Mute và bọc `try...catch` chưa?
 - [ ] Luồng bài dạy là gọi học sinh lên bảng lần lượt từng em, tuyệt đối KHÔNG có tính năng "Chấm hàng loạt" gây dư thừa trên UI?
 - [ ] Bảng vàng vinh danh (Leaderboard) được thiết kế xếp dọc (Vertical Stack, flex-column, mỗi tổ 1 hàng ngang), TUYỆT ĐỐI CẤM xếp lưới ngang (grid)?
 - [ ] Bảng xếp hạng và xuất CSV có cơ chế xử lý đồng hạng (bằng điểm → cùng hạng, cùng cúp/huy chương, danh hiệu "Đồng Quán quân / Đồng Á quân") không?
@@ -545,7 +552,7 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 ### 5.2 Kế Thừa Bộ Lõi Dùng Chung (`arena/shared/`)
 Mọi minigame trong `arena/` BẮT BUỘC phải nhúng và sử dụng các thư viện chuẩn trong `arena/shared/`:
 * `arena/shared/config.js`: Lưu trữ tập trung `GAS_ENDPOINT`, `CSV_LEADERBOARD_URL`, `SECRET_SALT`, `SCHOOL_YEAR`.
-* `arena/shared/student-picker.js`: Component chọn học sinh Khối -> Lớp -> Tên học sinh từ `assets/data/students_${khoi}_${SCHOOL_YEAR}.json`.
+* `arena/shared/student-picker.js`: Component chọn học sinh Khối -> Lớp -> Tên học sinh từ `assets/data/students_all_${SCHOOL_YEAR}.js`.
   - Giữ nguyên 100% hậu tố trùng tên `(1)`, `(2)`.
   - Hỗ trợ tham số URL `?khoi=X` để tự động chọn khối.
   - Lưu vào `sessionStorage` để học sinh chỉ cần chọn 1 lần duy nhất khi chơi nhiều minigame.

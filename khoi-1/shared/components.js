@@ -15,10 +15,14 @@
     }
   }
 
-  /* 2. NẠP DANH SÁCH HỌC SINH TẬP TRUNG (TỪ students_all_2026_2027.js / JSON) */
+  /* 2. NẠP DANH SÁCH HỌC SINH TẬP TRUNG (TỪ students_all_2026_2027.js) */
   function getFallbackClassNames(cls) {
+    if (typeof window !== 'undefined' && typeof window.getClassStudents === 'function') {
+      return window.getClassStudents(cls, '1_6');
+    }
     const src = (typeof window !== 'undefined' && window.SCHOOL_STUDENTS_2026_2027) || {};
-    return Array.isArray(src[cls]) ? src[cls] : (Array.isArray(src['1_6']) ? src['1_6'] : []);
+    const arr = Array.isArray(src[cls]) ? src[cls] : (Array.isArray(src['1_6']) ? src['1_6'] : []);
+    return arr.map(item => typeof item === 'string' ? item : (item && (item.hoTen || item.name || item.fullName) || '')).filter(Boolean);
   }
 
   const Khoi1Components = (() => {
@@ -116,7 +120,7 @@
           if (res.ok) {
             const json = await res.json();
             if (json && json[cls]) {
-              rawNames = json[cls].map(item => typeof item === 'string' ? item : (item.name || item.hoTen));
+              rawNames = json[cls].map(item => typeof item === 'string' ? item : (item.hoTen || item.name || item.fullName));
               break;
             }
           }

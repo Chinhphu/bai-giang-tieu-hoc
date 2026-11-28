@@ -108,6 +108,9 @@
             if (typeof this.options.onExplodeShare === 'function') {
                 this.options.onExplodeShare(burst, d);
             }
+            if (typeof window.announcePointDeduction === 'function') {
+                window.announcePointDeduction(d.name, burst, 'xu');
+            }
             this.showBanner(`💥 ${d.name} ĐÃ BỊ NỔ TUNG (-${burst} XU)! Chia đều cho Loài Người! Em hóa Slime Câm Lặng 🟢🔇`);
             this.renderRoster();
             return burst;
@@ -116,14 +119,18 @@
         punishStudent: function (idx, delta, reason) {
             const d = this.students[idx];
             if (!d || d.status === 'slime') return;
+            const amt = Math.abs(delta);
             d.violations += 1;
-            d.score = Math.max(0, d.score - Math.abs(delta));
+            d.score = Math.max(0, d.score - amt);
             this.closePunishModal();
             if (d.violations >= 3 || d.score < 800) {
                 this.explodeStudent(idx);
                 return;
             }
-            this.showBanner(`⚡ ${d.name}: -${Math.abs(delta)} Xu (${reason}) · Lỗi ${d.violations}/3`);
+            if (typeof window.announcePointDeduction === 'function') {
+                window.announcePointDeduction(d.name, amt, 'xu');
+            }
+            this.showBanner(`⚡ ${d.name}: -${amt} Xu (${reason}) · Lỗi ${d.violations}/3`);
             this.renderRoster();
         },
 

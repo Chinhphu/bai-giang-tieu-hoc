@@ -3583,7 +3583,12 @@
         function adjustTeamScore(teamId, delta) {
             const team = teams.find(t => t.id === teamId);
             if (!team) return;
+            const prevScore = team.score;
             team.score = Math.max(0, team.score + delta);
+            const actualDeduct = prevScore - team.score;
+            if (actualDeduct > 0 && typeof window.announcePointDeduction === 'function') {
+                window.announcePointDeduction(team.name, actualDeduct, 'xu');
+            }
             renderTeams();
             if (currentSlide === 7) renderLeaderboard();
             saveLocalStorage();
@@ -3595,8 +3600,13 @@
         function penalizeNoise(teamId) {
             const team = teams.find(t => t.id === teamId);
             if (!team) return;
+            const prevScore = team.score;
             const penalty = Math.max(10, Math.round(team.score * 0.1));
             team.score = Math.max(0, team.score - penalty);
+            const actualDeduct = prevScore - team.score;
+            if (typeof window.announcePointDeduction === 'function') {
+                window.announcePointDeduction(team.name, actualDeduct, 'xu');
+            }
             renderTeams();
             if (currentSlide === 7) renderLeaderboard();
             saveLocalStorage();
@@ -6857,6 +6867,11 @@
             renderDemonSection();
             closeDemonPunishModal();
             AudioSys.playFail();
+            if (typeof window.announcePointDeduction === 'function') {
+                const activeDemons = demonRecords.filter(d => d.status !== 'pardon');
+                const targetLabel = activeDemons.length === 1 ? activeDemons[0].name : 'Phe Quỷ';
+                window.announcePointDeduction(targetLabel, penalty, 'xu', { skipSound: true });
+            }
             saveLocalStorage();
             if (window.toast) {
                 window.toast(`⚡ Đã phạt vi phạm (+${penalty} Xu nạp vào Quỹ Ma Vương)!`, 2200, 'var(--coral)');

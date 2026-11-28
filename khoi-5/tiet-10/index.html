@@ -2974,6 +2974,9 @@
             closeQuickPunishModal();
 
             showDemonStrike(`📝 Giáo viên đã cập nhật điểm cá nhân của ${target.name} (-${actualPenalty} Xu). Lượt học vẫn tiếp tục.`);
+            if (actualPenalty > 0 && typeof window.announcePointDeduction === 'function') {
+                window.announcePointDeduction(target.name, actualPenalty, 'xu');
+            }
         }
 
         // Hút máu khi Quỷ chiến thắng
@@ -3211,6 +3214,9 @@
             closeDemonManager();
 
             showDemonStrike(`⚠️ <b>${target.name.toUpperCase()}</b> TẠM DỪNG THAM GIA. ${bounty} Xu được phân bổ cho các tổ còn lại.`);
+            if (bounty > 0 && typeof window.announcePointDeduction === 'function') {
+                window.announcePointDeduction(target.name, bounty, 'xu');
+            }
             logTimelineAction(`😈 Phe Quỷ: ${target.name}`, 'Tạm dừng tham gia', 'Điểm cá nhân được phân bổ cho các tổ còn lại', -bounty, 0);
             saveSessionState();
         }
@@ -4118,8 +4124,11 @@
 
         function penalty(i) {
             const d = Math.round(teams[i].score * 0.1);
-            changeTeamScoreSilent(i, -d, 'Phạt mất trật tự phiên tòa (-10%)', 'Phạt trừ điểm');
+            const actualDelta = changeTeamScoreSilent(i, -d, 'Phạt mất trật tự phiên tòa (-10%)', 'Phạt trừ điểm');
             playThunderSound();
+            if (actualDelta < 0 && typeof window.announcePointDeduction === 'function') {
+                window.announcePointDeduction(teams[i].name, Math.abs(actualDelta), 'xu', { skipSound: true, delayMs: 120 });
+            }
             toast(`${teams[i].name} bị phạt -${d} Xu do mất trật tự!`, 1800, 'var(--coral)');
         }
 
@@ -5598,6 +5607,10 @@
                     bystanderTeams.forEach(bt => {
                         awardScore(bt.id, -50, 'Thờ ơ không cướp còi trước vi phạm', 'Không chịu cướp còi');
                     });
+                    if (typeof window.announcePointDeduction === 'function') {
+                        window.announcePointDeduction(pTeam.name, 100, 'xu', { skipSound: true, delayMs: 120 });
+                        window.announcePointDeduction(dTeam.name, 150, 'xu', { skipSound: true, delayMs: 120, queue: true });
+                    }
                 }
 
                 finalizeDemonCall();
@@ -5645,6 +5658,9 @@
                     awardScore(pIdx, -100, 'Bỏ lọt hành vi vi phạm', 'Bỏ lọt vi phạm');
                     awardScore(c.stealerIdx, 300, 'Cướp còi thành công', 'Cướp còi chuẩn');
                     awardScore(dIdx, defDelta, defNote, defNote);
+                    if (typeof window.announcePointDeduction === 'function') {
+                        window.announcePointDeduction(pTeam.name, 100, 'xu', { skipSound: true, delayMs: 120 });
+                    }
                 }
 
             } else {
@@ -5668,6 +5684,9 @@
                     awardScore(pIdx, 300, 'Tỉnh táo không sập bẫy', 'Thưởng Hiểu Luật');
                     awardScore(c.stealerIdx, -150, 'Cướp còi kiện ẩu người ngay', 'Cướp còi ẩu');
                     awardScore(dIdx, defReward, defNote, defNote);
+                    if (typeof window.announcePointDeduction === 'function') {
+                        window.announcePointDeduction(sTeam.name, 150, 'xu', { skipSound: true, delayMs: 120 });
+                    }
 
                 } else {
                     playThunderSound();
@@ -5681,6 +5700,9 @@
 
                     awardScore(pIdx, -150, 'Kiện ẩu đối tác làm đúng luật', 'Phạt kiện ẩu');
                     awardScore(dIdx, defReward, defNote, defNote);
+                    if (typeof window.announcePointDeduction === 'function') {
+                        window.announcePointDeduction(pTeam.name, 150, 'xu', { skipSound: true, delayMs: 120 });
+                    }
                 }
             }
 

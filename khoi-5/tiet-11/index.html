@@ -4358,6 +4358,9 @@
             if (AudioSys && AudioSys.playNoiseAlert) {
                 AudioSys.playNoiseAlert();
             }
+            if (typeof window.announcePointDeduction === 'function') {
+                window.announcePointDeduction(team.name, actualDeduct, 'xu', { skipSound: true });
+            }
 
             telemetryLogs.push({
                 type: 'noise_penalty',
@@ -4934,7 +4937,17 @@
             }
 
             if (isPass) AudioSys.playWin();
-            else AudioSys.playFail();
+            else {
+                AudioSys.playFail();
+                if (typeof window.announcePointDeduction === 'function') {
+                    const failTargetName = isDemonTicket
+                        ? (studentName || 'Phe Quỷ')
+                        : (activeTeam ? activeTeam.name : '');
+                    if (failTargetName) {
+                        window.announcePointDeduction(failTargetName, 100, 'xu', { skipSound: true });
+                    }
+                }
+            }
 
             renderTeams();
             updateDemonFundUI();
@@ -5591,6 +5604,9 @@
             `;
             showDemonStrikeBanner(bannerMsg);
             AudioSys.playFail();
+            if (remainingScore > 0 && typeof window.announcePointDeduction === 'function') {
+                window.announcePointDeduction(demon.name, remainingScore, 'xu', { skipSound: true });
+            }
 
             // Telemetry TT27 Mức C
             telemetryLogs.push({
@@ -5655,6 +5671,9 @@
                 explodeDemon(demon.name);
             } else {
                 AudioSys.playFail();
+                if (typeof window.announcePointDeduction === 'function') {
+                    window.announcePointDeduction(demon.name, penaltyAmount, 'xu', { skipSound: true });
+                }
                 showDemonStrikeBanner(`⚡ <b>${demon.name.toUpperCase()}</b> BỊ PHẠT <b>-${penaltyAmount} XU</b> VÌ <b>${faultLabel.toUpperCase()}</b>! ⚡ (Vi phạm: ${demon.violations}/3)${shareMsg}`);
                 renderTeams();
                 updateDemonFundUI();

@@ -12,7 +12,7 @@
    * Toàn bộ mã nguồn minigame mới nằm gọn trong `arena/`.
 2. **Kế thừa bộ lõi dùng chung (`arena/shared/`):**
    * `config.js`: Lưu cấu hình tập trung (`GAS_ENDPOINT`, `CSV_LEADERBOARD_URL`, `SECRET_SALT`, `SCHOOL_YEAR`).
-   * `student-picker.js`: Chọn Khối -> Lớp -> Tên học sinh từ `assets/data/students_${khoi}_${SCHOOL_YEAR}.json`, giữ nguyên hậu tố `(1)`, `(2)`, hỗ trợ `?khoi=X`, lưu `sessionStorage`.
+   * `student-picker.js`: Chọn Khối -> Lớp -> Tên học sinh từ `assets/data/students_all_${SCHOOL_YEAR}.js`, giữ nguyên hậu tố `(1)`, `(2)`, hỗ trợ `?khoi=X`, lưu `sessionStorage`.
    * `rank-api.js`: Nộp điểm có chữ ký SHA-256 (`ten + lop + gameId + score + SECRET_SALT`), gửi POST `text/plain` tránh CORS preflight OPTIONS, Optimistic UI qua `localStorage`.
    * `rank-board.js`: Bục vinh danh Top 3 🥇🥈🥉, bộ lọc Toàn Trường / Khối / Lớp, highlight học sinh đang đăng nhập.
    * `arena.css`: CSS dùng chung với font nội bộ `Baloo 2` và `Be Vietnam Pro` từ `assets/fonts/`.
@@ -42,7 +42,7 @@
   ```javascript
   SCHOOL_YEAR: '2027_2028',
   ```
-* Bỏ bộ file dữ liệu học sinh mới `students_X_2027_2028.json` (Khối 1 đến Khối 5) vào thư mục `assets/data/`.
+* Bỏ file dữ liệu học sinh mới `students_all_2027_2028.js` (Khối 1 đến Khối 5) vào thư mục `assets/data/`.
 
 ---
 

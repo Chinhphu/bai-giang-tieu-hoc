@@ -1193,9 +1193,14 @@
             window.applyNoisePenalty = function (e, idx) {
                 e.stopPropagation();
                 const team = state.teams[idx];
+                const prevScore = team.score;
                 const penalty = Math.round(team.score * 0.1);
                 team.score = Math.max(0, team.score - penalty);
+                const actualDeduct = prevScore - team.score;
                 if (window.SFX) window.SFX.penalty();
+                if (actualDeduct > 0 && typeof window.announcePointDeduction === 'function') {
+                    window.announcePointDeduction(team.name, actualDeduct, 'xu', { skipSound: true });
+                }
                 window.showToast(`📢 [${team.name}] Mất trật tự / ồn ào: Trừ 10% (-${penalty} Xu), còn ${team.score} Xu! 🤫`, 'bad');
                 logEvent('Phạt ồn (-10%)', team.name, 'Cả tổ', 'Giữ trật tự phòng máy', 'Phạt 10%', -penalty);
                 renderTeamsSidebar();
@@ -1349,6 +1354,9 @@
                     return;
                 }
                 if (window.SFX) window.SFX.penalty();
+                if (typeof window.announcePointDeduction === 'function') {
+                    window.announcePointDeduction(d.name, amount, 'xu', { skipSound: true });
+                }
                 window.showToast(`⚡ ${d.name} bị phạt -${amount} Xu (${reason}). Mỗi tổ Loài Người +${shared} Xu!`, 'warn');
                 renderTeamsSidebar();
                 renderDemonSidebar();
@@ -1364,6 +1372,9 @@
                 const shared = distributePenaltyToHumans(burst);
                 logEvent('NỔ TUNG PHE QUỶ', '😈 Phe Quỷ', d.name, 'Hóa Slime Câm Lặng', `Nổ ${burst} Xu (+${shared} Xu/tổ)`, -burst, 'C');
                 if (window.SFX) window.SFX.penalty();
+                if (burst > 0 && typeof window.announcePointDeduction === 'function') {
+                    window.announcePointDeduction(d.name, burst, 'xu', { skipSound: true });
+                }
                 window.showToast(`💥 ${d.name} ĐÃ BỊ NỔ TUNG (-${burst} XU)! Chia đều +${shared} Xu/tổ Loài Người! Hóa Slime Câm Lặng 🔇!`, 'bad', 4200);
                 if (isDemonTurn() && state.demons.filter(x => x.status !== 'slime').length === 0) state.activeTeamIdx = 0;
                 renderTeamsSidebar();
@@ -1503,6 +1514,9 @@
                                 explodeDemonStudent(target.name);
                             } else {
                                 if (window.SFX) window.SFX.wrong();
+                                if (typeof window.announcePointDeduction === 'function') {
+                                    window.announcePointDeduction(target.name, 100, 'xu', { skipSound: true });
+                                }
                                 window.showToast(`😈 ${target.name} trả lời sai (-100 Xu)! Mỗi tổ Loài Người +${shared} Xu!`, 'bad');
                             }
                         }

@@ -65,7 +65,7 @@ KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}_Ngay_{YYYY}-{MM}-{DD}_{HH}h{MM}p{SS}s.
 
 Để phục vụ các tình huống giảng dạy thực tế đặc thù của Giáo viên (đảo bài Khối 4 lên Khối 5, Khối 3 cho Khối 4, ôn tập hoặc dạy bù liên khối):
 1. **Dropdown chọn lớp hỗ trợ 100% các lớp trong toàn trường:** Mọi bài giảng từ Khối 1 đến Khối 5 đều cho phép chọn bất kỳ lớp nào từ Khối 1 đến Khối 5 qua menu phân nhóm `<optgroup>` gọn gàng.
-2. **Nạp dữ liệu học sinh động:** Tự động nạp đúng danh sách học sinh từ file JSON tương ứng của khối đó (`students_1_...` đến `students_5_...`) và tự động phân biệt học sinh trùng họ tên `(1)`, `(2)`.
+2. **Nạp dữ liệu học sinh tập trung:** Tự động nạp danh sách học sinh (đủ 48 lớp, 2.020 HS) từ nguồn duy nhất `assets/data/students_all_2026_2027.js` (`{ hoTen, ten, ngaySinh, gioiTinh }`) và tự động phân biệt học sinh trùng họ tên `(1)`, `(2)`.
 3. **Báo cáo CSV thích ứng linh hoạt:** Dù là bài giảng của khối nào, khi chọn lớp nào thì file CSV xuất ra sẽ ghi nhận chính xác Khối & Lớp thực tế đó.
 
 ---

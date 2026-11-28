@@ -63,6 +63,13 @@
         },
         win() {
             [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => playTone(f, 0.28, 'triangle', 0.16, i * 0.1));
+        },
+        announceDeduction(targetName, amount, unit = 'điểm', options = {}) {
+            if (typeof window.announcePointDeduction === 'function') {
+                window.announcePointDeduction(targetName, amount, unit, options);
+            } else {
+                SFX.penalty();
+            }
         }
     };
 

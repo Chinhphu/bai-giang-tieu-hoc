@@ -17,7 +17,8 @@
    - 7.2 [Thông số Kỹ thuật Màn chiếu TV Lớp học](#72-thông-số-kỹ-thuật-màn-chiếu-tv-lớp-học)
    - 7.3 [Quy chuẩn Menu Điều Khiển & Thanh Công Cụ Giáo Viên: Cho Phép Ẩn/Hiện Bằng Nút Hamburger (`☰`)](#73-quy-chuẩn-menu-điều-khiển--thanh-công-cụ-giáo-viên-cho-phép-ẩnhiện-bằng-nút-hamburger-)
    - 7.4 [Quy Chuẩn Tinh Lọc Giao Diện (Zero-Clutter UI Copy), Chống Lỗi Scrollbar Bóp Nghẹt Element & Bố Cục 2 Cột Tỉ Lệ Vàng (1/3 — 2/3)](#74-quy-chuẩn-tinh-lọc-giao-diện-zero-clutter-ui-copy-chống-lỗi-scrollbar-bóp-nghẹt-element--bố-cục-2-cột-tỉ-lệ-vàng-13--23)
-8. [Hệ thống Âm thanh Web Audio API (Offline Synthesizer)](#8-hệ-thống-âm-thanh-web-audio-api-offline-synthesizer)
+8. [Hệ thống Âm thanh Web Audio API (Offline Synthesizer) & Giọng đọc Tên Tổ (TTS)](#8-hệ-thống-âm-thanh-web-audio-api-offline-synthesizer--giọng-đọc-tên-tổ-tts)
+   - 8.1 [Quy Chuẩn Bắt Buộc Khi Bấm Trừ Điểm: Tiếng Động Cảnh Báo + Chỉ Đọc Nhanh Tên Tổ Bằng Tiếng Anh Mặc Định (Web Speech API)](#81-quy-chuẩn-bắt-buộc-khi-bấm-trừ-điểm-tiếng-động-cảnh-báo--chỉ-đọc-nhanh-tên-tổ-bằng-tiếng-anh-mặc-định-web-speech-api)
 9. [Hệ thống Lưu trữ LocalStorage Bắt Buộc & Phục Hồi Khi Cúp Điện (Crash Recovery & Auto-Save)](#9-hệ-thống-lưu-trữ-localstorage-bắt-buộc--phục-hồi-khi-cúp-điện-crash-recovery--auto-save)
 10. [Hệ thống Điểm Khởi Đầu 1000đ, Xếp Rank Đồng Hạng & Can Thiệp Sửa Điểm/Chuỗi Dây Khi Thao Tác Nhầm](#10-hệ-thống-điểm-khởi-đầu-1000đ-xếp-rank-đồng-hạng--can-thiệp-sửa-điểmchuỗi-dây-khi-thao-tác-nhầm)
 11. [Hệ thống Quản lý Quests & Câu hỏi bằng File quests.js Duy Nhất](#11-hệ-thống-quản-lý-quests--câu-hỏi-bằng-file-questsjs-duy-nhất)
@@ -37,12 +38,8 @@ bai-giang-tieu-hoc/
 ├── STANDARDS.md               # Cẩm nang kỹ thuật & sư phạm toàn diện (File này)
 ├── README.md                  # Hướng dẫn nhanh cho người dùng
 ├── assets/
-│   ├── data/                  # Danh sách học sinh toàn trường niên khóa 2026-2027
-│   │   ├── students_1_2026_2027.json
-│   │   ├── students_2_2026_2027.json
-│   │   ├── students_3_2026_2027.json
-│   │   ├── students_4_2026_2027.json
-│   │   └── students_5_2026_2027.json
+│   ├── data/                  # Danh sách học sinh toàn trường niên khóa 2026-2027 (48 lớp, 2.020 HS)
+│   │   └── students_all_2026_2027.js
 │   ├── fonts/                 # Bộ font Google Fonts (.woff2) chạy 100% offline
 │   └── images/                # Hình ảnh, icon dùng chung
 ├── shared/
@@ -531,15 +528,78 @@ Sự khác biệt giữa các khối là **chủ đích thiết kế**, nhưng *
 
 ---
 
-## 8. HỆ THỐNG ÂM THANH WEB AUDIO API (OFFLINE SYNTHESIZER)
+## 8. HỆ THỐNG ÂM THANH WEB AUDIO API (OFFLINE SYNTHESIZER) & GIỌNG ĐỌC TÊN TỔ (TTS)
 
-100% hiệu ứng âm thanh được tổng hợp từ Web Audio API nội bộ trong trình duyệt, không dùng file `.mp3`:
-* **Đúng / Khen thưởng (`playCorrect`):** Hợp âm chuông vang Đô - Mi - Sol (C5 - E5 - G5, 523Hz - 659Hz - 784Hz sóng Sine).
-* **Sai / Báo lỗi (`playWrong` / `playBuzzer`):** Âm trầm giật 130Hz - 90Hz (sóng Sawtooth).
-* **Chiến thắng (`playVictoryFanfare`):** Chuỗi nốt kèn trumpet mừng thắng cuộc.
-* **Cảnh báo mất trật tự (`playNoiseAlert`):** Hai xung âm tút ngắn nhắc nhở cả lớp giữ im lặng.
-* **Click / Thao tác nhẹ (`playClick`):** Xung âm 800Hz trong 0.05 giây.
+100% hiệu ứng âm thanh được tổng hợp từ Web Audio API nội bộ trong trình duyệt (`shared/js/sfx.js` cung cấp `window.SFX.{click, correct, wrong, penalty, gacha, success, win}()`), tuyệt đối không dùng file `.mp3` hay API âm thanh ngoài:
+* **Đúng / Khen thưởng (`playCorrect` / `SFX.correct()`):** Hợp âm chuông vang Đô - Mi - Sol (C5 - E5 - G5, 523Hz - 659Hz - 784Hz sóng Sine/Triangle).
+* **Sai / Báo lỗi (`playWrong` / `playBuzzer` / `SFX.wrong()`):** Âm trầm giật 130Hz - 90Hz hoặc 220Hz - 170Hz (sóng Sawtooth).
+* **Chiến thắng (`playVictoryFanfare` / `SFX.win()`):** Chuỗi nốt kèn trumpet mừng thắng cuộc.
+* **Cảnh báo mất trật tự / Phạt trừ điểm (`playNoiseAlert` / `playPenaltySound` / `SFX.penalty()`):** Xung âm cảnh báo nhắc nhở cả lớp giữ trật tự và báo hiệu trừ điểm.
+* **Click / Thao tác nhẹ (`playClick` / `SFX.click()`):** Xung âm ngắn 680Hz - 800Hz trong ~0.05–0.06 giây.
 * **Nút Mute:** Luôn hỗ trợ phím tắt hoặc nút góc để giáo viên tắt tiếng nhanh khi cần giảng bài.
+
+### 8.1 Quy Chuẩn Bắt Buộc Khi Bấm Trừ Điểm: Tiếng Động Cảnh Báo + Chỉ Đọc Nhanh Tên Tổ Bằng Tiếng Anh Mặc Định (Web Speech API)
+* **Mục đích sư phạm & Thực tế đa thiết bị:**
+  * Khi giáo viên bấm trừ điểm (nút phạt ồn `🤫 -10%`, trừ điểm trả lời sai/cá cược, nút trừ điểm nhanh, phạt Phe Quỷ `⚡ Phạt`), việc chỉ nhảy số âm thầm dễ khiến học sinh cuối lớp không kịp chú ý.
+  * Trên đa số máy tính Windows/Chrome tại trường học, hệ điều hành **mặc định chỉ cài sẵn giọng đọc Tiếng Anh** (không có sẵn gói giọng Tiếng Việt). Vì vậy, thay vì phụ thuộc vào gói ngôn ngữ Tiếng Việt hoặc file `.mp3`, hệ thống **quy đổi tên tổ sang Tiếng Anh mặc định (`"Team 1"`, `"Team 2"`, ..., `"Team 6"` hoặc `"Demon"`)** để **mọi máy, mọi trình duyệt, kể cả mất mạng đều đọc chuẩn 100%**.
+* **Quy chuẩn bắt buộc:**
+  1. **Phát tiếng động trước:** Kích hoạt âm thanh trừ điểm/cảnh báo (`SFX.penalty()` / `playPenaltySound()` / `playNoiseAlert()`).
+  2. **Chỉ đọc tên tổ bằng Tiếng Anh, đọc nhanh (`window.speechSynthesis`):** Ngay sau tiếng động (trễ rất ngắn `~100ms`), đọc duy nhất tên quy đổi:
+     * `"Tổ 1"` / `"Đội 1"` / `"Nhóm 1"` $\rightarrow$ **`"Team 1"`**, `"Tổ 2"` $\rightarrow$ **`"Team 2"`**, ...
+     * `"Phe Quỷ"` / `"Tổ Quỷ"` $\rightarrow$ **`"Demon"`** (nếu phạt cá nhân tên học sinh có dấu Tiếng Việt mà máy không có voice `vi*` thì đọc `"Demon"` để tránh giọng Anh đọc méo tên).
+     * Thiết lập tốc độ đọc nhanh (`utter.rate = 1.25`), `utter.lang = 'en-US'`, chọn voice Tiếng Anh (`en-US` / `en`).
+  3. **An toàn kỹ thuật (Zero-Crash & Offline-Safe):**
+     * Kiểm tra `'speechSynthesis' in window` và **tôn trọng trạng thái Mute**.
+     * Gọi `window.speechSynthesis.cancel()` trước khi `speak()` để ngắt câu đọc cũ, tránh dồn hàng đợi khi giáo viên bấm trừ điểm liên tiếp.
+     * Bọc toàn bộ trong `try...catch` để an toàn tuyệt đối trên mọi trình duyệt.
+* **Mẫu hàm helper chuẩn:**
+  ```javascript
+  function announcePointDeduction(targetName, amount, unit = 'điểm', options = {}) {
+    if (window.isMuted) return; // Tôn trọng trạng thái tắt tiếng
+    if (!options.skipSound) {
+      try {
+        if (window.SFX && typeof window.SFX.penalty === 'function') window.SFX.penalty();
+        else if (typeof window.playPenaltySound === 'function') window.playPenaltySound();
+        else if (typeof window.playNoiseAlert === 'function') window.playNoiseAlert();
+      } catch (_) {}
+    }
+
+    if (amount !== undefined && Math.abs(Math.round(Number(amount) || 0)) <= 0) return;
+    if (typeof window.speechSynthesis === 'undefined') return;
+
+    const cleanName = String(targetName || 'Tổ')
+      .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}]/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    let text = 'Team';
+    let lang = 'en-US';
+    const teamMatch = cleanName.match(/^(?:tổ|đội|nhóm|team|group)\s*(\d+)/i);
+    if (teamMatch) {
+      text = `Team ${teamMatch[1]}`;
+    } else if (/quỷ|demon/i.test(cleanName)) {
+      text = 'Demon';
+    } else {
+      text = 'Demon'; // Hoặc dùng voice vi-VN nếu máy có sẵn
+    }
+
+    setTimeout(() => {
+      try {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = lang;
+        utter.rate = 1.25; // Đọc nhanh
+        utter.pitch = 1.0;
+        utter.volume = 1.0;
+        const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+        const enVoice = voices.find(v => v.lang && /^en[-_]us$/i.test(v.lang))
+          || voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+        if (enVoice) utter.voice = enVoice;
+        window.speechSynthesis.speak(utter);
+      } catch (_) {}
+    }, 100);
+  }
+  ```
 
 ---
 
@@ -885,7 +945,7 @@ function clearSessionData() {
      * Mỗi thẻ tổ bố trí **DUY NHẤT 1 nút phạt ồn nhỏ gọn** (`🤫 -10%`).
      * Khi tổ học sinh ồn ào hoặc mất trật tự, giáo viên bấm nút này để trừ chính xác 10% trên tổng điểm hiện tại của tổ:  
        $$\text{Điểm trừ} = \text{round}(\text{Score} \times 0.1), \quad \text{Score mới} = \max(0, \text{Score} - \text{Điểm trừ})$$
-     * **BẮT BUỘC có Toast thông báo răn đe trên màn chiếu:** Kích hoạt âm thanh cảnh báo mất trật tự (`playNoiseAlert()`) và hiện thông báo Toast rõ ràng trên màn hình lớn:  
+     * **BẮT BUỘC có Toast + Âm thanh cảnh báo + Giọng đọc tên tổ Tiếng Anh mặc định (Mục 8.1):** Mọi thao tác bấm trừ điểm (bao gồm nút phạt ồn `🤫 -10%` và các nút trừ điểm trong game) bắt buộc kích hoạt âm thanh cảnh báo (`SFX.penalty()` / `playNoiseAlert()`), giọng đọc nhanh qua `window.speechSynthesis` (`en-US`, `rate = 1.25`) **chỉ đọc tên tổ quy đổi sang Tiếng Anh mặc định** (`"Team 1"`, `"Team 2"`, ... để chạy chuẩn trên mọi máy Windows/Chrome), và hiện thông báo Toast rõ ràng trên màn hình lớn:  
        *Ví dụ: `📢 [Tổ 1] Mất trật tự / Ồn ào: Đã bị trừ 10% (-100 Xu), điểm hiện tại còn: 900 Xu! 🤫`*  
        Giúp cả lớp tự giác nhắc nhau trật tự mà giáo viên không cần phải quát mắng.
   3. **Tự động tính toán lại và đồng bộ tức thì:**
@@ -1196,48 +1256,18 @@ Mẫu CSS chuẩn:
 * Nếu giao diện bài giảng bị khóa cứng chỉ cho chọn lớp của khối đó (ví dụ bài Khối 5 chỉ chọn được 5/1 -> 5/6), giáo viên sẽ bị bế tắc khi đem bài dạy cho lớp Khối khác.
 
 ### 14.2 Quy Chuẩn Bộ Chọn Lớp Đa Khối (Universal Multi-Grade Class Picker)
-* **Toàn bộ bài giảng (Khối 1 -> Khối 5)** trong repo BẮT BUỘC cung cấp dropdown chọn lớp chứa **toàn bộ các lớp trong trường từ Khối 1 đến Khối 5**:
-  ```html
-  <select id="classSelect" onchange="onClassChange(this.value)">
-    <optgroup label="Khối 1">
-      <option value="1_6">Lớp 1/6</option>
-    </optgroup>
-    <optgroup label="Khối 2">
-      <option value="2_2">Lớp 2/2</option>
-      <option value="2_4">Lớp 2/4</option>
-      <option value="2_5">Lớp 2/5</option>
-    </optgroup>
-    <optgroup label="Khối 3">
-      <option value="3_2">Lớp 3/2</option>
-      <option value="3_3">Lớp 3/3</option>
-      <option value="3_4">Lớp 3/4</option>
-      <option value="3_5">Lớp 3/5</option>
-      <option value="3_6">Lớp 3/6</option>
-    </optgroup>
-    <optgroup label="Khối 4">
-      <option value="4_1">Lớp 4/1</option>
-      <option value="4_2">Lớp 4/2</option>
-      <option value="4_3">Lớp 4/3</option>
-      <option value="4_4">Lớp 4/4</option>
-      <option value="4_5">Lớp 4/5</option>
-      <option value="4_6">Lớp 4/6</option>
-    </optgroup>
-    <optgroup label="Khối 5">
-      <option value="5_1">Lớp 5/1</option>
-      <option value="5_2">Lớp 5/2</option>
-      <option value="5_3">Lớp 5/3</option>
-      <option value="5_4">Lớp 5/4</option>
-      <option value="5_5">Lớp 5/5</option>
-      <option value="5_6">Lớp 5/6</option>
-    </optgroup>
-  </select>
-  ```
+* **Toàn bộ bài giảng (Khối 1 -> Khối 5)** trong repo BẮT BUỘC cung cấp dropdown chọn lớp chứa **toàn bộ 48 lớp trong trường từ Khối 1 đến Khối 5** (tự động render qua `window.renderAllClassOptions()` / `window.enhanceClassSelects()` trong `shared/js/core.js`):
+  - `Khối 1`: Lớp 1/1 – 1/10 (`1_1` – `1_10`)
+  - `Khối 2`: Lớp 2/1 – 2/9 (`2_1` – `2_9`)
+  - `Khối 3`: Lớp 3/1 – 3/10 (`3_1` – `3_10`)
+  - `Khối 4`: Lớp 4/1 – 4/9 (`4_1` – `4_9`)
+  - `Khối 5`: Lớp 5/1 – 5/10 (`5_1` – `5_10`)
 * **Lớp mặc định thông minh:** Khi mở trang, lớp được chọn sẵn mặc định theo khối của bài học (ví dụ: bài Khối 5 mặc định `5_1`, Khối 4 mặc định `4_1`, Khối 3 mặc định `3_2`, Khối 2 mặc định `2_2`, Khối 1 mặc định `1_6`).
 
-### 14.3 Cơ Chế Nạp Dữ Liệu Tự Động & Xử Lý Trùng Họ Tên
-* Hệ thống tự động phân tích tiền tố của mã lớp (ví dụ `classKey = '4_2'` -> Khối 4) để tải dữ liệu từ `../../assets/data/students_4_2026_2027.json`.
-* Tự động cache dữ liệu các khối đã tải để chuyển đổi lớp siêu tốc mà không cần tải lại nhiều lần.
-* Tự động xử lý phân biệt các em trùng họ tên bằng cách thêm hậu tố số thứ tự `(1)`, `(2)` (theo chuẩn sư phạm toàn trường).
+### 14.3 Cơ Chế Nạp Dữ Liệu Tập Trung & Xử Lý Trùng Họ Tên
+* Hệ thống nạp dữ liệu từ **1 nguồn duy nhất** `../../assets/data/students_all_2026_2027.js` (`window.SCHOOL_STUDENTS_2026_2027`), mỗi học sinh gồm `{ hoTen, ten, ngaySinh, gioiTinh }`.
+* Sử dụng `window.getClassStudents()`, `window.getStudentNamesMap()`, `window.loadLessonStudents()` hoặc `window.getClassStudentDetails()` từ `shared/js/core.js`.
+* Tự động xử lý phân biệt các em trùng họ tên trong cùng lớp bằng cách thêm hậu tố số thứ tự `(1)`, `(2)` trực tiếp trong dữ liệu.
 
 ### 14.4 Xuất Báo Cáo CSV & Gửi Google Drive Tương Thích Hoàn Hảo
 * Khi giáo viên chọn một lớp bất kỳ (kể cả khác khối với bài giảng), tên file CSV sinh ra sẽ tự động phản ánh đúng **Khối và Lớp thực tế đang học**:

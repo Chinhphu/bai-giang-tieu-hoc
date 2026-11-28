@@ -2637,7 +2637,9 @@
         }
 
         // FALLBACK SĨ SỐ LỚP
-        const FALLBACK_STUDENTS = window.SCHOOL_STUDENTS_2026_2027 || {};
+        const FALLBACK_STUDENTS = (typeof window.getStudentNamesMap === 'function')
+            ? window.getStudentNamesMap()
+            : (window.SCHOOL_STUDENTS_2026_2027 || {});
 
         /* =========================================================================
            2. WEB AUDIO SYNTHESIZER & SPEECH SYNTHESIS (ZERO EXTERNAL FILES)
@@ -2786,10 +2788,20 @@
             } catch (e) {}
 
             try {
-                if (typeof window.loadAllStudents === 'function') {
+                if (typeof window.getStudentNamesMap === 'function') {
+                    await (window.loadAllStudents ? window.loadAllStudents('../../assets/data/') : Promise.resolve());
+                    const nameMap = window.getStudentNamesMap();
+                    if (nameMap && Object.keys(nameMap).length > 0) {
+                        studentData = nameMap;
+                    }
+                } else if (typeof window.loadAllStudents === 'function') {
                     const allData = await window.loadAllStudents('../../assets/data/');
                     if (allData && Object.keys(allData).length > 0) {
-                        studentData = allData;
+                        studentData = {};
+                        Object.keys(allData).forEach(k => {
+                            studentData[k] = (Array.isArray(allData[k]) ? allData[k] : [])
+                                .map(x => typeof x === 'string' ? x : (x && (x.hoTen || x.name) || '')).filter(Boolean);
+                        });
                     }
                 }
                 if (!studentData[className]) {

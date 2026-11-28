@@ -3,7 +3,7 @@
  * ARENA STUDENT PICKER COMPONENT (BỘ CHỌN HỌC SINH ĐẤU TRƯỜNG)
  * =========================================================================
  * - Chọn phân cấp: Khối (1-5) -> Lớp (VD: 2/2) -> Họ và Tên.
- * - Đọc dữ liệu từ ../../assets/data/students_${khoi}_${SCHOOL_YEAR}.json.
+ * - Đọc dữ liệu từ ../../assets/data/students_all_${SCHOOL_YEAR}.js (nạp qua <script>).
  * - Giữ nguyên 100% các hậu tố trùng tên (1), (2).
  * - Tự động đọc tham số URL ?khoi=X để chọn sẵn khối.
  * - Lưu thông tin vào sessionStorage để chơi liên tục nhiều minigame mà không cần chọn lại.
@@ -29,12 +29,14 @@
         studentsInClass: []
     };
 
+    let schoolStudentsPromise = null;
+
     /**
-     * Xác định đường dẫn tương đối tới assets/data/ phù hợp với vị trí của trang
+     * Xác định đường dẫn tương đối tới assets/data/students_all_${year}.js phù hợp với vị trí của trang
      */
-    function getDataPath(khoi) {
+    function getDataPath() {
         const year = (window.ARENA_CONFIG && window.ARENA_CONFIG.SCHOOL_YEAR) ? window.ARENA_CONFIG.SCHOOL_YEAR : '2026_2027';
-        const fileName = `students_${khoi}_${year}.json`;
+        const fileName = `students_all_${year}.js`;
 
         if (window.ARENA_DATA_PATH) {
             return `${window.ARENA_DATA_PATH}${fileName}`;
@@ -64,6 +66,42 @@
     }
 
     /**
+     * Chuẩn hóa tên học sinh (hỗ trợ cả string cũ và object { hoTen, ten, ngaySinh, gioiTinh })
+     */
+    function getStudentDisplayName(item) {
+        if (typeof item === 'string') return item.trim();
+        if (item && typeof item === 'object') {
+            return String(item.hoTen || item.name || item.fullName || '').trim();
+        }
+        return '';
+    }
+
+    /**
+     * Nạp dữ liệu học sinh toàn trường từ students_all_${SCHOOL_YEAR}.js
+     */
+    function ensureAllStudentsLoaded() {
+        const year = (window.ARENA_CONFIG && window.ARENA_CONFIG.SCHOOL_YEAR) ? window.ARENA_CONFIG.SCHOOL_YEAR : '2026_2027';
+        const globalKey = `SCHOOL_STUDENTS_${year}`;
+        if (window[globalKey] && typeof window[globalKey] === 'object') {
+            return Promise.resolve(window[globalKey]);
+        }
+        if (schoolStudentsPromise) return schoolStudentsPromise;
+
+        const dataUrl = getDataPath();
+        schoolStudentsPromise = new Promise(resolve => {
+            const s = document.createElement('script');
+            s.src = dataUrl;
+            s.onload = () => resolve(window[globalKey] || {});
+            s.onerror = () => {
+                console.warn(`[StudentPicker] Không tải được ${dataUrl}`);
+                resolve({});
+            };
+            (document.head || document.documentElement).appendChild(s);
+        });
+        return schoolStudentsPromise;
+    }
+
+    /**
      * Chuẩn hóa hiển thị tên lớp (ví dụ: "2_2" -> "2/2")
      */
     function formatClassDisplay(classKey) {
@@ -88,27 +126,37 @@
     }
 
     /**
-     * Nạp dữ liệu học sinh của một khối
+     * Nạp dữ liệu học sinh của một khối từ nguồn tập trung
      */
     async function loadGradeData(khoi) {
         if (cachedGradeData[khoi]) {
             return cachedGradeData[khoi];
         }
 
-        const dataUrl = getDataPath(khoi);
-        try {
-            const res = await fetch(dataUrl);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
-            cachedGradeData[khoi] = data;
-            return data;
-        } catch (err) {
-            console.warn(`[StudentPicker] Không tải được ${dataUrl}:`, err);
-            // Dữ liệu fallback tối thiểu để không làm crash UI
-            return {
-                [`${khoi}_1`]: ['Học sinh Mẫu 1', 'Học sinh Mẫu 2']
-            };
+        const allData = await ensureAllStudentsLoaded();
+        const prefix = `${khoi}_`;
+        const gradeKeys = Object.keys(allData || {})
+            .filter(k => k.startsWith(prefix))
+            .sort((a, b) => {
+                const na = parseInt(a.split('_')[1], 10) || 0;
+                const nb = parseInt(b.split('_')[1], 10) || 0;
+                return na - nb;
+            });
+
+        if (gradeKeys.length > 0) {
+            const gradeData = {};
+            gradeKeys.forEach(k => {
+                gradeData[k] = (Array.isArray(allData[k]) ? allData[k] : [])
+                    .map(getStudentDisplayName)
+                    .filter(Boolean);
+            });
+            cachedGradeData[khoi] = gradeData;
+            return gradeData;
         }
+
+        return {
+            [`${khoi}_1`]: ['Học sinh Mẫu 1', 'Học sinh Mẫu 2']
+        };
     }
 
     /**

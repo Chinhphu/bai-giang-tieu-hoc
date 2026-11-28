@@ -1557,8 +1557,8 @@
 
         /* Phạt ồn -10% */
         function penalty(i) {
-            const d = Math.round(teams[i].score * 0.1);
-            teams[i].score -= d;
+            const d = Math.min(Math.max(0, teams[i].score), Math.round(teams[i].score * 0.1));
+            teams[i].score = Math.max(0, teams[i].score - d);
             $('sc-' + i).textContent = teams[i].score;
             logTimelineAction(teams[i].name, getSelectedStudent(i), 'Bị phạt mất trật tự (-10%)', 'Phạt trừ điểm', -d, teams[i].score);
 
@@ -1570,6 +1570,9 @@
             el.classList.add('penalty-hit');
 
             playPenaltySound();
+            if (typeof window.announcePointDeduction === 'function') {
+                window.announcePointDeduction(teams[i].name, d, 'điểm', { skipSound: true });
+            }
             toast(`🔊 ${teams[i].name} bị trừ ${d} điểm!`, 1800, 'var(--coral)');
             setTimeout(() => {
                 f.remove();

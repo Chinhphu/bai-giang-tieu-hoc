@@ -18,7 +18,7 @@ Mọi AI Agent khi làm việc trong workspace này bắt buộc phải nạp v�
 ### 2. Kế Thừa Bộ Lõi Dùng Chung (`arena/shared/`)
 Mọi minigame trong `arena/` BẮT BUỘC phải nhúng và sử dụng các thư viện chuẩn trong `arena/shared/`:
 * `arena/shared/config.js`: Lưu trữ tập trung `GAS_ENDPOINT`, `CSV_LEADERBOARD_URL`, `SECRET_SALT`, `SCHOOL_YEAR`.
-* `arena/shared/student-picker.js`: Component chọn học sinh Khối -> Lớp -> Tên học sinh từ `assets/data/students_${khoi}_${SCHOOL_YEAR}.json`.
+* `arena/shared/student-picker.js`: Component chọn học sinh Khối -> Lớp -> Tên học sinh từ `assets/data/students_all_${SCHOOL_YEAR}.js`.
   - Giữ nguyên 100% hậu tố trùng tên `(1)`, `(2)`.
   - Hỗ trợ tham số URL `?khoi=X` để tự động chọn khối.
   - Lưu vào `sessionStorage` để học sinh chỉ cần chọn 1 lần duy nhất khi chơi nhiều minigame.
