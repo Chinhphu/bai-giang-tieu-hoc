@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 8: Định dạng văn bản trên trang chiếu (Tiết 2) – Đơn Đặt Hàng Slide | Tin học 4</title>
+
+    <link rel="stylesheet" href="../../shared/css/core.css">
+    <script src="../../shared/js/prevent-reload.js"></script>
+    <script src="../../assets/data/students_all_2026_2027.js"></script>
+    <script src="../../shared/js/core.js"></script>
+    <script src="../../shared/js/sfx.js"></script>
+    <script src="../../shared/js/confetti.js"></script>
+    <script src="quests.js"></script>
+
+    <style>
+        :root {
+            --k4-navy: #14213d;
+            --k4-bg: #f4efe6;
+            --k4-orange: #ea580c;
+            --k4-amber: #d97706;
+            --k4-green: #16a34a;
+            --k4-blue: #2563eb;
+            --k4-muted: #475569;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            width: 100%;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            font-family: 'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif;
+            background: var(--k4-bg);
+            color: var(--k4-navy);
+            font-size: 18px;
+        }
+
+        button, input, select, textarea { font-family: inherit; }
+        button { cursor: pointer; border: 0; touch-action: manipulation; }
+        button:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+
+        .btn-hamburger-toggle {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            background: var(--k4-navy);
+            color: #ffd84d;
+            border: 2px solid #334155;
+            font-size: 22px;
+            font-weight: 900;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(20, 33, 61, 0.3);
+        }
+
+        #setup-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 15% 15%, #fff7ed 0%, #f4efe6 55%, #e2e8f0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 5000;
+            overflow-y: auto;
+        }
+        .setup-card {
+            background: #ffffff;
+            border: 4px solid var(--k4-navy);
+            border-radius: 26px;
+            padding: 34px 36px;
+            width: 100%;
+            max-width: 630px;
+            box-shadow: 0 18px 44px rgba(20, 33, 61, 0.16);
+            text-align: center;
+        }
+        .setup-badge { display: inline-block; background: #fff7ed; color: var(--k4-orange); border: 2px solid #fdba74; padding: 6px 18px; border-radius: 999px; font-weight: 900; font-size: 0.96rem; margin-bottom: 12px; }
+        .setup-card h1 { margin: 0 0 8px; font-size: clamp(1.75rem, 2.9vw, 2.3rem); color: var(--k4-navy); font-weight: 900; line-height: 1.25; }
+        .setup-sub { color: var(--k4-muted); font-weight: 700; font-size: 1.04rem; margin: 0 0 22px; }
+        .setup-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 15px; padding: 12px 16px; margin-bottom: 12px; text-align: left; }
+        .setup-row label { font-weight: 800; font-size: 1.05rem; color: var(--k4-navy); }
+        .setup-row select, .setup-row input { padding: 9px 14px; border-radius: 12px; border: 2px solid #94a3b8; font-weight: 800; font-size: 1.02rem; background: #ffffff; min-width: 195px; }
+        .btn-start-lesson { margin-top: 14px; width: 100%; padding: 15px 24px; border-radius: 16px; background: linear-gradient(135deg, var(--k4-navy), #1e3a8a); color: #ffd84d; font-size: 1.3rem; font-weight: 900; box-shadow: 0 6px 0 #091124; }
+
+        #app-shell {
+            display: none;
+            width: 100%;
+            max-width: 1920px;
+            margin: 0 auto;
+            padding: 12px 16px 140px;
+            grid-template-columns: minmax(0, 1fr) 355px;
+            gap: 16px;
+            align-items: start;
+        }
+        #app-shell.active { display: grid; }
+        #app-shell.sidebar-hidden { grid-template-columns: minmax(0, 1fr); }
+        #app-shell.sidebar-hidden .side-panel { display: none; }
+
+        .top-nav {
+            background: var(--k4-navy);
+            border-radius: 18px;
+            padding: 10px 14px 10px 56px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .top-lesson-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .class-pill { background: #1e293b; color: #ffd84d; border: 1.5px solid #475569; padding: 5px 12px; border-radius: 999px; font-weight: 800; font-size: 0.94rem; }
+        .nav-tabs { display: flex; flex-wrap: wrap; gap: 6px; overflow: visible; }
+        .nav-tab { background: #1e293b; color: #cbd5e1; padding: 8px 13px; border-radius: 10px; font-weight: 800; font-size: 0.94rem; }
+        .nav-tab.active { background: var(--k4-orange); color: #ffffff; }
+
+        .slide-view { display: none; animation: fadeSlide 0.22s ease; }
+        .slide-view.active { display: block; }
+        @keyframes fadeSlide { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .stage-card { background: #ffffff; border: 3px solid var(--k4-navy); border-radius: 22px; padding: 24px 28px; box-shadow: 0 10px 26px rgba(20, 33, 61, 0.08); }
+        .slide-title { margin: 0 0 12px; font-size: clamp(1.85rem, 2.7vw, 2.5rem); font-weight: 900; color: var(--k4-navy); line-height: 1.25; }
+        .sgk-badge { display: inline-flex; align-items: center; gap: 6px; background: #fff7ed; color: #c2410c; border: 2px solid #fdba74; border-radius: 999px; padding: 5px 14px; font-weight: 900; font-size: 0.94rem; margin-bottom: 12px; }
+        .lead-text { font-size: 1.22rem; font-weight: 700; line-height: 1.6; color: #1e293b; margin: 0 0 16px; }
+
+        .student-bar {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: #f8fafc;
+            border: 2.5px solid #cbd5e1;
+            border-radius: 16px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            overflow: visible;
+        }
+        .student-bar-label { font-weight: 900; font-size: 1.04rem; color: var(--k4-navy); }
+        .student-select { flex: 1; min-width: 220px; padding: 9px 14px; border-radius: 12px; border: 2px solid #94a3b8; font-weight: 800; font-size: 1.04rem; background: #ffffff; }
+        .btn-gacha { width: 48px; height: 46px; border-radius: 12px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; font-size: 1.5rem; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 3px 0 #b45309; }
+
+        /* ================= SLIDE 1: VÒNG QUAY MAY MẮN ================= */
+        .wheel-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+        .wheel-pill { padding: 10px 16px; border-radius: 12px; background: #eff6ff; border: 2.5px solid #93c5fd; font-weight: 900; font-size: 1rem; color: #1e3a8a; }
+        .wheel-pill.active { background: var(--k4-orange); color: #ffffff; border-color: #9a3412; }
+        .wheel-pill.done-ok { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+        .wheel-pill.done-fail { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+
+        .quiz-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px; }
+        .quiz-choice-btn { background: #f8fafc; border: 3px solid #cbd5e1; border-radius: 16px; padding: 14px 16px; text-align: left; font-size: 1.15rem; font-weight: 800; color: var(--k4-navy); }
+        .quiz-choice-btn:hover:not(:disabled) { border-color: var(--k4-orange); background: #fff7ed; }
+        .quiz-choice-btn.correct { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+        .quiz-choice-btn.wrong { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+
+        /* ================= SLIDE 3: HƯỚNG DẪN 3 BƯỚC ================= */
+        .steps-3-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
+        .step-guide-card { background: #f8fafc; border: 2.5px solid #cbd5e1; border-top: 7px solid var(--k4-navy); border-radius: 18px; padding: 18px 18px; }
+        .step-guide-card h3 { margin: 0 0 8px; font-size: 1.2rem; font-weight: 900; color: var(--k4-navy); }
+        .step-guide-card p { margin: 0; font-size: 1.05rem; font-weight: 700; color: #334155; line-height: 1.55; }
+
+        /* ================= SLIDE 4: ĐƠN ĐẶT HÀNG & ĐÁNH GIÁ CHÉO (1/3 - 2/3 CỐ ĐỊNH) ================= */
+        .order-arena-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 16px;
+            align-items: start;
+        }
+        .order-list-box { background: #fffbeb; border: 2.5px solid #fcd34d; border-radius: 18px; padding: 14px; }
+        .order-tab-btn {
+            width: 100%;
+            text-align: left;
+            padding: 11px 13px;
+            border-radius: 12px;
+            background: #ffffff;
+            border: 2px solid #fde68a;
+            font-weight: 800;
+            font-size: 0.98rem;
+            color: #92400e;
+            margin-bottom: 8px;
+        }
+        .order-tab-btn.active { background: var(--k4-navy); color: #ffd84d; border-color: var(--k4-navy); }
+        .order-tab-btn.done { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+
+        .order-stage { background: #ffffff; border: 3px solid var(--k4-navy); border-radius: 20px; padding: 18px 20px; }
+        .peer-box { background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 14px; padding: 12px 14px; margin-top: 12px; }
+        .peer-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            margin-bottom: 6px;
+        }
+        .peer-vote-btn { padding: 6px 12px; border-radius: 9px; background: #e2e8f0; color: #0f172a; font-weight: 800; font-size: 0.92rem; }
+        .peer-vote-btn.pass.selected { background: #16a34a; color: #ffffff; }
+        .peer-vote-btn.fix.selected { background: #ea580c; color: #ffffff; }
+
+        /* ================= SLIDE 5 & 6 ================= */
+        .family-grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 18px; }
+        .family-card { background: #fff7ed; border: 2.5px solid #fdba74; border-radius: 16px; padding: 14px 16px; }
+        .family-card h4 { margin: 0 0 4px; font-size: 1.12rem; font-weight: 900; color: #9a3412; }
+        .family-card p { margin: 0; font-size: 1rem; font-weight: 700; color: #451a03; }
+
+        .summary-card.locked-recall { cursor: pointer; background: #f8fafc; border-style: dashed; }
+        .summary-card.locked-recall .sc-desc { display: none; }
+        .summary-card.locked-recall::after {
+            content: '👆 Bấm mở chốt kiến thức sau khi HS tự nhắc lại';
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.96rem;
+            font-weight: 800;
+            color: var(--k4-orange);
+            background: #fff7ed;
+            padding: 6px 12px;
+            border-radius: 999px;
+        }
+
+        .rankings-box { width: 100%; max-width: 920px; display: flex; flex-direction: column; gap: 14px; margin: 12px auto 22px; }
+        .rank-card { display: flex; align-items: center; justify-content: space-between; border-radius: 20px; padding: 16px 26px; border: 3px solid #cbd5e1; background: #ffffff; }
+        .rank-card.rank-1 { border-color: #facc15; background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%); }
+        .rank-card.rank-2 { border-color: #94a3b8; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); }
+        .rank-card.rank-3 { border-color: #fb923c; background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); }
+        .rank-left { display: flex; align-items: center; gap: 14px; }
+        .rank-medal { font-size: 44px; line-height: 1; }
+        .rank-badge { background: var(--k4-navy); color: #ffffff; padding: 5px 14px; border-radius: 999px; font-weight: 900; font-size: 0.96rem; }
+        .rank-mid { text-align: center; }
+        .rank-team-name { font-size: 30px; font-weight: 900; color: var(--k4-navy); }
+        .rank-title { font-size: 1rem; font-weight: 900; color: #b45309; }
+        .rank-right { text-align: right; font-size: 36px; font-weight: 900; color: var(--k4-navy); }
+        .rank-unit { font-size: 1rem; font-weight: 800; color: var(--k4-muted); margin-left: 4px; }
+
+        /* ================= SIDEBAR PHẢI ================= */
+        .side-panel { background: #ffffff; border: 3px solid var(--k4-navy); border-radius: 22px; padding: 16px; position: sticky; top: 12px; box-shadow: 0 10px 26px rgba(20, 33, 61, 0.08); }
+        .side-title { font-size: 1.22rem; font-weight: 900; color: var(--k4-navy); margin: 0 0 12px; display: flex; align-items: center; justify-content: space-between; }
+        .team-count-ctrl { display: flex; gap: 6px; margin-bottom: 12px; }
+        .btn-mini-ctrl { flex: 1; padding: 7px 10px; border-radius: 10px; background: #f1f5f9; border: 2px solid #cbd5e1; color: var(--k4-navy); font-weight: 800; font-size: 0.9rem; }
+        .tcard { background: #f8fafc; border: 3px solid #cbd5e1; border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; }
+        .tcard.active { background: #fff7ed; border-color: var(--k4-orange); box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.16); }
+        .tcard-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .tcard-name { font-size: 21px; font-weight: 900; color: var(--k4-navy); }
+        .turn-pill { display: inline-block; background: var(--k4-orange); color: #ffffff; font-size: 0.78rem; font-weight: 900; padding: 3px 9px; border-radius: 999px; margin-top: 4px; }
+        .tcard-score { font-size: 26px; font-weight: 900; color: var(--k4-navy); padding: 2px 8px; border-radius: 10px; cursor: text; }
+        .tcard-score:hover { background: #fed7aa; }
+        .tcard-score-input { width: 96px; font-size: 22px; font-weight: 900; text-align: right; border: 2px solid var(--k4-orange); border-radius: 10px; padding: 2px 6px; }
+        .tcard-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+        .btn-noise { background: #fee2e2; color: #b91c1c; border: 1.5px solid #fca5a5; border-radius: 9px; padding: 4px 10px; font-weight: 800; font-size: 0.85rem; }
+        .side-tools { border-top: 2px dashed #cbd5e1; padding-top: 12px; margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .btn-side-tool { width: 100%; padding: 10px 12px; border-radius: 12px; font-weight: 800; font-size: 0.96rem; }
+
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(20, 33, 61, 0.72); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 99999; }
+        .modal-backdrop.open { display: flex; }
+        .gacha-box { background: #ffffff; border: 5px solid #f59e0b; border-radius: 28px; padding: 34px 38px; max-width: 660px; width: 100%; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45); }
+        .gacha-name { font-size: clamp(2.2rem, 4.5vw, 3.5rem); font-weight: 900; color: var(--k4-navy); margin: 18px 0; min-height: 76px; display: flex; align-items: center; justify-content: center; background: #fff7ed; border-radius: 18px; padding: 14px 20px; border: 3px dashed #fdba74; }
+        .footer-nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+        .btn-nav-step { padding: 12px 22px; border-radius: 14px; font-weight: 900; font-size: 1.08rem; background: var(--k4-navy); color: #ffffff; box-shadow: 0 4px 0 #091124; }
+        .btn-nav-step.secondary { background: #e2e8f0; color: var(--k4-navy); box-shadow: 0 4px 0 #94a3b8; }
+
+        @media (max-width: 960px) {
+            #app-shell.active { grid-template-columns: minmax(0, 1fr); }
+            .steps-3-grid, .quiz-grid-2, .family-grid-4 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+    <button id="btn-hamburger" class="btn-hamburger-toggle" type="button" onclick="toggleSidebar()" title="Ẩn / Hiện bảng điểm">◀</button>
+
+    <div id="setup-screen">
+        <div class="setup-card">
+            <div class="setup-badge">TIN HỌC KHỐI 4 • TUẦN 15</div>
+            <h1>⚡ BÀI 8: ĐỊNH DẠNG VĂN BẢN TRÊN TRANG CHIẾU (TIẾT 2)</h1>
+            <p class="setup-sub">Vòng quay ôn tập • Thực hành Bullets & mở/lưu tệp • Đơn Đặt Hàng “Trường Em” & Dự án Gia Đình Em</p>
+
+            <div class="setup-row">
+                <label for="classSel">Lớp giảng dạy:</label>
+                <select id="classSel"></select>
+            </div>
+            <div class="setup-row">
+                <label for="teamCountSel">Số tổ thi đua (2 - 6 tổ):</label>
+                <select id="teamCountSel">
+                    <option value="2">2 Tổ</option>
+                    <option value="3">3 Tổ</option>
+                    <option value="4" selected>4 Tổ</option>
+                    <option value="5">5 Tổ</option>
+                    <option value="6">6 Tổ</option>
+                </select>
+            </div>
+            <div class="setup-row">
+                <label for="startScoreInput">Điểm khởi đầu mỗi tổ:</label>
+                <input id="startScoreInput" type="number" min="0" step="50" value="1000">
+            </div>
+
+            <button class="btn-start-lesson" type="button" onclick="startLesson()">VÀO TIẾT HỌC 🚀</button>
+        </div>
+    </div>
+
+    <div id="app-shell">
+        <div class="main-stage">
+            <div class="top-nav">
+                <div class="top-lesson-meta">
+                    <span class="class-pill" id="activeClassBadge">Lớp 4/1</span>
+                    <span style="color:#ffffff;font-weight:900;font-size:1.05rem;">Bài 8: Định dạng văn bản trên trang chiếu (Tiết 2)</span>
+                </div>
+                <div class="nav-tabs">
+                    <button class="nav-tab active" data-slide="1" onclick="goSlide(1)">1. Vòng quay</button>
+                    <button class="nav-tab" data-slide="2" onclick="goSlide(2)">2. Ghi bài</button>
+                    <button class="nav-tab" data-slide="3" onclick="goSlide(3)">3. Bullets & Lưu</button>
+                    <button class="nav-tab" data-slide="4" onclick="goSlide(4)">4. Đơn Đặt Hàng</button>
+                    <button class="nav-tab" data-slide="5" onclick="goSlide(5)">5. Gia Đình Em & Chốt</button>
+                    <button class="nav-tab" data-slide="6" onclick="goSlide(6)">6. Bảng vàng</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 1: KHỞI ĐỘNG (VÒNG QUAY MAY MẮN 5 CÂU ÔN TIẾT 1) -->
+            <section class="slide-view active" id="slide-1">
+                <div class="stage-card">
+                    <div class="sgk-badge">🎡 KHỞI ĐỘNG 5 PHÚT • VÒNG QUAY MAY MẮN ÔN TẬP TIẾT 1</div>
+                    <h2 class="slide-title">🎡 Vòng Quay May Mắn: Nhớ Nhanh Công Cụ PowerPoint</h2>
+
+                    <div class="student-bar">
+                        <span class="student-bar-label">🙋 Phát biểu tự do (không tính điểm tổ):</span>
+                        <select class="student-select" id="sel-warmup-1"></select>
+                        <button class="btn-gacha" type="button" onclick="openGachaModal('sel-warmup-1', false)" title="Bốc thăm ngẫu nhiên / Gọi tên">🎲</button>
+                    </div>
+
+                    <div class="wheel-pills" id="warmupWheelTabs"></div>
+                    <div id="warmupWheelBox"></div>
+
+                    <div class="footer-nav">
+                        <span></span>
+                        <button class="btn-nav-step" type="button" onclick="goSlide(2)">Sang trang Ghi bài ▶</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 2: GHI BÀI TIẾT 2 (CHỈ GHI TÊN BÀI) -->
+            <section class="slide-view" id="slide-2">
+                <div class="stage-card" style="text-align:center;">
+                    <div class="notebook clean" id="notebook-slide-2">
+                        <button type="button" class="btn-fs-toggle" onclick="window.toggleNotebookFullscreen('#notebook-slide-2')" title="Chế độ toàn màn hình chép bài">⛶</button>
+                        <button type="button" class="btn-fs-close" onclick="window.toggleNotebookFullscreen('#notebook-slide-2')" title="Thu nhỏ (Esc)">✖</button>
+
+                        <div class="nb-date currentDateDisplay">Thứ ..., ngày ... tháng ... năm 2026</div>
+                        <div class="nb-subject">MÔN: TIN HỌC</div>
+                        <div class="nb-title">BÀI 8: ĐỊNH DẠNG VĂN BẢN TRÊN TRANG CHIẾU (TIẾT 2)</div>
+                    </div>
+
+                    <div class="footer-nav">
+                        <button class="btn-nav-step secondary" type="button" onclick="goSlide(1)">◀ Quay lại Vòng quay</button>
+                        <button class="btn-nav-step" type="button" onclick="goSlide(3)">Cất vở & Hướng dẫn thực hành ▶</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 3: HƯỚNG DẪN MỞ TỆP, ĐỊNH DẠNG BULLETS & LƯU TỆP (SGK TR.36-38) -->
+            <section class="slide-view" id="slide-3">
+                <div class="stage-card">
+                    <div class="sgk-badge">📖 Hình 31, 33, 34 - Trang 36, 37, 38 (SGK) • Thực hành 18 phút</div>
+                    <h2 class="slide-title">🎛️ Quy Trình Thực Hành: Mở Tệp – Bullets – Lưu Tệp</h2>
+
+                    <div class="steps-3-grid">
+                        <div class="step-guide-card">
+                            <h3>1️⃣ Mở tệp có sẵn (Hình 31)</h3>
+                            <p>Khởi động PowerPoint → Chọn <strong>File → Open</strong> → Tìm đúng thư mục → Nháy tệp <strong>Canh dep que huong</strong> → Bấm <strong>Open</strong>.</p>
+                        </div>
+                        <div class="step-guide-card" style="border-top-color:#ea580c;">
+                            <h3>2️⃣ Chữ & Gạch đầu dòng (Hình 33, 34)</h3>
+                            <p>Chọn văn bản → Chỉnh phông, cỡ, màu chữ → Nháy nút <strong>Bullets</strong> (nhóm Paragraph) để tạo, đổi màu hoặc bỏ dấu đầu dòng.</p>
+                        </div>
+                        <div class="step-guide-card" style="border-top-color:#16a34a;">
+                            <h3>3️⃣ Lưu tệp & Thoát an toàn</h3>
+                            <p>Nháy biểu tượng đĩa mềm <strong>💾 Save</strong> để lưu lại thay đổi mới nhất → Nháy nút <strong>X</strong> để thoát phần mềm.</p>
+                        </div>
+                    </div>
+
+                    <div class="memo-card">
+                        <div class="memo-badge">📌 MẸO NHANH TRÊN POWERPOINT</div>
+                        <p class="memo-text">Muốn <strong>bỏ dấu gạch đầu dòng</strong> ở dòng nào, chỉ cần đặt con trỏ (hoặc bôi đen dòng đó) rồi nháy lại vào nút <strong>Bullets</strong> một lần nữa.</p>
+                    </div>
+
+                    <div class="footer-nav">
+                        <button class="btn-nav-step secondary" type="button" onclick="goSlide(2)">◀ Xem lại Ghi bài</button>
+                        <button class="btn-nav-step" type="button" onclick="goSlide(4)">Vào Đơn Đặt Hàng “Trường Em” ▶</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 4: THỬ THÁCH ĐƠN ĐẶT HÀNG + ĐÁNH GIÁ CHÉO (1/3 - 2/3 CỐ ĐỊNH) -->
+            <section class="slide-view" id="slide-4">
+                <div class="stage-card">
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+                        <div>
+                            <div class="sgk-badge" style="margin-bottom:4px;">📖 Câu hỏi 2 SGK Trang 38 • Năng lực số 3.2.CB2a</div>
+                            <h2 class="slide-title" style="margin:0;">⚡ Thử Thách Đơn Đặt Hàng: Tệp “Trường Em”</h2>
+                        </div>
+                        <div class="badge" id="arenaTurnBadge" style="background:#fff7ed;border:2px solid #ea580c;color:#9a3412;font-size:1.08rem;padding:8px 16px;">🎯 Đang trình bày: Tổ 1</div>
+                    </div>
+
+                    <div class="student-bar">
+                        <span class="student-bar-label">🧑‍💻 Đại diện tổ trình bày:</span>
+                        <select class="student-select" id="sel-order"></select>
+                        <button class="btn-gacha" type="button" onclick="openGachaModal('sel-order', true)" title="Bốc thăm ngẫu nhiên / Gọi tên">🎲</button>
+                    </div>
+
+                    <div class="order-arena-grid">
+                        <div class="order-list-box">
+                            <div style="font-weight:900;font-size:1.08rem;color:#92400e;margin-bottom:8px;">📦 5 Đơn Hàng “Trường Em”</div>
+                            <div id="orderListTabs"></div>
+                        </div>
+
+                        <div class="order-stage" id="orderStageBox"></div>
+                    </div>
+
+                    <div class="footer-nav">
+                        <button class="btn-nav-step secondary" type="button" onclick="goSlide(3)">◀ Xem hướng dẫn Bullets</button>
+                        <button class="btn-nav-step" type="button" onclick="goSlide(5)">Dự án Gia Đình Em & Chốt ▶</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 5: VẬN DỤNG DỰ ÁN 4 TRANG "GIA ĐÌNH EM" & CHỐT KIẾN THỨC 5 PHÚT CUỐI -->
+            <section class="slide-view" id="slide-5">
+                <div class="stage-card">
+                    <div class="sgk-badge">👨‍👩‍👧‍👦 VẬN DỤNG (NLS 3.1.CB2b) & ⏱️ 5 PHÚT CUỐI ACTIVE RECALL</div>
+                    <h2 class="slide-title">🏠 Dự Án 4 Trang “Gia Đình Em” & Ghi Nhớ Cuối Tiết</h2>
+
+                    <div class="family-grid-4" id="familyProjectBox"></div>
+
+                    <div class="summary-card-grid grid-3" id="summaryCardsBox"></div>
+
+                    <div style="background:#f8fafc;border:3px solid #cbd5e1;border-radius:20px;padding:18px 20px;margin-top:18px;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+                            <span style="font-size:1.25rem;font-weight:900;color:#14213d;">⚡ Câu Hỏi Củng Cố Cho Mọi Tổ</span>
+                            <div id="consolidationTabs" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+                        </div>
+
+                        <div class="student-bar">
+                            <span class="student-bar-label">🙋 Học sinh trả lời:</span>
+                            <select class="student-select" id="sel-summary"></select>
+                            <button class="btn-gacha" type="button" onclick="openGachaModal('sel-summary', true)" title="Bốc thăm ngẫu nhiên / Gọi tên">🎲</button>
+                        </div>
+
+                        <div id="consolidationQuizBox"></div>
+                    </div>
+
+                    <div class="footer-nav">
+                        <button class="btn-nav-step secondary" type="button" onclick="goSlide(4)">◀ Quay lại Đơn Đặt Hàng</button>
+                        <button class="btn-nav-step" type="button" style="background:#d97706;box-shadow:0 4px 0 #92400e;" onclick="goSlide(6)">🏆 Xem Bảng Vàng Vinh Danh ▶</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 6: BẢNG VÀNG & CSV -->
+            <section class="slide-view" id="slide-6">
+                <div class="stage-card" style="text-align:center;">
+                    <div class="sgk-badge">🏆 VINH DANH CÔNG BẰNG • ĐỒNG HẠNG CHUẨN</div>
+                    <h2 class="slide-title">🎉 Bảng Vàng Vinh Danh Các Tổ 🎉</h2>
+                    <div id="winnerBanner" style="font-size:1.3rem;font-weight:900;color:#b45309;background:#fef3c7;border:2.5px solid #f59e0b;border-radius:16px;padding:12px 20px;max-width:920px;margin:0 auto 16px;"></div>
+
+                    <div class="rankings-box" id="leaderboardList"></div>
+
+                    <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:20px;">
+                        <button class="btn-nav-step secondary" type="button" onclick="goSlide(5)">◀ Quay lại Chốt bài</button>
+                        <button class="btn-nav-step" type="button" style="background:#16a34a;box-shadow:0 4px 0 #15803d;" onclick="exportLessonCsv()">📥 Xuất CSV Báo Cáo & Lưu Drive</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <aside class="side-panel" id="sidebarPanel">
+            <div class="side-title">
+                <span>🏆 Bảng Điểm Tổ</span>
+                <span style="font-size:0.84rem;color:#64748b;font-weight:800;">Bấm tổ để đổi lượt</span>
+            </div>
+
+            <div class="team-count-ctrl">
+                <button class="btn-mini-ctrl" type="button" onclick="changeTeamCount(-1)">[- Bớt Tổ]</button>
+                <button class="btn-mini-ctrl" type="button" onclick="changeTeamCount(1)">[+ Thêm Tổ]</button>
+            </div>
+
+            <div id="teamCardsContainer"></div>
+
+            <div class="side-tools">
+                <button class="btn-side-tool" type="button" style="background:#f1f5f9;color:#14213d;border:2px solid #cbd5e1;" onclick="openAddStudentModal()">➕ Thêm Học Sinh Vãng Lai</button>
+                <button class="btn-side-tool" type="button" style="background:#fef3c7;color:#92400e;border:2px solid #fcd34d;" onclick="goSlide(6)">🏆 Tổng Kết & Xuất CSV</button>
+                <button class="btn-side-tool" type="button" style="background:#fee2e2;color:#b91c1c;border:2px solid #fca5a5;" onclick="resetLessonSession()">🔄 Dạy Lớp Mới</button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- GIANT GACHA MODAL -->
+    <div class="modal-backdrop" id="gachaModal" onclick="if(event.target===this)closeGachaModal()">
+        <div class="gacha-box">
+            <div style="font-size:1.25rem;font-weight:900;color:#b45309;">🎲 BỐC THĂM NGẪU NHIÊN HỌC SINH</div>
+            <div class="gacha-name" id="gachaDisplayName">Đang quay...</div>
+            <div style="font-size:1.05rem;font-weight:700;color:#475569;margin-bottom:20px;" id="gachaHintText">
+                Nếu bạn này vắng hoặc thuộc tổ khác, bấm 🎲 quay tiếp nhé (không mất lượt)!
+            </div>
+            <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+                <button class="btn-gacha" style="width:68px;height:56px;font-size:2rem;" type="button" onclick="spinGachaAgain()" title="Bốc thăm ngẫu nhiên / Gọi tên">🎲</button>
+                <button class="btn-nav-step" type="button" style="background:#16a34a;box-shadow:0 4px 0 #15803d;" onclick="confirmGachaStudent()">✅ Chốt bạn này</button>
+                <button class="btn-nav-step secondary" type="button" onclick="closeGachaModal()">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL THÊM HỌC SINH -->
+    <div class="modal-backdrop" id="addStudentModal" onclick="if(event.target===this)closeAddStudentModal()">
+        <div class="gacha-box" style="max-width:520px;border-color:var(--k4-navy);">
+            <h3 style="margin:0 0 10px;font-size:1.45rem;font-weight:900;">➕ Thêm Học Sinh Vào Danh Sách</h3>
+            <textarea id="addStudentInput" rows="5" placeholder="Nhập tên học sinh (mỗi em 1 dòng)..." style="width:100%;padding:12px;border-radius:14px;border:2px solid #94a3b8;font-size:1.05rem;font-weight:700;margin-bottom:16px;"></textarea>
+            <div style="display:flex;justify-content:center;gap:10px;">
+                <button class="btn-nav-step" type="button" onclick="saveNewStudents()">Lưu danh sách</button>
+                <button class="btn-nav-step secondary" type="button" onclick="closeAddStudentModal()">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            'use strict';
+
+            const GRADE = '4';
+            const LESSON_NO = '15';
+            const QDATA = window.QUESTS_DATA;
+
+            let state = {
+                started: false,
+                classId: '4_1',
+                startingScore: 1000,
+                currentSlide: 1,
+                sidebarHidden: false,
+                teams: [],
+                activeTeamIdx: 0,
+                students: [],
+                doneStudents: [],
+                activeWheelIdx: 0,
+                wheelResults: {},
+                activeOrderIdx: 0,
+                peerVotes: {}, // { [orderId]: { [teamId]: 'PASS'|'FIX' } }
+                orderResults: {},
+                summaryRevealed: [false, false, false],
+                activeSummaryQuizIdx: 0,
+                summaryQuizResults: {},
+                logs: []
+            };
+
+            let sessionManager = null;
+            let editingTeamIdx = null;
+            let gachaTargetSelectId = null;
+            let gachaIsTeamTurn = false;
+            let gachaPickedName = '';
+            let gachaTimer = null;
+
+            function buildStorageKey(classId) {
+                const safeCls = String(classId || '4_1').replace(/[^a-zA-Z0-9_-]/g, '-');
+                return `bgtieu_hoc_k4_tiet_15_${safeCls}_state`;
+            }
+
+            function initTeams(count, startingScore) {
+                const n = Math.max(2, Math.min(6, Number(count) || 4));
+                const score = Math.max(0, Number(startingScore) || window.STARTING_SCORE || 1000);
+                return Array.from({ length: n }, (_, i) => ({ id: i + 1, name: `Tổ ${i + 1}`, score }));
+            }
+
+            function getActiveTeam() { return state.teams[state.activeTeamIdx] || state.teams[0]; }
+            function formatClassDisplay(classId) { return `Lớp ${String(classId || '4_1').replace('_', '/')}`; }
+
+            async function loadStudentsForClass(classId) {
+                try {
+                    const list = await window.loadLessonStudents(classId, '../../assets/data/');
+                    if (Array.isArray(list) && list.length > 0) return list.map(s => s.displayName || s.name);
+                } catch (_) {}
+                const fallback = window.getClassStudents ? window.getClassStudents(classId, '4_1') : [];
+                return fallback.length > 0 ? fallback : Array.from({ length: 10 }, (_, i) => `Học sinh ${i + 1}`);
+            }
+
+            function saveState() { if (sessionManager) sessionManager.save(state); }
+
+            function initSetupClassPicker() {
+                const sel = document.getElementById('classSel');
+                if (sel && typeof window.renderAllClassOptions === 'function') {
+                    sel.innerHTML = window.renderAllClassOptions('4_1');
+                    sel.value = '4_1';
+                    sel.dataset.allClassesEnhanced = 'true';
+                }
+            }
+
+            window.startLesson = async function () {
+                const classId = document.getElementById('classSel').value || '4_1';
+                const teamCount = Number(document.getElementById('teamCountSel').value) || 4;
+                const startingScore = Math.max(0, Number(document.getElementById('startScoreInput').value) || 1000);
+
+                state.classId = classId;
+                state.startingScore = startingScore;
+                state.teams = initTeams(teamCount, startingScore);
+                state.activeTeamIdx = 0;
+
+                sessionManager = window.createSessionStateManager({
+                    storageKey: buildStorageKey(classId),
+                    defaultState: state,
+                    autoRestoreMsg: `⚡ Đã tự động khôi phục dữ liệu phiên trước của ${formatClassDisplay(classId)}!`
+                });
+
+                const restored = sessionManager.restore();
+                if (restored && restored.started) state = Object.assign({}, state, restored);
+                else {
+                    state.students = await loadStudentsForClass(classId);
+                    state.started = true;
+                    saveState();
+                }
+
+                document.getElementById('setup-screen').style.display = 'none';
+                document.getElementById('app-shell').classList.add('active');
+                document.getElementById('btn-hamburger').style.display = 'inline-flex';
+                document.getElementById('activeClassBadge').textContent = formatClassDisplay(state.classId);
+
+                window.updateVietnameseDate();
+                renderAll();
+                goSlide(state.currentSlide || 1, true);
+                if (window.SFX) window.SFX.click();
+            };
+
+            window.toggleSidebar = function () { state.sidebarHidden = !state.sidebarHidden; applySidebarState(); saveState(); };
+
+            function applySidebarState() {
+                const shell = document.getElementById('app-shell');
+                const btn = document.getElementById('btn-hamburger');
+                if (state.sidebarHidden) { shell.classList.add('sidebar-hidden'); btn.textContent = '☰'; btn.title = 'Hiện bảng điểm tổ'; }
+                else { shell.classList.remove('sidebar-hidden'); btn.textContent = '◀'; btn.title = 'Thu gọn bảng điểm tổ'; }
+            }
+
+            window.goSlide = function (n, skipSave) {
+                const slideNum = Math.max(1, Math.min(6, Number(n) || 1));
+                state.currentSlide = slideNum;
+                document.querySelectorAll('.slide-view').forEach(el => el.classList.remove('active'));
+                const target = document.getElementById(`slide-${slideNum}`);
+                if (target) target.classList.add('active');
+                document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.slide) === slideNum));
+                if (slideNum === 6) renderLeaderboard();
+                if (!skipSave) saveState();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            /* ================= SIDEBAR ================= */
+            window.switchTeamTurn = function (idx) {
+                if (idx < 0 || idx >= state.teams.length) return;
+                state.activeTeamIdx = idx;
+                editingTeamIdx = null;
+                renderTeamsSidebar();
+                renderOrderArena();
+                renderSummaryScreen();
+                window.showToast(`🎯 Đã chuyển lượt sang ${state.teams[idx].name}!`, 'info');
+                if (window.SFX) window.SFX.click();
+                saveState();
+            };
+
+            window.changeTeamCount = function (delta) {
+                const nextCount = state.teams.length + delta;
+                if (nextCount < 2 || nextCount > 6) { window.showToast('⚠️ Lớp học hỗ trợ linh hoạt từ 2 đến 6 tổ!', 'warn'); return; }
+                if (delta > 0) state.teams.push({ id: nextCount, name: `Tổ ${nextCount}`, score: state.startingScore || 1000 });
+                else {
+                    state.teams.pop();
+                    if (state.activeTeamIdx >= state.teams.length) state.activeTeamIdx = state.teams.length - 1;
+                }
+                renderTeamsSidebar();
+                renderOrderArena();
+                if (state.currentSlide === 6) renderLeaderboard();
+                saveState();
+            };
+
+            window.startInlineScoreEdit = function (e, idx) {
+                e.stopPropagation();
+                editingTeamIdx = idx;
+                renderTeamsSidebar();
+                const input = document.getElementById(`score-input-${idx}`);
+                if (input) { input.focus(); input.select(); }
+            };
+
+            window.commitInlineScoreEdit = function (idx, rawValue) {
+                const parsed = Number(rawValue);
+                if (!Number.isNaN(parsed) && parsed >= 0) {
+                    const oldScore = state.teams[idx].score;
+                    state.teams[idx].score = Math.round(parsed);
+                    if (oldScore !== state.teams[idx].score) logEvent('Sửa điểm', state.teams[idx].name, 'Giáo viên', 'Điều chỉnh trực tiếp', 'Hợp lệ', state.teams[idx].score - oldScore);
+                }
+                editingTeamIdx = null;
+                renderTeamsSidebar();
+                if (state.currentSlide === 6) renderLeaderboard();
+                saveState();
+            };
+
+            window.handleScoreKey = function (e, idx) {
+                if (e.key === 'Enter') { e.preventDefault(); commitInlineScoreEdit(idx, e.target.value); }
+                else if (e.key === 'Escape') { editingTeamIdx = null; renderTeamsSidebar(); }
+            };
+
+            window.applyNoisePenalty = function (e, idx) {
+                e.stopPropagation();
+                const team = state.teams[idx];
+                const penalty = Math.round(team.score * 0.1);
+                team.score = Math.max(0, team.score - penalty);
+                if (window.SFX) window.SFX.penalty();
+                window.showToast(`📢 [${team.name}] Mất trật tự / ồn ào: Trừ 10% (-${penalty} Xu), còn ${team.score} Xu! 🤫`, 'bad');
+                logEvent('Phạt ồn (-10%)', team.name, 'Cả tổ', 'Giữ trật tự phòng máy', 'Phạt 10%', -penalty);
+                renderTeamsSidebar();
+                if (state.currentSlide === 6) renderLeaderboard();
+                saveState();
+            };
+
+            function renderTeamsSidebar() {
+                document.getElementById('teamCardsContainer').innerHTML = state.teams.map((t, idx) => {
+                    const isTurn = idx === state.activeTeamIdx;
+                    const scoreMarkup = (editingTeamIdx === idx)
+                        ? `<input id="score-input-${idx}" class="tcard-score-input" type="number" min="0" value="${t.score}" onclick="event.stopPropagation()" onkeydown="handleScoreKey(event, ${idx})" onblur="commitInlineScoreEdit(${idx}, this.value)">`
+                        : `<div class="tcard-score" onclick="startInlineScoreEdit(event, ${idx})" title="Nhấp để sửa điểm">${t.score}</div>`;
+
+                    return `
+                        <div class="tcard ${isTurn ? 'active' : ''}" onclick="switchTeamTurn(${idx})">
+                            <div class="tcard-top">
+                                <div>
+                                    <div class="tcard-name">${isTurn ? '🎯' : '🚩'} ${t.name}</div>
+                                    ${isTurn ? '<span class="turn-pill">👉 ĐANG TỚI LƯỢT</span>' : ''}
+                                </div>
+                                ${scoreMarkup}
+                            </div>
+                            <div class="tcard-bottom">
+                                <span style="font-size:0.86rem;font-weight:800;color:#64748b;">Xu năng lượng</span>
+                                <button class="btn-noise" type="button" onclick="applyNoisePenalty(event, ${idx})">🤫 -10%</button>
+                            </div>
+                        </div>`;
+                }).join('');
+            }
+
+            /* ================= HỌC SINH & GACHA ================= */
+            function populateAllStudentSelects() {
+                const doneSet = new Set(state.doneStudents);
+                ['sel-warmup-1', 'sel-order', 'sel-summary'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    const prev = el.value;
+                    const opts = state.students.map(n => `<option value="${n.replace(/"/g, '&quot;')}">${n}${doneSet.has(n) ? ' ✅' : ''}</option>`).join('');
+                    el.innerHTML = `<option value="">-- Chọn hoặc bấm 🎲 gọi tên --</option>${opts}`;
+                    if (prev && state.students.includes(prev)) el.value = prev;
+                });
+            }
+
+            function markStudentDone(name) {
+                if (name && !state.doneStudents.includes(name)) {
+                    state.doneStudents.push(name);
+                    populateAllStudentSelects();
+                }
+            }
+
+            window.openGachaModal = function (selectId, isTeamTurn) {
+                gachaTargetSelectId = selectId;
+                gachaIsTeamTurn = !!isTeamTurn;
+                document.getElementById('gachaModal').classList.add('open');
+                spinGachaAgain();
+            };
+
+            window.spinGachaAgain = function () {
+                if (gachaTimer) clearInterval(gachaTimer);
+                const doneSet = new Set(state.doneStudents);
+                const pool = state.students.filter(s => !doneSet.has(s));
+                const list = pool.length > 0 ? pool : state.students;
+                const box = document.getElementById('gachaDisplayName');
+                document.getElementById('gachaHintText').textContent = gachaIsTeamTurn
+                    ? `Đang chọn đại diện cho ${getActiveTeam().name} — Nếu ra bạn tổ khác, bấm 🎲 quay tiếp nhé!`
+                    : 'Nếu bạn này vắng hoặc chưa sẵn sàng, bấm 🎲 quay tiếp (không mất lượt)!';
+
+                if (window.SFX) window.SFX.gacha();
+                let ticks = 0;
+                gachaTimer = setInterval(() => {
+                    box.textContent = list[Math.floor(Math.random() * list.length)];
+                    ticks++;
+                    if (ticks >= 12) {
+                        clearInterval(gachaTimer);
+                        gachaTimer = null;
+                        gachaPickedName = list[Math.floor(Math.random() * list.length)];
+                        box.textContent = gachaPickedName;
+                    }
+                }, 65);
+            };
+
+            window.confirmGachaStudent = function () {
+                if (gachaTimer) { clearInterval(gachaTimer); gachaTimer = null; gachaPickedName = document.getElementById('gachaDisplayName').textContent; }
+                const sel = document.getElementById(gachaTargetSelectId);
+                if (sel && gachaPickedName) sel.value = gachaPickedName;
+                closeGachaModal();
+                window.showToast(`🎤 Mời bạn ${gachaPickedName}!`, 'ok');
+            };
+            window.closeGachaModal = function () { if (gachaTimer) { clearInterval(gachaTimer); gachaTimer = null; } document.getElementById('gachaModal').classList.remove('open'); };
+
+            function logEvent(stage, teamName, studentName, content, result, deltaScore, tt27 = '') {
+                state.logs.push({ time: new Date().toLocaleTimeString('vi-VN'), stage, teamName, studentName, content, result, deltaScore, tt27 });
+            }
+
+            /* ================= SLIDE 1: VÒNG QUAY ÔN TẬP (PHÁT BIỂU TỰ DO) ================= */
+            function renderWarmupWheel() {
+                document.getElementById('warmupWheelTabs').innerHTML = QDATA.warmupWheel.map((q, idx) => {
+                    const res = state.wheelResults[q.id];
+                    let cls = 'wheel-pill';
+                    if (idx === state.activeWheelIdx) cls += ' active';
+                    else if (res) cls += res.correct ? ' done-ok' : ' done-fail';
+                    return `<button type="button" class="${cls}" onclick="selectWarmupWheel(${idx})">🎡 Câu ${idx + 1} ${res ? (res.correct ? '✅' : '❌') : ''}</button>`;
+                }).join('');
+
+                const q = QDATA.warmupWheel[state.activeWheelIdx] || QDATA.warmupWheel[0];
+                const res = state.wheelResults[q.id];
+                document.getElementById('warmupWheelBox').innerHTML = `
+                    <div style="background:#f8fafc;border:2.5px solid #cbd5e1;border-radius:18px;padding:18px 20px;">
+                        <div style="font-size:1.25rem;font-weight:900;color:#14213d;">${q.question}</div>
+                        <div class="quiz-grid-2">
+                            ${q.options.map((opt, oIdx) => {
+                                let cls = 'quiz-choice-btn';
+                                if (res) {
+                                    if (oIdx === q.correctIdx) cls += ' correct';
+                                    else if (oIdx === res.selectedIdx) cls += ' wrong';
+                                }
+                                return `<button class="${cls}" type="button" ${res ? 'disabled' : ''} onclick="answerWarmupWheel('${q.id}', ${oIdx})">${opt}</button>`;
+                            }).join('')}
+                        </div>
+                        ${res ? `<div style="margin-top:10px;background:#dcfce7;color:#14532d;padding:10px 14px;border-radius:12px;font-weight:800;">💡 ${q.explain}</div>` : ''}
+                    </div>
+                `;
+            }
+
+            window.selectWarmupWheel = function (idx) { state.activeWheelIdx = idx; renderWarmupWheel(); saveState(); };
+
+            window.answerWarmupWheel = function (qId, oIdx) {
+                if (!window.requireStudent('sel-warmup-1', 'trả lời câu Vòng quay')) return;
+                const q = QDATA.warmupWheel.find(item => item.id === qId);
+                if (!q || state.wheelResults[qId]) return;
+
+                const studentName = document.getElementById('sel-warmup-1').value;
+                const isCorrect = oIdx === q.correctIdx;
+                state.wheelResults[qId] = { selectedIdx: oIdx, correct: isCorrect, studentName };
+                markStudentDone(studentName);
+                logEvent('Vòng quay ôn Tiết 1', 'Cá nhân (Không tính điểm tổ)', studentName, q.question, isCorrect ? 'Đúng' : 'Chưa đúng', 0, isCorrect ? 'T' : 'H');
+
+                if (window.SFX) isCorrect ? window.SFX.correct() : window.SFX.wrong();
+                window.showToast(isCorrect ? `🌟 Tuyệt vời! ${studentName} nhớ bài rất chắc.` : `💡 Xem lại gợi ý để nhớ nhé!`, isCorrect ? 'ok' : 'warn');
+                document.getElementById('sel-warmup-1').value = '';
+                renderWarmupWheel();
+                saveState();
+            };
+
+            /* ================= SLIDE 4: ĐƠN ĐẶT HÀNG & ĐÁNH GIÁ CHÉO ================= */
+            function renderOrderArena() {
+                const activeTeam = getActiveTeam();
+                document.getElementById('arenaTurnBadge').textContent = `🎯 Đang trình bày: ${activeTeam.name}`;
+
+                document.getElementById('orderListTabs').innerHTML = QDATA.orderCards.map((ord, idx) => {
+                    const done = state.orderResults[ord.id];
+                    let cls = 'order-tab-btn';
+                    if (idx === state.activeOrderIdx) cls += ' active';
+                    else if (done) cls += ' done';
+                    return `<button type="button" class="${cls}" onclick="selectOrderCard(${idx})">${done ? '✅' : '📦'} ${ord.title}</button>`;
+                }).join('');
+
+                const ord = QDATA.orderCards[state.activeOrderIdx] || QDATA.orderCards[0];
+                const doneRes = state.orderResults[ord.id];
+                const votes = state.peerVotes[ord.id] || {};
+                const otherTeams = state.teams.filter(t => t.id !== activeTeam.id);
+
+                document.getElementById('orderStageBox').innerHTML = `
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                        <span style="font-size:1.25rem;font-weight:900;color:#14213d;">${ord.title}</span>
+                        <span style="background:#16a34a;color:#fff;padding:4px 12px;border-radius:999px;font-weight:900;font-size:0.9rem;">+${ord.points} Xu</span>
+                    </div>
+                    <div style="margin:8px 0 12px;background:#fff7ed;border:2px solid #fdba74;border-radius:12px;padding:10px 14px;font-weight:800;color:#9a3412;">
+                        📌 Yêu cầu SGK Tr.38: ${ord.spec}
+                    </div>
+                    <div style="background:#f8fafc;border:2px solid #cbd5e1;border-radius:12px;padding:14px 16px;white-space:pre-line;${ord.previewStyle}">
+                        ${ord.previewText}
+                    </div>
+
+                    <div class="peer-box">
+                        <div style="font-weight:900;font-size:1rem;color:#14213d;margin-bottom:8px;">👀 Các tổ khác đánh giá chéo bài trình bày của ${activeTeam.name}:</div>
+                        ${otherTeams.map(ot => {
+                            const v = votes[ot.id];
+                            return `
+                                <div class="peer-row" id="peer-row-${ot.id}">
+                                    <span style="font-weight:800;">${ot.name} nhận xét:</span>
+                                    <span style="display:flex;gap:6px;">
+                                        <button type="button" class="peer-vote-btn pass ${v === 'PASS' ? 'selected' : ''}" ${doneRes ? 'disabled' : ''} onclick="setPeerVote('${ord.id}', ${ot.id}, 'PASS')">👍 ĐẠT chuẩn</button>
+                                        <button type="button" class="peer-vote-btn fix ${v === 'FIX' ? 'selected' : ''}" ${doneRes ? 'disabled' : ''} onclick="setPeerVote('${ord.id}', ${ot.id}, 'FIX')">🔧 Cần sửa</button>
+                                    </span>
+                                </div>`;
+                        }).join('')}
+                    </div>
+
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+                        <button type="button" class="btn-nav-step" style="flex:1;background:#16a34a;box-shadow:0 4px 0 #15803d;" ${doneRes ? 'disabled' : ''} onclick="finalizeOrderCheck('${ord.id}', true)">✅ Chốt ĐẠT (+${ord.points} Xu)</button>
+                        <button type="button" class="btn-nav-step secondary" style="flex:1;" ${doneRes ? 'disabled' : ''} onclick="finalizeOrderCheck('${ord.id}', false)">📝 Chốt Chưa đạt (Cần sửa)</button>
+                    </div>
+                `;
+            }
+
+            window.selectOrderCard = function (idx) { state.activeOrderIdx = idx; renderOrderArena(); saveState(); };
+
+            window.setPeerVote = function (orderId, teamId, val) {
+                if (!state.peerVotes[orderId]) state.peerVotes[orderId] = {};
+                state.peerVotes[orderId][teamId] = val;
+                if (window.SFX) window.SFX.click();
+                renderOrderArena();
+                saveState();
+            };
+
+            window.finalizeOrderCheck = function (orderId, isPass) {
+                if (!window.requireStudent('sel-order', 'chốt điểm Đơn Đặt Hàng')) return;
+                const activeTeam = getActiveTeam();
+                const otherTeams = state.teams.filter(t => t.id !== activeTeam.id);
+                const votes = state.peerVotes[orderId] || {};
+
+                if (!window.checkPeerAssessmentComplete(otherTeams, votes, (tid) => document.getElementById(`peer-row-${tid}`))) {
+                    return;
+                }
+
+                const ord = QDATA.orderCards.find(o => o.id === orderId);
+                if (!ord || state.orderResults[orderId]) return;
+
+                const studentName = document.getElementById('sel-order').value;
+                const delta = isPass ? ord.points : 0;
+                activeTeam.score += delta;
+                markStudentDone(studentName);
+
+                // Thưởng +25 Xu cho các tổ đánh giá chéo chính xác
+                const expectedVote = isPass ? 'PASS' : 'FIX';
+                otherTeams.forEach(ot => {
+                    if (votes[ot.id] === expectedVote) ot.score += 25;
+                });
+
+                state.orderResults[orderId] = { pass: isPass, teamName: activeTeam.name, studentName };
+                logEvent('Đơn Đặt Hàng Trường Em', activeTeam.name, studentName, ord.title, isPass ? 'Đạt chuẩn' : 'Cần sửa', delta, isPass ? 'T' : 'H');
+
+                if (isPass) {
+                    if (window.SFX) window.SFX.correct();
+                    if (window.confetti) window.confetti({ particleCount: 50, spread: 75 });
+                    window.showToast(`🎉 ${activeTeam.name} (${studentName}) hoàn thành ${ord.title}! +${delta} Xu`, 'ok');
+                } else {
+                    if (window.SFX) window.SFX.wrong();
+                    window.showToast(`📝 ${activeTeam.name} bổ sung lại theo góp ý của các tổ nhé!`, 'warn');
+                }
+
+                state.activeTeamIdx = (state.activeTeamIdx + 1) % state.teams.length;
+                document.getElementById('sel-order').value = '';
+                renderTeamsSidebar();
+                renderOrderArena();
+                saveState();
+            };
+
+            /* ================= SLIDE 5: GIA ĐÌNH EM & CHỐT KIẾN THỨC ================= */
+            function renderSummaryScreen() {
+                document.getElementById('familyProjectBox').innerHTML = QDATA.familyProjectSlides.map(s => `
+                    <div class="family-card">
+                        <h4>${s.title}</h4>
+                        <p>${s.desc}</p>
+                    </div>
+                `).join('');
+
+                document.getElementById('summaryCardsBox').innerHTML = QDATA.summaryCards.map((c, idx) => `
+                    <div class="summary-card ${state.summaryRevealed[idx] ? '' : 'locked-recall'}" style="border-top-color:${c.color};" onclick="revealSummaryCard(${idx})">
+                        <span class="sc-badge" style="background:${c.bg};color:${c.color};">${c.badge}</span>
+                        <div class="sc-title" style="color:${c.color};">${c.title}</div>
+                        <div class="sc-desc">${c.desc}</div>
+                    </div>
+                `).join('');
+
+                document.getElementById('consolidationTabs').innerHTML = QDATA.consolidationQuiz.map((q, idx) => {
+                    const done = state.summaryQuizResults[q.id];
+                    const bg = idx === state.activeSummaryQuizIdx ? '#14213d' : (done ? (done.correct ? '#16a34a' : '#dc2626') : '#e2e8f0');
+                    const color = (idx === state.activeSummaryQuizIdx || done) ? '#ffffff' : '#0f172a';
+                    return `<button type="button" style="padding:7px 14px;border-radius:10px;font-weight:900;background:${bg};color:${color};" onclick="selectConsolidationQuiz(${idx})">Câu ${idx + 1}</button>`;
+                }).join('');
+
+                const curQ = QDATA.consolidationQuiz[state.activeSummaryQuizIdx] || QDATA.consolidationQuiz[0];
+                const res = state.summaryQuizResults[curQ.id];
+                const team = getActiveTeam();
+
+                document.getElementById('consolidationQuizBox').innerHTML = `
+                    <div style="font-size:1.25rem;font-weight:900;color:#14213d;margin-bottom:10px;">
+                        <span style="color:#ea580c;">[${team.name}]</span> ${curQ.question}
+                    </div>
+                    <div class="quiz-grid-2">
+                        ${curQ.options.map((opt, oIdx) => {
+                            let cls = 'quiz-choice-btn';
+                            if (res) {
+                                if (oIdx === curQ.correctIdx) cls += ' correct';
+                                else if (oIdx === res.selectedIdx) cls += ' wrong';
+                            }
+                            return `<button class="${cls}" type="button" ${res ? 'disabled' : ''} onclick="answerConsolidation('${curQ.id}', ${oIdx})">${opt}</button>`;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            window.revealSummaryCard = function (idx) {
+                if (!state.summaryRevealed[idx]) {
+                    state.summaryRevealed[idx] = true;
+                    if (window.SFX) window.SFX.click();
+                    renderSummaryScreen();
+                    saveState();
+                }
+            };
+            window.selectConsolidationQuiz = function (idx) { state.activeSummaryQuizIdx = idx; renderSummaryScreen(); saveState(); };
+
+            window.answerConsolidation = function (quizId, selectedIdx) {
+                if (!window.requireStudent('sel-summary', 'trả lời câu củng cố')) return;
+                const q = QDATA.consolidationQuiz.find(item => item.id === quizId);
+                if (!q || state.summaryQuizResults[quizId]) return;
+
+                const studentName = document.getElementById('sel-summary').value;
+                const team = getActiveTeam();
+                const isCorrect = selectedIdx === q.correctIdx;
+                const delta = isCorrect ? (q.points || 100) : 0;
+
+                team.score += delta;
+                state.summaryQuizResults[quizId] = { selectedIdx, correct: isCorrect, teamName: team.name, studentName };
+                markStudentDone(studentName);
+                logEvent('Củng cố 5p cuối', team.name, studentName, q.question, isCorrect ? 'Đúng' : 'Chưa đúng', delta, isCorrect ? 'T' : 'H');
+
+                if (window.SFX) isCorrect ? window.SFX.correct() : window.SFX.wrong();
+                window.showToast(isCorrect ? `🎉 ${team.name} (${studentName}) ghi thêm +${delta} Xu!` : `💡 Chưa đúng rồi, nhắc lại bài cho cả lớp nhé!`, isCorrect ? 'ok' : 'warn');
+
+                state.activeTeamIdx = (state.activeTeamIdx + 1) % state.teams.length;
+                document.getElementById('sel-summary').value = '';
+                renderTeamsSidebar();
+                renderSummaryScreen();
+                saveState();
+            };
+
+            /* ================= SLIDE 6: BẢNG VÀNG & CSV ================= */
+            function renderLeaderboard() {
+                const ranked = window.calculateRankings(state.teams);
+                const topOnes = ranked.filter(r => r.rank === 1);
+                const bannerEl = document.getElementById('winnerBanner');
+                if (topOnes.length > 1) bannerEl.textContent = `🏆 ĐỒNG QUÁN QUÂN: ${topOnes.map(t => t.name).join(' & ')} (CÙNG ĐẠT ${topOnes[0].score} XU)! 🏆`;
+                else if (topOnes.length === 1) bannerEl.textContent = `🏆 QUÁN QUÂN TIẾT HỌC: ${topOnes[0].name} (${topOnes[0].score} XU)! 🏆`;
+
+                document.getElementById('leaderboardList').innerHTML = ranked.map(r => `
+                    <div class="rank-card ${r.themeClass}">
+                        <div class="rank-left"><span class="rank-medal">${r.medal}</span><span class="rank-badge">${r.badgeText}</span></div>
+                        <div class="rank-mid"><div class="rank-team-name">${r.name}</div><div class="rank-title">${r.title}</div></div>
+                        <div class="rank-right">${r.score}<span class="rank-unit">XU</span></div>
+                    </div>
+                `).join('');
+                if (window.SFX) window.SFX.win();
+                if (window.confetti) window.confetti({ particleCount: 90, spread: 100 });
+            }
+
+            window.exportLessonCsv = function () {
+                const ranked = window.calculateRankings(state.teams);
+                const rankRows = ranked.map(r => ({
+                    'Thứ Hạng': `Hạng ${r.rank}`, 'Đồng Hạng': r.isShared ? 'Có (Đồng điểm)' : 'Không',
+                    'Tổ Thi Đua': r.name, 'Điểm Tổng Kết': r.score, 'Danh Hiệu': r.title, 'Huy Chương': r.csvMedal
+                }));
+
+                const logRows = state.logs.length > 0 ? state.logs.map((l, i) => ({
+                    'STT': i + 1, 'Thời Gian': l.time, 'Hoạt Động': l.stage, 'Tổ': l.teamName,
+                    'Học Sinh': l.studentName, 'Nội Dung': l.content, 'Kết Quả': l.result, 'Biến Động Điểm': l.deltaScore
+                })) : [{ 'Ghi chú': 'Chưa phát sinh lượt thi đấu nào' }];
+
+                const doneSet = new Set(state.doneStudents);
+                const studentRows = state.students.map((name, idx) => {
+                    const studentLogs = state.logs.filter(l => l.studentName === name);
+                    const tt27 = studentLogs.some(l => l.tt27 === 'T') ? 'T' : (doneSet.has(name) ? 'H' : 'Chưa phát biểu');
+                    const smas = tt27 === 'T'
+                        ? 'Thực hành tốt mở tệp, định dạng phông, cỡ, màu chữ và sử dụng Bullets trên trang chiếu.'
+                        : (tt27 === 'H' ? 'Có tham gia thực hành, cần rèn thêm thao tác gạch đầu dòng và lưu tệp.' : 'Tham gia thực hành tạo bài trình chiếu trên máy.');
+                    return { 'STT': idx + 1, 'Họ và Tên': name, 'Số Lượt Tham Gia': studentLogs.length, 'Xếp Loại TT27': tt27, 'Nhận Xét SMAS': smas };
+                });
+
+                const fileName = window.LessonExport.buildFileName({ grade: GRADE, classId: state.classId, lesson: LESSON_NO });
+                window.uploadCsvToDrive([
+                    { title: 'BẢNG XẾP HẠNG CÁC TỔ', data: rankRows },
+                    { title: 'NHẬT KÝ THỰC HÀNH & ĐÁNH GIÁ CHÉO', data: logRows },
+                    { title: 'ĐÁNH GIÁ HỌC SINH THEO THÔNG TƯ 27 & SMAS', data: studentRows }
+                ], fileName);
+            };
+
+            window.openAddStudentModal = function () { document.getElementById('addStudentModal').classList.add('open'); document.getElementById('addStudentInput').focus(); };
+            window.closeAddStudentModal = function () { document.getElementById('addStudentModal').classList.remove('open'); };
+            window.saveNewStudents = function () {
+                const raw = document.getElementById('addStudentInput').value || '';
+                const lines = raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+                if (!lines.length) { closeAddStudentModal(); return; }
+                lines.forEach(name => state.students.push(window.formatUniqueStudentName ? window.formatUniqueStudentName(name, state.students) : name));
+                document.getElementById('addStudentInput').value = '';
+                populateAllStudentSelects();
+                saveState();
+                closeAddStudentModal();
+                window.showToast(`✅ Đã thêm ${lines.length} học sinh vào danh sách!`, 'ok');
+            };
+            window.resetLessonSession = function () { if (sessionManager) sessionManager.clear('Bắt đầu tiết dạy mới cho lớp tiếp theo?'); };
+
+            function renderAll() {
+                applySidebarState();
+                renderTeamsSidebar();
+                populateAllStudentSelects();
+                renderWarmupWheel();
+                renderOrderArena();
+                renderSummaryScreen();
+            }
+
+            document.addEventListener('DOMContentLoaded', initSetupClassPicker);
+        })();
+    </script>
+</body>
+
+</html>
