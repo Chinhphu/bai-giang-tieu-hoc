@@ -7,6 +7,7 @@
   <!-- Thư viện SheetJS xuất Excel SMAS -->
 
   <link rel="stylesheet" href="../shared/style.css">
+  <script src="../../assets/data/students_all_2026_2027.js"></script>
   <script src="../shared/gacha.js"></script>
   <script src="../shared/components.js"></script>
 
@@ -1057,17 +1058,6 @@
       let activeStudent = null;
       let nextStudent = null;
 
-      const FALLBACK_NAMES = [
-        "Lê Nguyễn Thảo An", "Dương Quỳnh Anh", "Nguyễn Duy Anh", "Nguyễn Trần Bảo Anh", "Tô Tuệ Anh",
-        "Trần Nguyễn Phương Anh", "Danh Trần Gia Bảo", "Trần Tuyết Băng", "Nguyễn Hoàng Dũng", "Phạm Quang Đạt",
-        "Nguyễn Phúc Hậu", "Huỳnh Minh Huy", "Phạm Khắc Huy", "Phạm Minh Ken", "Thái Phát Khang",
-        "Lâm Hoàng Gia Khương", "Nguyễn Tuấn Kiệt", "Đỗ Ngọc Thiên Kim", "Nguyễn Ngọc Thiên Kim", "Đặng Bảo Linh",
-        "Danh Nguyễn Trà My", "Hà Tiểu My", "Nguyễn Cẩm Ngọc", "Nguyễn Hoàng Bảo Ngọc", "Nguyễn Phan Kim Nguyên",
-        "Lưu Nguyệt Nhân", "Lương Huỳnh An Nhiên", "Huỳnh Minh Phát", "Lê Hoàng Phát", "Lưu Vương Thành Phát",
-        "Đàm Tâm Phú", "Huỳnh Ngọc Như Phúc", "Ngô Anh Quốc", "Đặng Phi Thiên", "Nguyễn Hoàng Thiện",
-        "Danh Minh Thuận", "Tô Minh Trí", "Đặng Bảo Trúc", "Phan Nhật Trường", "Võ Huỳnh Khánh Vân",
-        "Mai Đức Vĩnh", "Danh Nguyễn Hoàng Yến"
-      ];
 
       function getStorageKey(cls = currentClass) {
         return `${STORAGE_KEY_PREFIX}${String(cls).replace(/_/g, '-')}_state`;
@@ -1129,7 +1119,7 @@
           }
         } catch (_) {}
 
-        const namesSource = (loadedNames && loadedNames.length > 0) ? loadedNames : FALLBACK_NAMES;
+        const namesSource = (loadedNames && loadedNames.length > 0) ? loadedNames : (typeof window.getClassStudents === 'function' ? window.getClassStudents(cls, '1_6') : []);
         students = namesSource.map((name, idx) => ({
           id: idx + 1,
           code: `HS1_${String(idx + 1).padStart(2, '0')}`,
@@ -1229,7 +1219,7 @@
           Khoi1Components.showToast('Không thể xóa dữ liệu đã lưu trên thiết bị này.', true);
           return false;
         }
-        students = FALLBACK_NAMES.map((name, idx) => ({
+        students = (typeof window.getClassStudents === 'function' ? window.getClassStudents(currentClass, '1_6') : []).map((name, idx) => ({
           id: idx + 1,
           code: `HS1_${String(idx + 1).padStart(2, '0')}`,
           name: name.trim(),

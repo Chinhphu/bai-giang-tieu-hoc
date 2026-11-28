@@ -4,12 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bài 5: Thao tác với tệp và thư mục (Tiết 1) – Tin học 4</title>
+<link rel="stylesheet" href="../../shared/css/core.css">
 
 <!-- Hiệu ứng pháo hoa ăn mừng khi hoàn thành bài -->
 <script src="../../shared/js/confetti.js"></script>
 
 <!-- Tích hợp Google Drive & Toast dùng chung của Khối 4 -->
-<script src="../shared/components.js"></script>
+<script src="../../assets/data/students_all_2026_2027.js"></script>
 <!-- Bộ bảo vệ chống F5 và reload mất dữ liệu tiết học của repo -->
 <script src="../../shared/js/prevent-reload.js"></script>
 <style>
@@ -576,7 +577,7 @@ const BASE = [
   'Nhom 3/'
 ];
 
-/* DỮ LIỆU CÁC NHIỆM VỤ THỰC HÀNH (TẢI ĐỘNG TỪ FILE quests.json) */
+/* DỮ LIỆU CÁC NHIỆM VỤ THỰC HÀNH (ĐỌC TỪ quests.js) */
 let MASTER_MISSIONS = [];
 
 const FALLBACK_MISSIONS = [
@@ -601,21 +602,11 @@ const FALLBACK_MISSIONS = [
 ];
 
 async function loadQuests() {
-  try {
-    const res = await fetch('quests.json');
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && data.length) {
-        MASTER_MISSIONS = data;
-        updateActiveMissions();
-        if (curTree) drawGame();
-        return;
-      }
-    }
-  } catch (e) {
-    console.warn('Không tải được quests.json, dùng fallback:', e);
+  if (Array.isArray(window.QUESTS_DATA) && window.QUESTS_DATA.length) {
+    MASTER_MISSIONS = window.QUESTS_DATA;
+  } else {
+    MASTER_MISSIONS = FALLBACK_MISSIONS;
   }
-  MASTER_MISSIONS = FALLBACK_MISSIONS;
   updateActiveMissions();
   if (curTree) drawGame();
 }

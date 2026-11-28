@@ -19,7 +19,7 @@ Mọi mã nguồn do AI sinh ra hoặc chỉnh sửa BẮT BUỘC phải tuân t
   * Xuất CSV: Dùng thuần JavaScript có sẵn trong `shared/js/core.js`.
   * Hiệu ứng pháo hoa Confetti: Dùng Canvas HTML5 nội bộ (tham khảo mẫu Khối 2 Tiết 09).
   * Âm thanh (SFX): Dùng 100% Web Audio API synthesizer sinh sóng âm, không dùng file `.mp3` ngoài.
-  * Font chữ & Google Material Symbols: Lưu trữ 100% offline file `.woff2` tại `assets/fonts/` và nạp qua `shared/css/core.css`. Tuyệt đối không dùng CDN font ngoài và không để thiếu font làm rơi về font mặc định Segoe UI.
+  * Font chữ (Baloo 2, Nunito, Quicksand, Be Vietnam Pro): Lưu trữ 100% offline file `.woff2` tại `assets/fonts/` và nạp qua `shared/css/core.css`. Tuyệt đối không dùng CDN font ngoài và không để thiếu font làm rơi về font mặc định Segoe UI.
 
 ### 2. An toàn & Chống mất dữ liệu (`prevent-reload`) & Ngoại lệ Hard Reload cho Giáo viên
 * Mọi file HTML của tiết học bắt buộc phải nhúng file bảo vệ trong thẻ `<head>`:
@@ -462,7 +462,7 @@ Khi nhận được yêu cầu viết tiết học mới từ người dùng (v�
 
 1. **Bước 1 — Xác định Khối & Bản sắc:** Đọc bảng ở Mục 1.8 để chọn đúng Font chữ, Theme CSS, và Bố cục của Khối đó. Lưu ý: Sidebar / bảng điều khiển có thể nằm bên trái hoặc bên phải tùy theo bản sắc từng khối (ví dụ Khối 3 là 2 cột với Sidebar bên phải). Khi một khối đã có Sidebar hiển thị ở một bên, TUYỆT ĐỐI KHÔNG sinh thêm Drawer trượt bên đối diện gây dư thừa và xung đột layout; tích hợp công cụ giáo viên và điểm số trực tiếp trên Sidebar hiện hữu của khối đó. Có thể dùng nút Hamburger (`☰`) để thu gọn/mở rộng chính Sidebar đó khi cần giải phóng không gian màn chiếu TV cho học sinh.
 2. **Bước 2 — Nạp Khung sườn Chuẩn (Boilerplate):** 
-   * Kiểm tra xem khối đó đã có `template.html` chưa. Nếu có, nhân bản từ `template.html` của khối.
+   * Tham khảo bộ khung chuẩn toàn hệ thống tại `shared/template.html` (kết hợp `../shared/style.css` hoặc `../theme/style.css` của khối nếu có) và `../../shared/js/ui-components.js`.
    * Chèn đúng 2 file bảo vệ: `../../shared/js/prevent-reload.js` và `../../shared/js/core.js`.
 3. **Bước 3 — Nạp Dữ liệu Học sinh & Thiết lập Chế độ (Hỗ trợ Linh Hoạt Từ Khối 1 Đến Khối 5):**
    * **Bộ chọn lớp linh hoạt toàn trường:** Dropdown chọn lớp hỗ trợ đầy đủ các lớp từ Khối 1 đến Khối 5 (gom nhóm `<optgroup>` rõ ràng theo từng khối), lớp mặc định theo khối của bài học nhưng giáo viên có thể chuyển sang bất kỳ lớp nào khi đảo bài.
@@ -513,7 +513,7 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 - [ ] Luồng bài dạy là gọi học sinh lên bảng lần lượt từng em, tuyệt đối KHÔNG có tính năng "Chấm hàng loạt" gây dư thừa trên UI?
 - [ ] Bảng vàng vinh danh (Leaderboard) được thiết kế xếp dọc (Vertical Stack, flex-column, mỗi tổ 1 hàng ngang), TUYỆT ĐỐI CẤM xếp lưới ngang (grid)?
 - [ ] Bảng xếp hạng và xuất CSV có cơ chế xử lý đồng hạng (bằng điểm → cùng hạng, cùng cúp/huy chương, danh hiệu "Đồng Quán quân / Đồng Á quân") không?
-- [ ] Nếu là Khối 5 và kích hoạt Phe Quỷ: Đã tuân thủ cơ chế Bất Công Công Khai (chỉ áp dụng Khối 5, tuyệt đối không áp dụng Khối 1-4; không trao quyền Quỷ Vương cầm máy, đúng +50% max 1000đ, sai/phạt -200đ vào Quỹ Cứu Trợ, rớt sàn <800đ, ân xá hoàn lương) và có đầy đủ bộ UI tương tác (Nút mở quản lý phe trên Sidebar, Modal đày học sinh dạng chip, Pop-up trừng phạt nhanh 1-chạm, Roster các em quỷ trong thẻ Tổ Quỷ, Gacha chuẩn trong phe) chưa?
+- [ ] Nếu là Khối 5 và kích hoạt Phe Quỷ: Đã tuân thủ cơ chế Bất Công Công Khai (chỉ áp dụng Khối 5, tuyệt đối không áp dụng Khối 1-4; không trao quyền Quỷ Vương cầm máy, mỗi em Quỷ có quỹ điểm cá nhân riêng khởi điểm 1000 Xu, vi phạm >= 3 lần hoặc < 800 Xu sẽ Nổ Tung 💥 chia điểm cho các tổ Loài Người và hóa Slime Câm Lặng 🔇) và có đầy đủ bộ UI chuẩn (Nút `😈 Phe Quỷ` trên Sidebar, Modal 1 danh sách xếp dọc với duy nhất 1 nút `✅ Xong`, Pop-up trừng phạt nhanh 1-chạm, Gacha `🎲` trong phe) chưa?
 - [ ] Bộ chọn lớp có hỗ trợ linh hoạt toàn bộ các lớp từ Khối 1 đến Khối 5 (gom nhóm `<optgroup>` theo khối, phục vụ hoàn hảo tình huống đảo bài/dạy chéo khối) không?
 - [ ] Tên file CSV xuất ra có đúng quy cách `KetQua_TinHoc{Khoi}_Lop_{Lop}_Tiet_{Tiet}...` và tự động cập nhật đúng Khối & Lớp thực tế của lớp được chọn khi dạy chéo khối không?
 - [ ] 100% file HTML đã có cơ chế tự động lưu LocalStorage (Auto-Save) phòng cúp điện/sập nguồn chưa? Đã lưu chi tiết 100% dữ liệu từng học sinh (TT27) và có cơ chế cảnh báo khi bộ nhớ gần đầy để bấm "Dạy lớp mới" chưa?
@@ -538,7 +538,7 @@ Trước khi gửi phản hồi hoàn thành cho Giáo viên, AI phải tự rà
 
 ### 5.1 Phân Tách Ranh Giới Độc Lập
 * Phân khu `arena/` hoạt động hoàn toàn độc lập với hệ thống slide bài học (`khoi-1` đến `khoi-5`) và mini-games hỗ trợ tiết dạy (`games/`).
-* **TUYỆT ĐỐI KHÔNG SỬA ĐỔI:** Giữ nguyên 100% trang chủ gốc `index.html` và thư mục `games/`. Tuyệt đối không gắn link từ trang chủ sang `arena/`.
+* **TUYỆT ĐỐI KHÔNG SỬA ĐỔI:** Giữ nguyên 100% thư mục `games/` và hệ thống bài giảng `khoi-1` đến `khoi-5` khi phát triển `arena/` (trang chủ gốc `index.html` đã được gỡ bỏ). Tuyệt đối không tự ý gắn link từ `games/` hay bài giảng sang `arena/`.
 * Mọi minigame đua top toàn trường mới đều phải nằm gọn trong thư mục con của `arena/` (ví dụ: `arena/_template/`, `arena/speed-click/`...).
 * Code backend của hệ thống đua top nằm tập trung tại `backend-gas/Code.gs`.
 

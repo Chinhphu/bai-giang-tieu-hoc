@@ -5,50 +5,21 @@
  */
 
 (() => {
-  /* 1. CHẶN PHÍM F5 CỦA HỌC SINH (GIÁO VIÊN GIỮ SHIFT + F5 ĐỂ RELOAD) */
+  /* 1. THÔNG BÁO TOAST & CHỐNG RELOAD ĐƯỢC CUNG CẤP BỞI shared/js/core.js + prevent-reload.js */
   function showToast(msg, isWarn = false) {
-    let el = document.getElementById('k1-toast');
-    if (!el) {
-      el = document.createElement('div');
-      el.id = 'k1-toast';
-      document.body.appendChild(el);
+    if (typeof window.showToast === 'function') {
+      return window.showToast(msg, isWarn ? 'bad' : 'ok', 2600);
     }
-    el.textContent = msg;
-    el.style.background = isWarn
-      ? 'linear-gradient(135deg, #F43F5E 0%, #BE123C 100%)'
-      : 'linear-gradient(135deg, #10B981 0%, #047857 100%)';
-    el.classList.add('show');
-    clearTimeout(el._t);
-    el._t = setTimeout(() => el.classList.remove('show'), 2600);
+    if (typeof window.toast === 'function') {
+      return window.toast(msg, 2600, isWarn ? '#be123c' : '#047857');
+    }
   }
 
-  window.addEventListener('keydown', e => {
-    const isF5 = e.key === 'F5' || e.keyCode === 116;
-    const isCtrlR = (e.ctrlKey || e.metaKey) && (e.key === 'r' || e.key === 'R');
-    if (e.shiftKey && isF5) return true;
-    if (isF5 || isCtrlR) {
-      e.preventDefault();
-      e.stopPropagation();
-      showToast('Cấm bấm F5 tải lại trang!', true);
-      if (window.Khoi1Audio) window.Khoi1Audio.playBuzzer();
-      return false;
-    }
-  }, true);
-
-  /* 2. DANH SÁCH HỌC SINH DỰ PHÒNG OFFLINE */
-  const FALLBACK_DATA = {
-    "1_6": [
-      "Lê Nguyễn Thảo An", "Dương Quỳnh Anh", "Nguyễn Duy Anh", "Nguyễn Trần Bảo Anh", "Tô Tuệ Anh",
-      "Trần Nguyễn Phương Anh", "Danh Trần Gia Bảo", "Trần Tuyết Băng", "Nguyễn Hoàng Dũng", "Phạm Quang Đạt",
-      "Nguyễn Phúc Hậu", "Huỳnh Minh Huy", "Phạm Khắc Huy", "Phạm Minh Ken", "Thái Phát Khang",
-      "Lâm Hoàng Gia Khương", "Nguyễn Tuấn Kiệt", "Đỗ Ngọc Thiên Kim", "Nguyễn Ngọc Thiên Kim", "Đặng Bảo Linh",
-      "Danh Nguyễn Trà My", "Hà Tiểu My", "Nguyễn Cẩm Ngọc", "Nguyễn Hoàng Bảo Ngọc", "Nguyễn Phan Kim Nguyên",
-      "Lưu Nguyệt Nhân", "Lương Huỳnh An Nhiên", "Huỳnh Minh Phát", "Lê Hoàng Phát", "Lưu Vương Thành Phát",
-      "Đàm Tâm Phú", "Huỳnh Ngọc Như Phúc", "Ngô Anh Quốc", "Đặng Phi Thiên", "Nguyễn Hoàng Thiện",
-      "Danh Minh Thuận", "Tô Minh Trí", "Đặng Bảo Trúc", "Phan Nhật Trường", "Võ Huỳnh Khánh Vân",
-      "Mai Đức Vĩnh", "Danh Nguyễn Hoàng Yến"
-    ]
-  };
+  /* 2. NẠP DANH SÁCH HỌC SINH TẬP TRUNG (TỪ students_all_2026_2027.js / JSON) */
+  function getFallbackClassNames(cls) {
+    const src = (typeof window !== 'undefined' && window.SCHOOL_STUDENTS_2026_2027) || {};
+    return Array.isArray(src[cls]) ? src[cls] : (Array.isArray(src['1_6']) ? src['1_6'] : []);
+  }
 
   const Khoi1Components = (() => {
     let currentClass = '1_6';
@@ -153,7 +124,7 @@
       }
 
       if (!rawNames || rawNames.length === 0) {
-        rawNames = FALLBACK_DATA[cls] || FALLBACK_DATA['1_6'];
+        rawNames = getFallbackClassNames(cls);
       }
 
       students = rawNames.map((n, i) => ({

@@ -302,7 +302,7 @@ const Khoi1Gacha = (() => {
       const list = window.Khoi1Components.getUncalledStudents();
       if (list && list.length > 0) return list;
     }
-    return ['Lê Nguyễn Thảo An', 'Dương Quỳnh Anh', 'Nguyễn Duy Anh', 'Tô Tuệ Anh', 'Danh Trần Gia Bảo', 'Trần Tuyết Băng'];
+    return typeof window.getClassStudents === 'function' ? window.getClassStudents('1_6', '1_6') : [];
   }
 
   function open(defaultMode = 'pond') {

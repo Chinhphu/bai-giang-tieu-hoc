@@ -43,18 +43,23 @@ bai-giang-tieu-hoc/
 │   │   ├── students_3_2026_2027.json
 │   │   ├── students_4_2026_2027.json
 │   │   └── students_5_2026_2027.json
-│   ├── fonts/                 # Bộ font Google Fonts & Material Symbols (.woff2) chạy 100% offline
+│   ├── fonts/                 # Bộ font Google Fonts (.woff2) chạy 100% offline
 │   └── images/                # Hình ảnh, icon dùng chung
 ├── shared/
+│   ├── template.html          # Bộ khung bài giảng chuẩn duy nhất toàn hệ thống
 │   ├── css/
+│   │   ├── fonts.css          # Bộ @font-face cục bộ (.woff2) dùng chung (cả arena/)
 │   │   └── core.css           # CSS cơ bản toàn hệ thống
 │   └── js/
-│       ├── core.js            # Xuất CSV UTF-8 BOM, đồng bộ GAS, helper toàn hệ thống
-│       ├── demon-mode.js      # Logic Phe Quỷ / Đấu trường Ma Vương (Độc quyền dành riêng cho Khối 5)
+│       ├── core.js            # Toast, Fullscreen Overlay, CSV UTF-8 BOM, học sinh đa khối
+│       ├── sfx.js             # Bộ tổng hợp âm thanh Web Audio API dùng chung
+│       ├── confetti.js        # Hiệu ứng pháo hoa HTML5 Canvas nội bộ
+│       ├── ui-components.js   # Bộ Web Components thống nhất (<lesson-*>, alias <khoi5-*>, <khoi3-setup>)
+│       ├── demon-mode.js      # Logic Phe Quỷ v2 (Độc quyền dành riêng cho Khối 5)
 │       └── prevent-reload.js  # Bộ bảo vệ chống bấm nhầm phím/chuột làm mất dữ liệu
 ├── khoi-1/ ... khoi-5/        # Thư mục bài giảng 5 khối lớp
-│   ├── shared/                # Thành phần dùng chung của khối (template.html, components.js, style.css)
-│   ├── theme/                 # Theme CSS đặc thù của khối
+│   ├── shared/                # Giao diện/tiện ích đặc thù của khối (style.css, components.js riêng Khối 1)
+│   ├── theme/                 # Theme CSS đặc thù của khối (Khối 2, Khối 4)
 │   ├── tiet-01/               # Bài học Tiết 1
 │   │   └── index.html
 │   └── tiet-35/
@@ -67,7 +72,7 @@ bai-giang-tieu-hoc/
 * **Lý do:** Tường lửa mạng trường học thường chặn các CDN quốc tế, hoặc đường truyền chập chờn. Việc đóng gói toàn bộ tài nguyên nội bộ giúp bài giảng nạp siêu tốc, độc lập hoàn toàn và chạy ổn định 100% trên lớp.
 * **BẮT BUỘC 100% Relative Paths:** Tuyệt đối không dùng đường dẫn tuyệt đối bắt đầu bằng `/` (như `/assets/...`), luôn dùng đường dẫn tương đối (`../../assets/...`) để tương thích hoàn toàn với subpath của GitHub Pages.
 * Tất cả hiệu ứng Confetti, âm thanh, xuất CSV phải hoàn toàn xử lý bằng JavaScript nội bộ.
-* Toàn bộ Google Fonts (Baloo 2, Nunito, Quicksand, Be Vietnam Pro) và Google Material Symbols được lưu trữ cục bộ dưới dạng file `.woff2` tại `assets/fonts/` và khai báo `@font-face` trong `shared/css/core.css`. Tuyệt đối không dùng CDN font ngoài và không để thiếu font làm rơi về font mặc định Segoe UI.
+* Toàn bộ Google Fonts (Baloo 2, Nunito, Quicksand, Be Vietnam Pro) được lưu trữ cục bộ dưới dạng file `.woff2` tại `assets/fonts/` và khai báo `@font-face` trong `shared/css/core.css`. Tuyệt đối không dùng CDN font ngoài và không để thiếu font làm rơi về font mặc định Segoe UI. Sử dụng Emoji/Unicode chuẩn hóa thay cho font icon ngoài.
 
 ---
 

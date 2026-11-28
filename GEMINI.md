@@ -11,7 +11,7 @@ Mọi AI Agent khi làm việc trong workspace này bắt buộc phải nạp v�
 
 ### 1. Phân Tách Ranh Giới Độc Lập
 * Phân khu `arena/` hoạt động hoàn toàn độc lập với hệ thống slide bài học (`khoi-1` đến `khoi-5`) và mini-games hỗ trợ tiết dạy (`games/`).
-* **TUYỆT ĐỐI KHÔNG SỬA ĐỔI:** Giữ nguyên 100% trang chủ gốc `index.html` và thư mục `games/`. Không tự ý gắn link từ trang chủ sang `arena/`.
+* **TUYỆT ĐỐI KHÔNG SỬA ĐỔI:** Giữ nguyên 100% thư mục `games/` và hệ thống bài giảng `khoi-1` đến `khoi-5` khi phát triển `arena/` (trang chủ gốc `index.html` đã được gỡ bỏ). Không tự ý gắn link từ `games/` hay bài giảng sang `arena/`.
 * Mọi minigame đua top toàn trường mới đều phải nằm gọn trong thư mục con của `arena/` (ví dụ: `arena/_template/`, `arena/speed-click/`...).
 * Code backend của hệ thống đua top nằm tập trung tại `backend-gas/Code.gs`.
 

@@ -5,15 +5,7 @@ Các bài giảng Tin học khối 3 có cùng khung lớp học theo chuẩn gi
 ## Thành phần hiện có
 
 - `style.css`: Giao diện cơ sở định nghĩa theo Tiết 06 (Quicksand, màu sắc tươi sáng: `--primary: #4361ee`, `--secondary: #ffb703`, `--navy: #101b35`, `--green: #2a9d8f`, `--red: #e63946`, ...), bố cục `.main` và `.side` (cho phép menu điều khiển, thanh công cụ hoặc sidebar ẩn/hiện bằng nút Hamburger `☰` để tối ưu diện tích màn chiếu), các thẻ `.tcard`, linh kiện 4 ô `.core-slots-grid`, kho đồ cuộn ngang `.inv-scroll`, modal, toast và Kanban.
-- `components.js`: Web Components cho cài đặt đầu giờ (`<khoi3-setup>`), sidebar (`<khoi3-sidebar>`, `<khoi3-unified-sidebar>`), modal thêm học sinh (`<khoi3-student-modal>`) và màn hình tổng kết (`<khoi3-summary>`); hỗ trợ bộ chọn lớp đa khối từ Khối 1 đến Khối 5; đồng thời cung cấp hàm `toast(msg)` và **`uploadExcelToDrive(wb, fileName)`** tự động bắn file nhật ký lên Google Drive.
-- `students.js`: Quản lý danh sách học sinh toàn trường, tự động nạp từ JSON tương ứng theo mã lớp (`assets/data/students_{khoi}_2026_2027.json`). Hoàn toàn không dùng import Excel, chỉ dùng JSON và cho phép giáo viên thêm nhanh học sinh bằng tay. Hỗ trợ chọn linh hoạt từ Khối 1 đến Khối 5 khi đảo bài.
-- `tracker.js`: Ghi nhật ký chi tiết theo thời gian thực, tính toán thứ hạng chuẩn sư phạm (xử lý đồng hạng) và xuất báo cáo 3 sheets (Bảng Xếp Hạng, Nhật Ký Chi Tiết, Danh Sách Học Sinh) tự động đồng bộ về Google Drive.
-- `audio.js`: Phát âm thanh Web Audio API (trả lời đúng, chiến thắng, phạt mất trật tự, click, quay gacha), 100% offline không cần mp3 ngoài.
-- `slides.js`: Quản lý chuyển đổi màn hình và slide trình chiếu.
-- `scoreboard.js`: Quản lý tổ/đội, 4 linh kiện PC cốt lõi (Thân máy, Màn hình, Bàn phím, Chuột), phụ kiện công nghệ và phạt ồn.
-- `gacha.js`: Hệ thống 6 thùng hàng bí mật và hiệu ứng mở quà.
-- `utils.js`: Các hàm tiện ích: toast, confetti bắn pháo hoa, timer, xáo trộn câu hỏi và xuất Excel.
-- `template.html`: Khung tạo bài học mới cho Khối 3.
+- Tiện ích & Web Components dùng chung được hợp nhất tại gốc repo (`../../shared/js/core.js`, `../../shared/js/ui-components.js`, `../../shared/js/prevent-reload.js`, `../../shared/template.html`).
 
 ## Cơ chế Xuất Báo Cáo CSV & Đồng Bộ Google Drive
 
@@ -46,7 +38,8 @@ Nạp CSS và script trong thẻ `<head>` của từng tiết:
 
 ```html
 <link rel="stylesheet" href="../shared/style.css">
-<script src="../shared/components.js"></script>
+<script src="../../shared/js/core.js"></script>
+<script src="../../shared/js/ui-components.js"></script>
 ```
 
 Đặt các component trong `<body>`:

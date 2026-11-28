@@ -5,10 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bài 4: Hàng Phím Dưới - Lớp 2</title>
-
-
-
-
+    <link rel="stylesheet" href="../../shared/css/core.css">
     <style>
         * {
             box-sizing: border-box;
@@ -679,6 +676,7 @@
         }
     </style>
     <script src="../../shared/js/prevent-reload.js"></script>
+    <script src="../../assets/data/students_all_2026_2027.js"></script>
     <script src="../../shared/js/core.js"></script>
     <script src="quests.js"></script>
 </head>
@@ -831,27 +829,7 @@
             ["BIG", "RED", "VAN"]
         ];
 
-        const FALLBACK_CLASSES = {
-            "2_2": [
-                "Nguyễn Minh An", "Trần Bảo Anh", "Lê Hoàng Bách", "Phạm Ngọc Châu", "Võ Minh Chiến",
-                "Đặng Quốc Cường", "Bùi Khánh Duy", "Hồ Minh Đức", "Ngô Gia Hân", "Dương Phúc Hậu",
-                "Lý Minh Hiếu", "Trương Bảo Hoàng", "Phan Tuấn Kiệt", "Vũ Ngọc Lan", "Đỗ Hoàng Long",
-                "Huỳnh Bảo Minh", "Nguyễn Thảo My", "Trần Khánh Nam", "Lê Kim Ngân", "Phạm Bảo Ngọc",
-                "Võ Hoàng Nhân", "Đặng Yến Nhi", "Bùi Gia Phúc", "Hồ Minh Quân", "Ngô Phương Quỳnh",
-                "Dương Thanh Tâm", "Lý Minh Tân", "Trương Anh Thư", "Phan Thủy Tiên", "Vũ Mộc Trà"
-            ],
-            "2_4": [
-                "Lê Gia Bảo", "Nguyễn Ngọc Bích", "Trần Minh Cảnh", "Phạm Hoàng Danh", "Võ Tiến Đạt",
-                "Đặng Hải Đăng", "Bùi Khánh Hà", "Hồ Ngọc Hân", "Ngô Minh Khang", "Dương Tuấn Khôi",
-                "Lý Thiên Kim", "Trương Hoàng Lâm", "Phan Nhật Linh", "Vũ Bảo Lộc", "Đỗ Minh Mẫn",
-                "Huỳnh Ái My", "Nguyễn Thành Nam", "Trần Bảo Nghi", "Lê Phương Nguyên", "Phạm Hồng Nhung"
-            ],
-            "2_5": [
-                "Trần Quốc An", "Lê Kiều Anh", "Nguyễn Tuấn Bằng", "Phạm Minh Châu", "Võ Hoàng Chương",
-                "Đặng Thành Đạt", "Bùi Minh Đông", "Hồ Khánh Giang", "Ngô Gia Huy", "Dương Ngọc Huyền",
-                "Lý Quốc Khánh", "Trương Minh Khoa", "Phan Hoàng Khôi", "Vũ Ngọc Kỳ", "Đỗ Thiên Ân"
-            ]
-        };
+        const FALLBACK_CLASSES = window.SCHOOL_STUDENTS_2026_2027 || {};
 
         const MAX_WORD_SCORE = 1000;
         const DECAY_PER_SEC = 25; // Giảm 25 điểm / 1s (0.025 điểm/ms) tính sát sao theo từng mili giây
@@ -1045,23 +1023,16 @@
             }[tag] || tag));
         }
 
-        /* Khởi tạo danh sách học sinh với ID duy nhất & nhận diện trùng cả họ và tên */
+        /* Khởi tạo danh sách học sinh với ID duy nhất */
         function buildStudentList(rawNames) {
-            const nameCounts = {};
-            rawNames.forEach(name => {
-                const trimmed = (name || '').trim();
-                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
-            });
-
             return rawNames.map((name, i) => {
                 const trimmed = (name || '').trim();
-                const isDup = (nameCounts[trimmed] || 0) > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed);
                 return {
                     id: `hs_${i + 1}`,
                     stt: i + 1,
                     name: trimmed,
-                    isDup: isDup,
-                    displayName: isDup ? `${trimmed} [STT ${i + 1}]` : trimmed
+                    isDup: false,
+                    displayName: trimmed
                 };
             });
         }

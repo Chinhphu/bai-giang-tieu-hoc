@@ -164,6 +164,7 @@
 
     </style>
     <link rel="stylesheet" href="../../shared/css/core.css">`r`n    <script src="../../shared/js/prevent-reload.js"></script>
+    <script src="../../assets/data/students_all_2026_2027.js"></script>
     <script src="../../shared/js/core.js"></script>
 </head>
 <body>
@@ -292,21 +293,8 @@
         function startGame() {
             const selectedClass = document.getElementById("class-select").value;
             if (!selectedClass) { alert("Cô/Thầy ơi, chọn lớp đã nhé!"); return; }
-            const raw = classLists[selectedClass] || FALLBACK_CLASSLISTS[selectedClass] || FALLBACK_CLASSLISTS['2_2'] || [];
-            const nameCounts = {};
-            raw.forEach(n => {
-                const t = (n || '').trim();
-                nameCounts[t] = (nameCounts[t] || 0) + 1;
-            });
-            const tracker = {};
-            currentClassList = raw.map(n => {
-                const t = (n || '').trim();
-                if (nameCounts[t] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(t)) {
-                    tracker[t] = (tracker[t] || 0) + 1;
-                    return `${t} (${tracker[t]})`;
-                }
-                return t;
-            });
+            const raw = classLists[selectedClass] || (typeof window.getClassStudents === 'function' ? window.getClassStudents(selectedClass, '2_2') : []);
+            currentClassList = raw.map(n => String(n || '').trim()).filter(Boolean);
             remainingStudents = shuffleArray([...currentClassList]); 
             playedStudents = [];
             bannedStudents = [];

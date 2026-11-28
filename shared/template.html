@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tin học Tiểu học - Khung Bài Giảng Chuẩn (AGENTS.md)</title>
+
+  <!-- 1. TÀI NGUYÊN OFFLINE-FIRST DÙNG CHUNG TOÀN HỆ THỐNG -->
+  <link rel="stylesheet" href="../shared/css/core.css">
+  <!-- Thêm theme khối nếu cần: <link rel="stylesheet" href="../khoi-5/shared/style.css"> -->
+
+  <script src="../shared/js/prevent-reload.js"></script>
+  <script src="../assets/data/students_all_2026_2027.js"></script>
+  <script src="../shared/js/core.js"></script>
+  <script src="../shared/js/sfx.js"></script>
+  <script src="../shared/js/confetti.js"></script>
+  <script src="../shared/js/ui-components.js"></script>
+  <!-- Nếu nhân bản sang khoi-X/tiet-YY/index.html: đổi "../" thành "../../" và thêm thẻ script nạp quests.js ở bên cạnh -->
+
+  <style>
+    body {
+      margin: 0;
+      font-family: var(--k5-font);
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    .app-wrap {
+      display: flex;
+      min-height: 100vh;
+    }
+    .stage {
+      flex: 1;
+      padding: 24px 32px 84px;
+      overflow-y: auto;
+    }
+    .slide { display: none; }
+    .slide.active { display: block; }
+    .btn {
+      padding: 10px 18px;
+      border-radius: 12px;
+      border: 2px solid #0f172a;
+      font-weight: 800;
+      cursor: pointer;
+      background: #fff;
+    }
+    .btn-primary { background: #0284c7; color: #fff; border-color: #0369a1; }
+  </style>
+</head>
+<body>
+  <!-- Cài đặt đầu giờ (tự động nạp đủ 21 lớp Khối 1-5) -->
+  <lesson-setup
+    heading="TIN HỌC · BÀI ..."
+    description="TÊN BÀI HỌC (TIẾT ...)"
+    default-class="5_1"
+    default-teams="4">
+  </lesson-setup>
+
+  <div class="app-wrap" id="app" style="display:none;">
+    <main class="stage">
+      <!-- SLIDE 1: GHI BÀI VÀO VỞ (1 LẦN DUY NHẤT ĐẦU GIỜ) -->
+      <section class="slide active" id="slide-1">
+        <div class="notebook-clean" id="notebookBox">
+          <button type="button" class="btn-fs-toggle" onclick="toggleNotebookFullscreen(this)" title="Chế độ toàn màn hình chép bài" style="position:absolute;top:16px;right:18px;">⛶</button>
+          <div class="nb-date" id="current-date-line">Đang cập nhật ngày...</div>
+          <div class="nb-subject">MÔN: TIN HỌC</div>
+          <h1 class="nb-title">BÀI ...: TÊN BÀI HỌC (TIẾT 1)</h1>
+          <div class="nb-content">
+            Nội dung cốt lõi cô đọng ngắn gọn (nếu là Tiết 1).
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 2: KHỞI ĐỘNG / HOẠT ĐỘNG -->
+      <section class="slide" id="slide-2">
+        <h2>🚀 Hoạt động khám phá & thực hành</h2>
+        <div style="display:flex;gap:10px;align-items:center;margin:14px 0;">
+          <select id="callerSelect" style="padding:8px 12px;border-radius:10px;font-weight:700;"></select>
+          <button type="button" class="btn" onclick="rollGacha()" title="Bốc thăm ngẫu nhiên / Gọi tên">🎲</button>
+          <button type="button" class="btn btn-primary" onclick="if(window.requireStudent('callerSelect')) SFX.correct()">✅ Kiểm tra chọn HS</button>
+        </div>
+      </section>
+
+      <!-- SLIDE 3: CHỐT KIẾN THỨC 5 PHÚT CUỐI -->
+      <section class="slide" id="slide-3">
+        <h2>📌 Chốt kiến thức</h2>
+        <div class="summary-card-grid grid-3">
+          <div class="summary-card"><div class="sc-badge">Ý 1</div><div class="sc-title">Từ khóa 1</div><div class="sc-desc">Ngắn gọn, dễ nhớ</div></div>
+          <div class="summary-card"><div class="sc-badge">Ý 2</div><div class="sc-title">Từ khóa 2</div><div class="sc-desc">Ngắn gọn, dễ nhớ</div></div>
+          <div class="summary-card"><div class="sc-badge">Ý 3</div><div class="sc-title">Từ khóa 3</div><div class="sc-desc">Ngắn gọn, dễ nhớ</div></div>
+        </div>
+      </section>
+    </main>
+
+    <lesson-sidebar title="🏆 Bảng Điểm Tổ" page-indicator></lesson-sidebar>
+  </div>
+
+  <lesson-student-modal></lesson-student-modal>
+  <lesson-summary></lesson-summary>
+
+  <script>
+    const LESSON_META = { grade: 5, lesson: '01' };
+    let currentClass = '5_1';
+    let teams = [];
+    let students = [];
+    let currentSlide = 1;
+    let sessionManager = null;
+
+    function startGame() {
+      currentClass = document.getElementById('s-class').value;
+      const n = Math.max(2, Math.min(6, parseInt(document.getElementById('s-teams').value, 10) || 4));
+      const startScore = parseInt(document.getElementById('s-score').value, 10) || window.STARTING_SCORE;
+
+      students = window.getClassStudents(currentClass, '5_1').map((name, i) => ({ id: i + 1, name, team: null }));
+      teams = Array.from({ length: n }, (_, i) => ({ id: i, name: `Tổ ${i + 1}`, score: startScore }));
+
+      document.getElementById('setup-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      window.updateVietnameseDate();
+      renderStudentsSelect();
+      renderTeams();
+      initSession();
+    }
+
+    function initSession() {
+      const key = `bgtieu_hoc_k${LESSON_META.grade}_tiet_${LESSON_META.lesson}_${currentClass}_state`;
+      window.sessionManager = sessionManager = window.createSessionStateManager({
+        storageKey: key,
+        onRestore: (saved) => {
+          if (Array.isArray(saved.teams)) teams = saved.teams;
+          renderTeams();
+        }
+      });
+      sessionManager.tryAutoRestore();
+    }
+
+    function renderStudentsSelect() {
+      const sel = document.getElementById('callerSelect');
+      if (sel) {
+        sel.innerHTML = '<option value="">-- Chọn học sinh --</option>' +
+          students.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+      }
+    }
+
+    function rollGacha() {
+      if (!students.length) return;
+      SFX.gacha();
+      const pick = students[Math.floor(Math.random() * students.length)];
+      document.getElementById('callerSelect').value = pick.name;
+      window.showToast(`🎲 Mời em: ${pick.name}`, 'ok');
+    }
+
+    function renderTeams() {
+      const box = document.getElementById('teams');
+      if (!box) return;
+      box.innerHTML = teams.map(t => `<div class="team" style="padding:10px;border:2px solid #cbd5e1;border-radius:10px;margin-bottom:8px;"><b>${t.name}</b>: ${t.score}đ</div>`).join('');
+    }
+
+    function goSlide(delta) {
+      const total = document.querySelectorAll('.slide').length;
+      currentSlide = Math.max(1, Math.min(total, currentSlide + delta));
+      document.querySelectorAll('.slide').forEach((s, idx) => s.classList.toggle('active', idx + 1 === currentSlide));
+      const ind = document.getElementById('slide-page-num');
+      if (ind) ind.textContent = `${currentSlide} / ${total}`;
+    }
+
+    function openAddHs() { document.getElementById('hs-modal').style.display = 'flex'; }
+    function closeAddHs() { document.getElementById('hs-modal').style.display = 'none'; }
+    function saveAddHs() {
+      const ta = document.getElementById('hs-input');
+      const names = (ta.value || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      names.forEach(raw => {
+        const name = window.formatUniqueStudentName(raw, students);
+        students.push({ id: students.length + 1, name, team: null });
+      });
+      ta.value = '';
+      renderStudentsSelect();
+      closeAddHs();
+    }
+    function openEnd() { document.getElementById('end-screen').style.display = 'block'; }
+    function closeEnd() { document.getElementById('end-screen').style.display = 'none'; }
+    function exportExcel() {
+      const fileName = window.buildExportFileName({ grade: LESSON_META.grade, classId: currentClass, lesson: LESSON_META.lesson });
+      const rankings = window.calculateRankings(teams).map(r => ({ 'Hạng': r.badgeText, 'Tổ': r.name, 'Điểm': r.score }));
+      window.uploadCsvToDrive([['Bảng xếp hạng', rankings]], fileName);
+    }
+  </script>
+</body>
+</html>

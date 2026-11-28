@@ -16,7 +16,8 @@
 
     <script src="../../shared/js/confetti.js"></script>
 
-    <script src="../shared/components.js"></script>
+    <script src="../../assets/data/students_all_2026_2027.js"></script>
+    <script src="../../shared/js/ui-components.js"></script>
     <script src="../../shared/js/prevent-reload.js"></script>
     <!-- NGÂN HÀNG VỤ ÁN / QUESTS NẠP OFFLINE FILE RIÊNG -->
     <script src="quests.js"></script>
@@ -2801,12 +2802,13 @@
                 return;
             }
 
-            lines.forEach((name) => {
+            lines.forEach((raw) => {
+                const name = typeof window.formatUniqueStudentName === 'function' ? window.formatUniqueStudentName(raw, students) : raw;
                 const newId = ++nextStudentId;
                 students.push({
                     id: newId,
                     name: name,
-                    rawName: name,
+                    rawName: raw,
                     displayName: name,
                     team: null,
                     actions: []
@@ -2839,21 +2841,6 @@
         let selectedDemonIdxForPunish = 0;
         let logoClickCount = 0;
 
-        // Danh sách dự phòng học sinh Khối 5
-        const FALLBACK_STUDENTS_5 = [
-            "Ngô Phương Anh", "Nguyễn Châu Diệp Anh", "Nguyễn Phương Anh", "Nguyễn Quốc Anh",
-            "Phạm Minh Anh", "Huỳnh Nhật Bảo Ánh", "Đào Thiên Ân", "Phạm Quốc Bảo",
-            "Trương Gia Bảo", "Nguyễn Ngọc Diệp", "Nguyễn Trường Đại", "Nguyễn Trọng Đức",
-            "Nguyễn Hoàng Gia Hân", "Đỗ Hoàng Hiếu", "Phạm Đình Hiếu", "Tiêu Thanh Hoa",
-            "Nguyễn Nhật Huy", "Huỳnh Phúc Hưng", "Dương Uyển Khanh", "Nguyễn Bùi Khắc Khiêm",
-            "Trương Ngọc Lâm", "Phạm Gia Linh", "Nguyễn Hoàng Hải Long", "Võ Huỳnh Gia Lộc",
-            "Trần Ngô Thành Luân", "Lâm Đường Vạn Lý", "Mạc Kim Ngân", "Lưu Nguyễn Kim Ngọc",
-            "Trương Khánh Ngọc", "Lương Nguyễn", "Lê Hoàng Yến Nhi", "Chu Dương Bảo Như",
-            "Trịnh Lâm Minh Phú", "Nguyễn Gia Phúc", "Dương Nguyễn Hồng Quân", "Phương Phú Quý",
-            "Vũ Giang Minh Quý", "Huỳnh Đinh Đỗ Quyên", "Bùi Quốc Thành", "Nguyễn Lê Như Thảo",
-            "Phan Trí Thiện", "Võ Hoàng Thiện", "Hồ Quỳnh Thư", "Nguyễn Kim Tiền",
-            "Đặng Minh Triết", "Võ Tấn Trung", "Trần Bảo Vy", "Văn Thanh Vy"
-        ];
 
         async function loadStudents(c) {
             try {
@@ -2866,10 +2853,10 @@
                         return arr.map(s => typeof s === 'string' ? s : (s.name || s.hoTen || '')).filter(Boolean);
                     }
                 }
-                return FALLBACK_STUDENTS_5;
+                return typeof window.getClassStudents === 'function' ? window.getClassStudents(c, '5_1') : [];
             } catch (err) {
                 console.warn('Dùng danh sách học sinh dự phòng (offline):', err);
-                return FALLBACK_STUDENTS_5;
+                return typeof window.getClassStudents === 'function' ? window.getClassStudents(c, '5_1') : [];
             }
         }
 
@@ -3603,27 +3590,16 @@
             calledStudentIndices.clear();
 
             let list = await loadStudents(currentClass);
-            if (!list || !list.length) list = FALLBACK_STUDENTS_5;
+            if (!list || !list.length) list = typeof window.getClassStudents === 'function' ? window.getClassStudents(currentClass, '5_1') : [];
             allClassStudents = [...list];
 
-            const nameCounts = {};
-            list.forEach(name => {
-                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
-                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
-            });
-            const nameTracker = {};
             students = list.map((item, index) => {
                 const trimmed = (typeof item === 'string' ? item : (item.name || '')).trim();
-                let finalName = trimmed;
-                if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
-                    nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
-                    finalName = `${trimmed} (${nameTracker[trimmed]})`;
-                }
                 return {
                     id: index + 1,
-                    name: finalName,
+                    name: trimmed,
                     rawName: trimmed,
-                    displayName: finalName,
+                    displayName: trimmed,
                     team: null, // Không sắp tổ sẵn! Mặc định null để học sinh có thể đại diện cho bất kỳ tổ nào hoặc giáo viên tự xếp
                     actions: []
                 };
@@ -4148,7 +4124,7 @@
         }
 
         /**************************************************************
-         * 7. NGÂN HÀNG 24 HỒ SƠ VỤ ÁN (NẠP TỪ quests.json & DỮ LIỆU TÍCH HỢP)
+         * 7. NGÂN HÀNG 24 HỒ SƠ VỤ ÁN (NẠP TỪ quests.js)
          **************************************************************/
         function formatCaseText(templateText, pT, dT) {
             if (!templateText) return '';
@@ -4164,27 +4140,10 @@
             return formatCaseText(fieldOrFn, pT, dT);
         }
 
-        /* NGÂN HÀNG 24 VỤ ÁN TÁCH RỜI SANG quests.json & quests.js */
+        /* NGÂN HÀNG 24 VỤ ÁN TÁCH RỜI SANG quests.js */
         let SUPREME_CASE_BANK = (window.QUESTS_DATA && Array.isArray(window.QUESTS_DATA.cases))
             ? window.QUESTS_DATA.cases
             : [];
-
-        /* Nạp quests.json nếu có server, tự động nạp từ quests.js nếu chạy offline file:// */
-        async function loadQuestsFromJSON() {
-            try {
-                const res = await fetch('quests.json');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (Array.isArray(data.cases) && data.cases.length > 0) {
-                        SUPREME_CASE_BANK = data.cases;
-                        console.log('✅ Đã nạp thành công ngân hàng 24 vụ án từ quests.json!');
-                    }
-                }
-            } catch (err) {
-                console.warn('Đang dùng ngân hàng vụ án nạp từ quests.js (offline file://):', err);
-            }
-        }
-        loadQuestsFromJSON();
 
         function shuffleArray(arr) {
             const copy = [...arr];

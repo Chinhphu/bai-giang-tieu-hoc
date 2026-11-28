@@ -18,7 +18,7 @@ Slide bài giảng HTML/CSS/JS cho khối 1, 2, 3, 4, 5 và Kho mini-games.
   - Nếu giáo viên chủ động muốn tải lại: Bấm **Tải lại / Reload**.
 
 ### 3. Quy ước dùng chung cho các file HTML tạo mới sau này:
-1. **Nếu tạo từ template khối** (`khoi-3/shared/template.html`, `khoi-5/shared/template.html`): File đã tích hợp sẵn cả script độc lập lẫn `components.js`, tự động được bảo vệ.
+2. **Hồ sơ tiện ích dùng chung (`shared/js/`):** Nạp `prevent-reload.js`, `core.js`, `students_all_2026_2027.js`, `sfx.js`, `confetti.js`, và `ui-components.js` (nếu dùng Web Components). (Tham khảo khung chuẩn tại `shared/template.html`.)
 2. **Nếu tạo HTML độc lập**: Chỉ cần chèn thẻ script sau vào trong `<head>`:
    ```html
    <!-- Chèn theo đúng độ sâu thư mục -->

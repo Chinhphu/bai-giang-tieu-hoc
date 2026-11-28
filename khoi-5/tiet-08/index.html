@@ -11,7 +11,8 @@
 
     <script src="../../shared/js/confetti.js"></script>
 
-    <script src="../shared/components.js"></script>
+    <script src="../../assets/data/students_all_2026_2027.js"></script>
+    <script src="../../shared/js/ui-components.js"></script>
 
     <style>
         /* ================= BỐ CỤC CHÍNH & POPUP LÀM MỜ PHỦ KÍN NỘI DUNG BÊN PHẢI ================= */
@@ -1791,24 +1792,17 @@
             }
         ];
 
-        async function loadQuestsFromJSON() {
-            try {
-                const res = await fetch('quests.json');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (Array.isArray(data.quests) && data.quests.length > 0) {
-                        WANTED_FILES = data.quests;
-                    }
-                    if (Array.isArray(data.challenges) && data.challenges.length > 0) {
-                        CHALLENGES_POOL = data.challenges;
-                    }
-                    console.log('✅ Đã nạp thành công câu hỏi & quest từ quests.json!');
+        function loadQuestsFromData() {
+            if (window.QUESTS_DATA) {
+                if (Array.isArray(window.QUESTS_DATA.quests) && window.QUESTS_DATA.quests.length > 0) {
+                    WANTED_FILES = window.QUESTS_DATA.quests;
                 }
-            } catch (err) {
-                console.warn('Dùng ngân hàng câu hỏi tích hợp sẵn.', err);
+                if (Array.isArray(window.QUESTS_DATA.challenges) && window.QUESTS_DATA.challenges.length > 0) {
+                    CHALLENGES_POOL = window.QUESTS_DATA.challenges;
+                }
             }
         }
-        loadQuestsFromJSON();
+        loadQuestsFromData();
 
         /* ================= 4. TRẠNG THÁI GAME & NHẬT KÝ ĐÁNH GIÁ SƯ PHẠM ================= */
         let teams = [];
@@ -1943,13 +1937,6 @@
         const fireCelebration = triggerConfetti;
 
         /* ================= 7. KHỞI TẠO HỒ SƠ HỌC SINH CHI TIẾT ================= */
-        const DEFAULT_FALLBACK_STUDENTS = [
-            'Ngô Phương Anh', 'Nguyễn Quốc Anh', 'Phạm Minh Anh', 'Đào Thiên Ân',
-            'Trương Gia Bảo', 'Nguyễn Trọng Đức', 'Đỗ Hoàng Hiếu', 'Nguyễn Nhật Huy',
-            'Dương Uyển Khanh', 'Trương Ngọc Lâm', 'Lâm Đường Vạn Lý', 'Mạc Kim Ngân',
-            'Chu Dương Bảo Như', 'Phương Phú Quý', 'Bùi Quốc Thành', 'Trần Bảo Vy',
-            'Võ Tấn Trung', 'Phan Trí Thiện', 'Hồ Quỳnh Thư', 'Đặng Minh Triết'
-        ];
 
         function createStudentObject(idx, finalName, rawName) {
             return {
@@ -1980,39 +1967,18 @@
                         const data = await res.json();
                         const rawList = data[classKey] || data[classKey.replace('_', '/')] || [];
                         if (Array.isArray(rawList) && rawList.length > 0) {
-                            const nameCounts = {};
-                            rawList.forEach(item => {
-                                const trimmed = (typeof item === 'string' ? item : (item.name || item.hoTen || '')).trim();
-                                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
-                            });
-                            const nameTracker = {};
                             return rawList.map((item, idx) => {
                                 const trimmed = (typeof item === 'string' ? item : (item.name || item.hoTen || `Học sinh ${idx + 1}`)).trim();
-                                let finalName = trimmed;
-                                if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
-                                    nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
-                                    finalName = `${trimmed} (${nameTracker[trimmed]})`;
-                                }
-                                return createStudentObject(idx, finalName, trimmed);
+                                return createStudentObject(idx, trimmed, trimmed);
                             });
                         }
                     }
                 } catch (_) { }
             }
-            const fbCounts = {};
-            DEFAULT_FALLBACK_STUDENTS.forEach(n => {
-                const t = (n || '').trim();
-                fbCounts[t] = (fbCounts[t] || 0) + 1;
-            });
-            const fbTracker = {};
-            return DEFAULT_FALLBACK_STUDENTS.map((name, idx) => {
-                const trimmed = (name || '').trim();
-                let finalName = trimmed;
-                if (fbCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
-                    fbTracker[trimmed] = (fbTracker[trimmed] || 0) + 1;
-                    finalName = `${trimmed} (${fbTracker[trimmed]})`;
-                }
-                return createStudentObject(idx, finalName, trimmed);
+            const fbList = typeof window.getClassStudents === 'function' ? window.getClassStudents(cls, '5_1') : [];
+            return fbList.map((name, idx) => {
+                const trimmed = String(name || '').trim();
+                return createStudentObject(idx, trimmed, trimmed);
             });
         }
 
@@ -3375,9 +3341,10 @@
         function saveAddHs() {
             const ta = document.getElementById('hs-input');
             if (ta && ta.value.trim()) {
-                ta.value.split('\n').map(s => s.trim()).filter(Boolean).forEach(name => {
+                ta.value.split('\n').map(s => s.trim()).filter(Boolean).forEach(raw => {
+                    const name = typeof window.formatUniqueStudentName === 'function' ? window.formatUniqueStudentName(raw, allStudents) : raw;
                     const idx = allStudents.length;
-                    allStudents.push(createStudentObject(idx, name, name));
+                    allStudents.push(createStudentObject(idx, name, raw));
                 });
                 ta.value = '';
             }

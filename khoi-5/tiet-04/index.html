@@ -8,7 +8,8 @@
 
     <script src="../../shared/js/confetti.js"></script>
 
-    <script src="../shared/components.js"></script>
+    <script src="../../assets/data/students_all_2026_2027.js"></script>
+    <script src="../../shared/js/ui-components.js"></script>
     <link rel="stylesheet" href="../shared/style.css">
     <style>
 .situation-box {
@@ -1092,12 +1093,7 @@
                     if (Array.isArray(list) && list.length) return list;
                 }
             } catch (err) { }
-            return [
-                'Ngô Phương Anh', 'Nguyễn Quốc Anh', 'Phạm Minh Anh', 'Đào Thiên Ân',
-                'Trương Gia Bảo', 'Nguyễn Trọng Đức', 'Đỗ Hoàng Hiếu', 'Nguyễn Nhật Huy',
-                'Dương Uyển Khanh', 'Trương Ngọc Lâm', 'Lâm Đường Vạn Lý', 'Mạc Kim Ngân',
-                'Chu Dương Bảo Như', 'Phương Phú Quý', 'Bùi Quốc Thành', 'Trần Bảo Vy'
-            ];
+            return typeof window.getClassStudents === 'function' ? window.getClassStudents(clsKey, '5_1') : [];
         }
 
         /* ================= KHỞI ĐỘNG SHARK TANK ================= */
@@ -1109,24 +1105,13 @@
 
             let rawList = await loadStudentList(currentClass);
 
-            const nameCounts = {};
-            rawList.forEach(name => {
-                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
-                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
-            });
-            const nameTracker = {};
             students = rawList.map((item, i) => {
                 const trimmed = (typeof item === 'string' ? item : (item.name || 'Học sinh ' + (i + 1))).trim();
-                let finalName = trimmed;
-                if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
-                    nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
-                    finalName = `${trimmed} (${nameTracker[trimmed]})`;
-                }
                 return {
                     id: i + 1,
-                    name: finalName,
+                    name: trimmed,
                     rawName: trimmed,
-                    displayName: finalName,
+                    displayName: trimmed,
                     team: null,
                     actions: []
                 };
@@ -1470,7 +1455,8 @@
             const text = document.getElementById('hs-input').value.trim();
             if (!text) { closeAddHs(); return; }
             const lines = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
-            lines.forEach(name => {
+            lines.forEach(raw => {
+                const name = typeof window.formatUniqueStudentName === 'function' ? window.formatUniqueStudentName(raw, students) : raw;
                 students.push({ id: ++nextStudentId, name, team: null, actions: [] });
             });
             refreshStudentSelects();

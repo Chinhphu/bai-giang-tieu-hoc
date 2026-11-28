@@ -8,7 +8,7 @@
 ## 🎯 1. NGUYÊN TẮC THIẾT KẾ CỐT LÕI
 
 1. **Phân tách ranh giới độc lập:**
-   * Không sửa đổi trang chủ gốc `index.html` và thư mục `games/`. Không tạo link dẫn từ trang chủ gốc sang `arena/`.
+   * Không sửa đổi thư mục `games/` và hệ thống bài giảng `khoi-1` - `khoi-5` (trang chủ gốc `index.html` đã được gỡ bỏ). Không tự ý gắn link dẫn từ `games/` hay bài giảng sang `arena/`.
    * Toàn bộ mã nguồn minigame mới nằm gọn trong `arena/`.
 2. **Kế thừa bộ lõi dùng chung (`arena/shared/`):**
    * `config.js`: Lưu cấu hình tập trung (`GAS_ENDPOINT`, `CSV_LEADERBOARD_URL`, `SECRET_SALT`, `SCHOOL_YEAR`).

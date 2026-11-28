@@ -16,7 +16,8 @@
 
     <script src="../../shared/js/confetti.js"></script>
 
-    <script src="../shared/components.js"></script>
+    <script src="../../assets/data/students_all_2026_2027.js"></script>
+    <script src="../../shared/js/ui-components.js"></script>
     <script src="../../shared/js/prevent-reload.js"></script>
     <script src="quests.js"></script>
 
@@ -604,7 +605,6 @@
         }
     </style>
     <script src="../../shared/js/core.js"></script>
-    <script src="quests.js"></script>
 </head>
 
 <body>
@@ -1529,29 +1529,13 @@
             const startScore = scoreInput ? Math.max(0, parseInt(scoreInput.value, 10) || STARTING_SCORE) : STARTING_SCORE;
 
             let list = await loadStudents(currentClass);
-            if (!list.length) {
-                list = [
-                    'Ngô Phương Anh', 'Nguyễn Quốc Anh', 'Phạm Minh Anh', 'Đào Thiên An',
-                    'Trương Gia Bảo', 'Nguyễn Trọng Đức', 'Đỗ Hoàng Hiếu', 'Nguyễn Nhật Huy',
-                    'Dương Uyên Khanh', 'Trương Ngọc Lâm', 'Lâm Dương Văn Ly', 'Mạc Kim Ngân',
-                    'Chu Dương Bảo Như', 'Phương Phú Quý', 'Bùi Quốc Thành', 'Trần Bảo Vy'
-                ];
+            if (!list.length && typeof window.getClassStudents === 'function') {
+                list = window.getClassStudents(currentClass, '5_1');
             }
 
-            const nameCounts = {};
-            list.forEach(name => {
-                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
-                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
-            });
-            const nameTracker = {};
             students = list.map((item, index) => {
                 const trimmed = (typeof item === 'string' ? item : (item.name || '')).trim();
-                let finalName = trimmed;
-                if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
-                    nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
-                    finalName = `${trimmed} (${nameTracker[trimmed]})`;
-                }
-                return { id: index + 1, name: finalName, rawName: trimmed, displayName: finalName, team: null, actions: [] };
+                return { id: index + 1, name: trimmed, rawName: trimmed, displayName: trimmed, team: null, actions: [] };
             });
             nextStudentId = students.length;
 
@@ -2308,27 +2292,15 @@
             }
         ];
 
-        /* Nạp quests.json nếu có server, tự động dùng quests.js (window.QUESTS_DATA) nếu chạy file:// */
-        async function loadQuestsFromJSON() {
-            try {
-                if (window.QUESTS_DATA) {
-                    if (Array.isArray(window.QUESTS_DATA.stage1) && window.QUESTS_DATA.stage1.length > 0) SCENARIOS_CH1 = window.QUESTS_DATA.stage1;
-                    if (Array.isArray(window.QUESTS_DATA.stage2) && window.QUESTS_DATA.stage2.length > 0) SCENARIOS_CH2 = window.QUESTS_DATA.stage2;
-                    if (Array.isArray(window.QUESTS_DATA.stage3) && window.QUESTS_DATA.stage3.length > 0) SCENARIOS_CH3 = window.QUESTS_DATA.stage3;
-                }
-                const res = await fetch('quests.json');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (Array.isArray(data.stage1) && data.stage1.length > 0) SCENARIOS_CH1 = data.stage1;
-                    if (Array.isArray(data.stage2) && data.stage2.length > 0) SCENARIOS_CH2 = data.stage2;
-                    if (Array.isArray(data.stage3) && data.stage3.length > 0) SCENARIOS_CH3 = data.stage3;
-                    console.log('✅ Đã nạp thành công ngân hàng tình huống từ quests.json!');
-                }
-            } catch (err) {
-                console.warn('Dùng ngân hàng tình huống tích hợp sẵn (fallback khi mở file://):', err);
+        /* Nạp ngân hàng tình huống từ quests.js (window.QUESTS_DATA) */
+        function loadQuestsFromData() {
+            if (window.QUESTS_DATA) {
+                if (Array.isArray(window.QUESTS_DATA.stage1) && window.QUESTS_DATA.stage1.length > 0) SCENARIOS_CH1 = window.QUESTS_DATA.stage1;
+                if (Array.isArray(window.QUESTS_DATA.stage2) && window.QUESTS_DATA.stage2.length > 0) SCENARIOS_CH2 = window.QUESTS_DATA.stage2;
+                if (Array.isArray(window.QUESTS_DATA.stage3) && window.QUESTS_DATA.stage3.length > 0) SCENARIOS_CH3 = window.QUESTS_DATA.stage3;
             }
         }
-        loadQuestsFromJSON();
+        loadQuestsFromData();
 
         function initBalancedCaseData() {
             const N = teams.length;
@@ -2738,11 +2710,12 @@
                 return;
             }
 
-            lines.forEach(name => {
+            lines.forEach(raw => {
+                const name = typeof window.formatUniqueStudentName === 'function' ? window.formatUniqueStudentName(raw, students) : raw;
                 students.push({
                     id: ++nextStudentId,
                     name: name,
-                    rawName: name,
+                    rawName: raw,
                     displayName: name,
                     team: null,
                     actions: []

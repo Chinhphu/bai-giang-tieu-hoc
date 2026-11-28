@@ -11,7 +11,7 @@
 
     <!-- Báo cáo CSV theo chuẩn đánh giá năng lực học sinh -->
 
-    <script src="../shared/components.js"></script>
+    <script src="../../assets/data/students_all_2026_2027.js"></script>
 
     <style>
         /* ================= TÙY BIẾN GIAO DIỆN THỰC HÀNH KHỐI 4 ================= */
@@ -588,7 +588,7 @@
                             </div>
 
                             <div class="quest-grid" id="questBoxesGrid">
-                                <!-- Rendered by JS từ quests.json -->
+                                <!-- Rendered by JS từ quests.js -->
                             </div>
                         </div>
 
@@ -920,95 +920,6 @@
         const studentTrackingMap = new Map(); // studentId -> Detailed Performance
         const turnHistoryLogs = []; // Danh sách toàn bộ các lượt tìm kiếm
 
-        // Fallback học sinh nếu không tải được file JSON qua fetch (vd mở bằng file://)
-        const FALLBACK_STUDENTS = [
-            "Nguyễn Trung An", "Hồ Nhựt Anh", "Lý Ngọc Hà Anh", "Tống Nguyễn Bảo Anh", "Trần Lưu Ngọc Anh",
-            "Trần Mai Mỹ Anh", "Trần Ngọc Vy Anh", "Bùi Ngọc Bách", "Nguyễn Minh Châu", "Trần Bảo Châu",
-            "Vũ Hoàng Kim Chi", "Đoàn Quang Trí Dũng", "Nguyễn Minh Đạt", "Hồ Minh Đức", "Hà Thu Hòa",
-            "Trần Anh Hòa", "Nguyễn Lê Khang", "Phạm Tuấn Khang", "Nguyễn Minh Khôi", "Hình Nhật Ngọc Lâm",
-            "Ngô Hoàng Long", "Trần Minh Mẫn", "Dương Ngọc Quý Minh", "Nguyễn Dương Minh Minh", "Phạm Ngọc Khánh My",
-            "Dương Khánh Nam", "Phan Kim Ngân", "Huỳnh Phương Yến Ngọc", "Hoàng Phúc Nhã", "Phan Võ Minh Nhân",
-            "Lâm Thành Nhất", "Nguyễn Huỳnh Nhi", "Lăng Nguyễn Hồng Nhung", "Trần Đức Phát", "Quách Gia Phú",
-            "Ngô Quang Phúc", "Nguyễn Lê Đại Phúc", "Nguyễn Xuân Phúc", "Đặng Nguyễn Phương Quỳnh", "Từ Anh Thy",
-            "Huỳnh Lâm Mộc Trà", "Trần Cao Thanh Trà", "Trần Minh Triết", "Lê Hoàng Phú Trọng", "Nguyễn Phú Trọng",
-            "Danh Thanh Vân", "Nguyễn Ngọc Bạch Vân", "La Tường Vi", "Đặng Ngọc Vy", "Lê Trần Phương Vy"
-        ];
-
-        // Fallback Quests đề phòng fetch quests.json bị chặn bởi CORS cục bộ
-        const FALLBACK_QUESTS = [
-            {
-                id: 1, icon: "⛏️", title: "Game Minecraft", sub: "Công thức chế tạo", tag: "game",
-                q: "Trong game <em>Minecraft</em>, để chế tạo ra một chiếc <strong>Bàn Phù Phép (Enchanting Table)</strong>, người chơi cần có <strong>1 quyển sách</strong>, <strong>mấy viên kim cương</strong> và <strong>mấy khối Hắc diện thạch (Obsidian)</strong>?",
-                answer: "Cần <strong>2 viên kim cương</strong> và <strong>4 khối Hắc diện thạch (Obsidian)</strong> (cùng với 1 quyển sách).",
-                keywords: "chế tạo bàn phù phép minecraft"
-            },
-            {
-                id: 2, icon: "🧱", title: "Game Roblox", sub: "Lịch sử phát triển", tag: "game",
-                q: "Trò chơi <em>Roblox</em> được chính thức phát hành vào <strong>năm nào</strong> và hai nhà sáng lập ra nó tên là <strong>David Baszucki</strong> cùng với ai?",
-                answer: "Phát hành năm <strong>2006</strong>. Đồng sáng lập là David Baszucki và <strong>Erik Cassel</strong>.",
-                keywords: "lịch sử phát hành roblox wikipedia"
-            },
-            {
-                id: 3, icon: "🐱", title: "Hoạt hình Doraemon", sub: "Hồ sơ nhân vật", tag: "comic",
-                q: "Chú mèo máy <em>Doraemon</em> ra đời ở thế kỷ 22 vào <strong>ngày tháng năm nào</strong> và có <strong>chiều cao chính xác là bao nhiêu cm</strong>?",
-                answer: "Sinh ngày <strong>3 tháng 9 năm 2112</strong>, chiều cao <strong>129,3 cm</strong> (nặng 129,3 kg).",
-                keywords: "ngày sinh chiều cao Doraemon"
-            },
-            {
-                id: 4, icon: "🕵️", title: "Thám tử Conan", sub: "Tác giả & Nhân vật", tag: "comic",
-                q: "Bộ truyện tranh <em>Thám tử lừng danh Conan</em> do <strong>tác giả nào</strong> sáng tác và tên thật của cậu thám tử trung học bị teo nhỏ thành Conan là gì?",
-                answer: "Tác giả <strong>Aoyama Gosho</strong>. Tên thật của Conan là <strong>Kudo Shinichi</strong>.",
-                keywords: "tác giả thám tử lừng danh Conan"
-            },
-            {
-                id: 5, icon: "🐢", title: "Hồ Gươm (SGK)", sub: "Thực hành SGK Mục 2", tag: "sgk",
-                q: "Theo bài Thực hành SGK, <strong>Hồ Gươm</strong> còn có tên gọi khác là gì và gắn với truyền thuyết vị vua nào trả gươm báu cho Rùa thần?",
-                answer: "Tên gọi khác là <strong>Hồ Hoàn Kiếm</strong>, gắn với truyền thuyết vua <strong>Lê Lợi (Lê Thái Tổ)</strong> trả gươm báu.",
-                keywords: "truyền thuyết lịch sử Hồ Gươm"
-            },
-            {
-                id: 6, icon: "🎓", title: "Văn Miếu (SGK)", sub: "Luyện tập SGK Câu 2", tag: "sgk",
-                q: "Di tích <strong>Văn Miếu – Quốc Tử Giám</strong> tại Hà Nội được xây dựng vào <strong>năm nào</strong> và hiện còn lưu giữ <strong>bao nhiêu tấm bia Tiến sĩ</strong>?",
-                answer: "Xây dựng năm <strong>1070</strong> (thời vua Lý Thánh Tông), hiện lưu giữ <strong>82 tấm bia Tiến sĩ</strong>.",
-                keywords: "năm xây dựng Văn Miếu Quốc Tử Giám"
-            },
-            {
-                id: 7, icon: "⛩️", title: "Cổng Tam Quan", sub: "Vận dụng Địa phương 1", tag: "sgk",
-                q: "Biểu tượng <strong>Cổng Tam Quan</strong> ở thành phố Rạch Giá được xây dựng vào <strong>năm nào</strong> và nằm trên <strong>con đường nào</strong>?",
-                answer: "Xây dựng năm <strong>1955</strong>, nằm trên đường <strong>Nguyễn Trung Trực</strong> (giao với đường Lạc Hồng).",
-                keywords: "Cổng Tam Quan Rạch Giá năm xây dựng"
-            },
-            {
-                id: 8, icon: "🏛️", title: "Đền Nguyễn Trung Trực", sub: "Vận dụng Địa phương 2", tag: "sgk",
-                q: "<strong>Đền thờ Anh hùng dân tộc Nguyễn Trung Trực</strong> tại Rạch Giá nằm trên <strong>đường nào</strong> và tổ chức lễ hội truyền thống vào <strong>tháng mấy âm lịch</strong> hàng năm?",
-                answer: "Nằm trên đường <strong>Nguyễn Công Trứ</strong> (phường Vĩnh Thanh), lễ hội vào <strong>tháng 8 âm lịch</strong> (26 - 28/8).",
-                keywords: "đền Nguyễn Trung Trực Rạch Giá"
-            },
-            {
-                id: 9, icon: "🏺", title: "Bảo tàng Dân tộc học", sub: "Câu hỏi SGK trang 20", tag: "sgk",
-                q: "<strong>Bảo tàng Dân tộc học Việt Nam</strong> nằm ở <strong>quận nào của thủ đô Hà Nội</strong> và trưng bày văn hóa của <strong>bao nhiêu dân tộc</strong> anh em?",
-                answer: "Nằm ở <strong>quận Cầu Giấy</strong> (Hà Nội), trưng bày văn hóa của <strong>54 dân tộc</strong> Việt Nam.",
-                keywords: "Bảo tàng Dân tộc học Việt Nam ở đâu"
-            },
-            {
-                id: 10, icon: "👑", title: "Các đời Vua Hùng", sub: "Khởi động SGK trang 19", tag: "sgk",
-                q: "Theo lịch sử dựng nước, các <strong>Vua Hùng</strong> đã đặt tên nước đầu tiên của dân tộc ta là gì và đóng đô ở <strong>Phong Châu</strong> (thuộc tỉnh nào ngày nay)?",
-                answer: "Tên nước là <strong>Văn Lang</strong>, đóng đô ở Phong Châu thuộc tỉnh <strong>Phú Thọ</strong> ngày nay.",
-                keywords: "nhà nước Văn Lang các vua Hùng"
-            },
-            {
-                id: 11, icon: "⚡", title: "Pokémon Pikachu", sub: "Thế giới Hoạt hình & Game", tag: "game",
-                q: "Trong thế giới <em>Pokémon</em>, nhân vật <strong>Pikachu</strong> mang số thứ tự <strong>bao nhiêu</strong> trong từ điển Pokédex và khi tiến hóa sẽ biến thành Pokémon tên là gì?",
-                answer: "Mang số thứ tự <strong>#025</strong> (số 25) trong Pokédex, khi tiến hóa biến thành <strong>Raichu</strong>.",
-                keywords: "Pikachu số mấy tiến hóa thành gì"
-            },
-            {
-                id: 12, icon: "🦁", title: "Kỷ lục Động Vật", sub: "Khám phá Tự nhiên", tag: "comic",
-                q: "Loài động vật chạy nhanh nhất trên cạn là <strong>Báo săn (Cheetah)</strong> có thể đạt vận tốc tối đa <strong>bao nhiêu km/h</strong>? Còn loài chim chạy nhanh nhất là con gì?",
-                answer: "Báo săn đạt tốc độ <strong>100 – 120 km/h</strong>. Loài chim chạy nhanh nhất là <strong>Đà điểu châu Phi</strong> (khoảng 70 km/h).",
-                keywords: "vận tốc báo săn và chim chạy nhanh nhất"
-            }
-        ];
 
         /* ================= KHỞI TẠO ỨNG DỤNG ================= */
         async function initApp() {
@@ -1029,20 +940,13 @@
             if (el) el.textContent = str;
         }
 
-        /* 2. Nạp file Quests riêng từ quests.json */
+        /* 2. Nạp ngân hàng Quests trực tiếp từ quests.js */
         async function loadQuests() {
-            try {
-                const res = await fetch('./quests.json');
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                const data = await res.json();
-                if (Array.isArray(data) && data.length > 0) {
-                    QUESTS = data;
-                    return;
-                }
-            } catch (err) {
-                console.warn('Không tải được quests.json trực tiếp (có thể do mở file://), dùng fallback tích hợp:', err);
+            if (Array.isArray(window.QUESTS_DATA) && window.QUESTS_DATA.length > 0) {
+                QUESTS = window.QUESTS_DATA;
+            } else {
+                QUESTS = [];
             }
-            QUESTS = FALLBACK_QUESTS;
         }
 
         /* 3. Nạp danh sách học sinh của lớp */
@@ -1056,27 +960,16 @@
                     if (Array.isArray(data[classId])) names = data[classId];
                 }
             } catch (e) {
-                names = FALLBACK_STUDENTS;
+                names = typeof window.getClassStudents === 'function' ? window.getClassStudents(classId, '4_1') : [];
             }
-            if (!names || names.length === 0) names = FALLBACK_STUDENTS;
+            if (!names || names.length === 0) names = typeof window.getClassStudents === 'function' ? window.getClassStudents(classId, '4_1') : [];
 
-            const nameCounts = {};
-            names.forEach(name => {
-                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
-                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
-            });
-            const nameTracker = {};
             classStudents = names.map((name, i) => {
                 const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
-                let finalName = trimmed;
-                if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
-                    nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
-                    finalName = `${trimmed} (${nameTracker[trimmed]})`;
-                }
                 return {
                     id: `${classId}_${i + 1}`,
                     index: i + 1,
-                    name: finalName,
+                    name: trimmed,
                     rawName: trimmed,
                     classId: classId
                 };

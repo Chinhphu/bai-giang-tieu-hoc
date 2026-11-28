@@ -5,17 +5,17 @@ Các bài giảng có cùng khung lớp học theo chuẩn Tiết 07. Nội dung
 ## Thành phần hiện có
 
 - `style.css`: giao diện cơ sở và kiểu cho khung cài đặt, sidebar, slide, bảng điểm, modal và màn hình tổng kết.
-- `components.js`: Web Components dùng cho cài đặt (`<khoi5-setup>`), sidebar (`<khoi5-sidebar>`), modal danh sách học sinh (`<khoi5-student-modal>`) và màn hình tổng kết (`<khoi5-summary>`); hỗ trợ bộ chọn lớp linh hoạt từ Khối 1 đến Khối 5 phục vụ nhu cầu đảo bài/dạy chéo khối; đồng thời cung cấp `toast(message, duration, background)` dùng chung.
-- `audio.js`, `slides.js`, `scoreboard.js`, `students.js`, `gacha.js`, `utils.js`, `tracker.js`: các module chức năng độc lập. Chỉ sử dụng module khi trang nạp trực tiếp tệp đó và tích hợp đúng API của module; `core.js` hiện là bundle độc lập, không tự được các trang nạp.
-- `template.html`: khung tạo tiết mới; thay thông tin bài học và nội dung slide, không sao chép lại markup cài đặt/sidebar.
+- Web Components & tiện ích dùng chung (`../../shared/js/core.js`, `../../shared/js/ui-components.js`, `../../shared/js/prevent-reload.js`): hỗ trợ `<lesson-*>` và alias `<khoi5-setup>`, `<khoi5-sidebar>`, `<khoi5-student-modal>`, `<khoi5-summary>`, bộ chọn lớp đa khối 1–5, toast và xuất CSV.
+- Khung tạo tiết mới chuẩn dùng chung tại `../../shared/template.html`.
 
 ## Cách dùng component
 
-Nạp CSS và component script trong `<head>` của trang tiết:
+Nạp CSS và script trong `<head>` của trang tiết:
 
 ```html
 <link rel="stylesheet" href="../shared/style.css">
-<script src="../shared/components.js"></script>
+<script src="../../shared/js/core.js"></script>
+<script src="../../shared/js/ui-components.js"></script>
 ```
 
 Đặt component cài đặt trong `<body>`. Thuộc tính nội dung cho phép cấu hình nhãn và lựa chọn mặc định theo từng tiết:

@@ -26,9 +26,8 @@ Giao diện dùng chung hỗ trợ cuộn nội dung dài, bố cục màn hình
 khoi-1/shared/
 ├── style.css         # Màu sắc, nút bấm, sidebar, bố cục co giãn (cho phép menu điều khiển ẩn/hiện bằng nút Hamburger ☰) và hỗ trợ màn hình nhỏ
 ├── gacha.js          # Hệ thống Popup Vòng quay Gacha 6 chế độ & Bộ âm thanh Web Audio API
-├── components.js     # Danh sách lớp, lưu trạng thái, widget cầm chuột, xuất Excel/CSV
-├── template.html     # Khung tham khảo để tạo trang tiết mới
-└── README.md         # Hướng dẫn kiến trúc và sử dụng API
+├── components.js     # Sidebar Khối 1 (<khoi1-sidebar>), widget cầm chuột, lưu trạng thái, xuất CSV
+└── README.md         # Hướng dẫn kiến trúc và sử dụng API (Khung mẫu chuẩn xem tại ../../shared/template.html)
 ```
 
 ---

@@ -23,21 +23,18 @@ Học sinh Khối 4 (9 tuổi) đã có tư duy logic phát triển, khả năng
 ```text
 khoi-4/
 ├── shared/
-│   ├── components.js     # Chống reload, Toast UI chuẩn Khối 4, upload CSV đồng bộ Drive
 │   └── README.md         # Cẩm nang kiến trúc và quy chuẩn Khối 4 (File này)
 ├── theme/
 │   └── style.css         # Theme CSS định danh chuẩn Khối 4 (Be Vietnam Pro, Navy, Grid 2 cột)
 ├── tiet-01/ ... tiet-35/ # Thư mục từng tiết học (index.html, quests.js)
 ```
 
-### Thành phần có sẵn trong `components.js`:
-1. **Module Chống Reload Tự Động (`prevent-reload`):** Tự động khóa phím `F5`, `Ctrl+R`, `Alt+Mũi tên`, `Backspace` ngoài ô nhập, và khóa chuột phải. Cung cấp hàm `window.allowPageReload()` khi cần làm mới trang có chủ đích.
-2. **Hệ thống Toast Khối 4:**
-   - `window.toast(message, duration, background)`: Hiển thị thông báo bo tròn viên thuốc nổi bật trên đầu màn hình với font *Be Vietnam Pro*.
-   - `window.showToast(message, type)`: Hiển thị nhanh theo type (`ok`, `warn`, `bad`, `info`).
-3. **Đồng bộ CSV lên Google Drive:**
-   - `window.uploadCsvToDrive(data, fileName)`: Tự động mã hóa Base64 và đẩy lên Google Apps Script Web App, fallback tự tải file về máy giáo viên nếu offline.
-   - `window.uploadExcelToDrive`: Bridge tương thích ngược, tự động gọi `uploadCsvToDrive`.
+### Thành phần dùng chung từ thư mục gốc (`../../shared/`):
+1. **Module Chống Reload Tự Động (`../../shared/js/prevent-reload.js`):** Tự động khóa phím `F5`, `Ctrl+R`, `Alt+Mũi tên`, `Backspace` ngoài ô nhập, và khóa chuột phải (giữ `Shift` cho giáo viên). Cung cấp hàm `window.allowPageReload()`.
+2. **Hệ thống Toast & Học Sinh & Báo Cáo CSV (`../../shared/js/core.js`):**
+   - `window.toast(message, duration, background)` & `window.showToast(message, type)`.
+   - `window.uploadCsvToDrive(data, fileName)` (và alias `window.uploadExcelToDrive`).
+   - `window.getClassStudents(classId, '4_1')` & `../../assets/data/students_all_2026_2027.js`.
 
 ---
 

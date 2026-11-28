@@ -10,7 +10,7 @@
     <script src="../../shared/js/confetti.js"></script>
 
     <link rel="stylesheet" href="../shared/style.css">
-    <script src="../shared/components.js"></script>
+    <script src="../../assets/data/students_all_2026_2027.js"></script>
     <script src="../../shared/js/prevent-reload.js"></script>
     <script src="../../shared/js/core.js"></script>
     <script src="quests.js"></script>
@@ -123,7 +123,6 @@
            A. DỮ LIỆU CẤU HÌNH - THẦY CÔ CHỈNH Ở ĐÂY
            ===================================================================== */
         const STUDENT_JSON = '../../assets/data/students_3_2026_2027.json';   // dạng { "3_2": ["Tên", ...], "3_3": [...] }
-        const QUESTION_JSON = './quests.json';   // ngân hàng câu hỏi nằm CẠNH file HTML này (quests.json hoặc cau-hoi-bai-3.json)
         // Quà đầu giờ (Phase 1): mỗi tổ nhận GIFT_MIN..GIFT_MAX món; mỗi món có GIFT_CORE_RATE khả năng là Core (tối đa 2 Core/tổ)
         const GIFT_MIN = 3, GIFT_MAX = 4, GIFT_CORE_RATE = 0.25;
         const GACHA_BOXES = 6;   // số thùng hàng (đánh số) học sinh được chọn sau khi trả lời đúng; tỉ lệ rớt vẫn theo DROP_RATE
@@ -145,7 +144,7 @@
         const DROP_RATE = [0.50, 0.40, 0.30, 0.12];
 
         /* ---------------------------------------------------------------------
-           NGÂN HÀNG CÂU HỎI: sửa trong file cau-hoi-bai-3.json (xem dòng "_huongdan" trong file).
+           NGÂN HÀNG CÂU HỎI: sửa trong file quests.js đặt cạnh trang này.
            Chỉ có MỘT ngân hàng chung, game tự sắp theo "lv" (1 dễ -> 3 khó): rút hết câu dễ rồi mới tới câu khó.
            --------------------------------------------------------------------- */
 
@@ -249,20 +248,9 @@
             const cls = $('classSel').value, names = G.classes[cls] || [];
             if (!names.length) return alert('Lớp này chưa có học sinh!');
             G.cls = cls; G.teams = Array.from({ length: +$('teamCount').value }, (_, i) => newTeam(i));
-            const nameCounts = {};
-            names.forEach(name => {
-                const trimmed = (typeof name === 'string' ? name : (name.name || '')).trim();
-                nameCounts[trimmed] = (nameCounts[trimmed] || 0) + 1;
-            });
-            const nameTracker = {};
             G.students = names.map((nm, i) => {
                 const trimmed = (typeof nm === 'string' ? nm : (nm.name || '')).trim();
-                let finalName = trimmed;
-                if (nameCounts[trimmed] > 1 && !/\s*\([0-9A-Za-z]+\)$/.test(trimmed)) {
-                    nameTracker[trimmed] = (nameTracker[trimmed] || 0) + 1;
-                    finalName = `${trimmed} (${nameTracker[trimmed]})`;
-                }
-                return { id: i, name: finalName, rawName: trimmed, displayName: finalName, team: null, correct: 0, total: 0 };
+                return { id: i, name: trimmed, rawName: trimmed, displayName: trimmed, team: null, correct: 0, total: 0 };
             });
             G.nextId = names.length; G.used = new Set();
             G.phase = 1; G.turn = 0; G.log = []; G.won = false; G.gifts = null; G.pool = G.bank.slice();
@@ -711,7 +699,8 @@
         function addStudent() {                           // thêm em mới (chưa có tổ) - sẽ gán tổ khi em trả lời hoặc ở màn Tổng kết
             if (!G.teams.length) return;
             const n = prompt('Nhập tên học sinh cần thêm:'); if (!n || !n.trim()) return;
-            G.students.push({ id: G.nextId++, name: n.trim(), team: null, correct: 0, total: 0 }); if (G.phase === 2) refreshTurnUI();
+            const uniqueName = typeof window.formatUniqueStudentName === 'function' ? window.formatUniqueStudentName(n, G.students) : n.trim();
+            G.students.push({ id: G.nextId++, name: uniqueName, team: null, correct: 0, total: 0 }); if (G.phase === 2) refreshTurnUI();
         }
 
         /* =====================================================================

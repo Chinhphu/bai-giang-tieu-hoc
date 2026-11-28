@@ -5,10 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bài 4: Tìm Kiếm Thông Tin Trên Internet – Đấu Trường Gỡ Bom (Tin Học 4)</title>
-
-
-
-
+    <link rel="stylesheet" href="../../shared/css/core.css">
     <style>
         :root {
             --ink: #0f172a;
@@ -930,8 +927,9 @@
         }
     </style>
     <script src="../../shared/js/prevent-reload.js"></script>
+    <script src="../../assets/data/students_all_2026_2027.js"></script>
     <script src="../../shared/js/core.js"></script>
-    <script src="questions.js"></script>
+    <script src="quests.js"></script>
 </head>
 
 <body>
@@ -1602,20 +1600,7 @@
         let QUESTIONS = (window.QUESTS_DATA && Array.isArray(window.QUESTS_DATA)) ? window.QUESTS_DATA : [];
         let activeBombLimit = 5;
 
-        const FALLBACK_STUDENTS = {
-            "4_1": [
-                "Nguyễn Trung An", "Hồ Nhựt Anh", "Lý Ngọc Hà Anh", "Tống Nguyễn Bảo Anh", "Trần Lưu Ngọc Anh",
-                "Trần Mai Mỹ Anh", "Trần Ngọc Vy Anh", "Bùi Ngọc Bách", "Nguyễn Minh Châu", "Trần Bảo Châu",
-                "Vũ Hoàng Kim Chi", "Đoàn Quang Trí Dũng", "Nguyễn Minh Đạt", "Hồ Minh Đức", "Hà Thu Hòa",
-                "Trần Anh Hòa", "Nguyễn Lê Khang", "Phạm Tuấn Khang", "Nguyễn Minh Khôi", "Hình Nhật Ngọc Lâm",
-                "Ngô Hoàng Long", "Trần Minh Mẫn", "Dương Ngọc Quý Minh", "Nguyễn Dương Minh Minh", "Phạm Ngọc Khánh My",
-                "Dương Khánh Nam", "Phan Kim Ngân", "Huỳnh Phương Yến Ngọc", "Hoàng Phúc Nhã", "Phan Võ Minh Nhân",
-                "Lâm Thành Nhất", "Nguyễn Huỳnh Nhi", "Lăng Nguyễn Hồng Nhung", "Trần Đức Phát", "Quách Gia Phú",
-                "Ngô Quang Phúc", "Nguyễn Lê Đại Phúc", "Nguyễn Xuân Phúc", "Đặng Nguyễn Phương Quỳnh", "Từ Anh Thy",
-                "Huỳnh Lâm Mộc Trà", "Trần Cao Thanh Trà", "Trần Minh Triết", "Lê Hoàng Phú Trọng", "Nguyễn Phú Trọng",
-                "Danh Thanh Vân", "Nguyễn Ngọc Bạch Vân", "La Tường Vi", "Đặng Ngọc Vy", "Lê Trần Phương Vy"
-            ]
-        };
+        const FALLBACK_STUDENTS = window.SCHOOL_STUDENTS_2026_2027 || {};
 
         const TEAM_COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#a855f7', '#ec4899'];
         const WIRE_COLORS = ['#ef4444', '#3b82f6', '#eab308', '#10b981', '#a855f7', '#f97316'];
@@ -1814,16 +1799,9 @@
 
         /* ================= 3. LOGIC CẮT DÂY BOM & CÔNG BỐ ĐÁP ÁN ================= */
         async function loadQuestions() {
-            try {
-                const response = await fetch('./questions.json');
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const data = await response.json();
-                if (Array.isArray(data) && data.length >= 8) {
-                    QUESTIONS = data;
-                    return;
-                }
-            } catch (e) {
-                console.warn('Sử dụng bộ 8 quả bom x 12 dây tích hợp sẵn:', e);
+            if (Array.isArray(window.QUESTS_DATA) && window.QUESTS_DATA.length >= 8) {
+                QUESTIONS = window.QUESTS_DATA;
+                return;
             }
             QUESTIONS = DEFAULT_QUESTIONS;
         }
@@ -2256,15 +2234,7 @@
                 name: (name || '').trim()
             }));
 
-            // Đánh dấu nhận biết học sinh trùng cả họ và tên trong lớp
-            const nameCounts = {};
-            classStudents.forEach(s => {
-                nameCounts[s.name] = (nameCounts[s.name] || 0) + 1;
-            });
-            classStudents.forEach(s => {
-                s.isDuplicateName = (nameCounts[s.name] > 1);
-                s.displayName = s.isDuplicateName && !/\s*\([0-9A-Za-z]+\)$/.test(s.name) ? `${s.name} [STT ${s.index}]` : s.name;
-            });
+            classStudents.forEach(s => { s.isDuplicateName = false; s.displayName = s.name; });
 
             calledStudents = calledStudentsByClass[classId] || new Set();
             calledStudentsByClass[classId] = calledStudents;
